@@ -2,7 +2,8 @@ scriptname {
 	json[
 		{
 			"action": "TEST_ACTION",
-			"expected_bool": false,
+			"expected_bool": false
 		}
 	]
+	return;
 }

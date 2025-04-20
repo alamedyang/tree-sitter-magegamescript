@@ -9,8 +9,17 @@
 
 module.exports = grammar({
 	name: "magegamescript",
+	extras: $ => [
+		/\n/,
+		/\t/,
+		/\s/,
+		$.block_comment,
+		$.line_comment,
+	],
 	rules: {
 		source_file: $ => repeat($._root),
+		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
+		line_comment: $ => token(seq('//', repeat(/./), '\n',)),
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		_bareword: $ => choice($.BAREWORD, $.CONSTANT),
 		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
@@ -162,12 +171,19 @@ module.exports = grammar({
 		),
 		script_literal: $ => seq(
 			'{',
-			repeat($.script_item),
+			repeat($._script_item),
 			'}'
 		),
-		script_item: $ => choice(
+		_script_item: $ => choice(
 			$.json_literal,
+			$.label,
+			seq($._action_item, ';'),
 		),
+		label: $ => seq(field('label', $.BAREWORD), ':'),
+		_action_item: $ => choice(
+			$.return_statement,
+		),
+		return_statement: $ => token('return'),
 		json_literal: $ => seq(
 			'json',
 			$.json_array,
@@ -200,15 +216,15 @@ module.exports = grammar({
 		json_object: $ => seq(
 			'{',
 			optional(seq(
-				$.json_property_value_pair,
-				repeat(seq(',', $.json_property_value_pair)),
+				$.json_name_value_pair,
+				repeat(seq(',', $.json_name_value_pair)),
 			)),
 			'}'
 		),
-		json_property_value_pair: $ => seq(
+		json_name_value_pair: $ => seq(
 			field('property', $.QUOTED_STRING),
 			':',
 			field('value', $._json_item),
 		)
-	}
+	},
 });

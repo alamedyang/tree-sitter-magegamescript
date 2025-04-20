@@ -9,6 +9,52 @@
         "name": "_root"
       }
     },
+    "block_comment": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "/*"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "PATTERN",
+              "value": "."
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "*/"
+          }
+        ]
+      }
+    },
+    "line_comment": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "//"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "PATTERN",
+              "value": "."
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "\n"
+          }
+        ]
+      }
+    },
     "BAREWORD": {
       "type": "TOKEN",
       "content": {
@@ -1009,7 +1055,7 @@
           "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "script_item"
+            "name": "_script_item"
           }
         },
         {
@@ -1018,14 +1064,64 @@
         }
       ]
     },
-    "script_item": {
+    "_script_item": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
           "name": "json_literal"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "label"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_action_item"
+            },
+            {
+              "type": "STRING",
+              "value": ";"
+            }
+          ]
         }
       ]
+    },
+    "label": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "BAREWORD"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ":"
+        }
+      ]
+    },
+    "_action_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "return_statement"
+        }
+      ]
+    },
+    "return_statement": {
+      "type": "TOKEN",
+      "content": {
+        "type": "STRING",
+        "value": "return"
+      }
     },
     "json_literal": {
       "type": "SEQ",
@@ -1172,7 +1268,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "json_property_value_pair"
+                  "name": "json_name_value_pair"
                 },
                 {
                   "type": "REPEAT",
@@ -1185,7 +1281,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "json_property_value_pair"
+                        "name": "json_name_value_pair"
                       }
                     ]
                   }
@@ -1203,7 +1299,7 @@
         }
       ]
     },
-    "json_property_value_pair": {
+    "json_name_value_pair": {
       "type": "SEQ",
       "members": [
         {
@@ -1232,7 +1328,23 @@
   "extras": [
     {
       "type": "PATTERN",
+      "value": "\\n"
+    },
+    {
+      "type": "PATTERN",
+      "value": "\\t"
+    },
+    {
+      "type": "PATTERN",
       "value": "\\s"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "block_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "line_comment"
     }
   ],
   "conflicts": [],
