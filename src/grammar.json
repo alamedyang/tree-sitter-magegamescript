@@ -1,0 +1,205 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
+  "name": "magegamescript",
+  "rules": {
+    "source_file": {
+      "type": "REPEAT",
+      "content": {
+        "type": "SYMBOL",
+        "name": "_root"
+      }
+    },
+    "_STRING": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "QUOTED_STRING"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "BAREWORD"
+        }
+      ]
+    },
+    "QUOTED_STRING": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "\"(?:[^\"\\\\]|\\\\.)*\""
+      }
+    },
+    "CONSTANT": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "\\$[_a-zA-Z0-9]+"
+      }
+    },
+    "BAREWORD": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[_a-zA-Z][_a-zA-Z0-9]*"
+      }
+    },
+    "NUMBER": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+"
+      }
+    },
+    "DURATION": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+(m?s)?"
+      }
+    },
+    "DISTANCE": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+(px|pix)?"
+      }
+    },
+    "QUANTITY": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "once|twice|thrice|[0-9]+(x)?"
+      }
+    },
+    "COLOR": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9]{3,6}"
+      }
+    },
+    "_NUMBERISH": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "NUMBER"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "DURATION"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "DISTANCE"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "QUANTITY"
+        }
+      ]
+    },
+    "BOOLEAN": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "true|false|on|off|open|closed"
+      }
+    },
+    "_root": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "include_macro"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "constant_assignment"
+        }
+      ]
+    },
+    "include_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "include"
+        },
+        {
+          "type": "FIELD",
+          "name": "fileName",
+          "content": {
+            "type": "SYMBOL",
+            "name": "QUOTED_STRING"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "constant_assignment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "CONSTANT"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_STRING"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_NUMBERISH"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "BOOLEAN"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "COLOR"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "CONSTANT"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    }
+  },
+  "extras": [
+    {
+      "type": "PATTERN",
+      "value": "\\s"
+    }
+  ],
+  "conflicts": [],
+  "precedences": [],
+  "externals": [],
+  "inline": [],
+  "supertypes": []
+}

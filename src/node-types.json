@@ -1,0 +1,144 @@
+[
+  {
+    "type": "constant_assignment",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "BOOLEAN",
+            "named": true
+          },
+          {
+            "type": "COLOR",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DISTANCE",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUANTITY",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "include_macro",
+    "named": true,
+    "fields": {
+      "fileName": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "source_file",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "constant_assignment",
+          "named": true
+        },
+        {
+          "type": "include_macro",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": ";",
+    "named": false
+  },
+  {
+    "type": "=",
+    "named": false
+  },
+  {
+    "type": "BAREWORD",
+    "named": true
+  },
+  {
+    "type": "BOOLEAN",
+    "named": true
+  },
+  {
+    "type": "COLOR",
+    "named": true
+  },
+  {
+    "type": "CONSTANT",
+    "named": true
+  },
+  {
+    "type": "DISTANCE",
+    "named": true
+  },
+  {
+    "type": "DURATION",
+    "named": true
+  },
+  {
+    "type": "NUMBER",
+    "named": true
+  },
+  {
+    "type": "QUANTITY",
+    "named": true
+  },
+  {
+    "type": "QUOTED_STRING",
+    "named": true
+  },
+  {
+    "type": "include",
+    "named": false
+  }
+]

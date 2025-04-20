@@ -1,0 +1,3 @@
+include "header.mgs";
+$trombones = 76;
+$hambugers = "Steamed Hams";
