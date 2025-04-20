@@ -42,6 +42,7 @@ module.exports = grammar({
 		$.boolean, $.boolean_expandable,
 		$.constant_expandable,
 		$.constant_value, $.constant_value_expandable,
+		$.in_or_out_expandable,
 	],
 	rules: {
 		source_file: $ => repeat($._root),
@@ -253,10 +254,10 @@ module.exports = grammar({
 			$.include_macro,
 			$.constant_assignment,
 			$.add_serial_dialog_settings,
-			// $.add_dialog_settings,
-			// $.dialog_definition,
-			// $.serial_dialog_definition,
-			// $.script_definition,
+			$.add_dialog_settings,
+			$.dialog_definition,
+			$.serial_dialog_definition,
+			$.script_definition,
 		),
 
 		include_macro: $ => seq(
@@ -276,274 +277,336 @@ module.exports = grammar({
 		serial_dialog_parameter: $ => choice(
 			seq('wrap', field('wrap', $.number)),
 		),
-		// add_dialog_settings: $ => seq(
-		// 	'add', 'dialog', 'settings', '{',
-		// 		repeat(choice(
-		// 			seq(
-		// 				'default',
-		// 				alias($.dialog_settings_block, $.default_settings)
-		// 			),
-		// 			seq(
-		// 				'label',
-		// 				field('target_label', $.bareword),
-		// 				alias($.dialog_settings_block, $.label_settings)
-		// 			),
-		// 			seq('entity',
-		// 				field('target_entity', $.string),
-		// 				alias($.dialog_settings_block, $.entity_settings)
-		// 			),
-		// 		)),
-		// 	'}',
-		// ),
-		// dialog_settings_block: $ => seq(
-		// 	'{', repeat($.dialog_parameter), '}'
-		// ),
-		// dialog_parameter: $ => choice(
-		// 	seq('entity', field('entity', $.string)),
-		// 	seq('name', field('name', $.string)),
-		// 	seq('portrait', field('portrait', $.string)),
-		// 	seq('alignment', field('alignment', $.string)),
-		// 	seq('border_tileset', field('border_tileset', $.string)),
-		// 	seq('emote', field('emote', $.number)),
-		// 	seq('wrap', field('wrap', $.number)),
-		// ),
-		// dialog_definition: $ => seq(
-		// 	'dialog',
-		// 	field('dialog_name', $._string),
-		// 	$.dialog_block,
-		// ),
-		// dialog_block: $ => seq(
-		// 	'{',
-		// 	repeat($.dialog),
-		// 	'}'
-		// ),
-		// dialog: $ => seq(
-		// 	$.dialog_identifier,
-		// 	repeat($.dialog_parameter),
-		// 	repeat1(field('message', $.QUOTED_STRING)),
-		// 	repeat($.dialog_option),
-		// ),
-		// dialog_identifier: $ => choice(
-		// 	field('label', $.BAREWORD),
-		// 	seq('entity', field('entity', $._STRING)),
-		// 	seq('name', field('name', $._STRING)),
-		// ),
-		// dialog_option: $ => seq(
-		// 	'>',
-		// 	field('label', $.QUOTED_STRING),
-		// 	'=',
-		// 	field('script', $._string),
-		// ),
-		// serial_dialog_definition: $ => seq(
-		// 	'serial_dialog',
-		// 	field('serial_dialog_name', $._STRING),
-		// 	$.serial_dialog_block,
-		// ),
-		// serial_dialog_block: $ => seq(
-		// 	'{',
-		// 	optional($.serial_dialog),
-		// 	'}'
-		// ),
-		// serial_dialog: $ => seq(
-		// 	repeat($.serial_dialog_parameter),
-		// 	repeat1(field('serial_message', $.QUOTED_STRING)),
-		// 	repeat($.serial_dialog_option),
-		// ),
-		// serial_dialog_option: $ => seq(
-		// 	field('option_type', $.serial_dialog_option_type),
-		// 	field('label', $.QUOTED_STRING),
-		// 	'=',
-		// 	field('script', $._string),
-		// ),
-		// serial_dialog_option_type: $ => token(/_|#/),
-		// script_definition: $ => seq(
-		// 	optional('script'),
-		// 	field('script_name', $.BAREWORD),
-		// 	$.script_block,
-		// ),
-		// script_block: $ => seq(
-		// 	'{',
-		// 	repeat($._script_item),
-		// 	'}'
-		// ),
-		// _script_item: $ => choice(
-		// 	$.json_block,
-		// 	$.label,
-		// 	$.debug_macro,
-		// 	$.rand_macro,
-		// 	seq($._action_item, ';'),
-		// ),
-		// rand_macro: $ => seq(
-		// 	'rand', '!', '(',
-		// 	repeat($._script_item),
-		// 	')',
-		// ),
-		// debug_macro: $ => seq(
-		// 	'debug', '!', '(',
-		// 	optional(choice(
-		// 		$.serial_dialog,
-		// 		field('dialog_name', $._bareword),
-		// 	)),
-		// 	')',
-		// ),
-		// label: $ => seq(field('label', $.BAREWORD), ':'),
-		// json_block: $ => seq(
-		// 	'json',
-		// 	$.json_array,
-		// ),
-		// json_array: $ => seq(
-		// 	'[',
-		// 	optional(seq( $._json_item, repeat(seq(',', $._json_item)))),
-		// 	']'
-		// ),
-		// json_number: $ => token(choice(
-		// 	'Infinity',
-		// 	'-Infinity',
-		// 	/-?[0-9]+(\.[0-9]+)?/
-		// )),
-		// _json_item: $ => choice(
-		// 	$.QUOTED_STRING,
-		// 	$.json_number,
-		// 	$.json_array,
-		// 	$.json_object,
-		// 	$.json_language_constant,
-		// ),
-		// json_language_constant: $ => choice(
-		// 	token('true'),
-		// 	token('false'),
-		// 	token('null'),
-		// ),
-		// json_object: $ => seq(
-		// 	'{',
-		// 	optional(seq($.json_name_value_pair, repeat(seq(',', $.json_name_value_pair)))),
-		// 	'}'
-		// ),
-		// json_name_value_pair: $ => seq(
-		// 	field('property', $.QUOTED_STRING),
-		// 	':',
-		// 	field('value', $._json_item),
-		// ),
-		// return_statement: $ => 'return',
-		// action_load_map: $ => seq(
-		// 	'load', 'map', field('map', $._string),
-		// ),
-		// action_run_script: $ => seq(
-		// 	'goto', field('script', $._string),
-		// ),
-		// action_goto_action_label: $ => seq(
-		// 	'goto', 'label', field('label', $._bareword),
-		// ),
-		// action_goto_action_index: $ => seq(
-		// 	'goto', 'index', field('index', $._number),
-		// ),
-		// action_show_dialog: $ => seq(
-		// 	'show',
-		// 	'dialog',
-		// 	choice(
-		// 		seq(
-		// 			field('dialog_name', $._STRING),
-		// 			$.dialog_block,
-		// 		),
-		// 		field('dialog_name', $._STRING),
-		// 		$.dialog_block,
-		// 	),
-		// ),
-		// action_show_serial_dialog: $ => seq(
-		// 	'show',
-		// 	'serial_dialog',
-		// 	choice(
-		// 		seq(
-		// 			field('serial_dialog_name', $._STRING),
-		// 			$.serial_dialog_block,
-		// 		),
-		// 		field('serial_dialog_name', $._STRING),
-		// 		$.serial_dialog_block,
-		// 	),
-		// ),
-		// action_concat_serial_dialog: $ => seq(
-		// 	'concat',
-		// 	'serial_dialog',
-		// 	choice(
-		// 		seq(
-		// 			field('serial_dialog_name', $._STRING),
-		// 			$.serial_dialog_block,
-		// 		),
-		// 		field('serial_dialog_name', $._STRING),
-		// 		$.serial_dialog_block,
-		// 	),
-		// ),
-		// action_delete_command: $ => seq(
-		// 	'delete', 'command',
-		// 	field('command', $._string),
-		// ),
-		// action_delete_command_arg: $ => seq(
-		// 	'delete', 'command',
-		// 	field('command', $._string), '+', field('argument', $._string),
-		// ),
-		// action_delete_alias: $ => seq(
-		// 	'delete', 'alias', field('alias', $._string),
-		// ),
-		// action_hide_command: $ => seq(
-		// 	'hide', 'command', field('command', $._string),
-		// ),
-		// action_unhide_command: $ => seq(
-		// 	'unhide', 'command', field('command', $._string),
-		// ),
-		// action_save_slot: $ => seq(
-		// 	'save', 'slot',
-		// ),
-		// action_load_slot: $ => seq(
-		// 	'load', 'slot', field('slot', $._number),
-		// ),
-		// action_erase_slot: $ => seq(
-		// 	'erase', 'slot', field('slot', $._number),
-		// ),
-		// action_blocking_delay: $ => seq(
-		// 	'block', field('duration', $._duration),
-		// ),
-		// action_non_blocking_delay: $ => seq(
-		// 	'wait', field('duration', $._duration),
-		// ),
-		// action_close_dialog: $ => seq(
-		// 	'close', 'dialog',
-		// ),
-		// action_close_serial_dialog: $ => seq(
-		// 	'close', 'serial_dialog',
-		// ),
-		// action_pause_script: $ => seq(
-		// 	'pause',
-		// 	$._map_or_entity_script,
-		// ),
-		// action_unpause_script: $ => seq(
-		// 	'unpause',
-		// 	$._map_or_entity_script,
-		// ),
-		// _map_or_entity_script: $ => choice(
-		// 	seq('map', field('map_script', $._enum_map_script)),
-		// 	seq('player', field('player_script', $._enum_entity_script)),
-		// 	seq('self', field('self_script', $._enum_entity_script)),
-		// 	seq(
-		// 		'entity',
-		// 		field('entity', $._string),
-		// 		field('entity_script', $._enum_entity_script)
-		// 	),
-		// ),
-		// in_or_out: $ => choice('in','out'),
-		// action_camera_fade: $ => seq(
-		// 	'camera', 'fade',
-		// 	field('fade', $.in_or_out),
-		// 	'->',
-		// 	field('color', $._color),
-		// 	'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_camera_shake: $ => seq(
-		// 	'camera', 'shake', '->',
-		// 	field('amplitude', $._duration),
-		// 	field('distance', $._distance),
-		// 	'over',
-		// 	field('duration', $._duration),
-		// ),
+		add_dialog_settings: $ => seq(
+			'add', 'dialog', 'settings', '{',
+				repeat(choice(
+					seq(
+						'default',
+						alias($.dialog_settings_block, $.default_settings)
+					),
+					seq(
+						'label',
+						field('target_label', $.bareword),
+						alias($.dialog_settings_block, $.label_settings)
+					),
+					seq('entity',
+						field('target_entity', $.string),
+						alias($.dialog_settings_block, $.entity_settings)
+					),
+				)),
+			'}',
+		),
+		dialog_settings_block: $ => seq(
+			'{', repeat($.dialog_parameter), '}'
+		),
+		dialog_parameter: $ => choice(
+			seq('entity', field('entity', $.string)),
+			seq('name', field('name', $.string)),
+			seq('portrait', field('portrait', $.string)),
+			seq('alignment', field('alignment', $.string)),
+			seq('border_tileset', field('border_tileset', $.string)),
+			seq('emote', field('emote', $.number)),
+			seq('wrap', field('wrap', $.number)),
+		),
+		dialog_definition: $ => seq(
+			'dialog',
+			field('dialog_name', $.string),
+			$.dialog_block,
+		),
+		dialog_block: $ => seq(
+			'{',
+			repeat($.dialog),
+			'}'
+		),
+		dialog: $ => seq(
+			$.dialog_identifier,
+			repeat($.dialog_parameter),
+			repeat1(field('message', $.QUOTED_STRING)),
+			repeat($.dialog_option),
+		),
+		dialog_identifier: $ => choice(
+			field('label', $.BAREWORD),
+			seq('entity', field('entity', $.STRING)),
+			seq('name', field('name', $.STRING)),
+		),
+		dialog_option: $ => seq(
+			'>',
+			field('label', $.QUOTED_STRING),
+			'=',
+			field('script', $.string),
+		),
+		serial_dialog_definition: $ => seq(
+			'serial_dialog',
+			field('serial_dialog_name', $.STRING),
+			$.serial_dialog_block,
+		),
+		serial_dialog_block: $ => seq(
+			'{',
+			optional($.serial_dialog),
+			'}'
+		),
+		serial_dialog: $ => seq(
+			repeat($.serial_dialog_parameter),
+			repeat1(field('serial_message', $.QUOTED_STRING)),
+			repeat($.serial_dialog_option),
+		),
+		serial_dialog_option: $ => seq(
+			field('option_type', $.serial_dialog_option_type),
+			field('label', $.QUOTED_STRING),
+			'=',
+			field('script', $.string),
+		),
+		serial_dialog_option_type: $ => token(/_|#/),
+		script_definition: $ => seq(
+			optional('script'),
+			field('script_name', $.BAREWORD),
+			$.script_block,
+		),
+		script_block: $ => seq(
+			'{',
+			repeat($._script_item),
+			'}'
+		),
+		_script_item: $ => choice(
+			$.json_literal,
+			$.label,
+			$.debug_macro,
+			$.rand_macro,
+			$.spread_macro,
+			seq($._action_item, token(';')),
+		),
+
+		json_literal: $ => seq(
+			'json',
+			$.json_array,
+		),
+		json_array: $ => seq(
+			'[',
+			optional(seq( $._json_item, repeat(seq(',', $._json_item)))),
+			']'
+		),
+		json_object: $ => seq(
+			'{',
+			optional(seq($.json_name_value_pair, repeat(seq(',', $.json_name_value_pair)))),
+			'}'
+		),
+		json_name_value_pair: $ => seq(
+			field('property', $.QUOTED_STRING),
+			':',
+			field('value', $._json_item),
+		),
+		json_number: $ => token(choice(
+			'Infinity',
+			'-Infinity',
+			/-?[0-9]+?/
+		)),
+		_json_item: $ => choice(
+			$.QUOTED_STRING,
+			$.json_number,
+			$.json_array,
+			$.json_object,
+			token('true'),
+			token('false'),
+			token('null'),
+		),
+
+		label: $ => seq(field('label', $.BAREWORD), ':'),
+
+		debug_macro: $ => seq(
+			'debug', '!', '(',
+			optional(choice(
+				$.serial_dialog,
+				field('dialog_name', $.bareword),
+			)),
+			')',
+		),
+		rand_macro: $ => seq(
+			'rand', '!', '(',
+			repeat($._script_item),
+			')',
+		),
+		spread_macro: $ => seq(
+			'spread', '!', '(',
+			repeat($._script_item),
+			')',
+		),
+
+		_action_item: $ => choice(
+			$.return_statement,
+			$.action_load_map,
+			$.action_run_script,
+			$.action_goto_label,
+			$.action_goto_index,
+			$.action_show_dialog,
+			$.action_show_serial_dialog,
+			$.action_concat_serial_dialog,
+			$.action_delete_command,
+			$.action_delete_command_arg,
+			$.action_delete_alias,
+			$.action_hide_command,
+			$.action_unhide_command,
+			$.action_save_slot,
+			$.action_load_slot,
+			$.action_erase_slot,
+			$.action_blocking_delay,
+			$.action_non_blocking_delay,
+			$.action_close_dialog,
+			$.action_close_serial_dialog,
+			$.action_pause_script,
+			$.action_unpause_script,
+			$.action_camera_shake,
+			$.action_camera_fade,
+
+
+			// $.action_set_bool,
+			// $.action_teleport_entity,
+			// $.action_teleport_camera,
+			// $.action_play_entity_animation,
+			// $.action_loop_entity_along_geometry,
+			// $.action_walk_entity_along_geometry,
+			// $.action_walk_entity_to_geometry,
+			// $.action_loop_camera_along_geometry,
+			// $.action_pan_camera_along_geometry,
+			// $.action_pan_camera_to_geometry,
+			// $.action_pan_camera_to_entity,
+		),
+
+		return_statement: $ => 'return',
+
+		action_load_map: $ => seq(
+			'load', 'map', field('map', $.string_expandable),
+		),
+		action_run_script: $ => seq(
+			'goto', field('script', $.string_expandable),
+		),
+		action_goto_label: $ => seq(
+			'goto', 'label', field('label', $.bareword_expandable),
+		),
+		action_goto_index: $ => seq(
+			'goto', 'index', field('index', $.number_expandable),
+		),
+
+		action_show_dialog: $ => seq(
+			'show', 'dialog', choice(
+				seq(
+					field('dialog_name', $.STRING), $.dialog_block,
+				),
+				field('dialog_name', $.STRING),
+				$.dialog_block,
+			),
+		),
+		action_show_serial_dialog: $ => seq(
+			'show', 'serial_dialog', choice(
+				seq(
+					field('serial_dialog_name', $.STRING), $.serial_dialog_block,
+				),
+				field('serial_dialog_name', $.STRING),
+				$.serial_dialog_block,
+			),
+		),
+		action_concat_serial_dialog: $ => seq(
+			'concat', 'serial_dialog', choice(
+				seq(
+					field('serial_dialog_name', $.STRING), $.serial_dialog_block,
+				),
+				field('serial_dialog_name', $.STRING),
+				$.serial_dialog_block,
+			),
+		),
+		
+		action_delete_command: $ => seq(
+			'delete', 'command',
+			field('command', $.string_expandable),
+		),
+		action_delete_command_arg: $ => seq(
+			'delete', 'command',
+			field('command', $.string_expandable),
+			'+',
+			field('argument', $.string_expandable),
+		),
+		action_delete_alias: $ => seq(
+			'delete', 'alias',
+			field('alias', $.string_expandable),
+		),
+		action_hide_command: $ => seq(
+			'hide', 'command',
+			field('command', $.string_expandable),
+		),
+		action_unhide_command: $ => seq(
+			'unhide', 'command',
+			field('command', $.string_expandable),
+		),
+
+		action_save_slot: $ => seq(
+			'save', 'slot',
+		),
+		action_load_slot: $ => seq(
+			'load', 'slot', field('slot', $.number_expandable),
+		),
+		action_erase_slot: $ => seq(
+			'erase', 'slot', field('slot', $.number_expandable),
+		),
+
+		action_blocking_delay: $ => seq(
+			'block', field('duration', $.duration_expandable),
+		),
+		action_non_blocking_delay: $ => seq(
+			'wait', field('duration', $.duration_expandable),
+		),
+
+		action_close_dialog: $ => seq(
+			'close', 'dialog',
+		),
+		action_close_serial_dialog: $ => seq(
+			'close', 'serial_dialog',
+		),
+
+		action_pause_script: $ => seq(
+			'pause', $._map_or_entity_script,
+		),
+		action_unpause_script: $ => seq(
+			'unpause', $._map_or_entity_script,
+		),
+		_map_or_entity_script: $ => choice(
+			seq('map', field('map_script', $.string_expandable)),
+			seq('player', field('player_script', $.string_expandable)),
+			seq('self', field('self_script', $.string_expandable)),
+			seq(
+				'entity',
+				field('entity', $.string_expandable),
+				field('entity_script', $.string_expandable)
+			),
+		),
+
+		action_camera_fade: $ => seq(
+			'camera', 'fade',
+			field('fade', $.in_or_out_expandable),
+			'->',
+			field('color', $.color_expandable),
+			'over',
+			field('duration', $.duration_expandable),
+		),
+		in_or_out: $ => choice('in','out'),
+		in_or_out_expandable: $ => choice(
+			$.in_or_out,
+			$.in_or_out_expansion,
+		),
+		in_or_out_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.in_or_out,
+				repeat(seq(',', $.in_or_out)),
+				optional(','),
+			)),
+			']'
+		),
+		action_camera_shake: $ => seq(
+			'camera', 'shake', '->',
+			field('amplitude', $.duration_expandable),
+			field('distance', $.distance_expandable),
+			'over',
+			field('duration', $.duration_expandable),
+		),
 		// _geometry_identifier: $ => seq(
 		// 	'geometry',
 		// 	field('geometry', $._string),
@@ -663,43 +726,6 @@ module.exports = grammar({
 
 
 
-		// _action_item: $ => choice(
-		// 	$.action_set_bool,
-		// 	$.action_teleport_entity,
-		// 	$.action_teleport_camera,
-		// 	$.action_play_entity_animation,
-		// 	$.action_loop_entity_along_geometry,
-		// 	$.action_walk_entity_along_geometry,
-		// 	$.action_walk_entity_to_geometry,
-		// 	$.action_loop_camera_along_geometry,
-		// 	$.action_pan_camera_along_geometry,
-		// 	$.action_pan_camera_to_geometry,
-		// 	$.action_pan_camera_to_entity,
-		// 	$.action_camera_shake,
-		// 	$.action_camera_fade,
-		// 	$.action_pause_script,
-		// 	$.action_unpause_script,
-		// 	$.action_close_serial_dialog,
-		// 	$.action_close_dialog,
-		// 	$.action_non_blocking_delay,
-		// 	$.action_blocking_delay,
-		// 	$.action_erase_slot,
-		// 	$.action_load_slot,
-		// 	$.action_save_slot,
-		// 	$.action_unhide_command,
-		// 	$.action_hide_command,
-		// 	$.action_delete_alias,
-		// 	$.action_delete_command_arg,
-		// 	$.action_delete_command,
-		// 	$.action_concat_serial_dialog,
-		// 	$.action_show_serial_dialog,
-		// 	$.action_show_dialog,
-		// 	$.action_goto_action_index,
-		// 	$.action_goto_action_label,
-		// 	$.action_run_script,
-		// 	$.action_load_map,
-		// 	$.return_statement,
-		// ),
 	},
 });
 
