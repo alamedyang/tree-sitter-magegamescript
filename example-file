@@ -1,5 +1,3 @@
-scriptname {
-	show dialog greetings {};
-	show dialog {};
-	show dialog response;
+add serial_dialog settings {
+	wrap 90
 }
