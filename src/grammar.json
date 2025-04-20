@@ -1040,11 +1040,11 @@
         },
         {
           "type": "SYMBOL",
-          "name": "script_literal"
+          "name": "script_block"
         }
       ]
     },
-    "script_literal": {
+    "script_block": {
       "type": "SEQ",
       "members": [
         {
@@ -1069,7 +1069,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "json_literal"
+          "name": "json_block"
         },
         {
           "type": "SYMBOL",
@@ -1107,23 +1107,7 @@
         }
       ]
     },
-    "_action_item": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "return_statement"
-        }
-      ]
-    },
-    "return_statement": {
-      "type": "TOKEN",
-      "content": {
-        "type": "STRING",
-        "value": "return"
-      }
-    },
-    "json_literal": {
+    "json_block": {
       "type": "SEQ",
       "members": [
         {
@@ -1321,6 +1305,166 @@
             "type": "SYMBOL",
             "name": "_json_item"
           }
+        }
+      ]
+    },
+    "_action_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "return_statement"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_load_map"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_run_script"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_goto_action_label"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_goto_action_index"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_show_dialog"
+        }
+      ]
+    },
+    "return_statement": {
+      "type": "STRING",
+      "value": "return"
+    },
+    "action_load_map": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "load"
+        },
+        {
+          "type": "STRING",
+          "value": "map"
+        },
+        {
+          "type": "FIELD",
+          "name": "map",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_string"
+          }
+        }
+      ]
+    },
+    "action_run_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "goto"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_string"
+          }
+        }
+      ]
+    },
+    "action_goto_action_label": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "goto"
+        },
+        {
+          "type": "STRING",
+          "value": "label"
+        },
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_bareword"
+          }
+        }
+      ]
+    },
+    "action_goto_action_index": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "goto"
+        },
+        {
+          "type": "STRING",
+          "value": "index"
+        },
+        {
+          "type": "FIELD",
+          "name": "index",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_number"
+          }
+        }
+      ]
+    },
+    "action_show_dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "show"
+        },
+        {
+          "type": "STRING",
+          "value": "dialog"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "dialog_name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_STRING"
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "dialog_block"
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "dialog_name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_STRING"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "dialog_block"
+            }
+          ]
         }
       ]
     }

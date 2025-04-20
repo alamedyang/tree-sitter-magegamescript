@@ -1,5 +1,123 @@
 [
   {
+    "type": "action_goto_action_index",
+    "named": true,
+    "fields": {
+      "index": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_goto_action_label",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_load_map",
+    "named": true,
+    "fields": {
+      "map": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_run_script",
+    "named": true,
+    "fields": {
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_show_dialog",
+    "named": true,
+    "fields": {
+      "dialog_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "dialog_block",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "add_dialog_settings",
     "named": true,
     "fields": {
@@ -487,12 +605,7 @@
     }
   },
   {
-    "type": "json_language_constant",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "json_literal",
+    "type": "json_block",
     "named": true,
     "fields": {},
     "children": {
@@ -505,6 +618,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "json_language_constant",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "json_name_value_pair",
@@ -595,6 +713,49 @@
     }
   },
   {
+    "type": "script_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "action_goto_action_index",
+          "named": true
+        },
+        {
+          "type": "action_goto_action_label",
+          "named": true
+        },
+        {
+          "type": "action_load_map",
+          "named": true
+        },
+        {
+          "type": "action_run_script",
+          "named": true
+        },
+        {
+          "type": "action_show_dialog",
+          "named": true
+        },
+        {
+          "type": "json_block",
+          "named": true
+        },
+        {
+          "type": "label",
+          "named": true
+        },
+        {
+          "type": "return_statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "script_definition",
     "named": true,
     "fields": {
@@ -614,30 +775,7 @@
       "required": true,
       "types": [
         {
-          "type": "script_literal",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "script_literal",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "json_literal",
-          "named": true
-        },
-        {
-          "type": "label",
-          "named": true
-        },
-        {
-          "type": "return_statement",
+          "type": "script_block",
           "named": true
         }
       ]
@@ -937,7 +1075,15 @@
     "named": false
   },
   {
+    "type": "goto",
+    "named": false
+  },
+  {
     "type": "include",
+    "named": false
+  },
+  {
+    "type": "index",
     "named": false
   },
   {
@@ -955,6 +1101,14 @@
   {
     "type": "line_comment",
     "named": true
+  },
+  {
+    "type": "load",
+    "named": false
+  },
+  {
+    "type": "map",
+    "named": false
   },
   {
     "type": "name",
@@ -986,6 +1140,10 @@
   },
   {
     "type": "settings",
+    "named": false
+  },
+  {
+    "type": "show",
     "named": false
   },
   {

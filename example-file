@@ -1,9 +1,5 @@
 scriptname {
-	json[
-		{
-			"action": "TEST_ACTION",
-			"expected_bool": false
-		}
-	]
-	return;
+	show dialog greetings {};
+	show dialog {};
+	show dialog response;
 }

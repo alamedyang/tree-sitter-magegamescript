@@ -167,24 +167,20 @@ module.exports = grammar({
 		script_definition: $ => seq(
 			optional('script'),
 			field('script_name', $.BAREWORD),
-			$.script_literal,
+			$.script_block,
 		),
-		script_literal: $ => seq(
+		script_block: $ => seq(
 			'{',
 			repeat($._script_item),
 			'}'
 		),
 		_script_item: $ => choice(
-			$.json_literal,
+			$.json_block,
 			$.label,
 			seq($._action_item, ';'),
 		),
 		label: $ => seq(field('label', $.BAREWORD), ':'),
-		_action_item: $ => choice(
-			$.return_statement,
-		),
-		return_statement: $ => token('return'),
-		json_literal: $ => seq(
+		json_block: $ => seq(
 			'json',
 			$.json_array,
 		),
@@ -225,6 +221,39 @@ module.exports = grammar({
 			field('property', $.QUOTED_STRING),
 			':',
 			field('value', $._json_item),
-		)
+		),
+		_action_item: $ => choice(
+			$.return_statement,
+			$.action_load_map,
+			$.action_run_script,
+			$.action_goto_action_label,
+			$.action_goto_action_index,
+			$.action_show_dialog,
+		),
+		return_statement: $ => 'return',
+		action_load_map: $ => seq(
+			'load', 'map', field('map', $._string),
+		),
+		action_run_script: $ => seq(
+			'goto', field('script', $._string),
+		),
+		action_goto_action_label: $ => seq(
+			'goto', 'label', field('label', $._bareword),
+		),
+		action_goto_action_index: $ => seq(
+			'goto', 'index', field('index', $._number),
+		),
+		action_show_dialog: $ => seq(
+			'show',
+			'dialog',
+			choice(
+				seq(
+					field('dialog_name', $._STRING),
+					$.dialog_block,
+				),
+				field('dialog_name', $._STRING),
+				$.dialog_block,
+			),
+		),
 	},
 });
