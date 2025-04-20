@@ -45,6 +45,7 @@ module.exports = grammar({
 	],
 	rules: {
 		source_file: $ => repeat($._root),
+
 		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
 		line_comment: $ => token(repeat1(
 			seq('//', repeat(/./), '\n',)
@@ -60,7 +61,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.bareword,
-				repeat(seq(',', $.bareword))
+				repeat(seq(',', $.bareword)),
+				optional(','),
 			)),
 			']'
 		),
@@ -75,7 +77,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.quoted_string,
-				repeat(seq(',', $.quoted_string))
+				repeat(seq(',', $.quoted_string)),
+				optional(','),
 			)),
 			']'
 		),
@@ -90,7 +93,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.string,
-				repeat(seq(',', $.string))
+				repeat(seq(',', $.string)),
+				optional(','),
 			)),
 			']'
 		),
@@ -105,7 +109,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.number,
-				repeat(seq(',', $.number))
+				repeat(seq(',', $.number)),
+				optional(','),
 			)),
 			']'
 		),
@@ -120,7 +125,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.duration,
-				repeat(seq(',', $.duration))
+				repeat(seq(',', $.duration)),
+				optional(','),
 			)),
 			']'
 		),
@@ -135,7 +141,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.distance,
-				repeat(seq(',', $.distance))
+				repeat(seq(',', $.distance)),
+				optional(','),
 			)),
 			']'
 		),
@@ -150,7 +157,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.quantity,
-				repeat(seq(',', $.quantity))
+				repeat(seq(',', $.quantity)),
+				optional(','),
 			)),
 			']'
 		),
@@ -168,7 +176,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.numberish,
-				repeat(seq(',', $.numberish))
+				repeat(seq(',', $.numberish)),
+				optional(','),
 			)),
 			']'
 		),
@@ -183,7 +192,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.color,
-				repeat(seq(',', $.color))
+				repeat(seq(',', $.color)),
+				optional(','),
 			)),
 			']'
 		),
@@ -198,7 +208,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.boolean,
-				repeat(seq(',', $.boolean))
+				repeat(seq(',', $.boolean)),
+				optional(','),
 			)),
 			']'
 		),
@@ -212,7 +223,8 @@ module.exports = grammar({
 			'[',
 			optional(seq(
 				$.CONSTANT,
-				repeat(seq(',', $.CONSTANT))
+				repeat(seq(',', $.CONSTANT)),
+				optional(','),
 			)),
 			']'
 		),
@@ -231,52 +243,12 @@ module.exports = grammar({
 			'[',
 			seq(
 				$.constant_value,
-				repeat(seq(',', $.constant_value))
+				repeat(seq(',', $.constant_value)),
+				optional(','),
 			),
 			']'
 		),
-		// OPERATOR: $ => /[\{\}\[\]\(\)<>\+-=\]|[!=><]=|\|\||&&|\->/,
-		// ENUM_ALIGNMENT: $ => token(choice(
-		// 	'TR', 'TL', 'TOP_RIGHT', 'TOP_LEFT',
-		// 	'BR', 'BL', 'BOTTOM_RIGHT', 'BOTTOM_LEFT',
-		// )),
-		// _enum_alignment: $ => choice(
-		// 	$.ENUM_ALIGNMENT,
-		// 	$.CONSTANT,
-		// 	seq(
-		// 		'[',
-		// 		optional(seq($._enum_alignment, repeat(seq(',', $._enum_alignment)))),
-		// 		']'
-		// 	),
-		// ),
-		// ENUM_MAP_SCRIPT: $ => token(choice(
-		// 	'on_load',
-		// 	'on_tick',
-		// 	'on_look',
-		// )),
-		// _enum_map_script: $ => choice(
-		// 	$.ENUM_MAP_SCRIPT,
-		// 	$.CONSTANT,
-		// 	seq(
-		// 		'[',
-		// 		optional(seq($._enum_map_script, repeat(seq(',', $._enum_map_script)))),
-		// 		']'
-		// 	),
-		// ),
-		// ENUM_ENTITY_SCRIPT: $ => token(choice(
-		// 	'on_interact',
-		// 	'on_tick',
-		// 	'on_look',
-		// )),
-		// _enum_entity_script: $ => choice(
-		// 	$.ENUM_ENTITY_SCRIPT,
-		// 	$.CONSTANT,
-		// 	seq(
-		// 		'[',
-		// 		optional(seq($._enum_entity_script, repeat(seq(',', $._enum_entity_script)))),
-		// 		']'
-		// 	),
-		// ),
+
 		_root: $ => choice(
 			$.include_macro,
 			$.constant_assignment,
@@ -286,6 +258,7 @@ module.exports = grammar({
 			// $.serial_dialog_definition,
 			// $.script_definition,
 		),
+
 		include_macro: $ => seq(
 			'include', field('fileName', $.quoted_string_expandable), ';',
 		),
