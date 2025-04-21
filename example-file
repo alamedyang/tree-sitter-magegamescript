@@ -1,5 +1,5 @@
 scriptname {
-	player_control = (true||false) && ($false || tree);
+	command BLARG = blargScript;
 }
 
 
