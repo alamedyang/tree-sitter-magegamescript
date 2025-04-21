@@ -1,6 +1,6 @@
 scriptname {
-	[
-		[entity Bob, player] position,
-		camera
-	] = geometry stick;
+	player_control = (true||false) && ($false || tree);
 }
+
+
+

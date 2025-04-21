@@ -532,7 +532,7 @@
     },
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "complex_duration_expansion",
@@ -540,6 +540,10 @@
         },
         {
           "type": "movable_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "over_time_operator",
           "named": true
         },
         {
@@ -761,6 +765,74 @@
     "fields": {}
   },
   {
+    "type": "action_set_bool",
+    "named": true,
+    "fields": {
+      "bool": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      },
+      "setable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "setable",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignmment_operator",
+          "named": true
+        },
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_or_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_set_position",
     "named": true,
     "fields": {
@@ -827,8 +899,12 @@
     },
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
+        {
+          "type": "assignmment_operator",
+          "named": true
+        },
         {
           "type": "movable_identifier_expansion",
           "named": true
@@ -1076,6 +1152,11 @@
     }
   },
   {
+    "type": "assignmment_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "bareword_expansion",
     "named": true,
     "fields": {},
@@ -1089,6 +1170,156 @@
         },
         {
           "type": "CONSTANT",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "bool_binary_expression",
+    "named": true,
+    "fields": {
+      "binary_operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "AND",
+            "named": true
+          },
+          {
+            "type": "OR",
+            "named": true
+          }
+        ]
+      },
+      "bool": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "bool_or_identifier_expansion",
+    "named": true,
+    "fields": {
+      "bool": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "bool_unary_expression",
+    "named": true,
+    "fields": {
+      "bool": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
           "named": true
         }
       ]
@@ -1179,7 +1410,7 @@
             "named": true
           },
           {
-            "type": "BOOLEAN",
+            "type": "BOOL",
             "named": true
           },
           {
@@ -1246,7 +1477,7 @@
           "named": true
         },
         {
-          "type": "BOOLEAN",
+          "type": "BOOL",
           "named": true
         },
         {
@@ -1998,6 +2229,11 @@
     }
   },
   {
+    "type": "over_time_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "polygon_identifier_expansion",
     "named": true,
     "fields": {
@@ -2198,6 +2434,10 @@
           "named": true
         },
         {
+          "type": "action_set_bool",
+          "named": true
+        },
+        {
           "type": "action_set_position",
           "named": true
         },
@@ -2334,6 +2574,10 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_bool",
           "named": true
         },
         {
@@ -2549,6 +2793,54 @@
     }
   },
   {
+    "type": "setable",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "glitched": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "glitched",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "source_file",
     "named": true,
     "root": true,
@@ -2681,6 +2973,10 @@
           "named": true
         },
         {
+          "type": "action_set_bool",
+          "named": true
+        },
+        {
           "type": "action_set_position",
           "named": true
         },
@@ -2791,11 +3087,15 @@
     "named": false
   },
   {
+    "type": "AND",
+    "named": true
+  },
+  {
     "type": "BAREWORD",
     "named": true
   },
   {
-    "type": "BOOLEAN",
+    "type": "BOOL",
     "named": true
   },
   {
@@ -2816,6 +3116,10 @@
   },
   {
     "type": "NUMBER",
+    "named": true
+  },
+  {
+    "type": "OR",
     "named": true
   },
   {
@@ -2915,6 +3219,10 @@
     "named": false
   },
   {
+    "type": "flagName",
+    "named": false
+  },
+  {
     "type": "forever",
     "named": true
   },
@@ -2923,7 +3231,27 @@
     "named": false
   },
   {
+    "type": "glitched",
+    "named": true
+  },
+  {
     "type": "goto",
+    "named": false
+  },
+  {
+    "type": "hex_clipboard",
+    "named": false
+  },
+  {
+    "type": "hex_control",
+    "named": false
+  },
+  {
+    "type": "hex_dialog_mode",
+    "named": false
+  },
+  {
+    "type": "hex_editor",
     "named": false
   },
   {
@@ -2957,6 +3285,10 @@
   {
     "type": "length",
     "named": true
+  },
+  {
+    "type": "lights_control",
+    "named": false
   },
   {
     "type": "line_comment",
@@ -2999,6 +3331,10 @@
     "named": true
   },
   {
+    "type": "player_control",
+    "named": false
+  },
+  {
     "type": "portrait",
     "named": false
   },
@@ -3025,6 +3361,10 @@
   {
     "type": "self",
     "named": true
+  },
+  {
+    "type": "serial_control",
+    "named": false
   },
   {
     "type": "serial_dialog",

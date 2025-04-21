@@ -14,19 +14,17 @@ module.exports = grammar({
 		$.block_comment,
 		$.line_comment,
 	],
-	// precedences: $ => [
-	// 	[
-	// 		'unary_void',
-	// 		'binary_exp',
-	// 		'binary_times',
-	// 		'binary_plus',
-	// 		'binary_compare',
-	// 		'binary_relation',
-	// 		'binary_equality',
-	// 		'logical_and',
-	// 		'logical_or',
-	// 	],
-	// ],
+	precedences: $ => [
+		[
+			'unary',
+			'mul_div',
+			'add_sub',
+			'comparison',
+			'equality',
+			'bool_and_rh',
+			'bool_or_rh',
+		],
+	],
 	inline: $ => [
 		$.quoted_string, $.quoted_string_expandable,
 		$.bareword, $.bareword_expandable,
@@ -39,7 +37,8 @@ module.exports = grammar({
 		$.NUMBERISH,
 		$.numberish, $.numberish_expandable,
 		$.color, $.color_expandable,
-		$.boolean, $.boolean_expandable,
+		$.bool, $.bool_expandable,
+		$.bool_or_identifier, $.bool_or_identifier_expandable,
 		$.constant_expandable,
 		$.constant_value, $.constant_value_expandable,
 		$.entity_identifier, $.entity_identifier_expandable,
@@ -49,7 +48,7 @@ module.exports = grammar({
 		$.movable_identifier, $.movable_identifier_expandable,
 		$.polygon_identifier, $.polygon_identifier_expandable,
 		$.complex_duration, $.complex_duration_expandable,
-		$.setable, $.setable_expandable,
+		$.setable_expandable,
 	],
 	rules: {
 		source_file: $ => repeat($._root),
@@ -58,6 +57,40 @@ module.exports = grammar({
 		line_comment: $ => token(repeat1(
 			seq('//', repeat(/[^\n]/))
 		)),
+	
+		BOOL: $ => token(/true|false|on|off|open|closed/),
+		bool: $ => choice($.BOOL, $.CONSTANT),
+		bool_expandable: $ => choice(
+			$.bool,
+			$.bool_expansion,
+		),
+		bool_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.bool,
+				repeat(seq(',', $.bool)),
+				optional(','),
+			)),
+			']'
+		),
+		bool_or_identifier: $ => choice(
+			field('bool', $.BOOL),
+			field('constant', $.CONSTANT),
+			field('identifier', $.BAREWORD)
+		),
+		bool_or_identifier_expandable: $ => choice(
+			$.bool_or_identifier,
+			$.bool_or_identifier_expansion,
+		),
+		bool_or_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.bool_or_identifier,
+				repeat(seq(',', $.bool_or_identifier)),
+				optional(','),
+			)),
+			']'
+		),
 		
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		bareword: $ => choice($.BAREWORD, $.CONSTANT),
@@ -205,22 +238,6 @@ module.exports = grammar({
 			)),
 			']'
 		),
-	
-		BOOLEAN: $ => token(/true|false|on|off|open|closed/),
-		boolean: $ => choice($.BOOLEAN, $.CONSTANT),
-		boolean_expandable: $ => choice(
-			$.boolean,
-			$.boolean_expansion,
-		),
-		boolean_expansion: $ => seq(
-			'[',
-			optional(seq(
-				$.boolean,
-				repeat(seq(',', $.boolean)),
-				optional(','),
-			)),
-			']'
-		),
 
 		CONSTANT: $ => token(/\$[_a-zA-Z0-9]+/),
 		constant_expandable: $ => choice(
@@ -239,7 +256,7 @@ module.exports = grammar({
 		constant_value: $ => choice(
 			$.STRING,
 			$.NUMBERISH,
-			$.BOOLEAN,
+			$.BOOL,
 			$.COLOR,
 			$.CONSTANT,
 		),
@@ -467,7 +484,7 @@ module.exports = grammar({
 			$.action_move_over_time,
 			$.action_set_position,
 
-			// $.action_set_bool,
+			$.action_set_bool,
 		),
 
 		return_statement: $ => 'return',
@@ -680,20 +697,26 @@ module.exports = grammar({
 			']'
 		),
 
+		over_time_operator: $ => '->',
 		action_move_over_time: $ => seq(
 			$.movable_identifier_expandable,
-			'->',
+			$.over_time_operator,
 			$.polygon_identifier_expandable,
 			$.complex_duration_expandable
 		),
+
+		assignmment_operator: $ => '=',
 		action_set_position: $ => seq(
 			$.movable_identifier_expandable,
-			'=',
+			$.assignmment_operator,
 			$.polygon_identifier_expandable
 		),
 
+		name: $ => $.bareword,
+		
+		glitched: $ => 'glitched',
 		setable: $ => choice(
-			seq($.entity_identifier, 'glitched'),
+			seq($.entity_identifier, field('glitched', $.glitched)),
 			'player_control',
 			'lights_control',
 			'hex_editor',
@@ -710,52 +733,40 @@ module.exports = grammar({
 		setable_expansion: $ => seq(
 			'[',
 			optional(seq(
-				field('setable', $.setable),
+				$.setable,
 				repeat(seq(',', $.setable)),
 				optional(','),
 			)),
 			']'
 		),
-		// action_set_bool: $ => seq(
-		// 	field('setable', $.setable), 
-		// 	'=',
-		// 	choice(
-		// 		$.boolean_expandable,
-		// 		$.bool_expression
-		// 	),
-		// ),
-		// bool_expression: $ => choice(
-		// 	field('bool', $._boolean),
-		// 	$.bool_unary_expression,
-		// 	$.bool_binary_expression,
-		// 	$.bool_grouping,
-		// ),
-		// bool_grouping: $ => seq(
-		// 	'(', $.bool_expression, ')',
-		// ),
-		// bool_unary_expression: $ => seq(
-		// 	field('operator', $.bool_unary_operator),
-		// 	$._bool_unit,
-		// ),
-		// bool_binary_expression: $ => seq(
-		// 	$._bool_unit,
-		// 	field('operator', $.bool_binary_operator),
-		// 	$._bool_unit,
-		// ),
-		// bool_unary_operator: $ => '!',
-		// bool_binary_operator: $ => choice(
-		// 	prec.left(2, seq($._bool_unit, '&&', $._bool_unit)),
-		// 	prec.left(1, seq($._bool_unit, '||', $._bool_unit)),
-		// ),
 
-
-
-
-
+		action_set_bool: $ => seq(
+			field('setable', $.setable), 
+			$.assignmment_operator,
+			choice(
+				// bare identifiers might be ints (rather than bools)
+				// the !! might be needed here to force-separate
+				// these expressions from int expressions
+				// EXPERIMENT
+				// seq($.bang, $.bang, field('bool_identifier', $.name)),
+				$._bool_expression,
+				$.bool_or_identifier_expandable,
+			),
+		),
+		
+		AND: $ => '&&',
+		OR: $ => '||',
+		BANG: $ => '!',
+		_bool_expression: $ => prec(1,choice(
+			$.bool_or_identifier,
+			$.bool_unary_expression,
+			$.bool_binary_expression,
+			seq('(', $._bool_expression, ')')
+		)),
+		bool_unary_expression: $ => prec(4, seq("!", $._bool_expression)),
+		bool_binary_expression: $ => choice(
+			prec.left(3, seq($._bool_expression, field('binary_operator', $.AND), $._bool_expression)),
+			prec.left(2, seq($._bool_expression, field('binary_operator', $.OR), $._bool_expression)),
+		),
 	},
 });
-
-const makeTokenComplex = (tokenName) => {
-	const lowerCase = tokenName.toLocaleLowerCase();
-	
-};
