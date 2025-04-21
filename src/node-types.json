@@ -438,6 +438,126 @@
     }
   },
   {
+    "type": "action_move_over_time",
+    "named": true,
+    "fields": {
+      "camera": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "camera",
+            "named": true
+          }
+        ]
+      },
+      "duration": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      },
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "forever": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "forever",
+            "named": true
+          }
+        ]
+      },
+      "geometry": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "length",
+            "named": true
+          },
+          {
+            "type": "origin",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "complex_duration_expansion",
+          "named": true
+        },
+        {
+          "type": "movable_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "polygon_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_non_blocking_delay",
     "named": true,
     "fields": {
@@ -480,82 +600,12 @@
           {
             "type": "QUOTED_STRING",
             "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
           }
         ]
       },
-      "entity_script": {
+      "script": {
         "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "map_script": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "player_script": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "self_script": {
-        "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "BAREWORD",
@@ -575,6 +625,106 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "entity_or_map_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "map",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "action_play_entity_animation",
+    "named": true,
+    "fields": {
+      "animation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "number_expansion",
+            "named": true
+          }
+        ]
+      },
+      "count": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUANTITY",
+            "named": true
+          },
+          {
+            "type": "quantity_expansion",
+            "named": true
+          }
+        ]
+      },
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "entity_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -609,6 +759,94 @@
     "type": "action_save_slot",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "action_set_position",
+    "named": true,
+    "fields": {
+      "camera": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "camera",
+            "named": true
+          }
+        ]
+      },
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "geometry": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "length",
+            "named": true
+          },
+          {
+            "type": "origin",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "movable_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "polygon_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "action_show_dialog",
@@ -717,82 +955,12 @@
           {
             "type": "QUOTED_STRING",
             "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
           }
         ]
       },
-      "entity_script": {
+      "script": {
         "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "map_script": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "player_script": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
-            "named": true
-          }
-        ]
-      },
-      "self_script": {
-        "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "BAREWORD",
@@ -812,6 +980,28 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "entity_or_map_identifier_expansion",
+          "named": true
+        },
+        {
+          "type": "map",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -905,6 +1095,11 @@
     }
   },
   {
+    "type": "camera",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "color_expansion",
     "named": true,
     "fields": {},
@@ -921,6 +1116,40 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "complex_duration_expansion",
+    "named": true,
+    "fields": {
+      "duration": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      },
+      "forever": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "forever",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1420,6 +1649,86 @@
     }
   },
   {
+    "type": "entity_identifier_expansion",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "entity_or_map_identifier_expansion",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "map",
+          "named": true
+        },
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "entity_settings",
     "named": true,
     "fields": {},
@@ -1617,6 +1926,59 @@
     }
   },
   {
+    "type": "map",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "movable_identifier_expansion",
+    "named": true,
+    "fields": {
+      "camera": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "camera",
+            "named": true
+          }
+        ]
+      },
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "number_expansion",
     "named": true,
     "fields": {},
@@ -1630,6 +1992,95 @@
         },
         {
           "type": "NUMBER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "polygon_identifier_expansion",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "geometry": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "length",
+            "named": true
+          },
+          {
+            "type": "origin",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "player",
+          "named": true
+        },
+        {
+          "type": "self",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "quantity_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUANTITY",
           "named": true
         }
       ]
@@ -1723,6 +2174,10 @@
           "named": true
         },
         {
+          "type": "action_move_over_time",
+          "named": true
+        },
+        {
           "type": "action_non_blocking_delay",
           "named": true
         },
@@ -1731,11 +2186,19 @@
           "named": true
         },
         {
+          "type": "action_play_entity_animation",
+          "named": true
+        },
+        {
           "type": "action_run_script",
           "named": true
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_position",
           "named": true
         },
         {
@@ -1850,6 +2313,10 @@
           "named": true
         },
         {
+          "type": "action_move_over_time",
+          "named": true
+        },
+        {
           "type": "action_non_blocking_delay",
           "named": true
         },
@@ -1858,11 +2325,19 @@
           "named": true
         },
         {
+          "type": "action_play_entity_animation",
+          "named": true
+        },
+        {
           "type": "action_run_script",
           "named": true
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_position",
           "named": true
         },
         {
@@ -2182,6 +2657,10 @@
           "named": true
         },
         {
+          "type": "action_move_over_time",
+          "named": true
+        },
+        {
           "type": "action_non_blocking_delay",
           "named": true
         },
@@ -2190,11 +2669,19 @@
           "named": true
         },
         {
+          "type": "action_play_entity_animation",
+          "named": true
+        },
+        {
           "type": "action_run_script",
           "named": true
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_position",
           "named": true
         },
         {
@@ -2360,6 +2847,10 @@
     "named": false
   },
   {
+    "type": "animation",
+    "named": false
+  },
+  {
     "type": "block",
     "named": false
   },
@@ -2424,6 +2915,14 @@
     "named": false
   },
   {
+    "type": "forever",
+    "named": true
+  },
+  {
+    "type": "geometry",
+    "named": false
+  },
+  {
     "type": "goto",
     "named": false
   },
@@ -2456,6 +2955,10 @@
     "named": false
   },
   {
+    "type": "length",
+    "named": true
+  },
+  {
     "type": "line_comment",
     "named": true
   },
@@ -2476,6 +2979,10 @@
     "named": false
   },
   {
+    "type": "origin",
+    "named": true
+  },
+  {
     "type": "out",
     "named": false
   },
@@ -2489,10 +2996,14 @@
   },
   {
     "type": "player",
-    "named": false
+    "named": true
   },
   {
     "type": "portrait",
+    "named": false
+  },
+  {
+    "type": "position",
     "named": false
   },
   {
@@ -2513,7 +3024,7 @@
   },
   {
     "type": "self",
-    "named": false
+    "named": true
   },
   {
     "type": "serial_dialog",

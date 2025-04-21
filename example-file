@@ -1,6 +1,6 @@
 scriptname {
-	camera fade [out, in] -> [red, blue] over [1s, 10];
-	camera fade out -> white over 1s;
-	
-
+	[
+		[entity Bob, player] position,
+		camera
+	] = geometry stick;
 }

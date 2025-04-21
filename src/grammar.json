@@ -47,12 +47,8 @@
               "type": "REPEAT",
               "content": {
                 "type": "PATTERN",
-                "value": "."
+                "value": "[^\\n]"
               }
-            },
-            {
-              "type": "STRING",
-              "value": "\n"
             }
           ]
         }
@@ -2304,6 +2300,18 @@
         {
           "type": "SYMBOL",
           "name": "action_camera_fade"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_play_entity_animation"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_move_over_time"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_position"
         }
       ]
     },
@@ -2764,85 +2772,24 @@
         }
       ]
     },
-    "action_pause_script": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "pause"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_map_or_entity_script"
-        }
-      ]
+    "player": {
+      "type": "STRING",
+      "value": "player"
     },
-    "action_unpause_script": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "unpause"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_map_or_entity_script"
-        }
-      ]
+    "self": {
+      "type": "STRING",
+      "value": "self"
     },
-    "_map_or_entity_script": {
+    "entity_identifier": {
       "type": "CHOICE",
       "members": [
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "map"
-            },
-            {
-              "type": "FIELD",
-              "name": "map_script",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_expandable"
-              }
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "player"
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "player"
-            },
-            {
-              "type": "FIELD",
-              "name": "player_script",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_expandable"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "self"
-            },
-            {
-              "type": "FIELD",
-              "name": "self_script",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_expandable"
-              }
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "self"
         },
         {
           "type": "SEQ",
@@ -2856,18 +2803,232 @@
               "name": "entity",
               "content": {
                 "type": "SYMBOL",
-                "name": "string_expandable"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "entity_script",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_expandable"
+                "name": "string"
               }
             }
           ]
+        }
+      ]
+    },
+    "entity_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "entity_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_identifier_expansion"
+        }
+      ]
+    },
+    "entity_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "entity_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "entity_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "map": {
+      "type": "STRING",
+      "value": "map"
+    },
+    "entity_or_map_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "map"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "player"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "self"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "entity"
+            },
+            {
+              "type": "FIELD",
+              "name": "entity",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "entity_or_map_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier_expansion"
+        }
+      ]
+    },
+    "entity_or_map_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "entity_or_map_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "entity_or_map_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "action_pause_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "pause"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier_expandable"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        }
+      ]
+    },
+    "action_unpause_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "unpause"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier_expandable"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
         }
       ]
     },
@@ -3044,6 +3205,623 @@
           }
         }
       ]
+    },
+    "action_play_entity_animation": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "entity_identifier_expandable"
+        },
+        {
+          "type": "STRING",
+          "value": "animation"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "animation",
+          "content": {
+            "type": "SYMBOL",
+            "name": "number_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "count",
+          "content": {
+            "type": "SYMBOL",
+            "name": "quantity_expandable"
+          }
+        }
+      ]
+    },
+    "geometry_identifier": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "geometry"
+        },
+        {
+          "type": "FIELD",
+          "name": "geometry",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string"
+          }
+        }
+      ]
+    },
+    "geometry_identifier_expandable": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "geometry_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "geometry_identifier_expansion"
+        }
+      ]
+    },
+    "geometry_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "geometry_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "geometry_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "camera": {
+      "type": "STRING",
+      "value": "camera"
+    },
+    "origin": {
+      "type": "STRING",
+      "value": "origin"
+    },
+    "length": {
+      "type": "STRING",
+      "value": "length"
+    },
+    "forever": {
+      "type": "STRING",
+      "value": "forever"
+    },
+    "_origin_or_length": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "origin"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "length"
+        }
+      ]
+    },
+    "movable_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "camera",
+          "content": {
+            "type": "SYMBOL",
+            "name": "camera"
+          }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "entity_identifier"
+            },
+            {
+              "type": "STRING",
+              "value": "position"
+            }
+          ]
+        }
+      ]
+    },
+    "movable_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier_expansion"
+        }
+      ]
+    },
+    "movable_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "movable_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "movable_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "polygon_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "entity_identifier"
+            },
+            {
+              "type": "STRING",
+              "value": "position"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "geometry_identifier"
+            },
+            {
+              "type": "FIELD",
+              "name": "target",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_origin_or_length"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "polygon_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "polygon_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "polygon_identifier_expansion"
+        }
+      ]
+    },
+    "polygon_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "polygon_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "polygon_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "complex_duration": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "forever",
+          "content": {
+            "type": "SYMBOL",
+            "name": "forever"
+          }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "over"
+            },
+            {
+              "type": "FIELD",
+              "name": "duration",
+              "content": {
+                "type": "SYMBOL",
+                "name": "duration_expandable"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "complex_duration_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "complex_duration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "complex_duration_expansion"
+        }
+      ]
+    },
+    "complex_duration_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "complex_duration"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "complex_duration"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "action_move_over_time": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier_expandable"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "polygon_identifier_expandable"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "complex_duration_expandable"
+        }
+      ]
+    },
+    "action_set_position": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier_expandable"
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "SYMBOL",
+          "name": "polygon_identifier_expandable"
+        }
+      ]
+    },
+    "setable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "entity_identifier"
+            },
+            {
+              "type": "STRING",
+              "value": "glitched"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "player_control"
+        },
+        {
+          "type": "STRING",
+          "value": "lights_control"
+        },
+        {
+          "type": "STRING",
+          "value": "hex_editor"
+        },
+        {
+          "type": "STRING",
+          "value": "hex_dialog_mode"
+        },
+        {
+          "type": "STRING",
+          "value": "hex_control"
+        },
+        {
+          "type": "STRING",
+          "value": "hex_clipboard"
+        },
+        {
+          "type": "STRING",
+          "value": "serial_control"
+        },
+        {
+          "type": "STRING",
+          "value": "flagName"
+        }
+      ]
+    },
+    "setable_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "setable"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "setable_expansion"
+        }
+      ]
+    },
+    "setable_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "setable",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "setable"
+                  }
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "setable"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
     }
   },
   "extras": [
@@ -3089,7 +3867,21 @@
     "constant_expandable",
     "constant_value",
     "constant_value_expandable",
-    "in_or_out_expandable"
+    "entity_identifier",
+    "entity_identifier_expandable",
+    "entity_or_map_identifier",
+    "entity_or_map_identifier_expandable",
+    "in_or_out_expandable",
+    "geometry_identifier",
+    "geometry_identifier_expandable",
+    "movable_identifier",
+    "movable_identifier_expandable",
+    "polygon_identifier",
+    "polygon_identifier_expandable",
+    "complex_duration",
+    "complex_duration_expandable",
+    "setable",
+    "setable_expandable"
   ],
   "supertypes": []
 }

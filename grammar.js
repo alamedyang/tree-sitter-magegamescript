@@ -42,14 +42,21 @@ module.exports = grammar({
 		$.boolean, $.boolean_expandable,
 		$.constant_expandable,
 		$.constant_value, $.constant_value_expandable,
+		$.entity_identifier, $.entity_identifier_expandable,
+		$.entity_or_map_identifier, $.entity_or_map_identifier_expandable,
 		$.in_or_out_expandable,
+		$.geometry_identifier, $.geometry_identifier_expandable,
+		$.movable_identifier, $.movable_identifier_expandable,
+		$.polygon_identifier, $.polygon_identifier_expandable,
+		$.complex_duration, $.complex_duration_expandable,
+		$.setable, $.setable_expandable,
 	],
 	rules: {
 		source_file: $ => repeat($._root),
 
 		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
 		line_comment: $ => token(repeat1(
-			seq('//', repeat(/./), '\n',)
+			seq('//', repeat(/[^\n]/))
 		)),
 		
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
@@ -456,135 +463,116 @@ module.exports = grammar({
 			$.action_unpause_script,
 			$.action_camera_shake,
 			$.action_camera_fade,
-
+			$.action_play_entity_animation,
+			$.action_move_over_time,
+			$.action_set_position,
 
 			// $.action_set_bool,
-			// $.action_teleport_entity,
-			// $.action_teleport_camera,
-			// $.action_play_entity_animation,
-			// $.action_loop_entity_along_geometry,
-			// $.action_walk_entity_along_geometry,
-			// $.action_walk_entity_to_geometry,
-			// $.action_loop_camera_along_geometry,
-			// $.action_pan_camera_along_geometry,
-			// $.action_pan_camera_to_geometry,
-			// $.action_pan_camera_to_entity,
 		),
 
 		return_statement: $ => 'return',
-
-		action_load_map: $ => seq(
-			'load', 'map', field('map', $.string_expandable),
-		),
-		action_run_script: $ => seq(
-			'goto', field('script', $.string_expandable),
-		),
-		action_goto_label: $ => seq(
-			'goto', 'label', field('label', $.bareword_expandable),
-		),
-		action_goto_index: $ => seq(
-			'goto', 'index', field('index', $.number_expandable),
-		),
+		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable),),
+		action_run_script: $ => seq('goto', field('script', $.string_expandable),),
+		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable),),
+		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable),),
 
 		action_show_dialog: $ => seq(
 			'show', 'dialog', choice(
-				seq(
-					field('dialog_name', $.STRING), $.dialog_block,
-				),
+				seq(field('dialog_name', $.STRING), $.dialog_block),
 				field('dialog_name', $.STRING),
 				$.dialog_block,
 			),
 		),
 		action_show_serial_dialog: $ => seq(
 			'show', 'serial_dialog', choice(
-				seq(
-					field('serial_dialog_name', $.STRING), $.serial_dialog_block,
-				),
+				seq(field('serial_dialog_name', $.STRING), $.serial_dialog_block),
 				field('serial_dialog_name', $.STRING),
 				$.serial_dialog_block,
 			),
 		),
 		action_concat_serial_dialog: $ => seq(
 			'concat', 'serial_dialog', choice(
-				seq(
-					field('serial_dialog_name', $.STRING), $.serial_dialog_block,
-				),
+				seq(field('serial_dialog_name', $.STRING), $.serial_dialog_block),
 				field('serial_dialog_name', $.STRING),
 				$.serial_dialog_block,
 			),
 		),
 		
-		action_delete_command: $ => seq(
-			'delete', 'command',
-			field('command', $.string_expandable),
-		),
+		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable)),
 		action_delete_command_arg: $ => seq(
-			'delete', 'command',
-			field('command', $.string_expandable),
-			'+',
-			field('argument', $.string_expandable),
+			'delete', 'command', field('command', $.string_expandable),
+			'+', field('argument', $.string_expandable),
 		),
-		action_delete_alias: $ => seq(
-			'delete', 'alias',
-			field('alias', $.string_expandable),
-		),
-		action_hide_command: $ => seq(
-			'hide', 'command',
-			field('command', $.string_expandable),
-		),
-		action_unhide_command: $ => seq(
-			'unhide', 'command',
-			field('command', $.string_expandable),
-		),
+		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable)),
+		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable)),
+		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable)),
 
-		action_save_slot: $ => seq(
-			'save', 'slot',
-		),
-		action_load_slot: $ => seq(
-			'load', 'slot', field('slot', $.number_expandable),
-		),
-		action_erase_slot: $ => seq(
-			'erase', 'slot', field('slot', $.number_expandable),
-		),
+		action_save_slot: $ => seq('save', 'slot',),
+		action_load_slot: $ => seq('load', 'slot', field('slot', $.number_expandable),),
+		action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable),),
 
-		action_blocking_delay: $ => seq(
-			'block', field('duration', $.duration_expandable),
-		),
-		action_non_blocking_delay: $ => seq(
-			'wait', field('duration', $.duration_expandable),
-		),
+		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable),),
+		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable),),
 
-		action_close_dialog: $ => seq(
-			'close', 'dialog',
+		action_close_dialog: $ => seq('close', 'dialog'),
+		action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
+
+		player: $ => 'player',
+		self: $ => 'self',
+		entity_identifier: $ => choice(
+			$.player,
+			$.self,
+			seq('entity', field('entity', $.string))
 		),
-		action_close_serial_dialog: $ => seq(
-			'close', 'serial_dialog',
+		entity_identifier_expandable: $ => choice(
+			$.entity_identifier,
+			$.entity_identifier_expansion
+		),
+		entity_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.entity_identifier,
+				repeat(seq(',', $.entity_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+		map: $ => 'map',
+		entity_or_map_identifier: $ => choice(
+			$.map,
+			$.player,
+			$.self,
+			seq('entity', field('entity', $.string))
+		),
+		entity_or_map_identifier_expandable: $ => choice(
+			$.entity_or_map_identifier,
+			$.entity_or_map_identifier_expansion
+		),
+		entity_or_map_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.entity_or_map_identifier,
+				repeat(seq(',', $.entity_or_map_identifier)),
+				optional(','),
+			)),
+			']'
 		),
 
 		action_pause_script: $ => seq(
-			'pause', $._map_or_entity_script,
+			'pause',
+			$.entity_or_map_identifier_expandable,
+			field('script', $.string_expandable),
 		),
 		action_unpause_script: $ => seq(
-			'unpause', $._map_or_entity_script,
-		),
-		_map_or_entity_script: $ => choice(
-			seq('map', field('map_script', $.string_expandable)),
-			seq('player', field('player_script', $.string_expandable)),
-			seq('self', field('self_script', $.string_expandable)),
-			seq(
-				'entity',
-				field('entity', $.string_expandable),
-				field('entity_script', $.string_expandable)
-			),
+			'unpause',
+			$.entity_or_map_identifier_expandable,
+			field('script', $.string_expandable),
 		),
 
 		action_camera_fade: $ => seq(
-			'camera', 'fade',
-			field('fade', $.in_or_out_expandable),
-			'->',
-			field('color', $.color_expandable),
-			'over',
-			field('duration', $.duration_expandable),
+			'camera', 'fade', field('fade', $.in_or_out_expandable),
+			'->', field('color', $.color_expandable),
+			'over', field('duration', $.duration_expandable),
 		),
 		in_or_out: $ => choice('in','out'),
 		in_or_out_expandable: $ => choice(
@@ -600,98 +588,136 @@ module.exports = grammar({
 			)),
 			']'
 		),
+		
 		action_camera_shake: $ => seq(
 			'camera', 'shake', '->',
 			field('amplitude', $.duration_expandable),
 			field('distance', $.distance_expandable),
-			'over',
-			field('duration', $.duration_expandable),
+			'over', field('duration', $.duration_expandable),
 		),
-		// _geometry_identifier: $ => seq(
-		// 	'geometry',
-		// 	field('geometry', $._string),
-		// ),
-		// player: $ => token('player'),
-		// self: $ => token('self'),
-		// _entity_identifier: $ => choice(
-		// 	field('entity_special', choice($.player, $.self)),
-		// 	seq('entity', field('entity', $._string)),
-		// ),
-		// action_pan_camera_to_entity: $ => seq(
-		// 	'camera', '->',
-		// 	field('entity_type', $._entity_identifier),
-		// 	'position', 'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_pan_camera_to_geometry: $ => seq(
-		// 	'camera', '->',
-		// 	$._geometry_identifier,
-		// 	'origin', 'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_pan_camera_along_geometry: $ => seq(
-		// 	'camera', '->',
-		// 	$._geometry_identifier,
-		// 	'length', 'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_loop_camera_along_geometry: $ => seq(
-		// 	'camera', '->',
-		// 	$._geometry_identifier,
-		// 	'length', 'forever',
-		// ),
-		// action_walk_entity_to_geometry: $ => seq(
-		// 	$._entity_identifier,
-		// 	'position', '->',
-		// 	$._geometry_identifier,
-		// 	'origin', 'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_walk_entity_along_geometry: $ => seq(
-		// 	$._entity_identifier,
-		// 	'position', '->',
-		// 	$._geometry_identifier,
-		// 	'length', 'over',
-		// 	field('duration', $._duration),
-		// ),
-		// action_loop_entity_along_geometry: $ => seq(
-		// 	$._entity_identifier,
-		// 	'position', '->',
-		// 	$._geometry_identifier,
-		// 	'length', 'forever',
-		// ),
-		// action_play_entity_animation: $ => seq(
-		// 	$._entity_identifier,
-		// 	'animation', '->',
-		// 	field('animation', $._number),
-		// 	field('count', $._quantity),
-		// ),
-		// action_teleport_camera: $ => seq(
-		// 	'camera', '=',
-		// 	choice(
-		// 		$._geometry_identifier,
-		// 		$._entity_identifier,
-		// 	),
-		// 	'position',
-		// ),
-		// action_teleport_entity: $ => seq(
-		// 	$._entity_identifier,
-		// 	'position', '=',
-		// 	$._geometry_identifier,
-		// ),
-		// setables: $ => choice(
-		// 	seq($._entity_identifier, 'glitched'),
-		// 	'player_control',
-		// 	'lights_control',
-		// 	'hex_editor',
-		// 	'hex_dialog_mode',
-		// 	'hex_control',
-		// 	'hex_clipboard',
-		// 	'serial_control',
-		// 	'flagName',
-		// ),
+
+		action_play_entity_animation: $ => seq(
+			$.entity_identifier_expandable,
+			'animation', '->',
+			field('animation', $.number_expandable),
+			field('count', $.quantity_expandable),
+		),
+
+		geometry_identifier: $ => seq(
+			'geometry', field('geometry', $.string),
+		),
+		geometry_identifier_expandable: $ => seq(
+			$.geometry_identifier,
+			$.geometry_identifier_expansion,
+		),
+		geometry_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.geometry_identifier,
+				repeat(seq(',', $.geometry_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+
+		camera: $ => 'camera',
+		origin: $ => 'origin',
+		length: $ => 'length',
+		forever: $ => 'forever',
+		_origin_or_length: $ => choice($.origin, $.length),
+
+		movable_identifier: $ => choice(
+			field('camera', $.camera),
+			seq($.entity_identifier, 'position'),
+		),
+		movable_identifier_expandable: $ => choice(
+			$.movable_identifier,
+			$.movable_identifier_expansion,
+		),
+		movable_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.movable_identifier,
+				repeat(seq(',', $.movable_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+
+		polygon_identifier: $ => choice(
+			seq($.entity_identifier, 'position'),
+			seq($.geometry_identifier, field('target', $._origin_or_length)),
+		),
+		polygon_identifier_expandable: $ => choice(
+			$.polygon_identifier,
+			$.polygon_identifier_expansion,
+		),
+		polygon_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.polygon_identifier,
+				repeat(seq(',', $.polygon_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+
+		complex_duration: $ => choice(
+			field('forever', $.forever),
+			seq('over', field('duration', $.duration_expandable))
+		),
+		complex_duration_expandable: $ => choice(
+			$.complex_duration,
+			$.complex_duration_expansion,
+		),
+		complex_duration_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.complex_duration,
+				repeat(seq(',', $.complex_duration)),
+				optional(','),
+			)),
+			']'
+		),
+
+		action_move_over_time: $ => seq(
+			$.movable_identifier_expandable,
+			'->',
+			$.polygon_identifier_expandable,
+			$.complex_duration_expandable
+		),
+		action_set_position: $ => seq(
+			$.movable_identifier_expandable,
+			'=',
+			$.polygon_identifier_expandable
+		),
+
+		setable: $ => choice(
+			seq($.entity_identifier, 'glitched'),
+			'player_control',
+			'lights_control',
+			'hex_editor',
+			'hex_dialog_mode',
+			'hex_control',
+			'hex_clipboard',
+			'serial_control',
+			'flagName',
+		),
+		setable_expandable: $ => choice(
+			$.setable,
+			$.setable_expansion,
+		),
+		setable_expansion: $ => seq(
+			'[',
+			optional(seq(
+				field('setable', $.setable),
+				repeat(seq(',', $.setable)),
+				optional(','),
+			)),
+			']'
+		),
 		// action_set_bool: $ => seq(
-		// 	field('setable', $.setables),
+		// 	field('setable', $.setable), 
 		// 	'=',
 		// 	choice(
 		// 		$.boolean_expandable,
