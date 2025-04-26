@@ -1,6 +1,1 @@
-scriptname {
-	command BLARG = blargScript;
-}
-
-
-
+include ["header.mgs","castle.mgs",];

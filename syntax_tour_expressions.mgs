@@ -1,0 +1,318 @@
+/*
+
+Flavors of "capture" tokens
+
+token: $CAPITAL => Just that literal token only.
+
+token: $lowercase => That literal token OR a $CONSTANT value.
+
+token: [$any] => Expandable, but only to that type. (see above)
+Meaning `$_` is okay and `[ $_, $_, $_ ]` is also okay.
+Usually also means that $CONSTANT tokens are okay inside
+(at least, for those items made of a single token).
+
+*/
+
+/* ------------------------------ ROOT LEVEL ------------------------------ */
+
+// STARTS WITH LITERALS
+include [$quoted_string];
+dialog $STRING {}
+serial_dialog $STRING {}
+add serial_dialog settings {}
+add dialog settings {}
+script $STRING {}
+// line comment, parsed but ignored
+/* block comment, parsed but ignored */
+// whitespace is also parsed but ignored fwiw
+
+// STARTS WITH CAPTURE TOKENS
+[$CONSTANT] = [$string];
+[$CONSTANT] = [$numberish];
+[$CONSTANT] = [$bool];
+[$CONSTANT] = [$color];
+
+$BAREWORD {}
+
+
+/* ------------------------------ SETTINGS LEVEL ------------------------------ */
+
+add dialog settings {
+	label $BAREWORD {}
+	entity $STRING {}
+	default {
+		entity $STRING
+		name $STRING
+		portrait $STRING
+		alignment $STRING // enum checked at playback level
+		border_tileset $STRING
+		emote $NUMBER
+		wrap $NUMBER
+	}
+}
+
+add serial_dialog settings {
+	wrap $NUMBER
+}
+
+
+/* ------------------------------ SCRIPT LEVEL ------------------------------ */
+
+_ {
+
+	// as before, anything purple means script jumping or maneuvering will happen
+	
+	while (/* @bool_expression */) {
+		// @looping_script_actions; the same as @script_item but also with
+		// `break` and `continue`
+		break;
+		continue;
+	}
+	do {
+		/* @looping_script_actions */
+	} while (/* @bool_expression */) 
+	for (/* @action_item */ ; /* @bool_expression */ ; /* @action_item */) {
+		/* @looping_script_actions */
+	}
+	if (/* @condition */) {/* @script_actions */}
+	else if (/* @condition */) {/* @script_actions */}
+	else {/* @script_actions */}
+	
+	return;
+
+	// expandable because of spread!() and rand!()
+	load map [$string]; //LOAD_MAP
+	goto [$string]; //RUN_SCRIPT
+	goto index [$number]; //GOTO_ACTION_INDEX
+	goto label [$bareword]; //GOTO_ACTION_INDEX
+
+	// non-purple:
+	delete command [$string]; //UNREGISTER_SERIAL_DIALOG_COMMAND
+	delete command [$string] + [$string]; //UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
+	delete alias [$string]; //UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
+	hide command [$string]; //SET_SERIAL_DIALOG_COMMAND_VISIBILITY
+	unhide command [$string]; //SET_SERIAL_DIALOG_COMMAND_VISIBILITY
+	save slot; //SLOT_SAVE
+	load slot [$number]; //SLOT_LOAD
+	erase slot [$number]; //SLOT_ERASE
+	block [$duration]; //BLOCKING_DELAY
+	wait [$duration]; //NON_BLOCKING_DELAY
+	close dialog; //CLOSE_DIALOG
+	close serial_dialog; //CLOSE_SERIAL_DIALOG
+
+	// @player_or_map_identifier
+	map
+	player
+	self
+	entity $string
+
+	// possible enums for script slots?
+	pause /* @player_or_map_identifier */ [$string]; //SET_SCRIPT_PAUSE
+	unpause /* @player_or_map_identifier */ [$string]; //SET_SCRIPT_PAUSE
+
+	show dialog {}; //SHOW_DIALOG
+	show dialog dialogName; //SHOW_DIALOG
+	show dialog dialogName {}; //SHOW_DIALOG
+	show serial_dialog {}; //SHOW_SERIAL_DIALOG
+	show serial_dialog serialDialogName; //SHOW_SERIAL_DIALOG
+	show serial_dialog serialDialogName {}; //SHOW_SERIAL_DIALOG
+
+	json[] // Anything inside the brackets will be arbitrary actions. Action == obj literal, comma-separated
+
+	
+	/* ---------------------- LEFT TO RIGHT BUT ALSO CHECK THE SECOND TOKEN ---------------------- */
+
+	debug!()
+	debug!(serialDialogName)
+	debug!("serial dialog messages")
+	copy!(scriptName) //COPY_SCRIPT (but maybe the mathlang version?)
+	rand!()
+
+	/* REMINDER
+	rand!(wait [100ms, 400ms, 500ms];)
+	// becomes:
+	rand ?= 3;
+	if (rand == 0) { wait 100ms; }
+	else if (rand == 1) { wait 400ms; }
+	else if (rand == 2) { wait 500ms; }
+	*/
+
+	$bareword_literal: // label
+
+	/* ---------------------- set position ---------------------- */
+
+	// over time
+	camera -> geometry geometryName origin over $duration; //PAN_CAMERA_TO_GEOMETRY
+	camera -> geometry geometryName length over $duration; //PAN_CAMERA_ALONG_GEOMETRY
+	camera -> geometry geometryName length forever; //LOOP_CAMERA_ALONG_GEOMETRY
+	camera -> entity Bob position over $duration; //PAN_CAMERA_TO_ENTITY
+    entity Bob position -> geometry geometryName origin over $duration; //WALK_ENTITY_TO_GEOMETRY
+    entity Bob position -> geometry geometryName length over $duration; //WALK_ENTITY_ALONG_GEOMETRY
+    entity Bob position -> geometry geometryName length forever; //LOOP_ENTITY_ALONG_GEOMETRY
+
+	// set
+	camera = geometry geometryName; //TELEPORT_CAMERA_TO_GEOMETRY
+	camera = entity Bob position; //SET_CAMERA_TO_FOLLOW_ENTITY
+	entity Bob position = geometry geometryName; //TELEPORT_ENTITY_TO_GEOMETRY
+
+	// all becomes =>
+
+	// @positionable
+	camera
+	self
+	player
+	entity $string
+
+	// @destination
+	geometry $string
+	self position
+	player position
+	entity $string position
+	
+	// @complex_duration
+	over [$duration]
+	forever
+
+	/* @positionable */ -> /* @destination */ /* @complex_duration */
+	/* @positionable */ = /* @destination */
+
+	// related
+	camera fade out -> $color over $duration; //SCREEN_FADE_OUT
+	camera fade in -> $color over $duration; //SCREEN_FADE_IN
+	camera shake -> $duration $dist over $duration; //SET_SCREEN_SHAKE
+	entity Bob animation -> 3 twice; //PLAY_ENTITY_ANIMATION
+
+	/* ---------------------- set bool ---------------------- */
+
+	// bools you can set (SET_)
+	player_control
+	lights_control
+	hex_editor
+	hex_dialog_mode
+	hex_control
+	hex_clipboard
+	serial_control
+	
+	// bools you can get and set (SET_ and CHECK_)
+	entity entityName glitched
+	$string // flag name
+
+	// bools you can get (CHECK_)
+	debug_mode
+	dialog open //CHECK_DIALOG_OPEN
+	serial_dialog open //CHECK_SERIAL_DIALOG_OPEN
+	button $enum_button down //CHECK_FOR_BUTTON_STATE
+	button $enum_button up //CHECK_FOR_BUTTON_STATE
+	button $enum_button pressed //CHECK_FOR_BUTTON_PRESS
+	entity entityName intersects geometry geometryName //CHECK_IF_ENTITY_IS_IN_GEOMETRY
+	
+	// THEREFORE
+
+	// @bool_setables
+	player_control
+	lights_control
+	hex_editor
+	hex_dialog_mode
+	hex_control
+	hex_clipboard
+	serial_control
+	/* entity identifier */ glitched
+	$string
+
+	// @bool_getables
+	/* entity identifier */ glitched
+	/* entity identifier */ intersects geometry geometryName //CHECK_IF_ENTITY_IS_IN_GEOMETRY
+	$string // flag name
+	debug_mode
+	dialog open //CHECK_DIALOG_OPEN
+	serial_dialog open //CHECK_SERIAL_DIALOG_OPEN
+	button $enum_button down //CHECK_FOR_BUTTON_STATE
+	button $enum_button up //CHECK_FOR_BUTTON_STATE
+	button $enum_button pressed //CHECK_FOR_BUTTON_PRESS
+
+	/* @bool_setables */ = /* @bool_expression */
+
+	// @bool_expression
+	
+	true
+	false
+	on
+	off
+	/* @bool_getables */
+	! /* @bool_expression */
+	( /* @bool_expression */ )
+	/* @bool_expression */ && /* @bool_expression */
+	/* @bool_expression */ || /* @bool_expression */
+	/* @bool_expression */ != /* @bool_expression */
+	/* @bool_expression */ == /* @bool_expression */
+	/* @bool_comparables */ == /* @bool_expression */
+
+	// @entity_string_props
+	name
+	on_interact
+	on_tick
+	on_look
+	type
+	path
+
+	// @string_comparables (== or !=)
+	warp_state
+	/* @entity_identifier */ /* @entity_string_props */ == $string
+
+	// @entity_int_props
+	x
+	y
+	primary_id
+	secondary_id
+	primary_id_type
+	current_animation
+	animation_frame
+
+	// @int_comparables_strict (== or !==)
+	/* @entity_identifier */ /* @entity_int_props */ == @int_expression
+
+	// @int_comparables (< thru >)
+	$STRING < /* @int_expression */
+
+	/* ---------------------- set number ---------------------- */
+
+	// @int_getables
+	/* @entity_identifier */ /* @entity_prop */
+	$string // variableName
+	
+	// @int_setables
+	entity entityName x = $number_literal; //SET_ENTITY_X
+	entity entityName y = $number_literal; //SET_ENTITY_Y
+	entity entityName primary_id = $number_literal; //SET_ENTITY_PRIMARY_ID
+	entity entityName secondary_id = $number_literal; //SET_ENTITY_SECONDARY_ID
+	entity entityName primary_id_type = $number_literal; //SET_ENTITY_PRIMARY_ID_TYPE
+	entity entityName current_animation = 1; //SET_ENTITY_CURRENT_ANIMATION
+	entity entityName animation_frame = 1; //SET_ENTITY_CURRENT_FRAME
+	entity entityName strafe = $number_literal; //SET_ENTITY_MOVEMENT_RELATIVE
+	entity entityName $entityField = variableName; //COPY_VARIABLE
+	variableName = entity entityName $entityField; //COPY_VARIABLE
+	variableName = $number_literal; //MUTATE_VARIABLE
+	variableName1 = variableName2; //MUTATE_VARIABLES
+
+	/* @int_setables */ = /* @int_expression */
+
+	// @int_expression
+	
+	/* @int_getables */
+	- /* @int_expression */
+	( /* @int_expression */ )
+	/* @int_expression */ && /* @int_expression */
+	/* @int_expression */ || /* @int_expression */
+	/* @int_expression */ != /* @int_expression */
+	/* @int_expression */ == /* @int_expression */
+
+
+
+// CAN'T REMEMBER IF I FINISHED THIS
+
+
+
+
+
+}
+
