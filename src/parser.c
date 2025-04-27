@@ -41,7 +41,7 @@ enum ts_symbol_identifiers {
   anon_sym_LPAREN = 23,
   anon_sym_RPAREN = 24,
   anon_sym_COLON = 25,
-  sym_return_statement = 26,
+  sym_action_return_statement = 26,
   anon_sym_close = 27,
   anon_sym_dialog = 28,
   anon_sym_serial_dialog = 29,
@@ -117,7 +117,7 @@ static const char * const ts_symbol_names[] = {
   [anon_sym_LPAREN] = "(",
   [anon_sym_RPAREN] = ")",
   [anon_sym_COLON] = ":",
-  [sym_return_statement] = "return_statement",
+  [sym_action_return_statement] = "action_return_statement",
   [anon_sym_close] = "close",
   [anon_sym_dialog] = "dialog",
   [anon_sym_serial_dialog] = "serial_dialog",
@@ -193,7 +193,7 @@ static const TSSymbol ts_symbol_map[] = {
   [anon_sym_LPAREN] = anon_sym_LPAREN,
   [anon_sym_RPAREN] = anon_sym_RPAREN,
   [anon_sym_COLON] = anon_sym_COLON,
-  [sym_return_statement] = sym_return_statement,
+  [sym_action_return_statement] = sym_action_return_statement,
   [anon_sym_close] = anon_sym_close,
   [anon_sym_dialog] = anon_sym_dialog,
   [anon_sym_serial_dialog] = anon_sym_serial_dialog,
@@ -347,7 +347,7 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = false,
   },
-  [sym_return_statement] = {
+  [sym_action_return_statement] = {
     .visible = true,
     .named = true,
   },
@@ -2107,10 +2107,10 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       ACCEPT_TOKEN(anon_sym_COLON);
       END_STATE();
     case 234:
-      ACCEPT_TOKEN(sym_return_statement);
+      ACCEPT_TOKEN(sym_action_return_statement);
       END_STATE();
     case 235:
-      ACCEPT_TOKEN(sym_return_statement);
+      ACCEPT_TOKEN(sym_action_return_statement);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
@@ -2357,7 +2357,7 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [anon_sym_LPAREN] = ACTIONS(1),
     [anon_sym_RPAREN] = ACTIONS(1),
     [anon_sym_COLON] = ACTIONS(1),
-    [sym_return_statement] = ACTIONS(1),
+    [sym_action_return_statement] = ACTIONS(1),
     [anon_sym_close] = ACTIONS(1),
     [anon_sym_dialog] = ACTIONS(1),
     [anon_sym_serial_dialog] = ACTIONS(1),
@@ -2395,7 +2395,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(20), 1,
       anon_sym_rand,
     ACTIONS(23), 1,
-      sym_return_statement,
+      sym_action_return_statement,
     ACTIONS(26), 1,
       anon_sym_close,
     ACTIONS(29), 1,
@@ -2442,7 +2442,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(51), 1,
       anon_sym_rand,
     ACTIONS(53), 1,
-      sym_return_statement,
+      sym_action_return_statement,
     ACTIONS(55), 1,
       anon_sym_close,
     ACTIONS(57), 1,
@@ -2484,7 +2484,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(51), 1,
       anon_sym_rand,
     ACTIONS(53), 1,
-      sym_return_statement,
+      sym_action_return_statement,
     ACTIONS(55), 1,
       anon_sym_close,
     ACTIONS(57), 1,
@@ -2528,7 +2528,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(51), 1,
       anon_sym_rand,
     ACTIONS(53), 1,
-      sym_return_statement,
+      sym_action_return_statement,
     ACTIONS(55), 1,
       anon_sym_close,
     ACTIONS(57), 1,
@@ -2572,7 +2572,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(51), 1,
       anon_sym_rand,
     ACTIONS(53), 1,
-      sym_return_statement,
+      sym_action_return_statement,
     ACTIONS(55), 1,
       anon_sym_close,
     ACTIONS(57), 1,
@@ -2620,7 +2620,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(75), 10,
       sym_BAREWORD,
       anon_sym_rand,
-      sym_return_statement,
+      sym_action_return_statement,
       anon_sym_close,
       anon_sym_save,
       anon_sym_load,
@@ -2638,7 +2638,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(79), 10,
       sym_BAREWORD,
       anon_sym_rand,
-      sym_return_statement,
+      sym_action_return_statement,
       anon_sym_close,
       anon_sym_save,
       anon_sym_load,
@@ -2656,7 +2656,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(83), 10,
       sym_BAREWORD,
       anon_sym_rand,
-      sym_return_statement,
+      sym_action_return_statement,
       anon_sym_close,
       anon_sym_save,
       anon_sym_load,
@@ -2674,7 +2674,7 @@ static const uint16_t ts_small_parse_table[] = {
     ACTIONS(87), 10,
       sym_BAREWORD,
       anon_sym_rand,
-      sym_return_statement,
+      sym_action_return_statement,
       anon_sym_close,
       anon_sym_save,
       anon_sym_load,

@@ -5,12 +5,8 @@ $test = #ABC;
 $trombones = 76;
 $hamburgers = "Steamed Hams";
 goatTime {
-	rand!(
-		wait [1s, 2s, 3s];
-		wait [1000, 2000];
-		load map [town, $hamburgers];
-		return;
-	)
+	return;
+	load map [goats, pineapple];
 }`;
 
 const cleanFns = {
@@ -86,12 +82,116 @@ const clean = (f, node) => {
 	return fn(f, node);
 };
 
+const handleAction = (f, node) => {
+	const genericData = actionData[node.grammarType];
+	if (!genericData) {
+		const customFn = actionFns[node.grammarType];
+		if (!customFn) throw new Error (`No data or handler function found for ${node.grammarType}`);
+		return customFn(f, node);
+	}
+	let ret = {
+		debug: node,
+		fileName: f.fileName,
+		...genericData?.values,
+	};
+	const spreadFields = {};
+	let spreadSize = -Infinity;
+	(genericData.captures||[]).forEach(fieldName=>{
+		const fieldNode = node.childForFieldName(fieldName);
+		const cleanField = clean(f, fieldNode);
+		if (!Array.isArray(cleanField)) {
+			ret[fieldName] = cleanField;
+		} else {
+			spreadFields[fieldName] = cleanField;
+			const len = cleanField.length;
+			if (spreadSize === -Infinity) spreadSize = len;
+			if (spreadSize !== len) {
+				f.errors.push({
+					message: `Spreads must have the same count within a given action`,
+					node: fieldNode,
+					fileName: f.fileName,
+				});
+				spreadSize = Math.max(spreadSize, len);
+			}
+		}
+	});
+	if (spreadSize === -Infinity) {
+		return [ret];
+	}
+	const spreadRet = [];
+	for (let i = 0; i < spreadSize; i++) {
+		const insert = {
+			...ret,
+		};
+		Object.keys(spreadFields).forEach(fieldName=>{
+			const allValues = spreadFields[fieldName];
+			const currValue = allValues[i % allValues.length];
+			insert[fieldName] = currValue;
+		});
+		spreadRet.push(insert);
+	}
+	return spreadRet;
+};
+
+actionFns = {};
+
+actionData = {
+	action_return_statement: {
+		// TODO: everything after is unreachable
+		values: { mathlang: 'return_statement' },
+	},
+	action_close_dialog: {
+		values: { action: 'CLOSE_DIALOG' },
+	},
+	action_close_serial_dialog: {
+		values: { action: 'CLOSE_SERIAL_DIALOG' },
+	},
+	action_save_slot: {
+		values: { action: 'SLOT_SAVE' },
+	},
+	action_load_slot: {
+		values: { action: 'SLOT_LOAD' },
+		captures: [ 'slot' ],
+	},
+	action_erase_slot: {
+		values: { action: 'SLOT_ERASE' },
+		captures: [ 'slot' ],
+	},
+	action_load_map: {
+		values: { action: 'LOAD_MAP' },
+		captures: [ 'map' ],
+	},
+	action_goto_label: {
+		values: { mathlang: 'goto_label' },
+		captures: [ 'label' ],
+	},
+	action_goto_index: {
+		values: { action: 'GOTO_ACTION_INDEX' },
+		captures: [ 'action_index' ],
+	},
+	action_run_script: {
+		values: { action: 'RUN_SCRIPT' },
+		captures: [ 'script' ],
+	},
+	action_non_blocking_delay: {
+		values: { action: 'NON_BLOCKING_DELAY' },
+		captures: [ 'duration' ],
+	},
+	action_blocking_delay: {
+		values: { action: 'BLOCKING_DELAY' },
+		captures: [ 'duration' ],
+	},
+};
+
 const handleNode = (f, node) => {
-	const genericFn = nodeFns[node.grammarType];
-	if (!genericFn) {
+	if (node.grammarType.startsWith('action_')) {
+		return handleAction(f, node);
+	}
+	const nodeFn = nodeFns[node.grammarType];
+	if (!nodeFn) {
 		throw new Error ('no named node function for '+ node.grammarType);
 	}
-	return genericFn(f, node);
+	return nodeFn(f, node);
 }
 const nodeFns = {
 	line_comment: (f, node) => [],
@@ -114,58 +214,6 @@ const nodeFns = {
 			mathlang: 'script_definition',
 			scriptName: name,
 			actions,
-			debug: node,
-			fileName: f.fileName,
-		}];
-	},
-	action_non_blocking_delay: (f, node) => {
-		const durationNode = node.childForFieldName('duration');
-		const duration = clean(f, durationNode);
-		if (Array.isArray(duration)) {
-			return duration.map(v=>({
-				action: "NON_BLOCKING_DELAY",
-				duration: v,
-				debug: node,
-				fileName: f.fileName,
-			}));
-		}
-		return [{
-			action: "NON_BLOCKING_DELAY",
-			duration: duration,
-			debug: node,
-			fileName: f.fileName,
-		}];
-	},
-	return_statement: (f, node) => [{
-		// TODO: everything after is unreachable
-		mathlang: 'return_statement',
-		debug: node,
-		fileName: f.fileName,
-	}],
-	action_close_dialog: (f, node) => [{
-		action: 'CLOSE_DIALOG',
-		debug: node,
-		fileName: f.fileName,
-	}],
-	action_close_serial_dialog: (f, node) => [{
-		action: 'CLOSE_SERIAL_DIALOG',
-		debug: node,
-		fileName: f.fileName,
-	}],
-	action_load_map: (f, node) => {
-		const mapNode = node.childForFieldName('map');
-		const map = clean(f, mapNode);
-		if (Array.isArray(map)) {
-			return map.map(v=>({
-				action: "LOAD_MAP",
-				map: v,
-				debug: node,
-				fileName: f.fileName,
-			}));
-		}
-		return [{
-			action: "LOAD_MAP",
-			map: map,
 			debug: node,
 			fileName: f.fileName,
 		}];

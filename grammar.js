@@ -367,7 +367,7 @@ module.exports = grammar({
 		label: $ => seq(field('label', $.BAREWORD), ':'),
 
 		_action_item: $ => choice(
-			$.return_statement,
+			$.action_return_statement,
 			$.action_close_dialog,
 			$.action_close_serial_dialog,
 			$.action_save_slot,
@@ -401,7 +401,7 @@ module.exports = grammar({
 			// $.while_block,
 			// $.for_block,
 		),
-		return_statement: $ => 'return',
+		action_return_statement: $ => 'return',
 		action_close_dialog: $ => seq('close', 'dialog'),
 		action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
 		action_save_slot: $ => seq('save', 'slot',),
