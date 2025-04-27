@@ -1,9 +1,9 @@
 [
   {
-    "type": "include_macro",
+    "type": "action_non_blocking_delay",
     "named": true,
     "fields": {
-      "fileName": {
+      "duration": {
         "multiple": false,
         "required": true,
         "types": [
@@ -12,11 +12,11 @@
             "named": true
           },
           {
-            "type": "QUOTED_STRING",
+            "type": "DURATION",
             "named": true
           },
           {
-            "type": "quoted_string_expansion",
+            "type": "duration_expansion",
             "named": true
           }
         ]
@@ -24,7 +24,26 @@
     }
   },
   {
-    "type": "quoted_string_expansion",
+    "type": "duration_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "DURATION",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "script_block",
     "named": true,
     "fields": {},
     "children": {
@@ -32,11 +51,37 @@
       "required": false,
       "types": [
         {
-          "type": "CONSTANT",
+          "type": "action_non_blocking_delay",
           "named": true
-        },
+        }
+      ]
+    }
+  },
+  {
+    "type": "script_definition",
+    "named": true,
+    "fields": {
+      "script_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
         {
-          "type": "QUOTED_STRING",
+          "type": "script_block",
           "named": true
         }
       ]
@@ -52,7 +97,7 @@
       "required": false,
       "types": [
         {
-          "type": "include_macro",
+          "type": "script_definition",
           "named": true
         }
       ]
@@ -67,7 +112,15 @@
     "named": false
   },
   {
+    "type": "BAREWORD",
+    "named": true
+  },
+  {
     "type": "CONSTANT",
+    "named": true
+  },
+  {
+    "type": "DURATION",
     "named": true
   },
   {
@@ -84,14 +137,28 @@
   },
   {
     "type": "block_comment",
-    "named": true
-  },
-  {
-    "type": "include",
-    "named": false
+    "named": true,
+    "extra": true
   },
   {
     "type": "line_comment",
-    "named": true
+    "named": true,
+    "extra": true
+  },
+  {
+    "type": "script",
+    "named": false
+  },
+  {
+    "type": "wait",
+    "named": false
+  },
+  {
+    "type": "{",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
   }
 ]

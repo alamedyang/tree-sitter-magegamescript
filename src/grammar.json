@@ -54,6 +54,13 @@
         }
       }
     },
+    "BAREWORD": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[_a-zA-Z][_a-zA-Z0-9]*"
+      }
+    },
     "QUOTED_STRING": {
       "type": "TOKEN",
       "content": {
@@ -61,7 +68,7 @@
         "value": "\"(?:[^\"\\\\]|\\\\.)*\""
       }
     },
-    "quoted_string": {
+    "STRING": {
       "type": "CHOICE",
       "members": [
         {
@@ -70,24 +77,37 @@
         },
         {
           "type": "SYMBOL",
-          "name": "CONSTANT"
+          "name": "BAREWORD"
         }
       ]
     },
-    "quoted_string_expandable": {
+    "string": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "quoted_string"
+          "name": "STRING"
         },
         {
           "type": "SYMBOL",
-          "name": "quoted_string_expansion"
+          "name": "CONSTANT"
         }
       ]
     },
-    "quoted_string_expansion": {
+    "string_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "string"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "string_expansion"
+        }
+      ]
+    },
+    "string_expansion": {
       "type": "SEQ",
       "members": [
         {
@@ -102,7 +122,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "quoted_string"
+                  "name": "string"
                 },
                 {
                   "type": "REPEAT",
@@ -115,7 +135,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "quoted_string"
+                        "name": "string"
                       }
                     ]
                   }
@@ -145,6 +165,89 @@
         }
       ]
     },
+    "DURATION": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+(m?s)?"
+      }
+    },
+    "duration": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "DURATION"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "CONSTANT"
+        }
+      ]
+    },
+    "duration_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "duration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "duration_expansion"
+        }
+      ]
+    },
+    "duration_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "duration"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ","
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "duration"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ","
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
     "CONSTANT": {
       "type": "TOKEN",
       "content": {
@@ -157,28 +260,103 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "include_macro"
+          "name": "script_definition"
         }
       ]
     },
-    "include_macro": {
+    "script_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "script"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "FIELD",
+          "name": "script_name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "STRING"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "script_block"
+        }
+      ]
+    },
+    "script_block": {
       "type": "SEQ",
       "members": [
         {
           "type": "STRING",
-          "value": "include"
+          "value": "{"
         },
         {
-          "type": "FIELD",
-          "name": "fileName",
+          "type": "REPEAT",
           "content": {
             "type": "SYMBOL",
-            "name": "quoted_string_expandable"
+            "name": "_script_item"
           }
         },
         {
           "type": "STRING",
-          "value": ";"
+          "value": "}"
+        }
+      ]
+    },
+    "_script_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_action_item"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "STRING",
+                "value": ";"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "_action_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "action_non_blocking_delay"
+        }
+      ]
+    },
+    "action_non_blocking_delay": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "wait"
+        },
+        {
+          "type": "FIELD",
+          "name": "duration",
+          "content": {
+            "type": "SYMBOL",
+            "name": "duration_expandable"
+          }
         }
       ]
     }
@@ -201,8 +379,12 @@
   "precedences": [],
   "externals": [],
   "inline": [
-    "quoted_string",
-    "quoted_string_expandable"
+    "STRING",
+    "string",
+    "string_expandable",
+    "duration",
+    "duration_expandable"
   ],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

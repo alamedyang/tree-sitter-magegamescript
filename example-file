@@ -1,1 +1,3 @@
-include ["header.mgs","castle.mgs",];
+goatTime {
+	wait 800ms;
+}

@@ -24,12 +24,12 @@ module.exports = grammar({
 	// 	],
 	// ],
 	inline: $ => [
-		$.quoted_string, $.quoted_string_expandable,
+		// $.quoted_string, $.quoted_string_expandable,
 		// $.bareword, $.bareword_expandable,
-		// $.STRING,
-		// $.string, $.string_expandable,
+		$.STRING,
+		$.string, $.string_expandable,
 		// $.number, $.number_expandable,
-		// $.duration, $.duration_expandable,
+		$.duration, $.duration_expandable,
 		// $.distance, $.distance_expandable,
 		// $.quantity, $.quantity_expandable,
 		// $.NUMBERISH,
@@ -94,7 +94,7 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 		
-	// 	BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
+		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 	// 	bareword: $ => choice($.BAREWORD, $.CONSTANT),
 	// 	bareword_expandable: $ => choice(
 	// 		$.bareword,
@@ -111,36 +111,36 @@ module.exports = grammar({
 	// 	),
 
 		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
-		quoted_string: $ => choice($.QUOTED_STRING, $.CONSTANT),
-		quoted_string_expandable: $ => choice(
-			$.quoted_string,
-			$.quoted_string_expansion,
+		// quoted_string: $ => choice($.QUOTED_STRING, $.CONSTANT),
+		// quoted_string_expandable: $ => choice(
+		// 	$.quoted_string,
+		// 	$.quoted_string_expansion,
+		// ),
+		// quoted_string_expansion: $ => seq(
+		// 	'[',
+		// 	optional(seq(
+		// 		$.quoted_string,
+		// 		repeat(seq(',', $.quoted_string)),
+		// 		optional(','),
+		// 	)),
+		// 	']'
+		// ),
+
+		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
+		string: $ => choice($.STRING, $.CONSTANT),
+		string_expandable: $ => choice(
+			$.string,
+			$.string_expansion,
 		),
-		quoted_string_expansion: $ => seq(
+		string_expansion: $ => seq(
 			'[',
 			optional(seq(
-				$.quoted_string,
-				repeat(seq(',', $.quoted_string)),
+				$.string,
+				repeat(seq(',', $.string)),
 				optional(','),
 			)),
 			']'
 		),
-
-	// 	STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
-	// 	string: $ => choice($.STRING, $.CONSTANT),
-	// 	string_expandable: $ => choice(
-	// 		$.string,
-	// 		$.string_expansion,
-	// 	),
-	// 	string_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.string,
-	// 			repeat(seq(',', $.string)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
 
 	// 	NUMBER: $ => token(/[0-9]+/),
 	// 	number: $ => choice($.NUMBER, $.CONSTANT),
@@ -177,21 +177,21 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 
-	// 	DURATION: $ => token(/[0-9]+(m?s)?/),
-	// 	duration: $ => choice($.DURATION, $.CONSTANT),
-	// 	duration_expandable: $ => choice(
-	// 		$.duration,
-	// 		$.duration_expansion,
-	// 	),
-	// 	duration_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.duration,
-	// 			repeat(seq(',', $.duration)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		DURATION: $ => token(/[0-9]+(m?s)?/),
+		duration: $ => choice($.DURATION, $.CONSTANT),
+		duration_expandable: $ => choice(
+			$.duration,
+			$.duration_expansion,
+		),
+		duration_expansion: $ => seq(
+			'[',
+			seq(
+				$.duration,
+				repeat(seq(',', $.duration)),
+				optional(','),
+			),
+			']'
+		),
 
 	// 	DISTANCE: $ => token(/[0-9]+(px|pix)?/),
 	// 	distance: $ => choice($.DISTANCE, $.CONSTANT),
@@ -296,18 +296,18 @@ module.exports = grammar({
 	// 	),
 
 		_root: $ => choice(
-			$.include_macro,
+			// $.include_macro,
 			// $.constant_assignment,
 			// $.add_serial_dialog_settings,
 			// $.add_dialog_settings,
 			// $.dialog_definition,
 			// $.serial_dialog_definition,
-			// $.script_definition,
+			$.script_definition,
 		),
 
-		include_macro: $ => seq(
-			'include', field('fileName', $.quoted_string_expandable), ';',
-		),
+		// include_macro: $ => seq(
+		// 	'include', field('fileName', $.quoted_string_expandable), ';',
+		// ),
 	// 	constant_assignment: $ => seq(
 	// 		field('label', $.constant_expandable),
 	// 		'=',
@@ -402,20 +402,20 @@ module.exports = grammar({
 	// 		field('script', $.string),
 	// 	),
 	// 	serial_dialog_option_type: $ => token(/_|#/),
-	// 	script_definition: $ => seq(
-	// 		optional('script'),
-	// 		field('script_name', $.BAREWORD),
-	// 		$.script_block,
-	// 	),
-	// 	script_block: $ => seq('{', repeat($._script_item), '}'),
-	// 	_script_item: $ => choice(
-	// 		$.json_literal,
-	// 		$.label,
-	// 		$.debug_macro,
-	// 		$.rand_macro,
-	// 		$.spread_macro,
-	// 		seq($._action_item, token(';')),
-	// 	),
+		script_definition: $ => seq(
+			optional('script'),
+			field('script_name', $.STRING),
+			$.script_block,
+		),
+		script_block: $ => seq('{', repeat($._script_item), '}'),
+		_script_item: $ => choice(
+			// $.json_literal,
+			// $.label,
+			// $.debug_macro,
+			// $.rand_macro,
+			// $.spread_macro,
+			seq($._action_item, token(';')),
+		),
 
 	// 	json_literal: $ => seq(
 	// 		'json',
@@ -472,41 +472,41 @@ module.exports = grammar({
 	// 		')',
 	// 	),
 
-	// 	_action_item: $ => choice(
-	// 		$.return_statement,
-	// 		$.action_load_map,
-	// 		$.action_run_script,
-	// 		$.action_goto_label,
-	// 		$.action_goto_index,
-	// 		$.action_show_dialog,
-	// 		$.action_show_serial_dialog,
-	// 		$.action_concat_serial_dialog,
-	// 		$.action_delete_command,
-	// 		$.action_delete_command_arg,
-	// 		$.action_delete_alias,
-	// 		$.action_hide_command,
-	// 		$.action_unhide_command,
-	// 		$.action_save_slot,
-	// 		$.action_load_slot,
-	// 		$.action_erase_slot,
-	// 		$.action_blocking_delay,
-	// 		$.action_non_blocking_delay,
-	// 		$.action_close_dialog,
-	// 		$.action_close_serial_dialog,
-	// 		$.action_pause_script,
-	// 		$.action_unpause_script,
-	// 		$.action_camera_shake,
-	// 		$.action_camera_fade,
-	// 		$.action_play_entity_animation,
-	// 		$.action_move_over_time,
-	// 		$.action_set_position,
-	// 		$.action_set_bool,
-	// 		$.action_set_int,
-	// 		$.action_set_string,
-	// 		$.if_chain,
-	// 		$.while_block,
-	// 		$.for_block,
-	// 	),
+		_action_item: $ => choice(
+			// $.return_statement,
+			// $.action_load_map,
+			// $.action_run_script,
+			// $.action_goto_label,
+			// $.action_goto_index,
+			// $.action_show_dialog,
+			// $.action_show_serial_dialog,
+			// $.action_concat_serial_dialog,
+			// $.action_delete_command,
+			// $.action_delete_command_arg,
+			// $.action_delete_alias,
+			// $.action_hide_command,
+			// $.action_unhide_command,
+			// $.action_save_slot,
+			// $.action_load_slot,
+			// $.action_erase_slot,
+			// $.action_blocking_delay,
+			$.action_non_blocking_delay,
+			// $.action_close_dialog,
+			// $.action_close_serial_dialog,
+			// $.action_pause_script,
+			// $.action_unpause_script,
+			// $.action_camera_shake,
+			// $.action_camera_fade,
+			// $.action_play_entity_animation,
+			// $.action_move_over_time,
+			// $.action_set_position,
+			// $.action_set_bool,
+			// $.action_set_int,
+			// $.action_set_string,
+			// $.if_chain,
+			// $.while_block,
+			// $.for_block,
+		),
 
 	// 	return_statement: $ => 'return',
 	// 	action_load_map: $ => seq('load', 'map', field('map', $.string_expandable),),
@@ -550,7 +550,9 @@ module.exports = grammar({
 	// 	action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable),),
 
 	// 	action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable),),
-	// 	action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable),),
+		action_non_blocking_delay: $ => seq('wait',
+			field('duration', $.duration_expandable),
+		),
 
 	// 	action_close_dialog: $ => seq('close', 'dialog'),
 	// 	action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
