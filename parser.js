@@ -1,34 +1,16 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
-console.log("What is TreeSitter?", TreeSitter);
 const fileText = `
 $trombones = 76;
-
+$hamburgers = "Steamed Hams";
 goatTime {
-	wait [2s, 2000];
-	wait 1000;
-	wait 1000ms;
-	wait 1s;
-	wait $trombones;
+	rand!(
+		wait [1s, 2s, 3s];
+		wait [1000, 2000];
+		load map [town, egpplant];
+		return;
+	)
 }`;
-
-const nodeReport = (node) => {
-	return {
-		isError: node.isError,
-		hasError: node.hasError,
-		isExtra: node.isExtra,
-		isMissing: node.isMissing,
-		isNamed: node.isNamed,
-		// parseState: node.parseState,
-		hasChanges: node.hasChanges,
-		grammarType: node.grammarType,
-		// grammarId: node.grammarId,
-		// startIndex: node.endPosition,
-		startPosition: node.startPosition,
-		endPosition: node.endPosition,
-		children: node.children,
-		}
-};
 
 const cleanFns = {
 	BAREWORD: (node) => node.text,
@@ -49,7 +31,7 @@ const clean = (node) => {
 		return node.namedChildren.map(clean);
 	}
 	const fn = cleanFns[node.grammarType];
-	if (!fn) throw new Error ("No clean fn for node type " + node.grammarType);
+	if (!fn) throw new Error ("No clean function for node type " + node.grammarType);
 	return fn(node);
 };
 const namedNodeFunctions = {
@@ -64,10 +46,11 @@ const namedNodeFunctions = {
 			mathlang: 'script_definition',
 			scriptName: cleanedName,
 			actions,
+			debug: node,
 		};
 	},
-	'action_non_blocking_delay': (node) => {
-		const durationNode = node.namedChildren[0];
+	'action_non_blocking_delay': (node, spreadIndex) => {
+		const durationNode = node.childForFieldName('duration');
 		const duration = clean(durationNode);
 		if (Array.isArray(duration)) {
 			return duration.map(v=>({
@@ -78,20 +61,64 @@ const namedNodeFunctions = {
 		return {
 			action: "NON_BLOCKING_DELAY",
 			duration: duration,
+			debug: node,
+		};
+	},
+	'return_statement': () => ({ mathlang: 'return_statement' }),
+	'action_load_map': (node) => {
+		const mapNode = node.childForFieldName('map');
+		const map = clean(mapNode);
+		if (Array.isArray(map)) {
+			return map.map(v=>({
+				action: "LOAD_MAP",
+				map: v,
+			}));
+		}
+		return {
+			action: "LOAD_MAP",
+			map: map,
+			debug: node,
 		};
 	},
 	'constant_assignment': (node) => {
-		const labelNode = node.childForFieldName('label');
-		const valueNode = node.childForFieldName('value');
-		const label = clean(labelNode);
-		const value = clean(valueNode);
-
+		const label = node.childForFieldName('label');
+		const value = node.childForFieldName('value');
 		return {
 			mathlang: 'constant_assignment',
-			label,
-			value,
+			label: clean(label),
+			value: clean(value),
+			debug: node
 		}
 
+	},
+	'rand_macro': (node) => {
+		let count = 0;
+		const splits = node.namedChildren.map(node=>{
+			const fn = namedNodeFunctions[node.grammarType];
+			if (!fn) throw new Error ('no named node function for '+ node.grammarType);
+			const result = namedNodeFunctions[node.grammarType](node, count);
+			return Array.isArray(result) ? result : [result];
+		});
+		const ret = {
+			mathlang: 'rand_macro',
+			splits,
+			debug: node,
+		};
+		const lengths = {};
+		let max = 0;
+		splits.forEach(split=>{
+			const len = split.length;
+			lengths[len] = (lengths[len] || 0) + 1;
+			max = Math.max(max, len);
+		});
+		Object.keys(lengths).forEach(n=>{
+			if (n!==1 && n!==max) {
+				ret.errors = [{
+					message: `spread actions inside rand!() must have same number of members`
+				}];
+			}
+		})
+		return ret;
 	},
 	// 'include_macro': (node) => {},
 };

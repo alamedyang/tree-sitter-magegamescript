@@ -25,14 +25,15 @@ module.exports = grammar({
 	// ],
 	inline: $ => [
 		// $.quoted_string, $.quoted_string_expandable,
-		// $.bareword, $.bareword_expandable,
+		$.bareword, $.bareword_expandable,
 		$.STRING,
-		// $.string, $.string_expandable,
-		// $.number, $.number_expandable,
+		$.string, $.string_expandable,
+		$.number, $.number_expandable,
 		$.duration, $.duration_expandable,
 		// $.distance, $.distance_expandable,
 		// $.quantity, $.quantity_expandable,
 		$.NUMBERISH,
+		$.CONSTANT_VALUE,
 		// $.numberish, $.numberish_expandable,
 		// $.color, $.color_expandable,
 		// $.bool, $.bool_expandable,
@@ -93,68 +94,68 @@ module.exports = grammar({
 	// 	),
 		
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
-	// 	bareword: $ => choice($.BAREWORD, $.CONSTANT),
-	// 	bareword_expandable: $ => choice(
-	// 		$.bareword,
-	// 		$.bareword_expansion,
-	// 	),
-	// 	bareword_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.bareword,
-	// 			repeat(seq(',', $.bareword)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		bareword: $ => choice($.BAREWORD, $.CONSTANT),
+		bareword_expandable: $ => choice(
+			$.bareword,
+			$.bareword_expansion,
+		),
+		bareword_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.bareword,
+				repeat(seq(',', $.bareword)),
+				optional(','),
+			)),
+			']'
+		),
 
 		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
-		// quoted_string: $ => choice($.QUOTED_STRING, $.CONSTANT),
-		// quoted_string_expandable: $ => choice(
-		// 	$.quoted_string,
-		// 	$.quoted_string_expansion,
-		// ),
-		// quoted_string_expansion: $ => seq(
-		// 	'[',
-		// 	optional(seq(
-		// 		$.quoted_string,
-		// 		repeat(seq(',', $.quoted_string)),
-		// 		optional(','),
-		// 	)),
-		// 	']'
-		// ),
+		quoted_string: $ => choice($.QUOTED_STRING, $.CONSTANT),
+		quoted_string_expandable: $ => choice(
+			$.quoted_string,
+			$.quoted_string_expansion,
+		),
+		quoted_string_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.quoted_string,
+				repeat(seq(',', $.quoted_string)),
+				optional(','),
+			)),
+			']'
+		),
 
 		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
-		// string: $ => choice($.STRING, $.CONSTANT),
-		// string_expandable: $ => choice(
-		// 	$.string,
-		// 	$.string_expansion,
-		// ),
-		// string_expansion: $ => seq(
-		// 	'[',
-		// 	optional(seq(
-		// 		$.string,
-		// 		repeat(seq(',', $.string)),
-		// 		optional(','),
-		// 	)),
-		// 	']'
-		// ),
+		string: $ => choice($.STRING, $.CONSTANT),
+		string_expandable: $ => choice(
+			$.string,
+			$.string_expansion,
+		),
+		string_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.string,
+				repeat(seq(',', $.string)),
+				optional(','),
+			)),
+			']'
+		),
 
 		NUMBER: $ => token(/[0-9]+/),
-	// 	number: $ => choice($.NUMBER, $.CONSTANT),
-	// 	number_expandable: $ => choice(
-	// 		$.number,
-	// 		$.number_expansion,
-	// 	),
-	// 	number_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.number,
-	// 			repeat(seq(',', $.number)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		number: $ => choice($.NUMBER, $.CONSTANT),
+		number_expandable: $ => choice(
+			$.number,
+			$.number_expansion,
+		),
+		number_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.number,
+				repeat(seq(',', $.number)),
+				optional(','),
+			)),
+			']'
+		),
 	// 	int_or_identifier: $ => choice(
 	// 		field('int', $.NUMBER),
 	// 		field('constant', $.CONSTANT),
@@ -384,7 +385,7 @@ module.exports = grammar({
 			// $.json_literal,
 			// $.label,
 			// $.debug_macro,
-			// $.rand_macro,
+			$.rand_macro,
 			// $.spread_macro,
 			seq($._action_item, token(';')),
 		),
@@ -433,11 +434,11 @@ module.exports = grammar({
 	// 		)),
 	// 		')',
 	// 	),
-	// 	rand_macro: $ => seq(
-	// 		'rand', '!', '(',
-	// 		repeat($._script_item),
-	// 		')',
-	// 	),
+		rand_macro: $ => seq(
+			'rand', '!', '(',
+			repeat($._script_item),
+			')',
+		),
 	// 	spread_macro: $ => seq(
 	// 		'spread', '!', '(',
 	// 		repeat($._script_item),
@@ -445,11 +446,13 @@ module.exports = grammar({
 	// 	),
 
 		_action_item: $ => choice(
-			// $.return_statement,
-			// $.action_load_map,
-			// $.action_run_script,
-			// $.action_goto_label,
-			// $.action_goto_index,
+			$.return_statement,
+			$.action_close_dialog,
+			$.action_close_serial_dialog,
+			$.action_load_map,
+			$.action_run_script,
+			$.action_goto_label,
+			$.action_goto_index,
 			// $.action_show_dialog,
 			// $.action_show_serial_dialog,
 			// $.action_concat_serial_dialog,
@@ -463,8 +466,6 @@ module.exports = grammar({
 			// $.action_erase_slot,
 			// $.action_blocking_delay,
 			$.action_non_blocking_delay,
-			// $.action_close_dialog,
-			// $.action_close_serial_dialog,
 			// $.action_pause_script,
 			// $.action_unpause_script,
 			// $.action_camera_shake,
@@ -479,12 +480,18 @@ module.exports = grammar({
 			// $.while_block,
 			// $.for_block,
 		),
+		action_non_blocking_delay: $ => seq('wait',
+			field('duration', $.duration_expandable),
+		),
 
-	// 	return_statement: $ => 'return',
-	// 	action_load_map: $ => seq('load', 'map', field('map', $.string_expandable),),
-	// 	action_run_script: $ => seq('goto', field('script', $.string_expandable),),
-	// 	action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable),),
-	// 	action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable),),
+		action_close_dialog: $ => seq('close', 'dialog'),
+		action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
+
+		return_statement: $ => 'return',
+		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable)),
+		action_run_script: $ => seq('goto', field('script', $.string_expandable),),
+		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable),),
+		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable),),
 
 	// 	action_show_dialog: $ => seq(
 	// 		'show', 'dialog', choice(
@@ -522,12 +529,6 @@ module.exports = grammar({
 	// 	action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable),),
 
 	// 	action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable),),
-		action_non_blocking_delay: $ => seq('wait',
-			field('duration', $.duration_expandable),
-		),
-
-	// 	action_close_dialog: $ => seq('close', 'dialog'),
-	// 	action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
 
 	// 	player: $ => 'player',
 	// 	self: $ => 'self',
