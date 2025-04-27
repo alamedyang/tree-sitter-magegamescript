@@ -1,12 +1,12 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 const fileText = `
-$test = #ABC;
-$trombones = 76;
-$hamburgers = "Steamed Hams";
 goatTime {
-	return;
-	load map [goats, pineapple];
+	rand!(
+		return;
+		load slot [0, 1];
+		goto label [goats, pineapple];
+	)
 }`;
 
 const cleanFns = {
@@ -107,7 +107,7 @@ const handleAction = (f, node) => {
 			if (spreadSize === -Infinity) spreadSize = len;
 			if (spreadSize !== len) {
 				f.errors.push({
-					message: `Spreads must have the same count within a given action`,
+					message: `spreads must have the same count of items within a given action`,
 					node: fieldNode,
 					fileName: f.fileName,
 				});
@@ -246,32 +246,38 @@ const nodeFns = {
 		}];
 	},
 	rand_macro: (f, node) => {
-		const splits = node.namedChildren
-			.map(node=>handleNode(f, node))
-			.filter(item => item.length>0);
-		const ret = {
+		const horizontal = [];
+		let multipleCount = -Infinity;
+		node.namedChildren
+			.forEach(node=>{
+				const handled = handleNode(f, node);
+				const len = handled.length;
+				if (len === 0) return;
+				horizontal.push(handled);
+				if (len === 1) return;
+				if (multipleCount === -Infinity) multipleCount = len;
+				if (multipleCount !== len) {
+					f.errors = [{
+						message: `spreads inside rand!() must contain same number of items`,
+						node,
+						fileName: f.fileName,
+					}];
+				}
+			})
+		const vertical = [];
+		for (let i = 0; i < multipleCount; i++) {
+			const insert = horizontal.map(unit=>{
+				const len = unit.length;
+				return unit[i % len];
+			})
+			vertical.push(insert);
+		}
+		return [{
 			mathlang: 'rand_macro',
-			splits,
+			splits: vertical,
 			debug: node,
 			fileName: f.fileName,
-		};
-		const lengths = {};
-		let max = 0;
-		splits.forEach(split=>{
-			const len = split.length;
-			lengths[len] = (lengths[len] || 0) + 1;
-			max = Math.max(max, len);
-		});
-		Object.keys(lengths).forEach(n=>{
-			if (n!==1 && n!==max) {
-				f.errors = [{
-					message: `spread items inside rand!() must have same number of members`,
-					node,
-					fileName: f.fileName,
-				}];
-			}
-		})
-		return [ret];
+		}];
 	},
 };
 
