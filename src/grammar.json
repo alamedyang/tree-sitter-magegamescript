@@ -54,6 +54,13 @@
         }
       }
     },
+    "BOOL": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "true|false|on|off|open|closed"
+      }
+    },
     "BAREWORD": {
       "type": "TOKEN",
       "content": {
@@ -81,89 +88,12 @@
         }
       ]
     },
-    "string": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "STRING"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "CONSTANT"
-        }
-      ]
-    },
-    "string_expandable": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "string"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "string_expansion"
-        }
-      ]
-    },
-    "string_expansion": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "["
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "string"
-                },
-                {
-                  "type": "REPEAT",
-                  "content": {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "STRING",
-                        "value": ","
-                      },
-                      {
-                        "type": "SYMBOL",
-                        "name": "string"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "STRING",
-          "value": "]"
-        }
-      ]
+    "NUMBER": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+"
+      }
     },
     "DURATION": {
       "type": "TOKEN",
@@ -248,6 +178,48 @@
         }
       ]
     },
+    "DISTANCE": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "[0-9]+(px|pix)?"
+      }
+    },
+    "QUANTITY": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "once|twice|thrice|[0-9]+(x)?"
+      }
+    },
+    "NUMBERISH": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "NUMBER"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "DURATION"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "DISTANCE"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "QUANTITY"
+        }
+      ]
+    },
+    "COLOR": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9]{3,6}"
+      }
+    },
     "CONSTANT": {
       "type": "TOKEN",
       "content": {
@@ -255,12 +227,70 @@
         "value": "\\$[_a-zA-Z0-9]+"
       }
     },
+    "CONSTANT_VALUE": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "STRING"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "NUMBERISH"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "BOOL"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "COLOR"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "CONSTANT"
+        }
+      ]
+    },
     "_root": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
           "name": "script_definition"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "constant_assignment"
+        }
+      ]
+    },
+    "constant_assignment": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "CONSTANT"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "CONSTANT_VALUE"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
         }
       ]
     },
@@ -380,11 +410,9 @@
   "externals": [],
   "inline": [
     "STRING",
-    "string",
-    "string_expandable",
     "duration",
-    "duration_expandable"
+    "duration_expandable",
+    "NUMBERISH"
   ],
-  "supertypes": [],
-  "reserved": {}
+  "supertypes": []
 }

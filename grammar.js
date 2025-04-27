@@ -27,19 +27,17 @@ module.exports = grammar({
 		// $.quoted_string, $.quoted_string_expandable,
 		// $.bareword, $.bareword_expandable,
 		$.STRING,
-		$.string, $.string_expandable,
+		// $.string, $.string_expandable,
 		// $.number, $.number_expandable,
 		$.duration, $.duration_expandable,
 		// $.distance, $.distance_expandable,
 		// $.quantity, $.quantity_expandable,
-		// $.NUMBERISH,
+		$.NUMBERISH,
 		// $.numberish, $.numberish_expandable,
 		// $.color, $.color_expandable,
 		// $.bool, $.bool_expandable,
 		// $.bool_or_identifier, $.bool_or_identifier_expandable,
 		// $.int_or_identifier, $.int_or_identifier_expandable,
-		// $.constant_expandable,
-		// $.constant_value, $.constant_value_expandable,
 		// $.entity_identifier, $.entity_identifier_expandable,
 		// $.entity_or_map_identifier, $.entity_or_map_identifier_expandable,
 		// $.in_or_out_expandable,
@@ -60,21 +58,21 @@ module.exports = grammar({
 			seq('//', repeat(/[^\n]/))
 		)),
 	
-	// 	BOOL: $ => token(/true|false|on|off|open|closed/),
-	// 	bool: $ => choice($.BOOL, $.CONSTANT),
-	// 	bool_expandable: $ => choice(
-	// 		$.bool,
-	// 		$.bool_expansion,
-	// 	),
-	// 	bool_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.bool,
-	// 			repeat(seq(',', $.bool)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		BOOL: $ => token(/true|false|on|off|open|closed/),
+		// bool: $ => choice($.BOOL, $.CONSTANT),
+		// bool_expandable: $ => choice(
+		// 	$.bool,
+		// 	$.bool_expansion,
+		// ),
+		// bool_expansion: $ => seq(
+		// 	'[',
+		// 	optional(seq(
+		// 		$.bool,
+		// 		repeat(seq(',', $.bool)),
+		// 		optional(','),
+		// 	)),
+		// 	']'
+		// ),
 	// 	bool_or_identifier: $ => choice(
 	// 		field('bool', $.BOOL),
 	// 		field('constant', $.CONSTANT),
@@ -127,22 +125,22 @@ module.exports = grammar({
 		// ),
 
 		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
-		string: $ => choice($.STRING, $.CONSTANT),
-		string_expandable: $ => choice(
-			$.string,
-			$.string_expansion,
-		),
-		string_expansion: $ => seq(
-			'[',
-			optional(seq(
-				$.string,
-				repeat(seq(',', $.string)),
-				optional(','),
-			)),
-			']'
-		),
+		// string: $ => choice($.STRING, $.CONSTANT),
+		// string_expandable: $ => choice(
+		// 	$.string,
+		// 	$.string_expansion,
+		// ),
+		// string_expansion: $ => seq(
+		// 	'[',
+		// 	optional(seq(
+		// 		$.string,
+		// 		repeat(seq(',', $.string)),
+		// 		optional(','),
+		// 	)),
+		// 	']'
+		// ),
 
-	// 	NUMBER: $ => token(/[0-9]+/),
+		NUMBER: $ => token(/[0-9]+/),
 	// 	number: $ => choice($.NUMBER, $.CONSTANT),
 	// 	number_expandable: $ => choice(
 	// 		$.number,
@@ -193,7 +191,7 @@ module.exports = grammar({
 			']'
 		),
 
-	// 	DISTANCE: $ => token(/[0-9]+(px|pix)?/),
+	DISTANCE: $ => token(/[0-9]+(px|pix)?/),
 	// 	distance: $ => choice($.DISTANCE, $.CONSTANT),
 	// 	distance_expandable: $ => choice(
 	// 		$.distance,
@@ -209,7 +207,7 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 				
-	// 	QUANTITY: $ => token(/once|twice|thrice|[0-9]+(x)?/),
+	QUANTITY: $ => token(/once|twice|thrice|[0-9]+(x)?/),
 	// 	quantity: $ => choice($.QUANTITY, $.CONSTANT),
 	// 	quantity_expandable: $ => choice(
 	// 		$.quantity,
@@ -225,7 +223,7 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 
-	// 	NUMBERISH: $ => choice($.NUMBER, $.DURATION, $.DISTANCE, $.QUANTITY),
+		NUMBERISH: $ => choice($.NUMBER, $.DURATION, $.DISTANCE, $.QUANTITY),
 	// 	numberish: $ => choice(
 	// 		$.NUMBERISH,
 	// 		$.CONSTANT
@@ -244,7 +242,7 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 
-	// 	COLOR: $ => token(/white|black|red|green|blue|magenta|cyan|yellow|#[0-9]{3,6}/),
+	COLOR: $ => token(/white|black|red|green|blue|magenta|cyan|yellow|#[0-9]{3,6}/),
 	// 	color: $ => choice($.COLOR, $.CONSTANT),
 	// 	color_expandable: $ => choice(
 	// 		$.color,
@@ -261,59 +259,33 @@ module.exports = grammar({
 	// 	),
 
 		CONSTANT: $ => token(/\$[_a-zA-Z0-9]+/),
-	// 	constant_expandable: $ => choice(
-	// 		$.CONSTANT,
-	// 		$.constant_expansion,
-	// 	),
-	// 	constant_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.CONSTANT,
-	// 			repeat(seq(',', $.CONSTANT)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
-	// 	constant_value: $ => choice(
-	// 		$.STRING,
-	// 		$.NUMBERISH,
-	// 		$.BOOL,
-	// 		$.COLOR,
-	// 		$.CONSTANT,
-	// 	),
-	// 	constant_value_expandable: $ => choice(
-	// 		$.constant_value,
-	// 		$.constant_value_expansion,
-	// 	),
-	// 	constant_value_expansion: $ => seq(
-	// 		'[',
-	// 		seq(
-	// 			$.constant_value,
-	// 			repeat(seq(',', $.constant_value)),
-	// 			optional(','),
-	// 		),
-	// 		']'
-	// 	),
+		CONSTANT_VALUE: $ => choice(
+			$.STRING,
+			$.NUMBERISH,
+			$.BOOL,
+			$.COLOR,
+			$.CONSTANT,
+		),
 
 		_root: $ => choice(
+			$.script_definition,
+			$.constant_assignment,
 			// $.include_macro,
-			// $.constant_assignment,
 			// $.add_serial_dialog_settings,
 			// $.add_dialog_settings,
 			// $.dialog_definition,
 			// $.serial_dialog_definition,
-			$.script_definition,
 		),
 
 		// include_macro: $ => seq(
 		// 	'include', field('fileName', $.quoted_string_expandable), ';',
 		// ),
-	// 	constant_assignment: $ => seq(
-	// 		field('label', $.constant_expandable),
-	// 		'=',
-	// 		field('value', $.constant_value_expandable),
-	// 		';',
-	// 	),
+		constant_assignment: $ => seq(
+			field('label', $.CONSTANT),
+			'=',
+			field('value', $.CONSTANT_VALUE),
+			';',
+		),
 	// 	add_serial_dialog_settings: $ => seq(
 	// 		'add', 'serial_dialog', 'settings', '{',
 	// 		repeat($.serial_dialog_parameter),

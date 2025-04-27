@@ -1,11 +1,15 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 console.log("What is TreeSitter?", TreeSitter);
-const fileText = `goatTime {
+const fileText = `
+$trombones = 76;
+
+goatTime {
 	wait [2s, 2000];
 	wait 1000;
 	wait 1000ms;
 	wait 1s;
+	wait $trombones;
 }`;
 
 const nodeReport = (node) => {
@@ -29,6 +33,8 @@ const nodeReport = (node) => {
 const cleanFns = {
 	BAREWORD: (node) => node.text,
 	QUOTED_STRING: (node) => node.text.slice(1, -1),
+	CONSTANT: (node) => node.text,
+	NUMBER: (node) => Number(node.text),
 	DURATION: (node) => {
 		let v = parseInt(node.text);
 		const suffix = node.text.match(/(m?s)$/);
@@ -43,7 +49,7 @@ const clean = (node) => {
 		return node.namedChildren.map(clean);
 	}
 	const fn = cleanFns[node.grammarType];
-	if (!fn) throw new Error ("DERP");
+	if (!fn) throw new Error ("No clean fn for node type " + node.grammarType);
 	return fn(node);
 };
 const namedNodeFunctions = {
@@ -55,6 +61,7 @@ const namedNodeFunctions = {
 			return namedNodeFunctions[node.grammarType](node);
 		}).flat();
 		return {
+			mathlang: 'script_definition',
 			scriptName: cleanedName,
 			actions,
 		};
@@ -72,6 +79,19 @@ const namedNodeFunctions = {
 			action: "NON_BLOCKING_DELAY",
 			duration: duration,
 		};
+	},
+	'constant_assignment': (node) => {
+		const labelNode = node.childForFieldName('label');
+		const valueNode = node.childForFieldName('value');
+		const label = clean(labelNode);
+		const value = clean(valueNode);
+
+		return {
+			mathlang: 'constant_assignment',
+			label,
+			value,
+		}
+
 	},
 	// 'include_macro': (node) => {},
 };
