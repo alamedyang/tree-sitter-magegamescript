@@ -1,6 +1,11 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
+let verbose = true;
+const debugLog = (message) => {
+	if (verbose) console.log(message);
+}
+
 const cleanFns = {
 	BOOL: (f, node) => {
 		const text = node.text;
@@ -213,7 +218,7 @@ const nodeFns = {
 	constant_assignment: (f, node) => {
 		const labelNode = node.childForFieldName('label');
 		const valueNode = node.childForFieldName('value');
-		const label = clean(f, labelNode);
+		const label = labelNode.text;
 		const value = clean(f, valueNode);
 		f.constants = f.constants || {};
 		if (f.constants[labelNode]) {
@@ -221,7 +226,7 @@ const nodeFns = {
 				message: `cannot redefine constant ${ret.label}`,
 				node,
 				fileName: f.fileName,
-			})
+			});
 		}
 		f.constants[label] = {
 			value,
@@ -233,6 +238,28 @@ const nodeFns = {
 			mathlang: 'constant_assignment',
 			label,
 			value,
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
+	include_macro: (f, node) => {
+		// TODO: handle recursive references
+		let includeFileNode = node.childForFieldName('fileName');
+		let cleaned = clean(f, includeFileNode);
+		const prerequesites = Array.isArray(cleaned) ? cleaned : [ cleaned ];
+		prerequesites.forEach(prereq=> {
+			if (!fileMap[prereq].parsed) {
+				debugLog(`include_macro: must first parse prerequesite "${prereq}"`);
+				parseFile(prereq, f.parser)
+			} else {
+				debugLog(`include_macro: prerequesite "${prereq}" already parsed`);
+			}
+			debugLog(`include_macro: merging ${prereq} into ${f.fileName}...`);
+			f = mergeF(f, fileMap[prereq].parsed);
+		});
+		return [{
+			mathlang: 'include_macro',
+			value: cleaned,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -281,9 +308,33 @@ const fileMap = {
 	},
 	"castle.mgs": {
 		text: `
-			goats { wait 76; }
+			include "header.mgs";
+			goats { wait $trombones; }
 		`,
 	},
+}
+
+const mergeF = (f1, f2) => {
+	Object.keys(f2.constants).forEach(constantName=>{
+		if (f1.constants[constantName]) {
+			f.errors.push({
+				message: `cannot redefine constant ${constantName} (via 'include_macro')`,
+				node: f2.constants[constantName].node,
+				fileName: f2.fileName,
+			})
+		}
+		f1.constants[constantName] = f2.constants[constantName];
+	});
+	f2.errors.forEach(error=>{ f1.errors.push(error) });
+	f2.warnings.forEach(warning=>{ f1.warnings.push(warning) });
+	f2.nodes.forEach(node=>{ f1.nodes.push(node) });
+	['default', 'entity', 'label', 'serial'].forEach(type=>{
+		const params = Object.keys(f2.settings[type]);
+		params.forEach(param=>{
+			f1.settings[type][param] = f2.settings[type][param];
+		});
+	});
+	return f1;
 }
 
 const parseFile = (fileName, parser) => {
@@ -293,9 +344,16 @@ const parseFile = (fileName, parser) => {
 		const f = {
 			fileName,
 			constants: {},
+			settings: {
+				default: {},
+				entity: {},
+				label: {},
+				serial: {},
+			},
 			errors: [],
 			warnings: [],
 			nodes: [],
+			parser,
 		}
 		const nodes = document.namedChildren
 			.map(node=>handleNode(f, node))
@@ -315,6 +373,7 @@ const parseFile = (fileName, parser) => {
 	
 	const fileNames = Object.keys(fileMap);
 	fileNames.forEach(fileName=>{
+		debugLog(`Parsing file "${fileName}"`);
 		parseFile(fileName, parser);
 	});
 	console.log(fileMap);

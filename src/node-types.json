@@ -383,6 +383,10 @@
           "named": true
         },
         {
+          "type": "include_macro",
+          "named": true
+        },
+        {
           "type": "script_definition",
           "named": true
         }
@@ -406,6 +410,30 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "include_macro",
+    "named": true,
+    "fields": {
+      "fileName": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "quoted_string_expansion",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -438,6 +466,25 @@
         },
         {
           "type": "NUMBER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "quoted_string_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
           "named": true
         }
       ]
@@ -724,6 +771,10 @@
   },
   {
     "type": "goto",
+    "named": false
+  },
+  {
+    "type": "include",
     "named": false
   },
   {

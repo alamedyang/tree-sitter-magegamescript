@@ -1028,6 +1028,31 @@
         {
           "type": "SYMBOL",
           "name": "constant_assignment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "include_macro"
+        }
+      ]
+    },
+    "include_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "include"
+        },
+        {
+          "type": "FIELD",
+          "name": "fileName",
+          "content": {
+            "type": "SYMBOL",
+            "name": "quoted_string_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
         }
       ]
     },

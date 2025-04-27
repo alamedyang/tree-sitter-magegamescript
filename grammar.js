@@ -198,16 +198,16 @@ module.exports = grammar({
 		_root: $ => choice(
 			$.script_definition,
 			$.constant_assignment,
-			// $.include_macro,
+			$.include_macro,
 			// $.add_serial_dialog_settings,
 			// $.add_dialog_settings,
 			// $.dialog_definition,
 			// $.serial_dialog_definition,
 		),
 
-		// include_macro: $ => seq(
-		// 	'include', field('fileName', $.quoted_string_expandable), ';',
-		// ),
+		include_macro: $ => seq(
+			'include', field('fileName', $.quoted_string_expandable), ';',
+		),
 		constant_assignment: $ => seq(
 			field('label', $.CONSTANT),
 			'=',
