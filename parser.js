@@ -1,13 +1,5 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
-const fileText = `
-goatTime {
-	rand!(
-		return;
-		load slot [0, 1];
-		goto label [goats, pineapple];
-	)
-}`;
 
 const cleanFns = {
 	BOOL: (f, node) => {
@@ -281,22 +273,39 @@ const nodeFns = {
 	},
 };
 
-// const fileMap = {
-// 	"castle.mgs": {
-// 		text: `
-// 		$trombones = 76;
-// 		$hamburgers = "Steamed Hams";
-// 		goatTime {
-// 			rand!(
-// 				wait [1s, 2s, 3s];
-// 				wait [1000, 2000];
-// 				load map [town, $hamburgers];
-// 				return;
-// 			)
-// 		}`
-// 	}
-// }
+const fileMap = {
+	"header.mgs": {
+		text: `
+			$trombones = 76;
+		`,
+	},
+	"castle.mgs": {
+		text: `
+			goats { wait 76; }
+		`,
+	},
+}
 
+const parseFile = (fileName, parser) => {
+	if (!fileMap[fileName].parsed) {
+		const tree = parser.parse(fileMap[fileName].text);
+		let document = tree.rootNode;
+		const f = {
+			fileName,
+			constants: {},
+			errors: [],
+			warnings: [],
+			nodes: [],
+		}
+		const nodes = document.namedChildren
+			.map(node=>handleNode(f, node))
+			.flat();
+		f.nodes = nodes;
+		fileMap[fileName].parsed = f;
+		return f;
+	}
+	return fileMap[fileName].parsed;
+};
 
 (async () => {
 	await Parser.init();
@@ -304,19 +313,9 @@ const nodeFns = {
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
 	
-	const tree = parser.parse(fileText);
-	let document = tree.rootNode;
-
-	const f = {
-		fileName: 'testFile',
-		constants: {},
-		errors: [],
-		warnings: [],
-	}
-
-	const nodes = document.namedChildren
-		.map(node=>handleNode(f, node))
-		.flat();
-
-	console.log(nodes);
+	const fileNames = Object.keys(fileMap);
+	fileNames.forEach(fileName=>{
+		parseFile(fileName, parser);
+	});
+	console.log(fileMap);
 })();
