@@ -2,6 +2,7 @@ const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 console.log("What is TreeSitter?", TreeSitter);
 const fileText = `goatTime {
+	wait [2s, 2000];
 	wait 1000;
 	wait 1000ms;
 	wait 1s;
@@ -38,6 +39,9 @@ const cleanFns = {
 	},
 };
 const clean = (node) => {
+	if (node.grammarType.endsWith('_expansion')) {
+		return node.namedChildren.map(clean);
+	}
 	const fn = cleanFns[node.grammarType];
 	if (!fn) throw new Error ("DERP");
 	return fn(node);
@@ -49,7 +53,7 @@ const namedNodeFunctions = {
 		const cleanedName = clean(nameNode);
 		const actions = node.lastChild.namedChildren.map(node=>{
 			return namedNodeFunctions[node.grammarType](node);
-		});
+		}).flat();
 		return {
 			scriptName: cleanedName,
 			actions,
@@ -58,6 +62,12 @@ const namedNodeFunctions = {
 	'action_non_blocking_delay': (node) => {
 		const durationNode = node.namedChildren[0];
 		const duration = clean(durationNode);
+		if (Array.isArray(duration)) {
+			return duration.map(v=>({
+				action: "NON_BLOCKING_DELAY",
+				duration: v,
+			}));
+		}
 		return {
 			action: "NON_BLOCKING_DELAY",
 			duration: duration,
