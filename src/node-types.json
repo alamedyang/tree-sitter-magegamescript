@@ -1,5 +1,107 @@
 [
   {
+    "type": "DISTANCE",
+    "named": true,
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "distance_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "NUMBER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "DURATION",
+    "named": true,
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "duration_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "NUMBER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "QUANTITY",
+    "named": true,
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "quantity_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "NUMBER",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "action_blocking_delay",
+    "named": true,
+    "fields": {
+      "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_close_dialog",
     "named": true,
     "fields": {}
@@ -8,6 +110,30 @@
     "type": "action_close_serial_dialog",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "action_erase_slot",
+    "named": true,
+    "fields": {
+      "slot": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "number_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
   },
   {
     "type": "action_goto_index",
@@ -86,6 +212,30 @@
     }
   },
   {
+    "type": "action_load_slot",
+    "named": true,
+    "fields": {
+      "slot": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "number_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_non_blocking_delay",
     "named": true,
     "fields": {
@@ -136,6 +286,11 @@
         ]
       }
     }
+  },
+  {
+    "type": "action_save_slot",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "bareword_expansion",
@@ -215,6 +370,26 @@
     }
   },
   {
+    "type": "document",
+    "named": true,
+    "root": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "constant_assignment",
+          "named": true
+        },
+        {
+          "type": "script_definition",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "duration_expansion",
     "named": true,
     "fields": {},
@@ -231,6 +406,22 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "label",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -261,11 +452,19 @@
       "required": false,
       "types": [
         {
+          "type": "action_blocking_delay",
+          "named": true
+        },
+        {
           "type": "action_close_dialog",
           "named": true
         },
         {
           "type": "action_close_serial_dialog",
+          "named": true
+        },
+        {
+          "type": "action_erase_slot",
           "named": true
         },
         {
@@ -281,11 +480,23 @@
           "named": true
         },
         {
+          "type": "action_load_slot",
+          "named": true
+        },
+        {
           "type": "action_non_blocking_delay",
           "named": true
         },
         {
           "type": "action_run_script",
+          "named": true
+        },
+        {
+          "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "label",
           "named": true
         },
         {
@@ -308,11 +519,19 @@
       "required": false,
       "types": [
         {
+          "type": "action_blocking_delay",
+          "named": true
+        },
+        {
           "type": "action_close_dialog",
           "named": true
         },
         {
           "type": "action_close_serial_dialog",
+          "named": true
+        },
+        {
+          "type": "action_erase_slot",
           "named": true
         },
         {
@@ -328,11 +547,23 @@
           "named": true
         },
         {
+          "type": "action_load_slot",
+          "named": true
+        },
+        {
           "type": "action_non_blocking_delay",
           "named": true
         },
         {
           "type": "action_run_script",
+          "named": true
+        },
+        {
+          "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "label",
           "named": true
         },
         {
@@ -371,26 +602,6 @@
       "types": [
         {
           "type": "script_block",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "source_file",
-    "named": true,
-    "root": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "constant_assignment",
-          "named": true
-        },
-        {
-          "type": "script_definition",
           "named": true
         }
       ]
@@ -436,6 +647,10 @@
     "named": false
   },
   {
+    "type": ":",
+    "named": false
+  },
+  {
     "type": ";",
     "named": false
   },
@@ -460,19 +675,7 @@
     "named": true
   },
   {
-    "type": "DISTANCE",
-    "named": true
-  },
-  {
-    "type": "DURATION",
-    "named": true
-  },
-  {
     "type": "NUMBER",
-    "named": true
-  },
-  {
-    "type": "QUANTITY",
     "named": true
   },
   {
@@ -488,6 +691,10 @@
     "named": false
   },
   {
+    "type": "block",
+    "named": false
+  },
+  {
     "type": "block_comment",
     "named": true
   },
@@ -497,6 +704,18 @@
   },
   {
     "type": "dialog",
+    "named": false
+  },
+  {
+    "type": "distance_suffix",
+    "named": true
+  },
+  {
+    "type": "duration_suffix",
+    "named": true
+  },
+  {
+    "type": "erase",
     "named": false
   },
   {
@@ -524,6 +743,10 @@
     "named": false
   },
   {
+    "type": "quantity_suffix",
+    "named": true
+  },
+  {
     "type": "rand",
     "named": false
   },
@@ -532,11 +755,19 @@
     "named": true
   },
   {
+    "type": "save",
+    "named": false
+  },
+  {
     "type": "script",
     "named": false
   },
   {
     "type": "serial_dialog",
+    "named": false
+  },
+  {
+    "type": "slot",
     "named": false
   },
   {
