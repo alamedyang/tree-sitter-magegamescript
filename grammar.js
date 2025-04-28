@@ -165,7 +165,7 @@ module.exports = grammar({
 		
 		quantity_suffix: $ => token.immediate(/x/),
 		QUANTITY: $ => choice(
-			token(prec(1, /once|twice|thrice/)),
+			token(prec(1, choice('once', 'twice', 'thrice'))),
 			prec.right(seq(
 				$.NUMBER,
 				optional(field('suffix', $.quantity_suffix))
@@ -199,7 +199,7 @@ module.exports = grammar({
 			$.script_definition,
 			$.constant_assignment,
 			$.include_macro,
-			// $.add_serial_dialog_settings,
+			$.add_serial_dialog_settings,
 			// $.add_dialog_settings,
 			// $.dialog_definition,
 			// $.serial_dialog_definition,
@@ -214,14 +214,21 @@ module.exports = grammar({
 			field('value', $.CONSTANT_VALUE),
 			';',
 		),
-	// 	add_serial_dialog_settings: $ => seq(
-	// 		'add', 'serial_dialog', 'settings', '{',
-	// 		repeat($.serial_dialog_parameter),
-	// 		'}'
-	// 	),
-	// 	serial_dialog_parameter: $ => choice(
-	// 		seq('wrap', field('wrap', $.number)),
-	// 	),
+		add_serial_dialog_settings: $ => seq(
+			'add', 'serial_dialog', 'settings', '{',
+			repeat($.serial_dialog_parameter),
+			'}'
+		),
+		serial_dialog_parameter_int: $ => token('wrap'),
+		serial_dialog_parameter: $ => choice(
+			seq(
+				field('property', alias(
+					$.serial_dialog_parameter_int,
+					$.BAREWORD,
+				)),
+				field('value', $.number),
+			),
+		),
 	// 	add_dialog_settings: $ => seq(
 	// 		'add', 'dialog', 'settings', '{',
 	// 			repeat(choice(

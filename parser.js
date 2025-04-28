@@ -206,7 +206,8 @@ const nodeFns = {
 		const nameNode = node.childForFieldName('script_name');
 		const name = clean(f, nameNode);
 		const actions = node.lastChild.namedChildren
-			.map(node=>handleNode(f, node)).flat();
+			.map(node=>handleNode(f, node))
+			.flat();
 		return [{
 			mathlang: 'script_definition',
 			scriptName: name,
@@ -257,12 +258,14 @@ const nodeFns = {
 			debugLog(`include_macro: merging ${prereq} into ${f.fileName}...`);
 			f = mergeF(f, fileMap[prereq].parsed);
 		});
-		return [{
-			mathlang: 'include_macro',
-			value: cleaned,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [ // need not include
+			// {
+			// 	mathlang: 'include_macro',
+			// 	value: cleaned,
+			// 	debug: node,
+			// 	fileName: f.fileName,
+			// }
+		];
 	},
 	rand_macro: (f, node) => {
 		const horizontal = [];
@@ -298,12 +301,50 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	add_serial_dialog_settings: (f, node) => {
+		const parameters = node.namedChildren
+			.map(child=>handleNode(f, child))
+			.flat();
+		parameters.forEach(param=>{
+			f.settings.serial[param.property] = param.value;
+		})
+		return [ // might not need to include this
+			// {
+			// 	mathlang: 'add_serial_dialog_settings',
+			// 	parameters,
+			// 	debug: node,
+			// 	fileName: f.fileName,
+			// }
+		];
+	},
+	serial_dialog_parameter: (f, node) => {
+		const propNode = node.childForFieldName('property');
+		const valueNode = node.childForFieldName('value');
+		if (!propNode || !valueNode) {
+			f.errors.push({
+				message: `malformed serial_dialog parameter`,
+				node,
+				fileName: f.fileName,
+			});
+			return [];
+		}
+		return [{
+			mathlang: 'serial_dialog_parameter',
+			node,
+			fileName: f.fileName,
+			property: clean(f, propNode),
+			value: clean(f, valueNode),
+		}]
+	},
 };
 
 const fileMap = {
 	"header.mgs": {
 		text: `
 			$trombones = 76;
+			add serial_dialog settings {
+				wrap 75
+			}
 		`,
 	},
 	"castle.mgs": {

@@ -293,6 +293,21 @@
     "fields": {}
   },
   {
+    "type": "add_serial_dialog_settings",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "serial_dialog_parameter",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "bareword_expansion",
     "named": true,
     "fields": {},
@@ -378,6 +393,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "add_serial_dialog_settings",
+          "named": true
+        },
         {
           "type": "constant_assignment",
           "named": true
@@ -655,6 +674,36 @@
     }
   },
   {
+    "type": "serial_dialog_parameter",
+    "named": true,
+    "fields": {
+      "property": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "string_expansion",
     "named": true,
     "fields": {},
@@ -742,6 +791,10 @@
     "named": true
   },
   {
+    "type": "add",
+    "named": false
+  },
+  {
     "type": "block",
     "named": false
   },
@@ -815,6 +868,10 @@
   },
   {
     "type": "serial_dialog",
+    "named": false
+  },
+  {
+    "type": "settings",
     "named": false
   },
   {

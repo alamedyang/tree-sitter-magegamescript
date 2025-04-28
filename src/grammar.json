@@ -755,8 +755,21 @@
             "type": "PREC",
             "value": 1,
             "content": {
-              "type": "PATTERN",
-              "value": "once|twice|thrice"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "once"
+                },
+                {
+                  "type": "STRING",
+                  "value": "twice"
+                },
+                {
+                  "type": "STRING",
+                  "value": "thrice"
+                }
+              ]
             }
           }
         },
@@ -1032,6 +1045,10 @@
         {
           "type": "SYMBOL",
           "name": "include_macro"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "add_serial_dialog_settings"
         }
       ]
     },
@@ -1082,6 +1099,76 @@
         {
           "type": "STRING",
           "value": ";"
+        }
+      ]
+    },
+    "add_serial_dialog_settings": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "add"
+        },
+        {
+          "type": "STRING",
+          "value": "serial_dialog"
+        },
+        {
+          "type": "STRING",
+          "value": "settings"
+        },
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "serial_dialog_parameter"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "serial_dialog_parameter_int": {
+      "type": "TOKEN",
+      "content": {
+        "type": "STRING",
+        "value": "wrap"
+      }
+    },
+    "serial_dialog_parameter": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "property",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "serial_dialog_parameter_int"
+                },
+                "named": true,
+                "value": "BAREWORD"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "SYMBOL",
+                "name": "number"
+              }
+            }
+          ]
         }
       ]
     },
