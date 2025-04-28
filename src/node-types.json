@@ -681,6 +681,16 @@
     "type": "serial_dialog",
     "named": true,
     "fields": {
+      "serial_dialog_option": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog_option",
+            "named": true
+          }
+        ]
+      },
       "serial_dialog_parameter": {
         "multiple": true,
         "required": false,
@@ -723,6 +733,50 @@
         "types": [
           {
             "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "serial_dialog_option",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "option_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "serial_dialog_option_type",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
             "named": true
           },
           {
@@ -929,6 +983,10 @@
   {
     "type": "serial_dialog",
     "named": false
+  },
+  {
+    "type": "serial_dialog_option_type",
+    "named": true
   },
   {
     "type": "settings",

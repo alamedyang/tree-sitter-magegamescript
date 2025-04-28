@@ -329,10 +329,34 @@ const nodeFns = {
 		}
 		return [{
 			mathlang: 'serial_dialog_parameter',
-			node,
+			debug: node,
 			fileName: f.fileName,
 			property: clean(f, propNode),
 			value: clean(f, valueNode),
+		}]
+	},
+	serial_dialog_option: (f, node) => {
+		const optionNode = node.childForFieldName('option_type');
+		const labelNode = node.childForFieldName('label');
+		const scriptNode = node.childForFieldName('script');
+		if (!optionNode || !labelNode || !scriptNode) {
+			f.errors.push({
+				message: `malformed serial_dialog option`,
+				debug: node,
+				fileName: f.fileName,
+			});
+			return [];
+		}
+		let optionType = null;
+		if (optionNode.text === '_') optionType = 'text_options';
+		else if (optionNode.text === '#') optionType = 'options';
+		return [{
+			mathlang: 'serial_dialog_option',
+			optionType,
+			label: clean(f, labelNode),
+			script: clean(f, scriptNode),
+			debug: node,
+			fileName: f.fileName,
 		}]
 	},
 	serial_dialog_definition: (f, node) => {
@@ -351,7 +375,9 @@ const nodeFns = {
 	serial_dialog: (f, node) => {
 		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
 		const messageNodes = node.childrenForFieldName('serial_message');
+		const optionNodes = node.childrenForFieldName('serial_dialog_option');
 		const params = paramNodes.map(v=>handleNode(f, v)).flat();
+		const options = optionNodes.map(v=>handleNode(f, v)).flat();
 		const settings = {};
 		params.forEach(param=>{
 			settings[param.property] = param.value;
@@ -359,8 +385,9 @@ const nodeFns = {
 		const messages = messageNodes.map(v=>clean(f, v));
 		return [{
 			mathlang: 'serial_dialog',
-			messages,
 			settings,
+			messages,
+			options,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -382,12 +409,13 @@ const fileMap = {
 				wrap 99
 				wrap 69
 				"Serial Message! AHOY!"
+				_ "what?" = goatScript
 			}
 			include "header.mgs";
 			goats { wait $trombones; }
 		`,
 	},
-}
+};
 
 const mergeF = (f1, f2) => {
 	Object.keys(f2.constants).forEach(constantName=>{
@@ -410,7 +438,7 @@ const mergeF = (f1, f2) => {
 		});
 	});
 	return f1;
-}
+};
 
 const parseFile = (fileName, parser) => {
 	if (!fileMap[fileName].parsed) {

@@ -300,15 +300,15 @@ module.exports = grammar({
 		serial_dialog: $ => seq(
 			repeat(field('serial_dialog_parameter',$.serial_dialog_parameter)),
 			repeat1(field('serial_message', $.QUOTED_STRING)),
-			// repeat($.serial_dialog_option),
+			repeat(field('serial_dialog_option', $.serial_dialog_option)),
 		),
-	// 	serial_dialog_option: $ => seq(
-	// 		field('option_type', $.serial_dialog_option_type),
-	// 		field('label', $.QUOTED_STRING),
-	// 		'=',
-	// 		field('script', $.string),
-	// 	),
-	// 	serial_dialog_option_type: $ => token(/_|#/),
+		serial_dialog_option: $ => seq(
+			field('option_type', $.serial_dialog_option_type),
+			field('label', $.QUOTED_STRING),
+			'=',
+			field('script', $.string),
+		),
+		serial_dialog_option_type: $ => token(choice('_', '#')),
 		script_definition: $ => seq(
 			optional('script'),
 			field('script_name', $.STRING),
