@@ -202,7 +202,6 @@ const nodeFns = {
 		return [];
 	},
 	script_definition: (f, node) => {
-		// get script_name
 		const nameNode = node.childForFieldName('script_name');
 		const name = clean(f, nameNode);
 		const actions = node.lastChild.namedChildren
@@ -336,6 +335,36 @@ const nodeFns = {
 			value: clean(f, valueNode),
 		}]
 	},
+	serial_dialog_definition: (f, node) => {
+		const nameNode = node.childForFieldName('serial_dialog_name');
+		const serialDialogNode = node.childForFieldName('serial_dialog');
+		const name = clean(f, nameNode);
+		const dialog = handleNode(f, serialDialogNode);
+		return [{
+			mathlang: 'serial_dialog_definition',
+			serialDialogName: name,
+			serialDialog: dialog[0],
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
+	serial_dialog: (f, node) => {
+		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
+		const messageNodes = node.childrenForFieldName('serial_message');
+		const params = paramNodes.map(v=>handleNode(f, v)).flat();
+		const settings = {};
+		params.forEach(param=>{
+			settings[param.property] = param.value;
+		});
+		const messages = messageNodes.map(v=>clean(f, v));
+		return [{
+			mathlang: 'serial_dialog',
+			messages,
+			settings,
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
 };
 
 const fileMap = {
@@ -349,6 +378,11 @@ const fileMap = {
 	},
 	"castle.mgs": {
 		text: `
+			serial_dialog goatTimes {
+				wrap 99
+				wrap 69
+				"Serial Message! AHOY!"
+			}
 			include "header.mgs";
 			goats { wait $trombones; }
 		`,

@@ -408,6 +408,10 @@
         {
           "type": "script_definition",
           "named": true
+        },
+        {
+          "type": "serial_dialog_definition",
+          "named": true
         }
       ]
     }
@@ -671,6 +675,62 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "serial_dialog",
+    "named": true,
+    "fields": {
+      "serial_dialog_parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog_parameter",
+            "named": true
+          }
+        ]
+      },
+      "serial_message": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "serial_dialog_definition",
+    "named": true,
+    "fields": {
+      "serial_dialog": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog",
+            "named": true
+          }
+        ]
+      },
+      "serial_dialog_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {

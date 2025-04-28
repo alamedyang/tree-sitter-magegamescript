@@ -200,9 +200,9 @@ module.exports = grammar({
 			$.constant_assignment,
 			$.include_macro,
 			$.add_serial_dialog_settings,
+			$.serial_dialog_definition,
 			// $.add_dialog_settings,
 			// $.dialog_definition,
-			// $.serial_dialog_definition,
 		),
 
 		include_macro: $ => seq(
@@ -287,21 +287,21 @@ module.exports = grammar({
 	// 		'=',
 	// 		field('script', $.string),
 	// 	),
-	// 	serial_dialog_definition: $ => seq(
-	// 		'serial_dialog',
-	// 		field('serial_dialog_name', $.STRING),
-	// 		$.serial_dialog_block,
-	// 	),
-	// 	serial_dialog_block: $ => seq(
-	// 		'{',
-	// 		optional($.serial_dialog),
-	// 		'}'
-	// 	),
-	// 	serial_dialog: $ => seq(
-	// 		repeat($.serial_dialog_parameter),
-	// 		repeat1(field('serial_message', $.QUOTED_STRING)),
-	// 		repeat($.serial_dialog_option),
-	// 	),
+		serial_dialog_definition: $ => seq(
+			'serial_dialog',
+			field('serial_dialog_name', $.STRING),
+			$._serial_dialog_block,
+		),
+		_serial_dialog_block: $ => seq(
+			'{',
+			field('serial_dialog', optional($.serial_dialog)),
+			'}'
+		),
+		serial_dialog: $ => seq(
+			repeat(field('serial_dialog_parameter',$.serial_dialog_parameter)),
+			repeat1(field('serial_message', $.QUOTED_STRING)),
+			// repeat($.serial_dialog_option),
+		),
 	// 	serial_dialog_option: $ => seq(
 	// 		field('option_type', $.serial_dialog_option_type),
 	// 		field('label', $.QUOTED_STRING),

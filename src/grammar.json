@@ -1049,6 +1049,10 @@
         {
           "type": "SYMBOL",
           "name": "add_serial_dialog_settings"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "serial_dialog_definition"
         }
       ]
     },
@@ -1169,6 +1173,83 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "serial_dialog_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "serial_dialog"
+        },
+        {
+          "type": "FIELD",
+          "name": "serial_dialog_name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "STRING"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_serial_dialog_block"
+        }
+      ]
+    },
+    "_serial_dialog_block": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "serial_dialog",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "serial_dialog"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "serial_dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "FIELD",
+            "name": "serial_dialog_parameter",
+            "content": {
+              "type": "SYMBOL",
+              "name": "serial_dialog_parameter"
+            }
+          }
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "FIELD",
+            "name": "serial_message",
+            "content": {
+              "type": "SYMBOL",
+              "name": "QUOTED_STRING"
+            }
+          }
         }
       ]
     },
