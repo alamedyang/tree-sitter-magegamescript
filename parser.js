@@ -6,7 +6,7 @@ const debugLog = (message) => {
 	if (verbose) console.log(message);
 }
 
-const cleanFns = {
+const captureFns = {
 	BOOL: (f, node) => {
 		const text = node.text;
 		if (text === 'true') return true;
@@ -58,10 +58,10 @@ const cleanFns = {
 	},
 	CONSTANT: (f, node) => node.text,
 };
-const clean = (f, node) => {
+const handleCapture = (f, node) => {
 	// expansions cannot be recursive, so this is fine
 	if (node.grammarType.endsWith('_expansion')) {
-		return node.namedChildren.map(v=>clean(f, v));
+		return node.namedChildren.map(v=>handleCapture(f, v));
 	}
 	if (node.grammarType === 'CONSTANT') {
 		const lookup = f.constants[node.text];
@@ -74,33 +74,33 @@ const clean = (f, node) => {
 		}
 		return lookup?.value || node.text;
 	}
-	const fn = cleanFns[node.grammarType];
-	if (!fn) throw new Error ("No clean function for node type " + node.grammarType);
+	const fn = captureFns[node.grammarType];
+	if (!fn) throw new Error (`No handler function found for token ${node.grammarType}`);
 	return fn(f, node);
 };
 
 const handleAction = (f, node) => {
-	const genericData = actionData[node.grammarType];
-	if (!genericData) {
+	const data = actionData[node.grammarType];
+	if (!data) {
 		const customFn = actionFns[node.grammarType];
-		if (!customFn) throw new Error (`No data or handler function found for ${node.grammarType}`);
+		if (!customFn) throw new Error (`No action data nor handler function found for action ${node.grammarType}`);
 		return customFn(f, node);
 	}
 	let ret = {
 		debug: node,
 		fileName: f.fileName,
-		...genericData?.values,
+		...data.values,
 	};
 	const spreadFields = {};
 	let spreadSize = -Infinity;
-	(genericData.captures||[]).forEach(fieldName=>{
+	(data.captures||[]).forEach(fieldName=>{
 		const fieldNode = node.childForFieldName(fieldName);
-		const cleanField = clean(f, fieldNode);
-		if (!Array.isArray(cleanField)) {
-			ret[fieldName] = cleanField;
+		const capture = handleCapture(f, fieldNode);
+		if (!Array.isArray(capture)) {
+			ret[fieldName] = capture;
 		} else {
-			spreadFields[fieldName] = cleanField;
-			const len = cleanField.length;
+			spreadFields[fieldName] = capture;
+			const len = capture.length;
 			if (spreadSize === -Infinity) spreadSize = len;
 			if (spreadSize !== len) {
 				f.errors.push({
@@ -112,9 +112,7 @@ const handleAction = (f, node) => {
 			}
 		}
 	});
-	if (spreadSize === -Infinity) {
-		return [ret];
-	}
+	if (spreadSize === -Infinity) return [ret];
 	const spreadRet = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = {
@@ -135,6 +133,7 @@ actionFns = {};
 actionData = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
+		// Ditto some other actions, too
 		values: { mathlang: 'return_statement' },
 	},
 	action_close_dialog: {
@@ -203,7 +202,7 @@ const nodeFns = {
 	},
 	script_definition: (f, node) => {
 		const nameNode = node.childForFieldName('script_name');
-		const name = clean(f, nameNode);
+		const name = handleCapture(f, nameNode);
 		const actions = node.lastChild.namedChildren
 			.map(node=>handleNode(f, node))
 			.flat();
@@ -219,7 +218,7 @@ const nodeFns = {
 		const labelNode = node.childForFieldName('label');
 		const valueNode = node.childForFieldName('value');
 		const label = labelNode.text;
-		const value = clean(f, valueNode);
+		const value = handleCapture(f, valueNode);
 		f.constants = f.constants || {};
 		if (f.constants[labelNode]) {
 			f.errors.push({
@@ -243,10 +242,10 @@ const nodeFns = {
 		}];
 	},
 	include_macro: (f, node) => {
-		// TODO: handle recursive references
+		// TODO: ~~handle~~ prevent recursive references
 		let includeFileNode = node.childForFieldName('fileName');
-		let cleaned = clean(f, includeFileNode);
-		const prerequesites = Array.isArray(cleaned) ? cleaned : [ cleaned ];
+		let capture = handleCapture(f, includeFileNode);
+		const prerequesites = Array.isArray(capture) ? capture : [ capture ];
 		prerequesites.forEach(prereq=> {
 			if (!fileMap[prereq].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereq}"`);
@@ -257,14 +256,12 @@ const nodeFns = {
 			debugLog(`include_macro: merging ${prereq} into ${f.fileName}...`);
 			f = mergeF(f, fileMap[prereq].parsed);
 		});
-		return [ // need not include
-			// {
-			// 	mathlang: 'include_macro',
-			// 	value: cleaned,
-			// 	debug: node,
-			// 	fileName: f.fileName,
-			// }
-		];
+		return [{
+			mathlang: 'include_macro',
+			value: capture,
+			debug: node,
+			fileName: f.fileName,
+		}];
 	},
 	rand_macro: (f, node) => {
 		const horizontal = [];
@@ -288,8 +285,7 @@ const nodeFns = {
 		const vertical = [];
 		for (let i = 0; i < multipleCount; i++) {
 			const insert = horizontal.map(unit=>{
-				const len = unit.length;
-				return unit[i % len];
+				return unit[i % unit.length];
 			})
 			vertical.push(insert);
 		}
@@ -307,14 +303,12 @@ const nodeFns = {
 		parameters.forEach(param=>{
 			f.settings.serial[param.property] = param.value;
 		})
-		return [ // might not need to include this
-			// {
-			// 	mathlang: 'add_serial_dialog_settings',
-			// 	parameters,
-			// 	debug: node,
-			// 	fileName: f.fileName,
-			// }
-		];
+		return [{
+			mathlang: 'add_serial_dialog_settings',
+			parameters,
+			debug: node,
+			fileName: f.fileName,
+		}];
 	},
 	serial_dialog_parameter: (f, node) => {
 		const propNode = node.childForFieldName('property');
@@ -329,10 +323,10 @@ const nodeFns = {
 		}
 		return [{
 			mathlang: 'serial_dialog_parameter',
+			property: handleCapture(f, propNode),
+			value: handleCapture(f, valueNode),
 			debug: node,
 			fileName: f.fileName,
-			property: clean(f, propNode),
-			value: clean(f, valueNode),
 		}]
 	},
 	serial_dialog_option: (f, node) => {
@@ -353,8 +347,8 @@ const nodeFns = {
 		return [{
 			mathlang: 'serial_dialog_option',
 			optionType,
-			label: clean(f, labelNode),
-			script: clean(f, scriptNode),
+			label: handleCapture(f, labelNode),
+			script: handleCapture(f, scriptNode),
 			debug: node,
 			fileName: f.fileName,
 		}]
@@ -362,7 +356,7 @@ const nodeFns = {
 	serial_dialog_definition: (f, node) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const serialDialogNode = node.childForFieldName('serial_dialog');
-		const name = clean(f, nameNode);
+		const name = handleCapture(f, nameNode);
 		const dialog = handleNode(f, serialDialogNode);
 		return [{
 			mathlang: 'serial_dialog_definition',
@@ -378,11 +372,12 @@ const nodeFns = {
 		const optionNodes = node.childrenForFieldName('serial_dialog_option');
 		const params = paramNodes.map(v=>handleNode(f, v)).flat();
 		const options = optionNodes.map(v=>handleNode(f, v)).flat();
+		// TODO: make options more closely resemble final form?
 		const settings = {};
 		params.forEach(param=>{
 			settings[param.property] = param.value;
 		});
-		const messages = messageNodes.map(v=>clean(f, v));
+		const messages = messageNodes.map(v=>handleCapture(f, v));
 		return [{
 			mathlang: 'serial_dialog',
 			settings,
@@ -428,8 +423,11 @@ const mergeF = (f1, f2) => {
 		}
 		f1.constants[constantName] = f2.constants[constantName];
 	});
-	f2.errors.forEach(error=>{ f1.errors.push(error) });
-	f2.warnings.forEach(warning=>{ f1.warnings.push(warning) });
+	// actually, errors etc. shouldn't show up multiple times; the fact that the included file
+	// got parsed meant that its errors already happened once
+	// f2.errors.forEach(error=>{ f1.errors.push(error) });
+	// f2.warnings.forEach(warning=>{ f1.warnings.push(warning) });
+	// unsure whether we need this one though; might help debug if included
 	f2.nodes.forEach(node=>{ f1.nodes.push(node) });
 	['default', 'entity', 'label', 'serial'].forEach(type=>{
 		const params = Object.keys(f2.settings[type]);
