@@ -460,6 +460,113 @@
     }
   },
   {
+    "type": "json_array",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "json_array",
+          "named": true
+        },
+        {
+          "type": "json_number",
+          "named": true
+        },
+        {
+          "type": "json_object",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "json_literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "json_array",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "json_name_value_pair",
+    "named": true,
+    "fields": {
+      "property": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "false",
+            "named": false
+          },
+          {
+            "type": "json_array",
+            "named": true
+          },
+          {
+            "type": "json_number",
+            "named": true
+          },
+          {
+            "type": "json_object",
+            "named": true
+          },
+          {
+            "type": "null",
+            "named": false
+          },
+          {
+            "type": "true",
+            "named": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "json_object",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "json_name_value_pair",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "label",
     "named": true,
     "fields": {
@@ -570,6 +677,10 @@
           "named": true
         },
         {
+          "type": "json_literal",
+          "named": true
+        },
+        {
           "type": "label",
           "named": true
         },
@@ -634,6 +745,10 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "json_literal",
           "named": true
         },
         {
@@ -937,6 +1052,10 @@
     "named": false
   },
   {
+    "type": "false",
+    "named": false
+  },
+  {
     "type": "goto",
     "named": false
   },
@@ -947,6 +1066,14 @@
   {
     "type": "index",
     "named": false
+  },
+  {
+    "type": "json",
+    "named": false
+  },
+  {
+    "type": "json_number",
+    "named": true
   },
   {
     "type": "label",
@@ -962,6 +1089,10 @@
   },
   {
     "type": "map",
+    "named": false
+  },
+  {
+    "type": "null",
     "named": false
   },
   {
@@ -994,6 +1125,10 @@
   },
   {
     "type": "slot",
+    "named": false
+  },
+  {
+    "type": "true",
     "named": false
   },
   {

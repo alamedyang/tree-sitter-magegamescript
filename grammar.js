@@ -319,43 +319,43 @@ module.exports = grammar({
 			$.rand_macro,
 			$.label,
 			seq($._action_item, token(';')),
-			// $.json_literal,
+			$.json_literal,
 			// $.debug_macro,
 		),
 
-	// 	json_literal: $ => seq(
-	// 		'json',
-	// 		$.json_array,
-	// 	),
-	// 	json_array: $ => seq(
-	// 		'[',
-	// 		optional(seq( $._json_item, repeat(seq(',', $._json_item)))),
-	// 		']'
-	// 	),
-	// 	json_object: $ => seq(
-	// 		'{',
-	// 		optional(seq($.json_name_value_pair, repeat(seq(',', $.json_name_value_pair)))),
-	// 		'}'
-	// 	),
-	// 	json_name_value_pair: $ => seq(
-	// 		field('property', $.QUOTED_STRING),
-	// 		':',
-	// 		field('value', $._json_item),
-	// 	),
-	// 	json_number: $ => token(choice(
-	// 		'Infinity',
-	// 		'-Infinity',
-	// 		/-?[0-9]+?/
-	// 	)),
-	// 	_json_item: $ => choice(
-	// 		$.QUOTED_STRING,
-	// 		$.json_number,
-	// 		$.json_array,
-	// 		$.json_object,
-	// 		token('true'),
-	// 		token('false'),
-	// 		token('null'),
-	// 	),
+		json_literal: $ => seq(
+			'json',
+			$.json_array,
+		),
+		json_array: $ => seq(
+			'[',
+			optional(seq( $._json_item, repeat(seq(',', $._json_item)))),
+			']'
+		),
+		json_object: $ => seq(
+			'{',
+			optional(seq($.json_name_value_pair, repeat(seq(',', $.json_name_value_pair)))),
+			'}'
+		),
+		json_name_value_pair: $ => seq(
+			field('property', $.QUOTED_STRING),
+			':',
+			field('value', $._json_item),
+		),
+		json_number: $ => token(choice(
+			'Infinity',
+			'-Infinity',
+			/-?[0-9]+?/
+		)),
+		_json_item: $ => choice(
+			$.QUOTED_STRING,
+			$.json_number,
+			$.json_array,
+			$.json_object,
+			token('true'),
+			token('false'),
+			token('null'),
+		),
 
 
 	// 	debug_macro: $ => seq(

@@ -387,6 +387,27 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	json_literal: (f, node) => {
+		// TODO: do it more by hand so that errors can be reported more accurately
+		const jsonNode = node.namedChildren[0];
+		const text = jsonNode.text;
+		let parsed = [];
+		try {
+			parsed = JSON.parse(text);
+		} catch {
+			f.errors.push({
+				message: `JSON syntax error`,
+				node,
+				fileName: f.fileName,
+			})
+		}
+		return [{
+			mathlang: 'json_literal',
+			json: parsed,
+			debug: node,
+			fileName: f.fileName,
+		}]
+	},
 };
 
 const fileMap = {
@@ -407,7 +428,12 @@ const fileMap = {
 				_ "what?" = goatScript
 			}
 			include "header.mgs";
-			goats { wait $trombones; }
+			goats {
+				wait $trombones;
+				json [
+					{"action":true}
+				]
+			}
 		`,
 	},
 };
