@@ -293,6 +293,73 @@
     "fields": {}
   },
   {
+    "type": "add_dialog_settings",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "add_dialog_settings_target",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "add_dialog_settings_target",
+    "named": true,
+    "fields": {
+      "dialog_parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "dialog_parameter",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "target_default",
+            "named": true
+          },
+          {
+            "type": "target_entity",
+            "named": true
+          },
+          {
+            "type": "target_label",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "add_serial_dialog_settings",
     "named": true,
     "fields": {},
@@ -385,6 +452,44 @@
     }
   },
   {
+    "type": "dialog_parameter",
+    "named": true,
+    "fields": {
+      "property": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "document",
     "named": true,
     "root": true,
@@ -393,6 +498,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "add_dialog_settings",
+          "named": true
+        },
         {
           "type": "add_serial_dialog_settings",
           "named": true
@@ -956,6 +1065,11 @@
     }
   },
   {
+    "type": "target_label",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "!",
     "named": false
   },
@@ -1126,6 +1240,14 @@
   {
     "type": "slot",
     "named": false
+  },
+  {
+    "type": "target_default",
+    "named": true
+  },
+  {
+    "type": "target_entity",
+    "named": true
   },
   {
     "type": "true",

@@ -201,7 +201,7 @@ module.exports = grammar({
 			$.include_macro,
 			$.add_serial_dialog_settings,
 			$.serial_dialog_definition,
-			// $.add_dialog_settings,
+			$.add_dialog_settings,
 			// $.dialog_definition,
 		),
 
@@ -229,37 +229,49 @@ module.exports = grammar({
 				field('value', $.number),
 			),
 		),
-	// 	add_dialog_settings: $ => seq(
-	// 		'add', 'dialog', 'settings', '{',
-	// 			repeat(choice(
-	// 				seq(
-	// 					'default',
-	// 					alias($.dialog_settings_block, $.default_settings)
-	// 				),
-	// 				seq(
-	// 					'label',
-	// 					field('target_label', $.bareword),
-	// 					alias($.dialog_settings_block, $.label_settings)
-	// 				),
-	// 				seq('entity',
-	// 					field('target_entity', $.string),
-	// 					alias($.dialog_settings_block, $.entity_settings)
-	// 				),
-	// 			)),
-	// 		'}',
-	// 	),
-	// 	dialog_settings_block: $ => seq(
-	// 		'{', repeat($.dialog_parameter), '}'
-	// 	),
-	// 	dialog_parameter: $ => choice(
-	// 		seq('entity', field('entity', $.string)),
-	// 		seq('name', field('name', $.string)),
-	// 		seq('portrait', field('portrait', $.string)),
-	// 		seq('alignment', field('alignment', $.string)),
-	// 		seq('border_tileset', field('border_tileset', $.string)),
-	// 		seq('emote', field('emote', $.number)),
-	// 		seq('wrap', field('wrap', $.number)),
-	// 	),
+		add_dialog_settings: $ => seq(
+			'add', 'dialog', 'settings', '{',
+				repeat($.add_dialog_settings_target),
+			'}',
+		),
+		target_default: $ => token('default'),
+		target_label: $ => token('label'),
+		target_entity: $ => token('entity'),
+		add_dialog_settings_target: $ => seq(
+			choice(
+				field('type', $.target_default),
+				seq(field('type', $.target_label), field('target', $.bareword)),
+				seq(field('type', $.target_entity), field('target', $.string)),
+			),
+			'{', repeat(field('dialog_parameter', $.dialog_parameter)), '}'
+		),
+		dialog_parameter_int: $ => token(choice(
+			'wrap',
+			'emote'
+		)),
+		dialog_parameter_string: $ => token(choice(
+			'entity',
+			'name',
+			'portrait',
+			'alignment',
+			'border_tileset'
+		)),
+		dialog_parameter: $ => choice(
+			seq(
+				field('property', alias(
+					$.dialog_parameter_int,
+					$.BAREWORD,
+				)),
+				field('value', $.number),
+			),
+			seq(
+				field('property', alias(
+					$.dialog_parameter_string,
+					$.BAREWORD,
+				)),
+				field('value', $.string),
+			),
+		),
 	// 	dialog_definition: $ => seq(
 	// 		'dialog',
 	// 		field('dialog_name', $.string),

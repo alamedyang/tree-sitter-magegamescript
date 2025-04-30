@@ -296,6 +296,80 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	add_dialog_settings: (f, node) => {
+		const targets = node.namedChildren
+			.map(child=>handleNode(f, child))
+			.flat();
+		return [{
+			mathlang: 'add_dialog_settings',
+			targets,
+			debug: node,
+			fileName: f.fileName,
+		}]
+	},
+	add_dialog_settings_target: (f, node) => {
+		let bucket;
+		const type = node.firstChild.type;
+		const targetNode = node.childForFieldName('target');
+		if (type === 'target_default') {
+			bucket = f.settings.default;
+		} else if (type === 'target_label') {
+			if (!targetNode) {
+				f.errors.push({
+					message: `dialog_settings_target: malformed label definition`,
+					node,
+					fileName: f.fileName,
+				})
+			}
+			const target = targetNode.text || 'UNDEFINED LABEL';
+			f.settings.label[target] = f.settings.label[target] || {};
+			bucket = f.settings.label[target];
+		} else if (type === 'target_entity') {
+			if (!targetNode) {
+				f.errors.push({
+					message: `dialog_settings_target: malformed entity definition`,
+					node,
+					fileName: f.fileName,
+				})
+			}
+			const target = targetNode.text || 'UNDEFINED ENTITY';
+			f.settings.label[target] = f.settings.label[target] || {};
+			bucket = f.settings.entity[target];
+		} else {
+			throw new Error("This shouldn't happen, I think");
+		}
+		const parameters = node.childrenForFieldName('dialog_parameter')
+			.map(innerChild=>handleNode(f, innerChild))
+			.flat();
+		parameters.forEach(param=>{
+			bucket[param.property] = param.value;
+		});
+		return [{
+			mathlang: 'add_dialog_settings_target',
+			parameters,
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
+	dialog_parameter: (f, node) => {
+		const propNode = node.childForFieldName('property');
+		const valueNode = node.childForFieldName('value');
+		if (!propNode || !valueNode) {
+			f.errors.push({
+				message: `malformed dialog parameter`,
+				node,
+				fileName: f.fileName,
+			});
+			return [];
+		}
+		return [{
+			mathlang: 'dialog_parameter',
+			property: handleCapture(f, propNode),
+			value: handleCapture(f, valueNode),
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
 	add_serial_dialog_settings: (f, node) => {
 		const parameters = node.namedChildren
 			.map(child=>handleNode(f, child))
@@ -414,8 +488,14 @@ const fileMap = {
 	"header.mgs": {
 		text: `
 			$trombones = 76;
-			add serial_dialog settings {
-				wrap 75
+			add dialog settings {
+				default {
+					alignment BL
+				}
+				label PLAYER {
+					wrap 75
+					alignment BR
+				}
 			}
 		`,
 	},
@@ -455,10 +535,20 @@ const mergeF = (f1, f2) => {
 	// f2.warnings.forEach(warning=>{ f1.warnings.push(warning) });
 	// unsure whether we need this one though; might help debug if included
 	f2.nodes.forEach(node=>{ f1.nodes.push(node) });
-	['default', 'entity', 'label', 'serial'].forEach(type=>{
+	['default', 'serial'].forEach(type=>{
 		const params = Object.keys(f2.settings[type]);
 		params.forEach(param=>{
 			f1.settings[type][param] = f2.settings[type][param];
+		});
+	});
+	['entity', 'label'].forEach(type=>{
+		const targets = Object.keys(f2.settings[type]);
+		targets.forEach(target=>{
+			const params = Object.keys(f2.settings[type][target]);
+			f1.settings[type][target] = f1.settings[type][target] || {};
+			params.forEach(param=>{
+				f1.settings[type][target][param] = f2.settings[type][target][param];
+			});
 		});
 	});
 	return f1;
