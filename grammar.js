@@ -202,7 +202,7 @@ module.exports = grammar({
 			$.add_serial_dialog_settings,
 			$.serial_dialog_definition,
 			$.add_dialog_settings,
-			// $.dialog_definition,
+			$.dialog_definition,
 		),
 
 		include_macro: $ => seq(
@@ -245,60 +245,54 @@ module.exports = grammar({
 			),
 			'{', repeat(field('dialog_parameter', $.dialog_parameter)), '}'
 		),
-		dialog_parameter_int: $ => token(choice(
-			'wrap',
-			'emote'
-		)),
-		dialog_parameter_string: $ => token(choice(
-			'entity',
-			'name',
-			'portrait',
-			'alignment',
-			'border_tileset'
-		)),
+		_dialog_parameter_int: $ => choice(
+			token('wrap'),
+			token('emote')
+		),
+		_dialog_parameter_string: $ => choice(
+			token('entity'),
+			token('name'),
+			token('portrait'),
+			token('alignment'),
+			token('border_tileset')
+		),
 		dialog_parameter: $ => choice(
 			seq(
-				field('property', alias(
-					$.dialog_parameter_int,
-					$.BAREWORD,
-				)),
+				field('property', $._dialog_parameter_int),
 				field('value', $.number),
 			),
 			seq(
-				field('property', alias(
-					$.dialog_parameter_string,
-					$.BAREWORD,
-				)),
+				field('property', $._dialog_parameter_string),
 				field('value', $.string),
 			),
 		),
-	// 	dialog_definition: $ => seq(
-	// 		'dialog',
-	// 		field('dialog_name', $.string),
-	// 		$.dialog_block,
-	// 	),
-	// 	dialog_block: $ => seq(
-	// 		'{',
-	// 		repeat($.dialog),
-	// 		'}'
-	// 	),
-	// 	dialog: $ => seq(
-	// 		$.dialog_identifier,
-	// 		repeat($.dialog_parameter),
-	// 		repeat1(field('message', $.QUOTED_STRING)),
-	// 		repeat($.dialog_option),
-	// 	),
-	// 	dialog_identifier: $ => choice(
-	// 		field('label', $.BAREWORD),
-	// 		seq('entity', field('entity', $.STRING)),
-	// 		seq('name', field('name', $.STRING)),
-	// 	),
-	// 	dialog_option: $ => seq(
-	// 		'>',
-	// 		field('label', $.QUOTED_STRING),
-	// 		'=',
-	// 		field('script', $.string),
-	// 	),
+		dialog_definition: $ => seq(
+			'dialog',
+			field('dialog_name', $.string),
+			$._dialog_block,
+		),
+		_dialog_block: $ => seq(
+			'{',
+			repeat(field('dialog', $.dialog)),
+			'}'
+		),
+		dialog: $ => seq(
+			$.dialog_identifier,
+			repeat(field('dialog_parameter', $.dialog_parameter)),
+			repeat1(field('message', $.QUOTED_STRING)),
+			repeat(field('dialog_option', $.dialog_option)),
+		),
+		dialog_identifier: $ => choice(
+			field('label', $.BAREWORD),
+			seq('entity', field('entity', $.STRING)),
+			seq('name', field('name', $.STRING)),
+		),
+		dialog_option: $ => seq(
+			'>',
+			field('label', $.QUOTED_STRING),
+			'=',
+			field('script', $.string),
+		),
 		serial_dialog_definition: $ => seq(
 			'serial_dialog',
 			field('serial_dialog_name', $.STRING),
@@ -329,7 +323,7 @@ module.exports = grammar({
 		script_block: $ => seq('{', repeat($._script_item), '}'),
 		_script_item: $ => choice(
 			$.rand_macro,
-			$.label,
+			$.label_definition,
 			seq($._action_item, token(';')),
 			$.json_literal,
 			// $.debug_macro,
@@ -383,7 +377,7 @@ module.exports = grammar({
 			repeat($._script_item),
 			')',
 		),
-		label: $ => seq(field('label', $.BAREWORD), ':'),
+		label_definition: $ => seq(field('label', $.BAREWORD), ':'),
 
 		_action_item: $ => choice(
 			$.action_return_statement,

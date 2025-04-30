@@ -296,6 +296,15 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	label_definition: (f, node) => {
+		const label = node.childForFieldName('label').text;
+		return [{
+			mathlang: 'label_definition',
+			label,
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
 	add_dialog_settings: (f, node) => {
 		const targets = node.namedChildren
 			.map(child=>handleNode(f, child))
@@ -364,7 +373,7 @@ const nodeFns = {
 		}
 		return [{
 			mathlang: 'dialog_parameter',
-			property: handleCapture(f, propNode),
+			property: propNode.text,
 			value: handleCapture(f, valueNode),
 			debug: node,
 			fileName: f.fileName,
@@ -427,6 +436,25 @@ const nodeFns = {
 			fileName: f.fileName,
 		}]
 	},
+	dialog_option: (f, node) => {
+		const labelNode = node.childForFieldName('label');
+		const scriptNode = node.childForFieldName('script');
+		if (!labelNode || !scriptNode) {
+			f.errors.push({
+				message: `malformed dialog option`,
+				debug: node,
+				fileName: f.fileName,
+			});
+			return [];
+		}
+		return [{
+			mathlang: 'dialog_option',
+			label: handleCapture(f, labelNode),
+			script: handleCapture(f, scriptNode),
+			debug: node,
+			fileName: f.fileName,
+		}]
+	},
 	serial_dialog_definition: (f, node) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const serialDialogNode = node.childForFieldName('serial_dialog');
@@ -436,6 +464,19 @@ const nodeFns = {
 			mathlang: 'serial_dialog_definition',
 			serialDialogName: name,
 			serialDialog: dialog[0],
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
+	dialog_definition: (f, node) => {
+		const nameNode = node.childForFieldName('dialog_name');
+		const name = handleCapture(f, nameNode);
+		const dialogNodes = node.childrenForFieldName('dialog');
+		const dialogs = dialogNodes.map(child=>handleNode(f, child)).flat();
+		return [{
+			mathlang: 'dialog_definition',
+			dialogName: name,
+			dialogs: dialogs,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -454,6 +495,26 @@ const nodeFns = {
 		const messages = messageNodes.map(v=>handleCapture(f, v));
 		return [{
 			mathlang: 'serial_dialog',
+			settings,
+			messages,
+			options,
+			debug: node,
+			fileName: f.fileName,
+		}];
+	},
+	dialog: (f, node) => {
+		const paramNodes = node.childrenForFieldName('dialog_parameter');
+		const messageNodes = node.childrenForFieldName('message');
+		const optionNodes = node.childrenForFieldName('dialog_option');
+		const params = paramNodes.map(v=>handleNode(f, v)).flat();
+		const options = optionNodes.map(v=>handleNode(f, v)).flat();
+		const settings = {};
+		params.forEach(param=>{
+			settings[param.property] = param.value;
+		});
+		const messages = messageNodes.map(v=>handleCapture(f, v));
+		return [{
+			mathlang: 'dialog',
 			settings,
 			messages,
 			options,
@@ -485,34 +546,21 @@ const nodeFns = {
 };
 
 const fileMap = {
-	"header.mgs": {
-		text: `
-			$trombones = 76;
-			add dialog settings {
-				default {
-					alignment BL
-				}
-				label PLAYER {
-					wrap 75
-					alignment BR
-				}
-			}
-		`,
-	},
+	// "header.mgs": {
+	// 	text: `
+	// 		$trombones = 76;
+	// 	`,
+	// },
 	"castle.mgs": {
 		text: `
-			serial_dialog goatTimes {
-				wrap 99
-				wrap 69
-				"Serial Message! AHOY!"
-				_ "what?" = goatScript
-			}
-			include "header.mgs";
-			goats {
-				wait $trombones;
-				json [
-					{"action":true}
-				]
+			// add dialog settings { default { wrap 99 } }
+			// include "header.mgs";
+			dialog goatTalk {
+				PLAYER
+				wrap 999
+				"ACK! A goat!"
+				> "Run" = runScript
+				> "Hide" = hideScript
 			}
 		`,
 	},

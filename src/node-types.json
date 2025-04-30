@@ -1,5 +1,10 @@
 [
   {
+    "type": "BAREWORD",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "DISTANCE",
     "named": true,
     "fields": {
@@ -452,6 +457,164 @@
     }
   },
   {
+    "type": "dialog",
+    "named": true,
+    "fields": {
+      "dialog_option": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "dialog_option",
+            "named": true
+          }
+        ]
+      },
+      "dialog_parameter": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "dialog_parameter",
+            "named": true
+          }
+        ]
+      },
+      "message": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "dialog_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "dialog_definition",
+    "named": true,
+    "fields": {
+      "dialog": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "dialog",
+            "named": true
+          }
+        ]
+      },
+      "dialog_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "dialog_identifier",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "dialog_option",
+    "named": true,
+    "fields": {
+      "label": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "dialog_parameter",
     "named": true,
     "fields": {
@@ -460,8 +623,32 @@
         "required": true,
         "types": [
           {
-            "type": "BAREWORD",
-            "named": true
+            "type": "alignment",
+            "named": false
+          },
+          {
+            "type": "border_tileset",
+            "named": false
+          },
+          {
+            "type": "emote",
+            "named": false
+          },
+          {
+            "type": "entity",
+            "named": false
+          },
+          {
+            "type": "name",
+            "named": false
+          },
+          {
+            "type": "portrait",
+            "named": false
+          },
+          {
+            "type": "wrap",
+            "named": false
           }
         ]
       },
@@ -508,6 +695,10 @@
         },
         {
           "type": "constant_assignment",
+          "named": true
+        },
+        {
+          "type": "dialog_definition",
           "named": true
         },
         {
@@ -676,7 +867,7 @@
     }
   },
   {
-    "type": "label",
+    "type": "label_definition",
     "named": true,
     "fields": {
       "label": {
@@ -790,7 +981,7 @@
           "named": true
         },
         {
-          "type": "label",
+          "type": "label_definition",
           "named": true
         },
         {
@@ -861,7 +1052,7 @@
           "named": true
         },
         {
-          "type": "label",
+          "type": "label_definition",
           "named": true
         },
         {
@@ -1065,6 +1256,11 @@
     }
   },
   {
+    "type": "target_entity",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "target_label",
     "named": true,
     "fields": {}
@@ -1098,8 +1294,8 @@
     "named": false
   },
   {
-    "type": "BAREWORD",
-    "named": true
+    "type": ">",
+    "named": false
   },
   {
     "type": "BOOL",
@@ -1138,12 +1334,20 @@
     "named": false
   },
   {
+    "type": "alignment",
+    "named": false
+  },
+  {
     "type": "block",
     "named": false
   },
   {
     "type": "block_comment",
     "named": true
+  },
+  {
+    "type": "border_tileset",
+    "named": false
   },
   {
     "type": "close",
@@ -1160,6 +1364,14 @@
   {
     "type": "duration_suffix",
     "named": true
+  },
+  {
+    "type": "emote",
+    "named": false
+  },
+  {
+    "type": "entity",
+    "named": false
   },
   {
     "type": "erase",
@@ -1206,7 +1418,15 @@
     "named": false
   },
   {
+    "type": "name",
+    "named": false
+  },
+  {
     "type": "null",
+    "named": false
+  },
+  {
+    "type": "portrait",
     "named": false
   },
   {
@@ -1246,15 +1466,15 @@
     "named": true
   },
   {
-    "type": "target_entity",
-    "named": true
-  },
-  {
     "type": "true",
     "named": false
   },
   {
     "type": "wait",
+    "named": false
+  },
+  {
+    "type": "wrap",
     "named": false
   },
   {

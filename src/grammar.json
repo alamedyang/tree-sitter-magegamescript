@@ -1057,6 +1057,10 @@
         {
           "type": "SYMBOL",
           "name": "add_dialog_settings"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "dialog_definition"
         }
       ]
     },
@@ -1312,49 +1316,64 @@
         }
       ]
     },
-    "dialog_parameter_int": {
-      "type": "TOKEN",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
+    "_dialog_parameter_int": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "wrap"
-          },
-          {
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "emote"
           }
-        ]
-      }
+        }
+      ]
     },
-    "dialog_parameter_string": {
-      "type": "TOKEN",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
+    "_dialog_parameter_string": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "entity"
-          },
-          {
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "name"
-          },
-          {
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "portrait"
-          },
-          {
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "alignment"
-          },
-          {
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
             "type": "STRING",
             "value": "border_tileset"
           }
-        ]
-      }
+        }
+      ]
     },
     "dialog_parameter": {
       "type": "CHOICE",
@@ -1366,13 +1385,8 @@
               "type": "FIELD",
               "name": "property",
               "content": {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "dialog_parameter_int"
-                },
-                "named": true,
-                "value": "BAREWORD"
+                "type": "SYMBOL",
+                "name": "_dialog_parameter_int"
               }
             },
             {
@@ -1392,13 +1406,8 @@
               "type": "FIELD",
               "name": "property",
               "content": {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "dialog_parameter_string"
-                },
-                "named": true,
-                "value": "BAREWORD"
+                "type": "SYMBOL",
+                "name": "_dialog_parameter_string"
               }
             },
             {
@@ -1410,6 +1419,173 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "dialog_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "dialog"
+        },
+        {
+          "type": "FIELD",
+          "name": "dialog_name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_dialog_block"
+        }
+      ]
+    },
+    "_dialog_block": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "FIELD",
+            "name": "dialog",
+            "content": {
+              "type": "SYMBOL",
+              "name": "dialog"
+            }
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "dialog_identifier"
+        },
+        {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "REPEAT",
+            "content": {
+              "type": "FIELD",
+              "name": "dialog_parameter",
+              "content": {
+                "type": "SYMBOL",
+                "name": "dialog_parameter"
+              }
+            }
+          }
+        },
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "FIELD",
+            "name": "message",
+            "content": {
+              "type": "SYMBOL",
+              "name": "QUOTED_STRING"
+            }
+          }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "FIELD",
+            "name": "dialog_option",
+            "content": {
+              "type": "SYMBOL",
+              "name": "dialog_option"
+            }
+          }
+        }
+      ]
+    },
+    "dialog_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "BAREWORD"
+          }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "entity"
+            },
+            {
+              "type": "FIELD",
+              "name": "entity",
+              "content": {
+                "type": "SYMBOL",
+                "name": "STRING"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "name"
+            },
+            {
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "STRING"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dialog_option": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": ">"
+        },
+        {
+          "type": "FIELD",
+          "name": "label",
+          "content": {
+            "type": "SYMBOL",
+            "name": "QUOTED_STRING"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string"
+          }
         }
       ]
     },
@@ -1608,7 +1784,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "label"
+          "name": "label_definition"
         },
         {
           "type": "SEQ",
@@ -1852,7 +2028,7 @@
         }
       ]
     },
-    "label": {
+    "label_definition": {
       "type": "SEQ",
       "members": [
         {
