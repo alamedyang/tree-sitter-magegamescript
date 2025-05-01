@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
@@ -779,42 +782,34 @@ const buildDialogFromInfo = (f, info) => {
 
 /* ------------------------------- FILE HANDLING ------------------------------- */
 
-const fileMap = {
-	// "header.mgs": {
-	// 	text: `
-	// 		$trombones = 76;
-	// 	`,
-	// },
-	"castle.mgs": {
-		// add dialog settings { default { wrap 99 } }
-		// include "header.mgs";
-		text: `
-			dialog goatTalk {
-				PLAYER
-				wrap 20
-				"12345678901234567890"
-				"123456789012\\"4567890"
-				"123456789012\\"45678901"
-				"123456789012\\" 567890"
-				"123456789012\\" 5678901"
-				"%12% a b c d e f g h"
-				"%1234% a b c d e f g"
-				"%123456% a b c d e f"
-				"%12345678% a b c d e"
-				"%1234567890% a b c d"
-				"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
-				> "optioin" = huh
-				}
-				serial_dialog lulullul {
-					wrap 20
-					"Hey now! We gotta think about ansi things now!"
-					"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
-					_ "option times!" = scriptName
-					# "option times again!" = scriptName2
-				}
-		`,
-	},
-};
+// stolen from the other place
+const makeMap = path => {
+	let map = {};
+	for (file of fs.readdirSync(
+		path,
+		{ withFileTypes: true }
+	)) {
+		let filePath = `${path}/${file.name}`
+
+		if (file.isDirectory()) {
+			map = {
+				...map,
+				...makeMap(filePath)
+			};
+		} else {
+			let text = fs.readFileSync(filePath, 'utf-8')
+			let type = filePath.split('.').pop()
+			map[file.name] = {
+				fileName: file.name,
+				type,
+				text,
+			}
+		}
+	}
+	return map;
+}
+const inputPath = path.resolve('./scenario_source_files');
+const fileMap = makeMap(inputPath);
 
 const mergeF = (f1, f2) => {
 	Object.keys(f2.constants).forEach(constantName=>{
@@ -873,19 +868,115 @@ const parseFile = (fileName, parser) => {
 };
 
 /* ------------------------------- THE ACTUAL OWL ------------------------------- */
-
+const finalizeActions = rawActions => {
+	const actions = [];
+	actions.forEach(action=>{
+		if (!action.mathlang) {
+			actions.push(action);
+		}
+	})
+	return actions;
+};
 (async () => {
 	await Parser.init();
 	const parser = new Parser();
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
 	
-	const fileNames = Object.keys(fileMap);
-	fileNames.forEach(fileName=>{
+	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
-			debugLog(`Parsing file "${fileName}"`);
+			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
 			parseFile(fileName, parser);
 		}
 	});
-	console.log(fileMap);
+	const p = { // 'project' :P
+		serialDialogs: {},
+		dialogs: {},
+		scripts: {},
+		errors: [],
+		warnings: [],
+	};
+	Object.keys(fileMap).forEach(fileName=>{
+		let errorCount = 0;
+		let warningCount = 0;
+		fileMap[fileName].parsed.errors.forEach(error=>{
+			p.errors.push(error);
+			errorCount += 1;
+		})
+		fileMap[fileName].parsed.warnings.forEach(warning=>{
+			p.warnings.push(warning);
+			warningCount += 1;
+		})
+		fileMap[fileName].parsed.nodes.forEach(node=>{
+			
+			if (node.mathlang === 'script_definition') {
+				const scriptName = node.scriptName;
+				debugLog(`Finalizing script "${scriptName}" in file ${fileName}`);
+				const actions = finalizeActions(node.actions);
+				const data = {
+					fileName,
+					node: node,
+					actions,
+				};
+				if (!p.scripts[scriptName]) {
+					p.scripts[scriptName] = data;
+				} else {
+					if (!p.scripts[scriptName].duplicates) {
+						p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
+					}
+					p.scripts[scriptName].duplicates.push(data);
+				}
+			} else if (node.mathlang === 'dialog_definition') {
+				const dialogName = node.dialogName;
+				debugLog(`Finalizing dialog "${dialogName}" in file ${fileName}`);
+				const data = node;
+				if (!p.dialogs[dialogName]) {
+					p.dialogs[dialogName] = data;
+				} else {
+					if (!p.dialogs[dialogName].duplicates) {
+						p.dialogs[dialogName].duplicates = [ p.dialogs[dialogName] ];
+					}
+					p.dialogs[dialogName].duplicates.push(data);
+				}
+			} else if (node.mathlang === 'serial_dialog_definition') {
+				const serialDialogName = node.serialDialogName;
+				debugLog(`Finalizing serial dialog "${serialDialogName}" in file ${fileName}`);
+				const data = node;
+				if (!p.dialogs[serialDialogName]) {
+					p.dialogs[serialDialogName] = data;
+				} else {
+					if (!p.dialogs[serialDialogName].duplicates) {
+						p.dialogs[serialDialogName].duplicates = [ p.dialogs[serialDialogName] ];
+					}
+					p.dialogs[serialDialogName].duplicates.push(data);
+				}
+			}
+		})
+		if (verbose) {
+			let message = `${ansiTags.g}File ${fileName} complete!${ansiTags.reset}`;
+			if (errorCount > 0 || warningCount > 0) {
+				const errorMessage = errorCount
+					? `${ansiTags.r}${errorCount} error${errorCount === 1 ? '' : 's'}${ansiTags.reset}`
+					: `0 errors`;
+				const warningMessage = warningCount
+					? `${ansiTags.y}${warningCount} warning${warningCount === 1 ? '' : 's'}${ansiTags.reset}`
+					: `0 warnings`;
+				if (errorCount > 0 && warningCount > 0) {
+					message += ` (${errorMessage}, ${warningMessage})`;
+				} else if (errorCount > 0) {
+					message += ` (${errorMessage})`;
+				} else if (warningCount > 0) {
+					message += ` (${warningMessage})`;
+				}
+			}
+			console.log(message);
+		}
+	})
+	// TODO
+	// freak out when dialogs, serial dialogs, or scripts have duplicates
+	// print string at pos at every location, print error heading only once
+	console.log("ASYNC WHY ARE YOU LIKE THIS");
 })();
+
+
+console.log("WHY IS THIS BEFORE THE ASYNC");

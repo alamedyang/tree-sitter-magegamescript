@@ -1,0 +1,5 @@
+include "header.mgs";
+
+_ {
+	wait [400, 1s];
+}

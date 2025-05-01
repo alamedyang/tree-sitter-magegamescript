@@ -1,0 +1,24 @@
+include "header.mgs";
+dialog goatTalk {
+	PLAYER
+	wrap 20
+	"12345678901234567890"
+	"123456789012\"4567890"
+	"123456789012\"45678901"
+	"123456789012\" 567890"
+	"123456789012\" 5678901"
+	"%12% a b c d e f g h"
+	"%1234% a b c d e f g"
+	"%123456% a b c d e f"
+	"%12345678% a b c d e"
+	"%1234567890% a b c d"
+	"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
+	> "optioin" = huh
+}
+serial_dialog lulullul {
+	wrap 20
+	"Hey now! We gotta think about ansi things now!"
+	"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
+	_ "option times!" = scriptName
+	# "option times again!" = scriptName2
+}
