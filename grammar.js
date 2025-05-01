@@ -277,15 +277,18 @@ module.exports = grammar({
 			'}'
 		),
 		dialog: $ => seq(
-			$.dialog_identifier,
+			field('dialog_identifier', $.dialog_identifier),
 			repeat(field('dialog_parameter', $.dialog_parameter)),
 			repeat1(field('message', $.QUOTED_STRING)),
 			repeat(field('dialog_option', $.dialog_option)),
 		),
+		identifier_type: $ => token(choice('entity', 'name')),
 		dialog_identifier: $ => choice(
 			field('label', $.BAREWORD),
-			seq('entity', field('entity', $.STRING)),
-			seq('name', field('name', $.STRING)),
+			seq(
+				field('type', $.identifier_type),
+				field('value', $.STRING)
+			),
 		),
 		dialog_option: $ => seq(
 			'>',

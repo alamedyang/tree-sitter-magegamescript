@@ -1471,21 +1471,21 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "dialog_identifier"
+          "type": "FIELD",
+          "name": "dialog_identifier",
+          "content": {
+            "type": "SYMBOL",
+            "name": "dialog_identifier"
+          }
         },
         {
-          "type": "PREC",
-          "value": 1,
+          "type": "REPEAT",
           "content": {
-            "type": "REPEAT",
+            "type": "FIELD",
+            "name": "dialog_parameter",
             "content": {
-              "type": "FIELD",
-              "name": "dialog_parameter",
-              "content": {
-                "type": "SYMBOL",
-                "name": "dialog_parameter"
-              }
+              "type": "SYMBOL",
+              "name": "dialog_parameter"
             }
           }
         },
@@ -1513,6 +1513,22 @@
         }
       ]
     },
+    "identifier_type": {
+      "type": "TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "entity"
+          },
+          {
+            "type": "STRING",
+            "value": "name"
+          }
+        ]
+      }
+    },
     "dialog_identifier": {
       "type": "CHOICE",
       "members": [
@@ -1528,29 +1544,16 @@
           "type": "SEQ",
           "members": [
             {
-              "type": "STRING",
-              "value": "entity"
-            },
-            {
               "type": "FIELD",
-              "name": "entity",
+              "name": "type",
               "content": {
                 "type": "SYMBOL",
-                "name": "STRING"
+                "name": "identifier_type"
               }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "name"
             },
             {
               "type": "FIELD",
-              "name": "name",
+              "name": "value",
               "content": {
                 "type": "SYMBOL",
                 "name": "STRING"
