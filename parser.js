@@ -88,6 +88,16 @@ const captureFns = {
 /* ------------------------------- ACTION HANDLING ------------------------------- */
 
 const handleAction = (f, node) => {
+	const errorNodes = node.namedChildren.filter(child=>child.type === 'ERROR');
+	errorNodes.forEach(errorNode=>{
+		f.errors.push({
+			message: 'syntax error',
+			locations: [{
+				node: errorNode, 
+				fileName: f.fileName,
+			}],
+		})
+	})
 	const data = actionData[node.grammarType];
 	if (!data) {
 		const customFn = actionFns[node.grammarType];
@@ -255,6 +265,32 @@ actionData = {
 		values: { action: 'BLOCKING_DELAY' },
 		captures: [ 'duration' ],
 	},
+	action_delete_command: {
+		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND' },
+		captures: [ 'command' ],
+	},
+	action_delete_command_arg: {
+		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT' },
+		captures: [ 'command', 'argument' ],
+	},
+	action_delete_alias: {
+		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
+		captures: [ 'alias' ],
+	},
+	action_hide_command: {
+		values: {
+			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
+			is_visible: false,
+		},
+		captures: [ 'command' ],
+	},
+	action_unhide_command: {
+		values: {
+			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
+			is_visible: true,
+		},
+		captures: [ 'command' ],
+	},
 };
 
 /* ------------------------------- NODE HANDLING ------------------------------- */
@@ -276,7 +312,7 @@ const nodeFns = {
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
 		f.errors.push({
-			message: 'unexpected token',
+			message: 'syntax error',
 			locations: [{
 				node: node, 
 				fileName: f.fileName,

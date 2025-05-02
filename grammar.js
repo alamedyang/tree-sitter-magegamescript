@@ -397,11 +397,11 @@ module.exports = grammar({
 			$.action_show_dialog,
 			$.action_show_serial_dialog,
 			$.action_concat_serial_dialog,
-			// $.action_delete_command,
-			// $.action_delete_command_arg,
-			// $.action_delete_alias,
-			// $.action_hide_command,
-			// $.action_unhide_command,
+			$.action_delete_command,
+			$.action_delete_command_arg,
+			$.action_delete_alias,
+			$.action_hide_command,
+			$.action_unhide_command,
 			// $.action_pause_script,
 			// $.action_unpause_script,
 			// $.action_camera_shake,
@@ -454,15 +454,14 @@ module.exports = grammar({
 			';'
 		),
 		
-	// 	action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable)),
-	// 	action_delete_command_arg: $ => seq(
-	// 		'delete', 'command', field('command', $.string_expandable),
-	// 		'+', field('argument', $.string_expandable),
-	// 	),
-	// 	action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable)),
-	// 	action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable)),
-	// 	action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable)),
-
+		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable), ';'),
+		action_delete_command_arg: $ => seq(
+			'delete', 'command', field('command', $.string_expandable),
+			'+', field('argument', $.string_expandable), ';',
+		),
+		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable), ';'),
+		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), ';'),
+		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), ';'),
 
 	// 	player: $ => 'player',
 	// 	self: $ => 'self',

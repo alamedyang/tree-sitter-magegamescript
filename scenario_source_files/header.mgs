@@ -1,11 +1,11 @@
-$trombones = 76;
+// $trombones = 76;
 
-add dialog settings {
-	label PLAYER {
-		entity "%PLAYER%",
-		alignment BR
-	}
-	label SELF {
-		entity "%SELF%",
-	}
-}
+// add dialog settings {
+// 	label PLAYER {
+// 		entity "%PLAYER%",
+// 		alignment BR
+// 	}
+// 	label SELF {
+// 		entity "%SELF%",
+// 	}
+// }

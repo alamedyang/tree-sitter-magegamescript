@@ -147,6 +147,112 @@
     }
   },
   {
+    "type": "action_delete_alias",
+    "named": true,
+    "fields": {
+      "alias": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_delete_command",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_delete_command_arg",
+    "named": true,
+    "fields": {
+      "argument": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      },
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_erase_slot",
     "named": true,
     "fields": {
@@ -212,6 +318,34 @@
           },
           {
             "type": "bareword_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_hide_command",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
             "named": true
           }
         ]
@@ -386,6 +520,34 @@
           },
           {
             "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_unhide_command",
+    "named": true,
+    "fields": {
+      "command": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
             "named": true
           }
         ]
@@ -1036,6 +1198,18 @@
           "named": true
         },
         {
+          "type": "action_delete_alias",
+          "named": true
+        },
+        {
+          "type": "action_delete_command",
+          "named": true
+        },
+        {
+          "type": "action_delete_command_arg",
+          "named": true
+        },
+        {
           "type": "action_erase_slot",
           "named": true
         },
@@ -1045,6 +1219,10 @@
         },
         {
           "type": "action_goto_label",
+          "named": true
+        },
+        {
+          "type": "action_hide_command",
           "named": true
         },
         {
@@ -1077,6 +1255,10 @@
         },
         {
           "type": "action_show_serial_dialog",
+          "named": true
+        },
+        {
+          "type": "action_unhide_command",
           "named": true
         },
         {
@@ -1119,6 +1301,18 @@
           "named": true
         },
         {
+          "type": "action_delete_alias",
+          "named": true
+        },
+        {
+          "type": "action_delete_command",
+          "named": true
+        },
+        {
+          "type": "action_delete_command_arg",
+          "named": true
+        },
+        {
           "type": "action_erase_slot",
           "named": true
         },
@@ -1128,6 +1322,10 @@
         },
         {
           "type": "action_goto_label",
+          "named": true
+        },
+        {
+          "type": "action_hide_command",
           "named": true
         },
         {
@@ -1160,6 +1358,10 @@
         },
         {
           "type": "action_show_serial_dialog",
+          "named": true
+        },
+        {
+          "type": "action_unhide_command",
           "named": true
         },
         {
@@ -1393,6 +1595,10 @@
     "named": false
   },
   {
+    "type": "+",
+    "named": false
+  },
+  {
     "type": ",",
     "named": false
   },
@@ -1445,6 +1651,10 @@
     "named": false
   },
   {
+    "type": "alias",
+    "named": false
+  },
+  {
     "type": "alignment",
     "named": false
   },
@@ -1465,7 +1675,15 @@
     "named": false
   },
   {
+    "type": "command",
+    "named": false
+  },
+  {
     "type": "concat",
+    "named": false
+  },
+  {
+    "type": "delete",
     "named": false
   },
   {
@@ -1498,6 +1716,10 @@
   },
   {
     "type": "goto",
+    "named": false
+  },
+  {
+    "type": "hide",
     "named": false
   },
   {
@@ -1594,6 +1816,10 @@
   },
   {
     "type": "true",
+    "named": false
+  },
+  {
+    "type": "unhide",
     "named": false
   },
   {
