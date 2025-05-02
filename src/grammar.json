@@ -2142,6 +2142,10 @@
         {
           "type": "SYMBOL",
           "name": "action_play_entity_animation"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_position"
         }
       ]
     },
@@ -3174,6 +3178,450 @@
           "value": ";"
         }
       ]
+    },
+    "camera": {
+      "type": "STRING",
+      "value": "camera"
+    },
+    "_origin_or_length": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "origin"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "length"
+        }
+      ]
+    },
+    "movable_identifier": {
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "SYMBOL",
+              "name": "camera"
+            }
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "player"
+                }
+              },
+              {
+                "type": "STRING",
+                "value": "position"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "self"
+                }
+              },
+              {
+                "type": "STRING",
+                "value": "position"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "entity"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "entity",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "string"
+                }
+              },
+              {
+                "type": "STRING",
+                "value": "position"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "movable_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "movable_identifier_expansion"
+        }
+      ]
+    },
+    "movable_identifier_expansion": {
+      "type": "PREC",
+      "value": 2,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "["
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "movable_identifier"
+                  },
+                  {
+                    "type": "REPEAT",
+                    "content": {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": ","
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "movable_identifier"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "BLANK"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": "]"
+          }
+        ]
+      }
+    },
+    "geometry": {
+      "type": "STRING",
+      "value": "geometry"
+    },
+    "coordinate_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "SYMBOL",
+                "name": "player"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "position"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "SYMBOL",
+                "name": "self"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "position"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "SYMBOL",
+                "name": "entity"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "entity",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "position"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "SYMBOL",
+                "name": "geometry"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "geometry",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "coordinate_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "coordinate_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "coordinate_identifier_expansion"
+        }
+      ]
+    },
+    "coordinate_identifier_expansion": {
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "["
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "coordinate_identifier"
+                  },
+                  {
+                    "type": "REPEAT",
+                    "content": {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": ","
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "coordinate_identifier"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "BLANK"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": "]"
+          }
+        ]
+      }
+    },
+    "origin": {
+      "type": "STRING",
+      "value": "origin"
+    },
+    "length": {
+      "type": "STRING",
+      "value": "length"
+    },
+    "forever": {
+      "type": "STRING",
+      "value": "forever"
+    },
+    "polygon_and_duration": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "polygon",
+              "content": {
+                "type": "SYMBOL",
+                "name": "origin"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "over"
+            },
+            {
+              "type": "FIELD",
+              "name": "duration",
+              "content": {
+                "type": "SYMBOL",
+                "name": "duration_expandable"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "polygon",
+              "content": {
+                "type": "SYMBOL",
+                "name": "length"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "over"
+            },
+            {
+              "type": "FIELD",
+              "name": "duration",
+              "content": {
+                "type": "SYMBOL",
+                "name": "duration_expandable"
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "forever",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "forever"
+                  }
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "action_set_position": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "movable",
+          "content": {
+            "type": "SYMBOL",
+            "name": "movable_identifier_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "coordinate",
+          "content": {
+            "type": "SYMBOL",
+            "name": "coordinate_identifier_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
     }
   },
   "extras": [
@@ -3215,7 +3663,9 @@
     "bool_expandable",
     "CONSTANT_VALUE",
     "entity_identifier_expandable",
-    "entity_or_map_identifier_expandable"
+    "entity_or_map_identifier_expandable",
+    "movable_identifier_expandable",
+    "coordinate_identifier_expandable"
   ],
   "supertypes": []
 }

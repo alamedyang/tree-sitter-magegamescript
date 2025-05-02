@@ -709,6 +709,40 @@
     "fields": {}
   },
   {
+    "type": "action_set_position",
+    "named": true,
+    "fields": {
+      "coordinate": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "coordinate_identifier",
+            "named": true
+          },
+          {
+            "type": "coordinate_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "movable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "movable_identifier",
+            "named": true
+          },
+          {
+            "type": "movable_identifier_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_show_dialog",
     "named": true,
     "fields": {
@@ -940,6 +974,11 @@
     }
   },
   {
+    "type": "camera",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "color_expansion",
     "named": true,
     "fields": {},
@@ -1014,6 +1053,85 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "coordinate_identifier",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "geometry": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity",
+            "named": true
+          },
+          {
+            "type": "geometry",
+            "named": true
+          },
+          {
+            "type": "player",
+            "named": true
+          },
+          {
+            "type": "self",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "coordinate_identifier_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "coordinate_identifier",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1586,6 +1704,67 @@
     "fields": {}
   },
   {
+    "type": "movable_identifier",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "camera",
+            "named": true
+          },
+          {
+            "type": "entity",
+            "named": true
+          },
+          {
+            "type": "player",
+            "named": true
+          },
+          {
+            "type": "self",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "movable_identifier_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "movable_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "number_expansion",
     "named": true,
     "fields": {},
@@ -1739,6 +1918,10 @@
           "named": true
         },
         {
+          "type": "action_set_position",
+          "named": true
+        },
+        {
           "type": "action_show_dialog",
           "named": true
         },
@@ -1863,6 +2046,10 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_position",
           "named": true
         },
         {
@@ -2248,6 +2435,10 @@
     "named": false
   },
   {
+    "type": "geometry",
+    "named": true
+  },
+  {
     "type": "goto",
     "named": false
   },
@@ -2321,6 +2512,10 @@
   },
   {
     "type": "portrait",
+    "named": false
+  },
+  {
+    "type": "position",
     "named": false
   },
   {

@@ -39,10 +39,9 @@ module.exports = grammar({
 		// $.int_or_identifier, $.int_or_identifier_expandable,
 		$.entity_identifier_expandable,
 		$.entity_or_map_identifier_expandable,
-		// $.geometry_identifier, $.geometry_identifier_expandable,
-		// $.movable_identifier, $.movable_identifier_expandable,
-		// $.polygon_identifier, $.polygon_identifier_expandable,
-		// $.complex_duration, $.complex_duration_expandable,
+		// $.geometry_identifier_expandable,
+		$.movable_identifier_expandable,
+		$.coordinate_identifier_expandable,
 		// $.bool_setable_expandable,
 		// $.int_setable_expandable,
 		// $.entity_property_string_expandable,
@@ -409,7 +408,7 @@ module.exports = grammar({
 			$.action_camera_fade_out,
 			$.action_play_entity_animation,
 			// $.action_move_over_time,
-			// $.action_set_position,
+			$.action_set_position,
 			// $.action_set_bool,
 			// $.action_set_int,
 			// $.action_set_string,
@@ -568,80 +567,81 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 
-	// 	camera: $ => 'camera',
-	// 	origin: $ => 'origin',
-	// 	length: $ => 'length',
-	// 	forever: $ => 'forever',
-	// 	_origin_or_length: $ => choice($.origin, $.length),
+		camera: $ => 'camera',
+		_origin_or_length: $ => choice($.origin, $.length),
 
-	// 	movable_identifier: $ => choice(
-	// 		$.camera,
-	// 		seq($.entity_identifier, 'position'),
-	// 	),
-	// 	movable_identifier_expandable: $ => choice(
-	// 		$.movable_identifier,
-	// 		$.movable_identifier_expansion,
-	// 	),
-	// 	movable_identifier_expansion: $ => prec(2, seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.movable_identifier,
-	// 			repeat(seq(',', $.movable_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	)),
+		movable_identifier: $ => prec(1, choice(
+			field('type', $.camera),
+			seq(field('type', $.player), 'position'),
+			seq(field('type', $.self), 'position'),
+			seq(field('type', $.entity), field('entity', $.string), 'position'),
+		)),
+		movable_identifier_expandable: $ => choice(
+			$.movable_identifier,
+			$.movable_identifier_expansion,
+		),
+		movable_identifier_expansion: $ => prec(2, seq(
+			'[',
+			optional(seq(
+				$.movable_identifier,
+				repeat(seq(',', $.movable_identifier)),
+				optional(','),
+			)),
+			']'
+		)),
 
-	// 	polygon_identifier: $ => choice(
-	// 		seq($.entity_identifier, 'position'),
-	// 		seq($.geometry_identifier, field('target', $._origin_or_length)),
-	// 	),
-	// 	polygon_identifier_expandable: $ => choice(
-	// 		$.polygon_identifier,
-	// 		$.polygon_identifier_expansion,
-	// 	),
-	// 	polygon_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.polygon_identifier,
-	// 			repeat(seq(',', $.polygon_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		geometry: $ => 'geometry',
+		coordinate_identifier: $ => choice(
+			seq(field('type', $.player), 'position'),
+			seq(field('type', $.self), 'position'),
+			seq(field('type', $.entity), field('entity', $.string), 'position'),
+			seq(field('type', $.geometry), field('geometry', $.string)),
+		),
+		coordinate_identifier_expandable: $ => choice(
+			$.coordinate_identifier,
+			$.coordinate_identifier_expansion,
+		),
+		coordinate_identifier_expansion: $ => prec(1, seq(
+			'[',
+			optional(seq(
+				$.coordinate_identifier,
+				repeat(seq(',', $.coordinate_identifier)),
+				optional(','),
+			)),
+			']'
+		)),
 
-	// 	complex_duration: $ => choice(
-	// 		field('forever', $.forever),
-	// 		seq('over', field('duration', $.duration_expandable))
-	// 	),
-	// 	complex_duration_expandable: $ => choice(
-	// 		$.complex_duration,
-	// 		$.complex_duration_expansion,
-	// 	),
-	// 	complex_duration_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.complex_duration,
-	// 			repeat(seq(',', $.complex_duration)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		origin: $ => 'origin',
+		length: $ => 'length',
+		forever: $ => 'forever',
+		polygon_and_duration: $ => choice(
+			seq(
+				field('polygon', $.origin),
+				'over',
+				field('duration', $.duration_expandable),
+			),
+			seq(
+				field('polygon', $.length),
+				'over',
+				field('duration', $.duration_expandable),
+				optional(field('forever', $.forever)),
+			),
+		),
 
 	// 	over_time_operator: $ => '->',
 	// 	action_move_over_time: $ => seq(
 	// 		$.movable_identifier_expandable,
 	// 		$.over_time_operator,
-	// 		$.polygon_identifier_expandable,
-	// 		$.complex_duration_expandable
+	// 		$.coordinate_identifier_expandable,
+	// 		$.polygon_and_duration
 	// 	),
 
-	// 	assignment_operator: $ => '=',
-	// 	action_set_position: $ => seq(
-	// 		$.movable_identifier_expandable,
-	// 		$.assignment_operator,
-	// 		$.polygon_identifier_expandable
-	// 	),
+		action_set_position: $ => seq(
+			field('movable', $.movable_identifier_expandable),
+			'=',
+			field('coordinate', $.coordinate_identifier_expandable),
+			';'
+		),
 
 	// 	name: $ => $.bareword,
 		

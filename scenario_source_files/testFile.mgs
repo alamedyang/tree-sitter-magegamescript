@@ -34,7 +34,6 @@ script __ {
 	// show serial_dialog {
 	// 	"WOOT"
 	// };
-	pause [player, self, entity Bob] on_tick;
-	[entity Bob, player] animation
-		-> [1, 4] [twice, once];
+	camera = entity Bob position;
+	entity Bob position = player position;
 }

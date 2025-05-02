@@ -3,7 +3,7 @@ const path = require('path');
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
-let verbose = false;
+let verbose = true;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
 /* ------------------------------- CAPTURE HANDLING ------------------------------- */
@@ -115,6 +115,68 @@ const captureFns = {
 		}
 		return entity;
 	},
+	movable_identifier: (f, node) => {
+		const targetNode = node.childForFieldName('type');
+		const target = targetNode.text;
+		let entity = '';
+		if (target === 'camera') {
+			return {
+				mathlang: 'movable_identifier',
+				debug: node,
+				fileName: f.fileName,
+				type: 'camera',
+				value: 'camera',
+			}
+		}
+		if (target === 'self') entity = '%SELF%'
+		if (target === 'player') entity = '%PLAYER%'
+		if (target === 'entity') {
+			const entityNode = node.childForFieldName('entity');
+			entity = entityNode
+				? handleCapture(f, entityNode)
+				: 'UNDEFINED ENTITY';
+		}
+		return {
+			mathlang: 'movable_identifier',
+			debug: node,
+			fileName: f.fileName,
+			type: 'entity',
+			value: entity,
+		};
+	},
+	coordinate_identifier: (f, node) => {
+		const typeNode = node.childForFieldName('type');
+		const type = typeNode.text;
+		let entity = '';
+		if (type === 'geometry') {
+			const geometryNode = node.childForFieldName('geometry');
+			const geometry = geometryNode
+				? handleCapture(f, geometryNode)
+				: 'UNDEFINED GEOMETRY';
+			return {
+				mathlang: 'movable_identifier',
+				debug: node,
+				fileName: f.fileName,
+				type: 'geometry',
+				value: geometry,
+			}
+		}
+ 		if (type === 'self') entity = '%SELF%'
+		if (type === 'player') entity = '%PLAYER%'
+		if (type === 'entity') {
+			const entityNode = node.childForFieldName('entity');
+			entity = entityNode
+				? handleCapture(f, entityNode)
+				: 'UNDEFINED ENTITY';
+		}
+		return {
+			mathlang: 'movable_identifier',
+			debug: node,
+			fileName: f.fileName,
+			type: 'entity',
+			value: entity,
+		};
+	},
 };
 
 /* ------------------------------- ACTION HANDLING ------------------------------- */
@@ -198,10 +260,8 @@ actionFns = {
 		const name = nameNode
 			? nameNode.text
 			: f.fileName
-				+ '-'
-				+ node.startPosition.row
-				+ ':'
-				+ node.startPosition.column;
+				+ '-' + node.startPosition.row
+				+ ':' + node.startPosition.column;
 		const dialogNodes = node.childrenForFieldName('dialog');
 		const dialogs = (dialogNodes||[]).map(child=>handleNode(f, child)).flat();
 		const showDialogAction = {
@@ -231,10 +291,8 @@ actionFns = {
 		const name = nameNode
 			? nameNode.text
 			: f.fileName
-				+ '-'
-				+ node.startPosition.row
-				+ ':'
-				+ node.startPosition.column;
+				+ '-' + node.startPosition.row
+				+ ':' + node.startPosition.column;
 		const serialDialogNodes = node.childrenForFieldName('serial_dialog');
 		const serialDialogs = (serialDialogNodes||[]).map(child=>handleNode(f, child)).flat();
 		const showSerialDialogAction = {
@@ -259,11 +317,77 @@ actionFns = {
 			showSerialDialogAction
 		];
 	},
-	// action_pause_script: (f, node) => {
-	// 	const identNodes = node.childrenForFieldName('entity_or_map_identifier');
-	// 	const idents = identNodes
-	// 		.map(ident=>handleNode(f, ident));
-	// }
+	action_set_position: (f, node) => {
+		const movableNodes = node.childrenForFieldName('movable');
+		const movables = movableNodes
+			.map(v=>handleCapture(f, v)).flat();
+		const coordNodes = node.childrenForFieldName('coordinate');
+		const coords = coordNodes
+			.map(v=>handleCapture(f, v)).flat();
+		if (
+			movables.length > 1
+			&& coords.length > 1
+			&& movables.length !== coords.length
+		) {
+			f.errors = [{
+				message: `spreads inside this action must contain same number of items`,
+				locations: [{
+					node: node, 
+					fileName: f.fileName,
+				}],
+			}];
+		}
+		const ret = [];
+		const maxSpreads = Math.max(movables.length, coords.length);
+		for (let i = 0; i < maxSpreads; i++) {
+			const insert = {
+				debug: node,
+				fileName: f.fileName,
+			};
+			const movable = movables[i % movables.length];
+			const coord = coords[i % coords.length];
+			if (movable.type === 'camera') {
+				if (coord.type === 'geometry') {
+					insert.action = 'TELEPORT_CAMERA_TO_GEOMETRY',
+					insert.geometry = coord.value;
+					ret.push(insert);
+					continue;
+				} else if (coord.type === 'entity') {
+					insert.action = 'SET_CAMERA_TO_FOLLOW_ENTITY',
+					insert.entity = coord.value;
+					ret.push(insert);
+					continue;
+				}
+			} else if (movable.type === 'entity') {
+				if (coord.type === 'geometry') {
+					insert.action = 'TELEPORT_ENTITY_TO_GEOMETRY',
+					insert.entity = movable.value;
+					insert.geometry = coord.value;
+					ret.push(insert);
+					continue;
+				} else if (coord.type === 'entity') {
+					ret.push({
+						mathlang: 'math_sequence',
+						steps: [
+							{
+								type: 'copy_values',
+								copyFrom: { entity: coord.value, field: 'x' },
+								copyTo: { entity: movable.value, field: 'x' }
+							},
+							{
+								type: 'copy_values',
+								copyFrom: { entity: coord.value, field: 'y' },
+								copyTo: { entity: movable.value, field: 'y' }
+							},
+						]
+					});
+					continue;
+				}
+			}
+			throw new Error("unreachable?");
+		}
+		return ret;
+	}
 };
 
 actionData = {
