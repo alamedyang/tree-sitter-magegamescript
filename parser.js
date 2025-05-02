@@ -1,13 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
 let verbose = true;
-const debugLog = (message) => {
-	if (verbose) console.log(message);
-}
+const debugLog = (message) => { if (verbose) console.log(message); };
+
 /* ------------------------------- CAPTURE HANDLING ------------------------------- */
 
 const handleCapture = (f, node) => {
@@ -20,7 +18,10 @@ const handleCapture = (f, node) => {
 		if (lookup === undefined) {
 			f.errors.push({
 				message: `Constant ${node.text} is undefined`,
-				node,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 				fileName: f.fileName,
 			});
 		}
@@ -111,8 +112,10 @@ const handleAction = (f, node) => {
 			if (spreadSize !== len) {
 				f.errors.push({
 					message: `spreads must have the same count of items within a given action`,
-					node: fieldNode,
-					fileName: f.fileName,
+					locations: [{
+						node: fieldNode, 
+						fileName: f.fileName,
+					}],
 				});
 				spreadSize = Math.max(spreadSize, len);
 			}
@@ -204,8 +207,10 @@ const nodeFns = {
 	ERROR: (f, node) => {
 		f.errors.push({
 			message: 'tree-sitter parse error (generic)',
-			node,
-			fileName: f.fileName,
+			locations: [{
+				node: node, 
+				fileName: f.fileName,
+			}],
 		})
 		return [];
 	},
@@ -232,8 +237,10 @@ const nodeFns = {
 		if (f.constants[labelNode]) {
 			f.errors.push({
 				message: `cannot redefine constant ${ret.label}`,
-				node,
-				fileName: f.fileName,
+				locations: [{
+					node: node, 
+					fileName: f.fileName,
+				}],
 			});
 		}
 		f.constants[label] = {
@@ -286,8 +293,10 @@ const nodeFns = {
 				if (multipleCount !== len) {
 					f.errors = [{
 						message: `spreads inside rand!() must contain same number of items`,
-						node,
-						fileName: f.fileName,
+						locations: [{
+							node: node, 
+							fileName: f.fileName,
+						}],
 					}];
 				}
 			})
@@ -335,8 +344,10 @@ const nodeFns = {
 			if (!targetNode) {
 				f.errors.push({
 					message: `dialog_settings_target: malformed label definition`,
-					node,
-					fileName: f.fileName,
+					locations: [{
+						node, 
+						fileName: f.fileName,
+					}],
 				})
 			}
 			const target = targetNode.text || 'UNDEFINED LABEL';
@@ -346,8 +357,10 @@ const nodeFns = {
 			if (!targetNode) {
 				f.errors.push({
 					message: `dialog_settings_target: malformed entity definition`,
-					node,
-					fileName: f.fileName,
+					locations: [{
+						node, 
+						fileName: f.fileName,
+					}],
 				})
 			}
 			const target = targetNode.text || 'UNDEFINED ENTITY';
@@ -375,8 +388,10 @@ const nodeFns = {
 		if (!propNode || !valueNode) {
 			f.errors.push({
 				message: `malformed dialog parameter`,
-				node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			});
 			return [];
 		}
@@ -408,8 +423,10 @@ const nodeFns = {
 		if (!propNode || !valueNode) {
 			f.errors.push({
 				message: `malformed serial_dialog parameter`,
-				node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			});
 			return [];
 		}
@@ -428,8 +445,10 @@ const nodeFns = {
 		if (!optionNode || !labelNode || !scriptNode) {
 			f.errors.push({
 				message: `malformed serial_dialog option`,
-				debug: node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			});
 			return [];
 		}
@@ -451,8 +470,10 @@ const nodeFns = {
 		if (!labelNode || !scriptNode) {
 			f.errors.push({
 				message: `malformed dialog option`,
-				debug: node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			});
 			return [];
 		}
@@ -560,8 +581,10 @@ const nodeFns = {
 				: 'MALFORMED ENTITY IDENTIFIER';
 			f.errors.push({
 				message: `dialog identifier lacks a value`,
-				node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			});
 		}
 		return [{
@@ -582,8 +605,10 @@ const nodeFns = {
 		} catch {
 			f.errors.push({
 				message: `JSON syntax error`,
-				node,
-				fileName: f.fileName,
+				locations: [{
+					node, 
+					fileName: f.fileName,
+				}],
 			})
 		}
 		return [{
@@ -745,8 +770,10 @@ const buildSerialDialogFromInfo = (f, info) => {
 			if (option.optionType !== firstOptionType) {
 				f.warnings.push({
 					message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
-					node: option.debug.firstChild,
-					fileName: f.fileName,
+					locations: [{
+						node: option.debug.firstChild,
+						fileName: f.fileName,
+					}]
 				});
 			}
 		});
@@ -816,8 +843,11 @@ const mergeF = (f1, f2) => {
 		if (f1.constants[constantName]) {
 			f.errors.push({
 				message: `cannot redefine constant ${constantName} (via 'include_macro')`,
-				node: f2.constants[constantName].node,
 				fileName: f2.fileName,
+				locations: [{
+					node: f2.constants[constantName].node, 
+					fileName: f2.fileName,
+				}],
 			})
 		}
 		f1.constants[constantName] = f2.constants[constantName];
@@ -972,11 +1002,46 @@ const finalizeActions = rawActions => {
 			console.log(message);
 		}
 	})
-	// TODO
-	// freak out when dialogs, serial dialogs, or scripts have duplicates
-	// print string at pos at every location, print error heading only once
+	Object.entries(p.scripts).forEach(([scriptName, script])=>{
+		if (script.duplicates) {
+			p.errors.push({
+				message: `multiple scripts with name ${scriptName}`,
+				locations: script.duplicates.map(dupe=>{
+					return {
+						fileName: dupe.fileName,
+						node: dupe.node.debug,
+					}
+				}),
+			});
+		}
+	});
+	Object.entries(p.dialogs).forEach(([dialogName, dialog])=>{
+		if (dialog.duplicates) {
+			p.errors.push({
+				message: `multiple dialogs with name ${dialogName}`,
+				locations: dialog.duplicates.map(dupe=>{
+					return {
+						fileName: dupe.fileName,
+						node: dupe.debug,
+					}
+				}),
+			});
+		}
+	});
+	Object.entries(p.dialogs).forEach(([serialDialogName, serialDialog])=>{
+		if (serialDialog.duplicates) {
+			p.errors.push({
+				message: `multiple serial dialogs with name "${serialDialogName}"`,
+				locations: serialDialog.duplicates.map(dupe=>{
+					return {
+						fileName: dupe.fileName,
+						node: dupe.debug,
+					}
+				}),
+			});
+		}
+	});
 	console.log("ASYNC WHY ARE YOU LIKE THIS");
 })();
-
 
 console.log("WHY IS THIS BEFORE THE ASYNC");

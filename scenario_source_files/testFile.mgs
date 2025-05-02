@@ -22,3 +22,11 @@ serial_dialog lulullul {
 	_ "option times!" = scriptName
 	# "option times again!" = scriptName2
 }
+
+serial_dialog lulullul {
+	"lol"
+}
+
+_ {
+	save slot;
+}
