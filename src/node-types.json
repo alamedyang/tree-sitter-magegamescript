@@ -117,6 +117,36 @@
     "fields": {}
   },
   {
+    "type": "action_concat_serial_dialog",
+    "named": true,
+    "fields": {
+      "serial_dialog": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog",
+            "named": true
+          }
+        ]
+      },
+      "serial_dialog_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_erase_slot",
     "named": true,
     "fields": {
@@ -301,6 +331,66 @@
     "type": "action_save_slot",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "action_show_dialog",
+    "named": true,
+    "fields": {
+      "dialog": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "dialog",
+            "named": true
+          }
+        ]
+      },
+      "dialog_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_show_serial_dialog",
+    "named": true,
+    "fields": {
+      "serial_dialog": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog",
+            "named": true
+          }
+        ]
+      },
+      "serial_dialog_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
   },
   {
     "type": "add_dialog_settings",
@@ -942,6 +1032,10 @@
           "named": true
         },
         {
+          "type": "action_concat_serial_dialog",
+          "named": true
+        },
+        {
           "type": "action_erase_slot",
           "named": true
         },
@@ -975,6 +1069,14 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_show_dialog",
+          "named": true
+        },
+        {
+          "type": "action_show_serial_dialog",
           "named": true
         },
         {
@@ -1013,6 +1115,10 @@
           "named": true
         },
         {
+          "type": "action_concat_serial_dialog",
+          "named": true
+        },
+        {
           "type": "action_erase_slot",
           "named": true
         },
@@ -1046,6 +1152,14 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_show_dialog",
+          "named": true
+        },
+        {
+          "type": "action_show_serial_dialog",
           "named": true
         },
         {
@@ -1351,6 +1465,10 @@
     "named": false
   },
   {
+    "type": "concat",
+    "named": false
+  },
+  {
     "type": "dialog",
     "named": false
   },
@@ -1460,6 +1578,10 @@
   },
   {
     "type": "settings",
+    "named": false
+  },
+  {
+    "type": "show",
     "named": false
   },
   {

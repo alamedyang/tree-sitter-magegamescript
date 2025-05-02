@@ -366,7 +366,6 @@ module.exports = grammar({
 			token('null'),
 		),
 
-
 	// 	debug_macro: $ => seq(
 	// 		'debug', '!', '(',
 	// 		optional(choice(
@@ -395,9 +394,9 @@ module.exports = grammar({
 			$.action_goto_index,
 			$.action_non_blocking_delay,
 			$.action_blocking_delay,
-			// $.action_show_dialog,
-			// $.action_show_serial_dialog,
-			// $.action_concat_serial_dialog,
+			$.action_show_dialog,
+			$.action_show_serial_dialog,
+			$.action_concat_serial_dialog,
 			// $.action_delete_command,
 			// $.action_delete_command_arg,
 			// $.action_delete_alias,
@@ -430,27 +429,30 @@ module.exports = grammar({
 		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable), ';'),
 		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable), ';'),
 
-	// 	action_show_dialog: $ => seq(
-	// 		'show', 'dialog', choice(
-	// 			seq(field('dialog_name', $.STRING), $.dialog_block),
-	// 			field('dialog_name', $.STRING),
-	// 			$.dialog_block,
-	// 		),
-	// 	),
-	// 	action_show_serial_dialog: $ => seq(
-	// 		'show', 'serial_dialog', choice(
-	// 			seq(field('serial_dialog_name', $.STRING), $.serial_dialog_block),
-	// 			field('serial_dialog_name', $.STRING),
-	// 			$.serial_dialog_block,
-	// 		),
-	// 	),
-	// 	action_concat_serial_dialog: $ => seq(
-	// 		'concat', 'serial_dialog', choice(
-	// 			seq(field('serial_dialog_name', $.STRING), $.serial_dialog_block),
-	// 			field('serial_dialog_name', $.STRING),
-	// 			$.serial_dialog_block,
-	// 		),
-	// 	),
+		action_show_dialog: $ => seq(
+			'show', 'dialog', choice(
+				seq(field('dialog_name', $.STRING), $._dialog_block),
+				field('dialog_name', $.STRING),
+				$._dialog_block,
+			),
+			';'
+		),
+		action_show_serial_dialog: $ => seq(
+			'show', 'serial_dialog', choice(
+				seq(field('serial_dialog_name', $.STRING), $._serial_dialog_block),
+				field('serial_dialog_name', $.STRING),
+				$._serial_dialog_block,
+			),
+			';'
+		),
+		action_concat_serial_dialog: $ => seq(
+			'concat', 'serial_dialog', choice(
+				seq(field('serial_dialog_name', $.STRING), $._serial_dialog_block),
+				field('serial_dialog_name', $.STRING),
+				$._serial_dialog_block,
+			),
+			';'
+		),
 		
 	// 	action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable)),
 	// 	action_delete_command_arg: $ => seq(

@@ -2086,6 +2086,18 @@
         {
           "type": "SYMBOL",
           "name": "action_blocking_delay"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_show_dialog"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_show_serial_dialog"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_concat_serial_dialog"
         }
       ]
     },
@@ -2334,6 +2346,159 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_show_dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "show"
+        },
+        {
+          "type": "STRING",
+          "value": "dialog"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "dialog_name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "STRING"
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_dialog_block"
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "dialog_name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "STRING"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_dialog_block"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_show_serial_dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "show"
+        },
+        {
+          "type": "STRING",
+          "value": "serial_dialog"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "serial_dialog_name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "STRING"
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_serial_dialog_block"
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "serial_dialog_name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "STRING"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_serial_dialog_block"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_concat_serial_dialog": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "concat"
+        },
+        {
+          "type": "STRING",
+          "value": "serial_dialog"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "FIELD",
+                  "name": "serial_dialog_name",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "STRING"
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_serial_dialog_block"
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "serial_dialog_name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "STRING"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_serial_dialog_block"
+            }
+          ]
         },
         {
           "type": "STRING",

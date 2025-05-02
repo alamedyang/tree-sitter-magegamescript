@@ -20,13 +20,18 @@ serial_dialog lulullul {
 	"Hey now! We gotta think about ansi things now!"
 	"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
 	_ "option times!" = scriptName
-	# "option times again!" = scriptName2
+	_ "option times again!" = scriptName2
 }
 
-serial_dialog lulullul {
-	"lol"
-}
+// serial_dialog lulullul {
+// 	"lol"
+// }
 
-script _ {
-	save slot;
+script __ {
+	show dialog {
+		PLAYER "I LIKE SHORTS"
+	};
+	show serial_dialog {
+		"WOOT"
+	};
 }

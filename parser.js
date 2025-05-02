@@ -138,7 +138,75 @@ const handleAction = (f, node) => {
 	return spreadRet;
 };
 
-actionFns = {};
+
+actionFns = {
+	action_show_dialog: (f, node) => {
+		const nameNode = node.childForFieldName('dialog_name');
+		const name = nameNode
+			? nameNode.text
+			: f.fileName
+				+ '-'
+				+ node.startPosition.row
+				+ ':'
+				+ node.startPosition.column;
+		const dialogNodes = node.childrenForFieldName('dialog');
+		const dialogs = (dialogNodes||[]).map(child=>handleNode(f, child)).flat();
+		const showDialogAction = {
+			action: 'SHOW_DIALOG',
+			dialog: name,
+			debug: node,
+			fileName: f.fileName
+		}
+		if (dialogs.length === 0) {
+			return [showDialogAction];
+		}
+		const dialogDefinition = {
+			mathlang: 'dialog_definition',
+			dialogName: name,
+			dialogs: dialogs,
+			debug: node,
+			fileName: f.fileName,
+		};
+		return [
+			dialogDefinition,
+			showDialogAction
+		];
+	},
+	action_concat_serial_dialog: (f, node) => action_show_serial_dialog(f, node, true),
+	action_show_serial_dialog: (f, node, concat) => {
+		const nameNode = node.childForFieldName('serial_dialog_name');
+		const name = nameNode
+			? nameNode.text
+			: f.fileName
+				+ '-'
+				+ node.startPosition.row
+				+ ':'
+				+ node.startPosition.column;
+		const serialDialogNodes = node.childrenForFieldName('serial_dialog');
+		const serialDialogs = (serialDialogNodes||[]).map(child=>handleNode(f, child)).flat();
+		const showSerialDialogAction = {
+			action: 'SHOW_SERIAL_DIALOG',
+			disable_newline: !concat,
+			serial_dialog: name,
+			debug: node,
+			fileName: f.fileName
+		}
+		if (serialDialogs.length === 0) {
+			return [showSerialDialogAction];
+		}
+		const serialDialogDefinition = {
+			mathlang: 'serial_dialog_definition',
+			dialogName: name,
+			serialDialog: serialDialogs[0],
+			debug: node,
+			fileName: f.fileName,
+		};
+		return [
+			serialDialogDefinition,
+			showSerialDialogAction
+		];
+	},
+};
 
 actionData = {
 	action_return_statement: {
@@ -904,14 +972,63 @@ const parseFile = (fileName, parser) => {
 };
 
 /* ------------------------------- THE ACTUAL OWL ------------------------------- */
-const finalizeActions = rawActions => {
+const finalizeActions = (p, rawActions) => {
 	const actions = [];
-	actions.forEach(action=>{
-		if (!action.mathlang) {
-			actions.push(action);
+	rawActions.forEach(node=>{
+		if (!node.mathlang) {
+			actions.push(node);
+		} else if (node.mathlang === 'dialog_definition') {
+			addDialog(p, node);
+		} else if (node.mathlang === 'serial_dialog_definition') {
+			addSerialDialog(p, node);
 		}
 	})
 	return actions;
+};
+
+const addDialog = (p, node, fileName) => {
+	const dialogName = node.dialogName;
+	debugLog(`Finalizing dialog "${dialogName}" in file ${fileName}`);
+	const data = node;
+	if (!p.dialogs[dialogName]) {
+		p.dialogs[dialogName] = data;
+	} else {
+		if (!p.dialogs[dialogName].duplicates) {
+			p.dialogs[dialogName].duplicates = [ p.dialogs[dialogName] ];
+		}
+		p.dialogs[dialogName].duplicates.push(data);
+	}
+};
+const addSerialDialog = (p, node, fileName) => {
+	const serialDialogName = node.serialDialogName;
+	debugLog(`Finalizing serial dialog "${serialDialogName}" in file ${fileName}`);
+	const data = node;
+	if (!p.dialogs[serialDialogName]) {
+		p.dialogs[serialDialogName] = data;
+	} else {
+		if (!p.dialogs[serialDialogName].duplicates) {
+			p.dialogs[serialDialogName].duplicates = [ p.dialogs[serialDialogName] ];
+		}
+		p.dialogs[serialDialogName].duplicates.push(data);
+	}
+};
+const addScript = (p, node, fileName) => {
+	const scriptName = node.scriptName;
+	debugLog(`Finalizing script "${scriptName}" in file ${fileName}`);
+	const actions = finalizeActions(p, node.actions);
+	const data = {
+		fileName,
+		node: node,
+		actions,
+	};
+	if (!p.scripts[scriptName]) {
+		p.scripts[scriptName] = data;
+	} else {
+		if (!p.scripts[scriptName].duplicates) {
+			p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
+		}
+		p.scripts[scriptName].duplicates.push(data);
+	}
 };
 
 (async () => {
@@ -945,48 +1062,12 @@ const finalizeActions = rawActions => {
 			warningCount += 1;
 		})
 		fileMap[fileName].parsed.nodes.forEach(node=>{
-			
 			if (node.mathlang === 'script_definition') {
-				const scriptName = node.scriptName;
-				debugLog(`Finalizing script "${scriptName}" in file ${fileName}`);
-				const actions = finalizeActions(node.actions);
-				const data = {
-					fileName,
-					node: node,
-					actions,
-				};
-				if (!p.scripts[scriptName]) {
-					p.scripts[scriptName] = data;
-				} else {
-					if (!p.scripts[scriptName].duplicates) {
-						p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
-					}
-					p.scripts[scriptName].duplicates.push(data);
-				}
+				addScript(p, node, fileName);
 			} else if (node.mathlang === 'dialog_definition') {
-				const dialogName = node.dialogName;
-				debugLog(`Finalizing dialog "${dialogName}" in file ${fileName}`);
-				const data = node;
-				if (!p.dialogs[dialogName]) {
-					p.dialogs[dialogName] = data;
-				} else {
-					if (!p.dialogs[dialogName].duplicates) {
-						p.dialogs[dialogName].duplicates = [ p.dialogs[dialogName] ];
-					}
-					p.dialogs[dialogName].duplicates.push(data);
-				}
+				addDialog(p, node, fileName);
 			} else if (node.mathlang === 'serial_dialog_definition') {
-				const serialDialogName = node.serialDialogName;
-				debugLog(`Finalizing serial dialog "${serialDialogName}" in file ${fileName}`);
-				const data = node;
-				if (!p.dialogs[serialDialogName]) {
-					p.dialogs[serialDialogName] = data;
-				} else {
-					if (!p.dialogs[serialDialogName].duplicates) {
-						p.dialogs[serialDialogName].duplicates = [ p.dialogs[serialDialogName] ];
-					}
-					p.dialogs[serialDialogName].duplicates.push(data);
-				}
+				addSerialDialog(p, node, fileName);
 			}
 		})
 		if (verbose) {
