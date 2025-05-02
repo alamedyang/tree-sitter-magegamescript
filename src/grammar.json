@@ -2118,6 +2118,26 @@
         {
           "type": "SYMBOL",
           "name": "action_unhide_command"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_pause_script"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_unpause_script"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_camera_shake"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_camera_fade_in"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_camera_fade_out"
         }
       ]
     },
@@ -2662,6 +2682,449 @@
           "value": ";"
         }
       ]
+    },
+    "player": {
+      "type": "STRING",
+      "value": "player"
+    },
+    "self": {
+      "type": "STRING",
+      "value": "self"
+    },
+    "entity": {
+      "type": "STRING",
+      "value": "entity"
+    },
+    "entity_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "entity_type",
+          "content": {
+            "type": "SYMBOL",
+            "name": "player"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "entity_type",
+          "content": {
+            "type": "SYMBOL",
+            "name": "self"
+          }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "entity_type",
+              "content": {
+                "type": "SYMBOL",
+                "name": "entity"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "entity",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "entity_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "entity_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_identifier_expansion"
+        }
+      ]
+    },
+    "entity_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "entity_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "entity_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "map": {
+      "type": "STRING",
+      "value": "map"
+    },
+    "entity_or_map_identifier": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "target",
+          "content": {
+            "type": "SYMBOL",
+            "name": "map"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "target",
+          "content": {
+            "type": "SYMBOL",
+            "name": "player"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "target",
+          "content": {
+            "type": "SYMBOL",
+            "name": "self"
+          }
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "target",
+              "content": {
+                "type": "SYMBOL",
+                "name": "entity"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "entity",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "entity_or_map_identifier_expandable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "entity_or_map_identifier_expansion"
+        }
+      ]
+    },
+    "entity_or_map_identifier_expansion": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "["
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "entity_or_map_identifier"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "entity_or_map_identifier"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "]"
+        }
+      ]
+    },
+    "action_pause_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "pause"
+        },
+        {
+          "type": "FIELD",
+          "name": "entity_or_map",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_or_map_identifier_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_unpause_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "unpause"
+        },
+        {
+          "type": "FIELD",
+          "name": "entity_or_map",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_or_map_identifier_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_camera_fade_in": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "camera"
+        },
+        {
+          "type": "STRING",
+          "value": "fade"
+        },
+        {
+          "type": "STRING",
+          "value": "in"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "color",
+          "content": {
+            "type": "SYMBOL",
+            "name": "color_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "over"
+        },
+        {
+          "type": "FIELD",
+          "name": "duration",
+          "content": {
+            "type": "SYMBOL",
+            "name": "duration_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_camera_fade_out": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "camera"
+        },
+        {
+          "type": "STRING",
+          "value": "fade"
+        },
+        {
+          "type": "STRING",
+          "value": "out"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "color",
+          "content": {
+            "type": "SYMBOL",
+            "name": "color_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "over"
+        },
+        {
+          "type": "FIELD",
+          "name": "duration",
+          "content": {
+            "type": "SYMBOL",
+            "name": "duration_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_camera_shake": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "camera"
+        },
+        {
+          "type": "STRING",
+          "value": "shake"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "amplitude",
+          "content": {
+            "type": "SYMBOL",
+            "name": "duration_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "distance",
+          "content": {
+            "type": "SYMBOL",
+            "name": "distance_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "over"
+        },
+        {
+          "type": "FIELD",
+          "name": "duration",
+          "content": {
+            "type": "SYMBOL",
+            "name": "duration_expandable"
+          }
+        }
+      ]
     }
   },
   "extras": [
@@ -2701,7 +3164,9 @@
     "color_expandable",
     "bool",
     "bool_expandable",
-    "CONSTANT_VALUE"
+    "CONSTANT_VALUE",
+    "entity_identifier_expandable",
+    "entity_or_map_identifier_expandable"
   ],
   "supertypes": []
 }

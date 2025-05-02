@@ -107,6 +107,150 @@
     }
   },
   {
+    "type": "action_camera_fade_in",
+    "named": true,
+    "fields": {
+      "color": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "COLOR",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "color_expansion",
+            "named": true
+          }
+        ]
+      },
+      "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_camera_fade_out",
+    "named": true,
+    "fields": {
+      "color": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "COLOR",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "color_expansion",
+            "named": true
+          }
+        ]
+      },
+      "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "action_camera_shake",
+    "named": true,
+    "fields": {
+      "amplitude": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      },
+      "distance": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DISTANCE",
+            "named": true
+          },
+          {
+            "type": "distance_expansion",
+            "named": true
+          }
+        ]
+      },
+      "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_close_dialog",
     "named": true,
     "fields": {}
@@ -429,6 +573,48 @@
     }
   },
   {
+    "type": "action_pause_script",
+    "named": true,
+    "fields": {
+      "entity_or_map": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_or_map_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_or_map_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_return_statement",
     "named": true,
     "fields": {}
@@ -555,6 +741,48 @@
     }
   },
   {
+    "type": "action_unpause_script",
+    "named": true,
+    "fields": {
+      "entity_or_map": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_or_map_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_or_map_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "add_dialog_settings",
     "named": true,
     "fields": {},
@@ -646,6 +874,25 @@
       "types": [
         {
           "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "color_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "COLOR",
           "named": true
         },
         {
@@ -930,6 +1177,25 @@
     }
   },
   {
+    "type": "distance_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "DISTANCE",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "document",
     "named": true,
     "root": true,
@@ -983,6 +1249,72 @@
         },
         {
           "type": "DURATION",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "entity",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "entity_or_map_identifier",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity",
+            "named": true
+          },
+          {
+            "type": "map",
+            "named": true
+          },
+          {
+            "type": "player",
+            "named": true
+          },
+          {
+            "type": "self",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "entity_or_map_identifier_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "entity_or_map_identifier",
           "named": true
         }
       ]
@@ -1136,6 +1468,11 @@
     }
   },
   {
+    "type": "map",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "number_expansion",
     "named": true,
     "fields": {},
@@ -1186,6 +1523,18 @@
           "named": true
         },
         {
+          "type": "action_camera_fade_in",
+          "named": true
+        },
+        {
+          "type": "action_camera_fade_out",
+          "named": true
+        },
+        {
+          "type": "action_camera_shake",
+          "named": true
+        },
+        {
           "type": "action_close_dialog",
           "named": true
         },
@@ -1238,6 +1587,10 @@
           "named": true
         },
         {
+          "type": "action_pause_script",
+          "named": true
+        },
+        {
           "type": "action_return_statement",
           "named": true
         },
@@ -1259,6 +1612,10 @@
         },
         {
           "type": "action_unhide_command",
+          "named": true
+        },
+        {
+          "type": "action_unpause_script",
           "named": true
         },
         {
@@ -1289,6 +1646,18 @@
           "named": true
         },
         {
+          "type": "action_camera_fade_in",
+          "named": true
+        },
+        {
+          "type": "action_camera_fade_out",
+          "named": true
+        },
+        {
+          "type": "action_camera_shake",
+          "named": true
+        },
+        {
           "type": "action_close_dialog",
           "named": true
         },
@@ -1341,6 +1710,10 @@
           "named": true
         },
         {
+          "type": "action_pause_script",
+          "named": true
+        },
+        {
           "type": "action_return_statement",
           "named": true
         },
@@ -1362,6 +1735,10 @@
         },
         {
           "type": "action_unhide_command",
+          "named": true
+        },
+        {
+          "type": "action_unpause_script",
           "named": true
         },
         {
@@ -1603,6 +1980,10 @@
     "named": false
   },
   {
+    "type": "->",
+    "named": false
+  },
+  {
     "type": ":",
     "named": false
   },
@@ -1671,6 +2052,10 @@
     "named": false
   },
   {
+    "type": "camera",
+    "named": false
+  },
+  {
     "type": "close",
     "named": false
   },
@@ -1711,6 +2096,10 @@
     "named": false
   },
   {
+    "type": "fade",
+    "named": false
+  },
+  {
     "type": "false",
     "named": false
   },
@@ -1725,6 +2114,10 @@
   {
     "type": "identifier_type",
     "named": true
+  },
+  {
+    "type": "in",
+    "named": false
   },
   {
     "type": "include",
@@ -1767,6 +2160,22 @@
     "named": false
   },
   {
+    "type": "out",
+    "named": false
+  },
+  {
+    "type": "over",
+    "named": false
+  },
+  {
+    "type": "pause",
+    "named": false
+  },
+  {
+    "type": "player",
+    "named": true
+  },
+  {
     "type": "portrait",
     "named": false
   },
@@ -1791,6 +2200,10 @@
     "named": false
   },
   {
+    "type": "self",
+    "named": true
+  },
+  {
     "type": "serial_dialog",
     "named": false
   },
@@ -1800,6 +2213,10 @@
   },
   {
     "type": "settings",
+    "named": false
+  },
+  {
+    "type": "shake",
     "named": false
   },
   {
@@ -1820,6 +2237,10 @@
   },
   {
     "type": "unhide",
+    "named": false
+  },
+  {
+    "type": "unpause",
     "named": false
   },
   {

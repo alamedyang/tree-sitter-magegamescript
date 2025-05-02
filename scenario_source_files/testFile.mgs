@@ -34,6 +34,5 @@ script __ {
 	// show serial_dialog {
 	// 	"WOOT"
 	// };
-	delete command asdf +
-	hide command asdf;
+	pause [player, self, entity Bob] on_tick;
 }

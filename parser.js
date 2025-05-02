@@ -9,12 +9,15 @@ const debugLog = (message) => { if (verbose) console.log(message); };
 /* ------------------------------- CAPTURE HANDLING ------------------------------- */
 
 const handleCapture = (f, node) => {
+	debugLog(`-->> Capturing: ${node.grammarType}`);
+	reportAnyErrors(f, node);
 	reportAnyMissingChildren(f, node);
+	const parseAs = node.grammarType;
 	// expansions cannot be recursive, so this is fine
 	if (node.grammarType.endsWith('_expansion')) {
 		return node.namedChildren.map(v=>handleCapture(f, v));
 	}
-	if (node.grammarType === 'CONSTANT') {
+	if (parseAs === 'CONSTANT') {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
 			f.errors.push({
@@ -28,8 +31,8 @@ const handleCapture = (f, node) => {
 		}
 		return lookup?.value || node.text;
 	}
-	const fn = captureFns[node.grammarType];
-	if (!fn) throw new Error (`No handler function found for token ${node.grammarType}`);
+	const fn = captureFns[parseAs];
+	if (!fn) throw new Error (`No handler function found for token ${parseAs}`);
 	return fn(f, node);
 };
 const captureFns = {
@@ -83,21 +86,40 @@ const captureFns = {
 		return node.text;
 	},
 	CONSTANT: (f, node) => node.text,
+	entity_or_map_identifier: (f, node) => {
+		const targetNode = node.childForFieldName('target');
+		const target = targetNode.text;
+		let entity = '';
+		if (target === 'map') entity = '%MAP%'
+		if (target === 'self') entity = '%SELF%'
+		if (target === 'player') entity = '%PLAYER%'
+		if (target === 'entity') {
+			const entityNode = node.childForFieldName('entity');
+			entity = entityNode
+				? handleCapture(f, entityNode)
+				: 'UNDEFINED ENTITY';
+		}
+		return entity;
+	},
+	entity_identifier: (f, node) => {
+		const typeNode = node.childForFieldName('entity_type');
+		const type = typeNode.text;
+		let entity = '';
+		if (type === 'self') entity = '%SELF%'
+		if (type === 'player') entity = '%PLAYER%'
+		if (type === 'entity') {
+			const entityNode = node.childForFieldName('entity');
+			entity = entityNode
+				? handleCapture(f, entityNode)
+				: 'UNDEFINED ENTITY';
+		}
+		return entity;
+	},
 };
 
 /* ------------------------------- ACTION HANDLING ------------------------------- */
 
 const handleAction = (f, node) => {
-	const errorNodes = node.namedChildren.filter(child=>child.type === 'ERROR');
-	errorNodes.forEach(errorNode=>{
-		f.errors.push({
-			message: 'syntax error',
-			locations: [{
-				node: errorNode, 
-				fileName: f.fileName,
-			}],
-		})
-	})
 	const data = actionData[node.grammarType];
 	if (!data) {
 		const customFn = actionFns[node.grammarType];
@@ -109,37 +131,59 @@ const handleAction = (f, node) => {
 		fileName: f.fileName,
 		...data.values,
 	};
+	const captures = data.captures || [];
+	const fancyCaptures = data.fancyCaptures || [];
 	const spreadFields = {};
 	let spreadSize = -Infinity;
-	(data.captures||[]).forEach(fieldName=>{
+	captures.forEach(fieldName=>{
 		const fieldNode = node.childForFieldName(fieldName);
 		const capture = handleCapture(f, fieldNode);
 		if (!Array.isArray(capture)) {
 			ret[fieldName] = capture;
 		} else {
-			spreadFields[fieldName] = capture;
-			const len = capture.length;
-			if (spreadSize === -Infinity) spreadSize = len;
-			if (spreadSize !== len) {
-				f.errors.push({
-					message: `spreads must have the same count of items within a given action`,
-					locations: [{
-						node: fieldNode, 
-						fileName: f.fileName,
-					}],
-				});
-				spreadSize = Math.max(spreadSize, len);
-			}
+			spreadFields[fieldName] = {
+				node: fieldNode,
+				captures: capture,
+			};
 		}
 	});
+	fancyCaptures.forEach(({field, label})=>{
+		const fieldNode = node.childForFieldName(field);
+		const capture = handleCapture(f, fieldNode);
+		if (!Array.isArray(capture)) {
+			ret[label] = capture;
+		} else {
+			spreadFields[label] = {
+				node: fieldNode,
+				captures: capture,
+			};
+		}
+	});
+	// count spreads
+	Object.values(spreadFields).forEach(captureData=>{
+		const len = captureData.captures.length;
+		if (spreadSize === -Infinity) spreadSize = len;
+		if (spreadSize !== len) {
+			f.errors.push({
+				message: `spreads must have the same count of items within a given action`,
+				locations: [{
+					node: captureData.node, 
+					fileName: f.fileName,
+				}],
+			});
+			spreadSize = Math.max(spreadSize, len);
+		}
+	});
+	// no spreads if spreadSize is unchanged
 	if (spreadSize === -Infinity) return [ret];
+	// otherwise, handle spreads
 	const spreadRet = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = {
 			...ret,
 		};
 		Object.keys(spreadFields).forEach(fieldName=>{
-			const allValues = spreadFields[fieldName];
+			const allValues = spreadFields[fieldName].captures;
 			const currValue = allValues[i % allValues.length];
 			insert[fieldName] = currValue;
 		});
@@ -147,7 +191,6 @@ const handleAction = (f, node) => {
 	}
 	return spreadRet;
 };
-
 
 actionFns = {
 	action_show_dialog: (f, node) => {
@@ -216,6 +259,11 @@ actionFns = {
 			showSerialDialogAction
 		];
 	},
+	// action_pause_script: (f, node) => {
+	// 	const identNodes = node.childrenForFieldName('entity_or_map_identifier');
+	// 	const idents = identNodes
+	// 		.map(ident=>handleNode(f, ident));
+	// }
 };
 
 actionData = {
@@ -291,12 +339,41 @@ actionData = {
 		},
 		captures: [ 'command' ],
 	},
+	action_camera_shake: {
+		values: { action: 'SET_SCREEN_SHAKE' },
+		captures: [ 'amplitude', 'distance', 'duration' ],
+	},
+	action_camera_fade_in: {
+		values: { action: 'SCREEN_FADE_IN' },
+		captures: [ 'color', 'duration' ],
+	},
+	action_camera_fade_out: {
+		values: { action: 'SCREEN_FADE_OUT' },
+		captures: [ 'color', 'duration' ],
+	},
+	action_pause_script: {
+		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
+		captures: [ 'script' ],
+		fancyCaptures: [{
+			field: 'entity_or_map', // how to select it
+			label: 'entity' // how to store it
+		}],
+	},
+	action_unpause_script: {
+		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
+		captures: [ 'script' ],
+		fancyCaptures: [{
+			field: 'entity_or_map',
+			label: 'entity'
+		}],
+	},
 };
 
 /* ------------------------------- NODE HANDLING ------------------------------- */
 
 const handleNode = (f, node) => {
 	reportAnyMissingChildren(f, node);
+	reportAnyErrors(f, node);
 	debugLog(`handleNode: ${node.grammarType}`)
 	if (node.grammarType.startsWith('action_')) {
 		return handleAction(f, node);
@@ -722,6 +799,39 @@ const nodeFns = {
 			json: parsed,
 			debug: node,
 			fileName: f.fileName,
+		}]
+	},
+	entity_or_map_identifier: (f, node) => {
+		const targetNode = node.childForFieldName('target');
+		const targetType = handleCapture(f, targetNode);
+		let entity = '';
+		if (targetType === 'map') {
+			entity = '%MAP%';
+		} else if (targetType === 'self') {
+			entity = '%SELF%';
+		} else if (targetType === 'self') {
+			entity = '%PLAYER%';
+		} else {
+			const valueNode = node.childForFieldName('entity');
+			if (!valueNode) {
+				f.errors.push({
+					message: 'undefined entity in entity identifier',
+					locations: [{
+						node,
+						fileName: f.fileName,
+					}],
+				});
+				entity = 'UNDEFINED ENTITY';
+			} else {
+				entity = handleCapture(f, valueNode);
+			}
+		}
+		return [{
+			mathlang: 'entity_or_map_identifier',
+			entity,
+			debug: node,
+			fileName: f.fileName,
+			fieldsAsCapture: ['entity'],
 		}]
 	},
 };
@@ -1194,8 +1304,8 @@ const getPrintableLocationData = (location) => {
 	return message;
 };
 const reportAnyMissingChildren = (f, node) => {
-	const missing = node.children.filter(child=>child.isMissing);
-	missing.forEach(missingChild=>{
+	const missingNodes = node.children.filter(child=>child.isMissing);
+	missingNodes.forEach(missingChild=>{
 		f.errors.push({
 			message: `missing token: ${missingChild.type}`,
 			locations: [{
@@ -1204,7 +1314,20 @@ const reportAnyMissingChildren = (f, node) => {
 			}],
 		});
 	});
-	return missing;
+	return missingNodes;
+};
+const reportAnyErrors = (f, node) => {
+	const errorNodes = node.namedChildren.filter(child=>child.type === 'ERROR');
+	errorNodes.forEach(errorNode=>{
+		f.errors.push({
+			message: 'syntax error',
+			locations: [{
+				node: errorNode, 
+				fileName: f.fileName,
+			}],
+		})
+	})
+	return errorNodes;
 };
 
 console.log("WHY IS THIS BEFORE THE ASYNC");

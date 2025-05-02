@@ -37,8 +37,8 @@ module.exports = grammar({
 		$.CONSTANT_VALUE,
 		// $.bool_or_identifier, $.bool_or_identifier_expandable,
 		// $.int_or_identifier, $.int_or_identifier_expandable,
-		// $.entity_identifier, $.entity_identifier_expandable,
-		// $.entity_or_map_identifier, $.entity_or_map_identifier_expandable,
+		$.entity_identifier_expandable,
+		$.entity_or_map_identifier_expandable,
 		// $.in_or_out_expandable,
 		// $.geometry_identifier, $.geometry_identifier_expandable,
 		// $.movable_identifier, $.movable_identifier_expandable,
@@ -369,9 +369,10 @@ module.exports = grammar({
 	// 	debug_macro: $ => seq(
 	// 		'debug', '!', '(',
 	// 		optional(choice(
-	// 			$.serial_dialog,
-	// 			field('dialog_name', $.bareword),
+	// 			field('serial_dialog', $.serial_dialog),
+	// 			field('serial_dialog_name', $.bareword),
 	// 		)),
+
 	// 		')',
 	// 	),
 		rand_macro: $ => seq(
@@ -402,10 +403,11 @@ module.exports = grammar({
 			$.action_delete_alias,
 			$.action_hide_command,
 			$.action_unhide_command,
-			// $.action_pause_script,
-			// $.action_unpause_script,
-			// $.action_camera_shake,
-			// $.action_camera_fade,
+			$.action_pause_script,
+			$.action_unpause_script,
+			$.action_camera_shake,
+			$.action_camera_fade_in,
+			$.action_camera_fade_out,
 			// $.action_play_entity_animation,
 			// $.action_move_over_time,
 			// $.action_set_position,
@@ -463,63 +465,75 @@ module.exports = grammar({
 		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), ';'),
 		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), ';'),
 
-	// 	player: $ => 'player',
-	// 	self: $ => 'self',
-	// 	entity_identifier: $ => choice(
-	// 		$.player,
-	// 		$.self,
-	// 		seq('entity', field('entity', $.string))
-	// 	),
-	// 	entity_identifier_expandable: $ => choice(
-	// 		$.entity_identifier,
-	// 		$.entity_identifier_expansion
-	// 	),
-	// 	entity_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.entity_identifier,
-	// 			repeat(seq(',', $.entity_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
-	// 	map: $ => 'map',
-	// 	entity_or_map_identifier: $ => choice(
-	// 		$.map,
-	// 		$.player,
-	// 		$.self,
-	// 		seq('entity', field('entity', $.string))
-	// 	),
-	// 	entity_or_map_identifier_expandable: $ => choice(
-	// 		$.entity_or_map_identifier,
-	// 		$.entity_or_map_identifier_expansion
-	// 	),
-	// 	entity_or_map_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.entity_or_map_identifier,
-	// 			repeat(seq(',', $.entity_or_map_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		player: $ => 'player',
+		self: $ => 'self',
+		entity: $ => 'entity',
+		entity_identifier: $ => choice(
+			field('entity_type', $.player),
+			field('entity_type', $.self),
+			seq(field('entity_type', $.entity), field('entity', $.string))
+		),
+		entity_identifier_expandable: $ => choice(
+			$.entity_identifier,
+			$.entity_identifier_expansion
+		),
+		entity_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.entity_identifier,
+				repeat(seq(',', $.entity_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+		map: $ => 'map',
+		entity_or_map_identifier: $ => choice(
+			field('target', $.map),
+			field('target', $.player),
+			field('target', $.self),
+			seq(field('target', $.entity), field('entity', $.string))
+		),
+		entity_or_map_identifier_expandable: $ => choice(
+			$.entity_or_map_identifier,
+			$.entity_or_map_identifier_expansion
+		),
+		entity_or_map_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.entity_or_map_identifier,
+				repeat(seq(',', $.entity_or_map_identifier)),
+				optional(','),
+			)),
+			']'
+		),
 
-	// 	action_pause_script: $ => seq(
-	// 		'pause',
-	// 		$.entity_or_map_identifier_expandable,
-	// 		field('script', $.string_expandable),
-	// 	),
-	// 	action_unpause_script: $ => seq(
-	// 		'unpause',
-	// 		$.entity_or_map_identifier_expandable,
-	// 		field('script', $.string_expandable),
-	// 	),
+		action_pause_script: $ => seq(
+			'pause',
+			field('entity_or_map', $.entity_or_map_identifier_expandable),
+			field('script', $.string_expandable),
+			';'
+		),
+		action_unpause_script: $ => seq(
+			'unpause',
+			field('entity_or_map', $.entity_or_map_identifier_expandable),
+			field('script', $.string_expandable),
+			';'
+		),
 
-	// 	action_camera_fade: $ => seq(
-	// 		'camera', 'fade', field('fade', $.in_or_out_expandable),
-	// 		'->', field('color', $.color_expandable),
-	// 		'over', field('duration', $.duration_expandable),
-	// 	),
+		action_camera_fade_in: $ => seq(
+			'camera', 'fade', 'in', '->',
+			field('color', $.color_expandable),
+			'over',
+			field('duration', $.duration_expandable),
+			';'
+		),
+		action_camera_fade_out: $ => seq(
+			'camera', 'fade', 'out', '->',
+			field('color', $.color_expandable),
+			'over',
+			field('duration', $.duration_expandable),
+			';'
+		),
 	// 	in_or_out: $ => choice('in','out'),
 	// 	in_or_out_expandable: $ => choice(
 	// 		$.in_or_out,
@@ -535,12 +549,13 @@ module.exports = grammar({
 	// 		']'
 	// 	),
 		
-	// 	action_camera_shake: $ => seq(
-	// 		'camera', 'shake', '->',
-	// 		field('amplitude', $.duration_expandable),
-	// 		field('distance', $.distance_expandable),
-	// 		'over', field('duration', $.duration_expandable),
-	// 	),
+		action_camera_shake: $ => seq(
+			'camera', 'shake', '->',
+			field('amplitude', $.duration_expandable),
+			field('distance', $.distance_expandable),
+			'over',
+			field('duration', $.duration_expandable),
+		),
 
 	// 	action_play_entity_animation: $ => seq(
 	// 		$.entity_identifier_expandable,
