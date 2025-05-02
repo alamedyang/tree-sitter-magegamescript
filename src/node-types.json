@@ -265,6 +265,11 @@
     }
   },
   {
+    "type": "action_return_statement",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "action_run_script",
     "named": true,
     "fields": {
@@ -1322,10 +1327,6 @@
     "named": false
   },
   {
-    "type": "action_return_statement",
-    "named": true
-  },
-  {
     "type": "add",
     "named": false
   },
@@ -1435,6 +1436,10 @@
   },
   {
     "type": "rand",
+    "named": false
+  },
+  {
+    "type": "return",
     "named": false
   },
   {

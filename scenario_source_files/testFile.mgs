@@ -27,6 +27,6 @@ serial_dialog lulullul {
 	"lol"
 }
 
-_ {
+script _ {
 	save slot;
 }

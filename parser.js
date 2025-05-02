@@ -3,12 +3,13 @@ const path = require('path');
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
-let verbose = true;
+let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
 /* ------------------------------- CAPTURE HANDLING ------------------------------- */
 
 const handleCapture = (f, node) => {
+	reportAnyMissingChildren(f, node);
 	// expansions cannot be recursive, so this is fine
 	if (node.grammarType.endsWith('_expansion')) {
 		return node.namedChildren.map(v=>handleCapture(f, v));
@@ -191,6 +192,7 @@ actionData = {
 /* ------------------------------- NODE HANDLING ------------------------------- */
 
 const handleNode = (f, node) => {
+	reportAnyMissingChildren(f, node);
 	debugLog(`handleNode: ${node.grammarType}`)
 	if (node.grammarType.startsWith('action_')) {
 		return handleAction(f, node);
@@ -206,7 +208,7 @@ const nodeFns = {
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
 		f.errors.push({
-			message: 'tree-sitter parse error (generic)',
+			message: 'unexpected token',
 			locations: [{
 				node: node, 
 				fileName: f.fileName,
@@ -766,17 +768,21 @@ const buildSerialDialogFromInfo = (f, info) => {
 	if (info.options.length > 0) {
 		const firstOptionType = info.options[0].optionType;
 		serialDialog[firstOptionType] = info.options;
+		const warnLocations = [];
 		info.options.forEach(option=>{
 			if (option.optionType !== firstOptionType) {
-				f.warnings.push({
-					message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
-					locations: [{
-						node: option.debug.firstChild,
-						fileName: f.fileName,
-					}]
+				warnLocations.push({
+					node: option.debug.firstChild,
+					fileName: f.fileName,
 				});
 			}
 		});
+		if (warnLocations.length > 0) {
+			f.warnings.push({
+				message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
+				locations: warnLocations,
+			});
+		}
 	}
 	return serialDialog;
 };
@@ -907,6 +913,7 @@ const finalizeActions = rawActions => {
 	})
 	return actions;
 };
+
 (async () => {
 	await Parser.init();
 	const parser = new Parser();
@@ -1005,11 +1012,11 @@ const finalizeActions = rawActions => {
 	Object.entries(p.scripts).forEach(([scriptName, script])=>{
 		if (script.duplicates) {
 			p.errors.push({
-				message: `multiple scripts with name ${scriptName}`,
+				message: `multiple scripts with name "${scriptName}"`,
 				locations: script.duplicates.map(dupe=>{
 					return {
 						fileName: dupe.fileName,
-						node: dupe.node.debug,
+						node: dupe.node.debug.firstNamedChild,
 					}
 				}),
 			});
@@ -1018,30 +1025,69 @@ const finalizeActions = rawActions => {
 	Object.entries(p.dialogs).forEach(([dialogName, dialog])=>{
 		if (dialog.duplicates) {
 			p.errors.push({
-				message: `multiple dialogs with name ${dialogName}`,
+				message: `multiple dialogs with name "${dialogName}"`,
 				locations: dialog.duplicates.map(dupe=>{
 					return {
 						fileName: dupe.fileName,
-						node: dupe.debug,
+						node: dupe.debug.firstNamedChild,
 					}
 				}),
 			});
 		}
 	});
-	Object.entries(p.dialogs).forEach(([serialDialogName, serialDialog])=>{
+	Object.entries(p.serialDialogs).forEach(([serialDialogName, serialDialog])=>{
 		if (serialDialog.duplicates) {
 			p.errors.push({
 				message: `multiple serial dialogs with name "${serialDialogName}"`,
 				locations: serialDialog.duplicates.map(dupe=>{
 					return {
 						fileName: dupe.fileName,
-						node: dupe.debug,
+						node: dupe.debug.firstNamedChild,
 					}
 				}),
 			});
 		}
 	});
+	p.errors.forEach(error=>{
+		console.error(`\nError: ${error.message}`);
+		error.locations.forEach(location=>{
+			console.error(getPrintableLocationData(location));
+		})
+	});
+	p.warnings.forEach(warning=>{
+		console.warn(`\n${ansiTags.y}Warning: ${warning.message}`);
+		warning.locations.forEach(location=>{
+			console.error(ansiTags.y + getPrintableLocationData(location) + ansiTags.reset);
+		});
+	});
 	console.log("ASYNC WHY ARE YOU LIKE THIS");
 })();
+
+const getPrintableLocationData = (location) => {
+	const fileName = location.fileName;
+	const allLines = fileMap[fileName].text.split('\n');
+	let row = location.node.startPosition.row;
+	let col = location.node.startPosition.column;
+	const line = allLines[row].replaceAll('\t', ' ');
+	const arrow = '~'.repeat(col) + '^';
+	const message
+		= `╓-${fileName} ${row}:${col}\n`
+		+ '║ ' + `${line}\n`
+		+ '╙~' + arrow;
+	return message;
+};
+const reportAnyMissingChildren = (f, node) => {
+	const missing = node.children.filter(child=>child.isMissing);
+	missing.forEach(missingChild=>{
+		f.errors.push({
+			message: `missing token: ${missingChild.type}`,
+			locations: [{
+				node: missingChild, 
+				fileName: f.fileName,
+			}],
+		});
+	});
+	return missing;
+};
 
 console.log("WHY IS THIS BEFORE THE ASYNC");
