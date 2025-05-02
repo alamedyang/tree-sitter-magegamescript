@@ -35,4 +35,6 @@ script __ {
 	// 	"WOOT"
 	// };
 	pause [player, self, entity Bob] on_tick;
+	[entity Bob, player] animation
+		-> [1, 4] [twice, once];
 }

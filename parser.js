@@ -354,18 +354,17 @@ actionData = {
 	action_pause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
 		captures: [ 'script' ],
-		fancyCaptures: [{
-			field: 'entity_or_map', // how to select it
-			label: 'entity' // how to store it
-		}],
+		fancyCaptures: [{ field: 'entity_or_map', label: 'entity' }],
 	},
 	action_unpause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
 		captures: [ 'script' ],
-		fancyCaptures: [{
-			field: 'entity_or_map',
-			label: 'entity'
-		}],
+		fancyCaptures: [{ field: 'entity_or_map', label: 'entity' }],
+	},
+	action_play_entity_animation: {
+		values: { action: 'PLAY_ENTITY_ANIMATION' },
+		captures: [ 'animation', 'count' ],
+		fancyCaptures: [{ field: 'entity_identifier', label: 'entity' }],
 	},
 };
 

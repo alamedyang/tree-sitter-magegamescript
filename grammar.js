@@ -39,7 +39,6 @@ module.exports = grammar({
 		// $.int_or_identifier, $.int_or_identifier_expandable,
 		$.entity_identifier_expandable,
 		$.entity_or_map_identifier_expandable,
-		// $.in_or_out_expandable,
 		// $.geometry_identifier, $.geometry_identifier_expandable,
 		// $.movable_identifier, $.movable_identifier_expandable,
 		// $.polygon_identifier, $.polygon_identifier_expandable,
@@ -408,7 +407,7 @@ module.exports = grammar({
 			$.action_camera_shake,
 			$.action_camera_fade_in,
 			$.action_camera_fade_out,
-			// $.action_play_entity_animation,
+			$.action_play_entity_animation,
 			// $.action_move_over_time,
 			// $.action_set_position,
 			// $.action_set_bool,
@@ -534,20 +533,6 @@ module.exports = grammar({
 			field('duration', $.duration_expandable),
 			';'
 		),
-	// 	in_or_out: $ => choice('in','out'),
-	// 	in_or_out_expandable: $ => choice(
-	// 		$.in_or_out,
-	// 		$.in_or_out_expansion,
-	// 	),
-	// 	in_or_out_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.in_or_out,
-	// 			repeat(seq(',', $.in_or_out)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
 		
 		action_camera_shake: $ => seq(
 			'camera', 'shake', '->',
@@ -555,14 +540,16 @@ module.exports = grammar({
 			field('distance', $.distance_expandable),
 			'over',
 			field('duration', $.duration_expandable),
+			';'
 		),
 
-	// 	action_play_entity_animation: $ => seq(
-	// 		$.entity_identifier_expandable,
-	// 		'animation', '->',
-	// 		field('animation', $.number_expandable),
-	// 		field('count', $.quantity_expandable),
-	// 	),
+		action_play_entity_animation: $ => seq(
+			field('entity_identifier', $.entity_identifier_expandable),
+			'animation', '->',
+			field('animation', $.number_expandable),
+			field('count', $.quantity_expandable),
+			';'
+		),
 
 	// 	geometry_identifier: $ => seq(
 	// 		'geometry', field('geometry', $.string),

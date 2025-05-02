@@ -615,6 +615,62 @@
     }
   },
   {
+    "type": "action_play_entity_animation",
+    "named": true,
+    "fields": {
+      "animation": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "number_expansion",
+            "named": true
+          }
+        ]
+      },
+      "count": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUANTITY",
+            "named": true
+          },
+          {
+            "type": "quantity_expansion",
+            "named": true
+          }
+        ]
+      },
+      "entity_identifier": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_identifier_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_return_statement",
     "named": true,
     "fields": {}
@@ -1260,6 +1316,63 @@
     "fields": {}
   },
   {
+    "type": "entity_identifier",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "entity_type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity",
+            "named": true
+          },
+          {
+            "type": "player",
+            "named": true
+          },
+          {
+            "type": "self",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "entity_identifier_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "entity_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "entity_or_map_identifier",
     "named": true,
     "fields": {
@@ -1492,6 +1605,25 @@
     }
   },
   {
+    "type": "quantity_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUANTITY",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "quoted_string_expansion",
     "named": true,
     "fields": {},
@@ -1588,6 +1720,10 @@
         },
         {
           "type": "action_pause_script",
+          "named": true
+        },
+        {
+          "type": "action_play_entity_animation",
           "named": true
         },
         {
@@ -1711,6 +1847,10 @@
         },
         {
           "type": "action_pause_script",
+          "named": true
+        },
+        {
+          "type": "action_play_entity_animation",
           "named": true
         },
         {
@@ -2037,6 +2177,10 @@
   },
   {
     "type": "alignment",
+    "named": false
+  },
+  {
+    "type": "animation",
     "named": false
   },
   {

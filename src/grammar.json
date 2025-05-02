@@ -2138,6 +2138,10 @@
         {
           "type": "SYMBOL",
           "name": "action_camera_fade_out"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_play_entity_animation"
         }
       ]
     },
@@ -3123,6 +3127,51 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "action_play_entity_animation": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "entity_identifier",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_identifier_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "animation"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "animation",
+          "content": {
+            "type": "SYMBOL",
+            "name": "number_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "count",
+          "content": {
+            "type": "SYMBOL",
+            "name": "quantity_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
         }
       ]
     }
