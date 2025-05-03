@@ -35,10 +35,10 @@ const handleCapture = (f, node) => {
 	if (parseAs === 'CONSTANT') {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
-			f.newError(
-				{ node },
-				`Constant ${node.text} is undefined`,
-			);
+			f.newError({
+				node,
+				message: `Constant ${node.text} is undefined`,
+			});
 		}
 		return lookup?.value || node.text;
 	}
@@ -252,10 +252,10 @@ const handleAction = (f, node) => {
 		const len = captureData.captures.length;
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
-			f.newError(
-				{ node: captureData.node },
-				`spreads must have the same count of items within a given action`,
-			);
+			f.newError({
+				node: captureData.node,
+				message: `spreads must have the same count of items within a given action`,
+			});
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
@@ -355,10 +355,10 @@ actionFns = {
 		const lengthsMismatched = Object.values(fieldCounts)
 			.some(n=>n !== 1 && n !== maxSpreadCount);
 		if (lengthsMismatched) {
-			f.newError(
-				{ node },
-				`spreads inside this action must contain same number of items`,
-			);
+			f.newError({
+				node,
+				message: `spreads inside this action must contain same number of items`,
+			});
 		}
 		const ret = [];
 		for (let i = 0; i < maxSpreadCount; i++) {
@@ -406,10 +406,10 @@ actionFns = {
 					continue;
 				}
 			}
-			f.newError(
-				{ node },
-				'incompatible combination of movable identifier and position identifier',
-			);
+			f.newError({
+				node,
+				message: 'incompatible combination of movable identifier and position identifier',
+			});
 		}
 		return ret;
 	}
@@ -536,10 +536,10 @@ const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
-		f.newError(
-			{ node },
-			'syntax error',
-		);
+		f.newError({
+			node,
+			message: 'syntax error',
+		});
 		return [];
 	},
 	script_definition: (f, node) => {
@@ -563,10 +563,10 @@ const nodeFns = {
 		const value = handleCapture(f, valueNode);
 		f.constants = f.constants || {};
 		if (f.constants[labelNode]) {
-			f.newError(
-				{ node },
-				`cannot redefine constant ${ret.label}`,
-			);
+			f.newError({
+				node,
+				message: `cannot redefine constant ${ret.label}`,
+			});
 		}
 		f.constants[label] = {
 			value,
@@ -587,15 +587,15 @@ const nodeFns = {
 		let includeFileNode = node.childForFieldName('fileName');
 		let capture = handleCapture(f, includeFileNode);
 		const prerequesites = Array.isArray(capture) ? capture : [ capture ];
-		prerequesites.forEach(prereq=> {
-			if (!fileMap[prereq].parsed) {
-				debugLog(`include_macro: must first parse prerequesite "${prereq}"`);
-				parseFile(prereq, f.parser)
+		prerequesites.forEach(prereqName=> {
+			if (!fileMap[prereqName].parsed) {
+				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
+				parseFile(p, prereqName)
 			} else {
-				debugLog(`include_macro: prerequesite "${prereq}" already parsed`);
+				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
 			}
-			debugLog(`include_macro: merging ${prereq} into ${f.fileName}...`);
-			f.mergeF(fileMap[prereq].parsed);
+			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
+			f.mergeF(fileMap[prereqName].parsed);
 		});
 		return [{
 			mathlang: 'include_macro',
@@ -616,10 +616,10 @@ const nodeFns = {
 				if (len === 1) return;
 				if (multipleCount === -Infinity) multipleCount = len;
 				if (multipleCount !== len) {
-					f.newError(
-						{ node },
-						`spreads inside rand!() must contain same number of items`,
-					);
+					f.newError({
+						node,
+						message: `spreads inside rand!() must contain same number of items`,
+					});
 				}
 			})
 		const vertical = [];
@@ -664,20 +664,20 @@ const nodeFns = {
 			bucket = f.settings.default;
 		} else if (type === 'target_label') {
 			if (!targetNode) {
-				f.newError(
-					{ node },
-					`dialog_settings_target: malformed label definition`,
-				);
+				f.newError({
+					node,
+					message: `dialog_settings_target: malformed label definition`,
+				});
 			}
 			const target = targetNode.text || 'UNDEFINED LABEL';
 			f.settings.label[target] = f.settings.label[target] || {};
 			bucket = f.settings.label[target];
 		} else if (type === 'target_entity') {
 			if (!targetNode) {
-				f.newError(
-					{ node },
-					`dialog_settings_target: malformed entity definition`,
-				);
+				f.newError({
+					node,
+					message: `dialog_settings_target: malformed entity definition`,
+				});
 			}
 			const target = targetNode.text || 'UNDEFINED ENTITY';
 			f.settings.label[target] = f.settings.label[target] || {};
@@ -702,10 +702,10 @@ const nodeFns = {
 		const propNode = node.childForFieldName('property');
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
-			f.newError(
-				{ node },
-				`malformed dialog parameter`,
-			);
+			f.newError({
+				node,
+				message: `malformed dialog parameter`,
+			});
 			return [];
 		}
 		return [{
@@ -734,10 +734,10 @@ const nodeFns = {
 		const propNode = node.childForFieldName('property');
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
-			f.newError(
-				{ node },
-				`malformed serial_dialog parameter`,
-			);
+			f.newError({
+				node,
+				message: `malformed serial_dialog parameter`,
+			});
 			return [];
 		}
 		return [{
@@ -753,10 +753,10 @@ const nodeFns = {
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
 		if (!optionNode || !labelNode || !scriptNode) {
-			f.newError(
-				{ node },
-				`malformed serial_dialog option`,
-			);
+			f.newError({
+				node,
+				message: `malformed serial_dialog option`,
+			});
 			return [];
 		}
 		let optionType = null;
@@ -775,10 +775,10 @@ const nodeFns = {
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
 		if (!labelNode || !scriptNode) {
-			f.newError(
-				{ node },
-				`malformed dialog option`,
-			);
+			f.newError({
+				node,
+				message: `malformed dialog option`,
+			});
 			return [];
 		}
 		return [{
@@ -883,10 +883,10 @@ const nodeFns = {
 			value = valueNode
 				? handleCapture(f, valueNode)
 				: 'MALFORMED ENTITY IDENTIFIER';
-			f.newError(
-				{ node },
-				`dialog identifier lacks a value`,
-			);
+			f.newError({
+				node,
+				message: `dialog identifier lacks a value`,
+			});
 		}
 		return [{
 			mathlang: 'dialog_identifier',
@@ -904,10 +904,10 @@ const nodeFns = {
 		try {
 			parsed = JSON.parse(text);
 		} catch {
-			f.newError(
-				{ node },
-				`JSON syntax error`,
-			);
+			f.newError({
+				node,
+				message: `JSON syntax error`,
+			});
 		}
 		return [{
 			mathlang: 'json_literal',
@@ -929,10 +929,10 @@ const nodeFns = {
 		} else {
 			const valueNode = node.childForFieldName('entity');
 			if (!valueNode) {
-				f.newError(
-					{ node },
-					`undefined entity in entity identifier`,
-				);
+				f.newError({
+					node,
+					message: `undefined entity in entity identifier`,
+				});
 				entity = 'UNDEFINED ENTITY';
 			} else {
 				entity = handleCapture(f, valueNode);
@@ -979,10 +979,11 @@ const makeMap = path => {
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const parseFile = (fileName, parser) => {
+const parseFile = (p, fileName) => {
+	const parser = p.parser;
 	const tree = parser.parse(fileMap[fileName].text);
 	let document = tree.rootNode;
-	const f = makeFileState(fileName, parser);
+	const f = makeFileState(p, fileName, parser);
 	const nodes = document.namedChildren
 		.map(node=>handleNode(f, node))
 		.flat();
@@ -999,24 +1000,14 @@ const parseFile = (fileName, parser) => {
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
 	
+	const p = makeProjectState(parser);
 	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
-			parseFile(fileName, parser);
+			parseFile(p, fileName);
 		}
 	});
-	const p = makeProjectState();
 	Object.keys(fileMap).forEach(fileName=>{
-		let errorCount = 0;
-		let warningCount = 0;
-		fileMap[fileName].parsed.errors.forEach(error=>{
-			p.errors.push(error);
-			errorCount += 1;
-		})
-		fileMap[fileName].parsed.warnings.forEach(warning=>{
-			p.warnings.push(warning);
-			warningCount += 1;
-		})
 		fileMap[fileName].parsed.nodes.forEach(node=>{
 			if (node.mathlang === 'script_definition') {
 				p.addScript(node, fileName);
@@ -1027,6 +1018,7 @@ const parseFile = (fileName, parser) => {
 			}
 		})
 		if (verbose) {
+			const { errorCount, warningCount } = f;
 			let message = `${ansiTags.g}File ${fileName} complete!${ansiTags.reset}`;
 			if (errorCount > 0 || warningCount > 0) {
 				const errorMessage = errorCount

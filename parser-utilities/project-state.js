@@ -1,12 +1,27 @@
 const { makeMessagePrintable } = require('./general.js');
 
-const makeProjectState = () => {
+const makeProjectState = (parser) => {
 	const p = { // 'project' :P
-		serialDialogs: {},
-		dialogs: {},
 		scripts: {},
+		dialogs: {},
+		serialDialogs: {},
 		errors: [],
 		warnings: [],
+		parser,
+		newError: ({location, message, fileName}) => {
+			const locations = Array.isArray(location) ? location : [ location ];
+			locations.forEach(item=>{
+				if (!item.fileName) item.fileName = fileName || 'UNKNOWN FILE';
+			})
+			p.errors.push({ message, locations });
+		},
+		newWarning: ({location, message, fileName}) => {
+			const locations = Array.isArray(location) ? location : [ location ];
+			locations.forEach(item=>{
+				if (!item.fileName) item.fileName = fileName || 'UNKNOWN FILE';
+			})
+			p.warnings.push({ message, locations });
+		},
 		addScript: (data, fileName) => {
 			const scriptName = data.scriptName;
 			data.rawActions = data.actions;
@@ -74,7 +89,7 @@ const makeProjectState = () => {
 };
 
 const mathSequence = {
-	copy_entity_value_to_entity_value: (p, step) => {
+	copy_entity_value_to_entity_value: (step) => {
 		const variable = '__TEMP';
 		return [
 			{
