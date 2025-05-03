@@ -1,7 +1,40 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
 const { makeMessagePrintable } = require('./general.js');
 
+// stolen from the other place
+const makeMap = path => {
+	let map = {};
+	for (file of fs.readdirSync(
+		path,
+		{ withFileTypes: true }
+	)) {
+		let filePath = `${path}/${file.name}`
+
+		if (file.isDirectory()) {
+			map = {
+				...map,
+				...makeMap(filePath)
+			};
+		} else {
+			let text = fs.readFileSync(filePath, 'utf-8')
+			let type = filePath.split('.').pop()
+			map[file.name] = {
+				fileName: file.name,
+				type,
+				text,
+			}
+		}
+	}
+	return map;
+}
+
 const makeProjectState = (parser) => {
+	const inputPath = path.resolve('./scenario_source_files');
+	const fileMap = makeMap(inputPath);
 	const p = { // 'project' :P
+		fileMap,
 		scripts: {},
 		dialogs: {},
 		serialDialogs: {},

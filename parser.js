@@ -1,5 +1,3 @@
-const fs = require('node:fs');
-const path = require('node:path');
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
@@ -9,7 +7,6 @@ const {
 } = require('./parser-utilities/general.js');
 
 const { makeProjectState } = require('./parser-utilities/project-state.js');
-
 const { makeFileState } = require('./parser-utilities/file-state.js');
 
 const {
@@ -588,14 +585,14 @@ const nodeFns = {
 		let capture = handleCapture(f, includeFileNode);
 		const prerequesites = Array.isArray(capture) ? capture : [ capture ];
 		prerequesites.forEach(prereqName=> {
-			if (!fileMap[prereqName].parsed) {
+			if (!f.p.fileMap[prereqName].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
-				parseFile(p, prereqName)
+				parseFile(p, prereqName);
 			} else {
 				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
 			}
 			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
-			f.mergeF(fileMap[prereqName].parsed);
+			f.includeFile(prereqName);
 		});
 		return [{
 			mathlang: 'include_macro',
@@ -948,42 +945,13 @@ const nodeFns = {
 	},
 };
 
-/* ------------------------------- FILE HANDLING ------------------------------- */
-
-// stolen from the other place
-const makeMap = path => {
-	let map = {};
-	for (file of fs.readdirSync(
-		path,
-		{ withFileTypes: true }
-	)) {
-		let filePath = `${path}/${file.name}`
-
-		if (file.isDirectory()) {
-			map = {
-				...map,
-				...makeMap(filePath)
-			};
-		} else {
-			let text = fs.readFileSync(filePath, 'utf-8')
-			let type = filePath.split('.').pop()
-			map[file.name] = {
-				fileName: file.name,
-				type,
-				text,
-			}
-		}
-	}
-	return map;
-}
-const inputPath = path.resolve('./scenario_source_files');
-const fileMap = makeMap(inputPath);
+/* ------------------------------- PARSE FILE ------------------------------- */
 
 const parseFile = (p, fileName) => {
-	const parser = p.parser;
-	const tree = parser.parse(fileMap[fileName].text);
+	const fileMap = p.fileMap;
+	const tree = p.parser.parse(fileMap[fileName].text);
 	let document = tree.rootNode;
-	const f = makeFileState(p, fileName, parser);
+	const f = makeFileState(p, fileName, p.parser);
 	const nodes = document.namedChildren
 		.map(node=>handleNode(f, node))
 		.flat();
@@ -1001,6 +969,7 @@ const parseFile = (p, fileName) => {
 	parser.setLanguage(Lang);
 	
 	const p = makeProjectState(parser);
+	const fileMap = p.fileMap;
 	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);

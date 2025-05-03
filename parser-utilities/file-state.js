@@ -1,4 +1,3 @@
-
 const makeFileState = (p, fileName, parser) => {
 	const f = {
 		p,
@@ -15,20 +14,21 @@ const makeFileState = (p, fileName, parser) => {
 		warningCount: 0,
 		parser,
 		newError: (args) => {
-			p.newError({...args, fileName});
+			p.newError({fileName, ...args});
 			f.errorCount += 1;
 		},
 		newWarning: (args) => {
-			p.newWarning({...args, fileName})
+			p.newWarning({fileName, ...args})
 			f.warningCount += 1;
 		},
-		mergeF: (newF) => {
+		includeFile: (newName) => {
+			const newF = p.fileMap[newName].parsed;
 			Object.keys(newF.constants).forEach(constantName=>{
 				if (f.constants[constantName]) {
 					f.newError({
 						fileName: newF.fileName,
 						node: newF.constants[constantName].node, 
-						message: `cannot redefine constant ${constantName} (via 'include_macro')`
+						message: `cannot redefine constant ${constantName} (via 'include')`
 					});
 				}
 				f.constants[constantName] = newF.constants[constantName];
