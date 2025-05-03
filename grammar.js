@@ -616,25 +616,25 @@ module.exports = grammar({
 		forever: $ => 'forever',
 		polygon_and_duration: $ => choice(
 			seq(
-				field('polygon', $.origin),
+				field('polygon_type', $.origin),
 				'over',
 				field('duration', $.duration_expandable),
 			),
 			seq(
-				field('polygon', $.length),
+				field('polygon_type', $.length),
 				'over',
 				field('duration', $.duration_expandable),
 				optional(field('forever', $.forever)),
 			),
 		),
 
-	// 	over_time_operator: $ => '->',
-	// 	action_move_over_time: $ => seq(
-	// 		$.movable_identifier_expandable,
-	// 		$.over_time_operator,
-	// 		$.coordinate_identifier_expandable,
-	// 		$.polygon_and_duration
-	// 	),
+		action_move_over_time: $ => seq(
+			field('movable', $.movable_identifier_expandable),
+			'->',
+			field('coordinate', $.coordinate_identifier_expandable),
+			field('polygon_and_duration', $.polygon_and_duration),
+			';'
+		),
 
 		action_set_position: $ => seq(
 			field('movable', $.movable_identifier_expandable),

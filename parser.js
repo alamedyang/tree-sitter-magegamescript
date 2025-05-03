@@ -22,11 +22,7 @@ const handleCapture = (f, node) => {
 		if (lookup === undefined) {
 			f.errors.push({
 				message: `Constant ${node.text} is undefined`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
-				fileName: f.fileName,
+				locations: [{ node, fileName: f.fileName }],
 			});
 		}
 		return lookup?.value || node.text;
@@ -177,6 +173,21 @@ const captureFns = {
 			value: entity,
 		};
 	},
+	polygon_and_duration: (f, node) => {
+		const polygonTypeNode = node.childForFieldName('polygon_type');
+		const polygonType = polygonTypeNode.text;
+		const durationNode = node.childForFieldName('duration');
+		const duration = handleCapture(f, durationNode);
+		const forever = !!node.childForFieldName('forever');
+		return {
+			mathlang: 'polygon_and_duration',
+			debug: node,
+			fileName: f.fileName,
+			polygonType,
+			duration,
+			forever,
+		};
+	},
 };
 
 /* ------------------------------- ACTION HANDLING ------------------------------- */
@@ -228,10 +239,7 @@ const handleAction = (f, node) => {
 		if (spreadSize !== len) {
 			f.errors.push({
 				message: `spreads must have the same count of items within a given action`,
-				locations: [{
-					node: captureData.node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node: captureData.node, fileName: f.fileName }],
 			});
 			spreadSize = Math.max(spreadSize, len);
 		}
@@ -318,34 +326,33 @@ actionFns = {
 		];
 	},
 	action_set_position: (f, node) => {
-		const movableNodes = node.childrenForFieldName('movable');
-		const movables = movableNodes
-			.map(v=>handleCapture(f, v)).flat();
-		const coordNodes = node.childrenForFieldName('coordinate');
-		const coords = coordNodes
-			.map(v=>handleCapture(f, v)).flat();
-		if (
-			movables.length > 1
-			&& coords.length > 1
-			&& movables.length !== coords.length
-		) {
-			f.errors = [{
+		const fieldNames = [ 'movable', 'coordinate' ];
+		const fields = {};
+		const fieldCounts = {};
+		let maxSpreadCount = -Infinity;
+		fieldNames.forEach(fieldName=>{
+			const nodes = node.childrenForFieldName(fieldName);
+			const handled = nodes.map(v=>handleCapture(f, v)).flat();
+			fields[fieldName] = handled;
+			fieldCounts[fieldName] = handled.length;
+			maxSpreadCount = Math.max(maxSpreadCount, handled.length);
+		});
+		const lengthsMismatched = Object.values(fieldCounts)
+			.some(n=>n !== 1 && n !== maxSpreadCount);
+		if (lengthsMismatched) {
+			f.errors.push({
 				message: `spreads inside this action must contain same number of items`,
-				locations: [{
-					node: node, 
-					fileName: f.fileName,
-				}],
-			}];
+				locations: [{ node: node, fileName: f.fileName }],
+			});
 		}
 		const ret = [];
-		const maxSpreads = Math.max(movables.length, coords.length);
-		for (let i = 0; i < maxSpreads; i++) {
+		for (let i = 0; i < maxSpreadCount; i++) {
 			const insert = {
 				debug: node,
 				fileName: f.fileName,
 			};
-			const movable = movables[i % movables.length];
-			const coord = coords[i % coords.length];
+			const movable = fields.movable[i % fields.movable.length];
+			const coord = fields.coordinate[i % fields.coordinate.length];
 			if (movable.type === 'camera') {
 				if (coord.type === 'geometry') {
 					insert.action = 'TELEPORT_CAMERA_TO_GEOMETRY',
@@ -370,12 +377,12 @@ actionFns = {
 						mathlang: 'math_sequence',
 						steps: [
 							{
-								type: 'copy_values',
+								type: 'copy_entity_value_to_entity_value',
 								copyFrom: { entity: coord.value, field: 'x' },
 								copyTo: { entity: movable.value, field: 'x' }
 							},
 							{
-								type: 'copy_values',
+								type: 'copy_entity_value_to_entity_value',
 								copyFrom: { entity: coord.value, field: 'y' },
 								copyTo: { entity: movable.value, field: 'y' }
 							},
@@ -384,7 +391,10 @@ actionFns = {
 					continue;
 				}
 			}
-			throw new Error("unreachable?");
+			f.errors.push({
+				message: 'incompatible combination of movable identifier and position identifier',
+				locations: [{ node, fileName: f.fileName }]
+			})
 		}
 		return ret;
 	}
@@ -513,10 +523,7 @@ const nodeFns = {
 	ERROR: (f, node) => {
 		f.errors.push({
 			message: 'syntax error',
-			locations: [{
-				node: node, 
-				fileName: f.fileName,
-			}],
+			locations: [{ node: node, fileName: f.fileName }],
 		})
 		return [];
 	},
@@ -543,10 +550,7 @@ const nodeFns = {
 		if (f.constants[labelNode]) {
 			f.errors.push({
 				message: `cannot redefine constant ${ret.label}`,
-				locations: [{
-					node: node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node: node, fileName: f.fileName }],
 			});
 		}
 		f.constants[label] = {
@@ -597,13 +601,10 @@ const nodeFns = {
 				if (len === 1) return;
 				if (multipleCount === -Infinity) multipleCount = len;
 				if (multipleCount !== len) {
-					f.errors = [{
+					f.errors.push({
 						message: `spreads inside rand!() must contain same number of items`,
-						locations: [{
-							node: node, 
-							fileName: f.fileName,
-						}],
-					}];
+						locations: [{ node: node, fileName: f.fileName }],
+					});
 				}
 			})
 		const vertical = [];
@@ -650,10 +651,7 @@ const nodeFns = {
 			if (!targetNode) {
 				f.errors.push({
 					message: `dialog_settings_target: malformed label definition`,
-					locations: [{
-						node, 
-						fileName: f.fileName,
-					}],
+					locations: [{ node, fileName: f.fileName }],
 				})
 			}
 			const target = targetNode.text || 'UNDEFINED LABEL';
@@ -663,10 +661,7 @@ const nodeFns = {
 			if (!targetNode) {
 				f.errors.push({
 					message: `dialog_settings_target: malformed entity definition`,
-					locations: [{
-						node, 
-						fileName: f.fileName,
-					}],
+					locations: [{ node, fileName: f.fileName }],
 				})
 			}
 			const target = targetNode.text || 'UNDEFINED ENTITY';
@@ -694,10 +689,7 @@ const nodeFns = {
 		if (!propNode || !valueNode) {
 			f.errors.push({
 				message: `malformed dialog parameter`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			});
 			return [];
 		}
@@ -729,10 +721,7 @@ const nodeFns = {
 		if (!propNode || !valueNode) {
 			f.errors.push({
 				message: `malformed serial_dialog parameter`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			});
 			return [];
 		}
@@ -751,10 +740,7 @@ const nodeFns = {
 		if (!optionNode || !labelNode || !scriptNode) {
 			f.errors.push({
 				message: `malformed serial_dialog option`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			});
 			return [];
 		}
@@ -776,10 +762,7 @@ const nodeFns = {
 		if (!labelNode || !scriptNode) {
 			f.errors.push({
 				message: `malformed dialog option`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			});
 			return [];
 		}
@@ -887,10 +870,7 @@ const nodeFns = {
 				: 'MALFORMED ENTITY IDENTIFIER';
 			f.errors.push({
 				message: `dialog identifier lacks a value`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			});
 		}
 		return [{
@@ -911,10 +891,7 @@ const nodeFns = {
 		} catch {
 			f.errors.push({
 				message: `JSON syntax error`,
-				locations: [{
-					node, 
-					fileName: f.fileName,
-				}],
+				locations: [{ node, fileName: f.fileName }],
 			})
 		}
 		return [{
@@ -939,10 +916,7 @@ const nodeFns = {
 			if (!valueNode) {
 				f.errors.push({
 					message: 'undefined entity in entity identifier',
-					locations: [{
-						node,
-						fileName: f.fileName,
-					}],
+					locations: [{ node, fileName: f.fileName }],
 				});
 				entity = 'UNDEFINED ENTITY';
 			} else {
@@ -1186,7 +1160,6 @@ const mergeF = (f1, f2) => {
 		if (f1.constants[constantName]) {
 			f.errors.push({
 				message: `cannot redefine constant ${constantName} (via 'include_macro')`,
-				fileName: f2.fileName,
 				locations: [{
 					node: f2.constants[constantName].node, 
 					fileName: f2.fileName,
@@ -1250,10 +1223,33 @@ const finalizeActions = (p, rawActions) => {
 			addDialog(p, node);
 		} else if (node.mathlang === 'serial_dialog_definition') {
 			addSerialDialog(p, node);
+		} else if (node.mathlang === 'math_sequence') {
+			node.steps
+				.map(step=>mathSequence[step.type](p, step))
+				.forEach(v=>actions.push(v));
 		}
 	})
 	return actions;
 };
+const mathSequence = {
+	copy_entity_value_to_entity_value: (p, step) => {
+		const ret = [];
+		const variable = '__TEMP';
+		ret.push({
+			action: 'COPY_VARIABLE', inbound: true,
+			...step.copyFrom, variable,
+			mathlang: 'math_sequence',
+			step,
+		});
+		ret.push({
+			action: 'COPY_VARIABLE', inbound: false,
+			...step.copyTo, variable,
+			mathlang: 'math_sequence',
+			step,
+		});
+		return ret;
+	}
+}
 
 const addDialog = (p, node, fileName) => {
 	const dialogName = node.dialogName;
@@ -1284,7 +1280,7 @@ const addSerialDialog = (p, node, fileName) => {
 const addScript = (p, node, fileName) => {
 	const scriptName = node.scriptName;
 	debugLog(`Finalizing script "${scriptName}" in file ${fileName}`);
-	const actions = finalizeActions(p, node.actions);
+	const actions = finalizeActions(p, node.actions).flat();
 	const data = {
 		fileName,
 		node: node,
@@ -1431,10 +1427,7 @@ const reportAnyMissingChildren = (f, node) => {
 	missingNodes.forEach(missingChild=>{
 		f.errors.push({
 			message: `missing token: ${missingChild.type}`,
-			locations: [{
-				node: missingChild, 
-				fileName: f.fileName,
-			}],
+			locations: [{ node: missingChild, fileName: f.fileName }],
 		});
 	});
 	return missingNodes;
@@ -1444,10 +1437,7 @@ const reportAnyErrors = (f, node) => {
 	errorNodes.forEach(errorNode=>{
 		f.errors.push({
 			message: 'syntax error',
-			locations: [{
-				node: errorNode, 
-				fileName: f.fileName,
-			}],
+			locations: [{ node: errorNode, fileName: f.fileName }],
 		})
 	})
 	return errorNodes;

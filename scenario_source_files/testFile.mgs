@@ -35,5 +35,7 @@ script __ {
 	// 	"WOOT"
 	// };
 	camera = entity Bob position;
+	camera = geometry stick;
+	player position = geometry hidingPlace;
 	entity Bob position = player position;
 }

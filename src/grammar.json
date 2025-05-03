@@ -3531,7 +3531,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "polygon",
+              "name": "polygon_type",
               "content": {
                 "type": "SYMBOL",
                 "name": "origin"
@@ -3556,7 +3556,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "polygon",
+              "name": "polygon_type",
               "content": {
                 "type": "SYMBOL",
                 "name": "length"
@@ -3591,6 +3591,43 @@
               ]
             }
           ]
+        }
+      ]
+    },
+    "action_move_over_time": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "movable",
+          "content": {
+            "type": "SYMBOL",
+            "name": "movable_identifier_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        },
+        {
+          "type": "FIELD",
+          "name": "coordinate",
+          "content": {
+            "type": "SYMBOL",
+            "name": "coordinate_identifier_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "polygon_and_duration",
+          "content": {
+            "type": "SYMBOL",
+            "name": "polygon_and_duration"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ";"
         }
       ]
     },
