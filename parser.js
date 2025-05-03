@@ -1,9 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
+const { reportAnyMissingChildren, reportAnyErrors } = require('./parser-utilities/general.js');
+const { makeProjectState } = require('./parser-utilities/project-state.js');
+const { makeFileState } = require('./parser-utilities/file-state.js');
+const {
+	buildSerialDialogFromInfo,
+	buildDialogFromInfo,
+	ansiTags,
+} = require('./parser-utilities/dialog-handling.js');
 
-let verbose = true;
+let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
 /* ------------------------------- CAPTURE HANDLING ------------------------------- */
@@ -20,10 +28,10 @@ const handleCapture = (f, node) => {
 	if (parseAs === 'CONSTANT') {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
-			f.errors.push({
-				message: `Constant ${node.text} is undefined`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`Constant ${node.text} is undefined`,
+			);
 		}
 		return lookup?.value || node.text;
 	}
@@ -237,10 +245,10 @@ const handleAction = (f, node) => {
 		const len = captureData.captures.length;
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
-			f.errors.push({
-				message: `spreads must have the same count of items within a given action`,
-				locations: [{ node: captureData.node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node: captureData.node },
+				`spreads must have the same count of items within a given action`,
+			);
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
@@ -340,10 +348,10 @@ actionFns = {
 		const lengthsMismatched = Object.values(fieldCounts)
 			.some(n=>n !== 1 && n !== maxSpreadCount);
 		if (lengthsMismatched) {
-			f.errors.push({
-				message: `spreads inside this action must contain same number of items`,
-				locations: [{ node: node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`spreads inside this action must contain same number of items`,
+			);
 		}
 		const ret = [];
 		for (let i = 0; i < maxSpreadCount; i++) {
@@ -391,10 +399,10 @@ actionFns = {
 					continue;
 				}
 			}
-			f.errors.push({
-				message: 'incompatible combination of movable identifier and position identifier',
-				locations: [{ node, fileName: f.fileName }]
-			})
+			f.newError(
+				{ node },
+				'incompatible combination of movable identifier and position identifier',
+			);
 		}
 		return ret;
 	}
@@ -521,10 +529,10 @@ const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
-		f.errors.push({
-			message: 'syntax error',
-			locations: [{ node: node, fileName: f.fileName }],
-		})
+		f.newError(
+			{ node },
+			'syntax error',
+		);
 		return [];
 	},
 	script_definition: (f, node) => {
@@ -548,10 +556,10 @@ const nodeFns = {
 		const value = handleCapture(f, valueNode);
 		f.constants = f.constants || {};
 		if (f.constants[labelNode]) {
-			f.errors.push({
-				message: `cannot redefine constant ${ret.label}`,
-				locations: [{ node: node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`cannot redefine constant ${ret.label}`,
+			);
 		}
 		f.constants[label] = {
 			value,
@@ -580,7 +588,7 @@ const nodeFns = {
 				debugLog(`include_macro: prerequesite "${prereq}" already parsed`);
 			}
 			debugLog(`include_macro: merging ${prereq} into ${f.fileName}...`);
-			f = mergeF(f, fileMap[prereq].parsed);
+			f.mergeF(fileMap[prereq].parsed);
 		});
 		return [{
 			mathlang: 'include_macro',
@@ -601,10 +609,10 @@ const nodeFns = {
 				if (len === 1) return;
 				if (multipleCount === -Infinity) multipleCount = len;
 				if (multipleCount !== len) {
-					f.errors.push({
-						message: `spreads inside rand!() must contain same number of items`,
-						locations: [{ node: node, fileName: f.fileName }],
-					});
+					f.newError(
+						{ node },
+						`spreads inside rand!() must contain same number of items`,
+					);
 				}
 			})
 		const vertical = [];
@@ -649,20 +657,20 @@ const nodeFns = {
 			bucket = f.settings.default;
 		} else if (type === 'target_label') {
 			if (!targetNode) {
-				f.errors.push({
-					message: `dialog_settings_target: malformed label definition`,
-					locations: [{ node, fileName: f.fileName }],
-				})
+				f.newError(
+					{ node },
+					`dialog_settings_target: malformed label definition`,
+				);
 			}
 			const target = targetNode.text || 'UNDEFINED LABEL';
 			f.settings.label[target] = f.settings.label[target] || {};
 			bucket = f.settings.label[target];
 		} else if (type === 'target_entity') {
 			if (!targetNode) {
-				f.errors.push({
-					message: `dialog_settings_target: malformed entity definition`,
-					locations: [{ node, fileName: f.fileName }],
-				})
+				f.newError(
+					{ node },
+					`dialog_settings_target: malformed entity definition`,
+				);
 			}
 			const target = targetNode.text || 'UNDEFINED ENTITY';
 			f.settings.label[target] = f.settings.label[target] || {};
@@ -687,10 +695,10 @@ const nodeFns = {
 		const propNode = node.childForFieldName('property');
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
-			f.errors.push({
-				message: `malformed dialog parameter`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`malformed dialog parameter`,
+			);
 			return [];
 		}
 		return [{
@@ -719,10 +727,10 @@ const nodeFns = {
 		const propNode = node.childForFieldName('property');
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
-			f.errors.push({
-				message: `malformed serial_dialog parameter`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`malformed serial_dialog parameter`,
+			);
 			return [];
 		}
 		return [{
@@ -738,10 +746,10 @@ const nodeFns = {
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
 		if (!optionNode || !labelNode || !scriptNode) {
-			f.errors.push({
-				message: `malformed serial_dialog option`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`malformed serial_dialog option`,
+			);
 			return [];
 		}
 		let optionType = null;
@@ -760,10 +768,10 @@ const nodeFns = {
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
 		if (!labelNode || !scriptNode) {
-			f.errors.push({
-				message: `malformed dialog option`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`malformed dialog option`,
+			);
 			return [];
 		}
 		return [{
@@ -868,10 +876,10 @@ const nodeFns = {
 			value = valueNode
 				? handleCapture(f, valueNode)
 				: 'MALFORMED ENTITY IDENTIFIER';
-			f.errors.push({
-				message: `dialog identifier lacks a value`,
-				locations: [{ node, fileName: f.fileName }],
-			});
+			f.newError(
+				{ node },
+				`dialog identifier lacks a value`,
+			);
 		}
 		return [{
 			mathlang: 'dialog_identifier',
@@ -889,10 +897,10 @@ const nodeFns = {
 		try {
 			parsed = JSON.parse(text);
 		} catch {
-			f.errors.push({
-				message: `JSON syntax error`,
-				locations: [{ node, fileName: f.fileName }],
-			})
+			f.newError(
+				{ node },
+				`JSON syntax error`,
+			);
 		}
 		return [{
 			mathlang: 'json_literal',
@@ -914,10 +922,10 @@ const nodeFns = {
 		} else {
 			const valueNode = node.childForFieldName('entity');
 			if (!valueNode) {
-				f.errors.push({
-					message: 'undefined entity in entity identifier',
-					locations: [{ node, fileName: f.fileName }],
-				});
+				f.newError(
+					{ node },
+					`undefined entity in entity identifier`,
+				);
 				entity = 'UNDEFINED ENTITY';
 			} else {
 				entity = handleCapture(f, valueNode);
@@ -932,197 +940,6 @@ const nodeFns = {
 		}]
 	},
 };
-/* ------------------------------- DIALOG HANDLING ------------------------------- */
-
-const countCharLength = str => {
-	let length = 0;
-	let remainder = str;
-	while (remainder.length) {
-		const percent = remainder.match(/^%.*%/);
-		if (percent) {
-			length += 12;
-			remainder = remainder.slice(percent[0].length);
-			continue;
-		}
-		const dollar = remainder.match(/^\$.*\$/);
-		if (dollar) {
-			length += 5;
-			remainder = remainder.slice(dollar[0].length);
-			continue;
-		}
-		const esc = remainder.match(/^\\./);
-		if (esc) {
-			length += 1;
-			remainder = remainder.slice(2);
-			continue;
-		}
-		const canPrint = remainder.match(/^[-!"#$%&'()*+,./0-9:;<>=?@A-Z\[\]\\^_`a-z{}|~]+/);
-		if (canPrint) {
-			length += 1;
-			remainder = remainder.slice(1);
-			continue;
-		}
-		length += 0;
-		remainder = remainder.slice(1);
-	}
-	return length;
-};
-const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
-	// // TODO: hyphenated words?
-	let str = origStr
-		.replace(/[“”]/g, '"')
-		.replace(/[‘’]/g, "'")
-		.replace(/…/g, "...")
-		.replace(/\t/g, "    ")
-		.replace(/—/g, "--") // emdash
-		.replace(/–/g, "-"); // endash
-	const result = [];
-	str.split('\n').forEach(line => {
-		const chunkRegExp = new RegExp(/(?<spaces>[ ]*|^)(?<word>[^ ]+|$)/g);
-		let insert = '';
-		let insertLength = 0;
-		let chunk = chunkRegExp.exec(line);
-		while (chunk[0] !== '') {
-			const { spaces, word } = chunk.groups;
-			const spacesLength = spaces.length;
-			const wordLength = countCharLength(word);
-			const potentialLength = insertLength + wordLength + spacesLength;
-			if (
-				potentialLength <= wrap
-				|| insert === ''
-			) {
-				insert += spaces + word;
-				insertLength += wordLength + spacesLength;
-			} else {
-				result.push(insert);
-				insertLength = wordLength;
-				insert = word;
-			}
-			chunk = chunkRegExp.exec(line);
-		}
-		result.push(insert);
-	});
-	const bodged = doAnsiWrapBodge ? ansiWrapBodge(result) : result;
-	return bodged.join('\n');
-};
-// Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
-const ansiTags = {
-	// styles
-	'bold': '\u001B[1m', // aka bright
-	'dim': '\u001B[2m', // aka dim
-	'/': '\u001B[0m', 'reset': '\u001B[0m', // reset all styles
-	// fg colors
-	'k': '\u001B[30m', 'black': '\u001B[30m',
-	'r': '\u001B[31m', 'red': '\u001B[31m',
-	'g': '\u001B[32m', 'green': '\u001B[32m',
-	'y': '\u001B[33m', 'yellow': '\u001B[33m',
-	'b': '\u001B[34m', 'blue': '\u001B[34m',
-	'm': '\u001B[35m', 'magenta': '\u001B[35m',
-	'c': '\u001B[36m', 'cyan': '\u001B[36m',
-	'w': '\u001B[37m', 'white': '\u001B[37m',
-	// bg colors
-	'bg-k': '\u001B[40m', 'bg-black': '\u001B[40m',
-	'bg-r': '\u001B[41m', 'bg-red': '\u001B[41m',
-	'bg-g': '\u001B[42m', 'bg-green': '\u001B[42m',
-	'bg-y': '\u001B[43m', 'bg-yellow': '\u001B[43m',
-	'bg-b': '\u001B[44m', 'bg-blue': '\u001B[44m',
-	'bg-m': '\u001B[45m', 'bg-magenta': '\u001B[45m',
-	'bg-c': '\u001B[46m', 'bg-cyan': '\u001B[46m',
-	'bg-w': '\u001B[47m', 'bg-white': '\u001B[47m',
-	// non-color-related
-	'bell': '',
-};
-const tagsToAnsiEscapes = str => {
-	let ret = str;
-	Object.entries(ansiTags).forEach(([k,v])=>{
-		// TODO: what if you want to actually print <r>?
-		// Do this again but ignoring escaped chars
-		ret = ret.replaceAll(`<${k}>`, v);
-	});
-	return ret;
-};
-
-// This is for the web build, which does not carry over ansi styleswhen things are wrapped
-const ansiWrapBodge = arr => {
-	let wrappedTags = new Set ();
-	const bodged = arr.map(line=>{
-		let prevTags = wrappedTags.size ? [...wrappedTags].join('') : '';
-		let pos = 0;
-		while (pos < line.length) {
-			if (line[pos] !== '\u001B') {
-				pos += 1;
-				continue;
-			}
-			if (line.slice(pos+1).startsWith('[0m')) {
-				wrappedTags = new Set();
-				pos += 4;
-				continue;
-			}
-			const tag = line[pos] + line.slice(pos+1).match(/\[\d+m/);
-			wrappedTags.add(tag);
-			pos += tag.length;
-			continue;
-		}
-		return prevTags + line;
-	});
-	return bodged;
-};
-const buildSerialDialogFromInfo = (f, info) => {
-	const serialDialog = {
-		wrap: 80,
-		...f.settings.serial || {}, // global settings
-		...info.settings, // local settings
-	};
-	serialDialog.messages = info.messages
-		.map(tagsToAnsiEscapes)
-		.map(message=>wrapText(message, serialDialog.wrap, true));
-	if (info.options.length > 0) {
-		const firstOptionType = info.options[0].optionType;
-		serialDialog[firstOptionType] = info.options;
-		const warnLocations = [];
-		info.options.forEach(option=>{
-			if (option.optionType !== firstOptionType) {
-				warnLocations.push({
-					node: option.debug.firstChild,
-					fileName: f.fileName,
-				});
-			}
-		});
-		if (warnLocations.length > 0) {
-			f.warnings.push({
-				message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
-				locations: warnLocations,
-			});
-		}
-	}
-	return serialDialog;
-};
-const buildDialogFromInfo = (f, info) => {
-	const ident = info.identifier;
-	let specificSettings = {};
-	if (ident.type === 'label') {
-		specificSettings = f.settings.label[ident.value] || {};
-	} else if (ident.type === 'entity') {
-		specificSettings = f.settings.entity[ident.value] || {};
-	}
-	const dialog = {
-		wrap: 42,
-		alignment: 'BOTTOM_LEFT',
-		...f.settings.default, // global default settings
-		...specificSettings, // global specific settings
-		...info.settings, // local specific settings
-	};
-	// this needs to be outside to get the actual wrap value:
-	dialog.messages = info.messages
-		.map(message=>wrapText(message, dialog.wrap));
-	if (info.options.length > 0) {
-		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
-		dialog.options = info.options;
-	}
-	// TODO: warn if messages are more than 5 lines
-	return dialog;
-};
-
 
 /* ------------------------------- FILE HANDLING ------------------------------- */
 
@@ -1155,56 +972,10 @@ const makeMap = path => {
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const mergeF = (f1, f2) => {
-	Object.keys(f2.constants).forEach(constantName=>{
-		if (f1.constants[constantName]) {
-			f.errors.push({
-				message: `cannot redefine constant ${constantName} (via 'include_macro')`,
-				locations: [{
-					node: f2.constants[constantName].node, 
-					fileName: f2.fileName,
-				}],
-			})
-		}
-		f1.constants[constantName] = f2.constants[constantName];
-	});
-	f2.nodes.forEach(node=>{ f1.nodes.push(node) });
-	['default', 'serial'].forEach(type=>{
-		const params = Object.keys(f2.settings[type]);
-		params.forEach(param=>{
-			f1.settings[type][param] = f2.settings[type][param];
-		});
-	});
-	['entity', 'label'].forEach(type=>{
-		const targets = Object.keys(f2.settings[type]);
-		targets.forEach(target=>{
-			const params = Object.keys(f2.settings[type][target]);
-			f1.settings[type][target] = f1.settings[type][target] || {};
-			params.forEach(param=>{
-				f1.settings[type][target][param] = f2.settings[type][target][param];
-			});
-		});
-	});
-	return f1;
-};
-
 const parseFile = (fileName, parser) => {
 	const tree = parser.parse(fileMap[fileName].text);
 	let document = tree.rootNode;
-	const f = {
-		fileName,
-		constants: {},
-		settings: {
-			default: {},
-			entity: {},
-			label: {},
-			serial: {},
-		},
-		errors: [],
-		warnings: [],
-		nodes: [],
-		parser,
-	}
+	const f = makeFileState(fileName, parser);
 	const nodes = document.namedChildren
 		.map(node=>handleNode(f, node))
 		.flat();
@@ -1214,87 +985,6 @@ const parseFile = (fileName, parser) => {
 };
 
 /* ------------------------------- THE ACTUAL OWL ------------------------------- */
-const finalizeActions = (p, rawActions) => {
-	const actions = [];
-	rawActions.forEach(node=>{
-		if (!node.mathlang) {
-			actions.push(node);
-		} else if (node.mathlang === 'dialog_definition') {
-			addDialog(p, node);
-		} else if (node.mathlang === 'serial_dialog_definition') {
-			addSerialDialog(p, node);
-		} else if (node.mathlang === 'math_sequence') {
-			node.steps
-				.map(step=>mathSequence[step.type](p, step))
-				.forEach(v=>actions.push(v));
-		}
-	})
-	return actions;
-};
-const mathSequence = {
-	copy_entity_value_to_entity_value: (p, step) => {
-		const ret = [];
-		const variable = '__TEMP';
-		ret.push({
-			action: 'COPY_VARIABLE', inbound: true,
-			...step.copyFrom, variable,
-			mathlang: 'math_sequence',
-			step,
-		});
-		ret.push({
-			action: 'COPY_VARIABLE', inbound: false,
-			...step.copyTo, variable,
-			mathlang: 'math_sequence',
-			step,
-		});
-		return ret;
-	}
-}
-
-const addDialog = (p, node, fileName) => {
-	const dialogName = node.dialogName;
-	debugLog(`Finalizing dialog "${dialogName}" in file ${fileName}`);
-	const data = node;
-	if (!p.dialogs[dialogName]) {
-		p.dialogs[dialogName] = data;
-	} else {
-		if (!p.dialogs[dialogName].duplicates) {
-			p.dialogs[dialogName].duplicates = [ p.dialogs[dialogName] ];
-		}
-		p.dialogs[dialogName].duplicates.push(data);
-	}
-};
-const addSerialDialog = (p, node, fileName) => {
-	const serialDialogName = node.serialDialogName;
-	debugLog(`Finalizing serial dialog "${serialDialogName}" in file ${fileName}`);
-	const data = node;
-	if (!p.dialogs[serialDialogName]) {
-		p.dialogs[serialDialogName] = data;
-	} else {
-		if (!p.dialogs[serialDialogName].duplicates) {
-			p.dialogs[serialDialogName].duplicates = [ p.dialogs[serialDialogName] ];
-		}
-		p.dialogs[serialDialogName].duplicates.push(data);
-	}
-};
-const addScript = (p, node, fileName) => {
-	const scriptName = node.scriptName;
-	debugLog(`Finalizing script "${scriptName}" in file ${fileName}`);
-	const actions = finalizeActions(p, node.actions).flat();
-	const data = {
-		fileName,
-		node: node,
-		actions,
-	};
-	if (!p.scripts[scriptName]) {
-		p.scripts[scriptName] = data;
-	} else {
-		if (!p.scripts[scriptName].duplicates) {
-			p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
-		}
-		p.scripts[scriptName].duplicates.push(data);
-	}
-};
 
 (async () => {
 	await Parser.init();
@@ -1308,13 +998,7 @@ const addScript = (p, node, fileName) => {
 			parseFile(fileName, parser);
 		}
 	});
-	const p = { // 'project' :P
-		serialDialogs: {},
-		dialogs: {},
-		scripts: {},
-		errors: [],
-		warnings: [],
-	};
+	const p = makeProjectState();
 	Object.keys(fileMap).forEach(fileName=>{
 		let errorCount = 0;
 		let warningCount = 0;
@@ -1328,11 +1012,11 @@ const addScript = (p, node, fileName) => {
 		})
 		fileMap[fileName].parsed.nodes.forEach(node=>{
 			if (node.mathlang === 'script_definition') {
-				addScript(p, node, fileName);
+				p.addScript(node, fileName);
 			} else if (node.mathlang === 'dialog_definition') {
-				addDialog(p, node, fileName);
+				p.addDialog(node, fileName);
 			} else if (node.mathlang === 'serial_dialog_definition') {
-				addSerialDialog(p, node, fileName);
+				p.addSerialDialog(node, fileName);
 			}
 		})
 		if (verbose) {
@@ -1355,92 +1039,11 @@ const addScript = (p, node, fileName) => {
 			console.log(message);
 		}
 	})
-	Object.entries(p.scripts).forEach(([scriptName, script])=>{
-		if (script.duplicates) {
-			p.errors.push({
-				message: `multiple scripts with name "${scriptName}"`,
-				locations: script.duplicates.map(dupe=>{
-					return {
-						fileName: dupe.fileName,
-						node: dupe.node.debug.firstNamedChild,
-					}
-				}),
-			});
-		}
-	});
-	Object.entries(p.dialogs).forEach(([dialogName, dialog])=>{
-		if (dialog.duplicates) {
-			p.errors.push({
-				message: `multiple dialogs with name "${dialogName}"`,
-				locations: dialog.duplicates.map(dupe=>{
-					return {
-						fileName: dupe.fileName,
-						node: dupe.debug.firstNamedChild,
-					}
-				}),
-			});
-		}
-	});
-	Object.entries(p.serialDialogs).forEach(([serialDialogName, serialDialog])=>{
-		if (serialDialog.duplicates) {
-			p.errors.push({
-				message: `multiple serial dialogs with name "${serialDialogName}"`,
-				locations: serialDialog.duplicates.map(dupe=>{
-					return {
-						fileName: dupe.fileName,
-						node: dupe.debug.firstNamedChild,
-					}
-				}),
-			});
-		}
-	});
-	p.errors.forEach(error=>{
-		console.error(`\nError: ${error.message}`);
-		error.locations.forEach(location=>{
-			console.error(getPrintableLocationData(location));
-		})
-	});
-	p.warnings.forEach(warning=>{
-		console.warn(`\n${ansiTags.y}Warning: ${warning.message}`);
-		warning.locations.forEach(location=>{
-			console.error(ansiTags.y + getPrintableLocationData(location) + ansiTags.reset);
-		});
-	});
-	console.log("ASYNC WHY ARE YOU LIKE THIS");
+	// finalize
+	p.detectDuplicates('scripts');
+	p.detectDuplicates('dialogs');
+	p.detectDuplicates('serialDialogs');
+	p.printMessages(fileMap, 'warnings');
+	p.printMessages(fileMap, 'errors');
+	console.log("DONE");
 })();
-
-const getPrintableLocationData = (location) => {
-	const fileName = location.fileName;
-	const allLines = fileMap[fileName].text.split('\n');
-	let row = location.node.startPosition.row;
-	let col = location.node.startPosition.column;
-	const line = allLines[row].replaceAll('\t', ' ');
-	const arrow = '~'.repeat(col) + '^';
-	const message
-		= `╓-${fileName} ${row}:${col}\n`
-		+ '║ ' + `${line}\n`
-		+ '╙~' + arrow;
-	return message;
-};
-const reportAnyMissingChildren = (f, node) => {
-	const missingNodes = node.children.filter(child=>child.isMissing);
-	missingNodes.forEach(missingChild=>{
-		f.errors.push({
-			message: `missing token: ${missingChild.type}`,
-			locations: [{ node: missingChild, fileName: f.fileName }],
-		});
-	});
-	return missingNodes;
-};
-const reportAnyErrors = (f, node) => {
-	const errorNodes = node.namedChildren.filter(child=>child.type === 'ERROR');
-	errorNodes.forEach(errorNode=>{
-		f.errors.push({
-			message: 'syntax error',
-			locations: [{ node: errorNode, fileName: f.fileName }],
-		})
-	})
-	return errorNodes;
-};
-
-console.log("WHY IS THIS BEFORE THE ASYNC");
