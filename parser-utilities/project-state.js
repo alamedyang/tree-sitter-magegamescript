@@ -1,3 +1,5 @@
+const { makeMessagePrintable } = require('./general.js');
+
 const makeProjectState = () => {
 	const p = { // 'project' :P
 		serialDialogs: {},
@@ -6,14 +8,10 @@ const makeProjectState = () => {
 		errors: [],
 		warnings: [],
 	};
-	p.addScript = (node, fileName) => {
-		const scriptName = node.scriptName;
-		const actions = finalizeActions(p, node.actions, fileName);
-		const data = {
-			fileName,
-			node,
-			actions,
-		};
+	p.addScript = (data, fileName) => {
+		const scriptName = data.scriptName;
+		data.rawActions = data.actions;
+		data.actions = finalizeActions(p, data.actions, fileName);
 		if (!p.scripts[scriptName]) {
 			p.scripts[scriptName] = data;
 		} else {
@@ -23,9 +21,8 @@ const makeProjectState = () => {
 			p.scripts[scriptName].duplicates.push(data);
 		}
 	}
-	p.addDialog = (node, fileName) => {
-		const dialogName = node.dialogName;
-		const data = node;
+	p.addDialog = (data, fileName) => {
+		const dialogName = data.dialogName;
 		if (!p.dialogs[dialogName]) {
 			p.dialogs[dialogName] = data;
 		} else {
@@ -35,9 +32,8 @@ const makeProjectState = () => {
 			p.dialogs[dialogName].duplicates.push(data);
 		}
 	};
-	p.addSerialDialog = (node, fileName) => {
-		const serialDialogName = node.serialDialogName;
-		const data = node;
+	p.addSerialDialog = (data, fileName) => {
+		const serialDialogName = data.serialDialogName;
 		if (!p.dialogs[serialDialogName]) {
 			p.dialogs[serialDialogName] = data;
 		} else {
@@ -47,49 +43,34 @@ const makeProjectState = () => {
 			p.dialogs[serialDialogName].duplicates.push(data);
 		}
 	};
-	p.detectDuplicates = (type) => {
-		Object.entries(p[type]).forEach(([k, v])=>{
-			if (v.duplicates) {
-				p.errors.push({
-					locations: v.duplicates.map(dupe=>({
-						fileName: dupe.fileName,
-						// TODO: work this part out better
-						node: type === 'scripts'
-							? dupe.node.debug.firstNamedChild
-							: dupe.debug.firstNamedChild,
-					})),
-					message: `multiple ${type} with name "${k}"`,
-				});
-			}
+	p.detectDuplicates = () => {
+		[ 'scripts', 'dialogs', 'serialDialogs' ].forEach(category=>{
+			const entries = Object.entries(p[category]);
+			entries.forEach(([name, entry])=>{
+				if (entry.duplicates) {
+					p.errors.push({
+						locations: entry.duplicates.map(dupe=>({
+							fileName: dupe.fileName,
+							// TODO: work this part out better
+							node: dupe.debug.firstNamedChild,
+						})),
+						message: `multiple ${category} with name "${name}"`,
+					});
+				}
+			});
 		});
 	};
-	p.printMessages = (fileMap, type) => {
-		p[type].forEach(thing=>{
-			let printFn = console.log;
-			if (type === 'warnings') printFn = console.warn;
-			if (type === 'errors') printFn = console.error;
-			printFn(`\nError: ${thing.message}`);
-			thing.locations.forEach(location=>{
-				const locationData = getPrintableLocationData(fileMap, location);
-				printFn(locationData);
-			})
-		});
+	p.reportProblems = (fileMap) => {
+		p.warnings.forEach(v=>{
+			const s = makeMessagePrintable(fileMap, 'Warning', v);
+			console.warn(s);
+		})
+		p.errors.forEach(v=>{
+			const s = makeMessagePrintable(fileMap, 'Error', v);
+			console.error(s);
+		})
 	};
 	return p;
-};
-
-const getPrintableLocationData = (fileMap, location) => {
-	const fileName = location.fileName;
-	const allLines = fileMap[fileName].text.split('\n');
-	let row = location.node.startPosition.row;
-	let col = location.node.startPosition.column;
-	const line = allLines[row].replaceAll('\t', ' ');
-	const arrow = '~'.repeat(col) + '^';
-	const message
-		= `╓-${fileName} ${row}:${col}\n`
-		+ '║ ' + `${line}\n`
-		+ '╙~' + arrow;
-	return message;
 };
 
 const mathSequence = {

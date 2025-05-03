@@ -14,7 +14,7 @@ const makeFileState = (fileName, parser) => {
 		nodes: [],
 		parser,
 	};
-	const doMessage = (location, message, type) => {
+	const newWarningOrError = (location, message, type) => {
 		const locations = Array.isArray(location)
 			? location
 			: [ location ];
@@ -23,8 +23,8 @@ const makeFileState = (fileName, parser) => {
 		})
 		f[type].push({ message, locations });
 	}
-	f.newWarning = (location, message) => doMessage(location, message, 'warnings');
-	f.newError = (location, message) => doMessage(location, message, 'errors');
+	f.newWarning = (location, message) => newWarningOrError(location, message, 'warnings');
+	f.newError = (location, message) => newWarningOrError(location, message, 'errors');
 	f.mergeF = (newF) => {
 		Object.keys(newF.constants).forEach(constantName=>{
 			if (f.constants[constantName]) {

@@ -2,9 +2,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
-const { reportAnyMissingChildren, reportAnyErrors } = require('./parser-utilities/general.js');
+
+const {
+	reportMissingChildNodes,
+	reportErrorNodes,
+} = require('./parser-utilities/general.js');
+
 const { makeProjectState } = require('./parser-utilities/project-state.js');
+
 const { makeFileState } = require('./parser-utilities/file-state.js');
+
 const {
 	buildSerialDialogFromInfo,
 	buildDialogFromInfo,
@@ -18,8 +25,8 @@ const debugLog = (message) => { if (verbose) console.log(message); };
 
 const handleCapture = (f, node) => {
 	debugLog(`-->> Capturing: ${node.grammarType}`);
-	reportAnyErrors(f, node);
-	reportAnyMissingChildren(f, node);
+	reportErrorNodes(f, node);
+	reportMissingChildNodes(f, node);
 	const parseAs = node.grammarType;
 	// expansions cannot be recursive, so this is fine
 	if (node.grammarType.endsWith('_expansion')) {
@@ -513,8 +520,8 @@ actionData = {
 /* ------------------------------- NODE HANDLING ------------------------------- */
 
 const handleNode = (f, node) => {
-	reportAnyMissingChildren(f, node);
-	reportAnyErrors(f, node);
+	reportMissingChildNodes(f, node);
+	reportErrorNodes(f, node);
 	debugLog(`handleNode: ${node.grammarType}`)
 	if (node.grammarType.startsWith('action_')) {
 		return handleAction(f, node);
@@ -1040,10 +1047,7 @@ const parseFile = (fileName, parser) => {
 		}
 	})
 	// finalize
-	p.detectDuplicates('scripts');
-	p.detectDuplicates('dialogs');
-	p.detectDuplicates('serialDialogs');
-	p.printMessages(fileMap, 'warnings');
-	p.printMessages(fileMap, 'errors');
+	p.detectDuplicates();
+	p.reportProblems(fileMap);
 	console.log("DONE");
 })();
