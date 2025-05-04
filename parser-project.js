@@ -45,8 +45,16 @@ const makeProjectState = (parser) => {
 		errors: [],
 		warnings: [],
 		parser,
-		newError: (v) => p.errors.push(v),
-		newWarning: (v) => p.warnings.push(v),
+		errorCount: 0,
+		warningCount: 0,
+		newError: (v) => {
+			p.errors.push(v);
+			p.errorCount += 1;
+		},
+		newWarning: (v) => {
+			p.warnings.push(v);
+			p.warningCount += 1;
+		},
 		addScript: (data, fileName) => {
 			const scriptName = data.scriptName;
 			data.rawActions = data.actions;
@@ -87,8 +95,7 @@ const makeProjectState = (parser) => {
 				const entries = Object.entries(p[category]);
 				entries.forEach(([name, entry])=>{
 					if (entry.duplicates) {
-						// TODO: use new error paradigm instead
-						p.errors.push({
+						p.newError({
 							locations: entry.duplicates.map(dupe=>({
 								fileName: dupe.fileName,
 								node: dupe.debug.firstNamedChild,
@@ -100,6 +107,26 @@ const makeProjectState = (parser) => {
 			});
 		},
 		reportProblems: (fileMap) => {
+			const messages = [];
+			if (p.errorCount) {
+				messages.push(
+					`${ansiTags.r}${p.errorCount} error`
+					+ `${p.errorCount === 1 ? '' : 's'}`
+					+ `${ansiTags.reset}`
+				)
+			}
+			if (p.warningCount) {
+				messages.push(
+					`${ansiTags.y}${p.warningCount} warning`
+					+ `${p.warningCount === 1 ? '' : 's'}`
+					+ `${ansiTags.reset}`
+				);
+			}
+			if (messages.length === 0) {
+				console.log("No issues found!");
+			} else {
+				console.log(`Issues found: ${messages.join(', ')}`)
+			}
 			p.warnings.forEach(v=>{
 				const s = ansiTags.y + makeMessagePrintable(fileMap, 'Warning', v) + ansiTags.reset;
 				console.warn(s);

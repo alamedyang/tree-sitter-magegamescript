@@ -1,7 +1,7 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
-const { verbose, debugLog } = require('./parser-utilities.js');
+const { debugLog } = require('./parser-utilities.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
 
@@ -19,7 +19,8 @@ const parseProject = async () => {
 		}
 	});
 	Object.keys(fileMap).forEach(fileName=>{
-		fileMap[fileName].parsed.nodes.forEach(node=>{
+		const f = fileMap[fileName].parsed;
+		f.nodes.forEach(node=>{
 			if (node.mathlang === 'script_definition') {
 				p.addScript(node, fileName);
 			} else if (node.mathlang === 'dialog_definition') {
@@ -28,26 +29,10 @@ const parseProject = async () => {
 				p.addSerialDialog(node, fileName);
 			}
 		})
-		if (verbose) {
-			const { errorCount, warningCount } = f;
-			let message = `${ansiTags.g}File ${fileName} complete!${ansiTags.reset}`;
-			if (errorCount > 0 || warningCount > 0) {
-				const errorMessage = errorCount
-					? `${ansiTags.r}${errorCount} error${errorCount === 1 ? '' : 's'}${ansiTags.reset}`
-					: `0 errors`;
-				const warningMessage = warningCount
-					? `${ansiTags.y}${warningCount} warning${warningCount === 1 ? '' : 's'}${ansiTags.reset}`
-					: `0 warnings`;
-				if (errorCount > 0 && warningCount > 0) {
-					message += ` (${errorMessage}, ${warningMessage})`;
-				} else if (errorCount > 0) {
-					message += ` (${errorMessage})`;
-				} else if (warningCount > 0) {
-					message += ` (${warningMessage})`;
-				}
-			}
-			console.log(message);
-		}
+		debugLog(
+			`File ${ansiTags.c}"${fileName}"${ansiTags.reset} complete! `
+			+ f.printableMessageInformation()
+		);
 	})
 	// finalize
 	p.detectDuplicates();

@@ -1,3 +1,5 @@
+const { ansiTags } = require('./parser-dialogs.js');
+
 const makeFileState = (p, fileName, parser) => {
 	const f = { // file
 		p, // project
@@ -52,6 +54,25 @@ const makeFileState = (p, fileName, parser) => {
 					});
 				});
 			});
+		},
+		printableMessageInformation: () => {
+			const { errorCount, warningCount } = f;
+			if (errorCount > 0 || warningCount > 0) {
+				const errorMessage = errorCount
+					? `${ansiTags.r}${errorCount} error${errorCount === 1 ? '' : 's'}${ansiTags.reset}`
+					: `0 errors`;
+				const warningMessage = warningCount
+					? `${ansiTags.y}${warningCount} warning${warningCount === 1 ? '' : 's'}${ansiTags.reset}`
+					: `0 warnings`;
+				if (errorCount > 0 && warningCount > 0) {
+					return `(${errorMessage}, ${warningMessage})`;
+				} else if (errorCount > 0) {
+					return `(${errorMessage})`;
+				} else if (warningCount > 0) {
+					return `(${warningMessage})`;
+				}
+			}
+			return `(${ansiTags.g}OK${ansiTags.reset})`;
 		},
 	};
 	return f;
