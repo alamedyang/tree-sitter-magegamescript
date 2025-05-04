@@ -1,9 +1,9 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
-const { verbose, debugLog } = require('./parser-utilities/general.js');
-const { makeProjectState } = require('./parser-utilities/project-state.js');
-const { ansiTags } = require('./parser-utilities/dialog-handling.js');
+const { verbose, debugLog } = require('./parser-utilities.js');
+const { makeProjectState } = require('./parser-project.js');
+const { ansiTags } = require('./parser-dialogs.js');
 
 const parseProject = async () => {
 	await Parser.init();

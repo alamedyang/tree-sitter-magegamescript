@@ -2,12 +2,12 @@ const {
 	reportMissingChildNodes,
 	reportErrorNodes,
 	debugLog,
-} = require('./parser-utilities/general.js');
+} = require('./parser-utilities.js');
 
 const {
 	buildSerialDialogFromInfo,
 	buildDialogFromInfo,
-} = require('./parser-utilities/dialog-handling.js');
+} = require('./parser-dialogs.js');
 
 const handleCapture = require('./parser-capture.js');
 const { handleAction, handleActionsInit } = require('./parser-actions.js');

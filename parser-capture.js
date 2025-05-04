@@ -2,7 +2,7 @@ const {
 	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
-} = require('./parser-utilities/general.js');
+} = require('./parser-utilities.js');
 
 const handleCapture = (f, node) => {
 	debugLog(`-->> Capturing: ${node.grammarType}`);

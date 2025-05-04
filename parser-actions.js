@@ -24,13 +24,13 @@ const handleAction = (f, node) => {
 	const fancyCaptures = data.fancyCaptures || [];
 	const spreadFields = {};
 	let spreadSize = -Infinity;
-	captures.forEach(fieldName=>{
-		const fieldNode = node.childForFieldName(fieldName);
+	captures.forEach(field=>{
+		const fieldNode = node.childForFieldName(field);
 		const capture = handleCapture(f, fieldNode);
 		if (!Array.isArray(capture)) {
-			ret[fieldName] = capture;
+			ret[field] = capture;
 		} else {
-			spreadFields[fieldName] = {
+			spreadFields[field] = {
 				node: fieldNode,
 				captures: capture,
 			};

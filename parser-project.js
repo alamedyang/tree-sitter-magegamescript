@@ -1,10 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { ansiTags } = require('./dialog-handling.js');
-const { makeMessagePrintable } = require('./general.js');
-const { makeFileState } = require('./file-state.js')
-const handleNode = require('../parser-node.js');
+const { ansiTags } = require('./parser-dialogs.js');
+const { makeMessagePrintable } = require('./parser-utilities.js');
+const { makeFileState } = require('./parser-file.js')
+const handleNode = require('./parser-node.js');
 
 // stolen from the other place
 const makeMap = path => {
@@ -13,6 +13,7 @@ const makeMap = path => {
 		path,
 		{ withFileTypes: true }
 	)) {
+		if (file.name === '.DS_Store') continue;
 		let filePath = `${path}/${file.name}`
 
 		if (file.isDirectory()) {

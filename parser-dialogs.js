@@ -71,7 +71,7 @@ const countCharLength = str => {
 };
 
 const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
-	// // TODO: hyphenated words?
+	// TODO: hyphenated words?
 	let str = origStr
 		.replace(/[“”]/g, '"')
 		.replace(/[‘’]/g, "'")
