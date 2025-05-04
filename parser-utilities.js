@@ -39,10 +39,14 @@ const getPrintableLocationData = (fileMap, location) => {
 };
 
 const makeMessagePrintable = (fileMap, prefix, item) => {
-	return `\n${prefix}: ${item.message}\n`
+	let message = `\n${prefix}: ${item.message}\n`
 		+ item.locations.map(location=>{
 			return getPrintableLocationData(fileMap, location);
 		}).join('\n');
+	if (item.footer) {
+		message += '\n' + item.footer;
+	}
+	return message;
 };
 
 module.exports = {

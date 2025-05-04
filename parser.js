@@ -36,7 +36,7 @@ const parseProject = async () => {
 	})
 	// finalize
 	p.detectDuplicates();
-	p.reportProblems(fileMap);
+	p.reportProblems();
 	console.log("DONE");
 	return p;
 };

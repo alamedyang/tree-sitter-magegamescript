@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { ansiTags } = require('./parser-dialogs.js');
+const { ansiTags: ansi } = require('./parser-dialogs.js');
 const { makeMessagePrintable } = require('./parser-utilities.js');
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
@@ -106,20 +106,24 @@ const makeProjectState = (parser) => {
 				});
 			});
 		},
-		reportProblems: (fileMap) => {
+		reportProblems: () => {
 			const messages = [];
-			if (p.errorCount) {
+			const errCount = p.errorCount;
+			const warnCount = p.warningCount;
+			if (errCount) {
 				messages.push(
-					`${ansiTags.r}${p.errorCount} error`
-					+ `${p.errorCount === 1 ? '' : 's'}`
-					+ `${ansiTags.reset}`
+					`${ansi.r}`
+					+ `${errCount} error`
+					+ `${errCount !== 1 ? 's' : ''}`
+					+ `${ansi.reset}`
 				)
 			}
-			if (p.warningCount) {
+			if (warnCount) {
 				messages.push(
-					`${ansiTags.y}${p.warningCount} warning`
-					+ `${p.warningCount === 1 ? '' : 's'}`
-					+ `${ansiTags.reset}`
+					`${ansi.y}`
+					+ `${warnCount} warning`
+					+ `${warnCount !== 1 ? 's' : ''}`
+					+ `${ansi.reset}`
 				);
 			}
 			if (messages.length === 0) {
@@ -128,11 +132,15 @@ const makeProjectState = (parser) => {
 				console.log(`Issues found: ${messages.join(', ')}`)
 			}
 			p.warnings.forEach(v=>{
-				const s = ansiTags.y + makeMessagePrintable(fileMap, 'Warning', v) + ansiTags.reset;
+				const s = ansi.y
+					+ makeMessagePrintable(p.fileMap, 'Warning', v)
+					+ ansi.reset;
 				console.warn(s);
 			})
 			p.errors.forEach(v=>{
-				const s = makeMessagePrintable(fileMap, 'Error', v);
+				const s = ansi.r
+					+ makeMessagePrintable(p.fileMap, 'Error', v)
+					+ ansi.reset;
 				console.error(s);
 			})
 		},

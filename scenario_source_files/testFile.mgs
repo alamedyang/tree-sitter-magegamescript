@@ -13,6 +13,7 @@ dialog goatTalk {
 	"%12345678% a b c d e"
 	"%1234567890% a b c d"
 	"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
+	"I think this line is too long on its own"
 	> "optioin" = huh
 }
 serial_dialog lulullul {

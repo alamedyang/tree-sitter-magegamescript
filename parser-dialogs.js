@@ -71,8 +71,10 @@ const countCharLength = str => {
 };
 
 const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
-	// TODO: hyphenated words?
+	// todo: hyphenated words?
 	let str = origStr
+		.replace(/\\n/g, '\n')
+		.replace(/\\t/g, '\t')
 		.replace(/[“”]/g, '"')
 		.replace(/[‘’]/g, "'")
 		.replace(/…/g, "...")
@@ -165,7 +167,7 @@ const buildSerialDialogFromInfo = (f, info) => {
 	return serialDialog;
 };
 
-const buildDialogFromInfo = (f, info) => {
+const buildDialogFromInfo = (f, info, messageNodes) => {
 	const ident = info.identifier;
 	let specificSettings = {};
 	if (ident.type === 'label') {
@@ -180,14 +182,41 @@ const buildDialogFromInfo = (f, info) => {
 		...specificSettings, // global specific settings
 		...info.settings, // local specific settings
 	};
-	// this needs to be outside to get the actual wrap value:
+	// this needs to be outside to get the actual wrap value btw:
 	dialog.messages = info.messages
 		.map(message=>wrapText(message, dialog.wrap));
 	if (info.options.length > 0) {
 		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
 		dialog.options = info.options;
 	}
-	// TODO: warn if messages are more than 5 lines
+	dialog.messages.forEach((message, i, arr)=>{
+		const lastIndex = arr.length - 1;
+		const targetSize = lastIndex === i && dialog.options ? 1 : 5;
+		const splitMessage = message.split('\n');
+		if (splitMessage.length > targetSize) {
+			let warningMessage = `dialog messages longer than 5 lines will wrap off the bottom`;
+			if (lastIndex === i && dialog.options) {
+				warningMessage = `messages before dialog options will collide if more than 1 line`;
+			}
+			f.newWarning({
+				locations: [{ node: messageNodes[i] }],
+				message: warningMessage,
+				footer: `When wrapped:\n` + splitMessage.map((v, i, arr)=>{
+					let row = i+1;
+					if (arr.length > 9) {
+						row = row < 10 ? '0' + row : row;
+					}
+					let ret = `${row}> ${v}`;
+					if (i >= targetSize) {
+						ret = ansiTags.r + `(x) ` + ret + ansiTags.reset;
+					} else {
+						ret = `    ` + ret;
+					}
+					return ret;
+				}).join('\n')
+			});
+		}
+	})
 	return dialog;
 };
 

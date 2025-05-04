@@ -355,7 +355,7 @@ const nodeFns = {
 			messages,
 			options,
 		}
-		const dialogs = buildDialogFromInfo(f, info);
+		const dialogs = buildDialogFromInfo(f, info, messageNodes);
 		return [{
 			mathlang: 'dialog',
 			info,
