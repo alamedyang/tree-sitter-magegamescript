@@ -1,5 +1,5 @@
-// include "header.mgs";
+include "header.mgs";
 
-// _ {
-// 	wait [400, 1s];
-// }
+_ {
+	wait [400, 1s];
+}

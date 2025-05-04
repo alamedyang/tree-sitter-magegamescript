@@ -6,7 +6,7 @@ const reportMissingChildNodes = (f, node) => {
 		.filter(child=>child.isMissing);
 	missingNodes.forEach(missingChild=>{
 		f.newError({
-			node: missingChild,
+			locations: [{ node: missingChild }],
 			message: `missing token: ${missingChild.type}`
 		});
 	});
@@ -17,7 +17,7 @@ const reportErrorNodes = (f, node) => {
 		.filter(child=>child.type === 'ERROR');
 	errorNodes.forEach(errorNode=>{
 		f.newError({
-			node: errorNode,
+			locations: [{ node: errorNode }],
 			message: 'syntax error',
 		})
 	})

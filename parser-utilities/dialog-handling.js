@@ -156,10 +156,10 @@ const buildSerialDialogFromInfo = (f, info) => {
 			}
 		});
 		if (warnNodes.length > 0) {
-			f.newWarning(
-				warnNodes,
-				`serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
-			);
+			f.newWarning({
+				locations: warnNodes,
+				message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
+			});
 		}
 	}
 	return serialDialog;

@@ -20,7 +20,7 @@ serial_dialog lulullul {
 	"Hey now! We gotta think about ansi things now!"
 	"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
 	_ "option times!" = scriptName
-	_ "option times again!" = scriptName2
+	# "option times again!" = scriptName2
 }
 
 serial_dialog lulullul {

@@ -54,7 +54,7 @@ const handleAction = (f, node) => {
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
 			f.newError({
-				node: captureData.node,
+				locations: [{ node: captureData.node }],
 				message: `spreads must have the same count of items within a given action`,
 			});
 			spreadSize = Math.max(spreadSize, len);
@@ -157,7 +157,7 @@ const actionFns = {
 			.some(n=>n !== 1 && n !== maxSpreadCount);
 		if (lengthsMismatched) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `spreads inside this action must contain same number of items`,
 			});
 		}
@@ -208,7 +208,7 @@ const actionFns = {
 				}
 			}
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: 'incompatible combination of movable identifier and position identifier',
 			});
 		}

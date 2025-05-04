@@ -1,7 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { ansiTags } = require('./dialog-handling.js');
 const { makeMessagePrintable } = require('./general.js');
+const { makeFileState } = require('./file-state.js')
+const handleNode = require('../parser-node.js');
 
 // stolen from the other place
 const makeMap = path => {
@@ -41,20 +44,8 @@ const makeProjectState = (parser) => {
 		errors: [],
 		warnings: [],
 		parser,
-		newError: ({location, message, fileName}) => {
-			const locations = Array.isArray(location) ? location : [ location ];
-			locations.forEach(item=>{
-				if (!item.fileName) item.fileName = fileName || 'UNKNOWN FILE';
-			})
-			p.errors.push({ message, locations });
-		},
-		newWarning: ({location, message, fileName}) => {
-			const locations = Array.isArray(location) ? location : [ location ];
-			locations.forEach(item=>{
-				if (!item.fileName) item.fileName = fileName || 'UNKNOWN FILE';
-			})
-			p.warnings.push({ message, locations });
-		},
+		newError: (v) => p.errors.push(v),
+		newWarning: (v) => p.warnings.push(v),
 		addScript: (data, fileName) => {
 			const scriptName = data.scriptName;
 			data.rawActions = data.actions;
@@ -109,13 +100,25 @@ const makeProjectState = (parser) => {
 		},
 		reportProblems: (fileMap) => {
 			p.warnings.forEach(v=>{
-				const s = makeMessagePrintable(fileMap, 'Warning', v);
+				const s = ansiTags.y + makeMessagePrintable(fileMap, 'Warning', v) + ansiTags.reset;
 				console.warn(s);
 			})
 			p.errors.forEach(v=>{
 				const s = makeMessagePrintable(fileMap, 'Error', v);
 				console.error(s);
 			})
+		},
+		parseFile: (fileName) => {
+			const fileMap = p.fileMap;
+			const tree = parser.parse(fileMap[fileName].text);
+			let document = tree.rootNode;
+			const f = makeFileState(p, fileName, p.parser);
+			const nodes = document.namedChildren
+				.map(node=>handleNode(f, node))
+				.flat();
+			f.nodes = nodes;
+			fileMap[fileName].parsed = f;
+			return f;
 		},
 	};
 	return p;

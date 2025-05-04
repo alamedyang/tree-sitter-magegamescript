@@ -1,44 +1,21 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
-const {
-	verbose,
-	debugLog,
-} = require('./parser-utilities/general.js');
-
+const { verbose, debugLog } = require('./parser-utilities/general.js');
 const { makeProjectState } = require('./parser-utilities/project-state.js');
-const { makeFileState } = require('./parser-utilities/file-state.js');
-const handleNode = require('./parser-node.js');
-
-const {
-	ansiTags,
-} = require('./parser-utilities/dialog-handling.js');
-
-const parseFile = (p, fileName) => {
-	const fileMap = p.fileMap;
-	const tree = p.parser.parse(fileMap[fileName].text);
-	let document = tree.rootNode;
-	const f = makeFileState(p, fileName, p.parser);
-	const nodes = document.namedChildren
-		.map(node=>handleNode(f, node))
-		.flat();
-	f.nodes = nodes;
-	fileMap[fileName].parsed = f;
-	return f;
-};
+const { ansiTags } = require('./parser-utilities/dialog-handling.js');
 
 const parseProject = async () => {
 	await Parser.init();
 	const parser = new Parser();
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
-	
 	const p = makeProjectState(parser);
 	const fileMap = p.fileMap;
 	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
-			parseFile(p, fileName);
+			p.parseFile(fileName);
 		}
 	});
 	Object.keys(fileMap).forEach(fileName=>{

@@ -17,7 +17,7 @@ const handleCapture = (f, node) => {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `Constant ${node.text} is undefined`,
 			});
 		}

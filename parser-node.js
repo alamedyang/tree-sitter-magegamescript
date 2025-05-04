@@ -1,4 +1,3 @@
-
 const {
 	reportMissingChildNodes,
 	reportErrorNodes,
@@ -33,7 +32,7 @@ const nodeFns = {
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
 		f.newError({
-			node,
+			locations: [{ node }],
 			message: 'syntax error',
 		});
 		return [];
@@ -60,7 +59,7 @@ const nodeFns = {
 		f.constants = f.constants || {};
 		if (f.constants[labelNode]) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `cannot redefine constant ${ret.label}`,
 			});
 		}
@@ -86,7 +85,7 @@ const nodeFns = {
 		prerequesites.forEach(prereqName=> {
 			if (!f.p.fileMap[prereqName].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
-				parseFile(p, prereqName);
+				f.p.parseFile(prereqName);
 			} else {
 				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
 			}
@@ -113,7 +112,7 @@ const nodeFns = {
 				if (multipleCount === -Infinity) multipleCount = len;
 				if (multipleCount !== len) {
 					f.newError({
-						node,
+						locations: [{ node }],
 						message: `spreads inside rand!() must contain same number of items`,
 					});
 				}
@@ -161,7 +160,7 @@ const nodeFns = {
 		} else if (type === 'target_label') {
 			if (!targetNode) {
 				f.newError({
-					node,
+					locations: [{ node }],
 					message: `dialog_settings_target: malformed label definition`,
 				});
 			}
@@ -171,7 +170,7 @@ const nodeFns = {
 		} else if (type === 'target_entity') {
 			if (!targetNode) {
 				f.newError({
-					node,
+					locations: [{ node }],
 					message: `dialog_settings_target: malformed entity definition`,
 				});
 			}
@@ -199,7 +198,7 @@ const nodeFns = {
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `malformed dialog parameter`,
 			});
 			return [];
@@ -231,7 +230,7 @@ const nodeFns = {
 		const valueNode = node.childForFieldName('value');
 		if (!propNode || !valueNode) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `malformed serial_dialog parameter`,
 			});
 			return [];
@@ -250,7 +249,7 @@ const nodeFns = {
 		const scriptNode = node.childForFieldName('script');
 		if (!optionNode || !labelNode || !scriptNode) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `malformed serial_dialog option`,
 			});
 			return [];
@@ -272,7 +271,7 @@ const nodeFns = {
 		const scriptNode = node.childForFieldName('script');
 		if (!labelNode || !scriptNode) {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `malformed dialog option`,
 			});
 			return [];
@@ -380,7 +379,7 @@ const nodeFns = {
 				? handleCapture(f, valueNode)
 				: 'MALFORMED ENTITY IDENTIFIER';
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `dialog identifier lacks a value`,
 			});
 		}
@@ -401,7 +400,7 @@ const nodeFns = {
 			parsed = JSON.parse(text);
 		} catch {
 			f.newError({
-				node,
+				locations: [{ node }],
 				message: `JSON syntax error`,
 			});
 		}
@@ -426,7 +425,7 @@ const nodeFns = {
 			const valueNode = node.childForFieldName('entity');
 			if (!valueNode) {
 				f.newError({
-					node,
+					locations: [{ node }],
 					message: `undefined entity in entity identifier`,
 				});
 				entity = 'UNDEFINED ENTITY';

@@ -13,12 +13,14 @@ const makeFileState = (p, fileName, parser) => {
 		errorCount: 0,
 		warningCount: 0,
 		parser,
-		newError: (args) => {
-			p.newError({fileName, ...args});
+		newError: (message) => {
+			message.locations.forEach(v=>v.fileName = fileName);
+			p.newError(message);
 			f.errorCount += 1;
 		},
-		newWarning: (args) => {
-			p.newWarning({fileName, ...args})
+		newWarning: (message) => {
+			message.locations.forEach(v=>v.fileName = fileName);
+			p.newWarning(message);
 			f.warningCount += 1;
 		},
 		includeFile: (newName) => {
@@ -26,8 +28,10 @@ const makeFileState = (p, fileName, parser) => {
 			Object.keys(newF.constants).forEach(constantName=>{
 				if (f.constants[constantName]) {
 					f.newError({
-						fileName: newF.fileName,
-						node: newF.constants[constantName].node, 
+						locations: [{
+							fileName: newF.fileName,
+							node: newF.constants[constantName].node, 
+						}],
 						message: `cannot redefine constant ${constantName} (via 'include')`
 					});
 				}
