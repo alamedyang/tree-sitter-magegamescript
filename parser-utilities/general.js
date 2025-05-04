@@ -1,11 +1,14 @@
+let verbose = false;
+const debugLog = (message) => { if (verbose) console.log(message); };
+
 const reportMissingChildNodes = (f, node) => {
 	const missingNodes = node.children
 		.filter(child=>child.isMissing);
 	missingNodes.forEach(missingChild=>{
-		f.newError(
-			{ node: missingChild },
-			`missing token: ${missingChild.type}`,
-		);
+		f.newError({
+			node: missingChild,
+			message: `missing token: ${missingChild.type}`
+		});
 	});
 	return missingNodes;
 };
@@ -13,10 +16,10 @@ const reportErrorNodes = (f, node) => {
 	const errorNodes = node.namedChildren
 		.filter(child=>child.type === 'ERROR');
 	errorNodes.forEach(errorNode=>{
-		f.newError(
-			{ node: errorNode },
-			'syntax error'
-		)
+		f.newError({
+			node: errorNode,
+			message: 'syntax error',
+		})
 	})
 	return errorNodes;
 };
@@ -43,6 +46,8 @@ const makeMessagePrintable = (fileMap, prefix, item) => {
 };
 
 module.exports = {
+	verbose,
+	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
 	makeMessagePrintable,

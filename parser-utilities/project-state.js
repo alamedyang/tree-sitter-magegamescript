@@ -58,7 +58,7 @@ const makeProjectState = (parser) => {
 		addScript: (data, fileName) => {
 			const scriptName = data.scriptName;
 			data.rawActions = data.actions;
-			data.actions = finalizeActions(p, data.actions, fileName);
+			data.actions = finalizeActions(p, data.actions, fileName).flat();
 			if (!p.scripts[scriptName]) {
 				p.scripts[scriptName] = data;
 			} else {
@@ -95,10 +95,10 @@ const makeProjectState = (parser) => {
 				const entries = Object.entries(p[category]);
 				entries.forEach(([name, entry])=>{
 					if (entry.duplicates) {
+						// TODO: use new error paradigm instead
 						p.errors.push({
 							locations: entry.duplicates.map(dupe=>({
 								fileName: dupe.fileName,
-								// TODO: work this part out better
 								node: dupe.debug.firstNamedChild,
 							})),
 							message: `multiple ${category} with name "${name}"`,
@@ -121,6 +121,7 @@ const makeProjectState = (parser) => {
 	return p;
 };
 
+// TODO: move these out of here
 const mathSequence = {
 	copy_entity_value_to_entity_value: (step) => {
 		const variable = '__TEMP';
@@ -150,7 +151,7 @@ const finalizeActions = (p, rawActions, fileName) => {
 			p.addSerialDialog(node, fileName);
 		} else if (node.mathlang === 'math_sequence') {
 			node.steps
-				.map(step=>mathSequence[step.type](p, step))
+				.map(step=>mathSequence[step.type](step))
 				.forEach(v=>ret.push(v));
 		}
 	})

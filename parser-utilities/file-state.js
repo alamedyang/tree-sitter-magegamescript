@@ -1,6 +1,6 @@
 const makeFileState = (p, fileName, parser) => {
-	const f = {
-		p,
+	const f = { // file
+		p, // project
 		fileName,
 		constants: {},
 		settings: {
