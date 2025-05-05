@@ -160,25 +160,6 @@ const makeProjectState = (parser) => {
 	return p;
 };
 
-// TODO: move these out of here
-const mathSequence = {
-	copy_entity_value_to_entity_value: (step) => {
-		const variable = '__TEMP';
-		return [
-			{
-				mathlang: 'math_sequence', step,
-				action: 'COPY_VARIABLE', inbound: true,
-				...step.copyFrom, variable,
-			},
-			{
-				mathlang: 'math_sequence', step,
-				action: 'COPY_VARIABLE', inbound: false,
-				...step.copyTo, variable,
-			}
-		];
-	}
-};
-
 const finalizeActions = (p, rawActions, fileName) => {
 	const ret = [];
 	rawActions.forEach(node=>{
@@ -189,9 +170,7 @@ const finalizeActions = (p, rawActions, fileName) => {
 		} else if (node.mathlang === 'serial_dialog_definition') {
 			p.addSerialDialog(node, fileName);
 		} else if (node.mathlang === 'math_sequence') {
-			node.steps
-				.map(step=>mathSequence[step.type](step))
-				.forEach(v=>ret.push(v));
+			node.steps.forEach(step=>ret.push(step));
 		}
 	})
 	return ret;

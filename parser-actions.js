@@ -301,7 +301,7 @@ const actionData = {
 			{
 				match: (v) => v.movable.type === 'entity'
 					&& v.coordinate.type === 'entity',
-				values: (v) => mathSequenceFns.moveEntityToEntity(
+				values: (v) => mathSequenceFns.moveEntityPosToEntityPos(
 					v.coordinate.value,
 					v.movable.value,
 				),
@@ -398,18 +398,15 @@ const actionData = {
 			if (v.coordinate.type === 'entity') {
 				if (v.movable.type === 'entity') {
 					err.message = `cannot move an entity to another entity's position over time`;
-					err.locations[0].node = v.debug
-						.childForFieldName('coordinate');
+					err.locations[0].node = v.coordinate.debug;
 					}
 				if (v.movable.type === 'camera') {
 					err.message = `cannot move camera to an entity's position forever`;
-					err.locations[0].node = v.debug
-						.childForFieldName('coordinate');
+					err.locations[0].node = v.coordinate.debug;
 				}
 			} else if (!!v.forever) {
 				err.message = `'forever' can only be used with geometry lengths, not single points`;
-				err.locations[0].node = v.debug
-					.childForFieldName('coordinate');
+				err.locations[0].node = v.coordinate.debug;
 			}
 			return err;
 		},
@@ -417,19 +414,30 @@ const actionData = {
 };
 
 const mathSequenceFns = {
-	moveEntityToEntity: (copyFrom, copyTo) => {
+	moveEntityPosToEntityPos: (copyFrom, copyTo) => {
+		const variable = '__TEMP';
 		return {
 			mathlang: 'math_sequence',
 			steps: [
 				{
-					type: 'copy_entity_value_to_entity_value',
-					copyFrom: { entity: copyFrom, field: 'x' },
-					copyTo: { entity: copyTo, field: 'x' }
+					mathlang: 'math_sequence', inbound: true,
+					action: 'COPY_VARIABLE', variable,
+					entity: copyFrom, field: 'x',
 				},
 				{
-					type: 'copy_entity_value_to_entity_value',
-					copyFrom: { entity: copyFrom, field: 'y' },
-					copyTo: { entity: copyTo, field: 'y' }
+					mathlang: 'math_sequence', inbound: true,
+					action: 'COPY_VARIABLE', variable,
+					entity: copyTo, field: 'x',
+				},
+				{
+					mathlang: 'math_sequence', inbound: true,
+					action: 'COPY_VARIABLE', variable,
+					entity: copyFrom, field: 'y',
+				},
+				{
+					mathlang: 'math_sequence', inbound: true,
+					action: 'COPY_VARIABLE', variable,
+					entity: copyTo, field: 'y',
 				},
 			]
 		}
