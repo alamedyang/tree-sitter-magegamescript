@@ -3358,6 +3358,14 @@
         ]
       }
     },
+    "origin": {
+      "type": "STRING",
+      "value": "origin"
+    },
+    "length": {
+      "type": "STRING",
+      "value": "length"
+    },
     "geometry": {
       "type": "STRING",
       "value": "geometry"
@@ -3442,6 +3450,35 @@
                 "type": "SYMBOL",
                 "name": "string"
               }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "polygon_type",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "origin"
+                      }
+                    },
+                    {
+                      "type": "FIELD",
+                      "name": "polygon_type",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "length"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             }
           ]
         }
@@ -3522,92 +3559,13 @@
         ]
       }
     },
-    "origin": {
+    "over_time_operator": {
       "type": "STRING",
-      "value": "origin"
-    },
-    "length": {
-      "type": "STRING",
-      "value": "length"
+      "value": "->"
     },
     "forever": {
       "type": "STRING",
       "value": "forever"
-    },
-    "polygon_and_duration": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "polygon_type",
-              "content": {
-                "type": "SYMBOL",
-                "name": "origin"
-              }
-            },
-            {
-              "type": "STRING",
-              "value": "over"
-            },
-            {
-              "type": "FIELD",
-              "name": "duration",
-              "content": {
-                "type": "SYMBOL",
-                "name": "duration_expandable"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "polygon_type",
-              "content": {
-                "type": "SYMBOL",
-                "name": "length"
-              }
-            },
-            {
-              "type": "STRING",
-              "value": "over"
-            },
-            {
-              "type": "FIELD",
-              "name": "duration",
-              "content": {
-                "type": "SYMBOL",
-                "name": "duration_expandable"
-              }
-            },
-            {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "FIELD",
-                  "name": "forever",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "forever"
-                  }
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    "over_time_operator": {
-      "type": "STRING",
-      "value": "->"
     },
     "action_move_over_time": {
       "type": "SEQ",
@@ -3633,12 +3591,32 @@
           }
         },
         {
+          "type": "STRING",
+          "value": "over"
+        },
+        {
           "type": "FIELD",
-          "name": "polygon_and_duration",
+          "name": "duration",
           "content": {
             "type": "SYMBOL",
-            "name": "polygon_and_duration"
+            "name": "duration_expandable"
           }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "forever",
+              "content": {
+                "type": "SYMBOL",
+                "name": "forever"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "SYMBOL",

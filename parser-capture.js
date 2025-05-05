@@ -78,6 +78,7 @@ const captureFns = {
 		return node.text;
 	},
 	CONSTANT: (f, node) => node.text,
+	forever: (f, node) => true,
 	entity_or_map_identifier: (f, node) => {
 		const targetNode = node.childForFieldName('target');
 		const target = targetNode.text;
@@ -145,12 +146,15 @@ const captureFns = {
 			const geometry = geometryNode
 				? handleCapture(f, geometryNode)
 				: 'UNDEFINED GEOMETRY';
+			const polygonTypeNode = node.childForFieldName('polygon_type');
+			let polygonType = polygonTypeNode?.text;
 			return {
 				mathlang: 'movable_identifier',
 				debug: node,
 				fileName: f.fileName,
 				type: 'geometry',
 				value: geometry,
+				polygonType,
 			}
 		}
  		if (type === 'self') entity = '%SELF%'
@@ -167,21 +171,6 @@ const captureFns = {
 			fileName: f.fileName,
 			type: 'entity',
 			value: entity,
-		};
-	},
-	polygon_and_duration: (f, node) => {
-		const polygonTypeNode = node.childForFieldName('polygon_type');
-		const polygonType = polygonTypeNode.text;
-		const durationNode = node.childForFieldName('duration');
-		const duration = handleCapture(f, durationNode);
-		const forever = !!node.childForFieldName('forever');
-		return {
-			mathlang: 'polygon_and_duration',
-			debug: node,
-			fileName: f.fileName,
-			polygonType,
-			duration,
-			forever,
 		};
 	},
 };

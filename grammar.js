@@ -591,12 +591,21 @@ module.exports = grammar({
 			']'
 		)),
 
+		origin: $ => 'origin',
+		length: $ => 'length',
 		geometry: $ => 'geometry',
 		coordinate_identifier: $ => choice(
 			seq(field('type', $.player), 'position'),
 			seq(field('type', $.self), 'position'),
 			seq(field('type', $.entity), field('entity', $.string), 'position'),
-			seq(field('type', $.geometry), field('geometry', $.string)),
+			seq(
+				field('type', $.geometry),
+				field('geometry', $.string),
+				optional(choice(
+					field('polygon_type', $.origin),
+					field('polygon_type', $.length),
+				))
+			),
 		),
 		coordinate_identifier_expandable: $ => choice(
 			$.coordinate_identifier,
@@ -612,29 +621,16 @@ module.exports = grammar({
 			']'
 		)),
 
-		origin: $ => 'origin',
-		length: $ => 'length',
-		forever: $ => 'forever',
-		polygon_and_duration: $ => choice(
-			seq(
-				field('polygon_type', $.origin),
-				'over',
-				field('duration', $.duration_expandable),
-			),
-			seq(
-				field('polygon_type', $.length),
-				'over',
-				field('duration', $.duration_expandable),
-				optional(field('forever', $.forever)),
-			),
-		),
-
+		
 		over_time_operator: $ => '->',
+		forever: $ => 'forever',
 		action_move_over_time: $ => seq(
 			field('movable', $.movable_identifier_expandable),
 			$.over_time_operator,
 			field('coordinate', $.coordinate_identifier_expandable),
-			field('polygon_and_duration', $.polygon_and_duration),
+			'over',
+			field('duration', $.duration_expandable),
+			optional(field('forever', $.forever)),
 			$.semicolon
 		),
 		

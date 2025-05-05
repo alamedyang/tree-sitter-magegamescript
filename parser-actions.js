@@ -26,14 +26,22 @@ const handleAction = (f, node) => {
 	let spreadSize = -Infinity;
 	captures.forEach(field=>{
 		const fieldNode = node.childForFieldName(field);
-		const capture = handleCapture(f, fieldNode);
-		if (!Array.isArray(capture)) {
-			ret[field] = capture;
+		if (!fieldNode) {
+			if (data.optionalCaptures.includes(field)) {
+				ret[field] = null;
+			} else {
+				throw new Error ("THIS SHOULDN'T HAPPEN FIX IT")
+			}
 		} else {
-			spreadFields[field] = {
-				node: fieldNode,
-				captures: capture,
-			};
+			const capture = handleCapture(f, fieldNode);
+			if (!Array.isArray(capture)) {
+				ret[field] = capture;
+			} else {
+				spreadFields[field] = {
+					node: fieldNode,
+					captures: capture,
+				};
+			}
 		}
 	});
 	fancyCaptures.forEach(({field, label})=>{
@@ -60,20 +68,40 @@ const handleAction = (f, node) => {
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
-	// no spreads if spreadSize is unchanged
-	if (spreadSize === -Infinity) return [ret];
-	// otherwise, handle spreads
-	const spreadRet = [];
-	for (let i = 0; i < spreadSize; i++) {
-		const insert = {
-			...ret,
-		};
-		Object.keys(spreadFields).forEach(fieldName=>{
-			const allValues = spreadFields[fieldName].captures;
-			const currValue = allValues[i % allValues.length];
-			insert[fieldName] = currValue;
+	let spreadRet = [];
+	if (spreadSize === -Infinity) {
+		spreadRet = [ ret ];
+	} else {
+		for (let i = 0; i < spreadSize; i++) {
+			const insert = {
+				...ret,
+			};
+			Object.keys(spreadFields).forEach(fieldName=>{
+				const allValues = spreadFields[fieldName].captures;
+				const currValue = allValues[i % allValues.length];
+				insert[fieldName] = currValue;
+			});
+			spreadRet.push(insert);
+		}
+	}
+	if (data.detective) {
+		spreadRet.forEach(item=>{
+			// try the action detective
+			for (let i = 0; i < data.detective.length; i++) {
+				const clueData = data.detective[i];
+				const solved = clueData.match(item);
+				if (solved) {
+					const newValues = clueData.values(item);
+					Object.entries(newValues)
+						.forEach(([k,v])=>{ item[k] = v; });
+					return;
+				}
+			}
+			f.newError({
+				locations: [{ node }],
+				message: data.detectiveErrorMessage,
+			})
 		});
-		spreadRet.push(insert);
 	}
 	return spreadRet;
 };
@@ -141,163 +169,6 @@ const actionFns = {
 			showSerialDialogAction
 		];
 	},
-	action_move_over_time: (f, node) => {
-		const fieldNames = [ 'movable', 'coordinate', 'polygon_and_duration' ];
-		const fields = {};
-		const fieldCounts = {};
-		let maxSpreadCount = -Infinity;
-		fieldNames.forEach(fieldName=>{
-			const nodes = node.childrenForFieldName(fieldName);
-			const handled = nodes.map(v=>handleCapture(f, v)).flat();
-			fields[fieldName] = handled;
-			fieldCounts[fieldName] = handled.length;
-			maxSpreadCount = Math.max(maxSpreadCount, handled.length);
-		});
-		const lengthsMismatched = Object.values(fieldCounts)
-			.some(n=>n !== 1 && n !== maxSpreadCount);
-		if (lengthsMismatched) {
-			f.newError({
-				locations: [{ node }],
-				message: `spreads inside this action must contain same number of items`,
-			});
-		}
-		const ret = [];
-		for (let i = 0; i < maxSpreadCount; i++) {
-			const movable = fields.movable[i % fields.movable.length];
-			const coord = fields.coordinate[i % fields.coordinate.length];
-			const polygonDuration = fields.polygon_and_duration[i % fields.polygon_and_duration.length];
-			const polygonType = polygonDuration.polygonType;
-			const duration = polygonDuration.duration;
-			const forever = polygonDuration.forever;
-			const insert = {
-				debug: node,
-				fileName: f.fileName,
-				duration,
-			};
-			if (movable.type === 'camera') {
-				if (coord.type === 'geometry') {
-					insert.geometry = coord.value;
-					if (polygonType === 'origin') {
-						insert.action = 'PAN_CAMERA_TO_GEOMETRY',
-						ret.push(insert);
-						continue;
-					} else if (polygonType === 'length') {
-						if (forever) {
-							insert.action = 'LOOP_CAMERA_ALONG_GEOMETRY',
-							ret.push(insert);
-							continue;
-						} else {
-							insert.action = 'PAN_CAMERA_ALONG_GEOMETRY',
-							ret.push(insert);
-							continue;
-						}
-					}
-				} else if (coord.type === 'entity') {
-					insert.action = 'PAN_CAMERA_TO_ENTITY',
-					insert.entity = coord.value;
-					ret.push(insert);
-					continue;
-				}
-			} else if (movable.type === 'entity') {
-				if (coord.type === 'geometry') {
-					if (polygonType === 'origin') {
-						insert.action = 'WALK_ENTITY_TO_GEOMETRY',
-						ret.push(insert);
-						continue;
-					} else if (polygonType === 'length') {
-						if (forever) {
-							insert.action = 'WALK_ENTITY_ALONG_GEOMETRY',
-							ret.push(insert);
-							continue;
-						} else {
-							insert.action = 'LOOP_ENTITY_ALONG_GEOMETRY',
-							ret.push(insert);
-							continue;
-						}
-					}
-				}
-			}
-			f.newError({
-				locations: [{ node }],
-				message: 'incompatible combination of movable identifier and position identifier',
-			});
-		}
-		return ret;
-	},
-
-	action_set_position: (f, node) => {
-		const fieldNames = [ 'movable', 'coordinate' ];
-		const fields = {};
-		const fieldCounts = {};
-		let maxSpreadCount = -Infinity;
-		fieldNames.forEach(fieldName=>{
-			const nodes = node.childrenForFieldName(fieldName);
-			const handled = nodes.map(v=>handleCapture(f, v)).flat();
-			fields[fieldName] = handled;
-			fieldCounts[fieldName] = handled.length;
-			maxSpreadCount = Math.max(maxSpreadCount, handled.length);
-		});
-		const lengthsMismatched = Object.values(fieldCounts)
-			.some(n=>n !== 1 && n !== maxSpreadCount);
-		if (lengthsMismatched) {
-			f.newError({
-				locations: [{ node }],
-				message: `spreads inside this action must contain same number of items`,
-			});
-		}
-		const ret = [];
-		for (let i = 0; i < maxSpreadCount; i++) {
-			const insert = {
-				debug: node,
-				fileName: f.fileName,
-			};
-			const movable = fields.movable[i % fields.movable.length];
-			const coord = fields.coordinate[i % fields.coordinate.length];
-			if (movable.type === 'camera') {
-				if (coord.type === 'geometry') {
-					insert.action = 'TELEPORT_CAMERA_TO_GEOMETRY',
-					insert.geometry = coord.value;
-					ret.push(insert);
-					continue;
-				} else if (coord.type === 'entity') {
-					insert.action = 'SET_CAMERA_TO_FOLLOW_ENTITY',
-					insert.entity = coord.value;
-					ret.push(insert);
-					continue;
-				}
-			} else if (movable.type === 'entity') {
-				if (coord.type === 'geometry') {
-					insert.action = 'TELEPORT_ENTITY_TO_GEOMETRY',
-					insert.entity = movable.value;
-					insert.geometry = coord.value;
-					ret.push(insert);
-					continue;
-				} else if (coord.type === 'entity') {
-					ret.push({
-						mathlang: 'math_sequence',
-						steps: [
-							{
-								type: 'copy_entity_value_to_entity_value',
-								copyFrom: { entity: coord.value, field: 'x' },
-								copyTo: { entity: movable.value, field: 'x' }
-							},
-							{
-								type: 'copy_entity_value_to_entity_value',
-								copyFrom: { entity: coord.value, field: 'y' },
-								copyTo: { entity: movable.value, field: 'y' }
-							},
-						]
-					});
-					continue;
-				}
-			}
-			f.newError({
-				locations: [{ node }],
-				message: 'incompatible combination of movable identifier and position identifier',
-			});
-		}
-		return ret;
-	}
 };
 
 const actionData = {
@@ -400,6 +271,138 @@ const actionData = {
 		captures: [ 'animation', 'count' ],
 		fancyCaptures: [{ field: 'entity_identifier', label: 'entity' }],
 	},
+	action_set_position: {
+		values: {},
+		captures: [ 'movable', 'coordinate' ],
+		detectiveErrorMessage: `incompatible movable identifier and position identifier`,
+		detective: [
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType !== 'length',
+				values: (v) => ({ action: 'TELEPORT_CAMERA_TO_GEOMETRY',
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'entity',
+				values: (v) => ({ action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
+					entity: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'entity'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType !== 'length',
+				values: (v) => ({ action: 'TELEPORT_ENTITY_TO_GEOMETRY',
+					entity: v.movable.value,
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'entity'
+					&& v.coordinate.type === 'entity',
+				values: (v) => mathSequenceFns.moveEntityToEntity(
+					v.coordinate.value,
+					v.movable.value,
+				),
+			},
+		]
+	},
+	action_move_over_time: {
+		values: {},
+		captures: [ 'movable', 'coordinate', 'duration', 'forever' ],
+		optionalCaptures: [ 'forever' ],
+		detectiveErrorMessage: `incompatible movable identifier and position identifier`,
+		detective: [
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'origin'
+					&& !v.forever,
+				values: (v) => ({ action: 'PAN_CAMERA_TO_GEOMETRY',
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'length'
+					&& !v.forever,
+				values: (v) => ({ action: 'PAN_CAMERA_ALONG_GEOMETRY',
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'length'
+					&& !!v.forever,
+				values: (v) => ({ action: 'LOOP_CAMERA_ALONG_GEOMETRY',
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'camera'
+					&& v.coordinate.type === 'entity'
+					&& !v.forever,
+				values: (v) => ({ action: 'PAN_CAMERA_TO_ENTITY',
+					entity: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'entity'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'origin'
+					&& !v.forever,
+				values: (v) => ({ action: 'WALK_ENTITY_TO_GEOMETRY',
+					entity: v.movable.value,
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'entity'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'length'
+					&& !v.forever,
+				values: (v) => ({ action: 'WALK_ENTITY_ALONG_GEOMETRY',
+					entity: v.movable.value,
+					geometry: v.coordinate.value,
+				}),
+			},
+			{
+				match: (v) => v.movable.type === 'entity'
+					&& v.coordinate.type === 'geometry'
+					&& v.coordinate.polygonType === 'length'
+					&& !!v.forever,
+				values: (v) => ({ action: 'LOOP_ENTITY_ALONG_GEOMETRY',
+					entity: v.movable.value,
+					geometry: v.coordinate.value,
+				}),
+			},
+		]
+	},
 };
+
+const mathSequenceFns = {
+	moveEntityToEntity: (copyFrom, copyTo) => {
+		return {
+			mathlang: 'math_sequence',
+			steps: [
+				{
+					type: 'copy_entity_value_to_entity_value',
+					copyFrom: { entity: copyFrom, field: 'x' },
+					copyTo: { entity: copyTo, field: 'x' }
+				},
+				{
+					type: 'copy_entity_value_to_entity_value',
+					copyFrom: { entity: copyFrom, field: 'y' },
+					copyTo: { entity: copyTo, field: 'y' }
+				},
+			]
+		}
+	},
+}
 
 module.exports = { handleAction, handleActionsInit };

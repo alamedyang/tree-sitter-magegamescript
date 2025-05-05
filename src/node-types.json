@@ -726,6 +726,34 @@
           }
         ]
       },
+      "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      },
+      "forever": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "forever",
+            "named": true
+          }
+        ]
+      },
       "movable": {
         "multiple": false,
         "required": true,
@@ -736,16 +764,6 @@
           },
           {
             "type": "movable_identifier_expansion",
-            "named": true
-          }
-        ]
-      },
-      "polygon_and_duration": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "polygon_and_duration",
             "named": true
           }
         ]
@@ -1438,6 +1456,20 @@
           },
           {
             "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "polygon_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "length",
+            "named": true
+          },
+          {
+            "type": "origin",
             "named": true
           }
         ]
@@ -2144,54 +2176,6 @@
     "type": "over_time_operator",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "polygon_and_duration",
-    "named": true,
-    "fields": {
-      "duration": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "DURATION",
-            "named": true
-          },
-          {
-            "type": "duration_expansion",
-            "named": true
-          }
-        ]
-      },
-      "forever": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "forever",
-            "named": true
-          }
-        ]
-      },
-      "polygon_type": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "length",
-            "named": true
-          },
-          {
-            "type": "origin",
-            "named": true
-          }
-        ]
-      }
-    }
   },
   {
     "type": "quantity_expansion",

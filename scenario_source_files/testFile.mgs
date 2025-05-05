@@ -16,27 +16,27 @@ include "header.mgs";
 // 	"I think this line is too long on its own"
 // 	> "optioin" = huh
 // }
-serial_dialog lulullul {
-	wrap 20
-	"Hey now! We gotta think about ansi things now!"
-	"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
-	_ "option times!" = scriptName
-	# "option times again!" = scriptName2
-}
+// serial_dialog lulullul {
+// 	wrap 20
+// 	"Hey now! We gotta think about ansi things now!"
+// 	"<red>RED TEXT!!! Holy cow this text is like <bold>so red I can't even!</> WHEW okay never mind, no red"
+// 	_ "option times!" = scriptName
+// 	# "option times again!" = scriptName2
+// }
 
-serial_dialog lulullul {
-	"lol"
-}
+// serial_dialog lulullul {
+// 	"lol"
+// }
 
-script __ {
-	show dialog {
-		PLAYER "I LIKE SHORTS"
-	};
-	show serial_dialog {
-		"WOOT"
-	};
-	camera = entity Bob position;
-	camera = geometry stick;
-	player position = geometry hidingPlace;
-	entity Bob position = player position;
-}
+// script __ {
+// 	show dialog {
+// 		PLAYER "I LIKE SHORTS"
+// 	};
+// 	show serial_dialog {
+// 		"WOOT"
+// 	};
+// 	camera = entity Bob position;
+// 	camera = geometry stick;
+// 	player position = geometry hidingPlace;
+// 	entity Bob position = player position;
+// }

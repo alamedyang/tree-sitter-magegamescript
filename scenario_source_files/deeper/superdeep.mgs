@@ -1,8 +1,14 @@
-include "header.mgs";
-
-_ {
-	wait [400, 1s];
-    player position = geometry stick;
-    camera -> geometry stick origin over 40s forever;
-    player position -> geometry stick origin over 40s;
+set_movable_position {
+    self position = geometry stick;
+    camera = geometry stick;
+    camera = self position;
+    player position = self position;
+	camera -> geometry stick origin over 1s;
+	camera -> geometry stick length over 1s;
+	camera -> geometry stick length over 1s forever;
+	camera -> player position over 1s;
+	player position -> geometry stick origin over 1s;
+	player position -> geometry stick length over 1s;
+	player position -> geometry stick length over 1s forever;
+	player position -> geometry stick origin over 1s forever;
 }
