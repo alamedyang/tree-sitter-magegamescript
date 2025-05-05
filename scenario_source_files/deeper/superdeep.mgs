@@ -11,4 +11,7 @@ set_movable_position {
 	player position -> geometry stick length over 1s;
 	player position -> geometry stick length over 1s forever;
 	player position -> self position over 1;
+	player position -> self position;
+	wait 100;
+	player position -> geometry stick length over 1s;
 }

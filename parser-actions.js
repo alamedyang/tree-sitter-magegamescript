@@ -21,8 +21,8 @@ const handleAction = (f, node) => {
 		...data.values,
 	};
 	const captures = data.captures || [];
-	const fancyCaptures = data.fancyCaptures || [];
-	const spreadFields = {};
+	const toRelabel = data.relabeledCaptures || [];
+	const fieldsToSpread = {};
 	let spreadSize = -Infinity;
 	captures.forEach(field=>{
 		const fieldNode = node.childForFieldName(field);
@@ -37,27 +37,27 @@ const handleAction = (f, node) => {
 			if (!Array.isArray(capture)) {
 				ret[field] = capture;
 			} else {
-				spreadFields[field] = {
+				fieldsToSpread[field] = {
 					node: fieldNode,
 					captures: capture,
 				};
 			}
 		}
 	});
-	fancyCaptures.forEach(({field, label})=>{
+	toRelabel.forEach(({field, label})=>{
 		const fieldNode = node.childForFieldName(field);
 		const capture = handleCapture(f, fieldNode);
 		if (!Array.isArray(capture)) {
 			ret[label] = capture;
 		} else {
-			spreadFields[label] = {
+			fieldsToSpread[label] = {
 				node: fieldNode,
 				captures: capture,
 			};
 		}
 	});
 	// count spreads
-	Object.values(spreadFields).forEach(captureData=>{
+	Object.values(fieldsToSpread).forEach(captureData=>{
 		const len = captureData.captures.length;
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
@@ -68,42 +68,42 @@ const handleAction = (f, node) => {
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
-	let spreadRet = [];
+	let multiRet = [];
 	if (spreadSize === -Infinity) {
-		spreadRet = [ ret ];
+		multiRet = [ ret ];
 	} else {
 		for (let i = 0; i < spreadSize; i++) {
-			const insert = {
+			const singleRet = {
 				...ret,
 			};
-			Object.keys(spreadFields).forEach(fieldName=>{
-				const allValues = spreadFields[fieldName].captures;
+			Object.keys(fieldsToSpread).forEach(fieldName=>{
+				const allValues = fieldsToSpread[fieldName].captures;
 				const currValue = allValues[i % allValues.length];
-				insert[fieldName] = currValue;
+				singleRet[fieldName] = currValue;
 			});
-			spreadRet.push(insert);
+			multiRet.push(singleRet);
 		}
 	}
 	if (data.detective) {
-		spreadRet.forEach(item=>{
+		multiRet.forEach(ret=>{
 			// try the action detective
 			for (let i = 0; i < data.detective.length; i++) {
 				const clueData = data.detective[i];
-				const solved = clueData.match(item);
+				const solved = clueData.match(ret);
 				if (solved) {
-					const newValues = clueData.values(item);
-					Object.entries(newValues)
-						.forEach(([k,v])=>{ item[k] = v; });
+					const values = clueData.values(ret);
+					Object.entries(values)
+						.forEach(([k,v])=>{ ret[k] = v; });
 					return;
 				}
 			}
 			f.newError({
 				locations: [{ node }],
-				message: data.detectError(item),
+				message: data.detectError(ret),
 			})
 		});
 	}
-	return spreadRet;
+	return multiRet;
 };
 
 const actionFns = {
@@ -138,7 +138,7 @@ const actionFns = {
 		];
 	},
 	action_concat_serial_dialog: (f, node) => action_show_serial_dialog(f, node, true),
-	action_show_serial_dialog: (f, node, concat) => {
+	action_show_serial_dialog: (f, node, isConcat) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode
 			? nameNode.text
@@ -149,7 +149,7 @@ const actionFns = {
 		const serialDialogs = (serialDialogNodes||[]).map(child=>handleNode(f, child)).flat();
 		const showSerialDialogAction = {
 			action: 'SHOW_SERIAL_DIALOG',
-			disable_newline: !concat,
+			disable_newline: !isConcat,
 			serial_dialog: name,
 			debug: node,
 			fileName: f.fileName
@@ -259,17 +259,17 @@ const actionData = {
 	action_pause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
 		captures: [ 'script' ],
-		fancyCaptures: [{ field: 'entity_or_map', label: 'entity' }],
+		relabeledCaptures: [{ field: 'entity_or_map', label: 'entity' }],
 	},
 	action_unpause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
 		captures: [ 'script' ],
-		fancyCaptures: [{ field: 'entity_or_map', label: 'entity' }],
+		relabeledCaptures: [{ field: 'entity_or_map', label: 'entity' }],
 	},
 	action_play_entity_animation: {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
 		captures: [ 'animation', 'count' ],
-		fancyCaptures: [{ field: 'entity_identifier', label: 'entity' }],
+		relabeledCaptures: [{ field: 'entity_identifier', label: 'entity' }],
 	},
 	action_set_position: {
 		values: {},
@@ -279,14 +279,16 @@ const actionData = {
 				match: (v) => v.movable.type === 'camera'
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType !== 'length',
-				values: (v) => ({ action: 'TELEPORT_CAMERA_TO_GEOMETRY',
+				values: (v) => ({
+					action: 'TELEPORT_CAMERA_TO_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
 			{
 				match: (v) => v.movable.type === 'camera'
 					&& v.coordinate.type === 'entity',
-				values: (v) => ({ action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
+				values: (v) => ({
+					action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
 					entity: v.coordinate.value,
 				}),
 			},
@@ -294,7 +296,8 @@ const actionData = {
 				match: (v) => v.movable.type === 'entity'
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType !== 'length',
-				values: (v) => ({ action: 'TELEPORT_ENTITY_TO_GEOMETRY',
+				values: (v) => ({
+					action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 					entity: v.movable.value,
 					geometry: v.coordinate.value,
 				}),
@@ -320,7 +323,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'origin'
 					&& !v.forever,
-				values: (v) => ({ action: 'PAN_CAMERA_TO_GEOMETRY',
+				values: (v) => ({
+					action: 'PAN_CAMERA_TO_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
@@ -329,7 +333,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'length'
 					&& !v.forever,
-				values: (v) => ({ action: 'PAN_CAMERA_ALONG_GEOMETRY',
+				values: (v) => ({
+					action: 'PAN_CAMERA_ALONG_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
@@ -338,7 +343,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'length'
 					&& !!v.forever,
-				values: (v) => ({ action: 'LOOP_CAMERA_ALONG_GEOMETRY',
+				values: (v) => ({
+					action: 'LOOP_CAMERA_ALONG_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
@@ -346,7 +352,8 @@ const actionData = {
 				match: (v) => v.movable.type === 'camera'
 					&& v.coordinate.type === 'entity'
 					&& !v.forever,
-				values: (v) => ({ action: 'PAN_CAMERA_TO_ENTITY',
+				values: (v) => ({
+					action: 'PAN_CAMERA_TO_ENTITY',
 					entity: v.coordinate.value,
 				}),
 			},
@@ -355,7 +362,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'origin'
 					&& !v.forever,
-				values: (v) => ({ action: 'WALK_ENTITY_TO_GEOMETRY',
+				values: (v) => ({
+					action: 'WALK_ENTITY_TO_GEOMETRY',
 					entity: v.movable.value,
 					geometry: v.coordinate.value,
 				}),
@@ -365,7 +373,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'length'
 					&& !v.forever,
-				values: (v) => ({ action: 'WALK_ENTITY_ALONG_GEOMETRY',
+				values: (v) => ({
+					action: 'WALK_ENTITY_ALONG_GEOMETRY',
 					entity: v.movable.value,
 					geometry: v.coordinate.value,
 				}),
@@ -375,7 +384,8 @@ const actionData = {
 					&& v.coordinate.type === 'geometry'
 					&& v.coordinate.polygonType === 'length'
 					&& !!v.forever,
-				values: (v) => ({ action: 'LOOP_ENTITY_ALONG_GEOMETRY',
+				values: (v) => ({
+					action: 'LOOP_ENTITY_ALONG_GEOMETRY',
 					entity: v.movable.value,
 					geometry: v.coordinate.value,
 				}),

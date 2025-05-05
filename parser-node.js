@@ -36,7 +36,10 @@ const nodeFns = {
 			message: 'syntax error',
 		}
 		if (node.namedChildren.some(v=>v.type === 'over_time_operator')) {
-			err.message = `malformed @movable -> @coordinate over @duration`
+			err.message = `malformed 'do over time' expression`
+			err.footer = `should take the form '@movable -> @coordinate over @duration [forever];'\n`
+				+ `   @movable = (player | self | entity @string) position | camera\n`
+				+ `   @coordinate = (player | self | entity @string) position | geometry @string (origin | length)`
 		}
 		f.newError(err);
 		return [];
