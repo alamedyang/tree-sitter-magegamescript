@@ -2,4 +2,7 @@ include "header.mgs";
 
 _ {
 	wait [400, 1s];
+    player position = geometry stick;
+    camera -> geometry stick origin over 40s forever;
+    player position -> geometry stick origin over 40s;
 }

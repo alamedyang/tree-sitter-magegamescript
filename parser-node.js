@@ -31,10 +31,18 @@ const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
-		f.newError({
+		const malformedText = node.text;
+		const err = {
 			locations: [{ node }],
 			message: 'syntax error',
-		});
+		}
+		if (/(player|entity|self).*->.*(player|entity|self)/.test(malformedText)) {
+			err.message = `entity position cannot be set to another entity position over time ('->')`
+		//TODO: this error won't appear here; it happens inside the action. How to handle?
+		// } else if (/->.*forever.*(;|$)/.test(malformedText)) {
+		// 	err.message = `cannot move movable to a single vertex indefinitely ('forever')`
+		}
+		f.newError(err);
 		return [];
 	},
 	script_definition: (f, node) => {
@@ -392,7 +400,7 @@ const nodeFns = {
 		}];
 	},
 	json_literal: (f, node) => {
-		// TODO: do it more by hand so that errors can be reported more accurately
+		// todo: do it more by hand so that errors can be reported more accurately?
 		const jsonNode = node.namedChildren[0];
 		const text = jsonNode.text;
 		let parsed = [];

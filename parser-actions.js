@@ -141,6 +141,90 @@ const actionFns = {
 			showSerialDialogAction
 		];
 	},
+	action_move_over_time: (f, node) => {
+		const fieldNames = [ 'movable', 'coordinate', 'polygon_and_duration' ];
+		const fields = {};
+		const fieldCounts = {};
+		let maxSpreadCount = -Infinity;
+		fieldNames.forEach(fieldName=>{
+			const nodes = node.childrenForFieldName(fieldName);
+			const handled = nodes.map(v=>handleCapture(f, v)).flat();
+			fields[fieldName] = handled;
+			fieldCounts[fieldName] = handled.length;
+			maxSpreadCount = Math.max(maxSpreadCount, handled.length);
+		});
+		const lengthsMismatched = Object.values(fieldCounts)
+			.some(n=>n !== 1 && n !== maxSpreadCount);
+		if (lengthsMismatched) {
+			f.newError({
+				locations: [{ node }],
+				message: `spreads inside this action must contain same number of items`,
+			});
+		}
+		const ret = [];
+		for (let i = 0; i < maxSpreadCount; i++) {
+			const movable = fields.movable[i % fields.movable.length];
+			const coord = fields.coordinate[i % fields.coordinate.length];
+			const polygonDuration = fields.polygon_and_duration[i % fields.polygon_and_duration.length];
+			const polygonType = polygonDuration.polygonType;
+			const duration = polygonDuration.duration;
+			const forever = polygonDuration.forever;
+			const insert = {
+				debug: node,
+				fileName: f.fileName,
+				duration,
+			};
+			if (movable.type === 'camera') {
+				if (coord.type === 'geometry') {
+					insert.geometry = coord.value;
+					if (polygonType === 'origin') {
+						insert.action = 'PAN_CAMERA_TO_GEOMETRY',
+						ret.push(insert);
+						continue;
+					} else if (polygonType === 'length') {
+						if (forever) {
+							insert.action = 'LOOP_CAMERA_ALONG_GEOMETRY',
+							ret.push(insert);
+							continue;
+						} else {
+							insert.action = 'PAN_CAMERA_ALONG_GEOMETRY',
+							ret.push(insert);
+							continue;
+						}
+					}
+				} else if (coord.type === 'entity') {
+					insert.action = 'PAN_CAMERA_TO_ENTITY',
+					insert.entity = coord.value;
+					ret.push(insert);
+					continue;
+				}
+			} else if (movable.type === 'entity') {
+				if (coord.type === 'geometry') {
+					if (polygonType === 'origin') {
+						insert.action = 'WALK_ENTITY_TO_GEOMETRY',
+						ret.push(insert);
+						continue;
+					} else if (polygonType === 'length') {
+						if (forever) {
+							insert.action = 'WALK_ENTITY_ALONG_GEOMETRY',
+							ret.push(insert);
+							continue;
+						} else {
+							insert.action = 'LOOP_ENTITY_ALONG_GEOMETRY',
+							ret.push(insert);
+							continue;
+						}
+					}
+				}
+			}
+			f.newError({
+				locations: [{ node }],
+				message: 'incompatible combination of movable identifier and position identifier',
+			});
+		}
+		return ret;
+	},
+
 	action_set_position: (f, node) => {
 		const fieldNames = [ 'movable', 'coordinate' ];
 		const fields = {};

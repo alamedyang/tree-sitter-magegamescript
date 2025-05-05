@@ -192,6 +192,7 @@ module.exports = grammar({
 			$.BOOL, $.CONSTANT,
 			$.COLOR, $.QUOTED_STRING, $.BAREWORD,
 		),
+		semicolon: $ => token(';'),
 
 		_root: $ => choice(
 			$.script_definition,
@@ -204,13 +205,13 @@ module.exports = grammar({
 		),
 
 		include_macro: $ => seq(
-			'include', field('fileName', $.quoted_string_expandable), ';',
+			'include', field('fileName', $.quoted_string_expandable), $.semicolon,
 		),
 		constant_assignment: $ => seq(
 			field('label', $.CONSTANT),
 			'=',
 			field('value', $.CONSTANT_VALUE),
-			';',
+			$.semicolon,
 		),
 		add_serial_dialog_settings: $ => seq(
 			'add', 'serial_dialog', 'settings', '{',
@@ -407,7 +408,7 @@ module.exports = grammar({
 			$.action_camera_fade_in,
 			$.action_camera_fade_out,
 			$.action_play_entity_animation,
-			// $.action_move_over_time,
+			$.action_move_over_time,
 			$.action_set_position,
 			// $.action_set_bool,
 			// $.action_set_int,
@@ -416,18 +417,18 @@ module.exports = grammar({
 			// $.while_block,
 			// $.for_block,
 		),
-		action_return_statement: $ => seq('return', ';'), 
-		action_close_dialog: $ => seq('close', 'dialog', ';'),
-		action_close_serial_dialog: $ => seq('close', 'serial_dialog', ';'),
-		action_save_slot: $ => seq('save', 'slot', ';'),
-		action_load_slot: $ => seq('load', 'slot', field('slot', $.number_expandable), ';'),
-		action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable), ';'),
-		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable), ';'),
-		action_run_script: $ => seq('goto', field('script', $.string_expandable), ';'),
-		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable), ';'),
-		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable), ';'),
-		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable), ';'),
-		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable), ';'),
+		action_return_statement: $ => seq('return', $.semicolon), 
+		action_close_dialog: $ => seq('close', 'dialog', $.semicolon),
+		action_close_serial_dialog: $ => seq('close', 'serial_dialog', $.semicolon),
+		action_save_slot: $ => seq('save', 'slot', $.semicolon),
+		action_load_slot: $ => seq('load', 'slot', field('slot', $.number_expandable), $.semicolon),
+		action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable), $.semicolon),
+		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable), $.semicolon),
+		action_run_script: $ => seq('goto', field('script', $.string_expandable), $.semicolon),
+		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable), $.semicolon),
+		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable), $.semicolon),
+		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable), $.semicolon),
+		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable), $.semicolon),
 
 		action_show_dialog: $ => seq(
 			'show', 'dialog', choice(
@@ -435,7 +436,7 @@ module.exports = grammar({
 				field('dialog_name', $.STRING),
 				$._dialog_block,
 			),
-			';'
+			$.semicolon
 		),
 		action_show_serial_dialog: $ => seq(
 			'show', 'serial_dialog', choice(
@@ -443,7 +444,7 @@ module.exports = grammar({
 				field('serial_dialog_name', $.STRING),
 				$._serial_dialog_block,
 			),
-			';'
+			$.semicolon
 		),
 		action_concat_serial_dialog: $ => seq(
 			'concat', 'serial_dialog', choice(
@@ -451,17 +452,17 @@ module.exports = grammar({
 				field('serial_dialog_name', $.STRING),
 				$._serial_dialog_block,
 			),
-			';'
+			$.semicolon
 		),
 		
-		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable), ';'),
+		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable), $.semicolon),
 		action_delete_command_arg: $ => seq(
 			'delete', 'command', field('command', $.string_expandable),
-			'+', field('argument', $.string_expandable), ';',
+			'+', field('argument', $.string_expandable), $.semicolon,
 		),
-		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable), ';'),
-		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), ';'),
-		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), ';'),
+		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable), $.semicolon),
+		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), $.semicolon),
+		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), $.semicolon),
 
 		player: $ => 'player',
 		self: $ => 'self',
@@ -509,13 +510,13 @@ module.exports = grammar({
 			'pause',
 			field('entity_or_map', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
-			';'
+			$.semicolon
 		),
 		action_unpause_script: $ => seq(
 			'unpause',
 			field('entity_or_map', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
-			';'
+			$.semicolon
 		),
 
 		action_camera_fade_in: $ => seq(
@@ -523,14 +524,14 @@ module.exports = grammar({
 			field('color', $.color_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			';'
+			$.semicolon
 		),
 		action_camera_fade_out: $ => seq(
 			'camera', 'fade', 'out', '->',
 			field('color', $.color_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			';'
+			$.semicolon
 		),
 		
 		action_camera_shake: $ => seq(
@@ -539,7 +540,7 @@ module.exports = grammar({
 			field('distance', $.distance_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			';'
+			$.semicolon
 		),
 
 		action_play_entity_animation: $ => seq(
@@ -547,7 +548,7 @@ module.exports = grammar({
 			'animation', '->',
 			field('animation', $.number_expandable),
 			field('count', $.quantity_expandable),
-			';'
+			$.semicolon
 		),
 
 	// 	geometry_identifier: $ => seq(
@@ -628,19 +629,21 @@ module.exports = grammar({
 			),
 		),
 
+		over_time_operator: $ => '->',
 		action_move_over_time: $ => seq(
 			field('movable', $.movable_identifier_expandable),
-			'->',
+			$.over_time_operator,
 			field('coordinate', $.coordinate_identifier_expandable),
 			field('polygon_and_duration', $.polygon_and_duration),
-			';'
+			$.semicolon
 		),
-
+		
+		assignment_operator: $ => '=',
 		action_set_position: $ => seq(
 			field('movable', $.movable_identifier_expandable),
-			'=',
+			$.assignment_operator,
 			field('coordinate', $.coordinate_identifier_expandable),
-			';'
+			$.semicolon
 		),
 
 	// 	name: $ => $.bareword,
@@ -716,8 +719,8 @@ module.exports = grammar({
 	// 		'{',
 	// 		repeat(choice(
 	// 			$._script_item,
-	// 			seq('break', ';'),
-	// 			seq('continue', ';'),
+	// 			seq('break', $.semicolon),
+	// 			seq('continue', $.semicolon),
 	// 		)),
 	// 		'}'
 	// 	),
@@ -730,9 +733,9 @@ module.exports = grammar({
 	// 		'for',
 	// 		'(',
 	// 		$._action_item,
-	// 		token(';'),
+	// 		$.semicolon,
 	// 		$._bool_expression,
-	// 		token(';'),
+	// 		$.semicolon,
 	// 		$._action_item,
 	// 		')',
 	// 		alias($.looping_block, $.for_body)
