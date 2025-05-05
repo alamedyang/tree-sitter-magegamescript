@@ -15,27 +15,27 @@ const handleAction = (f, node) => {
 		if (!customFn) throw new Error (`No action data nor handler function found for action ${node.grammarType}`);
 		return customFn(f, node);
 	}
-	let ret = {
+	let action = {
 		debug: node,
 		fileName: f.fileName,
 		...data.values,
 	};
 	const captures = data.captures || [];
-	const toRelabel = data.relabeledCaptures || [];
+	const capturesToRelabel = data.relabeledCaptures || [];
 	const fieldsToSpread = {};
 	let spreadSize = -Infinity;
 	captures.forEach(field=>{
 		const fieldNode = node.childForFieldName(field);
 		if (!fieldNode) {
 			if (data.optionalCaptures.includes(field)) {
-				ret[field] = null;
+				action[field] = null;
 			} else {
 				throw new Error ("THIS SHOULDN'T HAPPEN FIX IT")
 			}
 		} else {
 			const capture = handleCapture(f, fieldNode);
 			if (!Array.isArray(capture)) {
-				ret[field] = capture;
+				action[field] = capture;
 			} else {
 				fieldsToSpread[field] = {
 					node: fieldNode,
@@ -44,11 +44,11 @@ const handleAction = (f, node) => {
 			}
 		}
 	});
-	toRelabel.forEach(({field, label})=>{
+	capturesToRelabel.forEach(({field, label})=>{
 		const fieldNode = node.childForFieldName(field);
 		const capture = handleCapture(f, fieldNode);
 		if (!Array.isArray(capture)) {
-			ret[label] = capture;
+			action[label] = capture;
 		} else {
 			fieldsToSpread[label] = {
 				node: fieldNode,
@@ -68,42 +68,38 @@ const handleAction = (f, node) => {
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
-	let multiRet = [];
+	// spread action into multiple variants
+	let multiActions = [];
 	if (spreadSize === -Infinity) {
-		multiRet = [ ret ];
+		multiActions = [ action ];
 	} else {
 		for (let i = 0; i < spreadSize; i++) {
-			const singleRet = {
-				...ret,
-			};
+			const singleAction = { ...action };
 			Object.keys(fieldsToSpread).forEach(fieldName=>{
 				const allValues = fieldsToSpread[fieldName].captures;
 				const currValue = allValues[i % allValues.length];
-				singleRet[fieldName] = currValue;
+				singleAction[fieldName] = currValue;
 			});
-			multiRet.push(singleRet);
+			multiActions.push(singleAction);
 		}
 	}
 	if (data.detective) {
-		multiRet.forEach(ret=>{
+		multiActions.forEach(action=>{
 			// try the action detective
 			for (let i = 0; i < data.detective.length; i++) {
 				const clueData = data.detective[i];
-				const solved = clueData.match(ret);
+				const solved = clueData.match(action);
 				if (solved) {
-					const values = clueData.values(ret);
+					const values = clueData.values(action);
 					Object.entries(values)
-						.forEach(([k,v])=>{ ret[k] = v; });
+						.forEach(([k,v])=>{ action[k] = v; });
 					return;
 				}
 			}
-			f.newError({
-				locations: [{ node }],
-				message: data.detectError(ret),
-			})
+			f.newError(data.detectError(action))
 		});
 	}
-	return multiRet;
+	return multiActions;
 };
 
 const actionFns = {
@@ -311,7 +307,10 @@ const actionData = {
 				),
 			},
 		],
-		detectError: (v) => `incompatible movable identifier and position identifier`,
+		detectError: (v) => ({
+			locations: [{ node: v.debug }],
+			message: `incompatible movable identifier and position identifier`,
+		}),
 	},
 	action_move_over_time: {
 		values: {},
@@ -392,18 +391,27 @@ const actionData = {
 			},
 		],
 		detectError: (v) => {
+			const err = {
+				message: `incompatible movable identifier and position identifier`,
+				locations: [{ node: v.debug }],
+			}
 			if (v.coordinate.type === 'entity') {
 				if (v.movable.type === 'entity') {
-					return `cannot move an entity to another entity's position over time`;
-				}
+					err.message = `cannot move an entity to another entity's position over time`;
+					err.locations[0].node = v.debug
+						.childForFieldName('coordinate');
+					}
 				if (v.movable.type === 'camera') {
-					return `cannot move camera to an entity's position forever`;
+					err.message = `cannot move camera to an entity's position forever`;
+					err.locations[0].node = v.debug
+						.childForFieldName('coordinate');
 				}
+			} else if (!!v.forever) {
+				err.message = `'forever' can only be used with geometry lengths, not single points`;
+				err.locations[0].node = v.debug
+					.childForFieldName('coordinate');
 			}
-			if (!!v.forever) {
-				return `'forever' can only be used with geometry lengths, not origins`
-			}
-			return `incompatible movable identifier and position identifier`;
+			return err;
 		},
 	},
 };

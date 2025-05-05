@@ -35,8 +35,4 @@ include "header.mgs";
 // 	show serial_dialog {
 // 		"WOOT"
 // 	};
-// 	camera = entity Bob position;
-// 	camera = geometry stick;
-// 	player position = geometry hidingPlace;
-// 	entity Bob position = player position;
 // }
