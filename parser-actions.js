@@ -99,7 +99,7 @@ const handleAction = (f, node) => {
 			}
 			f.newError({
 				locations: [{ node }],
-				message: data.detectiveErrorMessage,
+				message: data.detectError(item),
 			})
 		});
 	}
@@ -274,7 +274,6 @@ const actionData = {
 	action_set_position: {
 		values: {},
 		captures: [ 'movable', 'coordinate' ],
-		detectiveErrorMessage: `incompatible movable identifier and position identifier`,
 		detective: [
 			{
 				match: (v) => v.movable.type === 'camera'
@@ -308,13 +307,13 @@ const actionData = {
 					v.movable.value,
 				),
 			},
-		]
+		],
+		detectError: (v) => `incompatible movable identifier and position identifier`,
 	},
 	action_move_over_time: {
 		values: {},
 		captures: [ 'movable', 'coordinate', 'duration', 'forever' ],
 		optionalCaptures: [ 'forever' ],
-		detectiveErrorMessage: `incompatible movable identifier and position identifier`,
 		detective: [
 			{
 				match: (v) => v.movable.type === 'camera'
@@ -381,7 +380,21 @@ const actionData = {
 					geometry: v.coordinate.value,
 				}),
 			},
-		]
+		],
+		detectError: (v) => {
+			if (v.coordinate.type === 'entity') {
+				if (v.movable.type === 'entity') {
+					return `cannot move an entity to another entity's position over time`;
+				}
+				if (v.movable.type === 'camera') {
+					return `cannot move camera to an entity's position forever`;
+				}
+			}
+			if (!!v.forever) {
+				return `'forever' can only be used with geometry lengths, not origins`
+			}
+			return `incompatible movable identifier and position identifier`;
+		},
 	},
 };
 

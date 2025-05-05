@@ -1,0 +1,13 @@
+camera geometry/origin !forever = PAN_CAMERA_TO_GEOMETRY
+camera geometry/length !forever = PAN_CAMERA_ALONG_GEOMETRY
+camera geometry/length forever = LOOP_CAMERA_ALONG_GEOMETRY
+camera entity !forever = PAN_CAMERA_TO_ENTITY
+entity geometry/origin !forever = WALK_ENTITY_TO_GEOMETRY
+entity geometry/length !forever = WALK_ENTITY_ALONG_GEOMETRY
+entity geometry/length forever = LOOP_ENTITY_ALONG_GEOMETRY
+
+invalid
+camera geometry/origin forever = error
+entity geometry/origin forever = error
+camera entity forever = error
+entity entity ±forever = error

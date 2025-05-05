@@ -31,16 +31,12 @@ const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
 	ERROR: (f, node) => {
-		const malformedText = node.text;
 		const err = {
 			locations: [{ node }],
 			message: 'syntax error',
 		}
-		if (/(player|entity|self).*->.*(player|entity|self)/.test(malformedText)) {
-			err.message = `entity position cannot be set to another entity position over time ('->')`
-		//TODO: this error won't appear here; it happens inside the action. How to handle?
-		// } else if (/->.*forever.*(;|$)/.test(malformedText)) {
-		// 	err.message = `cannot move movable to a single vertex indefinitely ('forever')`
+		if (node.namedChildren.some(v=>v.type === 'over_time_operator')) {
+			err.message = `malformed @movable -> @coordinate over @duration`
 		}
 		f.newError(err);
 		return [];
