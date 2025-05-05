@@ -29,8 +29,13 @@ const getPrintableLocationData = (fileMap, location) => {
 	const allLines = fileMap[fileName].text.split('\n');
 	let row = location.node.startPosition.row;
 	let col = location.node.startPosition.column;
+	let endRow = location.node.endPosition.row;
+	let endCol = location.node.endPosition.column;
 	const line = allLines[row].replaceAll('\t', ' ');
-	const arrow = '~'.repeat(col) + '^';
+	const squigglySize = row === endRow
+		? endCol - col
+		: allLines[row].length - col;
+	const arrow = '~'.repeat(col) + '^'.repeat(squigglySize);
 	const message
 		= `╓-${fileName} ${row}:${col}\n`
 		+ '║ ' + `${line}\n`

@@ -177,7 +177,7 @@ const mathSequence = {
 			}
 		];
 	}
-}
+};
 
 const finalizeActions = (p, rawActions, fileName) => {
 	const ret = [];
