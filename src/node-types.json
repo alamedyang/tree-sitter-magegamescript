@@ -2088,7 +2088,7 @@
           }
         ]
       },
-      "entity_type": {
+      "type": {
         "multiple": false,
         "required": true,
         "types": [
@@ -2145,7 +2145,7 @@
           }
         ]
       },
-      "target": {
+      "type": {
         "multiple": false,
         "required": true,
         "types": [

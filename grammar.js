@@ -468,9 +468,9 @@ module.exports = grammar({
 		self: $ => 'self',
 		entity: $ => 'entity',
 		entity_identifier: $ => choice(
-			field('entity_type', $.player),
-			field('entity_type', $.self),
-			seq(field('entity_type', $.entity), field('entity', $.string))
+			field('type', $.player),
+			field('type', $.self),
+			seq(field('type', $.entity), field('entity', $.string))
 		),
 		entity_identifier_expandable: $ => choice(
 			$.entity_identifier,
@@ -487,10 +487,10 @@ module.exports = grammar({
 		),
 		map: $ => 'map',
 		entity_or_map_identifier: $ => choice(
-			field('target', $.map),
-			field('target', $.player),
-			field('target', $.self),
-			seq(field('target', $.entity), field('entity', $.string))
+			field('type', $.map),
+			field('type', $.player),
+			field('type', $.self),
+			seq(field('type', $.entity), field('entity', $.string))
 		),
 		entity_or_map_identifier_expandable: $ => choice(
 			$.entity_or_map_identifier,

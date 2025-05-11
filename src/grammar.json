@@ -2823,7 +2823,7 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "entity_type",
+          "name": "type",
           "content": {
             "type": "SYMBOL",
             "name": "player"
@@ -2831,7 +2831,7 @@
         },
         {
           "type": "FIELD",
-          "name": "entity_type",
+          "name": "type",
           "content": {
             "type": "SYMBOL",
             "name": "self"
@@ -2842,7 +2842,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "entity_type",
+              "name": "type",
               "content": {
                 "type": "SYMBOL",
                 "name": "entity"
@@ -2940,7 +2940,7 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "target",
+          "name": "type",
           "content": {
             "type": "SYMBOL",
             "name": "map"
@@ -2948,7 +2948,7 @@
         },
         {
           "type": "FIELD",
-          "name": "target",
+          "name": "type",
           "content": {
             "type": "SYMBOL",
             "name": "player"
@@ -2956,7 +2956,7 @@
         },
         {
           "type": "FIELD",
-          "name": "target",
+          "name": "type",
           "content": {
             "type": "SYMBOL",
             "name": "self"
@@ -2967,7 +2967,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "target",
+              "name": "type",
               "content": {
                 "type": "SYMBOL",
                 "name": "entity"

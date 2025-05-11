@@ -114,6 +114,7 @@ const handleAction = (f, node) => {
 				}
 			}
 			f.newError(data.detectError(action))
+			action.error = true;
 		});
 	}
 	return spreads;
@@ -515,7 +516,7 @@ const mathSequenceFns = {
 					entity: copyFrom, field: 'x',
 				},
 				{
-					mathlang: 'math_sequence', inbound: true,
+					mathlang: 'math_sequence', inbound: false,
 					action: 'COPY_VARIABLE', variable,
 					entity: copyTo, field: 'x',
 				},
@@ -525,7 +526,7 @@ const mathSequenceFns = {
 					entity: copyFrom, field: 'y',
 				},
 				{
-					mathlang: 'math_sequence', inbound: true,
+					mathlang: 'math_sequence', inbound: false,
 					action: 'COPY_VARIABLE', variable,
 					entity: copyTo, field: 'y',
 				},

@@ -80,99 +80,92 @@ const captureFns = {
 	CONSTANT: (f, node) => node.text,
 	forever: (f, node) => true,
 	entity_or_map_identifier: (f, node) => {
-		const targetNode = node.childForFieldName('target');
-		const target = targetNode.text;
-		let entity = '';
-		if (target === 'map') entity = '%MAP%'
-		if (target === 'self') entity = '%SELF%'
-		if (target === 'player') entity = '%PLAYER%'
-		if (target === 'entity') {
-			const entityNode = node.childForFieldName('entity');
-			entity = entityNode
-				? handleCapture(f, entityNode)
-				: 'UNDEFINED ENTITY';
-		}
-		return entity;
+		// for 'entity' fields (-> string)
+		const typeNode = node.childForFieldName('type');
+		return typeNode.text === 'map'
+			? '%MAP%'
+			: extractEntityName(f, node, typeNode);
 	},
 	entity_identifier: (f, node) => {
-		const typeNode = node.childForFieldName('entity_type');
-		const type = typeNode.text;
-		let entity = '';
-		if (type === 'self') entity = '%SELF%'
-		if (type === 'player') entity = '%PLAYER%'
-		if (type === 'entity') {
-			const entityNode = node.childForFieldName('entity');
-			entity = entityNode
-				? handleCapture(f, entityNode)
-				: 'UNDEFINED ENTITY';
-		}
-		return entity;
+		// for 'entity' fields (-> string)
+		const typeNode = node.childForFieldName('type');
+		return extractEntityName(f, node, typeNode);
 	},
 	movable_identifier: (f, node) => {
-		const targetNode = node.childForFieldName('type');
-		const target = targetNode.text;
-		let entity = '';
-		if (target === 'camera') {
-			return {
-				mathlang: 'movable_identifier',
-				debug: node,
-				fileName: f.fileName,
-				type: 'camera',
-				value: 'camera',
-			}
-		}
-		if (target === 'self') entity = '%SELF%'
-		if (target === 'player') entity = '%PLAYER%'
-		if (target === 'entity') {
-			const entityNode = node.childForFieldName('entity');
-			entity = entityNode
-				? handleCapture(f, entityNode)
-				: 'UNDEFINED ENTITY';
-		}
-		return {
+		// not just for 'entity' fields;
+		// result determines which action it is,
+		// so result needs to be complex (-> {})
+		const ret = {
 			mathlang: 'movable_identifier',
 			debug: node,
 			fileName: f.fileName,
-			type: 'entity',
-			value: entity,
 		};
+		const typeNode = node.childForFieldName('type');
+		if (typeNode.text === 'camera') {
+			ret.type = 'camera';
+			ret.value = 'camera';
+		} else {
+			const entityName = extractEntityName(f, node, typeNode);
+			ret.type = 'entity';
+			ret.value = entityName;
+		}
+		return ret;
 	},
 	coordinate_identifier: (f, node) => {
+		// ditto
 		const typeNode = node.childForFieldName('type');
 		const type = typeNode.text;
-		let entity = '';
-		if (type === 'geometry') {
-			const geometryNode = node.childForFieldName('geometry');
-			const geometry = geometryNode
-				? handleCapture(f, geometryNode)
-				: 'UNDEFINED GEOMETRY';
-			const polygonTypeNode = node.childForFieldName('polygon_type');
-			let polygonType = polygonTypeNode?.text;
-			return {
-				mathlang: 'movable_identifier',
-				debug: node,
-				fileName: f.fileName,
-				type: 'geometry',
-				value: geometry,
-				polygonType,
-			}
-		}
- 		if (type === 'self') entity = '%SELF%'
-		if (type === 'player') entity = '%PLAYER%'
-		if (type === 'entity') {
-			const entityNode = node.childForFieldName('entity');
-			entity = entityNode
-				? handleCapture(f, entityNode)
-				: 'UNDEFINED ENTITY';
-		}
-		return {
-			mathlang: 'movable_identifier',
+		const ret = {
+			mathlang: 'coordinate_identifier',
 			debug: node,
 			fileName: f.fileName,
-			type: 'entity',
-			value: entity,
 		};
+		if (type === 'geometry') {
+			const geometryNode = node.childForFieldName('geometry');
+			const polygonTypeNode = node.childForFieldName('polygon_type');
+			ret.type = 'geometry';
+			ret.value = extractGeometryName(f, geometryNode);
+			ret.polygonType = polygonTypeNode?.text;
+		} else {
+			const entityName = extractEntityName(f, node, typeNode);
+			ret.type = 'entity';
+			ret.value = entityName;
+		}
+		return ret;
 	},
+};
+
+const extractEntityName = (f, node, typeNode) => {
+	const type = typeNode.text;
+	let entity = '';
+	if (type === 'self') entity = '%SELF%'
+	if (type === 'player') entity = '%PLAYER%'
+	if (type === 'entity') {
+		const entityNode = node.childForFieldName('entity');
+		if (entityNode) {
+			entity = handleCapture(f, entityNode);
+		} else {
+			entity = 'UNDEFINED ENTITY';
+			f.newError({
+				locations: [{ node }],
+				message: 'undefined entity identifier'
+			});
+		}
+	}
+	return entity;
+};
+const extractGeometryName = (f, geometryNode) => {
+	let geometry = '';
+	if (geometryNode) {
+		geometry = handleCapture(f, geometryNode);
+	} else {
+		geometry = 'UNDEFINED GEOMETRY';
+		f.newError({
+			locations: [{ node }],
+			message: 'undefined geometry identifier'
+		});
+	}
+	return geometry;
 };
 
 module.exports = handleCapture;
