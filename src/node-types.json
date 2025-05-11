@@ -1005,6 +1005,96 @@
     }
   },
   {
+    "type": "action_set_bool",
+    "named": true,
+    "fields": {
+      "bool": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "bool_getable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "bool_or_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "bool_setable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "bool_setable",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_set_position",
     "named": true,
     "fields": {
@@ -1326,6 +1416,170 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "bool_or_identifier_expansion",
+    "named": true,
+    "fields": {
+      "bool": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          }
+        ]
+      },
+      "constant": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      },
+      "identifier": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "bool_setable",
+    "named": true,
+    "fields": {
+      "bool_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "hex_clipboard",
+            "named": false
+          },
+          {
+            "type": "hex_control",
+            "named": false
+          },
+          {
+            "type": "hex_dialog_mode",
+            "named": false
+          },
+          {
+            "type": "hex_editor",
+            "named": false
+          },
+          {
+            "type": "lights_control",
+            "named": false
+          },
+          {
+            "type": "player_control",
+            "named": false
+          },
+          {
+            "type": "serial_control",
+            "named": false
+          }
+        ]
+      },
+      "bool_type_complex": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "bool_type_complex",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "bool_type_complex",
+    "named": true,
+    "fields": {
+      "bool_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "glitched",
+            "named": false
+          },
+          {
+            "type": "light",
+            "named": false
+          }
+        ]
+      },
+      "entity_identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "flag": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      },
+      "light": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -2316,6 +2570,10 @@
           "named": true
         },
         {
+          "type": "action_set_bool",
+          "named": true
+        },
+        {
           "type": "action_set_position",
           "named": true
         },
@@ -2448,6 +2706,10 @@
         },
         {
           "type": "action_save_slot",
+          "named": true
+        },
+        {
+          "type": "action_set_bool",
           "named": true
         },
         {
@@ -2842,7 +3104,27 @@
     "named": true
   },
   {
+    "type": "glitched",
+    "named": false
+  },
+  {
     "type": "goto",
+    "named": false
+  },
+  {
+    "type": "hex_clipboard",
+    "named": false
+  },
+  {
+    "type": "hex_control",
+    "named": false
+  },
+  {
+    "type": "hex_dialog_mode",
+    "named": false
+  },
+  {
+    "type": "hex_editor",
     "named": false
   },
   {
@@ -2880,6 +3162,14 @@
   {
     "type": "length",
     "named": true
+  },
+  {
+    "type": "light",
+    "named": false
+  },
+  {
+    "type": "lights_control",
+    "named": false
   },
   {
     "type": "line_comment",
@@ -2923,6 +3213,10 @@
     "named": true
   },
   {
+    "type": "player_control",
+    "named": false
+  },
+  {
     "type": "portrait",
     "named": false
   },
@@ -2957,6 +3251,10 @@
   {
     "type": "semicolon",
     "named": true
+  },
+  {
+    "type": "serial_control",
+    "named": false
   },
   {
     "type": "serial_dialog",

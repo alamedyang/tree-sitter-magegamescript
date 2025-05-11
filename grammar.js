@@ -35,7 +35,7 @@ module.exports = grammar({
 		$.color, $.color_expandable,
 		$.bool, $.bool_expandable,
 		$.CONSTANT_VALUE,
-		// $.bool_or_identifier, $.bool_or_identifier_expandable,
+		$.bool_or_identifier, $.bool_or_identifier_expandable,
 		// $.int_or_identifier, $.int_or_identifier_expandable,
 		$.entity_identifier_expandable,
 		$.entity_or_map_identifier_expandable,
@@ -61,24 +61,24 @@ module.exports = grammar({
 			seq($.bool, repeat(seq(',', $.bool)), optional(',')),
 			']'
 		),
-	// 	bool_or_identifier: $ => choice(
-	// 		field('bool', $.BOOL),
-	// 		field('constant', $.CONSTANT),
-	// 		field('identifier', $.BAREWORD)
-	// 	),
-	// 	bool_or_identifier_expandable: $ => choice(
-	// 		$.bool_or_identifier,
-	// 		$.bool_or_identifier_expansion,
-	// 	),
-	// 	bool_or_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.bool_or_identifier,
-	// 			repeat(seq(',', $.bool_or_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		bool_or_identifier: $ => choice(
+			field('bool', $.BOOL),
+			field('constant', $.CONSTANT),
+			field('identifier', $.STRING)
+		),
+		bool_or_identifier_expandable: $ => choice(
+			$.bool_or_identifier,
+			$.bool_or_identifier_expansion,
+		),
+		bool_or_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.bool_or_identifier,
+				repeat(seq(',', $.bool_or_identifier)),
+				optional(','),
+			)),
+			']'
+		),
 		
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		bareword: $ => choice($.BAREWORD, $.CONSTANT),
@@ -410,7 +410,7 @@ module.exports = grammar({
 			$.action_play_entity_animation,
 			$.action_move_over_time,
 			$.action_set_position,
-			// $.action_set_bool,
+			$.action_set_bool,
 			// $.action_set_int,
 			// $.action_set_string,
 			// $.if_chain,
@@ -642,48 +642,53 @@ module.exports = grammar({
 			$.semicolon
 		),
 
-	// 	name: $ => $.bareword,
-		
-	// 	glitched: $ => 'glitched',
-	// 	bool_setable: $ => choice(
-	// 		seq($.entity_identifier, field('glitched', $.glitched)),
-	// 		seq('light', field('light', $.string_expandable)),
-	// 		'player_control',
-	// 		'lights_control',
-	// 		'hex_editor',
-	// 		'hex_dialog_mode',
-	// 		'hex_control',
-	// 		'hex_clipboard',
-	// 		'serial_control',
-	// 		'flagName',
-	// 	),
-	// 	bool_setable_expandable: $ => choice(
-	// 		$.bool_setable,
-	// 		$.bool_setable_expansion,
-	// 	),
-	// 	bool_setable_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.bool_setable,
-	// 			repeat(seq(',', $.bool_setable)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
-
-	// 	action_set_bool: $ => seq(
-	// 		$.bool_setable, 
-	// 		$.assignment_operator,
-	// 		choice(
-	// 			// bare identifiers might be ints (rather than bools)
-	// 			// the !! might be needed here to force-separate
-	// 			// these expressions from int expressions
-	// 			// EXPERIMENT
-	// 			// seq($.bang, $.bang, field('bool_identifier', $.name)),
-	// 			$._bool_expression,
-	// 			$.bool_or_identifier_expandable,
-	// 		),
-	// 	),
+		// identifier: $ => $.bareword, // generic identifier
+		bool_type_complex: $ => choice(
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('bool_type', 'glitched')
+			),
+			seq(
+				field('bool_type', 'light'),
+				field('light', $.string_expandable)
+			),
+			field('flag', $.string_expandable)
+		),
+		bool_setable: $ => choice(
+			field('bool_type', 'player_control'),
+			field('bool_type', 'lights_control'),
+			field('bool_type', 'hex_editor'),
+			field('bool_type', 'hex_dialog_mode'),
+			field('bool_type', 'hex_control'),
+			field('bool_type', 'hex_clipboard'),
+			field('bool_type', 'serial_control'),
+			field('bool_type_complex', $.bool_type_complex),
+		),
+		bool_setable_expandable: $ => choice(
+			$.bool_setable,
+			$.bool_setable_expansion,
+		),
+		bool_setable_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.bool_setable,
+				repeat(seq(',', $.bool_setable)),
+				optional(','),
+			)),
+			']'
+		),
+		action_set_bool: $ => seq(
+			field('bool_setable', $.bool_setable), 
+			$.assignment_operator,
+			// bare identifiers might be ints (rather than bools)
+			// the !! might be needed here to force-separate
+			// these expressions from int expressions
+			// EXPERIMENT
+			// seq($.bang, $.bang, field('bool_identifier', $.name)),
+			// $._bool_expression,
+			field('bool_getable', $.bool_or_identifier_expandable),
+			$.semicolon,
+		),
 		
 	// 	AND: $ => '&&',
 	// 	OR: $ => '||',

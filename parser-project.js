@@ -39,6 +39,7 @@ const makeProjectState = (parser) => {
 	const fileMap = makeMap(inputPath);
 	const p = { // 'project' :P
 		fileMap,
+		gotoSuffixValue: 0,
 		scripts: {},
 		dialogs: {},
 		serialDialogs: {},
@@ -47,6 +48,7 @@ const makeProjectState = (parser) => {
 		parser,
 		errorCount: 0,
 		warningCount: 0,
+		gotoSuffix: () => p.gotoSuffixValue++,
 		newError: (v) => {
 			p.errors.push(v);
 			p.errorCount += 1;
