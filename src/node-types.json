@@ -1051,6 +1051,10 @@
           {
             "type": "bool_setable",
             "named": true
+          },
+          {
+            "type": "bool_setable_expansion",
+            "named": true
           }
         ]
       },
@@ -1558,6 +1562,21 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "bool_setable_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bool_setable",
+          "named": true
+        }
+      ]
     }
   },
   {

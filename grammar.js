@@ -42,7 +42,7 @@ module.exports = grammar({
 		// $.geometry_identifier_expandable,
 		$.movable_identifier_expandable,
 		$.coordinate_identifier_expandable,
-		// $.bool_setable_expandable,
+		$.bool_setable_expandable,
 		// $.int_setable_expandable,
 		// $.entity_property_string_expandable,
 		// $.entity_property_int_expandable,
@@ -643,7 +643,7 @@ module.exports = grammar({
 		),
 
 		// identifier: $ => $.bareword, // generic identifier
-		bool_setable: $ => choice(
+		bool_setable: $ => prec(1, choice(
 			field('type', 'player_control'),
 			field('type', 'lights_control'),
 			field('type', 'hex_editor'),
@@ -660,7 +660,7 @@ module.exports = grammar({
 				field('light', $.string_expandable)
 			),
 			field('flag', $.string_expandable),
-		),
+		)),
 		bool_setable_expandable: $ => choice(
 			$.bool_setable,
 			$.bool_setable_expansion,
@@ -675,7 +675,7 @@ module.exports = grammar({
 			']'
 		),
 		action_set_bool: $ => seq(
-			field('bool_setable', $.bool_setable), 
+			field('bool_setable', $.bool_setable_expandable), 
 			$.assignment_operator,
 			// bare identifiers might be ints (rather than bools)
 			// the !! might be needed here to force-separate

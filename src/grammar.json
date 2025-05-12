@@ -3762,115 +3762,119 @@
       ]
     },
     "bool_setable": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "player_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "lights_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_editor"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_dialog_mode"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_clipboard"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "serial_control"
-          }
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "entity_identifier",
-              "content": {
-                "type": "SYMBOL",
-                "name": "entity_identifier"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "type",
-              "content": {
-                "type": "STRING",
-                "value": "glitched"
-              }
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "player_control"
             }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "type",
-              "content": {
-                "type": "STRING",
-                "value": "light"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "light",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_expandable"
-              }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "lights_control"
             }
-          ]
-        },
-        {
-          "type": "FIELD",
-          "name": "flag",
-          "content": {
-            "type": "SYMBOL",
-            "name": "string_expandable"
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "hex_editor"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "hex_dialog_mode"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "hex_control"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "hex_clipboard"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "serial_control"
+            }
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "entity_identifier",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "entity_identifier"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "STRING",
+                  "value": "glitched"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "STRING",
+                  "value": "light"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "light",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "string_expandable"
+                }
+              }
+            ]
+          },
+          {
+            "type": "FIELD",
+            "name": "flag",
+            "content": {
+              "type": "SYMBOL",
+              "name": "string_expandable"
+            }
           }
-        }
-      ]
+        ]
+      }
     },
     "bool_setable_expandable": {
       "type": "CHOICE",
@@ -3951,7 +3955,7 @@
           "name": "bool_setable",
           "content": {
             "type": "SYMBOL",
-            "name": "bool_setable"
+            "name": "bool_setable_expandable"
           }
         },
         {
@@ -4016,7 +4020,8 @@
     "entity_identifier_expandable",
     "entity_or_map_identifier_expandable",
     "movable_identifier_expandable",
-    "coordinate_identifier_expandable"
+    "coordinate_identifier_expandable",
+    "bool_setable_expandable"
   ],
   "supertypes": [],
   "reserved": {}
