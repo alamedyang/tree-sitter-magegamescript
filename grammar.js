@@ -643,26 +643,23 @@ module.exports = grammar({
 		),
 
 		// identifier: $ => $.bareword, // generic identifier
-		bool_type_complex: $ => choice(
+		bool_setable: $ => choice(
+			field('type', 'player_control'),
+			field('type', 'lights_control'),
+			field('type', 'hex_editor'),
+			field('type', 'hex_dialog_mode'),
+			field('type', 'hex_control'),
+			field('type', 'hex_clipboard'),
+			field('type', 'serial_control'),
 			seq(
 				field('entity_identifier', $.entity_identifier),
-				field('bool_type', 'glitched')
+				field('type', 'glitched')
 			),
 			seq(
-				field('bool_type', 'light'),
+				field('type', 'light'),
 				field('light', $.string_expandable)
 			),
-			field('flag', $.string_expandable)
-		),
-		bool_setable: $ => choice(
-			field('bool_type', 'player_control'),
-			field('bool_type', 'lights_control'),
-			field('bool_type', 'hex_editor'),
-			field('bool_type', 'hex_dialog_mode'),
-			field('bool_type', 'hex_control'),
-			field('bool_type', 'hex_clipboard'),
-			field('bool_type', 'serial_control'),
-			field('bool_type_complex', $.bool_type_complex),
+			field('flag', $.string_expandable),
 		),
 		bool_setable_expandable: $ => choice(
 			$.bool_setable,
@@ -686,7 +683,7 @@ module.exports = grammar({
 			// EXPERIMENT
 			// seq($.bang, $.bang, field('bool_identifier', $.name)),
 			// $._bool_expression,
-			field('bool_getable', $.bool_or_identifier_expandable),
+			field('bool_or_identifier', $.bool_or_identifier_expandable),
 			$.semicolon,
 		),
 		

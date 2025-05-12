@@ -70,7 +70,7 @@ const handleAction = (f, node) => {
 	captures.forEach(field=>{
 		const fieldNode = node.childForFieldName(field);
 		if (!fieldNode) {
-			if (data.optionalCaptures.includes(field)) {
+			if (data.optionalCaptures?.includes(field)) {
 				action[field] = null;
 			} else {
 				throw new Error ("THIS SHOULDN'T HAPPEN FIX IT")
@@ -107,7 +107,7 @@ const handleAction = (f, node) => {
 				const clueData = data.detective[i];
 				const solved = clueData.match(action);
 				if (solved) {
-					const values = clueData.values(action);
+					const values = clueData.values(action, f, node);
 					Object.entries(values)
 						.forEach(([k,v])=>{ action[k] = v; });
 					return;
@@ -183,79 +183,79 @@ const actionFns = {
 			showSerialDialogAction
 		];
 	},
-	action_set_bool: (f, node) => {
-		const setableNode = node.childForFieldName('bool_setable');
-		const complexNode = setableNode.childForFieldName('bool_type_complex');
-		const ret = {};
-		const fieldsToSpread = {};
-		let boolName = 'bool_value';
-		if (complexNode) {
-			const childBoolNode = complexNode.childForFieldName('bool_type');
-			let identifier;
-			let label;
-			if (!childBoolNode) {
-				const flagNameNode = complexNode.children[0];
-				ret.action = 'SET_SAVE_FLAG';
-				label = 'flag';
-				identifier = genericIdent(f, flagNameNode, 'save_flag', label);
-			} else if (childBoolNode.text === 'glitched') {
-				ret.action = 'SET_ENTITY_GLITCHED';
-				label = 'entity';
-				identifier = genericIdent(f, complexNode, 'entity_identifier', label);
-			} else if (complexNode.text === 'light') {
-				ret.action = 'SET_LIGHTS_STATE';
-				boolName = 'enabled';
-				label = 'lights';
-				identifier = genericIdent(f, complexNode, 'light', label);
-			} else {
-				throw new Error ("THIS SHOULDn'T HAPPEN but TS/Rust taught me to think about it");
-			}
-			if (identifier.length === 1) {
-				ret[label] = identifier[0];
-			} else {
-				fieldsToSpread[label] = identifier;
-			}
-		} else {
-			const type = setableNode.childForFieldName('bool_type');
-			if (type.text === 'player_control') {
-				action = 'SET_PLAYER_CONTROL';
-			} else if (type.text === 'lights_control') {
-				action = 'SET_LIGHTS_CONTROL';
-				boolName = 'enabled';
-			} else if (type.text === 'hex_editor') {
-				action = 'SET_HEX_EDITOR_STATE';
-			} else if (type.text === 'hex_dialog_mode') {
-				action = 'SET_HEX_EDITOR_DIALOG_MODE';
-			} else if (type.text === 'hex_control') {
-				action = 'SET_HEX_EDITOR_CONTROL';
-			} else if (type.text === 'hex_clipboard') {
-				action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
-			} else if (type.text === 'serial_control') {
-				action = 'SET_SERIAL_DIALOG_CONTROL';
-			} else {
-				throw new Error ("THIS SHOULDN'T HAPPEN: set bool action")
-			}
-		}
-		const boolNodes = node.childrenForFieldName('bool_getable');
-		const capturedBools = boolNodes.map(n=>handleCapture(f, n));
-		if (boolNodes.length === 1) {
-			ret[boolName] = capturedBools[0];
-		} else {
-			fieldsToSpread[boolName] = {
-				node: boolNodes,
-				captures: capturedBools,
-			};
-		}
-		const spreads = spreadValues(f, ret, fieldsToSpread);
-		const cleanedSpreads = spreads.map(spread=>{
-			if (typeof spread[boolName] === 'string') {
-				return mathSequenceFns.setBoolOnFlagName(f, node, spread, boolName);
-			} else {
-				return spread;
-			}
-		});
-		return cleanedSpreads;
-	},
+	// action_set_bool: (f, node) => {
+	// 	const setableNode = node.childForFieldName('bool_setable');
+	// 	const complexNode = setableNode.childForFieldName('bool_or_identifier');
+	// 	const ret = {};
+	// 	const fieldsToSpread = {};
+	// 	let boolName = 'bool_value';
+	// 	if (complexNode) {
+	// 		const childBoolNode = complexNode.childForFieldName('bool_type');
+	// 		let identifier;
+	// 		let label;
+	// 		if (!childBoolNode) {
+	// 			const flagNameNode = complexNode.children[0];
+	// 			ret.action = 'SET_SAVE_FLAG';
+	// 			label = 'flag';
+	// 			identifier = genericIdent(f, flagNameNode, 'save_flag', label);
+	// 		} else if (childBoolNode.text === 'glitched') {
+	// 			ret.action = 'SET_ENTITY_GLITCHED';
+	// 			label = 'entity';
+	// 			identifier = genericIdent(f, complexNode, 'entity_identifier', label);
+	// 		} else if (complexNode.text === 'light') {
+	// 			ret.action = 'SET_LIGHTS_STATE';
+	// 			boolName = 'enabled';
+	// 			label = 'lights';
+	// 			identifier = genericIdent(f, complexNode, 'light', label);
+	// 		} else {
+	// 			throw new Error ("THIS SHOULDn'T HAPPEN but TS/Rust taught me to think about it");
+	// 		}
+	// 		if (identifier.length === 1) {
+	// 			ret[label] = identifier[0];
+	// 		} else {
+	// 			fieldsToSpread[label] = identifier;
+	// 		}
+	// 	} else {
+	// 		const type = setableNode.childForFieldName('bool_type');
+	// 		if (type.text === 'player_control') {
+	// 			action = 'SET_PLAYER_CONTROL';
+	// 		} else if (type.text === 'lights_control') {
+	// 			action = 'SET_LIGHTS_CONTROL';
+	// 			boolName = 'enabled';
+	// 		} else if (type.text === 'hex_editor') {
+	// 			action = 'SET_HEX_EDITOR_STATE';
+	// 		} else if (type.text === 'hex_dialog_mode') {
+	// 			action = 'SET_HEX_EDITOR_DIALOG_MODE';
+	// 		} else if (type.text === 'hex_control') {
+	// 			action = 'SET_HEX_EDITOR_CONTROL';
+	// 		} else if (type.text === 'hex_clipboard') {
+	// 			action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
+	// 		} else if (type.text === 'serial_control') {
+	// 			action = 'SET_SERIAL_DIALOG_CONTROL';
+	// 		} else {
+	// 			throw new Error ("THIS SHOULDN'T HAPPEN: set bool action")
+	// 		}
+	// 	}
+	// 	const boolNodes = node.childrenForFieldName('bool_getable');
+	// 	const capturedBools = boolNodes.map(n=>handleCapture(f, n));
+	// 	if (boolNodes.length === 1) {
+	// 		ret[boolName] = capturedBools[0];
+	// 	} else {
+	// 		fieldsToSpread[boolName] = {
+	// 			node: boolNodes,
+	// 			captures: capturedBools,
+	// 		};
+	// 	}
+	// 	const spreads = spreadValues(f, ret, fieldsToSpread);
+	// 	const cleanedSpreads = spreads.map(spread=>{
+	// 		if (typeof spread[boolName] === 'string') {
+	// 			return mathSequenceFns.setBoolOnFlagName(f, node, spread, boolName);
+	// 		} else {
+	// 			return spread;
+	// 		}
+	// 	});
+	// 	return cleanedSpreads;
+	// },
 };
 
 const actionData = {
@@ -357,6 +357,95 @@ const actionData = {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
 		captures: [ 'animation', 'count' ],
 		relabeledCaptures: [{ field: 'entity_identifier', label: 'entity' }],
+	},
+	action_set_bool: {
+		values: {},
+		captures: [ 'bool_setable', 'bool_or_identifier' ],
+		detective: [
+			{
+				match: (v) => v.bool_setable.type === 'save_flag',
+				values: (v, f, node) => {
+					const action = {
+						action: 'SET_SAVE_FLAG',
+						save_flag: v.bool_setable.value,
+					};
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'entity',
+				values: (v, f, node) => {
+					const action = {
+						action: 'SET_ENTITY_GLITCHED',
+						entity: v.bool_setable.value,
+					};
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'light',
+				values: (v, f, node) => {
+					const action = {
+						action: 'SET_LIGHTS_STATE',
+						lights: v.bool_setable.value,
+					};
+					return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'player_control',
+				values: (v, f, node) => {
+					const action = { action: 'SET_PLAYER_CONTROL' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'lights_control',
+				values: (v, f, node) => {
+					const action = { action: 'SET_LIGHTS_CONTROL' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'hex_editor',
+				values: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_STATE' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'hex_dialog_mode',
+				values: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'hex_control',
+				values: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_CONTROL' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'hex_clipboard',
+				values: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+			{
+				match: (v) => v.bool_setable.type === 'serial_control',
+				values: (v, f, node) => {
+					const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+				},
+			},
+		],
+		detectError: (v) => ({
+			locations: [{ node: v.debug }],
+			message: `incompatible bool_setable and bool_or_identifier (lol good luck)`,
+		}),
 	},
 	action_set_position: {
 		values: {},
@@ -575,6 +664,15 @@ const mathSequenceFns = {
 			].map(v=>({ ...v, node, fileName: f.fileName })),
 		}
 	},
-}
+};
+
+const actionSetBoolRHSMaker = (f, v, node, action, boolLabel) => {
+	if (v.bool_or_identifier.type === 'boolean') {
+		action[boolLabel] = v.bool_or_identifier.value;
+	} else {
+		action = mathSequenceFns.setBoolOnFlagName(f, node, action, boolLabel);
+	}
+	return action;
+};
 
 module.exports = { handleAction, handleActionsInit };

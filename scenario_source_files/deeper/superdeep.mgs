@@ -18,5 +18,5 @@ set_movable_position {
 }
 
 setable {
-	player glitched = flagName;
+	[player glitched, player_control] = flagName;
 }

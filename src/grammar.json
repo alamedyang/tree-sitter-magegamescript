@@ -3761,9 +3761,65 @@
         }
       ]
     },
-    "bool_type_complex": {
+    "bool_setable": {
       "type": "CHOICE",
       "members": [
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "player_control"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "lights_control"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "hex_editor"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "hex_dialog_mode"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "hex_control"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "hex_clipboard"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "STRING",
+            "value": "serial_control"
+          }
+        },
         {
           "type": "SEQ",
           "members": [
@@ -3777,7 +3833,7 @@
             },
             {
               "type": "FIELD",
-              "name": "bool_type",
+              "name": "type",
               "content": {
                 "type": "STRING",
                 "value": "glitched"
@@ -3790,7 +3846,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "bool_type",
+              "name": "type",
               "content": {
                 "type": "STRING",
                 "value": "light"
@@ -3812,75 +3868,6 @@
           "content": {
             "type": "SYMBOL",
             "name": "string_expandable"
-          }
-        }
-      ]
-    },
-    "bool_setable": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "player_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "lights_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_editor"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_dialog_mode"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "hex_clipboard"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type",
-          "content": {
-            "type": "STRING",
-            "value": "serial_control"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "bool_type_complex",
-          "content": {
-            "type": "SYMBOL",
-            "name": "bool_type_complex"
           }
         }
       ]
@@ -3973,7 +3960,7 @@
         },
         {
           "type": "FIELD",
-          "name": "bool_getable",
+          "name": "bool_or_identifier",
           "content": {
             "type": "SYMBOL",
             "name": "bool_or_identifier_expandable"

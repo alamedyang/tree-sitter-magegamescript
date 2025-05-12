@@ -112,7 +112,6 @@ const captureFns = {
 		return ret;
 	},
 	coordinate_identifier: (f, node) => {
-		// ditto
 		const typeNode = node.childForFieldName('type');
 		const type = typeNode.text;
 		const ret = {
@@ -130,6 +129,53 @@ const captureFns = {
 			const entityName = extractEntityName(f, node, typeNode);
 			ret.type = 'entity';
 			ret.value = entityName;
+		}
+		return ret;
+	},
+	bool_setable: (f, node) => {
+		const ret = {
+			mathlang: 'bool_setable',
+			debug: node,
+			fileName: f.fileName,
+		};
+		const typeNode = node.childForFieldName('type');
+		if (!typeNode) {
+			const flagNameNode = node.childForFieldName('flag');
+			ret.value = handleCapture(f, flagNameNode);
+			ret.type = 'save_flag';
+			return ret;
+		}
+		const type = typeNode.text;
+		if (type === 'glitched') {
+			const entityIdentNode = node.childForFieldName('entity_identifier');
+			const entityTypeNode = entityIdentNode.childForFieldName('type');
+			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
+			ret.type = 'entity';
+			return ret;
+		}
+		if (type === 'light') {
+			const lightIdentNode = node.childForFieldName('light');
+			ret.value = handleCapture(f, lightIdentNode);
+			ret.type = 'light';
+			return ret;
+		}
+		ret.type = type;
+		return ret;
+	},
+	bool_or_identifier: (f, node) => {
+		const ret = {
+			mathlang: 'bool_or_identifier',
+			debug: node,
+			fileName: f.fileName,
+		};
+		const capture = handleCapture(f, node);
+		ret.value = capture;
+		if (typeof capture === 'string') {
+			ret.type = 'identifier';
+			ret.mathlang = 'setBoolOnFlagName';
+			// return mathSequenceFns.setBoolOnFlagName(f, node, spread, boolName);
+		} else {
+			ret.type = 'boolean'
 		}
 		return ret;
 	},
