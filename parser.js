@@ -6,18 +6,24 @@ const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
 
 const parseProject = async () => {
+	// tree-sitter
 	await Parser.init();
 	const parser = new Parser();
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
+
+	// my the-rest-of-the-owl
 	const p = makeProjectState(parser);
 	const fileMap = p.fileMap;
+	// parse each file
 	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
 			p.parseFile(fileName);
 		}
 	});
+
+	// take scripts/dialogs from each file and make global for the project
 	Object.keys(fileMap).forEach(fileName=>{
 		const f = fileMap[fileName].parsed;
 		f.nodes.forEach(node=>{
@@ -34,9 +40,14 @@ const parseProject = async () => {
 			+ f.printableMessageInformation()
 		);
 	})
-	// finalize
+
+	// check whether multiple registrations have been made for anything global
 	p.detectDuplicates();
-	p.reportProblems();
+
+	// print error messages
+	p.printProblems();
+	
+	// done!
 	return p;
 };
 

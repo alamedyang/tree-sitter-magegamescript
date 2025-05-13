@@ -1,10 +1,5 @@
 [
   {
-    "type": "BAREWORD",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "DISTANCE",
     "named": true,
     "fields": {
@@ -1368,16 +1363,16 @@
         "required": true,
         "types": [
           {
-            "type": "target_default",
-            "named": true
+            "type": "default",
+            "named": false
           },
           {
-            "type": "target_entity",
-            "named": true
+            "type": "entity",
+            "named": false
           },
           {
-            "type": "target_label",
-            "named": true
+            "type": "label",
+            "named": false
           }
         ]
       }
@@ -1397,11 +1392,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "assignment_operator",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "bareword_expansion",
@@ -1661,9 +1651,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
         {
           "type": "semicolon",
           "named": true
@@ -1863,8 +1857,12 @@
         "required": false,
         "types": [
           {
-            "type": "identifier_type",
-            "named": true
+            "type": "entity",
+            "named": false
+          },
+          {
+            "type": "name",
+            "named": false
           }
         ]
       },
@@ -1916,6 +1914,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2148,19 +2156,19 @@
         "types": [
           {
             "type": "entity",
-            "named": true
+            "named": false
           },
           {
             "type": "map",
-            "named": true
+            "named": false
           },
           {
             "type": "player",
-            "named": true
+            "named": false
           },
           {
             "type": "self",
-            "named": true
+            "named": false
           }
         ]
       }
@@ -2339,11 +2347,6 @@
     }
   },
   {
-    "type": "map",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "movable_identifier",
     "named": true,
     "fields": {
@@ -2425,6 +2428,11 @@
   },
   {
     "type": "over_time_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "player",
     "named": true,
     "fields": {}
   },
@@ -2748,6 +2756,16 @@
     "type": "script_definition",
     "named": true,
     "fields": {
+      "script_block": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "script_block",
+            "named": true
+          }
+        ]
+      },
       "script_name": {
         "multiple": false,
         "required": true,
@@ -2762,17 +2780,12 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "script_block",
-          "named": true
-        }
-      ]
     }
+  },
+  {
+    "type": "self",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "serial_dialog",
@@ -2859,8 +2872,12 @@
         "required": true,
         "types": [
           {
-            "type": "serial_dialog_option_type",
-            "named": true
+            "type": "#",
+            "named": false
+          },
+          {
+            "type": "_",
+            "named": false
           }
         ]
       },
@@ -2882,6 +2899,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2893,8 +2920,8 @@
         "required": true,
         "types": [
           {
-            "type": "BAREWORD",
-            "named": true
+            "type": "wrap",
+            "named": false
           }
         ]
       },
@@ -2938,17 +2965,11 @@
     }
   },
   {
-    "type": "target_entity",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "target_label",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "!",
+    "named": false
+  },
+  {
+    "type": "#",
     "named": false
   },
   {
@@ -2976,12 +2997,12 @@
     "named": false
   },
   {
-    "type": "=",
+    "type": ">",
     "named": false
   },
   {
-    "type": ">",
-    "named": false
+    "type": "BAREWORD",
+    "named": true
   },
   {
     "type": "BOOL",
@@ -3012,6 +3033,10 @@
     "named": false
   },
   {
+    "type": "_",
+    "named": false
+  },
+  {
     "type": "add",
     "named": false
   },
@@ -3026,6 +3051,10 @@
   {
     "type": "animation",
     "named": false
+  },
+  {
+    "type": "assignment_operator",
+    "named": true
   },
   {
     "type": "block",
@@ -3054,6 +3083,10 @@
   },
   {
     "type": "concat",
+    "named": false
+  },
+  {
+    "type": "default",
     "named": false
   },
   {
@@ -3127,10 +3160,6 @@
   {
     "type": "hide",
     "named": false
-  },
-  {
-    "type": "identifier_type",
-    "named": true
   },
   {
     "type": "in",
@@ -3207,7 +3236,7 @@
   },
   {
     "type": "player",
-    "named": true
+    "named": false
   },
   {
     "type": "player_control",
@@ -3243,7 +3272,7 @@
   },
   {
     "type": "self",
-    "named": true
+    "named": false
   },
   {
     "type": "semicolon",
@@ -3256,10 +3285,6 @@
   {
     "type": "serial_dialog",
     "named": false
-  },
-  {
-    "type": "serial_dialog_option_type",
-    "named": true
   },
   {
     "type": "settings",
@@ -3276,10 +3301,6 @@
   {
     "type": "slot",
     "named": false
-  },
-  {
-    "type": "target_default",
-    "named": true
   },
   {
     "type": "true",

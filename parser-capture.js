@@ -183,7 +183,7 @@ const captureFns = {
 
 const extractEntityName = (f, node, typeNode) => {
 	const type = typeNode.text;
-	let entity = '';
+	let entity;
 	if (type === 'self') entity = '%SELF%'
 	if (type === 'player') entity = '%PLAYER%'
 	if (type === 'entity') {
@@ -201,7 +201,7 @@ const extractEntityName = (f, node, typeNode) => {
 	return entity;
 };
 const extractGeometryName = (f, geometryNode) => {
-	let geometry = '';
+	let geometry;
 	if (geometryNode) {
 		geometry = handleCapture(f, geometryNode);
 	} else {

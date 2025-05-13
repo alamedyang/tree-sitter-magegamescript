@@ -5,23 +5,12 @@ const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
 
-const genericIdent = (f, node, fieldName, label = fieldName) => {
-	const childNodes = node.childrenForFieldName(fieldName);
-	if (childNodes) {
-		return childNodes.map(v=>handleCapture(f, v));
-	}
-	f.newError({
-		locations: [{ node }],
-		message: `undefined ${label} identifier`,
-	})
-	return 'UNDEFINED ' + label.toLocaleUpperCase();
-};
 const spreadValues = (f, commonFields, fieldsToSpread) => {
 	// count spreads
 	let spreadSize = -Infinity;
 	Object.values(fieldsToSpread).forEach(fieldName=>{
 		const len = fieldName.captures.length;
-		// spreadSize won't be 1
+		// spreadSize won't be 1 btw, because 1s go to commonFields
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
 			fieldName.newError({
@@ -31,11 +20,11 @@ const spreadValues = (f, commonFields, fieldsToSpread) => {
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
-	// if it's single, pass it back
+	// if it's a single thing, pass it back whole
 	if (spreadSize === -Infinity) {
 		return [ commonFields ];
 	}
-	// spread action into multiple variants
+	// but spread action into multiple variants
 	let multis = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const currUnit = { ...commonFields };
@@ -50,6 +39,7 @@ const spreadValues = (f, commonFields, fieldsToSpread) => {
 };
 
 const handleAction = (f, node) => {
+	// cyclic dependency bodge
 	if (!handleNode) {
 		throw new Error("handleAction cannot be called until handleNode has been provided to the init function")
 	}
@@ -73,18 +63,18 @@ const handleAction = (f, node) => {
 			if (data.optionalCaptures?.includes(field)) {
 				action[field] = null;
 			} else {
-				throw new Error ("THIS SHOULDN'T HAPPEN FIX IT")
+				throw new Error(`Capture found for field not associated with this action (${field})`)
 			}
+			return;
+		}
+		const capture = handleCapture(f, fieldNode);
+		if (!Array.isArray(capture)) {
+			action[field] = capture;
 		} else {
-			const capture = handleCapture(f, fieldNode);
-			if (!Array.isArray(capture)) {
-				action[field] = capture;
-			} else {
-				fieldsToSpread[field] = {
-					node: fieldNode,
-					captures: capture,
-				};
-			}
+			fieldsToSpread[field] = {
+				node: fieldNode,
+				captures: capture,
+			};
 		}
 	});
 	capturesToRelabel.forEach(({field, label})=>{
@@ -107,6 +97,7 @@ const handleAction = (f, node) => {
 				const clueData = data.detective[i];
 				const solved = clueData.match(action);
 				if (solved) {
+					// todo: reorder the arguments?
 					const values = clueData.values(action, f, node);
 					Object.entries(values)
 						.forEach(([k,v])=>{ action[k] = v; });
@@ -129,14 +120,17 @@ const actionFns = {
 				+ '-' + node.startPosition.row
 				+ ':' + node.startPosition.column;
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = (dialogNodes||[]).map(child=>handleNode(f, child)).flat();
+		const dialogs = (dialogNodes||[])
+			.map(child=>handleNode(f, child))
+			.flat(); // (double flat?)
 		const showDialogAction = {
 			action: 'SHOW_DIALOG',
 			dialog: name,
 			debug: node,
 			fileName: f.fileName
 		}
-		if (dialogs.length === 0) {
+		// TODO: telling apart unnamed empty dialogs and SHOW_DIALOG w/o dialog block?
+		if (dialogNodes.length === 0) {
 			return [showDialogAction];
 		}
 		const dialogDefinition = {
@@ -160,7 +154,9 @@ const actionFns = {
 				+ '-' + node.startPosition.row
 				+ ':' + node.startPosition.column;
 		const serialDialogNodes = node.childrenForFieldName('serial_dialog');
-		const serialDialogs = (serialDialogNodes||[]).map(child=>handleNode(f, child)).flat();
+		const serialDialogs = (serialDialogNodes||[])
+			.map(child=>handleNode(f, child))
+			.flat();
 		const showSerialDialogAction = {
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: !isConcat,

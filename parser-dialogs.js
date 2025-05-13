@@ -40,13 +40,13 @@ const countCharLength = str => {
 	let length = 0;
 	let remainder = str;
 	while (remainder.length) {
-		const percent = remainder.match(/^%.*%/);
+		const percent = remainder.match(/^%.*%/); // entity name
 		if (percent) {
 			length += 12;
 			remainder = remainder.slice(percent[0].length);
 			continue;
 		}
-		const dollar = remainder.match(/^\$.*\$/);
+		const dollar = remainder.match(/^\$.*\$/); // variable (int) value
 		if (dollar) {
 			length += 5;
 			remainder = remainder.slice(dollar[0].length);
@@ -58,6 +58,7 @@ const countCharLength = str => {
 			remainder = remainder.slice(2);
 			continue;
 		}
+		// TODO: maybe don't do this part; probably slow
 		const canPrint = remainder.match(/^[-!"#$%&'()*+,./0-9:;<>=?@A-Z\[\]\\^_`a-z{}|~]+/);
 		if (canPrint) {
 			length += 1;
@@ -113,7 +114,7 @@ const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
 
 // This is for the web build, which does not carry over ansi styles when things are wrapped
 const ansiWrapBodge = arr => {
-	let wrappedTags = new Set ();
+	let wrappedTags = new Set();
 	const bodged = arr.map(line=>{
 		let prevTags = wrappedTags.size ? [...wrappedTags].join('') : '';
 		let pos = 0;
@@ -189,8 +190,8 @@ const buildDialogFromInfo = (f, info, messageNodes) => {
 		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
 		dialog.options = info.options;
 	}
-	dialog.messages.forEach((message, i, arr)=>{
-		const lastIndex = arr.length - 1;
+	const lastIndex = dialog.messages.length - 1;
+	dialog.messages.forEach((message, i)=>{
 		const targetSize = lastIndex === i && dialog.options ? 1 : 5;
 		const splitMessage = message.split('\n');
 		if (splitMessage.length > targetSize) {

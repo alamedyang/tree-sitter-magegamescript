@@ -13,20 +13,32 @@ const handleCapture = require('./parser-capture.js');
 const { handleAction, handleActionsInit } = require('./parser-actions.js');
 
 const handleNode = (f, node) => {
+	debugLog(`handleNode: ${node.grammarType}`);
+
+	// Tree-sitter does not (?) report these on its own; we have to seek them each time
 	reportMissingChildNodes(f, node);
 	reportErrorNodes(f, node);
-	debugLog(`handleNode: ${node.grammarType}`)
+
+	// Actions are their own beast and are handled elsewhere
 	if (node.grammarType.startsWith('action_')) {
 		return handleAction(f, node);
 	}
+
+	// Look up the handler function
 	const nodeFn = nodeFns[node.grammarType];
 	if (!nodeFn) {
 		throw new Error ('no named node function for '+ node.grammarType);
 	}
+
+	// Do it
 	return nodeFn(f, node);
 };
+
+// Cyclic dependency bodge!
 handleActionsInit(handleNode);
 
+// These must return an array, because they might produce multiple things (or zero things)
+// NOTICE: The caller should flat() what it receives!
 const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
@@ -35,6 +47,8 @@ const nodeFns = {
 			locations: [{ node }],
 			message: 'syntax error',
 		}
+		// I guess feel free to add more of these as they come up
+		// This might be the only place some of them can be detected
 		if (node.namedChildren.some(v=>v.type === 'over_time_operator')) {
 			err.message = `malformed 'do over time' expression`
 			err.footer = `should take the form '@movable -> @coordinate over @duration [forever];'\n`
@@ -47,7 +61,8 @@ const nodeFns = {
 	script_definition: (f, node) => {
 		const nameNode = node.childForFieldName('script_name');
 		const name = handleCapture(f, nameNode);
-		const actions = node.lastChild.namedChildren
+		const actions = node.lastChild
+			.namedChildren // error nodes are caught above
 			.map(node=>handleNode(f, node))
 			.flat();
 		return [{
@@ -72,7 +87,7 @@ const nodeFns = {
 		}
 		f.constants[label] = {
 			value,
-			type: valueNode.grammarType,
+			type: valueNode.grammarType, // fyi only; not using this currently
 			debug: node,
 			fileName: f.fileName,
 		};
@@ -97,7 +112,7 @@ const nodeFns = {
 				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
 			}
 			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
-			f.includeFile(prereqName);
+			f.includeFile(prereqName); // incorporate their crawl state into us
 		});
 		return [{
 			mathlang: 'include_macro',
@@ -113,7 +128,7 @@ const nodeFns = {
 			.forEach(node=>{
 				const handled = handleNode(f, node);
 				const len = handled.length;
-				if (len === 0) return;
+				if (len === 0) return; // empties are ignored
 				horizontal.push(handled);
 				if (len === 1) return;
 				if (multipleCount === -Infinity) multipleCount = len;
@@ -123,7 +138,7 @@ const nodeFns = {
 						message: `spreads inside rand!() must contain same number of items`,
 					});
 				}
-			})
+			});
 		const vertical = [];
 		for (let i = 0; i < multipleCount; i++) {
 			const insert = horizontal.map(unit=>{
@@ -149,7 +164,7 @@ const nodeFns = {
 	},
 	add_dialog_settings: (f, node) => {
 		const targets = node.namedChildren
-			.map(child=>handleNode(f, child))
+			.map(child=>handleNode(f, child)) // add_dialog_settings_target
 			.flat();
 		return [{
 			mathlang: 'add_dialog_settings',
@@ -159,57 +174,46 @@ const nodeFns = {
 		}]
 	},
 	add_dialog_settings_target: (f, node) => {
-		let bucket;
-		const type = node.firstChild.type;
-		const targetNode = node.childForFieldName('target');
-		if (type === 'target_default') {
-			bucket = f.settings.default;
-		} else if (type === 'target_label') {
-			if (!targetNode) {
+		let settingsTarget;
+		const type = node.firstChild.text;
+		const ret = {
+			mathlang: 'add_dialog_settings_target',
+			type,
+			debug: node,
+			fileName: f.fileName,
+		};
+		// figure out which settings we're adding to (the "target")
+		if (type === 'default') {
+			settingsTarget = f.settings.default;
+		} else if (type === 'label' || type === 'entity') {
+			const targetNode = node.childForFieldName('target');
+			if (targetNode) {
+				const target = handleCapture(f, targetNode);
+				f.settings[type][target] = f.settings[type][target] || {};
+				settingsTarget = f.settings[type][target];
+				ret.target = target;
+			} else {
 				f.newError({
 					locations: [{ node }],
-					message: `dialog_settings_target: malformed label definition`,
+					message: `dialog_settings_target: malformed ${type} definition`,
 				});
 			}
-			const target = targetNode.text || 'UNDEFINED LABEL';
-			f.settings.label[target] = f.settings.label[target] || {};
-			bucket = f.settings.label[target];
-		} else if (type === 'target_entity') {
-			if (!targetNode) {
-				f.newError({
-					locations: [{ node }],
-					message: `dialog_settings_target: malformed entity definition`,
-				});
-			}
-			const target = targetNode.text || 'UNDEFINED ENTITY';
-			f.settings.label[target] = f.settings.label[target] || {};
-			bucket = f.settings.entity[target];
 		} else {
-			throw new Error("This shouldn't happen, I think");
+			throw new Error(`Unknown dialog settings target type: ${type}`);
 		}
+		// find the settings themselves
 		const parameters = node.childrenForFieldName('dialog_parameter')
 			.map(innerChild=>handleNode(f, innerChild))
 			.flat();
 		parameters.forEach(param=>{
-			bucket[param.property] = param.value;
+			settingsTarget[param.property] = param.value;
 		});
-		return [{
-			mathlang: 'add_dialog_settings_target',
-			parameters,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		ret.parameters = parameters;
+		return [ret];
 	},
 	dialog_parameter: (f, node) => {
 		const propNode = node.childForFieldName('property');
 		const valueNode = node.childForFieldName('value');
-		if (!propNode || !valueNode) {
-			f.newError({
-				locations: [{ node }],
-				message: `malformed dialog parameter`,
-			});
-			return [];
-		}
 		return [{
 			mathlang: 'dialog_parameter',
 			property: propNode.text,
@@ -244,7 +248,7 @@ const nodeFns = {
 		}
 		return [{
 			mathlang: 'serial_dialog_parameter',
-			property: handleCapture(f, propNode),
+			property: propNode.text,
 			value: handleCapture(f, valueNode),
 			debug: node,
 			fileName: f.fileName,
@@ -261,7 +265,7 @@ const nodeFns = {
 			});
 			return [];
 		}
-		let optionType = null;
+		let optionType;
 		if (optionNode.text === '_') optionType = 'text_options';
 		else if (optionNode.text === '#') optionType = 'options';
 		return [{
@@ -295,11 +299,11 @@ const nodeFns = {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		const name = handleCapture(f, nameNode);
-		const dialog = handleNode(f, serialDialogNode);
+		const serialDialog = handleNode(f, serialDialogNode);
 		return [{
 			mathlang: 'serial_dialog_definition',
 			serialDialogName: name,
-			serialDialog: dialog[0],
+			serialDialog: serialDialog[0],
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -308,7 +312,9 @@ const nodeFns = {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = handleCapture(f, nameNode);
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = dialogNodes.map(child=>handleNode(f, child)).flat();
+		const dialogs = dialogNodes
+			.map(dialogNode=>handleNode(f, dialogNode))
+			.flat();
 		return [{
 			mathlang: 'dialog_definition',
 			dialogName: name,
@@ -321,8 +327,8 @@ const nodeFns = {
 		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
 		const messageNodes = node.childrenForFieldName('serial_message');
 		const optionNodes = node.childrenForFieldName('serial_dialog_option');
-		const params = paramNodes.map(v=>handleNode(f, v)).flat();
-		const options = optionNodes.map(v=>handleNode(f, v)).flat();
+		const params = paramNodes.map(node=>handleNode(f, node)).flat();
+		const options = optionNodes.map(node=>handleNode(f, node)).flat();
 		// TODO: make options more closely resemble final form?
 		const settings = {};
 		params.forEach(param=>{
@@ -416,36 +422,6 @@ const nodeFns = {
 			json: parsed,
 			debug: node,
 			fileName: f.fileName,
-		}]
-	},
-	entity_or_map_identifier: (f, node) => {
-		const targetNode = node.childForFieldName('target');
-		const targetType = handleCapture(f, targetNode);
-		let entity = '';
-		if (targetType === 'map') {
-			entity = '%MAP%';
-		} else if (targetType === 'self') {
-			entity = '%SELF%';
-		} else if (targetType === 'self') {
-			entity = '%PLAYER%';
-		} else {
-			const valueNode = node.childForFieldName('entity');
-			if (!valueNode) {
-				f.newError({
-					locations: [{ node }],
-					message: `undefined entity in entity identifier`,
-				});
-				entity = 'UNDEFINED ENTITY';
-			} else {
-				entity = handleCapture(f, valueNode);
-			}
-		}
-		return [{
-			mathlang: 'entity_or_map_identifier',
-			entity,
-			debug: node,
-			fileName: f.fileName,
-			fieldsAsCapture: ['entity'],
 		}]
 	},
 };

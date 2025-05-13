@@ -32,22 +32,31 @@ const makeMap = path => {
 		}
 	}
 	return map;
-}
+};
 
-const makeProjectState = (parser) => {
+const makeProjectState = (tsParser) => {
 	const inputPath = path.resolve('./scenario_source_files');
 	const fileMap = makeMap(inputPath);
-	const p = { // 'project' :P
+	// project crawl state
+	const p = {
+		parser: tsParser,
 		fileMap,
+
+		// auto counter, so that auto-generated gotos do not share labels:
 		gotoSuffixValue: 0,
+
+		// the global project things:
 		scripts: {},
 		dialogs: {},
 		serialDialogs: {},
+
+		// for printing fancy messages:
 		errors: [],
 		warnings: [],
-		parser,
 		errorCount: 0,
 		warningCount: 0,
+
+		// provides the label suffix, then advances counter:
 		gotoSuffix: () => p.gotoSuffixValue++,
 		newError: (v) => {
 			p.errors.push(v);
@@ -57,13 +66,37 @@ const makeProjectState = (parser) => {
 			p.warnings.push(v);
 			p.warningCount += 1;
 		},
+
+		// for adding a file's data to the project's
+
 		addScript: (data, fileName) => {
 			const scriptName = data.scriptName;
-			data.rawActions = data.actions;
-			data.actions = finalizeActions(p, data.actions, fileName).flat();
+			data.rawNodes = data.actions;
+			// finalize actions
+			const finalizedActions = [];
+			data.rawNodes.forEach(node=>{
+				if (!node.mathlang) {
+					finalizedActions.push(node);
+				} else if (node.mathlang === 'dialog_definition') {
+					// (sometimes these are inside a script body)
+					p.addDialog(node, fileName);
+				} else if (node.mathlang === 'serial_dialog_definition') {
+					// (sometimes these are inside a script body)
+					p.addSerialDialog(node, fileName);
+				} else if (node.mathlang === 'math_sequence') {
+					node.steps.forEach(step=>finalizedActions.push(step));
+				} else {
+					console.error(node);
+					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE!")
+				}
+			});
+			data.actions = finalizedActions.flat();
+			// put it in the project
 			if (!p.scripts[scriptName]) {
+				// if not registered yet, add it
 				p.scripts[scriptName] = data;
 			} else {
+				// if it's a duplicate, make an array for all the ones we find
 				if (!p.scripts[scriptName].duplicates) {
 					p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
 				}
@@ -92,29 +125,34 @@ const makeProjectState = (parser) => {
 				p.dialogs[serialDialogName].duplicates.push(data);
 			}
 		},
+
+		// can only be done after all files in a project are parsed
 		detectDuplicates: () => {
 			[ 'scripts', 'dialogs', 'serialDialogs' ].forEach(category=>{
 				const entries = Object.entries(p[category]);
 				entries.forEach(([name, entry])=>{
 					if (entry.duplicates) {
+						// note: one error message, multiple locations
 						p.newError({
+							message: `multiple ${category} with name "${name}"`,
 							locations: entry.duplicates.map(dupe=>({
 								fileName: dupe.fileName,
 								node: dupe.debug.firstNamedChild,
 							})),
-							message: `multiple ${category} with name "${name}"`,
 						});
 					}
 				});
 			});
 		},
-		reportProblems: () => {
+
+		// fancy console location printing for all collected problems
+		printProblems: () => {
 			const messages = [];
 			const errCount = p.errorCount;
 			const warnCount = p.warningCount;
 			if (errCount) {
 				messages.push(
-					`${ansi.r}`
+					`${ansi.red}`
 					+ `${errCount} error`
 					+ `${errCount !== 1 ? 's' : ''}`
 					+ `${ansi.reset}`
@@ -122,7 +160,7 @@ const makeProjectState = (parser) => {
 			}
 			if (warnCount) {
 				messages.push(
-					`${ansi.y}`
+					`${ansi.yellow}`
 					+ `${warnCount} warning`
 					+ `${warnCount !== 1 ? 's' : ''}`
 					+ `${ansi.reset}`
@@ -133,49 +171,39 @@ const makeProjectState = (parser) => {
 			} else {
 				console.log(`Issues found: ${messages.join(', ')}`)
 			}
-			p.warnings.forEach(v=>{
-				const s = ansi.y
-					+ makeMessagePrintable(p.fileMap, 'Warning', v)
+			p.warnings.forEach(message=>{
+				const str = ansi.yellow
+					+ makeMessagePrintable(p.fileMap, 'Warning', message)
 					+ ansi.reset;
-				console.warn(s);
+				console.warn(str);
 			})
-			p.errors.forEach(v=>{
-				const s = ansi.r
-					+ makeMessagePrintable(p.fileMap, 'Error', v)
+			p.errors.forEach(message=>{
+				const str = ansi.red
+					+ makeMessagePrintable(p.fileMap, 'Error', message)
 					+ ansi.reset;
-				console.error(s);
+				console.error(str);
 			})
 		},
+
+		// the actual owl
 		parseFile: (fileName) => {
 			const fileMap = p.fileMap;
-			const tree = parser.parse(fileMap[fileName].text);
-			let document = tree.rootNode;
-			const f = makeFileState(p, fileName, p.parser);
+			// tree-sitter things
+			const ast = tsParser.parse(fileMap[fileName].text);
+			let document = ast.rootNode;
+			// file crawl state
+			const f = makeFileState(p, fileName);
 			const nodes = document.namedChildren
 				.map(node=>handleNode(f, node))
 				.flat();
 			f.nodes = nodes;
+			// add parsed file to the pile
 			fileMap[fileName].parsed = f;
 			return f;
 		},
 	};
-	return p;
-};
 
-const finalizeActions = (p, rawActions, fileName) => {
-	const ret = [];
-	rawActions.forEach(node=>{
-		if (!node.mathlang) {
-			ret.push(node);
-		} else if (node.mathlang === 'dialog_definition') {
-			p.addDialog(node, fileName);
-		} else if (node.mathlang === 'serial_dialog_definition') {
-			p.addSerialDialog(node, fileName);
-		} else if (node.mathlang === 'math_sequence') {
-			node.steps.forEach(step=>ret.push(step));
-		}
-	})
-	return ret;
+	return p;
 };
 
 module.exports = {

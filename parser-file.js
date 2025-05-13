@@ -1,71 +1,102 @@
 const { ansiTags: ansi } = require('./parser-dialogs.js');
 
-const makeFileState = (p, fileName, parser) => {
-	const f = { // file
-		p, // project
+const makeFileState = (p, fileName) => {
+	// file crawl state
+	const f = {
+		// project crawl state, because we need to reach in sometimes
+		// and we do NOT want to pass it around separately!
+		p,
 		fileName,
+
+		// compile-time constants,
+		// substituted for their registered token value as they are encounted
 		constants: {},
+
+		// dialog and serial dialog settings,
+		// into the (serial) dialogs as the latter are encountered
 		settings: {
 			default: {},
 			entity: {},
 			label: {},
 			serial: {},
 		},
+
+		// these are root level nodes like script definitions, settings definitions, etc
 		nodes: [],
+
+		// some warnings/errors are at the file level, but others are not encountered until all files are mushed together; this count only concerns the former
 		errorCount: 0,
 		warningCount: 0,
-		parser,
+
+		// local errors/warnings will add the filename here for sanity's sake (rather than needing to be added each time there's an error)
+		// errors made this way should only be concerned with the original file itself, and so the crawl state's filename should be correct in all cases
 		newError: (message) => {
-			message.locations.forEach(v=>v.fileName = fileName);
+			message.locations.forEach(v=>{
+				// only put on a filename if one was not provided in the locations entry
+				// (should be able to override default filename if necessary)
+				if (!v.fileName) v.fileName = fileName;
+			});
 			p.newError(message);
 			f.errorCount += 1;
 		},
 		newWarning: (message) => {
-			message.locations.forEach(v=>v.fileName = fileName);
+			message.locations.forEach(v=>{
+				if (!v.fileName) v.fileName = fileName;
+			});
 			p.newWarning(message);
 			f.warningCount += 1;
 		},
+
+		// add a new file's crawl state to ours (overriding existing values)
 		includeFile: (newName) => {
-			const newF = p.fileMap[newName].parsed;
-			Object.keys(newF.constants).forEach(constantName=>{
+			// Push ifs up! Don't call this function unless you know the file is parsed already
+			const newFile = p.fileMap[newName].parsed;
+			// add their constants to us
+			Object.keys(newFile.constants).forEach(constantName=>{
 				if (f.constants[constantName]) {
 					f.newError({
+						message: `cannot redefine constant ${constantName} (via 'include')`,
 						locations: [{
-							fileName: newF.fileName,
-							node: newF.constants[constantName].node, 
+							fileName: newFile.fileName,
+							node: newFile.constants[constantName].node, 
 						}],
-						message: `cannot redefine constant ${constantName} (via 'include')`
 					});
 				}
-				f.constants[constantName] = newF.constants[constantName];
+				f.constants[constantName] = newFile.constants[constantName];
 			});
-			newF.nodes.forEach(node=>{ f.nodes.push(node) });
+			// add their actual node entries to us (might help debugging)
+			newFile.nodes.forEach(node=>{ f.nodes.push(node) });
+			// add (serial) dialog settings
 			['default', 'serial'].forEach(type=>{
-				Object.keys(newF.settings[type]).forEach(param=>{
-					f.settings[type][param] = newF.settings[type][param];
+				Object.keys(newFile.settings[type]).forEach(param=>{
+					f.settings[type][param] = newFile.settings[type][param];
 				});
 			});
+			// ...some of which are extra layered
 			['entity', 'label'].forEach(type=>{
-				Object.keys(newF.settings[type]).forEach(target=>{
-					const params = Object.keys(newF.settings[type][target]);
+				Object.keys(newFile.settings[type]).forEach(target=>{
+					const params = Object.keys(newFile.settings[type][target]);
 					f.settings[type][target] = f.settings[type][target] || {};
 					params.forEach(param=>{
-						f.settings[type][target][param] = newF.settings[type][target][param];
+						f.settings[type][target][param] = newFile.settings[type][target][param];
+						// (I apologize for this)
 					});
 				});
 			});
 		},
+
+		// log an individual file's parse status
 		printableMessageInformation: () => {
 			const errCount = f.errorCount;
 			const warnCount = f.warningCount;
 			if (errCount === 0 && warnCount === 0) {
-				return `(${ansi.g}OK${ansi.reset})`;
+				return `(${ansi.green}OK${ansi.reset})`;
 			}
 			const errMessage = errCount
-				? `${ansi.r}${errCount} error${errCount === 1 ? '' : 's'}${ansi.reset}`
+				? `${ansi.red}${errCount} error${errCount === 1 ? '' : 's'}${ansi.reset}`
 				: `0 errors`;
 			const warnMessage = warnCount
-				? `${ansi.y}${warnCount} warning${warnCount === 1 ? '' : 's'}${ansi.reset}`
+				? `${ansi.yellow}${warnCount} warning${warnCount === 1 ? '' : 's'}${ansi.reset}`
 				: `0 warnings`;
 			const ret = [errMessage, warnMessage].join(', ');
 			return `(${ret})`;

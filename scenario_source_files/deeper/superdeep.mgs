@@ -17,6 +17,10 @@ set_movable_position {
 	// camera -> player position over 1s forever;
 }
 
+pause {
+	pause map on_tick;
+}
+
 setable {
 	[player glitched, player_control] = true;
 }

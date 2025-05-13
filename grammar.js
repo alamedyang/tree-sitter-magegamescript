@@ -209,7 +209,7 @@ module.exports = grammar({
 		),
 		constant_assignment: $ => seq(
 			field('label', $.CONSTANT),
-			'=',
+			$.assignment_operator,
 			field('value', $.CONSTANT_VALUE),
 			$.semicolon,
 		),
@@ -218,12 +218,10 @@ module.exports = grammar({
 			repeat($.serial_dialog_parameter),
 			'}'
 		),
-		serial_dialog_parameter_int: $ => token('wrap'),
 		serial_dialog_parameter: $ => choice(
 			seq(
-				field('property', alias(
-					$.serial_dialog_parameter_int,
-					$.BAREWORD,
+				field('property', choice(
+					'wrap',
 				)),
 				field('value', $.number),
 			),
@@ -233,35 +231,25 @@ module.exports = grammar({
 				repeat($.add_dialog_settings_target),
 			'}',
 		),
-		target_default: $ => token('default'),
-		target_label: $ => token('label'),
-		target_entity: $ => token('entity'),
 		add_dialog_settings_target: $ => seq(
 			choice(
-				field('type', $.target_default),
-				seq(field('type', $.target_label), field('target', $.bareword)),
-				seq(field('type', $.target_entity), field('target', $.string)),
+				field('type', 'default'),
+				seq(field('type', 'label'), field('target', $.bareword)),
+				seq(field('type', 'entity'), field('target', $.string)),
 			),
 			'{', repeat(field('dialog_parameter', $.dialog_parameter)), '}'
 		),
-		_dialog_parameter_int: $ => choice(
-			token('wrap'),
-			token('emote')
-		),
-		_dialog_parameter_string: $ => choice(
-			token('entity'),
-			token('name'),
-			token('portrait'),
-			token('alignment'),
-			token('border_tileset')
-		),
 		dialog_parameter: $ => choice(
 			seq(
-				field('property', $._dialog_parameter_int),
+				field('property', choice(
+					'wrap', 'emote',
+				)),
 				field('value', $.number),
 			),
 			seq(
-				field('property', $._dialog_parameter_string),
+				field('property', choice(
+					'entity', 'name', 'portrait', 'alignment', 'border_tileset'
+				)),
 				field('value', $.string),
 			),
 		),
@@ -281,18 +269,17 @@ module.exports = grammar({
 			repeat1(field('message', $.QUOTED_STRING)),
 			repeat(field('dialog_option', $.dialog_option)),
 		),
-		identifier_type: $ => token(choice('entity', 'name')),
 		dialog_identifier: $ => choice(
 			field('label', $.BAREWORD),
 			seq(
-				field('type', $.identifier_type),
+				field('type', choice('entity', 'name')),
 				field('value', $.STRING)
 			),
 		),
 		dialog_option: $ => seq(
 			'>',
 			field('label', $.QUOTED_STRING),
-			'=',
+			$.assignment_operator,
 			field('script', $.string),
 		),
 		serial_dialog_definition: $ => seq(
@@ -311,16 +298,15 @@ module.exports = grammar({
 			repeat(field('serial_dialog_option', $.serial_dialog_option)),
 		),
 		serial_dialog_option: $ => seq(
-			field('option_type', $.serial_dialog_option_type),
+			field('option_type', choice('_', '#')),
 			field('label', $.QUOTED_STRING),
-			'=',
+			$.assignment_operator,
 			field('script', $.string),
 		),
-		serial_dialog_option_type: $ => token(choice('_', '#')),
 		script_definition: $ => seq(
 			optional('script'),
 			field('script_name', $.STRING),
-			$.script_block,
+			field('script_block', $.script_block),
 		),
 		script_block: $ => seq('{', repeat($._script_item), '}'),
 		_script_item: $ => choice(
@@ -485,12 +471,11 @@ module.exports = grammar({
 			)),
 			']'
 		),
-		map: $ => 'map',
 		entity_or_map_identifier: $ => choice(
-			field('type', $.map),
-			field('type', $.player),
-			field('type', $.self),
-			seq(field('type', $.entity), field('entity', $.string))
+			field('type', 'map'),
+			field('type', 'player'),
+			field('type', 'self'),
+			seq(field('type', 'entity'), field('entity', $.string))
 		),
 		entity_or_map_identifier_expandable: $ => choice(
 			$.entity_or_map_identifier,
