@@ -35,17 +35,16 @@ module.exports = grammar({
 		$.color, $.color_expandable,
 		$.bool, $.bool_expandable,
 		$.CONSTANT_VALUE,
-		$.bool_or_identifier, $.bool_or_identifier_expandable,
-		// $.int_or_identifier, $.int_or_identifier_expandable,
 		$.entity_identifier_expandable,
 		$.entity_or_map_identifier_expandable,
 		// $.geometry_identifier_expandable,
 		$.movable_identifier_expandable,
 		$.coordinate_identifier_expandable,
+		$.ambiguous_identifier_expandable,
+		$.bool_expression_expandable,
 		$.bool_setable_expandable,
-		// $.int_setable_expandable,
+		$.int_setable_expandable,
 		// $.entity_property_string_expandable,
-		// $.entity_property_int_expandable,
 	],
 	rules: {
 		document: $ => repeat($._root),
@@ -53,7 +52,34 @@ module.exports = grammar({
 		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
 		line_comment: $ => token(repeat1(seq('//', repeat(/[^\n]/)))),
 	
-		BOOL: $ => token(/true|false|on|off|open|closed/),
+		BOOL: $ => token(prec(1,/true|false|on|off|open|closed/)),
+		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
+		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
+		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
+		NUMBER: $ => token(/-?[0-9]+/),
+		DURATION: $ => prec.right(seq(
+			$.NUMBER,
+			optional(field('suffix', token.immediate(/m?s/)))
+		)),
+		DISTANCE: $ => prec.right(seq(
+			$.NUMBER,
+			optional(field('suffix', token.immediate(/pix|px/)))
+		)),
+		QUANTITY: $ => choice(
+			token(prec(1, choice('once', 'twice', 'thrice'))),
+			prec.right(seq(
+				$.NUMBER,
+				optional(field('suffix', token.immediate(/x/)))
+			)),
+		),
+		COLOR: $ => token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-F]{3,6}/)),
+		CONSTANT: $ => token(/\$[_a-zA-Z0-9]+/),
+		CONSTANT_VALUE: $ => choice(
+			$.NUMBER, $.DURATION, $.DISTANCE, $.QUANTITY,
+			$.BOOL, $.CONSTANT,
+			$.COLOR, $.QUOTED_STRING, $.BAREWORD,
+		),
+
 		bool: $ => choice($.BOOL, $.CONSTANT),
 		bool_expandable: $ => choice($.bool, $.bool_expansion),
 		bool_expansion: $ => seq(
@@ -61,26 +87,7 @@ module.exports = grammar({
 			seq($.bool, repeat(seq(',', $.bool)), optional(',')),
 			']'
 		),
-		bool_or_identifier: $ => choice(
-			field('bool', $.BOOL),
-			field('constant', $.CONSTANT),
-			field('identifier', $.STRING)
-		),
-		bool_or_identifier_expandable: $ => choice(
-			$.bool_or_identifier,
-			$.bool_or_identifier_expansion,
-		),
-		bool_or_identifier_expansion: $ => seq(
-			'[',
-			optional(seq(
-				$.bool_or_identifier,
-				repeat(seq(',', $.bool_or_identifier)),
-				optional(','),
-			)),
-			']'
-		),
 		
-		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		bareword: $ => choice($.BAREWORD, $.CONSTANT),
 		bareword_expandable: $ => choice($.bareword, $.bareword_expansion),
 		bareword_expansion: $ => seq(
@@ -89,7 +96,6 @@ module.exports = grammar({
 			']'
 		),
 
-		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
 		quoted_string: $ => choice($.QUOTED_STRING, $.CONSTANT),
 		quoted_string_expandable: $ => choice($.quoted_string, $.quoted_string_expansion),
 		quoted_string_expansion: $ => seq(
@@ -98,7 +104,6 @@ module.exports = grammar({
 			']'
 		),
 
-		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
 		string: $ => choice($.STRING, $.CONSTANT),
 		string_expandable: $ => choice($.string, $.string_expansion),
 		string_expansion: $ => seq(
@@ -107,7 +112,6 @@ module.exports = grammar({
 			']'
 		),
 
-		NUMBER: $ => token(/[0-9]+/),
 		number: $ => choice($.NUMBER, $.CONSTANT),
 		number_expandable: $ => choice($.number, $.number_expansion),
 		number_expansion: $ => seq(
@@ -115,31 +119,7 @@ module.exports = grammar({
 			optional(seq($.number, repeat(seq(',', $.number)), optional(','))),
 			']'
 		),
-	// 	int_or_identifier: $ => choice(
-	// 		field('int', $.NUMBER),
-	// 		field('constant', $.CONSTANT),
-	// 		field('identifier', $.BAREWORD),
-	// 		$.entity_property_int_identifier,
-	// 	),
-	// 	int_or_identifier_expandable: $ => choice(
-	// 		$.int_or_identifier,
-	// 		$.int_or_identifier_expansion,
-	// 	),
-	// 	int_or_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.int_or_identifier,
-	// 			repeat(seq(',', $.int_or_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
 
-		duration_suffix: $ => token.immediate(/m?s/),
-		DURATION: $ => prec.right(seq(
-			$.NUMBER,
-			optional(field('suffix', $.duration_suffix))
-		)),
 		duration: $ => choice($.DURATION, $.CONSTANT),
 		duration_expandable: $ => choice($.duration, $.duration_expansion),
 		duration_expansion: $ => seq(
@@ -147,12 +127,7 @@ module.exports = grammar({
 			seq($.duration, repeat(seq(',', $.duration)), optional(',')),
 			']'
 		),
-		
-		distance_suffix: $ => token.immediate(/pix|px/),
-		DISTANCE: $ => prec.right(seq(
-			$.NUMBER,
-			optional(field('suffix', $.distance_suffix))
-		)),
+
 		distance: $ => choice($.DISTANCE, $.CONSTANT),
 		distance_expandable: $ => choice($.distance, $.distance_expansion),
 		distance_expansion: $ => seq(
@@ -161,14 +136,7 @@ module.exports = grammar({
 			']'
 		),
 		
-		quantity_suffix: $ => token.immediate(/x/),
-		QUANTITY: $ => choice(
-			token(prec(1, choice('once', 'twice', 'thrice'))),
-			prec.right(seq(
-				$.NUMBER,
-				optional(field('suffix', $.quantity_suffix))
-			)),
-		),
+
 		quantity: $ => choice($.QUANTITY, $.CONSTANT),
 		quantity_expandable: $ => choice($.quantity, $.quantity_expansion),
 		quantity_expansion: $ => seq(
@@ -177,7 +145,6 @@ module.exports = grammar({
 			']'
 		),
 
-		COLOR: $ => token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-F]{3,6}/)),
 		color: $ => choice($.COLOR, $.CONSTANT),
 		color_expandable: $ => choice($.color, $.color_expansion),
 		color_expansion: $ => seq(
@@ -186,12 +153,6 @@ module.exports = grammar({
 			']'
 		),
 
-		CONSTANT: $ => token(/\$[_a-zA-Z0-9]+/),
-		CONSTANT_VALUE: $ => choice(
-			$.NUMBER, $.DURATION, $.DISTANCE, $.QUANTITY,
-			$.BOOL, $.CONSTANT,
-			$.COLOR, $.QUOTED_STRING, $.BAREWORD,
-		),
 		semicolon: $ => token(';'),
 
 		_root: $ => choice(
@@ -220,9 +181,7 @@ module.exports = grammar({
 		),
 		serial_dialog_parameter: $ => choice(
 			seq(
-				field('property', choice(
-					'wrap',
-				)),
+				field('property', 'wrap'), // can add more later
 				field('value', $.number),
 			),
 		),
@@ -396,8 +355,9 @@ module.exports = grammar({
 			$.action_play_entity_animation,
 			$.action_move_over_time,
 			$.action_set_position,
+			$.action_set_ambiguous,
+			$.action_set_int,
 			$.action_set_bool,
-			// $.action_set_int,
 			// $.action_set_string,
 			// $.if_chain,
 			// $.while_block,
@@ -450,13 +410,10 @@ module.exports = grammar({
 		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), $.semicolon),
 		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), $.semicolon),
 
-		player: $ => 'player',
-		self: $ => 'self',
-		entity: $ => 'entity',
 		entity_identifier: $ => choice(
-			field('type', $.player),
-			field('type', $.self),
-			seq(field('type', $.entity), field('entity', $.string))
+			field('type', 'player'),
+			field('type', 'self'),
+			seq(field('type', 'entity'), field('entity', $.string))
 		),
 		entity_identifier_expandable: $ => choice(
 			$.entity_identifier,
@@ -536,37 +493,34 @@ module.exports = grammar({
 			$.semicolon
 		),
 
-	// 	geometry_identifier: $ => seq(
-	// 		'geometry', field('geometry', $.string),
-	// 	),
-	// 	geometry_identifier_expandable: $ => seq(
-	// 		$.geometry_identifier,
-	// 		$.geometry_identifier_expansion,
-	// 	),
-	// 	geometry_identifier_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.geometry_identifier,
-	// 			repeat(seq(',', $.geometry_identifier)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		geometry_identifier: $ => seq(
+			'geometry', field('geometry', $.string),
+		),
+		geometry_identifier_expandable: $ => seq(
+			$.geometry_identifier,
+			$.geometry_identifier_expansion,
+		),
+		geometry_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.geometry_identifier,
+				repeat(seq(',', $.geometry_identifier)),
+				optional(','),
+			)),
+			']'
+		),
 
-		camera: $ => 'camera',
-		_origin_or_length: $ => choice($.origin, $.length),
-
-		movable_identifier: $ => prec(1, choice(
-			field('type', $.camera),
-			seq(field('type', $.player), 'position'),
-			seq(field('type', $.self), 'position'),
-			seq(field('type', $.entity), field('entity', $.string), 'position'),
-		)),
+		movable_identifier: $ => choice(
+			field('type', 'camera'),
+			seq(field('type', 'player'), 'position'),
+			seq(field('type', 'self'), 'position'),
+			seq(field('type', 'entity'), field('entity', $.string), 'position'),
+		),
 		movable_identifier_expandable: $ => choice(
 			$.movable_identifier,
 			$.movable_identifier_expansion,
 		),
-		movable_identifier_expansion: $ => prec(2, seq(
+		movable_identifier_expansion: $ => prec(1, seq(
 			'[',
 			optional(seq(
 				$.movable_identifier,
@@ -580,9 +534,9 @@ module.exports = grammar({
 		length: $ => 'length',
 		geometry: $ => 'geometry',
 		coordinate_identifier: $ => choice(
-			seq(field('type', $.player), 'position'),
-			seq(field('type', $.self), 'position'),
-			seq(field('type', $.entity), field('entity', $.string), 'position'),
+			seq(field('type', 'player'), 'position'),
+			seq(field('type', 'self'), 'position'),
+			seq(field('type', 'entity'), field('entity', $.string), 'position'),
 			seq(
 				field('type', $.geometry),
 				field('geometry', $.string),
@@ -605,7 +559,6 @@ module.exports = grammar({
 			)),
 			']'
 		)),
-
 		
 		over_time_operator: $ => '->',
 		forever: $ => 'forever',
@@ -627,8 +580,83 @@ module.exports = grammar({
 			$.semicolon
 		),
 
-		// identifier: $ => $.bareword, // generic identifier
-		bool_setable: $ => prec(1, choice(
+		ambiguous_identifier: $ => prec(2, choice(
+			$.STRING,
+			$.CONSTANT
+		)),
+		ambiguous_identifier_expandable: $ => choice(
+			$.ambiguous_identifier,
+			$.ambiguous_identifier_expansion,
+		),
+		ambiguous_identifier_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.ambiguous_identifier,
+				repeat(seq(',', $.ambiguous_identifier)),
+				optional(','),
+			)),
+			']'
+		),
+
+		action_set_ambiguous: $ => seq(
+			field('ambiguous_lhs', $.ambiguous_identifier_expandable),
+			$.assignment_operator,
+			choice(
+				field('int_exp_rhs', $._int_expression),
+				field('bool_exp_rhs', $.bool_expression_expandable),
+				field('ambiguous_rhs', $.ambiguous_identifier_expandable),
+			),
+			$.semicolon
+		),
+
+		identifier: $ => $.string,
+		AND: $ => '&&',
+		OR: $ => '||',
+		BANG: $ => '!',
+		// COMPARISON: $ => choice('>', '>=', '<', '<='),
+		// EQUALITY: $ => choice('==', '!='),
+		_bool_unit: $ => choice(
+			$.BOOL,
+			$.CONSTANT,
+			$.bool_getable,
+			$.bool_unary_expression,
+			seq('(', $._bool_expression, ')'),
+			$.STRING,
+		),
+
+		_bool_expression: $ => choice(
+			$.bool_binary_expression,
+			$._bool_unit,
+		),
+		bool_expression_expandable: $ => choice(
+			$._bool_expression,
+			$.bool_expression_expansion,
+		),
+		bool_expression_expansion: $ => prec(1,seq(
+			'[',
+			optional(seq(
+				$._bool_expression,
+				repeat(seq(',', $._bool_expression)),
+				optional(','),
+			)),
+			']'
+		)),
+
+		bool_unary_expression: $ => prec.right(6, seq(field('unary_operator', "!"), $._bool_unit)),
+		bool_binary_expression: $ => choice(
+			// prec.left(5, seq($._expression, field('binary_operator', $.COMPARISON), $._expression)),
+			// prec.left(4, seq($._expression, field('binary_operator', $.EQUALITY), $._expression)),
+			prec.left(3, seq($._bool_expression, field('binary_operator', $.AND), $._bool_expression)),
+			prec.left(2, seq($._bool_expression, field('binary_operator', $.OR), $._bool_expression)),
+		),
+
+		action_set_bool: $ => seq(
+			field('bool_exp_lhs', $.bool_setable_expandable), 
+			$.assignment_operator,
+			field('bool_exp_rhs', $.bool_expression_expandable),
+			$.semicolon,
+		),
+		bool_setable: $ => choice(
 			field('type', 'player_control'),
 			field('type', 'lights_control'),
 			field('type', 'hex_editor'),
@@ -644,8 +672,8 @@ module.exports = grammar({
 				field('type', 'light'),
 				field('light', $.string_expandable)
 			),
-			field('flag', $.string_expandable),
-		)),
+			field('flag', $.string),
+		),
 		bool_setable_expandable: $ => choice(
 			$.bool_setable,
 			$.bool_setable_expansion,
@@ -659,44 +687,105 @@ module.exports = grammar({
 			)),
 			']'
 		),
-		action_set_bool: $ => seq(
-			field('bool_setable', $.bool_setable_expandable), 
+
+		bool_getable: $ => choice(
+			field('type', 'debug_mode'),
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('type', 'glitched'),
+			),
+			seq(
+				field('type', 'dialog'),
+				'open'
+			),
+			seq(
+				field('type', 'serial_dialog'),
+				'open'
+			),
+			seq(
+				field('type', 'button'),
+				field('button', $.string),
+				field('state', choice($.bool, 'pressed')),
+			),
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('type', 'intersects'),
+				field('geometry_identifier', $.geometry_identifier),
+			),
+		),
+
+		MUL_DIV_MOD: $ => choice('*', '/', '%'),
+		ADD_SUB: $ => choice('+', '-'),
+		_int_unit: $ => prec(1, choice(
+			$.entity_int_getable,
+			$.NUMBER,
+			$.CONSTANT,
+			$.STRING,
+			seq('(', $._int_expression, ')'),
+		)),
+
+		_int_expression: $ => choice(
+			$.int_binary_expression,
+			$._int_unit,
+		),
+		int_expression_expandable: $ => choice(
+			$._int_expression,
+			$.int_expression_expansion,
+		),
+		int_expression_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$._int_expression,
+				repeat(seq(',', $._int_expression)),
+				optional(','),
+			)),
+			']'
+		),
+
+		int_binary_expression: $ => choice(
+			prec.left(3, seq($._int_expression, field('binary_operator', $.MUL_DIV_MOD), $._int_expression)),
+			prec.left(2, seq($._int_expression, field('binary_operator', $.ADD_SUB), $._int_expression)),
+		),
+
+		action_set_int: $ => seq(
+			field('int_exp_lhs', $.int_setable_expandable), 
 			$.assignment_operator,
-			// bare identifiers might be ints (rather than bools)
-			// the !! might be needed here to force-separate
-			// these expressions from int expressions
-			// EXPERIMENT
-			// seq($.bang, $.bang, field('bool_identifier', $.name)),
-			// $._bool_expression,
-			field('bool_or_identifier', $.bool_or_identifier_expandable),
+			field('int_exp_rhs', $._int_expression),
 			$.semicolon,
 		),
-		
-	// 	AND: $ => '&&',
-	// 	OR: $ => '||',
-	// 	BANG: $ => '!',
-	// 	COMPARISON: $ => choice('>', '>=', '<', '<='),
-	// 	EQUALITY: $ => choice('==', '!='),
-	// 	_bool_expression: $ => prec(1,choice(
-	// 		$.bool_or_identifier,
-	// 		$.bool_unary_expression,
-	// 		$.bool_binary_expression,
-	// 		seq('(', $._bool_expression, ')')
-	// 	)),
-	// 	bool_unary_expression: $ => prec(6, seq("!", $._bool_expression)),
-	// 	bool_binary_expression: $ => choice(
-	// 		prec.left(5, seq($._bool_expression, field('binary_operator', $.COMPARISON), $._bool_expression)),
-	// 		prec.left(4, seq($._bool_expression, field('binary_operator', $.EQUALITY), $._bool_expression)),
-	// 		prec.left(3, seq($._bool_expression, field('binary_operator', $.AND), $._bool_expression)),
-	// 		prec.left(2, seq($._bool_expression, field('binary_operator', $.OR), $._bool_expression)),
-	// 	),
+		int_setable: $ => choice( // BOOLINT
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('property', $.entity_property_int)
+			),
+			field('variable', $.string),
+		),
+		int_setable_expandable: $ => choice(
+			$.int_setable,
+			$.int_setable_expansion,
+		),
+		int_setable_expansion: $ => seq(
+			'[',
+			optional(seq(
+				$.int_setable,
+				repeat(seq(',', $.int_setable)),
+				optional(','),
+			)),
+			']'
+		),
+		entity_int_getable: $ => choice(
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('property', $.entity_property_int)
+			),
+		),
 
 	// 	if_chain: $ => seq( $.if_block, repeat($.if_else_block), optional($.else_block)),
 	// 	if_block: $ => seq('if', '(', $.condition, ')', alias($.script_block, $.if_body)),
 	// 	if_else_block: $ => seq('else', 'if', '(', $.condition, ')', alias($.script_block, $.if_else_body)),
 	// 	else_block: $ => seq('else', alias($.script_block, $.else_body)),
 	// 	condition: $ => choice(
-	// 		$._bool_expression,
+	// 		$.bool_expression,
 	// 	),
 	// 	looping_block: $ => seq(
 	// 		'{',
@@ -717,74 +806,17 @@ module.exports = grammar({
 	// 		'(',
 	// 		$._action_item,
 	// 		$.semicolon,
-	// 		$._bool_expression,
+	// 		$.bool_expression,
 	// 		$.semicolon,
 	// 		$._action_item,
 	// 		')',
 	// 		alias($.looping_block, $.for_body)
 	// 	),
 
-	// 	int_setable: $ => choice(
-	// 		seq($.entity_identifier_expandable, $.entity_property_int_expandable),
-	// 		field('identifier', $.bareword_expandable),
-	// 	),
-	// 	int_setable_expandable: $ => choice(
-	// 		$.int_setable,
-	// 		$.int_setable_expansion,
-	// 	),
-	// 	int_setable_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.int_setable,
-	// 			repeat(seq(',', $.int_setable)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
-	
-	// 	action_set_int: $ => seq(
-	// 		$.int_setable, 
-	// 		$.assignment_operator,
-	// 		choice(
-	// 			$._int_expression,
-	// 			$.int_or_identifier_expandable,
-	// 		),
-	// 	),
-	// 	mul_div_mod: $ => choice('*', '/', '%'),
-	// 	add_sub: $ => choice('+', '-'),
-	// 	_int_expression: $ => prec(1,choice(
-	// 		$.int_or_identifier,
-	// 		$.int_unary_expression,
-	// 		$.int_binary_expression,
-	// 		seq('(', $._int_expression, ')')
-	// 	)),
-	// 	int_unary_expression: $ => prec(4, seq('-', $._int_expression)),
-	// 	int_binary_expression: $ => choice(
-	// 		prec.left(3, seq($._int_expression, field('binary_operator', $.mul_div_mod), $._int_expression)),
-	// 		prec.left(2, seq($._int_expression, field('binary_operator', $.add_sub), $._int_expression)),
-	// 	),
-
-	// 	entity_property_int_identifier: $ => seq(
-	// 		$.entity_identifier,
-	// 		$.entity_property_int
-	// 	),
-	// 	entity_property_int: $ => choice(
-	// 		'x', 'y', 'primary_id', 'secondary_id', 'primary_id_type',
-	// 		'current_animation', 'animation_frame', 'strafe'
-	// 	),
-	// 	entity_property_int_expandable: $ => choice(
-	// 		$.entity_property_int,
-	// 		$.entity_property_int_expansion,
-	// 	),
-	// 	entity_property_int_expansion: $ => prec(2, seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.entity_property_int,
-	// 			repeat(seq(',', $.entity_property_int)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	)),
+	entity_property_int: $ => choice(
+		'x', 'y', 'primary_id', 'secondary_id', 'primary_id_type',
+		'current_animation', 'animation_frame', 'strafe'
+	),
 
 	// 	entity_property_string: $ => choice(
 	// 		'name', 'path', 'on_tick', 'on_look', 'on_interact'

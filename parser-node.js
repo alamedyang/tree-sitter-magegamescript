@@ -203,24 +203,12 @@ const nodeFns = {
 		}
 		// find the settings themselves
 		const parameters = node.childrenForFieldName('dialog_parameter')
-			.map(innerChild=>handleNode(f, innerChild))
-			.flat();
+			.map(innerChild=>handleCapture(f, innerChild));
 		parameters.forEach(param=>{
 			settingsTarget[param.property] = param.value;
 		});
 		ret.parameters = parameters;
 		return [ret];
-	},
-	dialog_parameter: (f, node) => {
-		const propNode = node.childForFieldName('property');
-		const valueNode = node.childForFieldName('value');
-		return [{
-			mathlang: 'dialog_parameter',
-			property: propNode.text,
-			value: handleCapture(f, valueNode),
-			debug: node,
-			fileName: f.fileName,
-		}];
 	},
 	add_serial_dialog_settings: (f, node) => {
 		const parameters = node.namedChildren
@@ -235,24 +223,6 @@ const nodeFns = {
 			debug: node,
 			fileName: f.fileName,
 		}];
-	},
-	serial_dialog_parameter: (f, node) => {
-		const propNode = node.childForFieldName('property');
-		const valueNode = node.childForFieldName('value');
-		if (!propNode || !valueNode) {
-			f.newError({
-				locations: [{ node }],
-				message: `malformed serial_dialog parameter`,
-			});
-			return [];
-		}
-		return [{
-			mathlang: 'serial_dialog_parameter',
-			property: propNode.text,
-			value: handleCapture(f, valueNode),
-			debug: node,
-			fileName: f.fileName,
-		}]
 	},
 	serial_dialog_option: (f, node) => {
 		const optionNode = node.childForFieldName('option_type');
@@ -327,13 +297,11 @@ const nodeFns = {
 		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
 		const messageNodes = node.childrenForFieldName('serial_message');
 		const optionNodes = node.childrenForFieldName('serial_dialog_option');
-		const params = paramNodes.map(node=>handleNode(f, node)).flat();
+		const params = paramNodes.map(node=>handleCapture(f, node));
 		const options = optionNodes.map(node=>handleNode(f, node)).flat();
 		// TODO: make options more closely resemble final form?
 		const settings = {};
-		params.forEach(param=>{
-			settings[param.property] = param.value;
-		});
+		params.forEach(param=>{ settings[param.property] = param.value; });
 		const messages = messageNodes.map(v=>handleCapture(f, v));
 		const info = {
 			settings,
@@ -354,8 +322,8 @@ const nodeFns = {
 		const messageNodes = node.childrenForFieldName('message');
 		const optionNodes = node.childrenForFieldName('dialog_option');
 		// better way to do this?
-		const identifier = handleNode(f, identifierNode)[0];
-		const params = paramNodes.map(v=>handleNode(f, v)).flat();
+		const identifier = handleCapture(f, identifierNode)[0];
+		const params = paramNodes.map(v=>handleCapture(f, v));
 		const settings = {};
 		params.forEach(param=>{
 			settings[param.property] = param.value;
@@ -373,33 +341,6 @@ const nodeFns = {
 			mathlang: 'dialog',
 			info,
 			dialogs,
-			debug: node,
-			fileName: f.fileName,
-		}];
-	},
-	dialog_identifier: (f, node) => {
-		let type;
-		let value;
-		const labelNode = node.childForFieldName('label');
-		if (labelNode) {
-			type = 'label';
-			value = labelNode.text;
-		} else {
-			const typeNode = node.childForFieldName('type');
-			const valueNode = node.childForFieldName('value');
-			type = typeNode.text;
-			value = valueNode
-				? handleCapture(f, valueNode)
-				: 'MALFORMED ENTITY IDENTIFIER';
-			f.newError({
-				locations: [{ node }],
-				message: `dialog identifier lacks a value`,
-			});
-		}
-		return [{
-			mathlang: 'dialog_identifier',
-			type,
-			value,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -422,8 +363,12 @@ const nodeFns = {
 			json: parsed,
 			debug: node,
 			fileName: f.fileName,
-		}]
+		}];
 	},
 };
 
 module.exports = handleNode;
+
+// TODO: what is the difference between handleNode() and handleCapture() except that you have to flatten handleNode()?
+// Is it that you return complex thing vs primitive value?
+// Is it that action wants to call handleCapture() and then work on its properties?

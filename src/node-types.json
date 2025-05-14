@@ -1,19 +1,13 @@
 [
   {
+    "type": "ADD_SUB",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "DISTANCE",
     "named": true,
-    "fields": {
-      "suffix": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "distance_suffix",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": false,
       "required": true,
@@ -28,18 +22,7 @@
   {
     "type": "DURATION",
     "named": true,
-    "fields": {
-      "suffix": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "duration_suffix",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": false,
       "required": true,
@@ -52,20 +35,14 @@
     }
   },
   {
+    "type": "MUL_DIV_MOD",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "QUANTITY",
     "named": true,
-    "fields": {
-      "suffix": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "quantity_suffix",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": false,
       "required": false,
@@ -1000,23 +977,49 @@
     }
   },
   {
-    "type": "action_set_bool",
+    "type": "action_set_ambiguous",
     "named": true,
     "fields": {
-      "bool": {
+      "ambiguous_lhs": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
-            "type": "BOOL",
+            "type": "ambiguous_identifier",
+            "named": true
+          },
+          {
+            "type": "ambiguous_identifier_expansion",
             "named": true
           }
         ]
       },
-      "bool_or_identifier": {
+      "ambiguous_rhs": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
+          {
+            "type": "ambiguous_identifier",
+            "named": true
+          },
+          {
+            "type": "ambiguous_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "bool_exp_rhs": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
           {
             "type": "BAREWORD",
             "named": true
@@ -1034,12 +1037,82 @@
             "named": true
           },
           {
-            "type": "bool_or_identifier_expansion",
+            "type": "bool_binary_expression",
+            "named": true
+          },
+          {
+            "type": "bool_expression_expansion",
+            "named": true
+          },
+          {
+            "type": "bool_getable",
+            "named": true
+          },
+          {
+            "type": "bool_unary_expression",
             "named": true
           }
         ]
       },
-      "bool_setable": {
+      "int_exp_rhs": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "entity_int_getable",
+            "named": true
+          },
+          {
+            "type": "int_binary_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "action_set_bool",
+    "named": true,
+    "fields": {
+      "bool_exp_lhs": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1053,26 +1126,120 @@
           }
         ]
       },
-      "constant": {
-        "multiple": false,
-        "required": false,
+      "bool_exp_rhs": {
+        "multiple": true,
+        "required": true,
         "types": [
           {
-            "type": "CONSTANT",
-            "named": true
-          }
-        ]
-      },
-      "identifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
           {
             "type": "BAREWORD",
             "named": true
           },
           {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
             "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "bool_binary_expression",
+            "named": true
+          },
+          {
+            "type": "bool_expression_expansion",
+            "named": true
+          },
+          {
+            "type": "bool_getable",
+            "named": true
+          },
+          {
+            "type": "bool_unary_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "action_set_int",
+    "named": true,
+    "fields": {
+      "int_exp_lhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "int_setable",
+            "named": true
+          },
+          {
+            "type": "int_setable_expansion",
+            "named": true
+          }
+        ]
+      },
+      "int_exp_rhs": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "entity_int_getable",
+            "named": true
+          },
+          {
+            "type": "int_binary_expression",
             "named": true
           }
         ]
@@ -1394,6 +1561,44 @@
     }
   },
   {
+    "type": "ambiguous_identifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ambiguous_identifier_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "ambiguous_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "bareword_expansion",
     "named": true,
     "fields": {},
@@ -1413,31 +1618,104 @@
     }
   },
   {
-    "type": "bool_or_identifier_expansion",
+    "type": "bool_binary_expression",
     "named": true,
     "fields": {
-      "bool": {
-        "multiple": true,
-        "required": false,
+      "binary_operator": {
+        "multiple": false,
+        "required": true,
         "types": [
           {
-            "type": "BOOL",
+            "type": "AND",
+            "named": true
+          },
+          {
+            "type": "OR",
             "named": true
           }
         ]
-      },
-      "constant": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "CONSTANT",
-            "named": true
-          }
-        ]
-      },
-      "identifier": {
-        "multiple": true,
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "BOOL",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_getable",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "bool_expression_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "BOOL",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_getable",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "bool_getable",
+    "named": true,
+    "fields": {
+      "button": {
+        "multiple": false,
         "required": false,
         "types": [
           {
@@ -1445,8 +1723,80 @@
             "named": true
           },
           {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
             "type": "QUOTED_STRING",
             "named": true
+          }
+        ]
+      },
+      "entity_identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "geometry_identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "geometry_identifier",
+            "named": true
+          }
+        ]
+      },
+      "state": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "pressed",
+            "named": false
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "button",
+            "named": false
+          },
+          {
+            "type": "debug_mode",
+            "named": false
+          },
+          {
+            "type": "dialog",
+            "named": false
+          },
+          {
+            "type": "glitched",
+            "named": false
+          },
+          {
+            "type": "intersects",
+            "named": false
+          },
+          {
+            "type": "serial_dialog",
+            "named": false
           }
         ]
       }
@@ -1480,10 +1830,6 @@
           },
           {
             "type": "QUOTED_STRING",
-            "named": true
-          },
-          {
-            "type": "string_expansion",
             "named": true
           }
         ]
@@ -1570,9 +1916,54 @@
     }
   },
   {
-    "type": "camera",
+    "type": "bool_unary_expression",
     "named": true,
-    "fields": {}
+    "fields": {
+      "unary_operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "!",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "BOOL",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "bool_binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_getable",
+          "named": true
+        },
+        {
+          "type": "bool_unary_expression",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "color_expansion",
@@ -1725,7 +2116,7 @@
         "types": [
           {
             "type": "entity",
-            "named": true
+            "named": false
           },
           {
             "type": "geometry",
@@ -1733,11 +2124,11 @@
           },
           {
             "type": "player",
-            "named": true
+            "named": false
           },
           {
             "type": "self",
-            "named": true
+            "named": false
           }
         ]
       }
@@ -2067,11 +2458,6 @@
     }
   },
   {
-    "type": "entity",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "entity_identifier",
     "named": true,
     "fields": {
@@ -2099,15 +2485,15 @@
         "types": [
           {
             "type": "entity",
-            "named": true
+            "named": false
           },
           {
             "type": "player",
-            "named": true
+            "named": false
           },
           {
             "type": "self",
-            "named": true
+            "named": false
           }
         ]
       }
@@ -2126,6 +2512,32 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "entity_int_getable",
+    "named": true,
+    "fields": {
+      "entity_identifier": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "property": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_property_int",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -2190,6 +2602,40 @@
     }
   },
   {
+    "type": "entity_property_int",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "geometry",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "geometry_identifier",
+    "named": true,
+    "fields": {
+      "geometry": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "include_macro",
     "named": true,
     "fields": {
@@ -2218,6 +2664,115 @@
       "types": [
         {
           "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "int_binary_expression",
+    "named": true,
+    "fields": {
+      "binary_operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ADD_SUB",
+            "named": true
+          },
+          {
+            "type": "MUL_DIV_MOD",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "NUMBER",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "entity_int_getable",
+          "named": true
+        },
+        {
+          "type": "int_binary_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "int_setable",
+    "named": true,
+    "fields": {
+      "entity_identifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "property": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entity_property_int",
+            "named": true
+          }
+        ]
+      },
+      "variable": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "int_setable_expansion",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "int_setable",
           "named": true
         }
       ]
@@ -2374,19 +2929,19 @@
         "types": [
           {
             "type": "camera",
-            "named": true
+            "named": false
           },
           {
             "type": "entity",
-            "named": true
+            "named": false
           },
           {
             "type": "player",
-            "named": true
+            "named": false
           },
           {
             "type": "self",
-            "named": true
+            "named": false
           }
         ]
       }
@@ -2428,11 +2983,6 @@
   },
   {
     "type": "over_time_operator",
-    "named": true,
-    "fields": {}
-  },
-  {
-    "type": "player",
     "named": true,
     "fields": {}
   },
@@ -2575,7 +3125,15 @@
           "named": true
         },
         {
+          "type": "action_set_ambiguous",
+          "named": true
+        },
+        {
           "type": "action_set_bool",
+          "named": true
+        },
+        {
+          "type": "action_set_int",
           "named": true
         },
         {
@@ -2714,7 +3272,15 @@
           "named": true
         },
         {
+          "type": "action_set_ambiguous",
+          "named": true
+        },
+        {
           "type": "action_set_bool",
+          "named": true
+        },
+        {
+          "type": "action_set_int",
           "named": true
         },
         {
@@ -2781,11 +3347,6 @@
         ]
       }
     }
-  },
-  {
-    "type": "self",
-    "named": true,
-    "fields": {}
   },
   {
     "type": "serial_dialog",
@@ -2973,11 +3534,19 @@
     "named": false
   },
   {
+    "type": "%",
+    "named": false
+  },
+  {
     "type": "(",
     "named": false
   },
   {
     "type": ")",
+    "named": false
+  },
+  {
+    "type": "*",
     "named": false
   },
   {
@@ -2989,7 +3558,15 @@
     "named": false
   },
   {
+    "type": "-",
+    "named": false
+  },
+  {
     "type": "->",
+    "named": false
+  },
+  {
+    "type": "/",
     "named": false
   },
   {
@@ -2999,6 +3576,10 @@
   {
     "type": ">",
     "named": false
+  },
+  {
+    "type": "AND",
+    "named": true
   },
   {
     "type": "BAREWORD",
@@ -3018,6 +3599,10 @@
   },
   {
     "type": "NUMBER",
+    "named": true
+  },
+  {
+    "type": "OR",
     "named": true
   },
   {
@@ -3053,6 +3638,10 @@
     "named": false
   },
   {
+    "type": "animation_frame",
+    "named": false
+  },
+  {
     "type": "assignment_operator",
     "named": true
   },
@@ -3067,6 +3656,10 @@
   },
   {
     "type": "border_tileset",
+    "named": false
+  },
+  {
+    "type": "button",
     "named": false
   },
   {
@@ -3086,6 +3679,14 @@
     "named": false
   },
   {
+    "type": "current_animation",
+    "named": false
+  },
+  {
+    "type": "debug_mode",
+    "named": false
+  },
+  {
     "type": "default",
     "named": false
   },
@@ -3096,14 +3697,6 @@
   {
     "type": "dialog",
     "named": false
-  },
-  {
-    "type": "distance_suffix",
-    "named": true
-  },
-  {
-    "type": "duration_suffix",
-    "named": true
   },
   {
     "type": "emote",
@@ -3131,7 +3724,7 @@
   },
   {
     "type": "geometry",
-    "named": true
+    "named": false
   },
   {
     "type": "glitched",
@@ -3171,6 +3764,10 @@
   },
   {
     "type": "index",
+    "named": false
+  },
+  {
+    "type": "intersects",
     "named": false
   },
   {
@@ -3219,6 +3816,10 @@
     "named": false
   },
   {
+    "type": "open",
+    "named": false
+  },
+  {
     "type": "origin",
     "named": true
   },
@@ -3251,8 +3852,16 @@
     "named": false
   },
   {
-    "type": "quantity_suffix",
-    "named": true
+    "type": "pressed",
+    "named": false
+  },
+  {
+    "type": "primary_id",
+    "named": false
+  },
+  {
+    "type": "primary_id_type",
+    "named": false
   },
   {
     "type": "rand",
@@ -3268,6 +3877,10 @@
   },
   {
     "type": "script",
+    "named": false
+  },
+  {
+    "type": "secondary_id",
     "named": false
   },
   {
@@ -3303,6 +3916,10 @@
     "named": false
   },
   {
+    "type": "strafe",
+    "named": false
+  },
+  {
     "type": "true",
     "named": false
   },
@@ -3320,6 +3937,14 @@
   },
   {
     "type": "wrap",
+    "named": false
+  },
+  {
+    "type": "x",
+    "named": false
+  },
+  {
+    "type": "y",
     "named": false
   },
   {

@@ -111,6 +111,55 @@ const captureFns = {
 		}
 		return ret;
 	},
+	dialog_identifier: (f, node) => {
+		let type;
+		let value;
+		const labelNode = node.childForFieldName('label');
+		if (labelNode) {
+			type = 'label';
+			value = labelNode.text;
+		} else {
+			const typeNode = node.childForFieldName('type');
+			const valueNode = node.childForFieldName('value');
+			type = typeNode.text;
+			value = valueNode
+				? handleCapture(f, valueNode)
+				: 'MALFORMED ENTITY IDENTIFIER';
+			f.newError({
+				locations: [{ node }],
+				message: `dialog identifier lacks a value`,
+			});
+		}
+		return {
+			mathlang: 'dialog_identifier',
+			type,
+			value,
+			debug: node,
+			fileName: f.fileName,
+		};
+	},
+	dialog_parameter: (f, node) => {
+		const propNode = node.childForFieldName('property');
+		const valueNode = node.childForFieldName('value');
+		return {
+			mathlang: 'dialog_parameter',
+			property: propNode.text,
+			value: handleCapture(f, valueNode),
+			debug: node,
+			fileName: f.fileName,
+		};
+	},
+	serial_dialog_parameter: (f, node) => {
+		const propNode = node.childForFieldName('property');
+		const valueNode = node.childForFieldName('value');
+		return {
+			mathlang: 'serial_dialog_parameter',
+			property: propNode.text,
+			value: handleCapture(f, valueNode),
+			debug: node,
+			fileName: f.fileName,
+		};
+	},
 	coordinate_identifier: (f, node) => {
 		const typeNode = node.childForFieldName('type');
 		const type = typeNode.text;
