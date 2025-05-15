@@ -228,6 +228,62 @@ const captureFns = {
 		}
 		return ret;
 	},
+	int_binary_expression: (f, node) => {
+		const rhsNode = node.childForFieldName('rhs');
+		const lhsNode = node.childForFieldName('lhs');
+		const opNode = node.childForFieldName('binary_operator');
+		let rhs = handleCapture(f, rhsNode);
+		let lhs = handleCapture(f, lhsNode);
+		const op = opNode.text;
+		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'number') {
+			f.newError({
+				locations: [
+					{
+						node: f.constants[rhs].debug,
+						fileName: f.constants[rhs].fileName,
+					},
+					{ node: rhsNode },
+				],
+				message: `constant is not a number`
+			})
+			rhs = NaN;
+		}
+		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'number') {
+			f.newError({
+				locations: [
+					{
+						node: f.constants[lhsNode.text].debug,
+						fileName: f.constants[lhsNode.text].fileName,
+					},
+					{ node: lhsNode },
+				],
+				message: `constant is not a number`
+			})
+			lhs = NaN;
+		}
+		return {
+			mathlang: 'int_binary_expression',
+			debug: node,
+			fileName: f.fileName,
+			lhs,
+			rhs,
+			op
+		};
+	},
+	entity_int_getable: (f, node) => {
+		const propertyNode = node.childForFieldName('property');
+		const field = propertyNode.text;
+		const entityNode = node.childForFieldName('entity_identifier');
+		const entity = handleCapture(f, entityNode);
+		return {
+			mathlang: 'entity_int_getable',
+			debug: node,
+			fileName: f.fileName,
+			field,
+			entity
+		}
+	},
+	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0])
 };
 
 const extractEntityName = (f, node, typeNode) => {

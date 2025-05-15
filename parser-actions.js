@@ -5,6 +5,17 @@ const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
 
+const INT_TEMP = '__INT_TEMP'
+const intOpMap = {
+	'=': 'SET',
+	'+': 'ADD',
+	'-': 'SUB',
+	'*': 'MUL',
+	'/': 'DIV',
+	'%': 'MOD',
+	'?': 'RNG',
+}
+
 const spreadValues = (f, commonFields, fieldsToSpread) => {
 	// count spreads
 	let spreadSize = -Infinity;
@@ -91,14 +102,14 @@ const handleAction = (f, node) => {
 	});
 	const spreads = spreadValues(f, action, fieldsToSpread);
 	if (data.detective) {
-		spreads.forEach(action=>{
+		spreads.forEach((action, j)=>{
 			// try the action detective
 			for (let i = 0; i < data.detective.length; i++) {
 				const clueData = data.detective[i];
-				const solved = clueData.match(action);
+				const solved = clueData.match(action, f, node);
 				if (solved) {
 					// todo: reorder the arguments?
-					const values = clueData.values(action, f, node);
+					const values = clueData.values(action, f, node, j);
 					Object.entries(values)
 						.forEach(([k,v])=>{ action[k] = v; });
 					return;
@@ -280,6 +291,79 @@ const actionData = {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
 		captures: [ 'animation', 'count' ],
 		relabeledCaptures: [{ field: 'entity_identifier', label: 'entity' }],
+	},
+	action_set_ambiguous: {
+		values: {},
+		captures: [ 'set_lhs', 'set_rhs' ],
+		detective: [
+			{
+				match: (v, f, node) => {
+					const type = node.childForFieldName('set_rhs').grammarType;
+					return type === 'ambiguous_identifier_expansion' // :/
+						|| type === 'int_expression_expansion'
+						|| type === 'BAREWORD'
+						|| type === 'QUOTED_STRING'
+				},
+				values: (v, f, node, i) => {
+					const ambiguousIdentifier = v.set_rhs;
+					const lhsNode = node.childForFieldName('set_lhs')
+						.namedChildren?.[i];
+					const rhsNode = node.childForFieldName('set_rhs')
+						.namedChildren?.[i];
+					const printNodes = [];
+					if (lhsNode) printNodes.push(lhsNode);
+					if (rhsNode) {
+						printNodes.push(rhsNode);
+					}
+					if (!printNodes.length) printNodes.push(node);
+					const suggestion = rhsNode
+						? rhsNode.text.includes(' ')
+							? '"' + ambiguousIdentifier + '"'
+							: ambiguousIdentifier
+						: null;
+					const warning = {
+						locations: printNodes.map(v=>({ node: v })),
+						message: 'these identifiers could be ints or bools',
+					};
+					if (suggestion) {
+						warning.footer = `Both identifiers will be interpreted as ints unless you coerse the right-hand side to a bool expression, like this:\n`
+							+ `    !!${suggestion}`
+					}
+					f.newWarning(warning);
+					return {
+						action: 'MUTATE_VARIABLES',
+						operation: 'SET',
+						source: v.set_rhs,
+						variable: v.set_lhs
+					};
+				}
+			},
+			{
+				match: (v, f, node) => {
+					const type = node.childForFieldName('set_rhs').grammarType;
+					return type === 'int_setable_expansion' // :/
+						|| type === 'int_binary_expression'
+						|| type === 'NUMBER';
+				},
+				values: (v, f, node) => {
+					return {
+						mathlang: 'math_sequence',
+						steps: mathSequenceFns.intBinaryExpression(v, f, node),
+					}
+			},
+			// {
+			// 	match: (v, f, node) => node.childForFieldName('set_rhs')
+			// 		.grammarType === 'bool_expression_expandable',
+			// 	values: (v, f, node) => {
+
+			// 	}
+			// },
+			}
+		],
+		detectError: (v) => ({
+			locations: [{ node: v.debug }],
+			message: `syntax error in ambiguous set expression`,
+		}),
 	},
 	action_set_bool: {
 		values: {},
@@ -518,7 +602,7 @@ const actionData = {
 
 const mathSequenceFns = {
 	moveEntityPosToEntityPos: (copyFrom, copyTo) => {
-		const variable = '__TEMP';
+		const variable = INT_TEMP;
 		return {
 			mathlang: 'math_sequence',
 			steps: [
@@ -587,7 +671,113 @@ const mathSequenceFns = {
 			].map(v=>({ ...v, node, fileName: f.fileName })),
 		}
 	},
+	intBinaryExpression: (v, f, node) => {
+		const rhsStack = [];
+		const opStack = [];
+		const steps = [];
+		const lhsStack = [];
+		const varNew = () => {
+			lhsStack.unshift(INT_TEMP + lhsStack.length);
+			return lhsStack[0];
+		};
+		const varDrop = () => lhsStack.shift();
+		const varTemp = () => {
+			varNew();
+			return varDrop();
+		}
+
+		let currNode = v.set_rhs;
+
+		while (currNode) {
+			const lhs = currNode.lhs;
+			const rhs = currNode.rhs;
+			const op = currNode.op;
+			if (lhs?.mathlang === 'int_binary_expression') {
+				rhsStack.push(rhs);
+				opStack.push(op);
+				currNode = lhs;
+				continue;
+			}
+			const variable = varNew();
+			if (typeof lhs === 'number') {
+				steps.push({
+					action: 'MUTATE_VARIABLE',
+					operation: 'SET',
+					value: lhs,
+					variable,
+				});
+			} else if (lhs.entity) {
+				steps.push({
+					action: "COPY_VARIABLE",
+					entity: lhs.entity,
+					field: lhs.field,
+					inbound: true,
+					variable,
+				});
+			} else {
+				f.newError({
+					locations: [{
+						node: lhs.debug || node,
+					}],
+					message: 'expression syntax error'
+				})
+			}
+			if (typeof rhs === 'number') {
+				steps.push({
+					action: 'MUTATE_VARIABLE',
+					operation: intOpMap[op],
+					value: rhs,
+					variable,
+				});
+			} else if (rhs.entity) {
+				const temp = varTemp();
+				steps.push({
+					action: "COPY_VARIABLE",
+					entity: rhs.entity,
+					field: rhs.field,
+					inbound: true,
+					variable: temp,
+				});
+				steps.push({
+					action: 'MUTATE_VARIABLES',
+					operation: intOpMap[op],
+					source: temp,
+					variable,
+				});
+			} else if (rhs?.mathlang === 'int_binary_expression') {
+				opStack.push(op);
+				currNode = rhs;
+				continue;
+			} else {
+				f.newError({
+					locations: [{
+						node: rhs.debug || node,
+					}],
+					message: 'expression syntax error'
+				})
+			}
+			currNode = rhsStack.pop();
+		}
+		while (opStack.length) {
+			const rhs = lhsStack.shift();
+			const lhs = lhsStack[0];
+			const op = intOpMap[opStack.pop()];
+			steps.push({
+				action: 'MUTATE_VARIABLES',
+				operation: op,
+				source: rhs,
+				variable: lhs,
+			});
+		}
+		return steps;
+	}
 };
+
+const typeOfExpressionUnit = (unit) => {
+	if (typeof unit === 'number') return 'number';
+	if (typeof unit === 'string') return 'identifier';
+	if (typeof unit === 'string') return 'identifier';
+}
 
 const actionSetBoolRHSMaker = (f, v, node, action, boolLabel) => {
 	if (typeof v.bool_or_identifier === 'boolean') {

@@ -1,26 +1,23 @@
-set_movable_position {
-    self position = geometry stick;
-    camera = geometry stick;
-    camera = self position;
-    player position = self position;
-	camera -> geometry stick origin over 1s;
-	camera -> geometry stick length over 1s;
-	camera -> geometry stick length over 1s forever;
-	camera -> player position over 1s;
-	player position -> geometry stick origin over 1s;
-	player position -> geometry stick length over 1s;
-	// // player position -> geometry stick length over 1s forever;
-	// player position -> self position over 1;
-	// player position -> self position;
-	// wait 100;
-	// player position -> geometry stick origin over 1s forever;
-	// camera -> player position over 1s forever;
-}
+// set_movable_position {
+//     self position = geometry stick;
+//     camera = geometry stick;
+//     camera = self position;
+//     player position = self position;
+// 	camera -> geometry stick origin over 1s;
+// 	camera -> geometry stick length over 1s;
+// 	camera -> geometry stick length over 1s forever;
+// 	camera -> player position over 1s;
+// 	player position -> geometry stick origin over 1s;
+// 	player position -> geometry stick length over 1s;
+// 	// player position -> geometry stick length over 1s forever;
+// 	player position -> self position over 1;
+// 	player position -> self position;
+// 	wait 100;
+// 	player position -> geometry stick origin over 1s forever;
+// 	camera -> player position over 1s forever;
+// }
 
-pause {
-	pause map on_tick;
-}
-
+$trombones = 76;
 setable {
-	[player glitched, player_control] = true;
+	[a,d] = [b, c];
 }

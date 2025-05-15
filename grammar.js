@@ -40,8 +40,9 @@ module.exports = grammar({
 		// $.geometry_identifier_expandable,
 		$.movable_identifier_expandable,
 		$.coordinate_identifier_expandable,
-		$.ambiguous_identifier_expandable,
+		$.ambiguous_identifier, $.ambiguous_identifier_expandable,
 		$.bool_expression_expandable,
+		$.int_expression_expandable,
 		$.bool_setable_expandable,
 		$.int_setable_expandable,
 		// $.entity_property_string_expandable,
@@ -598,14 +599,14 @@ module.exports = grammar({
 			']'
 		),
 
-		action_set_ambiguous: $ => seq(
-			field('ambiguous_lhs', $.ambiguous_identifier_expandable),
+		action_set_ambiguous: $ => seq( // BOOLINT
+			field('set_lhs', $.ambiguous_identifier_expandable),
 			$.assignment_operator,
-			choice(
-				field('int_exp_rhs', $._int_expression),
-				field('bool_exp_rhs', $.bool_expression_expandable),
-				field('ambiguous_rhs', $.ambiguous_identifier_expandable),
-			),
+			field('set_rhs', choice(
+					$.int_expression_expandable,
+					$.bool_expression_expandable,
+					$.ambiguous_identifier_expandable,
+				)),
 			$.semicolon
 		),
 
@@ -615,14 +616,14 @@ module.exports = grammar({
 		BANG: $ => '!',
 		// COMPARISON: $ => choice('>', '>=', '<', '<='),
 		// EQUALITY: $ => choice('==', '!='),
-		_bool_unit: $ => choice(
+		_bool_unit: $ => prec(7, choice(
 			$.BOOL,
 			$.CONSTANT,
 			$.bool_getable,
 			$.bool_unary_expression,
 			seq('(', $._bool_expression, ')'),
 			$.STRING,
-		),
+		)),
 
 		_bool_expression: $ => choice(
 			$.bool_binary_expression,
@@ -634,11 +635,11 @@ module.exports = grammar({
 		),
 		bool_expression_expansion: $ => prec(1,seq(
 			'[',
-			optional(seq(
+			seq(
 				$._bool_expression,
 				repeat(seq(',', $._bool_expression)),
 				optional(','),
-			)),
+			),
 			']'
 		)),
 
@@ -650,20 +651,20 @@ module.exports = grammar({
 			prec.left(2, seq($._bool_expression, field('binary_operator', $.OR), $._bool_expression)),
 		),
 
-		action_set_bool: $ => seq(
+		action_set_bool: $ => seq( // BOOLINT
 			field('bool_exp_lhs', $.bool_setable_expandable), 
 			$.assignment_operator,
 			field('bool_exp_rhs', $.bool_expression_expandable),
 			$.semicolon,
 		),
 		bool_setable: $ => choice(
-			field('type', 'player_control'),
-			field('type', 'lights_control'),
-			field('type', 'hex_editor'),
-			field('type', 'hex_dialog_mode'),
-			field('type', 'hex_control'),
-			field('type', 'hex_clipboard'),
-			field('type', 'serial_control'),
+			field('type', token(prec(4, 'player_control'))),
+			field('type', token(prec(4, 'lights_control'))),
+			field('type', token(prec(4, 'hex_editor'))),
+			field('type', token(prec(4, 'hex_dialog_mode'))),
+			field('type', token(prec(4, 'hex_control'))),
+			field('type', token(prec(4, 'hex_clipboard'))),
+			field('type', token(prec(4, 'serial_control'))),
 			seq(
 				field('entity_identifier', $.entity_identifier),
 				field('type', 'glitched')
@@ -674,10 +675,10 @@ module.exports = grammar({
 			),
 			field('flag', $.string),
 		),
-		bool_setable_expandable: $ => choice(
+		bool_setable_expandable: $ => prec(1, choice(
 			$.bool_setable,
 			$.bool_setable_expansion,
-		),
+		)),
 		bool_setable_expansion: $ => seq(
 			'[',
 			optional(seq(
@@ -716,14 +717,15 @@ module.exports = grammar({
 
 		MUL_DIV_MOD: $ => choice('*', '/', '%'),
 		ADD_SUB: $ => choice('+', '-'),
-		_int_unit: $ => prec(1, choice(
+		_int_unit: $ => prec(8, choice(
 			$.entity_int_getable,
+			$.int_grouping,
 			$.NUMBER,
 			$.CONSTANT,
 			$.STRING,
-			seq('(', $._int_expression, ')'),
 		)),
 
+		int_grouping: $ => seq('(', $._int_expression, ')'),
 		_int_expression: $ => choice(
 			$.int_binary_expression,
 			$._int_unit,
@@ -734,36 +736,44 @@ module.exports = grammar({
 		),
 		int_expression_expansion: $ => seq(
 			'[',
-			optional(seq(
+			seq(
 				$._int_expression,
 				repeat(seq(',', $._int_expression)),
 				optional(','),
-			)),
+			),
 			']'
 		),
 
 		int_binary_expression: $ => choice(
-			prec.left(3, seq($._int_expression, field('binary_operator', $.MUL_DIV_MOD), $._int_expression)),
-			prec.left(2, seq($._int_expression, field('binary_operator', $.ADD_SUB), $._int_expression)),
+			prec.left(3, seq(
+				field('lhs', $._int_expression),
+				field('binary_operator', $.MUL_DIV_MOD),
+				field('rhs', $._int_expression)),
+			),
+			prec.left(2, seq(
+				field('lhs', $._int_expression),
+				field('binary_operator', $.ADD_SUB),
+				field('rhs', $._int_expression)),
+			),
 		),
 
-		action_set_int: $ => seq(
+		action_set_int: $ => seq( // BOOLINT
 			field('int_exp_lhs', $.int_setable_expandable), 
 			$.assignment_operator,
-			field('int_exp_rhs', $._int_expression),
+			field('int_exp_rhs', $.int_expression_expandable),
 			$.semicolon,
 		),
-		int_setable: $ => choice( // BOOLINT
+		int_setable: $ => choice(
 			seq(
 				field('entity_identifier', $.entity_identifier),
 				field('property', $.entity_property_int)
 			),
 			field('variable', $.string),
 		),
-		int_setable_expandable: $ => choice(
+		int_setable_expandable: $ => prec(1, choice(
 			$.int_setable,
 			$.int_setable_expansion,
-		),
+		)),
 		int_setable_expansion: $ => seq(
 			'[',
 			optional(seq(

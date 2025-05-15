@@ -980,12 +980,20 @@
     "type": "action_set_ambiguous",
     "named": true,
     "fields": {
-      "ambiguous_lhs": {
+      "set_lhs": {
         "multiple": false,
         "required": true,
         "types": [
           {
-            "type": "ambiguous_identifier",
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
             "named": true
           },
           {
@@ -994,23 +1002,9 @@
           }
         ]
       },
-      "ambiguous_rhs": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "ambiguous_identifier",
-            "named": true
-          },
-          {
-            "type": "ambiguous_identifier_expansion",
-            "named": true
-          }
-        ]
-      },
-      "bool_exp_rhs": {
+      "set_rhs": {
         "multiple": true,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "(",
@@ -1033,7 +1027,15 @@
             "named": true
           },
           {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
             "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "ambiguous_identifier_expansion",
             "named": true
           },
           {
@@ -1051,36 +1053,6 @@
           {
             "type": "bool_unary_expression",
             "named": true
-          }
-        ]
-      },
-      "int_exp_rhs": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "(",
-            "named": false
-          },
-          {
-            "type": ")",
-            "named": false
-          },
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "NUMBER",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
           },
           {
             "type": "entity_int_getable",
@@ -1088,6 +1060,14 @@
           },
           {
             "type": "int_binary_expression",
+            "named": true
+          },
+          {
+            "type": "int_expression_expansion",
+            "named": true
+          },
+          {
+            "type": "int_grouping",
             "named": true
           }
         ]
@@ -1207,17 +1187,9 @@
         ]
       },
       "int_exp_rhs": {
-        "multiple": true,
+        "multiple": false,
         "required": true,
         "types": [
-          {
-            "type": "(",
-            "named": false
-          },
-          {
-            "type": ")",
-            "named": false
-          },
           {
             "type": "BAREWORD",
             "named": true
@@ -1240,6 +1212,14 @@
           },
           {
             "type": "int_binary_expression",
+            "named": true
+          },
+          {
+            "type": "int_expression_expansion",
+            "named": true
+          },
+          {
+            "type": "int_grouping",
             "named": true
           }
         ]
@@ -1561,12 +1541,12 @@
     }
   },
   {
-    "type": "ambiguous_identifier",
+    "type": "ambiguous_identifier_expansion",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
-      "required": true,
+      "multiple": true,
+      "required": false,
       "types": [
         {
           "type": "BAREWORD",
@@ -1578,21 +1558,6 @@
         },
         {
           "type": "QUOTED_STRING",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "ambiguous_identifier_expansion",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "ambiguous_identifier",
           "named": true
         }
       ]
@@ -1677,7 +1642,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "BAREWORD",
@@ -2686,8 +2651,81 @@
             "named": true
           }
         ]
+      },
+      "lhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "entity_int_getable",
+            "named": true
+          },
+          {
+            "type": "int_binary_expression",
+            "named": true
+          },
+          {
+            "type": "int_grouping",
+            "named": true
+          }
+        ]
+      },
+      "rhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "entity_int_getable",
+            "named": true
+          },
+          {
+            "type": "int_binary_expression",
+            "named": true
+          },
+          {
+            "type": "int_grouping",
+            "named": true
+          }
+        ]
       }
-    },
+    }
+  },
+  {
+    "type": "int_expression_expansion",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
@@ -2714,6 +2752,49 @@
         },
         {
           "type": "int_binary_expression",
+          "named": true
+        },
+        {
+          "type": "int_grouping",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "int_grouping",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "BAREWORD",
+          "named": true
+        },
+        {
+          "type": "CONSTANT",
+          "named": true
+        },
+        {
+          "type": "NUMBER",
+          "named": true
+        },
+        {
+          "type": "QUOTED_STRING",
+          "named": true
+        },
+        {
+          "type": "entity_int_getable",
+          "named": true
+        },
+        {
+          "type": "int_binary_expression",
+          "named": true
+        },
+        {
+          "type": "int_grouping",
           "named": true
         }
       ]

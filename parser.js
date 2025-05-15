@@ -53,5 +53,19 @@ const parseProject = async () => {
 
 parseProject().then((p)=>{
 	console.log('PROJECT', p);
+	// console.log('\nSCRIPTS');
+	// const entries = Object.entries(p.scripts);
+	// entries.forEach(([thingName, values]) => {
+	// 	console.log(thingName + ' ------------')
+	// 	console.log(JSON.stringify(
+	// 		values.actions.map(v=>{
+	// 			delete v.debug;
+	// 			delete v.fileName;
+	// 			return v;
+	// 		}),
+	// 		null,
+	// 		'  '
+	// 	));
+	// });
 	console.log("breakpoint me")
 });

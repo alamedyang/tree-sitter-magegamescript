@@ -11,3 +11,14 @@ camera geometry/origin forever = error
 entity geometry/origin forever = error
 camera entity forever = error
 entity entity ±forever = error
+
+
+( 1 + 2 ) + ( 3 * 4 )
+
+TEMP0 := 1
+TEMP0 += 2
+TEMP1 := 3
+TEMP1 *= 4
+TEMP0 += TEMP1
+
++ (1+2) (3*4)
