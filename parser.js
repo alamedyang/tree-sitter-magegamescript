@@ -53,19 +53,31 @@ const parseProject = async () => {
 
 parseProject().then((p)=>{
 	console.log('PROJECT', p);
-	// console.log('\nSCRIPTS');
-	// const entries = Object.entries(p.scripts);
-	// entries.forEach(([thingName, values]) => {
-	// 	console.log(thingName + ' ------------')
-	// 	console.log(JSON.stringify(
-	// 		values.actions.map(v=>{
-	// 			delete v.debug;
-	// 			delete v.fileName;
-	// 			return v;
-	// 		}),
-	// 		null,
-	// 		'  '
-	// 	));
-	// });
+	console.log('\nSCRIPTS');
+	const entries = Object.entries(p.scripts);
+	entries.forEach(([thingName, values]) => {
+		console.log('   ' + thingName + ' ------------>')
+		console.log(JSON.stringify(
+			values.actions
+				.map(cleanseDebug)
+			,
+			null,
+			'  '
+		));
+	});
 	console.log("breakpoint me")
 });
+
+const cleanseDebug = (obj) => {
+	const keys = Object.keys(obj);
+	keys.forEach(key=>{
+		if (key === 'debug') {
+			delete obj.debug;
+		} else if (key === 'fileName') {
+			delete obj.fileName;
+		} else if (typeof obj[key] === 'object') {
+			cleanseDebug(obj[key]);
+		}
+	});
+	return obj;
+};

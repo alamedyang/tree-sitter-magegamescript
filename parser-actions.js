@@ -5,7 +5,7 @@ const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
 
-const INT_TEMP = '__INT_TEMP'
+const INT_TEMP = '__INT_TEMP_'
 const intOpMap = {
 	'=': 'SET',
 	'+': 'ADD',
@@ -294,21 +294,21 @@ const actionData = {
 	},
 	action_set_ambiguous: {
 		values: {},
-		captures: [ 'set_lhs', 'set_rhs' ],
+		captures: [ 'lhs', 'rhs' ],
 		detective: [
 			{
 				match: (v, f, node) => {
-					const type = node.childForFieldName('set_rhs').grammarType;
+					const type = node.childForFieldName('rhs').grammarType;
 					return type === 'ambiguous_identifier_expansion' // :/
 						|| type === 'int_expression_expansion'
 						|| type === 'BAREWORD'
 						|| type === 'QUOTED_STRING'
 				},
 				values: (v, f, node, i) => {
-					const ambiguousIdentifier = v.set_rhs;
-					const lhsNode = node.childForFieldName('set_lhs')
+					const ambiguousIdentifier = v.rhs;
+					const lhsNode = node.childForFieldName('lhs')
 						.namedChildren?.[i];
-					const rhsNode = node.childForFieldName('set_rhs')
+					const rhsNode = node.childForFieldName('rhs')
 						.namedChildren?.[i];
 					const printNodes = [];
 					if (lhsNode) printNodes.push(lhsNode);
@@ -333,14 +333,14 @@ const actionData = {
 					return {
 						action: 'MUTATE_VARIABLES',
 						operation: 'SET',
-						source: v.set_rhs,
-						variable: v.set_lhs
+						source: v.rhs,
+						variable: v.lhs
 					};
 				}
 			},
 			{
 				match: (v, f, node) => {
-					const type = node.childForFieldName('set_rhs').grammarType;
+					const type = node.childForFieldName('rhs').grammarType;
 					return type === 'int_setable_expansion' // :/
 						|| type === 'int_binary_expression'
 						|| type === 'NUMBER';
@@ -349,10 +349,10 @@ const actionData = {
 					return {
 						mathlang: 'math_sequence',
 						steps: mathSequenceFns.intBinaryExpression(v, f, node),
-					}
+					};
 			},
 			// {
-			// 	match: (v, f, node) => node.childForFieldName('set_rhs')
+			// 	match: (v, f, node) => node.childForFieldName('rhs')
 			// 		.grammarType === 'bool_expression_expandable',
 			// 	values: (v, f, node) => {
 
@@ -365,95 +365,135 @@ const actionData = {
 			message: `syntax error in ambiguous set expression`,
 		}),
 	},
-	action_set_bool: {
+	action_set_int: {
 		values: {},
-		captures: [ 'bool_setable', 'bool_or_identifier' ],
+		captures: [ 'lhs', 'rhs' ],
 		detective: [
 			{
-				match: (v) => v.bool_setable.type === 'save_flag',
+				match: (v, f, node) => v.lhs.mathlang === 'entity_int_getable'
+					&& v.rhs.mathlang === 'int_binary_expression',
 				values: (v, f, node) => {
-					const action = {
-						action: 'SET_SAVE_FLAG',
-						save_flag: v.bool_setable.value,
+					const steps = mathSequenceFns.intBinaryExpression(v, f, node);
+					steps.push({
+						mathlang: 'math_sequence',
+						inbound: false,
+						action: 'COPY_VARIABLE',
+						variable: INT_TEMP + 0,
+						entity: v.entity,
+						field: v.field,
+					})
+					return {
+						mathlang: 'math_sequence',
+						steps,
 					};
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
 				},
 			},
 			{
-				match: (v) => v.bool_setable.type === 'entity',
-				values: (v, f, node) => {
-					const action = {
-						action: 'SET_ENTITY_GLITCHED',
-						entity: v.bool_setable.value,
-					};
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'light',
-				values: (v, f, node) => {
-					const action = {
-						action: 'SET_LIGHTS_STATE',
-						lights: v.bool_setable.value,
-					};
-					return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'player_control',
-				values: (v, f, node) => {
-					const action = { action: 'SET_PLAYER_CONTROL' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'lights_control',
-				values: (v, f, node) => {
-					const action = { action: 'SET_LIGHTS_CONTROL' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'hex_editor',
-				values: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_STATE' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'hex_dialog_mode',
-				values: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'hex_control',
-				values: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_CONTROL' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'hex_clipboard',
-				values: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
-			},
-			{
-				match: (v) => v.bool_setable.type === 'serial_control',
-				values: (v, f, node) => {
-					const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
-					return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-				},
+				match: (v, f, node) => v.lhs.mathlang === 'entity_int_getable'
+					&& typeof v.rhs === 'number',
+				values: (v, f, node) => ({
+					action: 'COPY_VARIABLE',
+					entity: v.lhs.entity,
+					field: v.lhs.field,
+					inbound: false,
+					variable: v.rhs,
+				}),
 			},
 		],
 		detectError: (v) => ({
 			locations: [{ node: v.debug }],
-			message: `incompatible bool_setable and bool_or_identifier (lol good luck)`,
+			message: `incompatible int_setable and int_expression (lol good luck)`,
 		}),
 	},
+	// action_set_bool: {
+	// 	values: {},
+	// 	captures: [ 'bool_setable', 'bool_or_identifier' ],
+	// 	detective: [
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'save_flag',
+	// 			values: (v, f, node) => {
+	// 				const action = {
+	// 					action: 'SET_SAVE_FLAG',
+	// 					save_flag: v.bool_setable.value,
+	// 				};
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'entity',
+	// 			values: (v, f, node) => {
+	// 				const action = {
+	// 					action: 'SET_ENTITY_GLITCHED',
+	// 					entity: v.bool_setable.value,
+	// 				};
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'light',
+	// 			values: (v, f, node) => {
+	// 				const action = {
+	// 					action: 'SET_LIGHTS_STATE',
+	// 					lights: v.bool_setable.value,
+	// 				};
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'player_control',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_PLAYER_CONTROL' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'lights_control',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_LIGHTS_CONTROL' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'hex_editor',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_HEX_EDITOR_STATE' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'hex_dialog_mode',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'hex_control',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_HEX_EDITOR_CONTROL' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'hex_clipboard',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 		{
+	// 			match: (v) => v.bool_setable.type === 'serial_control',
+	// 			values: (v, f, node) => {
+	// 				const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
+	// 			},
+	// 		},
+	// 	],
+	// 	detectError: (v) => ({
+	// 		locations: [{ node: v.debug }],
+	// 		message: `incompatible bool_setable and bool_or_identifier (lol good luck)`,
+	// 	}),
+	// },
 	action_set_position: {
 		values: {},
 		captures: [ 'movable', 'coordinate' ],
@@ -686,7 +726,7 @@ const mathSequenceFns = {
 			return varDrop();
 		}
 
-		let currNode = v.set_rhs;
+		let currNode = v.rhs;
 
 		while (currNode) {
 			const lhs = currNode.lhs;

@@ -980,7 +980,7 @@
     "type": "action_set_ambiguous",
     "named": true,
     "fields": {
-      "set_lhs": {
+      "lhs": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1002,7 +1002,7 @@
           }
         ]
       },
-      "set_rhs": {
+      "rhs": {
         "multiple": true,
         "required": true,
         "types": [
@@ -1092,7 +1092,7 @@
     "type": "action_set_bool",
     "named": true,
     "fields": {
-      "bool_exp_lhs": {
+      "lhs": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1106,7 +1106,7 @@
           }
         ]
       },
-      "bool_exp_rhs": {
+      "rhs": {
         "multiple": true,
         "required": true,
         "types": [
@@ -1172,7 +1172,7 @@
     "type": "action_set_int",
     "named": true,
     "fields": {
-      "int_exp_lhs": {
+      "lhs": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1186,7 +1186,7 @@
           }
         ]
       },
-      "int_exp_rhs": {
+      "rhs": {
         "multiple": false,
         "required": true,
         "types": [

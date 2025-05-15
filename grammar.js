@@ -600,9 +600,9 @@ module.exports = grammar({
 		),
 
 		action_set_ambiguous: $ => seq( // BOOLINT
-			field('set_lhs', $.ambiguous_identifier_expandable),
+			field('lhs', $.ambiguous_identifier_expandable),
 			$.assignment_operator,
-			field('set_rhs', choice(
+			field('rhs', choice(
 					$.int_expression_expandable,
 					$.bool_expression_expandable,
 					$.ambiguous_identifier_expandable,
@@ -652,9 +652,9 @@ module.exports = grammar({
 		),
 
 		action_set_bool: $ => seq( // BOOLINT
-			field('bool_exp_lhs', $.bool_setable_expandable), 
+			field('lhs', $.bool_setable_expandable), 
 			$.assignment_operator,
-			field('bool_exp_rhs', $.bool_expression_expandable),
+			field('rhs', $.bool_expression_expandable),
 			$.semicolon,
 		),
 		bool_setable: $ => choice(
@@ -758,9 +758,9 @@ module.exports = grammar({
 		),
 
 		action_set_int: $ => seq( // BOOLINT
-			field('int_exp_lhs', $.int_setable_expandable), 
+			field('lhs', $.int_setable_expandable), 
 			$.assignment_operator,
-			field('int_exp_rhs', $.int_expression_expandable),
+			field('rhs', $.int_expression_expandable),
 			$.semicolon,
 		),
 		int_setable: $ => choice(

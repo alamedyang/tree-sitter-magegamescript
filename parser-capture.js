@@ -283,6 +283,19 @@ const captureFns = {
 			entity
 		}
 	},
+	int_setable: (f, node) => {
+		const propertyNode = node.childForFieldName('property');
+		const field = propertyNode.text;
+		const entityNode = node.childForFieldName('entity_identifier');
+		const entity = handleCapture(f, entityNode);
+		return {
+			mathlang: 'entity_int_getable',
+			debug: node,
+			fileName: f.fileName,
+			field,
+			entity
+		}
+	},
 	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0])
 };
 

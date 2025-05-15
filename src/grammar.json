@@ -3733,7 +3733,7 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "set_lhs",
+          "name": "lhs",
           "content": {
             "type": "SYMBOL",
             "name": "ambiguous_identifier_expandable"
@@ -3745,7 +3745,7 @@
         },
         {
           "type": "FIELD",
-          "name": "set_rhs",
+          "name": "rhs",
           "content": {
             "type": "CHOICE",
             "members": [
@@ -3993,7 +3993,7 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "bool_exp_lhs",
+          "name": "lhs",
           "content": {
             "type": "SYMBOL",
             "name": "bool_setable_expandable"
@@ -4005,7 +4005,7 @@
         },
         {
           "type": "FIELD",
-          "name": "bool_exp_rhs",
+          "name": "rhs",
           "content": {
             "type": "SYMBOL",
             "name": "bool_expression_expandable"
@@ -4615,7 +4615,7 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "int_exp_lhs",
+          "name": "lhs",
           "content": {
             "type": "SYMBOL",
             "name": "int_setable_expandable"
@@ -4627,7 +4627,7 @@
         },
         {
           "type": "FIELD",
-          "name": "int_exp_rhs",
+          "name": "rhs",
           "content": {
             "type": "SYMBOL",
             "name": "int_expression_expandable"

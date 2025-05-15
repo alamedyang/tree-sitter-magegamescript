@@ -19,5 +19,5 @@
 
 $trombones = 76;
 setable {
-	[a,d] = [b, c];
+	player x = 1 + 2;
 }
