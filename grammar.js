@@ -451,13 +451,13 @@ module.exports = grammar({
 
 		action_pause_script: $ => seq(
 			'pause',
-			field('entity_or_map', $.entity_or_map_identifier_expandable),
+			field('entity', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
 			$.semicolon
 		),
 		action_unpause_script: $ => seq(
 			'unpause',
-			field('entity_or_map', $.entity_or_map_identifier_expandable),
+			field('entity', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
 			$.semicolon
 		),
@@ -487,7 +487,7 @@ module.exports = grammar({
 		),
 
 		action_play_entity_animation: $ => seq(
-			field('entity_identifier', $.entity_identifier_expandable),
+			field('entity', $.entity_identifier_expandable),
 			'animation', '->',
 			field('animation', $.number_expandable),
 			field('count', $.quantity_expandable),

@@ -21,7 +21,7 @@
 #define ALIAS_COUNT 0
 #define TOKEN_COUNT 112
 #define EXTERNAL_TOKEN_COUNT 0
-#define FIELD_COUNT 52
+#define FIELD_COUNT 51
 #define MAX_ALIAS_SEQUENCE_LENGTH 8
 #define MAX_RESERVED_WORD_SET_SIZE 0
 #define PRODUCTION_ID_COUNT 79
@@ -1766,39 +1766,38 @@ enum ts_field_identifiers {
   field_duration = 17,
   field_entity = 18,
   field_entity_identifier = 19,
-  field_entity_or_map = 20,
-  field_fileName = 21,
-  field_flag = 22,
-  field_forever = 23,
-  field_geometry = 24,
-  field_geometry_identifier = 25,
-  field_index = 26,
-  field_label = 27,
-  field_lhs = 28,
-  field_light = 29,
-  field_map = 30,
-  field_message = 31,
-  field_movable = 32,
-  field_option_type = 33,
-  field_polygon_type = 34,
-  field_property = 35,
-  field_rhs = 36,
-  field_script = 37,
-  field_script_block = 38,
-  field_script_name = 39,
-  field_serial_dialog = 40,
-  field_serial_dialog_name = 41,
-  field_serial_dialog_option = 42,
-  field_serial_dialog_parameter = 43,
-  field_serial_message = 44,
-  field_slot = 45,
-  field_state = 46,
-  field_suffix = 47,
-  field_target = 48,
-  field_type = 49,
-  field_unary_operator = 50,
-  field_value = 51,
-  field_variable = 52,
+  field_fileName = 20,
+  field_flag = 21,
+  field_forever = 22,
+  field_geometry = 23,
+  field_geometry_identifier = 24,
+  field_index = 25,
+  field_label = 26,
+  field_lhs = 27,
+  field_light = 28,
+  field_map = 29,
+  field_message = 30,
+  field_movable = 31,
+  field_option_type = 32,
+  field_polygon_type = 33,
+  field_property = 34,
+  field_rhs = 35,
+  field_script = 36,
+  field_script_block = 37,
+  field_script_name = 38,
+  field_serial_dialog = 39,
+  field_serial_dialog_name = 40,
+  field_serial_dialog_option = 41,
+  field_serial_dialog_parameter = 42,
+  field_serial_message = 43,
+  field_slot = 44,
+  field_state = 45,
+  field_suffix = 46,
+  field_target = 47,
+  field_type = 48,
+  field_unary_operator = 49,
+  field_value = 50,
+  field_variable = 51,
 };
 
 static const char * const ts_field_names[] = {
@@ -1822,7 +1821,6 @@ static const char * const ts_field_names[] = {
   [field_duration] = "duration",
   [field_entity] = "entity",
   [field_entity_identifier] = "entity_identifier",
-  [field_entity_or_map] = "entity_or_map",
   [field_fileName] = "fileName",
   [field_flag] = "flag",
   [field_forever] = "forever",
@@ -2050,7 +2048,7 @@ static const TSFieldMapEntry ts_field_map_entries[] = {
   [63] =
     {field_alias, 2},
   [64] =
-    {field_entity_or_map, 1},
+    {field_entity, 1},
     {field_script, 2},
   [66] =
     {field_geometry, 1},
@@ -2124,7 +2122,7 @@ static const TSFieldMapEntry ts_field_map_entries[] = {
   [114] =
     {field_animation, 3},
     {field_count, 4},
-    {field_entity_identifier, 0},
+    {field_entity, 0},
   [117] =
     {field_coordinate, 2},
     {field_duration, 4},

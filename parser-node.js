@@ -12,7 +12,7 @@ const {
 const handleCapture = require('./parser-capture.js');
 const { handleAction, handleActionsInit } = require('./parser-actions.js');
 
-const handleNode = (f, node) => {
+const handleNode = (f, node) => { // ->[]
 	debugLog(`handleNode: ${node.grammarType}`);
 
 	// Tree-sitter does not (?) report these on its own; we have to seek them each time

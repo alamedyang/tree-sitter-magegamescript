@@ -1,9 +1,40 @@
 const TreeSitter = require('web-tree-sitter');
 const {Parser, Language} = TreeSitter;
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const { debugLog } = require('./parser-utilities.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
+
+// stolen from the other place
+const makeMap = path => {
+	let map = {};
+	for (file of fs.readdirSync(
+		path,
+		{ withFileTypes: true }
+	)) {
+		if (file.name === '.DS_Store') continue;
+		let filePath = `${path}/${file.name}`
+
+		if (file.isDirectory()) {
+			map = {
+				...map,
+				...makeMap(filePath)
+			};
+		} else {
+			let text = fs.readFileSync(filePath, 'utf-8')
+			let type = filePath.split('.').pop()
+			map[file.name] = {
+				fileName: file.name,
+				type,
+				text,
+			}
+		}
+	}
+	return map;
+};
 
 const parseProject = async () => {
 	// tree-sitter
@@ -12,9 +43,11 @@ const parseProject = async () => {
 	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
 	parser.setLanguage(Lang);
 
+	const inputPath = path.resolve('./scenario_source_files');
+	const fileMap = makeMap(inputPath);
+	
 	// my the-rest-of-the-owl
-	const p = makeProjectState(parser);
-	const fileMap = p.fileMap;
+	const p = makeProjectState(parser, fileMap);
 	// parse each file
 	Object.keys(fileMap).forEach(fileName=>{
 		if (!fileMap[fileName].parsed) {
@@ -68,6 +101,7 @@ parseProject().then((p)=>{
 	console.log("breakpoint me")
 });
 
+// Strips debug info from items so JSON.stringify() isn't monstrously long
 const cleanseDebug = (obj) => {
 	const keys = Object.keys(obj);
 	keys.forEach(key=>{
@@ -81,3 +115,5 @@ const cleanseDebug = (obj) => {
 	});
 	return obj;
 };
+
+module.exports = { parseProject };

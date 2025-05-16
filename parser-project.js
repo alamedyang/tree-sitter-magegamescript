@@ -1,42 +1,9 @@
-const fs = require('node:fs');
-const path = require('node:path');
-
 const { ansiTags: ansi } = require('./parser-dialogs.js');
 const { makeMessagePrintable } = require('./parser-utilities.js');
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
-// stolen from the other place
-const makeMap = path => {
-	let map = {};
-	for (file of fs.readdirSync(
-		path,
-		{ withFileTypes: true }
-	)) {
-		if (file.name === '.DS_Store') continue;
-		let filePath = `${path}/${file.name}`
-
-		if (file.isDirectory()) {
-			map = {
-				...map,
-				...makeMap(filePath)
-			};
-		} else {
-			let text = fs.readFileSync(filePath, 'utf-8')
-			let type = filePath.split('.').pop()
-			map[file.name] = {
-				fileName: file.name,
-				type,
-				text,
-			}
-		}
-	}
-	return map;
-};
-
-const makeProjectState = (tsParser) => {
-	const inputPath = path.resolve('./scenario_source_files');
-	const fileMap = makeMap(inputPath);
+const makeProjectState = (tsParser, fileMap) => {
 	// project crawl state
 	const p = {
 		parser: tsParser,

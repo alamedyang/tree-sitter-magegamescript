@@ -17,7 +17,23 @@
 // 	camera -> player position over 1s forever;
 // }
 
-$trombones = 76;
-setable {
-	player x = 1 + 2;
+// $trombones = 76;
+simple {
+	a = 1;
+}
+"add" { // todo: this should be allowed as a script name? or no?
+	a = 1+2;
+}
+order1 {
+	a = 1+2*3;
+}
+order2 {
+	a = 1*2+3;
+}
+order3 {
+	a = (1*2)*(3+(4*5));
+}
+entityExp {
+	a = player x + 1;
+	self x = player x + entity Bob x;
 }

@@ -53,6 +53,11 @@ const makeMessagePrintable = (fileMap, prefix, item) => {
 	}
 	return message + '\n';
 };
+const autoIdentifierName = (f, node) => {
+	return f.fileName
+		+ '-' + node.startPosition.row
+		+ ':' + node.startPosition.column;
+};
 
 module.exports = {
 	verbose,
@@ -60,4 +65,5 @@ module.exports = {
 	reportMissingChildNodes,
 	reportErrorNodes,
 	makeMessagePrintable,
+	autoIdentifierName,
 };

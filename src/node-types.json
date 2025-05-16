@@ -794,7 +794,7 @@
     "type": "action_pause_script",
     "named": true,
     "fields": {
-      "entity_or_map": {
+      "entity": {
         "multiple": false,
         "required": true,
         "types": [
@@ -882,7 +882,7 @@
           }
         ]
       },
-      "entity_identifier": {
+      "entity": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1410,7 +1410,7 @@
     "type": "action_unpause_script",
     "named": true,
     "fields": {
-      "entity_or_map": {
+      "entity": {
         "multiple": false,
         "required": true,
         "types": [
