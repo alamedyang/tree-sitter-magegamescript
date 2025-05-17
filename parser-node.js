@@ -365,6 +365,59 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	if_chain: (f, node) => {
+		const ifs = node.childrenForFieldName('if_block');
+		const elzeNode = node.childForFieldName('else_block');
+		const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+		const steps = [];
+		let bottomSteps = [
+			{ mathang: 'label_definition', label: rendezvousLabel },
+		];
+		ifs.forEach(iff=>{
+			const ifLabel = `if #${f.p.advanceGotoSuffix()}`;
+			const conditionNode = iff.childForFieldName('condition').namedChildren[0];
+			const bodyNode = iff.childForFieldName('body');
+			const conditionExpansion = expandCondition(f, conditionNode, ifLabel, rendezvousLabel, steps);
+			const body = bodyNode.namedChildren.map(v=>handleNode(f, v)).flat();
+			// add top half
+			conditionExpansion.forEach(v=>steps.push(v));
+			// add bottom half
+			const bottomInsert = [
+				{ mathang: 'label_definition', label: ifLabel },
+				...body,
+				{ mathang: 'goto_label', label: rendezvousLabel },
+			];
+			bottomSteps = bottomInsert.concat(bottomSteps);
+		});
+		if (elzeNode) {
+			const elze = elzeNode.lastChild.namedChildren.map(v=>handleNode(f, v)).flat();
+			steps.push(
+				...elze,
+				{ mathang: 'goto_label', label: rendezvousLabel },
+			);
+		}
+		return {
+			mathlang: 'if_sequence',
+			steps: steps.concat(bottomSteps),
+		}
+	},
+};
+
+const expandCondition = (f, conditionNode, ifLabel, rendezvousLabel, steps) => {
+	const ret = [];
+	const condition = handleCapture(f, conditionNode);
+	if (condition.mathlang === 'bool_getable') {
+		const action = {
+			...condition,
+			expected_bool: !condition.invert,
+			mathlang: 'goto_label',
+			label: ifLabel,
+		}
+		ret.push(action);
+	} else {
+		throw new Error("not yet implemented")
+	}
+	return ret;
 };
 
 module.exports = handleNode;

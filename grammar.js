@@ -360,7 +360,7 @@ module.exports = grammar({
 			$.action_set_int,
 			$.action_set_bool,
 			// $.action_set_string,
-			// $.if_chain,
+			$.if_chain,
 			// $.while_block,
 			// $.for_block,
 		),
@@ -599,7 +599,7 @@ module.exports = grammar({
 			']'
 		),
 
-		action_set_ambiguous: $ => seq( // BOOLINT
+		action_set_ambiguous: $ => seq(
 			field('lhs', $.ambiguous_identifier_expandable),
 			$.assignment_operator,
 			field('rhs', choice(
@@ -614,8 +614,8 @@ module.exports = grammar({
 		AND: $ => '&&',
 		OR: $ => '||',
 		BANG: $ => '!',
-		// COMPARISON: $ => choice('>', '>=', '<', '<='),
-		// EQUALITY: $ => choice('==', '!='),
+		COMPARISON: $ => choice('>', '>=', '<', '<=', '==', '!='),
+		EQUALITY: $ => choice('==', '!='),
 		_bool_unit: $ => prec(7, choice(
 			$.BOOL,
 			$.CONSTANT,
@@ -624,9 +624,11 @@ module.exports = grammar({
 			seq('(', $._bool_expression, ')'),
 			$.STRING,
 		)),
-
+		
+		bool_grouping: $ => seq('(', $._bool_expression, ')'),
 		_bool_expression: $ => choice(
 			$.bool_binary_expression,
+			$.bool_comparison,
 			$._bool_unit,
 		),
 		bool_expression_expandable: $ => choice(
@@ -643,28 +645,87 @@ module.exports = grammar({
 			']'
 		)),
 
-		bool_unary_expression: $ => prec.right(6, seq(field('unary_operator', "!"), $._bool_unit)),
+		bool_unary_expression: $ => prec.right(6, seq(
+			field('operator', "!"),
+			field('operand', $._bool_unit)),
+		),
 		bool_binary_expression: $ => choice(
-			// prec.left(5, seq($._expression, field('binary_operator', $.COMPARISON), $._expression)),
-			// prec.left(4, seq($._expression, field('binary_operator', $.EQUALITY), $._expression)),
-			prec.left(3, seq($._bool_expression, field('binary_operator', $.AND), $._bool_expression)),
-			prec.left(2, seq($._bool_expression, field('binary_operator', $.OR), $._bool_expression)),
+			// prec.left(5, seq($._expression, field('operator', $.COMPARISON), $._expression)),
+			prec.left(4, seq($._bool_expression, field('operator', $.EQUALITY), $._bool_expression)),
+			prec.left(3, seq($._bool_expression, field('operator', $.AND), $._bool_expression)),
+			prec.left(2, seq($._bool_expression, field('operator', $.OR), $._bool_expression)),
+		),
+		bool_comparison: $ => choice(
+			seq(
+				field('lhs', $.nsew_checkable),
+				field('operator', $.EQUALITY),
+				field('rhs', $.nsew),
+			),
+			seq(
+				field('lhs', $.nsew),
+				field('operator', $.EQUALITY),
+				field('rhs', $.nsew_checkable),
+			),
+			seq(
+				field('lhs', $.string_checkable),
+				field('operator', $.EQUALITY),
+				field('rhs', $.string),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.EQUALITY),
+				field('rhs', $.string_checkable),
+			),
+			seq(
+				field('lhs', $.number_checkable_equality),
+				field('operator', $.EQUALITY),
+				field('rhs', $.string),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.EQUALITY),
+				field('rhs', $.number_checkable_equality),
+			),
+			seq(
+				field('lhs', $.number_checkable_comparison),
+				field('operator', $.COMPARISON),
+				field('rhs', $.number_checkable_comparison),
+			),
+		),
+		number_checkable_equality: $=> prec(1,seq(
+			field('entity_identifier', $.entity_identifier),
+			field('property', $.entity_property_int),
+		)),
+		number_checkable_comparison: $=> seq(
+			field('int_expression', $._int_expression),
+		),
+		nsew_checkable: $ => seq(
+			field('entity_identifier', $.entity_identifier),
+			'direction',
+		),
+		nsew: $ => choice('north', 'south', 'east', 'west'),
+		string_checkable: $=> choice(
+			seq(
+				field('entity_identifier', $.entity_identifier),
+				field('property', $.entity_property_string)
+			),
+			seq(field('type', 'warp_state'), field('warp_state', $.string))
 		),
 
-		action_set_bool: $ => seq( // BOOLINT
+		action_set_bool: $ => seq(
 			field('lhs', $.bool_setable_expandable), 
 			$.assignment_operator,
 			field('rhs', $.bool_expression_expandable),
 			$.semicolon,
 		),
 		bool_setable: $ => choice(
-			field('type', token(prec(4, 'player_control'))),
-			field('type', token(prec(4, 'lights_control'))),
-			field('type', token(prec(4, 'hex_editor'))),
-			field('type', token(prec(4, 'hex_dialog_mode'))),
-			field('type', token(prec(4, 'hex_control'))),
-			field('type', token(prec(4, 'hex_clipboard'))),
-			field('type', token(prec(4, 'serial_control'))),
+			field('type', 'player_control'),
+			field('type', 'lights_control'),
+			field('type', 'hex_editor'),
+			field('type', 'hex_dialog_mode'),
+			field('type', 'hex_control'),
+			field('type', 'hex_clipboard'),
+			field('type', 'serial_control'),
 			seq(
 				field('entity_identifier', $.entity_identifier),
 				field('type', 'glitched')
@@ -696,29 +757,29 @@ module.exports = grammar({
 				field('type', 'glitched'),
 			),
 			seq(
-				field('type', 'dialog'),
-				'open'
-			),
-			seq(
-				field('type', 'serial_dialog'),
-				'open'
-			),
-			seq(
-				field('type', 'button'),
-				field('button', $.string),
-				field('state', choice($.bool, 'pressed')),
-			),
-			seq(
 				field('entity_identifier', $.entity_identifier),
 				field('type', 'intersects'),
 				field('geometry_identifier', $.geometry_identifier),
+			),
+			seq(
+				field('type', 'dialog'),
+				field('value', choice('open', 'closed')),
+			),
+			seq(
+				field('type', 'serial_dialog'),
+				field('value', choice('open', 'closed')),
+			),
+			seq(
+				field('type', 'button'),
+				field('button', $.bareword),
+				field('state', choice($.bool, 'pressed')),
 			),
 		),
 
 		MUL_DIV_MOD: $ => choice('*', '/', '%'),
 		ADD_SUB: $ => choice('+', '-'),
 		_int_unit: $ => prec(8, choice(
-			$.entity_int_getable,
+			$.int_getable,
 			$.int_grouping,
 			$.NUMBER,
 			$.CONSTANT,
@@ -747,17 +808,17 @@ module.exports = grammar({
 		int_binary_expression: $ => choice(
 			prec.left(3, seq(
 				field('lhs', $._int_expression),
-				field('binary_operator', $.MUL_DIV_MOD),
+				field('operator', $.MUL_DIV_MOD),
 				field('rhs', $._int_expression)),
 			),
 			prec.left(2, seq(
 				field('lhs', $._int_expression),
-				field('binary_operator', $.ADD_SUB),
+				field('operator', $.ADD_SUB),
 				field('rhs', $._int_expression)),
 			),
 		),
 
-		action_set_int: $ => seq( // BOOLINT
+		action_set_int: $ => seq(
 			field('lhs', $.int_setable_expandable), 
 			$.assignment_operator,
 			field('rhs', $.int_expression_expandable),
@@ -783,20 +844,38 @@ module.exports = grammar({
 			)),
 			']'
 		),
-		entity_int_getable: $ => choice(
+		int_getable: $ => choice(
 			seq(
 				field('entity_identifier', $.entity_identifier),
 				field('property', $.entity_property_int)
 			),
 		),
+		// while_block: $ => seq(
+		// 	'while', '(',
+		// 	field('condition', $.bool_expression),
+		// 	')',
+		// 	field('body', $.looping_block),
+		// ),
 
-	// 	if_chain: $ => seq( $.if_block, repeat($.if_else_block), optional($.else_block)),
-	// 	if_block: $ => seq('if', '(', $.condition, ')', alias($.script_block, $.if_body)),
-	// 	if_else_block: $ => seq('else', 'if', '(', $.condition, ')', alias($.script_block, $.if_else_body)),
-	// 	else_block: $ => seq('else', alias($.script_block, $.else_body)),
-	// 	condition: $ => choice(
-	// 		$.bool_expression,
-	// 	),
+		if_chain: $ => seq(
+			field('if_block', $.if_block),
+			repeat(seq(
+				'else',
+				field('if_block', $.if_block),
+			)),
+			optional(field('else_block', $.else_block))
+		),
+		if_block: $ => seq(
+			'if', '(', field('condition', $.condition), ')',
+			field('body', $.script_block),
+		),
+		else_block: $ => seq(
+			'else',
+			field('body', $.script_block),
+		),
+		condition: $ => choice(
+			$._bool_expression,
+		),
 	// 	looping_block: $ => seq(
 	// 		'{',
 	// 		repeat(choice(
@@ -806,7 +885,6 @@ module.exports = grammar({
 	// 		)),
 	// 		'}'
 	// 	),
-	// 	while_block: $ => seq('while', '(', $.condition, ')', alias($.looping_block, $.while_body)),
 	// 	do_while_block: $ => seq(
 	// 		'do', alias($.looping_block, $.do_while_body),
 	// 		'while', '(', $.condition, ')'
@@ -823,27 +901,14 @@ module.exports = grammar({
 	// 		alias($.looping_block, $.for_body)
 	// 	),
 
-	entity_property_int: $ => choice(
-		'x', 'y', 'primary_id', 'secondary_id', 'primary_id_type',
-		'current_animation', 'animation_frame', 'strafe'
-	),
-
-	// 	entity_property_string: $ => choice(
-	// 		'name', 'path', 'on_tick', 'on_look', 'on_interact'
-	// 	),
-	// 	entity_property_string_expandable: $ => choice(
-	// 		$.entity_property_string,
-	// 		$.entity_property_string_expansion,
-	// 	),
-	// 	entity_property_string_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.entity_property_string,
-	// 			repeat(seq(',', $.entity_property_string)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
+		entity_property_int: $ => choice(
+			'x', 'y', 'primary_id', 'secondary_id', 'primary_id_type',
+			'current_animation', 'animation_frame', 'strafe'
+		),
+		entity_property_string: $ => choice(
+			'name', 'type', 'path',
+			'on_interact', 'on_tick', 'on_look',
+		),
 
 	// 	fail: $ => 'fail',
 	// 	string_setable: $ => choice(

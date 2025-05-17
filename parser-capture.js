@@ -189,6 +189,7 @@ const captureFns = {
 		};
 		const typeNode = node.childForFieldName('type');
 		if (!typeNode) {
+			// ret.action = 'SET_SAVE_FLAG';
 			const flagNameNode = node.childForFieldName('flag');
 			ret.value = handleCapture(f, flagNameNode);
 			ret.type = 'save_flag';
@@ -196,6 +197,7 @@ const captureFns = {
 		}
 		const type = typeNode.text;
 		if (type === 'glitched') {
+			// ret.action = 'SET_ENTITY_GLITCHED';
 			const entityIdentNode = node.childForFieldName('entity_identifier');
 			const entityTypeNode = entityIdentNode.childForFieldName('type');
 			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
@@ -203,6 +205,7 @@ const captureFns = {
 			return ret;
 		}
 		if (type === 'light') {
+			// ret.action = 'SET_LIGHTS_STATE';
 			const lightIdentNode = node.childForFieldName('light');
 			ret.value = handleCapture(f, lightIdentNode);
 			ret.type = 'light';
@@ -211,27 +214,10 @@ const captureFns = {
 		ret.type = type;
 		return ret;
 	},
-	bool_or_identifier: (f, node) => {
-		const ret = {
-			mathlang: 'bool_or_identifier',
-			debug: node,
-			fileName: f.fileName,
-		};
-		const capture = handleCapture(f, node);
-		ret.value = capture;
-		if (typeof capture === 'string') {
-			ret.type = 'identifier';
-			ret.mathlang = 'setBoolOnFlagName';
-			// return mathSequenceFns.setBoolOnFlagName(f, node, spread, boolName);
-		} else {
-			ret.type = 'boolean'
-		}
-		return ret;
-	},
 	int_binary_expression: (f, node) => {
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
-		const opNode = node.childForFieldName('binary_operator');
+		const opNode = node.childForFieldName('operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
 		const op = opNode.text;
@@ -270,17 +256,243 @@ const captureFns = {
 			op
 		};
 	},
-	entity_int_getable: (f, node) => {
+	bool_binary_expression: (f, node) => {
+		const rhsNode = node.childForFieldName('rhs');
+		const lhsNode = node.childForFieldName('lhs');
+		const opNode = node.childForFieldName('operator');
+		let rhs = handleCapture(f, rhsNode);
+		let lhs = handleCapture(f, lhsNode);
+		const op = opNode.text;
+		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'boolean') {
+			f.newError({
+				locations: [
+					{
+						node: f.constants[rhs].debug,
+						fileName: f.constants[rhs].fileName,
+					},
+					{ node: rhsNode },
+				],
+				message: `constant is not a boolean`
+			})
+			rhs = null;
+		}
+		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'boolean') {
+			f.newError({
+				locations: [
+					{
+						node: f.constants[lhsNode.text].debug,
+						fileName: f.constants[lhsNode.text].fileName,
+					},
+					{ node: lhsNode },
+				],
+				message: `constant is not a boolean`
+			})
+			lhs = null;
+		}
+		return {
+			mathlang: 'int_binary_expression',
+			debug: node,
+			fileName: f.fileName,
+			lhs,
+			rhs,
+			op
+		};
+	},
+	bool_unary_expression: (f, node) => {
+		const opNode = node.childForFieldName('operator');
+		const op = opNode.text;
+		if (op !== '!') throw new Error ("what kind of unary is " + op + '?');
+		const valueNode = node.childForFieldName('operand');
+		const value = handleCapture(f, valueNode);
+		if (typeof value !== 'object') {
+			return {
+				mathlang: 'unary_expression',
+				invert: true,
+				value,
+			}
+		} else {
+			value.invert = !value.invert;
+			return value;
+		}
+	},
+	int_getable: (f, node) => {
 		const propertyNode = node.childForFieldName('property');
 		const field = propertyNode.text;
 		const entityNode = node.childForFieldName('entity_identifier');
 		const entity = handleCapture(f, entityNode);
 		return {
-			mathlang: 'entity_int_getable',
+			mathlang: 'int_getable',
 			debug: node,
 			fileName: f.fileName,
 			field,
 			entity
+		}
+	},
+	bool_getable: (f, node) => {
+		const ret = {
+			mathlang: 'bool_getable',
+			debug: node,
+			fileName: f.fileName,
+		};
+		const typeNode = node.childForFieldName('type');
+		const type = typeNode.text;
+		ret.type = type;
+		if (type === 'debug_mode') {
+			ret.action = 'CHECK_DEBUG_MODE';
+		} else if (type === 'glitched') {
+			ret.action = 'CHECK_ENTITY_GLTICHED';
+			const entityIdentNode = node.childForFieldName('entity_identifier');
+			const entityTypeNode = entityIdentNode.childForFieldName('type');
+			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
+		} else if (type === 'intersects') {
+			ret.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
+			const entityIdentNode = node.childForFieldName('entity_identifier');
+			const entityTypeNode = entityIdentNode.childForFieldName('type');
+			ret.entity = extractEntityName(f, entityIdentNode, entityTypeNode);
+			const geometryIdentNode = node.childForFieldName('geometry_identifier');
+			ret.geometry = handleCapture(f, geometryIdentNode);
+		} else if (type === 'dialog' || type === 'serial_dialog') {
+			ret.action = type === 'dialog'
+				? 'CHECK_DIALOG_OPEN'
+				: 'CHECK_SERIAL_DIALOG_OPEN';
+			const valueNode = node.childForFieldName('value')
+			ret.value = handleCapture(f, valueNode);
+		} else if (type === 'button') {
+			ret.value = node.childForFieldName('button').text;
+			const stateNode = node.childForFieldName('state');
+			if (stateNode.text === 'pressed') {
+				ret.action = 'CHECK_FOR_BUTTON_PRESS';
+				ret.state = 'pressed';
+			} else {
+				ret.action = 'CHECK_FOR_BUTTON_STATE';
+				ret.state = handleCapture(f, stateNode);
+			}
+		}
+		return ret;
+	},
+	string_checkable: (f, node) => {
+		const ret = {
+			mathlang: 'string_checkable',
+			debug: node,
+			fileName: f.fileName,
+		};
+		const type = typeNode.text;
+		const entityIdentNode = node.childForFieldName('entity_identifier');
+		if (entityIdentNode) {
+			ret.entity = extractEntityName(f, entityIdentNode);
+			const property = node.childForFieldName('property')?.text;
+			ret.property = property;
+			if (property === 'on_tick') {
+				ret.action = 'CHECK_ENTITY_TICK_SCRIPT';
+				ret.stringLabel = 'expected_script';
+			} else if (property === 'on_look') {
+				ret.action = 'CHECK_ENTITY_LOOK_SCRIPT';
+				ret.stringLabel = 'expected_script';
+			} else if (property === 'on_interact') {
+				ret.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
+				ret.stringLabel = 'expected_script';
+			} else if (property === 'on_interact') {
+				ret.action = 'CHECK_ENTITY_NAME';
+				ret.stringLabel = 'string';
+			} else if (property === 'path') {
+				ret.action = 'CHECK_ENTITY_PATH';
+				ret.stringLabel = 'geometry';
+			} else if (property === 'type') {
+				ret.action = 'CHECK_ENTITY_TYPE';
+				ret.stringLabel = 'entity_type';
+			}
+		} else if (type === 'warp_state') {
+			ret.action = 'CHECK_WARP_STATE';
+		}
+		return ret;
+	},
+	number_checkable_equality: (f, node) => {
+		const ret = {
+			mathlang: 'number_checkable_equality',
+			debug: node,
+			fileName: f.fileName,
+		};
+		const entityIdentNode = node.childForFieldName('entity_identifier');
+		if (entityIdentNode) {
+			ret.entity = extractEntityName(f, entityIdentNode);
+			const propertyNode = node.childForFieldName('property');
+			const property = propertyNode.text;
+			ret.property = property;
+			if (property === 'x') {
+				ret.action = 'CHECK_ENTITY_X';
+				ret.numberLabel = 'expected_u2';
+			} else if (property === 'y') {
+				ret.action = 'CHECK_ENTITY_Y';
+				ret.numberLabel = 'expected_u2';
+			} else if (property === 'primary_id') {
+				ret.action = 'CHECK_ENTITY_PRIMARY_ID';
+				ret.numberLabel = 'expected_u2';
+			} else if (property === 'secondary_id') {
+				ret.action = 'CHECK_ENTITY_SECONDARY_ID';
+				ret.numberLabel = 'expected_u2';
+			} else if (property === 'primary_id_type') {
+				ret.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
+				ret.numberLabel = 'expected_byte';
+			} else if (property === 'current_animation') {
+				ret.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
+				ret.numberLabel = 'expected_byte';
+			} else if (property === 'animation_frame') {
+				ret.action = 'CHECK_ENTITY_CURRENT_FRAME';
+				ret.numberLabel = 'expected_byte';
+			} else if (property === 'strafe') {
+				f.newError({
+					location: [{ node: propertyNode }],
+					message: `This property is not supported in boolean expressions`
+				});
+			}
+		}
+		return ret;
+	},
+	nsew: (f, node) => node.text,
+	nsew_checkable: (f, node) => {
+		const entityIdentNode = node.childForFieldName('entity_identifier');
+		return extractEntityName(f, entityIdentNode);
+	},
+	bool_comparison: (f, node) => {
+		if (node.lhs.grammarType === 'nsew_checkable') {
+			return {
+				...compareNSEW(node.lhs, node.rhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.rhs.grammarType === 'nsew_checkable') {
+			return {
+				...compareNSEW(node.rhs, node.lhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.lhs.grammarType === 'string_checkable') {
+			return {
+				...compareString(node.lhs, node.rhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.rhs.grammarType === 'string_checkable') {
+			return {
+				...compareString(node.rhs, node.lhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.lhs.grammarType === 'number_checkable_equality') {
+			return {
+				...compareNumberCheckableEquality(node.lhs, node.rhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.rhs.grammarType === 'number_checkable_equality') {
+			return {
+				...compareNumberCheckableEquality(node.rhs, node.lhs),
+				expected_bool: node.childForFieldName('operator') === '===',
+			}
+		} else if (node.rhs.grammarType === 'number_checkable_comparison') {
+			return {
+				mathlang: 'compare_int_expressions',
+				lhs: node.lhs,
+				rhs: node.rhs,
+				op: node.operator,
+				debug: node,
+				fileName: f.fileName,
+			}
 		}
 	},
 	int_setable: (f, node) => {
@@ -289,17 +501,46 @@ const captureFns = {
 		const entityNode = node.childForFieldName('entity_identifier');
 		const entity = handleCapture(f, entityNode);
 		return {
-			mathlang: 'entity_int_getable',
+			mathlang: 'int_getable',
 			debug: node,
 			fileName: f.fileName,
 			field,
 			entity
 		}
 	},
-	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0])
+	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
+	bool_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
+};
+const compareNSEW = (entityNode, nsewNode) => ({
+	action: "CHECK_ENTITY_DIRECTION",
+	direction: nsewNode.text,
+	entity: extractEntityName(entityNode),
+	expected_bool: true,
+});
+
+const compareString = (checkableNode, stringNode) => {
+	const checkable = handleCapture(f, checkableNode);
+	const string = handleCapture(f, stringNode);
+	const op = node.childForFieldName('operator') === '===';
+	return {
+		...checkable,
+		expected_bool: op,
+		[checkable.stringLabel]: string,
+	}
+};
+const compareNumberCheckableEquality = (checkableNode, numberNode) => {
+	const checkable = handleCapture(f, checkableNode);
+	const number = handleCapture(f, numberNode);
+	const op = node.childForFieldName('operator') === '===';
+	return {
+		...checkable,
+		expected_bool: op,
+		[checkable.stringLabel]: number,
+	}
 };
 
-const extractEntityName = (f, node, typeNode) => {
+const extractEntityName = (f, node, _typeNode) => {
+	const typeNode = _typeNode || node.childForFieldName('type');
 	const type = typeNode.text;
 	let entity;
 	if (type === 'self') entity = '%SELF%'

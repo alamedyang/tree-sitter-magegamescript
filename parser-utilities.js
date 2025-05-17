@@ -59,6 +59,31 @@ const autoIdentifierName = (f, node) => {
 		+ ':' + node.startPosition.column;
 };
 
+const simpleBranchMaker = (f, _branchAction, _ifBody, _elseBody) => {
+	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
+	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
+
+	const gotoLabel = f.p.gotoSuffix();
+	const ifLabel = `if #${gotoLabel}`;
+	const rendezvousLabel = `rendezvous #${gotoLabel}`;
+
+	const branchAction = structuredClone(_branchAction);
+	branchAction.label = ifLabel;
+
+	const steps = [
+		branchAction,
+		...elseBody,
+		{ mathang: 'goto_label', label: rendezvousLabel, },
+		{ mathang: 'label_definition', label: ifLabel, },
+		...ifBody,
+		{ mathang: 'label_definition', label: rendezvousLabel, },
+	];
+	return {
+		mathlang: 'math_sequence',
+		steps: steps.map(v=>({ ...v, node, fileName: f.fileName })),
+	};
+};
+
 module.exports = {
 	verbose,
 	debugLog,
@@ -66,4 +91,5 @@ module.exports = {
 	reportErrorNodes,
 	makeMessagePrintable,
 	autoIdentifierName,
+	simpleBranchMaker,
 };

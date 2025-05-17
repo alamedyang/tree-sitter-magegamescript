@@ -11,3 +11,85 @@ camera geometry/origin forever = error
 entity geometry/origin forever = error
 camera entity forever = error
 entity entity ±forever = error
+
+
+
+
+( 1 + 2 ) + ( 3 * 4 )
+
+TEMP0 := 1
+TEMP0 += 2
+TEMP1 := 3
+TEMP1 *= 4
+TEMP0 += TEMP1
+
+
+
+(LHS) + (RHS)
+temporary0 = (LHS + LHS')
+temporary1 = (RHS + RHS')
+temporary0 += temporary1
+
+
+(LHS) + (RHS)
+(LHS) + n
+n + (LHS)
+n + n
+
+
+(cond1 || cond2) || (cond3 && !cond4)
+
+if (cond1) goto truebranch;
+if (cond2) goto truebranch;
+if (cond3) {
+	if (!cond4) {
+		goto truebranch;
+	} else {
+		goto falsebranch;
+	}
+} else {
+	goto falsebranch;
+}
+goto truebranch;
+falsebranch:
+
+FALSE STUFF;
+goto rendezvousbranch
+
+truebranch:
+TRUE STUFF;
+
+rendezvousbranch:
+
+
+/* MAKING IF-ELSES
+
+if (A) { <a> }
+else if (B) { <b> }
+else if (C) { <c> }
+else { <d> }
+
+-->
+
+if A goto label Atrue
+if B goto label Btrue
+if C goto label Ctrue
+
+<d>
+goto rendezvouslabel
+
+Ctrue:
+<c>
+goto rendezvouslabel
+
+Btrue:
+<b>
+goto rendezvouslabel
+
+Atrue:
+<a>
+goto rendezvouslabel
+
+rendezvouslabel:
+
+*/

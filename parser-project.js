@@ -24,7 +24,8 @@ const makeProjectState = (tsParser, fileMap) => {
 		warningCount: 0,
 
 		// provides the label suffix, then advances counter:
-		gotoSuffix: () => p.gotoSuffixValue++,
+		advanceGotoSuffix: () => p.gotoSuffixValue++,
+		getGotoSuffix: () => p.gotoSuffixValue,
 		newError: (v) => {
 			p.errors.push(v);
 			p.errorCount += 1;

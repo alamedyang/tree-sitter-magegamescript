@@ -1,11 +1,11 @@
 const handleCapture = require('./parser-capture.js');
-const { autoIdentifierName } = require ('./parser-utilities.js');
+const { autoIdentifierName, simpleBranchMaker } = require ('./parser-utilities.js');
 
 let handleNode;
 const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
-const INT_TEMP = '__INT_TEMP_'
+const TEMP = '__TEMP_'
 const intOpMap = {
 	'=': 'SET',
 	'+': 'ADD',
@@ -15,7 +15,6 @@ const intOpMap = {
 	'%': 'MOD',
 	'?': 'RNG',
 }
-const BOOL_TEMP = '__BOOL_TEMP_';
 const intOpMapReverse = {
 	ADD: '+',
 	SUB: '-',
@@ -25,9 +24,19 @@ const intOpMapReverse = {
 	RNG: '?',
 	SET: ':',
 };
+const opInverseMap = {
+	'<': '>=',
+	'<=': '>',
+	'>=': '<',
+	'>': '<=',
+	'==': '!=',
+	'!==': '==',
+	'&&': '||',
+	'||': '&&',
+}
 const temporaries = [];
 const newTemporary = () => {
-	temporaries.unshift(INT_TEMP + temporaries.length);
+	temporaries.unshift(TEMP + temporaries.length);
 	return temporaries[0];
 };
 const dropTemporary = () => temporaries.shift();
@@ -61,6 +70,32 @@ const expandIntBinaryExpression = (exp, steps) => {
 		steps.push(changeVarByVar(variable, temp, op));
 		dropTemporary();
 	}
+	return steps;
+};
+const expandBoolBinaryExpression = (exp, steps) => {
+	const variable = latestTemporary();
+	const lhs = exp.lhs;
+	const op = exp.op;
+	const rhs = exp.rhs;
+	// if (typeof lhs === 'number') {
+	// 	steps.push(setVarToValue(variable, lhs));
+	// } else if (lhs.entity) {
+	// 	steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, variable));
+	// } else if (lhs.mathlang === 'int_binary_expression') {
+	// 	expandIntBinaryExpression(lhs, steps);
+	// }
+	// if (typeof rhs === 'number') {
+	// 	steps.push(changeVarByValue(variable, rhs, op))
+	// } else if (rhs.entity) {
+	// 	const temp = quickTemporary();
+	// 	steps.push(copyEntityFieldIntoVar(rhs.entity, rhs.field, temp));
+	// 	steps.push(changeVarByVar(variable, temp, op));
+	// } else if (rhs.mathlang === 'int_binary_expression') {
+	// 	const temp = newTemporary();
+	// 	expandIntBinaryExpression(rhs, steps);
+	// 	steps.push(changeVarByVar(variable, temp, op));
+	// 	dropTemporary();
+	// }
 	return steps;
 };
 
@@ -414,30 +449,59 @@ const actionData = {
 				isMatch: (v, f, node) => {
 					return node.childForFieldName('rhs')
 						.grammarType
-						.includes('int'); // there, that'll show 'em
+						.includes('int');
 				},
 				finalizeValues: (v, f, node) => {
 					const steps = mathSequenceFns.intExpression(f, v.rhs, node);
-					steps.push(setVarToVar(v.lhs, INT_TEMP+0));
+					steps.push(setVarToVar(v.lhs, TEMP+0));
 					return {
 						mathlang: 'math_sequence',
 						steps,
 					};
 				}
 			},
-			// {
-			// 	isMatch: (v, f, node) => {
-			// 		const type = node.childForFieldName('rhs').grammarType;
-			// 		return type.includes('bool') // there, that'll show 'em
-			// 			|| type === "BOOL";
-			// 	},
-			// 	finalizeValues: (v, f, node) => {
-			// 		return {
-			// 			mathlang: 'math_sequence',
-			// 			steps: mathSequenceFns.boolBinaryExpression(v, f, node),
-			// 		};
-			// 	}
-			// },
+			{
+				isMatch: (v) => typeof v.rhs === 'bool',
+				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
+			},
+			{
+				isMatch: (v) => typeof v.rhs.value === 'bool',
+				finalizeValues: (v) => setFlag(
+					v.lhs,
+					v.rhs.invert ? !v.rhs : v.rhs
+				),
+			},
+			{
+				isMatch: (v, f, node) => {
+					return node.childForFieldName('rhs')
+						.grammarType
+						.includes('bool');
+				},
+				finalizeValues: (v, f, node) => {
+					const steps = mathSequenceFns.boolExpression(f, v.rhs, node);
+					// this action is literally for setting a flag, so set the flag to the temporary value
+					steps.push(setFlagToFlag(f, v.lhs, TEMP+0));
+					return {
+						mathlang: 'math_sequence',
+						steps,
+					};
+				}
+			},
+			{
+				isMatch: (v, f, node) => {
+					const type = node.childForFieldName('rhs').grammarType;
+					return type.includes('bool');
+				},
+				finalizeValues: (v, f, node) => {
+					const steps = mathSequenceFns.boolExpression(f, v.rhs, node);
+					// this action is literally for setting a flag, so set the flag to the temporary value
+					steps.push(setFlagToFlag(f, v.lhs, TEMP+0));
+					return {
+						mathlang: 'math_sequence',
+						steps,
+					};
+				}
+			},
 		],
 	},
 	action_set_int: {
@@ -458,7 +522,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const steps = mathSequenceFns.intExpression(f, v.rhs, node);
 					steps.push(copyVarIntoEntityField(
-						INT_TEMP+0, v.lhs.entity, v.lhs.field
+						TEMP+0, v.lhs.entity, v.lhs.field
 					));
 					return {
 						mathlang: 'math_sequence',
@@ -468,95 +532,104 @@ const actionData = {
 			},
 		],
 	},
-	// action_set_bool: {
-	// 	values: {},
-	// 	captures: [ 'bool_setable', 'bool_or_identifier' ],
-	// 	detective: [
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'save_flag',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = {
-	// 					action: 'SET_SAVE_FLAG',
-	// 					save_flag: v.bool_setable.value,
-	// 				};
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'entity',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = {
-	// 					action: 'SET_ENTITY_GLITCHED',
-	// 					entity: v.bool_setable.value,
-	// 				};
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'light',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = {
-	// 					action: 'SET_LIGHTS_STATE',
-	// 					lights: v.bool_setable.value,
-	// 				};
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'player_control',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_PLAYER_CONTROL' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'lights_control',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_LIGHTS_CONTROL' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'enabled');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'hex_editor',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_HEX_EDITOR_STATE' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'hex_dialog_mode',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'hex_control',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_HEX_EDITOR_CONTROL' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'hex_clipboard',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 		{
-	// 			isMatch: (v) => v.bool_setable.type === 'serial_control',
-	// 			finalizeValues: (v, f, node) => {
-	// 				const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
-	// 				return actionSetBoolRHSMaker(f, v, node, action, 'bool_value');
-	// 			},
-	// 		},
-	// 	],
-	// 	detectError: (v) => ({
-	// 		locations: [{ node: v.debug }],
-	// 		message: `incompatible bool_setable and bool_or_identifier (lol good luck)`,
-	// 	}),
-	// },
+	action_set_bool: {
+		values: {},
+		captures: [ 'lhs', 'rhs' ],
+		detective: [
+			{
+				isMatch: (v) => v.lhs.type === 'save_flag'
+					&& typeof v.rhs === 'bool',
+				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'save_flag'
+					&& typeof v.rhs.value === 'bool',
+				finalizeValues: (v) => setFlag(
+					v.lhs,
+					v.rhs.invert ? !v.rhs : v.rhs
+				),
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'save_flag',
+				finalizeValues: (v, f, node) => {
+					const action = {
+						action: 'SET_SAVE_FLAG',
+						save_flag: v.lhs.value,
+					};
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'entity',
+				finalizeValues: (v, f, node) => {
+					const action = {
+						action: 'SET_ENTITY_GLITCHED',
+						entity: v.lhs.value,
+					};
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'light',
+				finalizeValues: (v, f, node) => {
+					const action = {
+						action: 'SET_LIGHTS_STATE',
+						lights: v.lhs.value,
+					};
+					return actionSetBoolMaker(f, v, action, 'enabled');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'player_control',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_PLAYER_CONTROL' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'lights_control',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_LIGHTS_CONTROL' };
+					return actionSetBoolMaker(f, v, action, 'enabled');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'hex_editor',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_STATE' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'hex_dialog_mode',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'hex_control',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_CONTROL' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'hex_clipboard',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+			{
+				isMatch: (v) => v.lhs.type === 'serial_control',
+				finalizeValues: (v, f, node) => {
+					const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+					return actionSetBoolMaker(f, v, action, 'bool_value');
+				},
+			},
+		],
+	},
 	action_set_position: {
 		values: {},
 		captures: [ 'movable', 'coordinate' ],
@@ -705,7 +778,7 @@ const actionData = {
 
 const mathSequenceFns = {
 	moveEntityPosToEntityPos: (copyFrom, copyTo) => {
-		const variable = INT_TEMP;
+		const variable = TEMP;
 		return {
 			mathlang: 'math_sequence',
 			steps: [
@@ -732,52 +805,6 @@ const mathSequenceFns = {
 			]
 		}
 	},
-	// sets a bool setable based on a save flag value
-	setBoolOnFlagName: (f, node, action, paramName) => {
-		const gotoLabel = f.p.gotoSuffix();
-		const flagName = action.bool_value;
-		return {
-			mathlang: 'math_sequence',
-			steps: [
-				{
-					// if flagName === true, goto label 'if is true #0'
-					mathlang: 'label_to_index',
-					action: "CHECK_SAVE_FLAG",
-					expected_bool: true,
-					label: `if #${gotoLabel}`,
-					save_flag: flagName
-				},
-				{
-					// set action boolName to false
-					...action,
-					[paramName]: false,
-				},
-				{
-					// goto label 'rendezvous #0'
-					mathang: 'goto_label',
-					label: `rendezvous #${gotoLabel}`
-				},
-				{
-					// label 'if is true #0'
-					mathang: 'label_definition',
-					label: `if #${gotoLabel}`,
-				},
-				{
-					// set action boolName to true
-					...action,
-					[paramName]: true,
-				},
-				{
-					// label: rendezvous #0
-					mathang: 'label_definition',
-					label: `rendezvous #${gotoLabel}`
-				},
-			].map(v=>({ ...v, node, fileName: f.fileName })),
-		}
-	},
-	boolBinaryExpression: (v, f, node) => {
-		console.log("TODO")
-	},
 	intExpression: (f, expressionNode, overallNode) => {
 		const steps = [];
 		newTemporary();
@@ -786,10 +813,22 @@ const mathSequenceFns = {
 		console.log("EXPRESSION: " + expressionNode.debug.text)
 		console.log(steps.map(printMath).join('\n')+'\n')
 		// don't add the final destination, since it could be a few things;
-		// the caller will decide where __INT_TEMP_0 should go
+		// the caller will decide where __TEMP_0 should go
 		return steps;
-		
-	}
+	},
+	boolExpression: (f, expressionNode, overallNode) => {
+		const steps = [];
+		newTemporary();
+		console.log("FINISH THIS THING")
+
+		// expandIntBinaryExpression(expressionNode, steps);
+		dropTemporary();
+		console.log("EXPRESSION: " + expressionNode.debug.text)
+		console.log(steps.map(printMath).join('\n')+'\n')
+		// don't add the final destination, since it could be a few things;
+		// the caller will decide where __TEMP_0 should go
+		return steps;
+	},
 };
 
 const setVarToValue = (variable, value) => ({
@@ -830,14 +869,46 @@ const copyEntityFieldIntoVar = (entity, field, variable) => ({
 	inbound: true,
 	variable,
 });
+const setFlag = (save_flag, bool_value) => ({
+	action: "SET_SAVE_FLAG",
+	bool_value,
+	save_flag,
+});
 
-const actionSetBoolRHSMaker = (f, v, node, action, boolLabel) => {
-	if (typeof v.bool_or_identifier === 'boolean') {
-		action[boolLabel] = v.bool_or_identifier;
-	} else {
-		action = mathSequenceFns.setBoolOnFlagName(f, node, action, boolLabel);
+const actionSetBoolMaker = (f, v, setAction, boolLabel) => {
+	if (typeof v.rhs === 'boolean') {
+		setAction[boolLabel] = v.rhs;
+		return setAction;
 	}
-	return action;
+	if (typeof v.rhs.value === 'boolean' && v.rhs.invert) {
+		setAction[boolLabel] = !v.rhs.value;
+		return setAction;
+	}
+	
+	// TODO: redo everything below
+	const branchAction = {
+		action: "CHECK_SAVE_FLAG",
+		expected_bool: true,
+		save_flag: setAction.bool_value
+	}
+	const ifBody = { ...setAction, [paramName]: true };
+	const elseBody = { ...setAction, [paramName]: false };
+	const branchSequence = simpleBranchMaker(f, branchAction, ifBody, elseBody);
+	return branchSequence;
+};
+const setFlagToFlag = (f, flag, source) => {
+	const branchAction = {
+		action: "CHECK_SAVE_FLAG",
+		expected_bool: true,
+		save_flag: source,
+	}
+	const action = {
+		action: "SET_SAVE_FLAG",
+		save_flag: flag,
+	};
+	const ifBody = { ...action, bool_value: true };
+	const elseBody = { ...action, bool_value: false };
+	return simpleBranchMaker(f, branchAction, ifBody, elseBody);
 };
 
 module.exports = { handleAction, handleActionsInit };
