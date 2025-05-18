@@ -621,11 +621,11 @@ module.exports = grammar({
 			$.CONSTANT,
 			$.bool_getable,
 			$.bool_unary_expression,
-			seq('(', $._bool_expression, ')'),
+			$.bool_grouping,
 			$.STRING,
 		)),
 		
-		bool_grouping: $ => seq('(', $._bool_expression, ')'),
+		bool_grouping: $ => seq('(', field('inner',$._bool_expression), ')'),
 		_bool_expression: $ => choice(
 			$.bool_binary_expression,
 			$.bool_comparison,
@@ -696,18 +696,25 @@ module.exports = grammar({
 				field('rhs', $.number_checkable_equality),
 			),
 			seq(
-				field('lhs', $.number_checkable_comparison),
+				field('lhs', $.number),
 				field('operator', $.COMPARISON),
-				field('rhs', $.number_checkable_comparison),
+				field('rhs', $.string),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.COMPARISON),
+				field('rhs', $.string),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.COMPARISON),
+				field('rhs', $.number),
 			),
 		),
 		number_checkable_equality: $=> prec(1,seq(
 			field('entity_identifier', $.entity_identifier),
 			field('property', $.entity_property_int),
 		)),
-		number_checkable_comparison: $=> seq(
-			field('int_expression', $._int_expression),
-		),
 		nsew_checkable: $ => seq(
 			field('entity_identifier', $.entity_identifier),
 			'direction',

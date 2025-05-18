@@ -24,16 +24,6 @@ const intOpMapReverse = {
 	RNG: '?',
 	SET: ':',
 };
-const opInverseMap = {
-	'<': '>=',
-	'<=': '>',
-	'>=': '<',
-	'>': '<=',
-	'==': '!=',
-	'!==': '==',
-	'&&': '||',
-	'||': '&&',
-}
 const temporaries = [];
 const newTemporary = () => {
 	temporaries.unshift(TEMP + temporaries.length);

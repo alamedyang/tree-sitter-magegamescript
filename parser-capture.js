@@ -4,6 +4,16 @@ const {
 	reportErrorNodes,
 } = require('./parser-utilities.js');
 
+const opInverseMap = {
+	'<': '>=',
+	'<=': '>',
+	'>=': '<',
+	'>': '<=',
+	'==': '!=',
+	'!==': '==',
+	'&&': '||',
+	'||': '&&',
+}
 const handleCapture = (f, node) => {
 	debugLog(`-->> Capturing: ${node.grammarType}`);
 	reportErrorNodes(f, node);
@@ -301,22 +311,32 @@ const captureFns = {
 			op,
 		};
 	},
+	bool_grouping: (f, node) => {
+		const inner = node.childForFieldName('inner');
+		return handleCapture(f, inner);
+	},
 	bool_unary_expression: (f, node) => {
 		const opNode = node.childForFieldName('operator');
 		const op = opNode.text;
 		if (op !== '!') throw new Error ("what kind of unary is " + op + '?');
 		const valueNode = node.childForFieldName('operand');
 		const value = handleCapture(f, valueNode);
-		if (typeof value !== 'object') {
+		if (typeof value === 'boolean') return !value;
+		if (typeof value === 'string') {
 			return {
-				mathlang: 'unary_expression',
+				mathlang: 'check_save_flag',
 				invert: true,
 				value,
 			}
-		} else {
-			value.invert = !value.invert;
-			return value;
 		}
+		value.invert = !value.invert;
+		if (value.mathlang === 'bool_binary_expression' && value.invert) {
+			value.invert = !value.invert;
+			value.op = opInverseMap[value.op];
+			value.lhs.invert = !value.lhs.invert;
+			value.rhs.invert = !value.rhs.invert;
+		}
+		return value;
 	},
 	int_getable: (f, node) => {
 		const propertyNode = node.childForFieldName('property');
@@ -379,7 +399,6 @@ const captureFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		const type = typeNode.text;
 		const entityIdentNode = node.childForFieldName('entity_identifier');
 		if (entityIdentNode) {
 			ret.entity = extractEntityName(f, entityIdentNode);
@@ -404,8 +423,13 @@ const captureFns = {
 				ret.action = 'CHECK_ENTITY_TYPE';
 				ret.stringLabel = 'entity_type';
 			}
-		} else if (type === 'warp_state') {
-			ret.action = 'CHECK_WARP_STATE';
+		} else {
+			const type = node.childForFieldName('type');
+			if (type.text === 'warp_state') {
+				ret.action = 'CHECK_WARP_STATE';
+			} else {
+				throw new Error (`this shouldn't happen`)
+			}
 		}
 		return ret;
 	},
@@ -461,53 +485,90 @@ const captureFns = {
 		return extractEntityName(f, entityIdentNode);
 	},
 	bool_comparison: (f, node) => {
-		const lhs = node.childForFieldName('lhs');
-		const rhs = node.childForFieldName('rhs');
-		if (lhs.grammarType === 'nsew_checkable') {
+		const lhsN = node.childForFieldName('lhs');
+		const rhsN = node.childForFieldName('rhs');
+		if (lhsN.grammarType === 'nsew_checkable') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNSEW(f, lhs, rhs),
+				...compareNSEW(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (rhs.grammarType === 'nsew_checkable') {
+		} 
+		if (rhsN.grammarType === 'nsew_checkable') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNSEW(f, rhs, lhs),
+				...compareNSEW(f, rhsN, lhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (lhs.grammarType === 'string_checkable') {
-			return {
-				mathlang: 'bool_comparison',
-				expected_bool: node.childForFieldName('operator').text === '==',
-				...compareString(f, lhs, rhs),
-			}
-		} else if (rhs.grammarType === 'string_checkable') {
+		}
+		if (lhsN.grammarType === 'string_checkable') {
 			return {
 				mathlang: 'bool_comparison',
 				expected_bool: node.childForFieldName('operator').text === '==',
-				...compareString(f, rhs, lhs),
+				...compareString(f, lhsN, rhsN),
 			}
-		} else if (lhs.grammarType === 'number_checkable_equality') {
+		}
+		if (rhsN.grammarType === 'string_checkable') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNumberCheckableEquality(f, lhs, rhs),
 				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareString(f, rhsN, lhsN),
 			}
-		} else if (rhs.grammarType === 'number_checkable_equality') {
+		}
+		if (lhsN.grammarType === 'number_checkable_equality') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNumberCheckableEquality(f, rhs, lhs),
+				...compareNumberCheckableEquality(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (rhs.grammarType === 'number_checkable_comparison') {
+		}
+		if (rhsN.grammarType === 'number_checkable_equality') {
 			return {
-				mathlang: 'compare_int_expressions',
-				lhs,
-				rhs,
-				op: node.operator,
-				debug: node,
-				fileName: f.fileName,
+				mathlang: 'bool_comparison',
+				...compareNumberCheckableEquality(f, rhsN, lhsN),
+				expected_bool: node.childForFieldName('operator').text === '==',
 			}
+		}
+		const lhs = handleCapture(f, lhsN);
+		const rhs = handleCapture(f, rhsN);
+		if (typeof lhs === 'string') {
+			if (typeof rhs === 'string') {
+				return {
+					mathlang: 'bool_comparison',
+					action: 'CHECK_VARIABLES',
+					variable: lhs,
+					source: rhs,
+					comparison: node.childForFieldName('operator').text,
+					expected_bool: true,
+				}
+			} else if (typeof rhs === 'number') {
+				return {
+					mathlang: 'bool_comparison',
+					action: 'CHECK_VARIABLE',
+					variable: lhs,
+					value: rhs,
+					comparison: node.childForFieldName('operator').text,
+					expected_bool: true,
+				}
+			} else {
+				throw new Error ('not yet implemented');
+			}
+		} else if (typeof lhs === 'number') {
+			if (typeof rhs === 'string') {
+				const comparison = node.childForFieldName('operator').text;
+				return {
+					mathlang: 'bool_comparison',
+					action: 'CHECK_VARIABLE',
+					variable: rhs,
+					value: lhs,
+					comparison: opInverseMap[comparison],
+					expected_bool: true,
+				}
+			} else {
+				throw new Error ('not yet implemented');
+			}
+		} else {
+			throw new Error ('not yet implemented');
 		}
 	},
 	int_setable: (f, node) => {

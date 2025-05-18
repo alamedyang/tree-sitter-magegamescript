@@ -374,10 +374,10 @@ const nodeFns = {
 			const conditionNode = iff.childForFieldName('condition').namedChildren[0];
 			const condition = handleCapture(f, conditionNode);
 			const bodyNode = iff.childForFieldName('body');
-			const conditionExpansion = expandCondition(f, conditionNode, condition, ifLabel);
+			const conditions = expandCondition(f, conditionNode, condition, ifLabel);
 			const body = bodyNode.namedChildren.map(v=>handleNode(f, v)).flat();
 			// add top half
-			conditionExpansion.forEach(v=>steps.push(v));
+			conditions.forEach(v=>steps.push(v));
 			// add bottom half
 			const bottomInsert = [
 				label(f, node, ifLabel),
@@ -406,6 +406,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 	if (
 		condition.mathlang === 'bool_getable'
 		|| condition.mathlang === 'number_checkable_equality'
+		|| condition.mathlang === 'string_checkable'
 		|| condition.mathlang === 'bool_comparison'
 	) {
 		const action = {
@@ -425,6 +426,14 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		return [ gotoLabel(f, node, ifLabel) ];
 	} else if (condition === false) {
 		return [];
+	}
+	if (condition.mathlang === 'check_save_flag') {
+		const expected_bool = !condition.invert;
+		return {
+			action: "CHECK_SAVE_FLAG",
+			expected_bool,
+			save_flag: condition.value,
+		}
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
 		throw new Error("not yet implemented")
@@ -454,6 +463,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		];
 		return inner.flat();
 	}
+
 	// remainder will be '==' and '!='
 
 
