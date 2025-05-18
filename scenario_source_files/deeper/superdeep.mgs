@@ -19,7 +19,7 @@
 
 // $trombones = 76;
 simple {
-	if (!debug_mode) {
+	if (player direction == north && debug_mode && player intersects geometry stick) {
 		wait 1;
 	} else {
 		wait 2;

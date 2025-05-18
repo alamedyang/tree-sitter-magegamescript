@@ -257,6 +257,7 @@ const captureFns = {
 		};
 	},
 	bool_binary_expression: (f, node) => {
+		// const inner = node.namedChildren[0];
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
 		const opNode = node.childForFieldName('operator');
@@ -290,12 +291,14 @@ const captureFns = {
 			lhs = null;
 		}
 		return {
-			mathlang: 'int_binary_expression',
+			mathlang: node.grammarType,
 			debug: node,
 			fileName: f.fileName,
 			lhs,
+			lhsNode,
 			rhs,
-			op
+			rhsNode,
+			op,
 		};
 	},
 	bool_unary_expression: (f, node) => {
@@ -448,47 +451,59 @@ const captureFns = {
 		}
 		return ret;
 	},
+	geometry_identifier: (f, node) => {
+		const v = node.childForFieldName('geometry');
+		return handleCapture(f, v);
+	},
 	nsew: (f, node) => node.text,
 	nsew_checkable: (f, node) => {
 		const entityIdentNode = node.childForFieldName('entity_identifier');
 		return extractEntityName(f, entityIdentNode);
 	},
 	bool_comparison: (f, node) => {
-		if (node.lhs.grammarType === 'nsew_checkable') {
+		const lhs = node.childForFieldName('lhs');
+		const rhs = node.childForFieldName('rhs');
+		if (lhs.grammarType === 'nsew_checkable') {
 			return {
-				...compareNSEW(node.lhs, node.rhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				...compareNSEW(f, lhs, rhs),
+				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (node.rhs.grammarType === 'nsew_checkable') {
+		} else if (rhs.grammarType === 'nsew_checkable') {
 			return {
-				...compareNSEW(node.rhs, node.lhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				...compareNSEW(f, rhs, lhs),
+				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (node.lhs.grammarType === 'string_checkable') {
+		} else if (lhs.grammarType === 'string_checkable') {
 			return {
-				...compareString(node.lhs, node.rhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareString(f, lhs, rhs),
 			}
-		} else if (node.rhs.grammarType === 'string_checkable') {
+		} else if (rhs.grammarType === 'string_checkable') {
 			return {
-				...compareString(node.rhs, node.lhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareString(f, rhs, lhs),
 			}
-		} else if (node.lhs.grammarType === 'number_checkable_equality') {
+		} else if (lhs.grammarType === 'number_checkable_equality') {
 			return {
-				...compareNumberCheckableEquality(node.lhs, node.rhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				...compareNumberCheckableEquality(f, lhs, rhs),
+				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (node.rhs.grammarType === 'number_checkable_equality') {
+		} else if (rhs.grammarType === 'number_checkable_equality') {
 			return {
-				...compareNumberCheckableEquality(node.rhs, node.lhs),
-				expected_bool: node.childForFieldName('operator') === '===',
+				mathlang: 'bool_comparison',
+				...compareNumberCheckableEquality(f, rhs, lhs),
+				expected_bool: node.childForFieldName('operator').text === '==',
 			}
-		} else if (node.rhs.grammarType === 'number_checkable_comparison') {
+		} else if (rhs.grammarType === 'number_checkable_comparison') {
 			return {
 				mathlang: 'compare_int_expressions',
-				lhs: node.lhs,
-				rhs: node.rhs,
+				lhs,
+				rhs,
 				op: node.operator,
 				debug: node,
 				fileName: f.fileName,
@@ -511,31 +526,26 @@ const captureFns = {
 	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 	bool_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 };
-const compareNSEW = (entityNode, nsewNode) => ({
+const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
 	direction: nsewNode.text,
-	entity: extractEntityName(entityNode),
-	expected_bool: true,
+	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
 });
 
-const compareString = (checkableNode, stringNode) => {
+const compareString = (f, checkableNode, stringNode) => {
 	const checkable = handleCapture(f, checkableNode);
 	const string = handleCapture(f, stringNode);
-	const op = node.childForFieldName('operator') === '===';
 	return {
 		...checkable,
-		expected_bool: op,
 		[checkable.stringLabel]: string,
 	}
 };
-const compareNumberCheckableEquality = (checkableNode, numberNode) => {
+const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 	const checkable = handleCapture(f, checkableNode);
 	const number = handleCapture(f, numberNode);
-	const op = node.childForFieldName('operator') === '===';
 	return {
 		...checkable,
-		expected_bool: op,
-		[checkable.stringLabel]: number,
+		[checkable.numberLabel]: number,
 	}
 };
 

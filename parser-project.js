@@ -24,7 +24,7 @@ const makeProjectState = (tsParser, fileMap) => {
 		warningCount: 0,
 
 		// provides the label suffix, then advances counter:
-		advanceGotoSuffix: () => p.gotoSuffixValue++,
+		advanceGotoSuffix: () => ++p.gotoSuffixValue,
 		getGotoSuffix: () => p.gotoSuffixValue,
 		newError: (v) => {
 			p.errors.push(v);
@@ -51,7 +51,10 @@ const makeProjectState = (tsParser, fileMap) => {
 				} else if (node.mathlang === 'serial_dialog_definition') {
 					// (sometimes these are inside a script body)
 					p.addSerialDialog(node, fileName);
-				} else if (node.mathlang === 'math_sequence') {
+				} else if (
+					node.mathlang === 'math_sequence'
+					|| node.mathlang === 'if_sequence'
+				) {
 					node.steps.forEach(step=>finalizedActions.push(step));
 				} else {
 					console.error(node);

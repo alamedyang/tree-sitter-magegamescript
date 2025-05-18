@@ -64,7 +64,7 @@ rendezvousbranch:
 
 /* MAKING IF-ELSES
 
-if (A) { <a> }
+if (A || AA) { <a> }
 else if (B) { <b> }
 else if (C) { <c> }
 else { <d> }
@@ -72,8 +72,12 @@ else { <d> }
 -->
 
 if A goto label Atrue
+if AA goto label Atrue
+Aelse:
 if B goto label Btrue
+Belse:
 if C goto label Ctrue
+Celse:
 
 <d>
 goto rendezvouslabel
@@ -93,3 +97,90 @@ goto rendezvouslabel
 rendezvouslabel:
 
 */
+
+/*
+WHAT ABOUT ANDS THOUGH
+use ints?
+
+if (A && B && C) {
+	<abc>
+} else {
+	<def>
+}
+
+
+or is it not the same thing as 
+
+if (!A || !B || !C) {
+	goto andrendezvous
+} else {
+	goto if true
+}
+andrendezvous
+
+// This can't interact with OR though
+or can it?
+
+
+
+
+
+if (A && AA || AaAaA) { <a> }
+else if (B) { <b> }
+else { <c> }
+
+
+if A goto label AinnerTrue
+goto AinnerFalse
+AinnerTrue:
+if AA goto label Atrue
+AinnerFalse:
+if AaAaA goto labelAtrue
+if B goto label Btrue
+
+<c>
+goto rendezvouslabel
+
+Btrue:
+<b>
+goto rendezvouslabel
+
+Atrue:
+<a>
+goto rendezvouslabel
+
+rendezvouslabel:
+
+
+
+*/
+
+
+
+
+
+
+simple {
+	if (player direction == north && debug_mode && player intersects geometry stick) {
+		wait 1;
+	} else {
+		wait 2;
+	}
+}
+
+
+if player north, goto iftrue4
+goto rendezvous4
+iftrue4:
+if debug_mode, goto iftrue3
+rendezvous4:
+goto rendezvous3
+iftrue3:
+if player intersects, goto iftrue2
+rendezvous3:
+wait 2;
+goto rendezvous1
+iftrue2:
+wait 1;
+goto rendezvous1
+rendezvous1:

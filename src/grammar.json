@@ -4014,8 +4014,12 @@
             "type": "SEQ",
             "members": [
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "lhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               },
               {
                 "type": "FIELD",
@@ -4026,8 +4030,12 @@
                 }
               },
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "rhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               }
             ]
           }
@@ -4039,8 +4047,12 @@
             "type": "SEQ",
             "members": [
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "lhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               },
               {
                 "type": "FIELD",
@@ -4051,8 +4063,12 @@
                 }
               },
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "rhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               }
             ]
           }
@@ -4064,8 +4080,12 @@
             "type": "SEQ",
             "members": [
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "lhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               },
               {
                 "type": "FIELD",
@@ -4076,8 +4096,12 @@
                 }
               },
               {
-                "type": "SYMBOL",
-                "name": "_bool_expression"
+                "type": "FIELD",
+                "name": "rhs",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_bool_expression"
+                }
               }
             ]
           }
@@ -4227,7 +4251,7 @@
               "name": "rhs",
               "content": {
                 "type": "SYMBOL",
-                "name": "string"
+                "name": "number"
               }
             }
           ]
@@ -4240,7 +4264,7 @@
               "name": "lhs",
               "content": {
                 "type": "SYMBOL",
-                "name": "string"
+                "name": "number"
               }
             },
             {

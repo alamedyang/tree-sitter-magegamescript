@@ -1604,6 +1604,52 @@
     "type": "bool_binary_expression",
     "named": true,
     "fields": {
+      "lhs": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "bool_binary_expression",
+            "named": true
+          },
+          {
+            "type": "bool_comparison",
+            "named": true
+          },
+          {
+            "type": "bool_getable",
+            "named": true
+          },
+          {
+            "type": "bool_unary_expression",
+            "named": true
+          }
+        ]
+      },
       "operator": {
         "multiple": false,
         "required": true,
@@ -1621,45 +1667,53 @@
             "named": true
           }
         ]
+      },
+      "rhs": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "(",
+            "named": false
+          },
+          {
+            "type": ")",
+            "named": false
+          },
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "bool_binary_expression",
+            "named": true
+          },
+          {
+            "type": "bool_comparison",
+            "named": true
+          },
+          {
+            "type": "bool_getable",
+            "named": true
+          },
+          {
+            "type": "bool_unary_expression",
+            "named": true
+          }
+        ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "BAREWORD",
-          "named": true
-        },
-        {
-          "type": "BOOL",
-          "named": true
-        },
-        {
-          "type": "CONSTANT",
-          "named": true
-        },
-        {
-          "type": "QUOTED_STRING",
-          "named": true
-        },
-        {
-          "type": "bool_binary_expression",
-          "named": true
-        },
-        {
-          "type": "bool_comparison",
-          "named": true
-        },
-        {
-          "type": "bool_getable",
-          "named": true
-        },
-        {
-          "type": "bool_unary_expression",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -1676,6 +1730,10 @@
           },
           {
             "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
             "named": true
           },
           {
@@ -1728,6 +1786,10 @@
           },
           {
             "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
             "named": true
           },
           {

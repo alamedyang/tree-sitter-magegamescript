@@ -155,12 +155,7 @@ const nodeFns = {
 	},
 	label_definition: (f, node) => {
 		const label = node.childForFieldName('label').text;
-		return [{
-			mathlang: 'label_definition',
-			label,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return label(f, node, label);
 	},
 	add_dialog_settings: (f, node) => {
 		const targets = node.namedChildren
@@ -371,21 +366,23 @@ const nodeFns = {
 		const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const steps = [];
 		let bottomSteps = [
-			{ mathang: 'label_definition', label: rendezvousLabel },
+			label(f, node, rendezvousLabel),
 		];
 		ifs.forEach(iff=>{
-			const ifLabel = `if #${f.p.advanceGotoSuffix()}`;
+			const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
+			// const elseLabel = `if else #${f.p.getGotoSuffix()}`;
 			const conditionNode = iff.childForFieldName('condition').namedChildren[0];
+			const condition = handleCapture(f, conditionNode);
 			const bodyNode = iff.childForFieldName('body');
-			const conditionExpansion = expandCondition(f, conditionNode, ifLabel, rendezvousLabel, steps);
+			const conditionExpansion = expandCondition(f, conditionNode, condition, ifLabel);
 			const body = bodyNode.namedChildren.map(v=>handleNode(f, v)).flat();
 			// add top half
 			conditionExpansion.forEach(v=>steps.push(v));
 			// add bottom half
 			const bottomInsert = [
-				{ mathang: 'label_definition', label: ifLabel },
+				label(f, node, ifLabel),
 				...body,
-				{ mathang: 'goto_label', label: rendezvousLabel },
+				gotoLabel(f, node, rendezvousLabel),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
@@ -393,32 +390,88 @@ const nodeFns = {
 			const elze = elzeNode.lastChild.namedChildren.map(v=>handleNode(f, v)).flat();
 			steps.push(
 				...elze,
-				{ mathang: 'goto_label', label: rendezvousLabel },
+				gotoLabel(f, node, rendezvousLabel),
 			);
 		}
+		const combined = steps.concat(bottomSteps);
 		return {
 			mathlang: 'if_sequence',
-			steps: steps.concat(bottomSteps),
+			steps: combined,
 		}
 	},
 };
 
-const expandCondition = (f, conditionNode, ifLabel, rendezvousLabel, steps) => {
-	const ret = [];
-	const condition = handleCapture(f, conditionNode);
-	if (condition.mathlang === 'bool_getable') {
+const expandCondition = (f, node, condition, ifLabel) => {
+	let ret = [];
+	if (
+		condition.mathlang === 'bool_getable'
+		|| condition.mathlang === 'number_checkable_equality'
+		|| condition.mathlang === 'bool_comparison'
+	) {
 		const action = {
 			...condition,
-			expected_bool: !condition.invert,
+			expected_bool: condition.expected_bool === undefined
+				? true
+				: condition.expected_bool,
 			mathlang: 'goto_label',
 			label: ifLabel,
 		}
-		ret.push(action);
-	} else {
+		if (action.invert) {
+			action.expected_bool = !action.expected_bool;
+		}
+		return [ action ];
+	}
+	if (condition === true) {
+		return [ gotoLabel(f, node, ifLabel) ];
+	} else if (condition === false) {
+		return [];
+	}
+	if (condition.mathlang !== 'bool_binary_expression') {
 		throw new Error("not yet implemented")
 	}
+	const op = condition.op;
+	const lhs = condition.lhs;
+	const rhs = condition.rhs;
+	if (op === '||') {
+		const expanded = [
+			expandCondition(f, condition.lhsNode, lhs, ifLabel),
+			expandCondition(f, condition.rhsNode, rhs, ifLabel),
+		];
+		return expanded.flat();
+	}
+	if (op === '&&') {
+		// have a separate if else insert?
+		// if first one is false goto a rendezvous at the end of the insert
+		// if the second one is false, ditto
+		const innerIfTrueLabel = `if true #${f.p.advanceGotoSuffix()}`;
+		const innerRendezvousLabel = `rendezvous #${f.p.getGotoSuffix()}`;
+		const inner = [
+			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
+			gotoLabel(f, node, innerRendezvousLabel),
+			label(f, node, innerIfTrueLabel),
+			expandCondition(f, condition.rhsNode, rhs, ifLabel), 
+			label(f, node, innerRendezvousLabel),
+		];
+		return inner.flat();
+	}
+	// remainder will be '==' and '!='
+
+
 	return ret;
 };
+
+const label = (f, node, label) => ({
+	mathang: 'label_definition',
+	label,
+	// debug: node,
+	// fileName: f.fileName,
+});
+const gotoLabel = (f, node, label) => ({
+	mathang: 'goto_label',
+	label,
+	// debug: node,
+	// fileName: f.fileName,
+});
 
 module.exports = handleNode;
 

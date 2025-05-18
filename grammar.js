@@ -651,9 +651,18 @@ module.exports = grammar({
 		),
 		bool_binary_expression: $ => choice(
 			// prec.left(5, seq($._expression, field('operator', $.COMPARISON), $._expression)),
-			prec.left(4, seq($._bool_expression, field('operator', $.EQUALITY), $._bool_expression)),
-			prec.left(3, seq($._bool_expression, field('operator', $.AND), $._bool_expression)),
-			prec.left(2, seq($._bool_expression, field('operator', $.OR), $._bool_expression)),
+			prec.left(4, seq(
+				field('lhs', $._bool_expression),
+				field('operator', $.EQUALITY),
+				field('rhs', $._bool_expression))),
+			prec.left(3, seq(
+				field('lhs', $._bool_expression),
+				field('operator', $.AND),
+				field('rhs', $._bool_expression))),
+			prec.left(2, seq(
+				field('lhs', $._bool_expression),
+				field('operator', $.OR),
+				field('rhs', $._bool_expression))),
 		),
 		bool_comparison: $ => choice(
 			seq(
@@ -679,10 +688,10 @@ module.exports = grammar({
 			seq(
 				field('lhs', $.number_checkable_equality),
 				field('operator', $.EQUALITY),
-				field('rhs', $.string),
+				field('rhs', $.number),
 			),
 			seq(
-				field('lhs', $.string),
+				field('lhs', $.number),
 				field('operator', $.EQUALITY),
 				field('rhs', $.number_checkable_equality),
 			),
