@@ -1,12 +1,19 @@
 const handleCapture = require('./parser-capture.js');
-const { autoIdentifierName, simpleBranchMaker } = require ('./parser-utilities.js');
+const {
+	autoIdentifierName,
+	debugLog,
+	expandCondition,
+	label,
+	gotoLabel,
+} = require('./parser-utilities.js');
 
+// Cyclic dependency bodge
 let handleNode;
 const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
-const TEMP = '__TEMP_'
-const intOpMap = {
+
+const opIntoStringMap = {
 	'=': 'SET',
 	'+': 'ADD',
 	'-': 'SUB',
@@ -15,7 +22,7 @@ const intOpMap = {
 	'%': 'MOD',
 	'?': 'RNG',
 }
-const intOpMapReverse = {
+const stringIntoOpMap = {
 	ADD: '+',
 	SUB: '-',
 	MUL: '*',
@@ -24,6 +31,10 @@ const intOpMapReverse = {
 	RNG: '?',
 	SET: ':',
 };
+
+// ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
+
+const TEMP = '__TEMP_'
 const temporaries = [];
 const newTemporary = () => {
 	temporaries.unshift(TEMP + temporaries.length);
@@ -36,7 +47,9 @@ const quickTemporary = () => {
 }
 const latestTemporary = () => temporaries[0];
 
-const expandIntBinaryExpression = (exp, steps) => {
+// ------------------------ INT EXPRESSIONS ------------------------ //
+
+const flattenIntBinaryExpression = (exp, steps) => {
 	const variable = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
@@ -46,7 +59,8 @@ const expandIntBinaryExpression = (exp, steps) => {
 	} else if (lhs.entity) {
 		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, variable));
 	} else if (lhs.mathlang === 'int_binary_expression') {
-		expandIntBinaryExpression(lhs, steps);
+		// can use the same temporary since it's the lhs and we're going LTR
+		flattenIntBinaryExpression(lhs, steps);
 	}
 	if (typeof rhs === 'number') {
 		steps.push(changeVarByValue(variable, rhs, op))
@@ -55,69 +69,91 @@ const expandIntBinaryExpression = (exp, steps) => {
 		steps.push(copyEntityFieldIntoVar(rhs.entity, rhs.field, temp));
 		steps.push(changeVarByVar(variable, temp, op));
 	} else if (rhs.mathlang === 'int_binary_expression') {
+		// this one DOES need a new temporary
 		const temp = newTemporary();
-		expandIntBinaryExpression(rhs, steps);
+		flattenIntBinaryExpression(rhs, steps);
 		steps.push(changeVarByVar(variable, temp, op));
 		dropTemporary();
 	}
 	return steps;
 };
-const expandBoolBinaryExpression = (exp, steps) => {
-	const variable = latestTemporary();
-	const lhs = exp.lhs;
-	const op = exp.op;
-	const rhs = exp.rhs;
-	// if (typeof lhs === 'number') {
-	// 	steps.push(setVarToValue(variable, lhs));
-	// } else if (lhs.entity) {
-	// 	steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, variable));
-	// } else if (lhs.mathlang === 'int_binary_expression') {
-	// 	expandIntBinaryExpression(lhs, steps);
-	// }
-	// if (typeof rhs === 'number') {
-	// 	steps.push(changeVarByValue(variable, rhs, op))
-	// } else if (rhs.entity) {
-	// 	const temp = quickTemporary();
-	// 	steps.push(copyEntityFieldIntoVar(rhs.entity, rhs.field, temp));
-	// 	steps.push(changeVarByVar(variable, temp, op));
-	// } else if (rhs.mathlang === 'int_binary_expression') {
-	// 	const temp = newTemporary();
-	// 	expandIntBinaryExpression(rhs, steps);
-	// 	steps.push(changeVarByVar(variable, temp, op));
-	// 	dropTemporary();
-	// }
-	return steps;
-};
 
-
-const printMath = (a) => {
+const printFlatIntExpression = (a) => {
 	if (a.action === 'MUTATE_VARIABLE') {
 		if (a.operation === 'SET') {
 			return `${a.variable} := ${a.value}`;
-		} else{
-			return `${a.variable} ${intOpMapReverse[a.operation]}= ${a.value}`;
+		} else {
+			return `${a.variable} ${stringIntoOpMap[a.operation]}= ${a.value}`;
 		}
 	} else if (a.action === 'MUTATE_VARIABLES') {
 		if (a.operation === 'SET') {
 			return `${a.variable} := ${a.source}`;
-		} else{
-			return `${a.variable} ${intOpMapReverse[a.operation]}= ${a.source}`;
+		} else {
+			return `${a.variable} ${stringIntoOpMap[a.operation]}= ${a.source}`;
 		}
 	} else if (a.action === 'COPY_VARIABLE') {
 		if (a.inbound) {
 			return `${a.variable} := ${a.entity}.${a.field}`;
-		} else{
+		} else {
 			return `${a.entity}.${a.field} := ${a.variable}`;
 		}
 	}
 };
+
+const makeIntExpression = (f, expressionNode) => {
+	const steps = [];
+	flattenIntBinaryExpression(expressionNode, steps);
+	debugLog("EXPRESSION: " + expressionNode.debug.text)
+	debugLog(steps.map(printFlatIntExpression).join('\n') + '\n')
+	return steps;
+};
+
+// ------------------------ BOOL EXPRESSIONS ------------------------ //
+
+const actionSetBoolMaker = (f, rhsRaw, lhs) => {
+	if (typeof rhsRaw === 'boolean') {
+		lhs[lhs.boolParamName] = rhsRaw;
+		return lhs;
+	}
+	if (rhsRaw.mathlang === 'bool_getable') {
+		const boolGetable = {
+			...rhsRaw,
+			[rhsRaw.boolParamName]: !rhsRaw.invert,
+		}
+		return simpleBranchMaker(
+			f,
+			boolGetable,
+			{ ...lhs, [lhs.boolParamName]: true },
+			{ ...lhs, [lhs.boolParamName]: false },
+		)
+	}
+	if (typeof lhs !== 'string') {
+		throw new Error ('edge case?')
+	}
+	const setLhsIfTrue = setFlag(lhs, true);
+	const setLhsIfFalse = setFlag(lhs, false);
+	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
+	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+	const condition = rhsRaw;
+	const steps = [
+		...expandCondition(f, rhsRaw, condition, ifLabel),
+		setLhsIfFalse,
+		gotoLabel(f, rhsRaw.debug, rendezvousLabel),
+		label(f, rhsRaw.debug, ifLabel),
+		setLhsIfTrue,
+		label(f, rhsRaw.debug, rendezvousLabel),
+	];
+	return newMathSequence(f, rhsRaw.debug, steps);
+};
+
+// ------------------------ COMMON ACTION HANDLING ------------------------ //
 
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e}]
 const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 	// count spreads
 	let spreadSize = -Infinity;
-	Object.values(fieldsToSpread).forEach(fieldName=>{
+	Object.values(fieldsToSpread).forEach(fieldName => {
 		const len = fieldName.captures.length;
 		// spreadSize won't be 1 btw, because 1s go to commonFields
 		if (spreadSize === -Infinity) spreadSize = len;
@@ -131,13 +167,13 @@ const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 	});
 	// if it's a single thing, pass it back whole
 	if (spreadSize === -Infinity) {
-		return [ commonFields ];
+		return [commonFields];
 	}
 	// but spread action into multiple variants
 	let ret = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = { ...commonFields };
-		Object.keys(fieldsToSpread).forEach(fieldName=>{
+		Object.keys(fieldsToSpread).forEach(fieldName => {
 			const allValues = fieldsToSpread[fieldName].captures;
 			const currValue = allValues[i % allValues.length];
 			insert[fieldName] = currValue;
@@ -150,22 +186,22 @@ const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 // Takes an action node (from the TS parser) and gets associated "dictionary" data
 // - Processes listed captures by field name
 // - Spreads them if any of the captures are "expansions" (e.g. [a, b])
-// - Once spread, the detective identifies the JSON action for each spread item
+// - Once spread, the detective identifies the JSON action for each spread item (since they might be different from each toehr)
 // - Adds the final JSON properties required by the encoder
 // - If the result is more than one "step" (for sequences not directly supported by the engine)
 // it will add the action as a "math_sequence", which will need to be expanded later
 // (for a few reasons, the result must be a single "unit" at this stage)
 // TODO: why then return an array?
 const handleAction = (f, node) => { // ->[]
-	// cyclic dependency bodge
+	// Cyclic dependency bodge
 	if (!handleNode) {
 		throw new Error("handleAction cannot be called until handleNode has been provided to the init function");
 	}
-	// from the action dictionary
+	// From the action dictionary
 	const data = actionData[node.grammarType];
 	if (!data) {
 		const customFn = actionFns[node.grammarType];
-		if (!customFn) throw new Error (`No action data nor handler function found for action ${node.grammarType}`);
+		if (!customFn) throw new Error(`No action data nor handler function found for action ${node.grammarType}`);
 		return customFn(f, node);
 	}
 	let action = {
@@ -176,7 +212,7 @@ const handleAction = (f, node) => { // ->[]
 	// Action params
 	const captures = data.captures || [];
 	const fieldsToSpread = {};
-	captures.forEach(fieldName=>{
+	captures.forEach(fieldName => {
 		const fieldNode = node.childForFieldName(fieldName);
 		if (!fieldNode) {
 			if (data.optionalCaptures?.includes(fieldName)) {
@@ -200,8 +236,8 @@ const handleAction = (f, node) => { // ->[]
 	// Different param combinations will result in different actions,
 	// so let the detective sort them out after the spreads are spread
 	if (data.detective) {
-		spreads.forEach((action, actionIndex)=>{
-			// try the action detective
+		spreads.forEach((action, actionIndex) => {
+			// Try the action detective
 			for (let i = 0; i < data.detective.length; i++) {
 				const currClueData = data.detective[i];
 				const solved = currClueData.isMatch(action, f, node);
@@ -209,11 +245,11 @@ const handleAction = (f, node) => { // ->[]
 					// todo: reorder the arguments in .values()?
 					const values = currClueData.finalizeValues(action, f, node, actionIndex);
 					Object.entries(values)
-						.forEach(([k,v])=>{ action[k] = v; });
+						.forEach(([k, v]) => { action[k] = v; });
 					return;
 				}
 			}
-			// if we got here, nothing matched
+			// If we got here, nothing matched
 			action.error = true;
 			const errorFn = data.detectError;
 			if (errorFn) {
@@ -230,15 +266,14 @@ const handleAction = (f, node) => { // ->[]
 	return spreads;
 };
 
-// todo: Q, should actionFns be checked first, or actionData?
-// actionFns is far less likely to hit, so try the common thing first?
+// todo: might these be brought into the .isMatch() and .finalizeValues() paradigm?
 const actionFns = {
 	action_show_dialog: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = (dialogNodes||[])
-			.map(child=>handleNode(f, child))
+		const dialogs = (dialogNodes || [])
+			.map(child => handleNode(f, child))
 			.flat(); // (double flat?)
 		const showDialogAction = {
 			action: 'SHOW_DIALOG',
@@ -267,8 +302,8 @@ const actionFns = {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
 		const serialDialogNodes = node.childrenForFieldName('serial_dialog');
-		const serialDialogs = (serialDialogNodes||[])
-			.map(child=>handleNode(f, child))
+		const serialDialogs = (serialDialogNodes || [])
+			.map(child => handleNode(f, child))
 			.flat();
 		const showSerialDialogAction = {
 			action: 'SHOW_SERIAL_DIALOG',
@@ -311,124 +346,117 @@ const actionData = {
 	},
 	action_load_slot: {
 		values: { action: 'SLOT_LOAD' },
-		captures: [ 'slot' ],
+		captures: ['slot'],
 	},
 	action_erase_slot: {
 		values: { action: 'SLOT_ERASE' },
-		captures: [ 'slot' ],
+		captures: ['slot'],
 	},
 	action_load_map: {
 		values: { action: 'LOAD_MAP' },
-		captures: [ 'map' ],
+		captures: ['map'],
 	},
 	action_goto_label: {
 		values: { mathlang: 'goto_label' },
-		captures: [ 'label' ],
+		captures: ['label'],
 	},
 	action_goto_index: {
 		values: { action: 'GOTO_ACTION_INDEX' },
-		captures: [ 'action_index' ],
+		captures: ['action_index'],
 	},
 	action_run_script: {
 		values: { action: 'RUN_SCRIPT' },
-		captures: [ 'script' ],
+		captures: ['script'],
 	},
 	action_non_blocking_delay: {
 		values: { action: 'NON_BLOCKING_DELAY' },
-		captures: [ 'duration' ],
+		captures: ['duration'],
 	},
 	action_blocking_delay: {
 		values: { action: 'BLOCKING_DELAY' },
-		captures: [ 'duration' ],
+		captures: ['duration'],
 	},
 	action_delete_command: {
 		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND' },
-		captures: [ 'command' ],
+		captures: ['command'],
 	},
 	action_delete_command_arg: {
 		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT' },
-		captures: [ 'command', 'argument' ],
+		captures: ['command', 'argument'],
 	},
 	action_delete_alias: {
 		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
-		captures: [ 'alias' ],
+		captures: ['alias'],
 	},
 	action_hide_command: {
 		values: {
 			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
 			is_visible: false,
 		},
-		captures: [ 'command' ],
+		captures: ['command'],
 	},
 	action_unhide_command: {
 		values: {
 			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
 			is_visible: true,
 		},
-		captures: [ 'command' ],
+		captures: ['command'],
 	},
 	action_camera_shake: {
 		values: { action: 'SET_SCREEN_SHAKE' },
-		captures: [ 'amplitude', 'distance', 'duration' ],
+		captures: ['amplitude', 'distance', 'duration'],
 	},
 	action_camera_fade_in: {
 		values: { action: 'SCREEN_FADE_IN' },
-		captures: [ 'color', 'duration' ],
+		captures: ['color', 'duration'],
 	},
 	action_camera_fade_out: {
 		values: { action: 'SCREEN_FADE_OUT' },
-		captures: [ 'color', 'duration' ],
+		captures: ['color', 'duration'],
 	},
 	action_pause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
-		captures: [ 'script', 'entity' ],
+		captures: ['script', 'entity'],
 	},
 	action_unpause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
-		captures: [ 'script', 'entity' ],
+		captures: ['script', 'entity'],
 	},
 	action_play_entity_animation: {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
-		captures: [ 'entity', 'animation', 'count' ],
+		captures: ['entity', 'animation', 'count'],
 	},
 	action_set_ambiguous: {
 		values: {},
-		captures: [ 'lhs', 'rhs' ],
+		captures: ['lhs', 'rhs'],
 		detective: [
 			{
 				isMatch: (v, f, node) => {
-					const type = node.childForFieldName('rhs')?.grammarType;
-					return type === 'ambiguous_identifier_expansion' // :/
+					const type = node.childForFieldName('rhs').grammarType;
+					return type === 'ambiguous_identifier_expansion'
 						|| type === 'BAREWORD'
 						|| type === 'QUOTED_STRING'
 				},
 				finalizeValues: (v, f, node, i) => {
-					const ambiguousIdentifier = v.rhs;
-					// For expansions, we only want to report one ambiguous identifier at a time.
+					const ident = v.rhs;
+					// For expansions, we only want to print one ambiguous identifier at a time.
 					// `i` is from the caller, who knows which one we're looking at now.
 					// Basically, the whole spread might not be ambiguous, so we need to report
 					// only once the action is identified (with isMatch()), not all the time.
-					const lhsNode = node.childForFieldName('lhs')
-						.namedChildren?.[i];
-					const rhsNode = node.childForFieldName('rhs')
-						.namedChildren?.[i];
+					const lhsNode = node.childForFieldName('lhs').namedChildren?.[i];
+					const rhsNode = node.childForFieldName('rhs').namedChildren?.[i];
 					// These are the nodes that will get squigglies
-					const printNodes = [ lhsNode, rhsNode ];
+					const printNodes = [lhsNode, rhsNode];
 					const suggestion = rhsNode.text.includes(' ')
-						? '"' + ambiguousIdentifier + '"'
-						: ambiguousIdentifier;
+						? '"' + ident + '"'
+						: ident;
 					f.newWarning({
-						locations: printNodes.map(v=>({ node: v })),
+						locations: printNodes.map(v => ({ node: v })),
 						message: 'these identifiers could be ints or bools',
 						footer: `Both identifiers will be interpreted as ints unless you coerse the right-hand side to a bool expression, like this:\n`
 							+ `    !!${suggestion}`,
 					});
-					return {
-						action: 'MUTATE_VARIABLES',
-						operation: 'SET',
-						source: v.rhs,
-						variable: v.lhs,
-					};
+					return setVarToVar(v.lhs, v.rhs);
 				}
 			},
 			{
@@ -442,12 +470,11 @@ const actionData = {
 						.includes('int');
 				},
 				finalizeValues: (v, f, node) => {
-					const steps = mathSequenceFns.intExpression(f, v.rhs, node);
-					steps.push(setVarToVar(v.lhs, TEMP+0));
-					return {
-						mathlang: 'math_sequence',
-						steps,
-					};
+					const temporary = newTemporary();
+					const steps = makeIntExpression(f, v.rhs);
+					dropTemporary();
+					steps.push(setVarToVar(v.lhs, temporary));
+					return newMathSequence(f, node, steps);
 				}
 			},
 			{
@@ -468,35 +495,16 @@ const actionData = {
 						.includes('bool');
 				},
 				finalizeValues: (v, f, node) => {
-					const steps = mathSequenceFns.boolExpression(f, v.rhs, node);
-					// this action is literally for setting a flag, so set the flag to the temporary value
-					steps.push(setFlagToFlag(f, v.lhs, TEMP+0));
-					return {
-						mathlang: 'math_sequence',
-						steps,
-					};
-				}
-			},
-			{
-				isMatch: (v, f, node) => {
-					const type = node.childForFieldName('rhs').grammarType;
-					return type.includes('bool');
-				},
-				finalizeValues: (v, f, node) => {
-					const steps = mathSequenceFns.boolExpression(f, v.rhs, node);
-					// this action is literally for setting a flag, so set the flag to the temporary value
-					steps.push(setFlagToFlag(f, v.lhs, TEMP+0));
-					return {
-						mathlang: 'math_sequence',
-						steps,
-					};
+					const steps = actionSetBoolMaker(f, v.rhs, v.lhs);
+					steps.push(setFlagToFlag(f, v.lhs, quickTemporary()));
+					return newMathSequence(f, node, steps);
 				}
 			},
 		],
 	},
 	action_set_int: {
 		values: {},
-		captures: [ 'lhs', 'rhs' ],
+		captures: ['lhs', 'rhs'],
 		detective: [
 			{
 				isMatch: (v) => typeof v.rhs === 'number',
@@ -510,21 +518,18 @@ const actionData = {
 				// (variables on the LHS is handled by the "ambiguous" stuff)
 				isMatch: (v) => true,
 				finalizeValues: (v, f, node) => {
-					const steps = mathSequenceFns.intExpression(f, v.rhs, node);
-					steps.push(copyVarIntoEntityField(
-						TEMP+0, v.lhs.entity, v.lhs.field
-					));
-					return {
-						mathlang: 'math_sequence',
-						steps,
-					};
+					const temporary = newTemporary();
+					const steps = makeIntExpression(f, v.rhs);
+					dropTemporary();
+					steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
+					return newMathSequence(f, node, steps);
 				},
 			},
 		],
 	},
 	action_set_bool: {
 		values: {},
-		captures: [ 'lhs', 'rhs' ],
+		captures: ['lhs', 'rhs'],
 		detective: [
 			{
 				isMatch: (v) => v.lhs.type === 'save_flag'
@@ -542,87 +547,111 @@ const actionData = {
 			{
 				isMatch: (v) => v.lhs.type === 'save_flag',
 				finalizeValues: (v, f, node) => {
-					const action = {
+					const lhsAction = {
 						action: 'SET_SAVE_FLAG',
 						save_flag: v.lhs.value,
+						boolParamName: 'bool_value',
 					};
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'entity',
 				finalizeValues: (v, f, node) => {
-					const action = {
+					const lhsAction = {
 						action: 'SET_ENTITY_GLITCHED',
 						entity: v.lhs.value,
+						boolParamName: 'bool_value',
 					};
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'light',
 				finalizeValues: (v, f, node) => {
-					const action = {
+					const lhsAction = {
 						action: 'SET_LIGHTS_STATE',
 						lights: v.lhs.value,
+						boolParamName: 'enabled',
 					};
-					return actionSetBoolMaker(f, v, action, 'enabled');
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'player_control',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_PLAYER_CONTROL' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_PLAYER_CONTROL',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'lights_control',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_LIGHTS_CONTROL' };
-					return actionSetBoolMaker(f, v, action, 'enabled');
+					const lhsAction = {
+						action: 'SET_LIGHTS_CONTROL',
+						boolParamName: 'enabled',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_editor',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_STATE' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_HEX_EDITOR_STATE',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_dialog_mode',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_HEX_EDITOR_DIALOG_MODE',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_control',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_CONTROL' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_HEX_EDITOR_CONTROL',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_clipboard',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'serial_control',
 				finalizeValues: (v, f, node) => {
-					const action = { action: 'SET_SERIAL_DIALOG_CONTROL' };
-					return actionSetBoolMaker(f, v, action, 'bool_value');
+					const lhsAction = {
+						action: 'SET_SERIAL_DIALOG_CONTROL',
+						boolParamName: 'bool_value',
+					};
+					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
 			},
 		],
 	},
 	action_set_position: {
 		values: {},
-		captures: [ 'movable', 'coordinate' ],
+		captures: ['movable', 'coordinate'],
 		detective: [
 			{
 				isMatch: (v) => v.movable.type === 'camera'
@@ -654,10 +683,16 @@ const actionData = {
 			{
 				isMatch: (v) => v.movable.type === 'entity'
 					&& v.coordinate.type === 'entity',
-				finalizeValues: (v) => mathSequenceFns.moveEntityPosToEntityPos(
-					v.coordinate.value,
-					v.movable.value,
-				),
+				finalizeValues: (v, f, node) => {
+					const variable = quickTemporary();
+					const steps = [
+						copyVarIntoEntityField(variable, copyFrom, 'x'),
+						copyEntityFieldIntoVar(copyTo, 'x', variable),
+						copyVarIntoEntityField(variable, copyFrom, 'y'),
+						copyEntityFieldIntoVar(copyTo, 'y', variable),
+					];
+					return newMathSequence(f, node, steps)
+				},
 			},
 		],
 		detectError: (v) => ({
@@ -667,8 +702,8 @@ const actionData = {
 	},
 	action_move_over_time: {
 		values: {},
-		captures: [ 'movable', 'coordinate', 'duration', 'forever' ],
-		optionalCaptures: [ 'forever' ],
+		captures: ['movable', 'coordinate', 'duration', 'forever'],
+		optionalCaptures: ['forever'],
 		detective: [
 			{
 				isMatch: (v) => v.movable.type === 'camera'
@@ -764,62 +799,57 @@ const actionData = {
 			};
 		},
 	},
+	action_op_equals: {
+		values: {},
+		captures: [ 'identifier', 'operator', 'rhs' ],
+		detective: [
+			{
+				isMatch: (v) => typeof v.rhs === 'number',
+				finalizeValues: (v) => changeVarByValue(v.lhs, v.rhs, v.operator),
+			},
+			{
+				isMatch: (v) => typeof v.rhs === 'string',
+				finalizeValues: (v) => changeVarByVar(v.lhs, v.rhs, v.operator),
+			},
+			{
+				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression',
+				finalizeValues: (v, f, node) => {
+					const temporary = newTemporary();
+					const steps = flattenIntBinaryExpression(v.rhs, []);
+					dropTemporary();
+					steps.push(changeVarByVar(v.lhs, temporary, v.operator))
+					return newMathSequence(f, node, steps);
+				},
+			},
+			{
+				isMatch: (v) => v.rhs.mathlang === 'int_getable',
+				finalizeValues: (v, f, node) => {
+					const temp = quickTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
+						changeVarByVar(v.identifier, temp, v.operator)
+					]
+					return newMathSequence(f, node, steps);
+				},
+			},
+			{
+				isMatch: (v) => true,
+				finalizeValues: (v) => {
+					console.log("WHAT WAS THIS AGAIN")
+				},
+			},
+		],
+	}
 };
 
-const mathSequenceFns = {
-	moveEntityPosToEntityPos: (copyFrom, copyTo) => {
-		const variable = TEMP;
-		return {
-			mathlang: 'math_sequence',
-			steps: [
-				{
-					mathlang: 'math_sequence', inbound: true,
-					action: 'COPY_VARIABLE', variable,
-					entity: copyFrom, field: 'x',
-				},
-				{
-					mathlang: 'math_sequence', inbound: false,
-					action: 'COPY_VARIABLE', variable,
-					entity: copyTo, field: 'x',
-				},
-				{
-					mathlang: 'math_sequence', inbound: true,
-					action: 'COPY_VARIABLE', variable,
-					entity: copyFrom, field: 'y',
-				},
-				{
-					mathlang: 'math_sequence', inbound: false,
-					action: 'COPY_VARIABLE', variable,
-					entity: copyTo, field: 'y',
-				},
-			]
-		}
-	},
-	intExpression: (f, expressionNode, overallNode) => {
-		const steps = [];
-		newTemporary();
-		expandIntBinaryExpression(expressionNode, steps);
-		dropTemporary();
-		console.log("EXPRESSION: " + expressionNode.debug.text)
-		console.log(steps.map(printMath).join('\n')+'\n')
-		// don't add the final destination, since it could be a few things;
-		// the caller will decide where __TEMP_0 should go
-		return steps;
-	},
-	boolExpression: (f, expressionNode, overallNode) => {
-		const steps = [];
-		newTemporary();
-		console.log("FINISH THIS THING")
+// ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-		// expandIntBinaryExpression(expressionNode, steps);
-		dropTemporary();
-		console.log("EXPRESSION: " + expressionNode.debug.text)
-		console.log(steps.map(printMath).join('\n')+'\n')
-		// don't add the final destination, since it could be a few things;
-		// the caller will decide where __TEMP_0 should go
-		return steps;
-	},
-};
+const newMathSequence = (f, node, steps) => ({
+	mathlang: 'math_sequence',
+	steps,
+	debug: node,
+	fileName: f.fileName
+});
 
 const setVarToValue = (variable, value) => ({
 	action: 'MUTATE_VARIABLE',
@@ -835,13 +865,13 @@ const setVarToVar = (variable, source) => ({
 });
 const changeVarByValue = (variable, value, op) => ({
 	action: 'MUTATE_VARIABLE',
-	operation: intOpMap[op],
+	operation: opIntoStringMap[op],
 	value,
 	variable,
 });
 const changeVarByVar = (variable, source, op) => ({
 	action: 'MUTATE_VARIABLES',
-	operation: intOpMap[op],
+	operation: opIntoStringMap[op],
 	source,
 	variable,
 });
@@ -864,41 +894,47 @@ const setFlag = (save_flag, bool_value) => ({
 	bool_value,
 	save_flag,
 });
-
-const actionSetBoolMaker = (f, v, setAction, boolLabel) => {
-	if (typeof v.rhs === 'boolean') {
-		setAction[boolLabel] = v.rhs;
-		return setAction;
-	}
-	if (typeof v.rhs.value === 'boolean' && v.rhs.invert) {
-		setAction[boolLabel] = !v.rhs.value;
-		return setAction;
-	}
-	
-	// TODO: redo everything below
-	const branchAction = {
-		action: "CHECK_SAVE_FLAG",
-		expected_bool: true,
-		save_flag: setAction.bool_value
-	}
-	const ifBody = { ...setAction, [paramName]: true };
-	const elseBody = { ...setAction, [paramName]: false };
-	const branchSequence = simpleBranchMaker(f, branchAction, ifBody, elseBody);
-	return branchSequence;
+const checkFlag = (save_flag, expected_bool) => ({
+	action: 'CHECK_SAVE_FLAG',
+	expected_bool,
+	save_flag,
+})
+const setFlagToFlag = (f, save_flag, source) => {
+	const action = setFlag(save_flag, null);
+	return simpleBranchMaker(
+		f,
+		checkFlag(source, true),
+		{ ...action, bool_value: true }, // if true
+		{ ...action, bool_value: false } // if false
+	);
 };
-const setFlagToFlag = (f, flag, source) => {
+const setFlagToGettableValue = (f, save_flag, gettable) => {
+	return simpleBranchMaker(
+		f,
+		gettable,
+		setFlag(save_flag, true), // if true
+		setFlag(save_flag, false), // if false
+	);
+};
+const simpleBranchMaker = (f, _branchAction, _ifBody, _elseBody) => {
+	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
+	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
+	const gotoLabel = f.p.gotoSuffix();
+	const ifLabel = `if #${gotoLabel}`;
+	const rendezvousLabel = `rendezvous #${gotoLabel}`;
 	const branchAction = {
-		action: "CHECK_SAVE_FLAG",
-		expected_bool: true,
-		save_flag: source,
-	}
-	const action = {
-		action: "SET_SAVE_FLAG",
-		save_flag: flag,
+		..._branchAction,
+		label: ifLabel,
 	};
-	const ifBody = { ...action, bool_value: true };
-	const elseBody = { ...action, bool_value: false };
-	return simpleBranchMaker(f, branchAction, ifBody, elseBody);
+	const steps = [
+		branchAction,
+		...elseBody,
+		{ mathang: 'goto_label', label: rendezvousLabel },
+		{ mathang: 'label_definition', label: ifLabel },
+		...ifBody,
+		{ mathang: 'label_definition', label: rendezvousLabel },
+	];
+	return newMathSequence(f, node, steps);
 };
 
 module.exports = { handleAction, handleActionsInit };

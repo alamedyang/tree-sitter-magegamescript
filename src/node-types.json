@@ -801,6 +801,80 @@
     }
   },
   {
+    "type": "action_op_equals",
+    "named": true,
+    "fields": {
+      "lhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "op_equals",
+            "named": true
+          }
+        ]
+      },
+      "rhs": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "int_binary_expression",
+            "named": true
+          },
+          {
+            "type": "int_getable",
+            "named": true
+          },
+          {
+            "type": "int_grouping",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_pause_script",
     "named": true,
     "fields": {
@@ -3456,6 +3530,11 @@
     }
   },
   {
+    "type": "op_equals",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "over_time_operator",
     "named": true,
     "fields": {}
@@ -3576,6 +3655,10 @@
         },
         {
           "type": "action_non_blocking_delay",
+          "named": true
+        },
+        {
+          "type": "action_op_equals",
           "named": true
         },
         {
@@ -3727,6 +3810,10 @@
         },
         {
           "type": "action_non_blocking_delay",
+          "named": true
+        },
+        {
+          "type": "action_op_equals",
           "named": true
         },
         {
@@ -4078,6 +4165,10 @@
     "named": false
   },
   {
+    "type": "%=",
+    "named": false
+  },
+  {
     "type": "(",
     "named": false
   },
@@ -4090,7 +4181,15 @@
     "named": false
   },
   {
+    "type": "*=",
+    "named": false
+  },
+  {
     "type": "+",
+    "named": false
+  },
+  {
+    "type": "+=",
     "named": false
   },
   {
@@ -4102,11 +4201,19 @@
     "named": false
   },
   {
+    "type": "-=",
+    "named": false
+  },
+  {
     "type": "->",
     "named": false
   },
   {
     "type": "/",
+    "named": false
+  },
+  {
+    "type": "/=",
     "named": false
   },
   {
@@ -4131,6 +4238,10 @@
   },
   {
     "type": ">=",
+    "named": false
+  },
+  {
+    "type": "?=",
     "named": false
   },
   {

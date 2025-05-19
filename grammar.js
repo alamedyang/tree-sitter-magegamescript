@@ -363,6 +363,7 @@ module.exports = grammar({
 			$.if_chain,
 			// $.while_block,
 			// $.for_block,
+			$.action_op_equals,
 		),
 		action_return_statement: $ => seq('return', $.semicolon), 
 		action_close_dialog: $ => seq('close', 'dialog', $.semicolon),
@@ -971,7 +972,14 @@ module.exports = grammar({
 	// 			$._int_expression
 	// 			// and also numbers
 	// 		)
-	// 	)
+	// 	),
+		op_equals: $ => choice('?=', '+=', '-=', '*=', '/=', '%='),
+		action_op_equals: $ => seq(
+			field('lhs', $.STRING),
+			field('operator', $.op_equals),
+			field('rhs', $._int_expression),
+			$.semicolon,
+		),
 	},
 
 

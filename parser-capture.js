@@ -4,7 +4,7 @@ const {
 	reportErrorNodes,
 } = require('./parser-utilities.js');
 
-const opInverseMap = {
+const inverseOpMap = {
 	'<': '>=',
 	'<=': '>',
 	'>=': '<',
@@ -13,7 +13,18 @@ const opInverseMap = {
 	'!==': '==',
 	'&&': '||',
 	'||': '&&',
-}
+};
+
+const opIntoStringMap = {
+	'=': 'SET',
+	'+': 'ADD',
+	'-': 'SUB',
+	'*': 'MUL',
+	'/': 'DIV',
+	'%': 'MOD',
+	'?': 'RNG',
+};
+
 const handleCapture = (f, node) => {
 	debugLog(`-->> Capturing: ${node.grammarType}`);
 	reportErrorNodes(f, node);
@@ -88,6 +99,7 @@ const captureFns = {
 		return node.text;
 	},
 	CONSTANT: (f, node) => node.text,
+	op_equals: (f, node) => opIntoStringMap[node.text[0]],
 	forever: (f, node) => true,
 	entity_or_map_identifier: (f, node) => {
 		// for 'entity' fields (-> string)
@@ -332,7 +344,7 @@ const captureFns = {
 		value.invert = !value.invert;
 		if (value.mathlang === 'bool_binary_expression' && value.invert) {
 			value.invert = !value.invert;
-			value.op = opInverseMap[value.op];
+			value.op = inverseOpMap[value.op];
 			value.lhs.invert = !value.lhs.invert;
 			value.rhs.invert = !value.rhs.invert;
 		}
@@ -356,6 +368,7 @@ const captureFns = {
 			mathlang: 'bool_getable',
 			debug: node,
 			fileName: f.fileName,
+			boolParamName: 'expected_bool',
 		};
 		const typeNode = node.childForFieldName('type');
 		const type = typeNode.text;
@@ -363,7 +376,7 @@ const captureFns = {
 		if (type === 'debug_mode') {
 			ret.action = 'CHECK_DEBUG_MODE';
 		} else if (type === 'glitched') {
-			ret.action = 'CHECK_ENTITY_GLTICHED';
+			ret.action = 'CHECK_ENTITY_GLITCHED';
 			const entityIdentNode = node.childForFieldName('entity_identifier');
 			const entityTypeNode = entityIdentNode.childForFieldName('type');
 			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
@@ -398,6 +411,7 @@ const captureFns = {
 			mathlang: 'string_checkable',
 			debug: node,
 			fileName: f.fileName,
+			boolParamName: 'expected_bool',
 		};
 		const entityIdentNode = node.childForFieldName('entity_identifier');
 		if (entityIdentNode) {
@@ -561,7 +575,7 @@ const captureFns = {
 					action: 'CHECK_VARIABLE',
 					variable: rhs,
 					value: lhs,
-					comparison: opInverseMap[comparison],
+					comparison: inverseOpMap[comparison],
 					expected_bool: true,
 				}
 			} else {

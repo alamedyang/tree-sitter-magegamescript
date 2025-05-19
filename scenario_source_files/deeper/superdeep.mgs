@@ -18,10 +18,19 @@
 // }
 
 // $trombones = 76;
-simple {
-	if (true) {
-		wait 1;
-	} else {
-		wait 2;
-	}
+// simple {
+// 	if (true) {
+// 		wait 1;
+// 	} else {
+// 		wait 2;
+// 	}
+// }
+
+test {
+	flagName = !player glitched || debug_mode;
+	// if (player glitched || debug_mode) {
+	// 	wait 1;
+	// } else {
+	// 	wait 2;
+	// }
 }

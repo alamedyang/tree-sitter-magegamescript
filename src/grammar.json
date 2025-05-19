@@ -2093,6 +2093,10 @@
         {
           "type": "SYMBOL",
           "name": "if_chain"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_op_equals"
         }
       ]
     },
@@ -5409,6 +5413,68 @@
         {
           "type": "STRING",
           "value": "on_look"
+        }
+      ]
+    },
+    "op_equals": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "?="
+        },
+        {
+          "type": "STRING",
+          "value": "+="
+        },
+        {
+          "type": "STRING",
+          "value": "-="
+        },
+        {
+          "type": "STRING",
+          "value": "*="
+        },
+        {
+          "type": "STRING",
+          "value": "/="
+        },
+        {
+          "type": "STRING",
+          "value": "%="
+        }
+      ]
+    },
+    "action_op_equals": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "lhs",
+          "content": {
+            "type": "SYMBOL",
+            "name": "STRING"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "operator",
+          "content": {
+            "type": "SYMBOL",
+            "name": "op_equals"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "rhs",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_int_expression"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
         }
       ]
     }

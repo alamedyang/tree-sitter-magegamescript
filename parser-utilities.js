@@ -58,31 +58,87 @@ const autoIdentifierName = (f, node) => {
 		+ '-' + node.startPosition.row
 		+ ':' + node.startPosition.column;
 };
+const expandCondition = (f, node, condition, ifLabel) => {
+	let ret = [];
+	if (
+		condition.mathlang === 'bool_getable'
+		|| condition.mathlang === 'number_checkable_equality'
+		|| condition.mathlang === 'string_checkable'
+		|| condition.mathlang === 'bool_comparison'
+	) {
+		const action = {
+			...condition,
+			expected_bool: condition.expected_bool === undefined
+				? true
+				: condition.expected_bool,
+			mathlang: 'goto_label',
+			label: ifLabel,
+		}
+		if (action.invert) {
+			action.expected_bool = !action.expected_bool;
+		}
+		return [ action ];
+	}
+	if (condition === true) {
+		return [ gotoLabel(f, node, ifLabel) ];
+	} else if (condition === false) {
+		return [];
+	}
+	if (condition.mathlang === 'check_save_flag') {
+		const expected_bool = !condition.invert;
+		return {
+			action: "CHECK_SAVE_FLAG",
+			expected_bool,
+			save_flag: condition.value,
+		}
+	}
+	if (condition.mathlang !== 'bool_binary_expression') {
+		throw new Error("not yet implemented")
+	}
+	const op = condition.op;
+	const lhs = condition.lhs;
+	const rhs = condition.rhs;
+	if (op === '||') {
+		const expanded = [
+			expandCondition(f, condition.lhsNode, lhs, ifLabel),
+			expandCondition(f, condition.rhsNode, rhs, ifLabel),
+		];
+		return expanded.flat();
+	}
+	if (op === '&&') {
+		// have a separate if else insert?
+		// if first one is false goto a rendezvous at the end of the insert
+		// if the second one is false, ditto
+		const innerIfTrueLabel = `if true #${f.p.advanceGotoSuffix()}`;
+		const innerRendezvousLabel = `rendezvous #${f.p.getGotoSuffix()}`;
+		const inner = [
+			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
+			gotoLabel(f, node, innerRendezvousLabel),
+			label(f, node, innerIfTrueLabel),
+			expandCondition(f, condition.rhsNode, rhs, ifLabel), 
+			label(f, node, innerRendezvousLabel),
+		];
+		return inner.flat();
+	}
 
-const simpleBranchMaker = (f, _branchAction, _ifBody, _elseBody) => {
-	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
-	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
+	// TODO: remainder will be '==' and '!='
 
-	const gotoLabel = f.p.gotoSuffix();
-	const ifLabel = `if #${gotoLabel}`;
-	const rendezvousLabel = `rendezvous #${gotoLabel}`;
 
-	const branchAction = structuredClone(_branchAction);
-	branchAction.label = ifLabel;
-
-	const steps = [
-		branchAction,
-		...elseBody,
-		{ mathang: 'goto_label', label: rendezvousLabel, },
-		{ mathang: 'label_definition', label: ifLabel, },
-		...ifBody,
-		{ mathang: 'label_definition', label: rendezvousLabel, },
-	];
-	return {
-		mathlang: 'math_sequence',
-		steps: steps.map(v=>({ ...v, node, fileName: f.fileName })),
-	};
+	return ret;
 };
+
+const label = (f, node, label) => ({
+	mathang: 'label_definition',
+	label,
+	// debug: node,
+	// fileName: f.fileName,
+});
+const gotoLabel = (f, node, label) => ({
+	mathang: 'goto_label',
+	label,
+	// debug: node,
+	// fileName: f.fileName,
+});
 
 module.exports = {
 	verbose,
@@ -91,5 +147,7 @@ module.exports = {
 	reportErrorNodes,
 	makeMessagePrintable,
 	autoIdentifierName,
-	simpleBranchMaker,
+	expandCondition,
+	label,
+	gotoLabel,
 };
