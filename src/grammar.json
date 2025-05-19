@@ -1723,6 +1723,10 @@
         {
           "type": "SYMBOL",
           "name": "json_literal"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "debug_macro"
         }
       ]
     },
@@ -1915,6 +1919,48 @@
             "type": "STRING",
             "value": "null"
           }
+        }
+      ]
+    },
+    "debug_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "debug"
+        },
+        {
+          "type": "STRING",
+          "value": "!"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "serial_dialog",
+              "content": {
+                "type": "SYMBOL",
+                "name": "serial_dialog"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "serial_dialog_name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "bareword"
+              }
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },

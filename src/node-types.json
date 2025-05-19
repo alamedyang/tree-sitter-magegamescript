@@ -2462,6 +2462,36 @@
     }
   },
   {
+    "type": "debug_macro",
+    "named": true,
+    "fields": {
+      "serial_dialog": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "serial_dialog",
+            "named": true
+          }
+        ]
+      },
+      "serial_dialog_name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "dialog",
     "named": true,
     "fields": {
@@ -3714,6 +3744,10 @@
           "named": true
         },
         {
+          "type": "debug_macro",
+          "named": true
+        },
+        {
           "type": "if_chain",
           "named": true
         },
@@ -3866,6 +3900,10 @@
         },
         {
           "type": "action_unpause_script",
+          "named": true
+        },
+        {
+          "type": "debug_macro",
           "named": true
         },
         {
@@ -4351,6 +4389,10 @@
   },
   {
     "type": "current_animation",
+    "named": false
+  },
+  {
+    "type": "debug",
     "named": false
   },
   {

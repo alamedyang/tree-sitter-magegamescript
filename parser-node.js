@@ -5,6 +5,10 @@ const {
 	expandCondition,
 	label,
 	gotoLabel,
+	simpleBranchMaker,
+	newMathSequence,
+	newSerialDialog,
+	showSerialDialog,
 } = require('./parser-utilities.js');
 
 const {
@@ -268,13 +272,7 @@ const nodeFns = {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		const name = handleCapture(f, nameNode);
 		const serialDialog = handleNode(f, serialDialogNode);
-		return [{
-			mathlang: 'serial_dialog_definition',
-			serialDialogName: name,
-			serialDialog: serialDialog[0],
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [ newSerialDialog(f, node, name, serialDialog[0]) ];
 	},
 	dialog_definition: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
@@ -320,7 +318,7 @@ const nodeFns = {
 		const messageNodes = node.childrenForFieldName('message');
 		const optionNodes = node.childrenForFieldName('dialog_option');
 		// better way to do this?
-		const identifier = handleCapture(f, identifierNode)[0];
+		const identifier = handleCapture(f, identifierNode);
 		const params = paramNodes.map(v=>handleCapture(f, v));
 		const settings = {};
 		params.forEach(param=>{
@@ -362,6 +360,32 @@ const nodeFns = {
 			debug: node,
 			fileName: f.fileName,
 		}];
+	},
+	debug_macro: (f, node) => {
+		const checkDebugInfo = {
+			action: 'CHECK_DEBUG_MODE',
+			boolParamName: 'expected_bool'
+		};
+		const ret = [];
+		let name;
+		const serialDialogNode = node.childForFieldName('serial_dialog');
+		if (serialDialogNode) {
+			const serialDialog = handleNode(f, serialDialogNode).flat();
+			name = autoIdentifierName(f, node);
+			ret.push(newSerialDialog(f, node, name, serialDialog));
+		} else {
+			const nameNode = node.childForFieldName('serial_dialog_name');
+			name = handleCapture(f, nameNode);
+		}
+		const action = simpleBranchMaker(
+			f,
+			node,
+			checkDebugInfo,
+			showSerialDialog(f, node, name),
+			[],
+		);
+		ret.push(action);
+		return ret;
 	},
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');

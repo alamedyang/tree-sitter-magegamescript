@@ -274,7 +274,7 @@ module.exports = grammar({
 			$.label_definition,
 			$._action_item,
 			$.json_literal,
-			// $.debug_macro,
+			$.debug_macro,
 		),
 
 		json_literal: $ => seq(
@@ -311,15 +311,14 @@ module.exports = grammar({
 			token('null'),
 		),
 
-	// 	debug_macro: $ => seq(
-	// 		'debug', '!', '(',
-	// 		optional(choice(
-	// 			field('serial_dialog', $.serial_dialog),
-	// 			field('serial_dialog_name', $.bareword),
-	// 		)),
-
-	// 		')',
-	// 	),
+		debug_macro: $ => seq(
+			'debug', '!', '(',
+			choice(
+				field('serial_dialog', $.serial_dialog),
+				field('serial_dialog_name', $.bareword),
+			),
+			')',
+		),
 		rand_macro: $ => seq(
 			'rand', '!', '(',
 			repeat($._script_item),

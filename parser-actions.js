@@ -5,6 +5,12 @@ const {
 	expandCondition,
 	label,
 	gotoLabel,
+	simpleBranchMaker,
+	newMathSequence,
+	newSerialDialog,
+	showSerialDialog,
+	newDialog,
+	showDialog,
 } = require('./parser-utilities.js');
 
 // Cyclic dependency bodge
@@ -122,6 +128,7 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 		}
 		return simpleBranchMaker(
 			f,
+			rhsRaw,
 			boolGetable,
 			{ ...lhs, [lhs.boolParamName]: true },
 			{ ...lhs, [lhs.boolParamName]: false },
@@ -274,26 +281,10 @@ const actionFns = {
 		const dialogNodes = node.childrenForFieldName('dialog');
 		const dialogs = (dialogNodes || [])
 			.map(child => handleNode(f, child))
-			.flat(); // (double flat?)
-		const showDialogAction = {
-			action: 'SHOW_DIALOG',
-			dialog: name,
-			debug: node,
-			fileName: f.fileName
-		}
-		// TODO: telling apart unnamed empty dialogs and SHOW_DIALOG w/o dialog block?
-		if (dialogNodes.length === 0) {
-			return [showDialogAction];
-		}
-		const dialogDefinition = {
-			mathlang: 'dialog_definition',
-			dialogName: name,
-			dialogs: dialogs,
-			debug: node,
-			fileName: f.fileName,
-		};
+			.flat();
+		const showDialogAction = showDialog(f, node, name);
 		return [
-			dialogDefinition,
+			newDialog(f, node, name, dialogs),
 			showDialogAction
 		];
 	},
@@ -305,26 +296,10 @@ const actionFns = {
 		const serialDialogs = (serialDialogNodes || [])
 			.map(child => handleNode(f, child))
 			.flat();
-		const showSerialDialogAction = {
-			action: 'SHOW_SERIAL_DIALOG',
-			disable_newline: !isConcat,
-			serial_dialog: name,
-			debug: node,
-			fileName: f.fileName
-		}
-		if (serialDialogs.length === 0) {
-			return [showSerialDialogAction];
-		}
-		const serialDialogDefinition = {
-			mathlang: 'serial_dialog_definition',
-			dialogName: name,
-			serialDialog: serialDialogs[0],
-			debug: node,
-			fileName: f.fileName,
-		};
+		const def = showSerialDialog(f, node, name, false);
 		return [
-			serialDialogDefinition,
-			showSerialDialogAction
+			newSerialDialog(f, node, name, serialDialogs[0]),
+			def,
 		];
 	},
 };
@@ -496,7 +471,7 @@ const actionData = {
 				},
 				finalizeValues: (v, f, node) => {
 					const steps = actionSetBoolMaker(f, v.rhs, v.lhs);
-					steps.push(setFlagToFlag(f, v.lhs, quickTemporary()));
+					steps.push(setFlagToFlag(f, node, v.lhs, quickTemporary()));
 					return newMathSequence(f, node, steps);
 				}
 			},
@@ -844,13 +819,6 @@ const actionData = {
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-const newMathSequence = (f, node, steps) => ({
-	mathlang: 'math_sequence',
-	steps,
-	debug: node,
-	fileName: f.fileName
-});
-
 const setVarToValue = (variable, value) => ({
 	action: 'MUTATE_VARIABLE',
 	operation: 'SET',
@@ -899,42 +867,23 @@ const checkFlag = (save_flag, expected_bool) => ({
 	expected_bool,
 	save_flag,
 })
-const setFlagToFlag = (f, save_flag, source) => {
+const setFlagToFlag = (f, node, save_flag, source) => {
 	const action = setFlag(save_flag, null);
 	return simpleBranchMaker(
 		f,
+		node,
 		checkFlag(source, true),
 		{ ...action, bool_value: true }, // if true
 		{ ...action, bool_value: false } // if false
 	);
 };
-const setFlagToGettableValue = (f, save_flag, gettable) => {
+const setFlagToGettableValue = (f, node, save_flag, gettable) => {
 	return simpleBranchMaker(
 		f,
 		gettable,
 		setFlag(save_flag, true), // if true
 		setFlag(save_flag, false), // if false
 	);
-};
-const simpleBranchMaker = (f, _branchAction, _ifBody, _elseBody) => {
-	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
-	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
-	const gotoLabel = f.p.gotoSuffix();
-	const ifLabel = `if #${gotoLabel}`;
-	const rendezvousLabel = `rendezvous #${gotoLabel}`;
-	const branchAction = {
-		..._branchAction,
-		label: ifLabel,
-	};
-	const steps = [
-		branchAction,
-		...elseBody,
-		{ mathang: 'goto_label', label: rendezvousLabel },
-		{ mathang: 'label_definition', label: ifLabel },
-		...ifBody,
-		{ mathang: 'label_definition', label: rendezvousLabel },
-	];
-	return newMathSequence(f, node, steps);
 };
 
 module.exports = { handleAction, handleActionsInit };

@@ -27,7 +27,11 @@
 // }
 
 test {
-	flagName = !player glitched || debug_mode;
+	// debug!(goatPartyTerminal)
+	// show dialog {
+	// 	PLAYER "Some kinda terminal message"
+	// };
+	flagName = player glitched == false;
 	// if (player glitched || debug_mode) {
 	// 	wait 1;
 	// } else {

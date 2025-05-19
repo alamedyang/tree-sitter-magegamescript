@@ -120,11 +120,33 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		];
 		return inner.flat();
 	}
-
 	// TODO: remainder will be '==' and '!='
+	throw new Error ('not yet implemented')
+
 
 
 	return ret;
+};
+
+const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
+	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
+	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
+	const gotoLabel = f.p.getGotoSuffix();
+	const ifLabel = `if #${gotoLabel}`;
+	const rendezvousLabel = `rendezvous #${gotoLabel}`;
+	const branchAction = {
+		..._branchAction,
+		label: ifLabel,
+	};
+	const steps = [
+		branchAction,
+		...elseBody,
+		{ mathang: 'goto_label', label: rendezvousLabel },
+		{ mathang: 'label_definition', label: ifLabel },
+		...ifBody,
+		{ mathang: 'label_definition', label: rendezvousLabel },
+	];
+	return newMathSequence(f, node, steps);
 };
 
 const label = (f, node, label) => ({
@@ -140,6 +162,40 @@ const gotoLabel = (f, node, label) => ({
 	// fileName: f.fileName,
 });
 
+const newMathSequence = (f, node, steps) => ({
+	mathlang: 'math_sequence',
+	steps,
+	debug: node,
+	fileName: f.fileName
+});
+const newDialog = (f, node, dialogName, dialogs) => ({
+	mathlang: 'dialog_definition',
+	dialogName,
+	dialogs,
+	debug: node,
+	fileName: f.fileName,
+});
+const showDialog = (f, node, name) => ({
+	action: 'SHOW_DIALOG',
+	dialog: name,
+	debug: node,
+	fileName: f.fileName
+});
+const newSerialDialog = (f, node, dialogName, serialDialog) => ({
+	mathlang: 'serial_dialog_definition',
+	dialogName,
+	serialDialog,
+	debug: node,
+	fileName: f.fileName,
+});
+const showSerialDialog = (f, node, name, isConcat) => ({
+	action: 'SHOW_SERIAL_DIALOG',
+	disable_newline: !isConcat,
+	serial_dialog: name,
+	debug: node,
+	fileName: f.fileName
+});
+
 module.exports = {
 	verbose,
 	debugLog,
@@ -150,4 +206,10 @@ module.exports = {
 	expandCondition,
 	label,
 	gotoLabel,
+	simpleBranchMaker,
+	newMathSequence,
+	newSerialDialog,
+	showSerialDialog,
+	newDialog,
+	showDialog,
 };
