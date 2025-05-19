@@ -470,9 +470,9 @@ const actionData = {
 						.includes('bool');
 				},
 				finalizeValues: (v, f, node) => {
-					const steps = actionSetBoolMaker(f, v.rhs, v.lhs);
-					steps.push(setFlagToFlag(f, node, v.lhs, quickTemporary()));
-					return newMathSequence(f, node, steps);
+					const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
+					ret.steps.push(setFlagToFlag(f, node, v.lhs, quickTemporary()));
+					return ret;
 				}
 			},
 		],

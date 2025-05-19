@@ -59,7 +59,6 @@ const autoIdentifierName = (f, node) => {
 		+ ':' + node.startPosition.column;
 };
 const expandCondition = (f, node, condition, ifLabel) => {
-	let ret = [];
 	if (
 		condition.mathlang === 'bool_getable'
 		|| condition.mathlang === 'number_checkable_equality'
@@ -120,12 +119,59 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		];
 		return inner.flat();
 	}
-	// TODO: remainder will be '==' and '!='
-	throw new Error ('not yet implemented')
+	if (op !== '==' && op !== '!=') {
+		throw new Error ("What kind of other thing is this?")
+	}
+	if (op === '!=') rhs.invert = !rhs.invert;
+	// todo: if any of these are == bool literal, they can be simplified
+	const expandAs = {
+		mathlang: 'bool_binary_expression',
+		debug: condition.node,
+		fileName: f.fileName,
+		op: '||',
+		lhs: {
+			mathlang: 'bool_binary_expression',
+			debug: condition.node,
+			fileName: f.fileName,
+			op: '&&',
+			lhs: typeof lhs === 'boolean'
+				? lhs
+				: {
+					...condition.lhs,
+					debug: condition.lhsNode,
+					expected_bool: !condition.lhs.invert,
+				},
+			rhs: typeof rhs === 'boolean'
+				? rhs
+				: {
+					...condition.rhs,
+					debug: condition.rhsNode,
+					expected_bool: !condition.rhs.invert,
+				},
+		},
+		rhs: {
+			mathlang: 'bool_binary_expression',
+			debug: condition.node,
+			fileName: f.fileName,
+			op: '&&',
+			lhs: typeof lhs === 'boolean'
+				? !lhs
+				: {
+					...condition.lhs,
+					debug: condition.lhsNode,
+					expected_bool: !!condition.lhs.invert,
+				},
+			rhs: typeof rhs === 'boolean'
+				? !rhs
+				: {
+					...condition.rhs,
+					debug: condition.rhsNode,
+					expected_bool: !!condition.rhs.invert,
+				},
+		}
+	}
 
-
-
-	return ret;
+	return expandCondition(f, node, expandAs, ifLabel);
 };
 
 const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {

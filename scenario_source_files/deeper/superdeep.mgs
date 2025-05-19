@@ -31,7 +31,7 @@ test {
 	// show dialog {
 	// 	PLAYER "Some kinda terminal message"
 	// };
-	flagName = player glitched == false;
+	flagName = player glitched == true;
 	// if (player glitched || debug_mode) {
 	// 	wait 1;
 	// } else {
