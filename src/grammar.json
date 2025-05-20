@@ -1727,6 +1727,10 @@
         {
           "type": "SYMBOL",
           "name": "debug_macro"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "copy_macro"
         }
       ]
     },
@@ -1964,6 +1968,35 @@
         }
       ]
     },
+    "copy_macro": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "copy"
+        },
+        {
+          "type": "STRING",
+          "value": "!"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
     "rand_macro": {
       "type": "SEQ",
       "members": [
@@ -2135,6 +2168,30 @@
         {
           "type": "SYMBOL",
           "name": "action_set_bool"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_warp_state"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_serial_connect"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_alias"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_command"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_command_fail"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "action_set_command_arg"
         },
         {
           "type": "SYMBOL",
@@ -5459,6 +5516,212 @@
         {
           "type": "STRING",
           "value": "on_look"
+        }
+      ]
+    },
+    "action_set_warp_state": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "warp_state",
+          "content": {
+            "type": "STRING",
+            "value": "warp_state"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "string",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
+        }
+      ]
+    },
+    "action_set_serial_connect": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "serial_connect",
+          "content": {
+            "type": "STRING",
+            "value": "serial_connect"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "serial_dialog",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
+        }
+      ]
+    },
+    "action_set_alias": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "alias"
+        },
+        {
+          "type": "FIELD",
+          "name": "alias",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
+        }
+      ]
+    },
+    "action_set_command": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "command"
+        },
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
+        }
+      ]
+    },
+    "action_set_command_fail": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "command"
+        },
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "fail"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
+        }
+      ]
+    },
+    "action_set_command_arg": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "command"
+        },
+        {
+          "type": "FIELD",
+          "name": "command",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "+"
+        },
+        {
+          "type": "FIELD",
+          "name": "argument",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
         }
       ]
     },

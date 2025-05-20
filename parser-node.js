@@ -361,6 +361,15 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	copy_macro: (f, node) => {
+		const nameNode = node.namedChildren[0];
+		const name = handleCapture(f, nameNode);
+		return [{
+			mathlang: 'copy_script',
+			debug: node,
+			fileName: f.fileName,
+		}]
+	},
 	debug_macro: (f, node) => {
 		const checkDebugInfo = {
 			action: 'CHECK_DEBUG_MODE',
@@ -433,3 +442,4 @@ module.exports = handleNode;
 // TODO: what is the difference between handleNode() and handleCapture() except that you have to flatten handleNode()?
 // Is it that you return complex thing vs primitive value?
 // Is it that action wants to call handleCapture() and then work on its properties?
+// It is, perhaps, that handleCapture() should check values against registered constants, and nodes shouldn't care about that

@@ -275,6 +275,7 @@ module.exports = grammar({
 			$._action_item,
 			$.json_literal,
 			$.debug_macro,
+			$.copy_macro,
 		),
 
 		json_literal: $ => seq(
@@ -319,6 +320,9 @@ module.exports = grammar({
 			),
 			')',
 		),
+		copy_macro: $ => seq(
+			'copy', '!', '(', field('script', $.string), ')'
+		),
 		rand_macro: $ => seq(
 			'rand', '!', '(',
 			repeat($._script_item),
@@ -359,6 +363,12 @@ module.exports = grammar({
 			$.action_set_int,
 			$.action_set_bool,
 			// $.action_set_string,
+			$.action_set_warp_state,
+			$.action_set_serial_connect,
+			$.action_set_alias,
+			$.action_set_command,
+			$.action_set_command_fail,
+			$.action_set_command_arg,
 			$.if_chain,
 			// $.while_block,
 			// $.for_block,
@@ -925,39 +935,83 @@ module.exports = grammar({
 			'name', 'type', 'path',
 			'on_interact', 'on_tick', 'on_look',
 		),
+		action_set_warp_state: $ => seq(
+			field('warp_state', 'warp_state'), 
+			$.assignment_operator,
+			field('string', $.string_expandable),
+			$.semicolon,
+		),
+		action_set_serial_connect: $ => seq(
+			field('serial_connect', 'serial_connect'), 
+			$.assignment_operator,
+			field('serial_dialog', $.string_expandable),
+			$.semicolon,
+		),
+		action_set_alias: $ => seq(
+			'alias', 
+			field('alias', $.string_expandable),
+			$.assignment_operator,
+			field('command', $.string_expandable),
+			$.semicolon,
+		),
+		action_set_command: $ => seq(
+			'command', 
+			field('command', $.string_expandable),
+			$.assignment_operator,
+			field('script', $.string_expandable),
+			$.semicolon,
+		),
+		action_set_command_fail: $ => seq(
+			'command', 
+			field('command', $.string_expandable),
+			'fail',
+			$.assignment_operator,
+			field('script', $.string_expandable),
+			$.semicolon,
+		),
+		action_set_command_arg: $ => seq(
+			'command', 
+			field('command', $.string_expandable),
+			'+',
+			field('argument', $.string_expandable),
+			$.assignment_operator,
+			field('script', $.string_expandable),
+			$.semicolon,
+		),
 
-	// 	fail: $ => 'fail',
-	// 	string_setable: $ => choice(
-	// 		seq('alias', field('alias', $.string_expandable)),
-	// 		'serial_connect',
-	// 		'warp_state',
-	// 		seq($.entity_or_map_identifier, field('property', $.entity_property_string_expandable)),
-	// 		seq(
-	// 			'command', field('command', $.string_expandable),
-	// 			optional(choice(
-	// 				$.fail,
-	// 				seq('+', field('argument', $.string_expandable))
-	// 			)),
-	// 		)
-	// 	),
-	// 	string_setable_expandable: $ => choice(
-	// 		$.string_setable,
-	// 		$.string_setable_expansion,
-	// 	),
-	// 	string_setable_expansion: $ => seq(
-	// 		'[',
-	// 		optional(seq(
-	// 			$.string_setable,
-	// 			repeat(seq(',', $.string_setable)),
-	// 			optional(','),
-	// 		)),
-	// 		']'
-	// 	),
-	// 	action_set_string: $ => seq(
-	// 		$.string_setable, 
-	// 		$.assignment_operator,
-	// 		$.string_expandable,
-	// 	),
+		// // TODO: split these according to what the rhs tokens should be colored as
+		// string_setable: $ => choice(
+		// 	// seq($.entity_or_map_identifier, field('property', $.entity_property_string_expandable)),
+		// 	seq(
+		// 		'command', field('command', $.string_expandable),
+		// 		optional(choice(
+		// 			field('type', 'fail'),
+		// 			seq(
+		// 				field('type', '+'),
+		// 				field('argument', $.string_expandable)
+		// 			)
+		// 		)),
+		// 	)
+		// ),
+		// string_setable_expandable: $ => choice(
+		// 	$.string_setable,
+		// 	$.string_setable_expansion,
+		// ),
+		// string_setable_expansion: $ => seq(
+		// 	'[',
+		// 	optional(seq(
+		// 		$.string_setable,
+		// 		repeat(seq(',', $.string_setable)),
+		// 		optional(','),
+		// 	)),
+		// 	']'
+		// ),
+		// action_set_string: $ => seq(
+		// 	field('lhs', $.string_setable_expandable), 
+		// 	$.assignment_operator,
+		// 	field('rhs', $.string_expandable),
+		// 	$.semicolon,
+		// ),
 
 	// 	direction: $ => choice('north','south','east','west','n','e','s','w','N','E','S','W'),
 	// 	action_set_entity_direction: $=> seq(

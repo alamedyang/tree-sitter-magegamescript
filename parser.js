@@ -57,6 +57,7 @@ const parseProject = async () => {
 	});
 
 	// take scripts/dialogs from each file and make global for the project
+	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
 	Object.keys(fileMap).forEach(fileName=>{
 		const f = fileMap[fileName].parsed;
 		f.nodes.forEach(node=>{

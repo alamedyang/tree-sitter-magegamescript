@@ -101,7 +101,7 @@ _ {
 	debug!(serialDialogName)
 	debug!("serial dialog messages")
 	copy!(scriptName) //COPY_SCRIPT
-	json![] // Anything inside the brackets will be arbitrary actions. Action == obj literal, comma-separated
+	json[] // Anything inside the brackets will be arbitrary actions. Action == obj literal, comma-separated
 	rand!()
 
 	/* REMINDER

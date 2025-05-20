@@ -401,6 +401,39 @@ const actionData = {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
 		captures: ['entity', 'animation', 'count'],
 	},
+	action_set_warp_state: {
+		values: { action: 'SET_WARP_STATE' },
+		captures: [ 'string' ]
+	},
+	action_set_serial_connect: {
+		values: { action: 'SET_CONNECT_SERIAL_DIALOG' },
+		captures: [ 'serial_dialog' ]
+	},
+	action_set_alias: {
+		values: { action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
+		captures: [ 'command' ]
+	},
+	action_set_command: {
+		values: {
+			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
+			is_fail: false
+		},
+		captures: [ 'command', 'script' ]
+	},
+	action_set_command_fail: {
+		values: {
+			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
+			is_fail: true
+		},
+		captures: [ 'command', 'script' ]
+	},
+	action_set_command_arg: {
+		values: {
+			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
+			is_fail: true
+		},
+		captures: [ 'command', 'argumant', 'script' ]
+	},
 	action_set_ambiguous: {
 		values: {},
 		captures: ['lhs', 'rhs'],

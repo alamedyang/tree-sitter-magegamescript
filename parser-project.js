@@ -56,6 +56,8 @@ const makeProjectState = (tsParser, fileMap) => {
 					|| node.mathlang === 'if_sequence'
 				) {
 					node.steps.forEach(step=>finalizedActions.push(step));
+				} else if (node.mathlang === 'copy_script') {
+					// TODO: do this as a separate layer
 				} else {
 					console.error(node);
 					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE!")
