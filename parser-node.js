@@ -86,15 +86,14 @@ const nodeFns = {
 		const label = labelNode.text;
 		const value = handleCapture(f, valueNode);
 		f.constants = f.constants || {};
-		if (f.constants[labelNode]) {
+		if (f.constants[label]) {
 			f.newError({
 				locations: [{ node }],
-				message: `cannot redefine constant ${ret.label}`,
+				message: `cannot redefine constant ${label}`,
 			});
 		}
 		f.constants[label] = {
 			value,
-			type: valueNode.grammarType, // fyi only; not using this currently
 			debug: node,
 			fileName: f.fileName,
 		};
@@ -108,9 +107,9 @@ const nodeFns = {
 	},
 	include_macro: (f, node) => {
 		// TODO: ~~handle~~ prevent recursive references
-		let includeFileNode = node.childForFieldName('fileName');
-		let capture = handleCapture(f, includeFileNode);
-		const prerequesites = Array.isArray(capture) ? capture : [ capture ];
+		let fileNameNode = node.childForFieldName('fileName');
+		let fileName = handleCapture(f, fileNameNode);
+		const prerequesites = Array.isArray(fileName) ? fileName : [ fileName ];
 		prerequesites.forEach(prereqName=> {
 			if (!f.p.fileMap[prereqName].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
@@ -123,7 +122,7 @@ const nodeFns = {
 		});
 		return [{
 			mathlang: 'include_macro',
-			value: capture,
+			value: fileName,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -230,13 +229,6 @@ const nodeFns = {
 		const optionNode = node.childForFieldName('option_type');
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
-		if (!optionNode || !labelNode || !scriptNode) {
-			f.newError({
-				locations: [{ node }],
-				message: `malformed serial_dialog option`,
-			});
-			return [];
-		}
 		let optionType;
 		if (optionNode.text === '_') optionType = 'text_options';
 		else if (optionNode.text === '#') optionType = 'options';
@@ -252,13 +244,6 @@ const nodeFns = {
 	dialog_option: (f, node) => {
 		const labelNode = node.childForFieldName('label');
 		const scriptNode = node.childForFieldName('script');
-		if (!labelNode || !scriptNode) {
-			f.newError({
-				locations: [{ node }],
-				message: `malformed dialog option`,
-			});
-			return [];
-		}
 		return [{
 			mathlang: 'dialog_option',
 			label: handleCapture(f, labelNode),
@@ -276,15 +261,13 @@ const nodeFns = {
 	},
 	dialog_definition: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
-		const name = handleCapture(f, nameNode);
+		const dialogName = handleCapture(f, nameNode);
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = dialogNodes
-			.map(dialogNode=>handleNode(f, dialogNode))
-			.flat();
+		const dialogs = dialogNodes.map(v=>handleNode(f, v)).flat();
 		return [{
 			mathlang: 'dialog_definition',
-			dialogName: name,
-			dialogs: dialogs,
+			dialogName,
+			dialogs,
 			debug: node,
 			fileName: f.fileName,
 		}];
@@ -293,8 +276,8 @@ const nodeFns = {
 		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
 		const messageNodes = node.childrenForFieldName('serial_message');
 		const optionNodes = node.childrenForFieldName('serial_dialog_option');
-		const params = paramNodes.map(node=>handleCapture(f, node));
-		const options = optionNodes.map(node=>handleNode(f, node)).flat();
+		const params = paramNodes.map(v=>handleCapture(f, v));
+		const options = optionNodes.map(v=>handleNode(f, v)).flat();
 		// TODO: make options more closely resemble final form?
 		const settings = {};
 		params.forEach(param=>{ settings[param.property] = param.value; });
@@ -363,18 +346,14 @@ const nodeFns = {
 	},
 	copy_macro: (f, node) => {
 		const nameNode = node.namedChildren[0];
-		const name = handleCapture(f, nameNode);
 		return [{
 			mathlang: 'copy_script',
+			name: handleCapture(f, nameNode),
 			debug: node,
 			fileName: f.fileName,
 		}]
 	},
 	debug_macro: (f, node) => {
-		const checkDebugInfo = {
-			action: 'CHECK_DEBUG_MODE',
-			boolParamName: 'expected_bool'
-		};
 		const ret = [];
 		let name;
 		const serialDialogNode = node.childForFieldName('serial_dialog');
@@ -389,7 +368,7 @@ const nodeFns = {
 		const action = simpleBranchMaker(
 			f,
 			node,
-			checkDebugInfo,
+			{ action: 'CHECK_DEBUG_MODE', boolParamName: 'expected_bool' },
 			showSerialDialog(f, node, name),
 			[],
 		);

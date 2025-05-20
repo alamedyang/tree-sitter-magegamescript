@@ -362,6 +362,7 @@ module.exports = grammar({
 			$.action_set_ambiguous,
 			$.action_set_int,
 			$.action_set_bool,
+			$.action_set_direction,
 			// $.action_set_string,
 			$.action_set_warp_state,
 			$.action_set_serial_connect,
@@ -977,6 +978,18 @@ module.exports = grammar({
 			$.assignment_operator,
 			field('script', $.string_expandable),
 			$.semicolon,
+		),
+		action_set_direction: $ => seq(
+			field('entity', $.entity_identifier),
+			'direction',
+			$.assignment_operator,
+			field('target', $.direction_target),
+			$.semicolon,
+		),
+		direction_target: $ => choice(
+			field('entity', $.entity_identifier),
+			field('geometry', $.geometry_identifier),
+			field('nsew', $.nsew),
 		),
 
 		// // TODO: split these according to what the rhs tokens should be colored as

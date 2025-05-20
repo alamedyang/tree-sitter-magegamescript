@@ -600,6 +600,29 @@ const captureFns = {
 	},
 	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 	bool_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
+	direction_target: (f, node) => {
+		const nsewNode = node.childForFieldName('nsew');
+		if (nsewNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION',
+				direction: nsewNode.text,
+			};
+		}
+		const geometryNode = node.childForFieldName('geometry');
+		if (geometryNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
+				target_geometry: handleCapture(f, geometryNode),
+			};
+		}
+		const entityNode = node.childForFieldName('entity');
+		if (entityNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
+				target_entity: handleCapture(f, entityNode),
+			};
+		}
+	},
 };
 const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",

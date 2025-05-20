@@ -31,10 +31,11 @@ test {
 	// show dialog {
 	// 	PLAYER "Some kinda terminal message"
 	// };
-	flagName = player glitched == true;
+	// flagName = player glitched == true;
 	// if (player glitched || debug_mode) {
 	// 	wait 1;
 	// } else {
 	// 	wait 2;
 	// }
+	player direction = entity Bob;
 }

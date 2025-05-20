@@ -273,7 +273,7 @@ const handleAction = (f, node) => { // ->[]
 	return spreads;
 };
 
-// todo: might these be brought into the .isMatch() and .finalizeValues() paradigm?
+// Put things here if you don't care about auto-spreading them
 const actionFns = {
 	action_show_dialog: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
@@ -806,6 +806,21 @@ const actionData = {
 				locations: [{ node }],
 			};
 		},
+	},
+	action_set_direction: {
+		values: {},
+		captures: [ 'entity', 'target' ],
+		detective: [
+			{
+				isMatch: (v) => true,
+				finalizeValues: (v) => {
+					return {
+						...v.target,
+						entity: v.entity,
+					};
+				},
+			},
+		],
 	},
 	action_op_equals: {
 		values: {},

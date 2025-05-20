@@ -1531,6 +1531,46 @@
     }
   },
   {
+    "type": "action_set_direction",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "direction_target",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_set_int",
     "named": true,
     "fields": {
@@ -3128,6 +3168,42 @@
     }
   },
   {
+    "type": "direction_target",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      },
+      "geometry": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "geometry_identifier",
+            "named": true
+          }
+        ]
+      },
+      "nsew": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "nsew",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "distance_expansion",
     "named": true,
     "fields": {},
@@ -4142,6 +4218,10 @@
           "named": true
         },
         {
+          "type": "action_set_direction",
+          "named": true
+        },
+        {
           "type": "action_set_int",
           "named": true
         },
@@ -4326,6 +4406,10 @@
         },
         {
           "type": "action_set_command_fail",
+          "named": true
+        },
+        {
+          "type": "action_set_direction",
           "named": true
         },
         {
