@@ -37,7 +37,6 @@ module.exports = grammar({
 		$.CONSTANT_VALUE,
 		$.entity_identifier_expandable,
 		$.entity_or_map_identifier_expandable,
-		// $.geometry_identifier_expandable,
 		$.movable_identifier_expandable,
 		$.coordinate_identifier_expandable,
 		$.ambiguous_identifier, $.ambiguous_identifier_expandable,
@@ -45,7 +44,6 @@ module.exports = grammar({
 		$.int_expression_expandable,
 		$.bool_setable_expandable,
 		$.int_setable_expandable,
-		// $.entity_property_string_expandable,
 	],
 	rules: {
 		document: $ => repeat($._root),
@@ -363,13 +361,13 @@ module.exports = grammar({
 			$.action_set_int,
 			$.action_set_bool,
 			$.action_set_direction,
-			// $.action_set_string,
 			$.action_set_warp_state,
 			$.action_set_serial_connect,
 			$.action_set_alias,
 			$.action_set_command,
 			$.action_set_command_fail,
 			$.action_set_command_arg,
+			$.action_set_script,
 			$.if_chain,
 			// $.while_block,
 			// $.for_block,
@@ -440,12 +438,12 @@ module.exports = grammar({
 			)),
 			']'
 		),
-		entity_or_map_identifier: $ => choice(
+		entity_or_map_identifier: $ => prec(1, choice(
 			field('type', 'map'),
 			field('type', 'player'),
 			field('type', 'self'),
 			seq(field('type', 'entity'), field('entity', $.string))
-		),
+		)),
 		entity_or_map_identifier_expandable: $ => choice(
 			$.entity_or_map_identifier,
 			$.entity_or_map_identifier_expansion
@@ -991,54 +989,13 @@ module.exports = grammar({
 			field('geometry', $.geometry_identifier),
 			field('nsew', $.nsew),
 		),
-
-		// // TODO: split these according to what the rhs tokens should be colored as
-		// string_setable: $ => choice(
-		// 	// seq($.entity_or_map_identifier, field('property', $.entity_property_string_expandable)),
-		// 	seq(
-		// 		'command', field('command', $.string_expandable),
-		// 		optional(choice(
-		// 			field('type', 'fail'),
-		// 			seq(
-		// 				field('type', '+'),
-		// 				field('argument', $.string_expandable)
-		// 			)
-		// 		)),
-		// 	)
-		// ),
-		// string_setable_expandable: $ => choice(
-		// 	$.string_setable,
-		// 	$.string_setable_expansion,
-		// ),
-		// string_setable_expansion: $ => seq(
-		// 	'[',
-		// 	optional(seq(
-		// 		$.string_setable,
-		// 		repeat(seq(',', $.string_setable)),
-		// 		optional(','),
-		// 	)),
-		// 	']'
-		// ),
-		// action_set_string: $ => seq(
-		// 	field('lhs', $.string_setable_expandable), 
-		// 	$.assignment_operator,
-		// 	field('rhs', $.string_expandable),
-		// 	$.semicolon,
-		// ),
-
-	// 	direction: $ => choice('north','south','east','west','n','e','s','w','N','E','S','W'),
-	// 	action_set_entity_direction: $=> seq(
-	// 		$.entity_identifier_expandable,
-	// 		'direction',
-	// 		$.assignment_operator, // and also math operators
-	// 		choice(
-	// 			field('toward_entity', $.entity_identifier_expandable),
-	// 			$.geometry_identifier_expandable,
-	// 			$.direction,
-	// 			$._int_expression
-	// 			// and also numbers
-	// 		)
-	// 	),
+		action_set_script: $ => seq(
+			field('entity', $.entity_or_map_identifier_expandable),
+			field('script_slot', $.string_expandable),
+			$.assignment_operator,
+			field('script', $.string_expandable),
+			$.semicolon
+		),
 		op_equals: $ => choice('?=', '+=', '-=', '*=', '/=', '%='),
 		action_op_equals: $ => seq(
 			field('lhs', $.STRING),

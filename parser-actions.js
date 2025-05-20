@@ -822,6 +822,79 @@ const actionData = {
 			},
 		],
 	},
+	action_set_script: {
+		values: {},
+		captures: [ 'entity', 'script_slot', 'script' ],
+		detective: [
+			{
+				isMatch: (v) => v.entity === '%MAP%'
+					&& v.script_slot === 'on_tick',
+				finalizeValues: (v) => {
+					return {
+						action: 'SET_MAP_TICK_SCRIPT',
+						script: v.script,
+					};
+				},
+			},
+			{
+				isMatch: (v) => v.entity !== '%MAP%'
+					&& v.script_slot === 'on_tick',
+				finalizeValues: (v) => {
+					return {
+						action: 'SET_ENTITY_TICK_SCRIPT',
+						entity: v.entity,
+						script: v.script,
+					};
+				},
+			},
+			{
+				isMatch: (v) => v.entity !== '%MAP%'
+					&& v.script_slot === 'on_interact',
+				finalizeValues: (v) => {
+					return {
+						action: 'SET_ENTITY_INTERACT_SCRIPT',
+						entity: v.entity,
+						script: v.script,
+					};
+				},
+			},
+			{
+				isMatch: (v) => v.entity !== '%MAP%'
+					&& v.script_slot === 'on_look',
+				finalizeValues: (v) => {
+					return {
+						action: 'SET_ENTITY_LOOK_SCRIPT',
+						entity: v.entity,
+						script: v.script,
+					};
+				},
+			},
+		],
+		detectError: (v) => {
+			if (v.entity === '%MAP%') {
+				return  {
+					message: `invalid map script slot`,
+					locations: [{ node: v.debug.childForFieldName('script_slot') }],
+					footer: `You can only set a map's 'on_tick' slot`
+				};
+			} else if (
+				v.script_slot !== 'on_tick'
+				|| v.script_slot !== 'on_interact'
+				|| v.script_slot !== 'on_look'
+			) {
+				return  {
+					message: `invalid entity script slot`,
+					locations: [{ node: v.debug.childForFieldName('script_slot') }],
+					footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
+				}
+			} else {
+				return  {
+					message: `set script slot syntax error`,
+					locations: [{ node: v.debug }],
+				}
+			}
+		},
+	},
 	action_op_equals: {
 		values: {},
 		captures: [ 'identifier', 'operator', 'rhs' ],

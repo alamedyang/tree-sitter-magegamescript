@@ -37,5 +37,5 @@ test {
 	// } else {
 	// 	wait 2;
 	// }
-	player direction = entity Bob;
+	map on_tick = newScript;
 }

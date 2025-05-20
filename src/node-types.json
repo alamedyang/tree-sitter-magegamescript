@@ -1691,6 +1691,84 @@
     }
   },
   {
+    "type": "action_set_script",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_or_map_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_or_map_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      },
+      "script_slot": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_set_serial_connect",
     "named": true,
     "fields": {
@@ -4230,6 +4308,10 @@
           "named": true
         },
         {
+          "type": "action_set_script",
+          "named": true
+        },
+        {
           "type": "action_set_serial_connect",
           "named": true
         },
@@ -4418,6 +4500,10 @@
         },
         {
           "type": "action_set_position",
+          "named": true
+        },
+        {
+          "type": "action_set_script",
           "named": true
         },
         {

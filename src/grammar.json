@@ -2199,6 +2199,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "action_set_script"
+        },
+        {
+          "type": "SYMBOL",
           "name": "if_chain"
         },
         {
@@ -2863,54 +2867,58 @@
       ]
     },
     "entity_or_map_identifier": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "map"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "player"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "type",
-          "content": {
-            "type": "STRING",
-            "value": "self"
-          }
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "type",
-              "content": {
-                "type": "STRING",
-                "value": "entity"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "entity",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "map"
             }
-          ]
-        }
-      ]
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "player"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "STRING",
+              "value": "self"
+            }
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "type",
+                "content": {
+                  "type": "STRING",
+                  "value": "entity"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "entity",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "string"
+                }
+              }
+            ]
+          }
+        ]
+      }
     },
     "entity_or_map_identifier_expandable": {
       "type": "CHOICE",
@@ -5788,6 +5796,43 @@
             "type": "SYMBOL",
             "name": "nsew"
           }
+        }
+      ]
+    },
+    "action_set_script": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "entity",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_or_map_identifier_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "script_slot",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "script",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "semicolon"
         }
       ]
     },
