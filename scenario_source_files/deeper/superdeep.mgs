@@ -37,5 +37,12 @@ test {
 	// } else {
 	// 	wait 2;
 	// }
-	map on_tick = newScript;
+	do {
+		wait 1;
+	} while (debug_mode)
+	wait 2;
+	// while (debug_mode) {
+	// 	wait 3;
+	// }
+	// wait 4;
 }

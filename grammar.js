@@ -369,10 +369,13 @@ module.exports = grammar({
 			$.action_set_command_arg,
 			$.action_set_script,
 			$.if_chain,
-			// $.while_block,
+			$.while_block,
+			$.do_while_block,
 			// $.for_block,
 			$.action_op_equals,
 		),
+		action_break_statement: $ => seq('break', $.semicolon), 
+		action_continue_statement: $ => seq('continue', $.semicolon), 
 		action_return_statement: $ => seq('return', $.semicolon), 
 		action_close_dialog: $ => seq('close', 'dialog', $.semicolon),
 		action_close_serial_dialog: $ => seq('close', 'serial_dialog', $.semicolon),
@@ -875,13 +878,6 @@ module.exports = grammar({
 				field('property', $.entity_property_int)
 			),
 		),
-		// while_block: $ => seq(
-		// 	'while', '(',
-		// 	field('condition', $.bool_expression),
-		// 	')',
-		// 	field('body', $.looping_block),
-		// ),
-
 		if_chain: $ => seq(
 			field('if_block', $.if_block),
 			repeat(seq(
@@ -901,19 +897,28 @@ module.exports = grammar({
 		condition: $ => choice(
 			$._bool_expression,
 		),
-	// 	looping_block: $ => seq(
-	// 		'{',
-	// 		repeat(choice(
-	// 			$._script_item,
-	// 			seq('break', $.semicolon),
-	// 			seq('continue', $.semicolon),
-	// 		)),
-	// 		'}'
-	// 	),
-	// 	do_while_block: $ => seq(
-	// 		'do', alias($.looping_block, $.do_while_body),
-	// 		'while', '(', $.condition, ')'
-	// 	),
+		looping_block: $ => seq(
+			'{',
+			repeat(choice(
+				$._script_item,
+				seq($.action_break_statement, $.semicolon),
+				seq($.action_continue_statement, $.semicolon),
+			)),
+			'}'
+		),
+		while_block: $ => seq(
+			'while', '(',
+			field('condition', $.condition),
+			')',
+			field('body', $.looping_block),
+		),
+		do_while_block: $ => seq(
+			'do',
+			field('body', $.looping_block),
+			'while', '(',
+			field('condition', $.condition),
+			')'
+		),
 	// 	for_block: $ => seq(
 	// 		'for',
 	// 		'(',

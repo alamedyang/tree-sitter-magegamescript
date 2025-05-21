@@ -1,4 +1,4 @@
-let verbose = false;
+let verbose = true;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
 const reportMissingChildNodes = (f, node) => {
@@ -170,7 +170,6 @@ const expandCondition = (f, node, condition, ifLabel) => {
 				},
 		}
 	}
-
 	return expandCondition(f, node, expandAs, ifLabel);
 };
 

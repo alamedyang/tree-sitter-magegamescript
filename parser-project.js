@@ -54,13 +54,15 @@ const makeProjectState = (tsParser, fileMap) => {
 				} else if (
 					node.mathlang === 'math_sequence'
 					|| node.mathlang === 'if_sequence'
+					|| node.mathlang === 'while_sequence'
+					|| node.mathlang === 'do_while_sequence'
 				) {
 					node.steps.forEach(step=>finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {
 					// TODO: do this as a separate layer
 				} else {
 					console.error(node);
-					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE!")
+					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE! " + node.mathlang)
 				}
 			});
 			data.actions = finalizedActions.flat();

@@ -310,6 +310,12 @@ const actionData = {
 		// Ditto some other actions, too
 		values: { mathlang: 'return_statement' },
 	},
+	action_continue_statement: {
+		values: { mathlang: 'continue_statement' },
+	},
+	action_break_statement: {
+		values: { mathlang: 'break_statement' },
+	},
 	action_close_dialog: {
 		values: { action: 'CLOSE_DIALOG' },
 	},

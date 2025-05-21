@@ -375,6 +375,83 @@ const nodeFns = {
 		ret.push(action);
 		return ret;
 	},
+	looping_block: (f, node, printGotoLabel) => {
+		return node.namedChildren.map(v=>{
+			const handled = handleNode(f, v);
+			if (handled.mathlang === 'continue_statement') {
+				return gotoLabel(f, v, `while condition #${printGotoLabel}`);
+			} else if (handled.mathlang === 'break_statement') {
+				return gotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
+			}
+			return handled;
+		});
+	},
+	while_block: (f, node) => {
+		const n = f.p.advanceGotoSuffix();
+		const conditionLabel = `while condition #${n}`;
+		const bodyLabel = `while body #${n}`;
+		const rendezvousLabel = `while rendezvous #${n}`;
+		const conditionNode = node.childForFieldName('condition').namedChildren[0];
+		const rawCondition = handleCapture(f, conditionNode);
+		const condition = expandCondition(f, conditionNode, rawCondition, bodyLabel)
+		const bodyNode = node.childForFieldName('body');
+		const body = handleNode(f, bodyNode).flat()
+			.map(v=>{
+				if (v.mathlang === 'continue_statement') {
+					return gotoLabel(f, node, conditionLabel);
+				} else if (v.mathlang === 'break_statement') {
+					return gotoLabel(f, node, rendezvousLabel);
+				} else {
+					return v;
+				}
+			});
+		const steps = [
+			label(f, conditionNode, conditionLabel),
+			...condition,
+			gotoLabel(f, node, rendezvousLabel),
+			label(f, node, bodyLabel),
+			...body,
+			gotoLabel(f, node, conditionLabel),
+			label(f, node, rendezvousLabel),
+		];
+		return {
+			mathlang: 'while_sequence',
+			steps,
+		}
+	},
+	do_while_block: (f, node) => {
+		const n = f.p.advanceGotoSuffix();
+		const conditionLabel = `while condition #${n}`;
+		const bodyLabel = `while body #${n}`;
+		const rendezvousLabel = `while rendezvous #${n}`;
+		const conditionNode = node.childForFieldName('condition').namedChildren[0];
+		const rawCondition = handleCapture(f, conditionNode);
+		const condition = expandCondition(f, conditionNode, rawCondition, bodyLabel)
+		const bodyNode = node.childForFieldName('body');
+		const body = handleNode(f, bodyNode).flat()
+			.map(v=>{
+				if (v.mathlang === 'continue_statement') {
+					return gotoLabel(f, node, conditionLabel);
+				} else if (v.mathlang === 'break_statement') {
+					return gotoLabel(f, node, rendezvousLabel);
+				} else {
+					return v;
+				}
+			});
+			const steps = [
+			label(f, node, bodyLabel),
+			...body,
+			// gotoLabel(f, node, conditionLabel),
+			label(f, conditionNode, conditionLabel),
+			...condition,
+			// gotoLabel(f, node, rendezvousLabel),
+			label(f, node, rendezvousLabel),
+		];
+		return {
+			mathlang: 'do_while_sequence',
+			steps,
+		}
+	},
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeNode = node.childForFieldName('else_block');
