@@ -56,6 +56,7 @@ const makeProjectState = (tsParser, fileMap) => {
 					|| node.mathlang === 'if_sequence'
 					|| node.mathlang === 'while_sequence'
 					|| node.mathlang === 'do_while_sequence'
+					|| node.mathlang === 'for_sequence'
 				) {
 					node.steps.forEach(step=>finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {

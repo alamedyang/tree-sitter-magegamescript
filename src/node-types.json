@@ -3203,6 +3203,374 @@
     "fields": {}
   },
   {
+    "type": "for_block",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "looping_block",
+            "named": true
+          }
+        ]
+      },
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "condition",
+            "named": true
+          }
+        ]
+      },
+      "incrementer": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "action_blocking_delay",
+            "named": true
+          },
+          {
+            "type": "action_camera_fade_in",
+            "named": true
+          },
+          {
+            "type": "action_camera_fade_out",
+            "named": true
+          },
+          {
+            "type": "action_camera_shake",
+            "named": true
+          },
+          {
+            "type": "action_close_dialog",
+            "named": true
+          },
+          {
+            "type": "action_close_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_concat_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_delete_alias",
+            "named": true
+          },
+          {
+            "type": "action_delete_command",
+            "named": true
+          },
+          {
+            "type": "action_delete_command_arg",
+            "named": true
+          },
+          {
+            "type": "action_erase_slot",
+            "named": true
+          },
+          {
+            "type": "action_goto_index",
+            "named": true
+          },
+          {
+            "type": "action_goto_label",
+            "named": true
+          },
+          {
+            "type": "action_hide_command",
+            "named": true
+          },
+          {
+            "type": "action_load_map",
+            "named": true
+          },
+          {
+            "type": "action_load_slot",
+            "named": true
+          },
+          {
+            "type": "action_move_over_time",
+            "named": true
+          },
+          {
+            "type": "action_non_blocking_delay",
+            "named": true
+          },
+          {
+            "type": "action_op_equals",
+            "named": true
+          },
+          {
+            "type": "action_pause_script",
+            "named": true
+          },
+          {
+            "type": "action_play_entity_animation",
+            "named": true
+          },
+          {
+            "type": "action_return_statement",
+            "named": true
+          },
+          {
+            "type": "action_run_script",
+            "named": true
+          },
+          {
+            "type": "action_save_slot",
+            "named": true
+          },
+          {
+            "type": "action_set_alias",
+            "named": true
+          },
+          {
+            "type": "action_set_ambiguous",
+            "named": true
+          },
+          {
+            "type": "action_set_bool",
+            "named": true
+          },
+          {
+            "type": "action_set_command",
+            "named": true
+          },
+          {
+            "type": "action_set_command_arg",
+            "named": true
+          },
+          {
+            "type": "action_set_command_fail",
+            "named": true
+          },
+          {
+            "type": "action_set_direction",
+            "named": true
+          },
+          {
+            "type": "action_set_int",
+            "named": true
+          },
+          {
+            "type": "action_set_position",
+            "named": true
+          },
+          {
+            "type": "action_set_script",
+            "named": true
+          },
+          {
+            "type": "action_set_serial_connect",
+            "named": true
+          },
+          {
+            "type": "action_set_warp_state",
+            "named": true
+          },
+          {
+            "type": "action_show_dialog",
+            "named": true
+          },
+          {
+            "type": "action_show_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_unhide_command",
+            "named": true
+          },
+          {
+            "type": "action_unpause_script",
+            "named": true
+          }
+        ]
+      },
+      "initializer": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "action_blocking_delay",
+            "named": true
+          },
+          {
+            "type": "action_camera_fade_in",
+            "named": true
+          },
+          {
+            "type": "action_camera_fade_out",
+            "named": true
+          },
+          {
+            "type": "action_camera_shake",
+            "named": true
+          },
+          {
+            "type": "action_close_dialog",
+            "named": true
+          },
+          {
+            "type": "action_close_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_concat_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_delete_alias",
+            "named": true
+          },
+          {
+            "type": "action_delete_command",
+            "named": true
+          },
+          {
+            "type": "action_delete_command_arg",
+            "named": true
+          },
+          {
+            "type": "action_erase_slot",
+            "named": true
+          },
+          {
+            "type": "action_goto_index",
+            "named": true
+          },
+          {
+            "type": "action_goto_label",
+            "named": true
+          },
+          {
+            "type": "action_hide_command",
+            "named": true
+          },
+          {
+            "type": "action_load_map",
+            "named": true
+          },
+          {
+            "type": "action_load_slot",
+            "named": true
+          },
+          {
+            "type": "action_move_over_time",
+            "named": true
+          },
+          {
+            "type": "action_non_blocking_delay",
+            "named": true
+          },
+          {
+            "type": "action_op_equals",
+            "named": true
+          },
+          {
+            "type": "action_pause_script",
+            "named": true
+          },
+          {
+            "type": "action_play_entity_animation",
+            "named": true
+          },
+          {
+            "type": "action_return_statement",
+            "named": true
+          },
+          {
+            "type": "action_run_script",
+            "named": true
+          },
+          {
+            "type": "action_save_slot",
+            "named": true
+          },
+          {
+            "type": "action_set_alias",
+            "named": true
+          },
+          {
+            "type": "action_set_ambiguous",
+            "named": true
+          },
+          {
+            "type": "action_set_bool",
+            "named": true
+          },
+          {
+            "type": "action_set_command",
+            "named": true
+          },
+          {
+            "type": "action_set_command_arg",
+            "named": true
+          },
+          {
+            "type": "action_set_command_fail",
+            "named": true
+          },
+          {
+            "type": "action_set_direction",
+            "named": true
+          },
+          {
+            "type": "action_set_int",
+            "named": true
+          },
+          {
+            "type": "action_set_position",
+            "named": true
+          },
+          {
+            "type": "action_set_script",
+            "named": true
+          },
+          {
+            "type": "action_set_serial_connect",
+            "named": true
+          },
+          {
+            "type": "action_set_warp_state",
+            "named": true
+          },
+          {
+            "type": "action_show_dialog",
+            "named": true
+          },
+          {
+            "type": "action_show_serial_dialog",
+            "named": true
+          },
+          {
+            "type": "action_unhide_command",
+            "named": true
+          },
+          {
+            "type": "action_unpause_script",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "geometry",
     "named": true,
     "fields": {}
@@ -3880,6 +4248,10 @@
           "named": true
         },
         {
+          "type": "for_block",
+          "named": true
+        },
+        {
           "type": "if_chain",
           "named": true
         },
@@ -4262,6 +4634,10 @@
           "named": true
         },
         {
+          "type": "for_block",
+          "named": true
+        },
+        {
           "type": "if_chain",
           "named": true
         },
@@ -4466,6 +4842,10 @@
         },
         {
           "type": "do_while_block",
+          "named": true
+        },
+        {
+          "type": "for_block",
           "named": true
         },
         {
@@ -5061,6 +5441,10 @@
   },
   {
     "type": "false",
+    "named": false
+  },
+  {
+    "type": "for",
     "named": false
   },
   {

@@ -903,7 +903,7 @@ const actionData = {
 	},
 	action_op_equals: {
 		values: {},
-		captures: [ 'identifier', 'operator', 'rhs' ],
+		captures: [ 'lhs', 'operator', 'rhs' ],
 		detective: [
 			{
 				isMatch: (v) => typeof v.rhs === 'number',

@@ -28,9 +28,11 @@
 
 test {
 	// debug!(goatPartyTerminal)
-	show dialog {
-		PLAYER "Some kinda message"
-	};
+	for (i = 0; i < 10; i += 1) {
+		show serial_dialog {
+			"Counting to $i$!"
+		};
+	}
 	// flagName = player glitched == true;
 	// if (player glitched || debug_mode) {
 	// 	wait 1;

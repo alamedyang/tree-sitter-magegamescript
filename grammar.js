@@ -268,16 +268,16 @@ module.exports = grammar({
 		),
 		script_block: $ => seq('{', repeat($._script_item), '}'),
 		_script_item: $ => choice(
+			seq($._action_item, $.semicolon),
 			$.rand_macro,
 			$.label_definition,
-			seq($._action_item, $.semicolon),
 			$.json_literal,
 			$.debug_macro,
 			$.copy_macro,
 			$.if_chain,
 			$.while_block,
 			$.do_while_block,
-			// $.for_block,
+			$.for_block,
 		),
 
 		json_literal: $ => seq(
@@ -905,17 +905,17 @@ module.exports = grammar({
 			field('condition', $.condition),
 			')'
 		),
-	// 	for_block: $ => seq(
-	// 		'for',
-	// 		'(',
-	// 		$._action_item,
-	// 		$.semicolon,
-	// 		$.bool_expression,
-	// 		$.semicolon,
-	// 		$._action_item,
-	// 		')',
-	// 		alias($.looping_block, $.for_body)
-	// 	),
+		for_block: $ => seq(
+			'for',
+			'(',
+			field('initializer', $._action_item),
+			$.semicolon,
+			field('condition', $.condition),
+			$.semicolon,
+			field('incrementer', $._action_item),
+			')',
+			field('body', $.looping_block),
+		),
 
 		entity_property_int: $ => choice(
 			'x', 'y', 'primary_id', 'secondary_id', 'primary_id_type',
@@ -986,7 +986,4 @@ module.exports = grammar({
 			field('rhs', $._int_expression),
 		),
 	},
-
-
-
 });

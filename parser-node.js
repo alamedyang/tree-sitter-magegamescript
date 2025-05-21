@@ -422,9 +422,9 @@ const nodeFns = {
 	},
 	do_while_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionLabel = `while condition #${n}`;
-		const bodyLabel = `while body #${n}`;
-		const rendezvousLabel = `while rendezvous #${n}`;
+		const conditionLabel = `do while condition #${n}`;
+		const bodyLabel = `do while body #${n}`;
+		const rendezvousLabel = `do while rendezvous #${n}`;
 		const conditionNode = node.childForFieldName('condition').namedChildren[0];
 		const rawCondition = handleCapture(f, conditionNode);
 		const condition = expandCondition(f, conditionNode, rawCondition, bodyLabel)
@@ -450,6 +450,47 @@ const nodeFns = {
 		];
 		return {
 			mathlang: 'do_while_sequence',
+			steps,
+		}
+	},
+	for_block: (f, node) => {
+		const n = f.p.advanceGotoSuffix();
+		const conditionLabel = `for condition #${n}`;
+		const bodyLabel = `for body #${n}`;
+		const rendezvousLabel = `for rendezvous #${n}`;
+		const continueLabel = `for continue #${n}`;
+		const conditionNode = node.childForFieldName('condition').namedChildren[0];
+		const rawCondition = handleCapture(f, conditionNode);
+		const condition = expandCondition(f, conditionNode, rawCondition, bodyLabel)
+		const initializerNode = node.childForFieldName('initializer');
+		const initializer = handleNode(f, initializerNode);
+		const incrementerNode = node.childForFieldName('incrementer');
+		const incrementer = handleNode(f, incrementerNode);
+		const bodyNode = node.childForFieldName('body');
+		const body = handleNode(f, bodyNode).flat()
+			.map(v=>{
+				if (v.mathlang === 'continue_statement') {
+					return gotoLabel(f, node, continueLabel);
+				} else if (v.mathlang === 'break_statement') {
+					return gotoLabel(f, node, rendezvousLabel);
+				} else {
+					return v;
+				}
+			});
+		const steps = [
+			...initializer,
+			label(f, conditionNode, conditionLabel),
+			...condition,
+			gotoLabel(f, node, rendezvousLabel),
+			label(f, node, bodyLabel),
+			...body,
+			label(f, node, continueLabel),
+			...incrementer,
+			gotoLabel(f, node, conditionLabel),
+			label(f, node, rendezvousLabel),
+		];
+		return {
+			mathlang: 'for_sequence',
 			steps,
 		}
 	},
