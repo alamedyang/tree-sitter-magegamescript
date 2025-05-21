@@ -270,10 +270,14 @@ module.exports = grammar({
 		_script_item: $ => choice(
 			$.rand_macro,
 			$.label_definition,
-			$._action_item,
+			seq($._action_item, $.semicolon),
 			$.json_literal,
 			$.debug_macro,
 			$.copy_macro,
+			$.if_chain,
+			$.while_block,
+			$.do_while_block,
+			// $.for_block,
 		),
 
 		json_literal: $ => seq(
@@ -368,26 +372,22 @@ module.exports = grammar({
 			$.action_set_command_fail,
 			$.action_set_command_arg,
 			$.action_set_script,
-			$.if_chain,
-			$.while_block,
-			$.do_while_block,
-			// $.for_block,
 			$.action_op_equals,
 		),
-		action_break_statement: $ => seq('break', $.semicolon), 
-		action_continue_statement: $ => seq('continue', $.semicolon), 
-		action_return_statement: $ => seq('return', $.semicolon), 
-		action_close_dialog: $ => seq('close', 'dialog', $.semicolon),
-		action_close_serial_dialog: $ => seq('close', 'serial_dialog', $.semicolon),
-		action_save_slot: $ => seq('save', 'slot', $.semicolon),
-		action_load_slot: $ => seq('load', 'slot', field('slot', $.number_expandable), $.semicolon),
-		action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable), $.semicolon),
-		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable), $.semicolon),
-		action_run_script: $ => seq('goto', field('script', $.string_expandable), $.semicolon),
-		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable), $.semicolon),
-		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable), $.semicolon),
-		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable), $.semicolon),
-		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable), $.semicolon),
+		action_break_statement: $ => 'break',
+		action_continue_statement: $ => 'continue',
+		action_return_statement: $ => 'return',
+		action_close_dialog: $ => seq('close', 'dialog'),
+		action_close_serial_dialog: $ => seq('close', 'serial_dialog'),
+		action_save_slot: $ => seq('save', 'slot'),
+		action_load_slot: $ => seq('load', 'slot', field('slot', $.number_expandable)),
+		action_erase_slot: $ => seq('erase', 'slot', field('slot', $.number_expandable)),
+		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable)),
+		action_run_script: $ => seq('goto', field('script', $.string_expandable)),
+		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable)),
+		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable)),
+		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable)),
+		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable)),
 
 		action_show_dialog: $ => seq(
 			'show', 'dialog', choice(
@@ -395,7 +395,6 @@ module.exports = grammar({
 				field('dialog_name', $.STRING),
 				$._dialog_block,
 			),
-			$.semicolon
 		),
 		action_show_serial_dialog: $ => seq(
 			'show', 'serial_dialog', choice(
@@ -403,7 +402,6 @@ module.exports = grammar({
 				field('serial_dialog_name', $.STRING),
 				$._serial_dialog_block,
 			),
-			$.semicolon
 		),
 		action_concat_serial_dialog: $ => seq(
 			'concat', 'serial_dialog', choice(
@@ -411,17 +409,16 @@ module.exports = grammar({
 				field('serial_dialog_name', $.STRING),
 				$._serial_dialog_block,
 			),
-			$.semicolon
 		),
 		
-		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable), $.semicolon),
+		action_delete_command: $ => seq('delete', 'command', field('command', $.string_expandable)),
 		action_delete_command_arg: $ => seq(
 			'delete', 'command', field('command', $.string_expandable),
-			'+', field('argument', $.string_expandable), $.semicolon,
+			'+', field('argument', $.string_expandable),
 		),
-		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable), $.semicolon),
-		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable), $.semicolon),
-		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable), $.semicolon),
+		action_delete_alias: $ => seq('delete', 'alias', field('alias', $.string_expandable)),
+		action_hide_command: $ => seq('hide', 'command', field('command', $.string_expandable)),
+		action_unhide_command: $ => seq('unhide', 'command', field('command', $.string_expandable)),
 
 		entity_identifier: $ => choice(
 			field('type', 'player'),
@@ -465,13 +462,11 @@ module.exports = grammar({
 			'pause',
 			field('entity', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
-			$.semicolon
 		),
 		action_unpause_script: $ => seq(
 			'unpause',
 			field('entity', $.entity_or_map_identifier_expandable),
 			field('script', $.string_expandable),
-			$.semicolon
 		),
 
 		action_camera_fade_in: $ => seq(
@@ -479,14 +474,12 @@ module.exports = grammar({
 			field('color', $.color_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			$.semicolon
 		),
 		action_camera_fade_out: $ => seq(
 			'camera', 'fade', 'out', '->',
 			field('color', $.color_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			$.semicolon
 		),
 		
 		action_camera_shake: $ => seq(
@@ -495,7 +488,6 @@ module.exports = grammar({
 			field('distance', $.distance_expandable),
 			'over',
 			field('duration', $.duration_expandable),
-			$.semicolon
 		),
 
 		action_play_entity_animation: $ => seq(
@@ -503,7 +495,6 @@ module.exports = grammar({
 			'animation', '->',
 			field('animation', $.number_expandable),
 			field('count', $.quantity_expandable),
-			$.semicolon
 		),
 
 		geometry_identifier: $ => seq(
@@ -582,7 +573,6 @@ module.exports = grammar({
 			'over',
 			field('duration', $.duration_expandable),
 			optional(field('forever', $.forever)),
-			$.semicolon
 		),
 		
 		assignment_operator: $ => '=',
@@ -590,7 +580,6 @@ module.exports = grammar({
 			field('movable', $.movable_identifier_expandable),
 			$.assignment_operator,
 			field('coordinate', $.coordinate_identifier_expandable),
-			$.semicolon
 		),
 
 		ambiguous_identifier: $ => prec(2, choice(
@@ -619,7 +608,6 @@ module.exports = grammar({
 					$.bool_expression_expandable,
 					$.ambiguous_identifier_expandable,
 				)),
-			$.semicolon
 		),
 
 		identifier: $ => $.string,
@@ -744,7 +732,6 @@ module.exports = grammar({
 			field('lhs', $.bool_setable_expandable), 
 			$.assignment_operator,
 			field('rhs', $.bool_expression_expandable),
-			$.semicolon,
 		),
 		bool_setable: $ => choice(
 			field('type', 'player_control'),
@@ -850,7 +837,6 @@ module.exports = grammar({
 			field('lhs', $.int_setable_expandable), 
 			$.assignment_operator,
 			field('rhs', $.int_expression_expandable),
-			$.semicolon,
 		),
 		int_setable: $ => choice(
 			seq(
@@ -943,27 +929,23 @@ module.exports = grammar({
 			field('warp_state', 'warp_state'), 
 			$.assignment_operator,
 			field('string', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_serial_connect: $ => seq(
 			field('serial_connect', 'serial_connect'), 
 			$.assignment_operator,
 			field('serial_dialog', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_alias: $ => seq(
 			'alias', 
 			field('alias', $.string_expandable),
 			$.assignment_operator,
 			field('command', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_command: $ => seq(
 			'command', 
 			field('command', $.string_expandable),
 			$.assignment_operator,
 			field('script', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_command_fail: $ => seq(
 			'command', 
@@ -971,7 +953,6 @@ module.exports = grammar({
 			'fail',
 			$.assignment_operator,
 			field('script', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_command_arg: $ => seq(
 			'command', 
@@ -980,14 +961,12 @@ module.exports = grammar({
 			field('argument', $.string_expandable),
 			$.assignment_operator,
 			field('script', $.string_expandable),
-			$.semicolon,
 		),
 		action_set_direction: $ => seq(
 			field('entity', $.entity_identifier),
 			'direction',
 			$.assignment_operator,
 			field('target', $.direction_target),
-			$.semicolon,
 		),
 		direction_target: $ => choice(
 			field('entity', $.entity_identifier),
@@ -999,14 +978,12 @@ module.exports = grammar({
 			field('script_slot', $.string_expandable),
 			$.assignment_operator,
 			field('script', $.string_expandable),
-			$.semicolon
 		),
 		op_equals: $ => choice('?=', '+=', '-=', '*=', '/=', '%='),
 		action_op_equals: $ => seq(
 			field('lhs', $.STRING),
 			field('operator', $.op_equals),
 			field('rhs', $._int_expression),
-			$.semicolon,
 		),
 	},
 

@@ -28,19 +28,19 @@
 
 test {
 	// debug!(goatPartyTerminal)
-	// show dialog {
-	// 	PLAYER "Some kinda terminal message"
-	// };
+	show dialog {
+		PLAYER "Some kinda message"
+	};
 	// flagName = player glitched == true;
 	// if (player glitched || debug_mode) {
 	// 	wait 1;
 	// } else {
 	// 	wait 2;
 	// }
-	do {
-		wait 1;
-	} while (debug_mode)
-	wait 2;
+	// do {
+	// 	wait 1;
+	// } while (debug_mode)
+	// wait 2;
 	// while (debug_mode) {
 	// 	wait 3;
 	// }

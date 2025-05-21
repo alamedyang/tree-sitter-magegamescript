@@ -49,6 +49,7 @@ handleActionsInit(handleNode);
 const nodeFns = {
 	line_comment: (f, node) => [],
 	block_comment: (f, node) => [],
+	semicolon: (f, node) => [],
 	ERROR: (f, node) => {
 		const err = {
 			locations: [{ node }],

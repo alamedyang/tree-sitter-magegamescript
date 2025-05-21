@@ -1717,8 +1717,17 @@
           "name": "label_definition"
         },
         {
-          "type": "SYMBOL",
-          "name": "_action_item"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_action_item"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "semicolon"
+            }
+          ]
         },
         {
           "type": "SYMBOL",
@@ -1731,6 +1740,18 @@
         {
           "type": "SYMBOL",
           "name": "copy_macro"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "if_chain"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "while_block"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "do_while_block"
         }
       ]
     },
@@ -2203,60 +2224,21 @@
         },
         {
           "type": "SYMBOL",
-          "name": "if_chain"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "while_block"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "do_while_block"
-        },
-        {
-          "type": "SYMBOL",
           "name": "action_op_equals"
         }
       ]
     },
     "action_break_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "break"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
-        }
-      ]
+      "type": "STRING",
+      "value": "break"
     },
     "action_continue_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "continue"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
-        }
-      ]
+      "type": "STRING",
+      "value": "continue"
     },
     "action_return_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "return"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
-        }
-      ]
+      "type": "STRING",
+      "value": "return"
     },
     "action_close_dialog": {
       "type": "SEQ",
@@ -2268,10 +2250,6 @@
         {
           "type": "STRING",
           "value": "dialog"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2285,10 +2263,6 @@
         {
           "type": "STRING",
           "value": "serial_dialog"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2302,10 +2276,6 @@
         {
           "type": "STRING",
           "value": "slot"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2327,10 +2297,6 @@
             "type": "SYMBOL",
             "name": "number_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2352,10 +2318,6 @@
             "type": "SYMBOL",
             "name": "number_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2377,10 +2339,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2398,10 +2356,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2423,10 +2377,6 @@
             "type": "SYMBOL",
             "name": "bareword_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2448,10 +2398,6 @@
             "type": "SYMBOL",
             "name": "number_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2469,10 +2415,6 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2490,10 +2432,6 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2541,10 +2479,6 @@
               "name": "_dialog_block"
             }
           ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2592,10 +2526,6 @@
               "name": "_serial_dialog_block"
             }
           ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2643,10 +2573,6 @@
               "name": "_serial_dialog_block"
             }
           ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2668,10 +2594,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2705,10 +2627,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2730,10 +2648,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2755,10 +2669,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -2780,10 +2690,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3047,10 +2953,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3076,10 +2978,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3121,10 +3019,6 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3166,10 +3060,6 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3215,10 +3105,6 @@
             "type": "SYMBOL",
             "name": "duration_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3256,10 +3142,6 @@
             "type": "SYMBOL",
             "name": "quantity_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3757,10 +3639,6 @@
               "type": "BLANK"
             }
           ]
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3790,10 +3668,6 @@
             "type": "SYMBOL",
             "name": "coordinate_identifier_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -3920,10 +3794,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -4650,10 +4520,6 @@
             "type": "SYMBOL",
             "name": "bool_expression_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5249,10 +5115,6 @@
             "type": "SYMBOL",
             "name": "int_expression_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5708,10 +5570,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5737,10 +5595,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5770,10 +5624,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5803,10 +5653,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5840,10 +5686,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5885,10 +5727,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5918,10 +5756,6 @@
             "type": "SYMBOL",
             "name": "direction_target"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -5984,10 +5818,6 @@
             "type": "SYMBOL",
             "name": "string_expandable"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     },
@@ -6046,10 +5876,6 @@
             "type": "SYMBOL",
             "name": "_int_expression"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "semicolon"
         }
       ]
     }
