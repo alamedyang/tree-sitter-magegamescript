@@ -6,7 +6,7 @@ const {
 	label,
 	gotoLabel,
 	simpleBranchMaker,
-	newMathSequence,
+	newSequence,
 	newSerialDialog,
 	showSerialDialog,
 	newDialog,
@@ -134,23 +134,26 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 			{ ...lhs, [lhs.boolParamName]: false },
 		)
 	}
-	if (typeof lhs !== 'string') {
-		throw new Error ('edge case?')
-	}
-	const setLhsIfTrue = setFlag(lhs, true);
-	const setLhsIfFalse = setFlag(lhs, false);
+	// if (typeof lhs !== 'string') {
+	// 	throw new Error ('edge case?')
+	// }
+	const setLhsIfTrue = typeof lhs === 'string'
+		? setFlag(lhs, true)
+		: { ...lhs, [lhs.boolParamName]: true };
+	const setLhsIfFalse = typeof lhs === 'string'
+		? setFlag(lhs, false)
+		: { ...lhs, [lhs.boolParamName]: false };
 	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
-	const condition = rhsRaw;
 	const steps = [
-		...expandCondition(f, rhsRaw, condition, ifLabel),
+		...expandCondition(f, rhsRaw.debug, rhsRaw, ifLabel),
 		setLhsIfFalse,
 		gotoLabel(f, rhsRaw.debug, rendezvousLabel),
 		label(f, rhsRaw.debug, ifLabel),
 		setLhsIfTrue,
 		label(f, rhsRaw.debug, rendezvousLabel),
 	];
-	return newMathSequence(f, rhsRaw.debug, steps);
+	return newSequence(f, rhsRaw.debug, steps, 'set_bool');
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
@@ -196,7 +199,7 @@ const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 // - Once spread, the detective identifies the JSON action for each spread item (since they might be different from each toehr)
 // - Adds the final JSON properties required by the encoder
 // - If the result is more than one "step" (for sequences not directly supported by the engine)
-// it will add the action as a "math_sequence", which will need to be expanded later
+// it will add the action as a "sequence", which will need to be expanded later
 // (for a few reasons, the result must be a single "unit" at this stage)
 // TODO: why then return an array?
 const handleAction = (f, node) => { // ->[]
@@ -488,7 +491,7 @@ const actionData = {
 					const steps = makeIntExpression(f, v.rhs);
 					dropTemporary();
 					steps.push(setVarToVar(v.lhs, temporary));
-					return newMathSequence(f, node, steps);
+					return newSequence(f, node, steps, 'set_ambiguous_int');
 				}
 			},
 			{
@@ -536,7 +539,7 @@ const actionData = {
 					const steps = makeIntExpression(f, v.rhs);
 					dropTemporary();
 					steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-					return newMathSequence(f, node, steps);
+					return newSequence(f, node, steps, 'set_ambiguous_int');
 				},
 			},
 		],
@@ -705,7 +708,7 @@ const actionData = {
 						copyVarIntoEntityField(variable, copyFrom, 'y'),
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
-					return newMathSequence(f, node, steps)
+					return newSequence(f, node, steps, 'set_position');
 				},
 			},
 		],
@@ -920,7 +923,7 @@ const actionData = {
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, v.operator))
-					return newMathSequence(f, node, steps);
+					return newSequence(f, node, steps, 'op_equals');
 				},
 			},
 			{
@@ -931,7 +934,7 @@ const actionData = {
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.identifier, temp, v.operator)
 					]
-					return newMathSequence(f, node, steps);
+					return newSequence(f, node, steps, 'op_equals');
 				},
 			},
 			{
@@ -984,11 +987,16 @@ const copyEntityFieldIntoVar = (entity, field, variable) => ({
 	inbound: true,
 	variable,
 });
-const setFlag = (save_flag, bool_value) => ({
-	action: "SET_SAVE_FLAG",
-	bool_value,
-	save_flag,
-});
+const setFlag = (save_flag, bool_value) => {
+	if (typeof bool_value !== 'boolean' || typeof save_flag !== 'string') {
+		throw new Error ('this was (not) forseen')
+	}
+	return {
+		action: "SET_SAVE_FLAG",
+		bool_value,
+		save_flag,
+	};
+};
 const checkFlag = (save_flag, expected_bool) => ({
 	action: 'CHECK_SAVE_FLAG',
 	expected_bool,

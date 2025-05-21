@@ -61,9 +61,9 @@ const autoIdentifierName = (f, node) => {
 const expandCondition = (f, node, condition, ifLabel) => {
 	if (
 		condition.mathlang === 'bool_getable'
-		|| condition.mathlang === 'number_checkable_equality'
-		|| condition.mathlang === 'string_checkable'
 		|| condition.mathlang === 'bool_comparison'
+		|| condition.mathlang === 'string_checkable'
+		|| condition.mathlang === 'number_checkable_equality'
 	) {
 		const action = {
 			...condition,
@@ -105,7 +105,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		return expanded.flat();
 	}
 	if (op === '&&') {
-		// have a separate if else insert?
+		// have a separate if-else insert?
 		// if first one is false goto a rendezvous at the end of the insert
 		// if the second one is false, ditto
 		const innerIfTrueLabel = `if true #${f.p.advanceGotoSuffix()}`;
@@ -186,29 +186,30 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	const steps = [
 		branchAction,
 		...elseBody,
-		{ mathang: 'goto_label', label: rendezvousLabel },
-		{ mathang: 'label_definition', label: ifLabel },
+		{ mathlang: 'goto_label', label: rendezvousLabel },
+		{ mathlang: 'label_definition', label: ifLabel },
 		...ifBody,
-		{ mathang: 'label_definition', label: rendezvousLabel },
+		{ mathlang: 'label_definition', label: rendezvousLabel },
 	];
-	return newMathSequence(f, node, steps);
+	return newSequence(f, node, steps, 'simple_branch');
 };
 
 const label = (f, node, label) => ({
-	mathang: 'label_definition',
+	mathlang: 'label_definition',
 	label,
 	// debug: node,
 	// fileName: f.fileName,
 });
 const gotoLabel = (f, node, label) => ({
-	mathang: 'goto_label',
+	mathlang: 'goto_label',
 	label,
 	// debug: node,
 	// fileName: f.fileName,
 });
 
-const newMathSequence = (f, node, steps) => ({
-	mathlang: 'math_sequence',
+const newSequence = (f, node, steps, type) => ({
+	mathlang: 'sequence',
+	type: type || 'generic_sequence',
 	steps,
 	debug: node,
 	fileName: f.fileName
@@ -241,6 +242,59 @@ const showSerialDialog = (f, node, name, isConcat) => ({
 	fileName: f.fileName
 });
 
+const flattenGotos = (actions) => {
+	// replace labels of k with v; remove label definitions for k
+	const labelDefThenGotoLabel = {}; // Record<string, string>
+	// Index of label definition where there's a goto for that k immediately before
+	const gotoLabelThenLabelDef = {}; // Record<string, number>
+	actions.forEach((action, i)=>{
+		if (action.mathlang === 'label_definition') {
+			const next = actions[i+1];
+			if (next?.mathlang === 'goto_label' && !next.action) {
+				labelDefThenGotoLabel[action.label] = next.label;
+			}
+		} else if (action.mathlang === 'goto_label' && !action.action) {
+			const next = actions[i+1];
+			if (next.mathlang === 'label_definition' && next.label === action.label) {
+				gotoLabelThenLabelDef[action.label] = i;
+			}
+		}
+	});
+	let queue = actions;
+	let processed = [];
+	Object.keys(gotoLabelThenLabelDef).reverse().forEach(k=>{
+		const uses = actions.filter(v=>v.mathlang === "goto_label" && v.label === k);
+		if (uses.length === 1) {
+			const index = gotoLabelThenLabelDef[k];
+			queue.splice(index, 2);
+		}
+	});
+	Object.entries(labelDefThenGotoLabel).forEach(([k, v])=>{
+		for (let i = 0; i < queue.length; i++) {
+			const action = queue[i];
+			if (action.label === k) {
+				if (action.mathlang === 'label_definition') {
+					// do nothing (it dies)
+				} else if (action.mathlang === 'goto_label') {
+					action.label = v;
+					processed.push(action);
+				}
+			} else if (
+				action.label === v
+				&& action.mathlang === 'goto_label'
+				&& !action.action
+			) {
+				// do nothing (it dies)
+			} else {
+				processed.push(action);
+			}
+		}
+		queue = processed;
+		processed = [];
+	});
+	return queue;
+};
+
 module.exports = {
 	verbose,
 	debugLog,
@@ -252,9 +306,10 @@ module.exports = {
 	label,
 	gotoLabel,
 	simpleBranchMaker,
-	newMathSequence,
+	newSequence,
 	newSerialDialog,
 	showSerialDialog,
 	newDialog,
 	showDialog,
+	flattenGotos,
 };

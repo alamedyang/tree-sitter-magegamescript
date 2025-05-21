@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { debugLog } = require('./parser-utilities.js');
+const { translateScript } = require('./parser-to-json.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
 
@@ -89,16 +90,21 @@ parseProject().then((p)=>{
 	console.log('PROJECT', p);
 	console.log('\nSCRIPTS');
 	const entries = Object.entries(p.scripts);
-	entries.forEach(([thingName, values]) => {
-		console.log('   ' + thingName + ' ------------>')
-		console.log(JSON.stringify(
-			values.actions
-				.map(cleanseDebug)
-			,
-			null,
-			'  '
-		));
-	});
+	const printable = entries.map(([scriptName, values])=>{
+		const translated = translateScript(scriptName, values.actions);
+		console.log(translated);
+	}).join('\n\n')
+	console.log(printable);
+	// entries.forEach(([thingName, values]) => {
+	// 	console.log('   ' + thingName + ' ------------>')
+	// 	console.log(JSON.stringify(
+	// 		values.actions
+	// 			.map(cleanseDebug)
+	// 		,
+	// 		null,
+	// 		'  '
+	// 	));
+	// });
 	console.log("breakpoint me")
 });
 

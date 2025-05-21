@@ -379,7 +379,7 @@ const captureFns = {
 			ret.action = 'CHECK_ENTITY_GLITCHED';
 			const entityIdentNode = node.childForFieldName('entity_identifier');
 			const entityTypeNode = entityIdentNode.childForFieldName('type');
-			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
+			ret.entity = extractEntityName(f, entityIdentNode, entityTypeNode);
 		} else if (type === 'intersects') {
 			ret.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 			const entityIdentNode = node.childForFieldName('entity_identifier');

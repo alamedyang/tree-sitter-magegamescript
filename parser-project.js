@@ -1,5 +1,5 @@
 const { ansiTags: ansi } = require('./parser-dialogs.js');
-const { makeMessagePrintable } = require('./parser-utilities.js');
+const { makeMessagePrintable, flattenGotos } = require('./parser-utilities.js');
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
@@ -51,22 +51,20 @@ const makeProjectState = (tsParser, fileMap) => {
 				} else if (node.mathlang === 'serial_dialog_definition') {
 					// (sometimes these are inside a script body)
 					p.addSerialDialog(node, fileName);
-				} else if (
-					node.mathlang === 'math_sequence'
-					|| node.mathlang === 'if_sequence'
-					|| node.mathlang === 'while_sequence'
-					|| node.mathlang === 'do_while_sequence'
-					|| node.mathlang === 'for_sequence'
-				) {
+				} else if (node.mathlang === 'sequence') {
 					node.steps.forEach(step=>finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {
 					// TODO: do this as a separate layer
+				} else if (node.mathlang === 'goto_label') {
+					finalizedActions.push(node);
+				} else if (node.mathlang === 'label_definition') {
+					finalizedActions.push(node);
 				} else {
 					console.error(node);
 					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE! " + node.mathlang)
 				}
 			});
-			data.actions = finalizedActions.flat();
+			data.actions = flattenGotos(finalizedActions.flat());
 			// put it in the project
 			if (!p.scripts[scriptName]) {
 				// if not registered yet, add it

@@ -27,24 +27,15 @@
 // }
 
 test {
-	// debug!(goatPartyTerminal)
-	for (i = 0; i < 10; i += 1) {
-		show serial_dialog {
-			"Counting to $i$!"
-		};
-	}
-	// flagName = player glitched == true;
-	// if (player glitched || debug_mode) {
-	// 	wait 1;
-	// } else {
-	// 	wait 2;
-	// }
-	// do {
-	// 	wait 1;
-	// } while (debug_mode)
-	// wait 2;
-	// while (debug_mode) {
-	// 	wait 3;
-	// }
-	// wait 4;
+	player_control = debug_mode || player glitched;
+}
+// becomes
+test2 {
+	if (debug_mode) { goto label _if_true_1; }
+	if (entity "%PLAYER%" glitched) { goto label _if_true_1; }
+	player_control = false;
+	goto label _rendezvous_2;
+	_if_true_1:
+	player_control = true;
+	_rendezvous_2:
 }
