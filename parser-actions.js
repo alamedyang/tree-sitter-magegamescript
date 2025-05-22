@@ -7,6 +7,7 @@ const {
 	gotoLabel,
 	simpleBranchMaker,
 	newSequence,
+	newComment,
 	newSerialDialog,
 	showSerialDialog,
 	newDialog,
@@ -400,11 +401,11 @@ const actionData = {
 	},
 	action_pause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
-		captures: ['script', 'entity'],
+		captures: ['script_slot', 'entity' ],
 	},
 	action_unpause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
-		captures: ['script', 'entity'],
+		captures: ['script_slot', 'entity' ],
 	},
 	action_play_entity_animation: {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
@@ -420,7 +421,7 @@ const actionData = {
 	},
 	action_set_alias: {
 		values: { action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
-		captures: [ 'command' ]
+		captures: [ 'alias', 'command' ]
 	},
 	action_set_command: {
 		values: {
@@ -702,6 +703,8 @@ const actionData = {
 					&& v.coordinate.type === 'entity',
 				finalizeValues: (v, f, node) => {
 					const variable = quickTemporary();
+					const copyFrom = v.coordinate.value;
+					const copyTo = v.movable.value;
 					const steps = [
 						copyVarIntoEntityField(variable, copyFrom, 'x'),
 						copyEntityFieldIntoVar(copyTo, 'x', variable),
@@ -909,32 +912,90 @@ const actionData = {
 		captures: [ 'lhs', 'operator', 'rhs' ],
 		detective: [
 			{
-				isMatch: (v) => typeof v.rhs === 'number',
+				isMatch: (v) => typeof v.rhs === 'number' && typeof v.lhs === 'string',
 				finalizeValues: (v) => changeVarByValue(v.lhs, v.rhs, v.operator),
 			},
 			{
-				isMatch: (v) => typeof v.rhs === 'string',
+				isMatch: (v) => typeof v.rhs === 'number' && v.lhs.mathlang === 'int_getable',
+				finalizeValues: (v, f, node) => {
+					const temporary = newTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
+						changeVarByValue(temporary, v.rhs, v.operator),
+						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+					];
+					dropTemporary();
+					return newSequence(f, v.debug, steps, 'op_equals_number');
+				},
+			},
+			{
+				isMatch: (v) => typeof v.rhs === 'string' && typeof v.lhs === 'string',
 				finalizeValues: (v) => changeVarByVar(v.lhs, v.rhs, v.operator),
 			},
 			{
-				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression',
+				isMatch: (v) => typeof v.rhs === 'string' && v.lhs.mathlang === 'int_getable',
+				finalizeValues: (v, f, node) => {
+					const temporary = newTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
+						changeVarByVar(temporary, v.rhs, v.operator),
+						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+					];
+					dropTemporary();
+					return newSequence(f, v.debug, steps, 'op_equals_string');
+				},
+			},
+			{
+				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression' && typeof v.lhs === 'string',
 				finalizeValues: (v, f, node) => {
 					const temporary = newTemporary();
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, v.operator))
-					return newSequence(f, node, steps, 'op_equals');
+					return newSequence(f, node, steps, 'op_equals_int_binary_expression');
 				},
 			},
 			{
-				isMatch: (v) => v.rhs.mathlang === 'int_getable',
+				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression' && v.lhs.mathlang === 'int_getable',
+				finalizeValues: (v, f, node) => {
+					const temporary1 = newTemporary();
+					const temporary2 = newTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
+						...flattenIntBinaryExpression(v.rhs, []),
+						changeVarByVar(temporary1, temporary2, v.operator),
+						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+					];
+					dropTemporary();
+					dropTemporary();
+					return newSequence(f, node, steps, 'op_equals_int_binary_expression');
+				},
+			},
+			{
+				isMatch: (v) => v.rhs.mathlang === 'int_getable' && typeof v.lhs === 'string',
 				finalizeValues: (v, f, node) => {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.identifier, temp, v.operator)
 					]
-					return newSequence(f, node, steps, 'op_equals');
+					return newSequence(f, node, steps, 'op_equals_int_getable');
+				},
+			},
+			{
+				isMatch: (v) => v.rhs.mathlang === 'int_getable' && v.lhs.mathlang === 'int_getable',
+				finalizeValues: (v, f, node) => {
+					const temporary1 = newTemporary();
+					const temporary2 = newTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
+						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temporary2),
+						changeVarByVar(temporary1, temporary2, v.operator),
+						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+					];
+					dropTemporary();
+					dropTemporary();
+					return newSequence(f, node, steps, 'op_equals_int_getable');
 				},
 			},
 			{
@@ -963,13 +1024,13 @@ const setVarToVar = (variable, source) => ({
 });
 const changeVarByValue = (variable, value, op) => ({
 	action: 'MUTATE_VARIABLE',
-	operation: opIntoStringMap[op],
+	operation: opIntoStringMap[op] || op,
 	value,
 	variable,
 });
 const changeVarByVar = (variable, source, op) => ({
 	action: 'MUTATE_VARIABLES',
-	operation: opIntoStringMap[op],
+	operation: opIntoStringMap[op] || op,
 	source,
 	variable,
 });

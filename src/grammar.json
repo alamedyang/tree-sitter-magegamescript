@@ -2952,7 +2952,7 @@
         },
         {
           "type": "FIELD",
-          "name": "script",
+          "name": "script_slot",
           "content": {
             "type": "SYMBOL",
             "name": "string_expandable"
@@ -2977,7 +2977,7 @@
         },
         {
           "type": "FIELD",
-          "name": "script",
+          "name": "script_slot",
           "content": {
             "type": "SYMBOL",
             "name": "string_expandable"
@@ -5912,33 +5912,46 @@
       ]
     },
     "action_op_equals": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "FIELD",
-          "name": "lhs",
-          "content": {
-            "type": "SYMBOL",
-            "name": "STRING"
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "lhs",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "STRING"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "int_setable_expandable"
+                }
+              ]
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "operator",
+            "content": {
+              "type": "SYMBOL",
+              "name": "op_equals"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "rhs",
+            "content": {
+              "type": "SYMBOL",
+              "name": "int_expression_expandable"
+            }
           }
-        },
-        {
-          "type": "FIELD",
-          "name": "operator",
-          "content": {
-            "type": "SYMBOL",
-            "name": "op_equals"
-          }
-        },
-        {
-          "type": "FIELD",
-          "name": "rhs",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_int_expression"
-          }
-        }
-      ]
+        ]
+      }
     }
   },
   "extras": [

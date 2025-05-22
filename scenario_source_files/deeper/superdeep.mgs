@@ -19,23 +19,13 @@
 
 // $trombones = 76;
 // simple {
-// 	if (true) {
-// 		wait 1;
+// 	if (player type == "goat") {
+// 		goatCount += 7;
 // 	} else {
 // 		wait 2;
 // 	}
 // }
+intExpressions {
+	player x += player y + 10;
+}
 
-test {
-	player_control = debug_mode || player glitched;
-}
-// becomes
-test2 {
-	if (debug_mode) { goto label _if_true_1; }
-	if (entity "%PLAYER%" glitched) { goto label _if_true_1; }
-	player_control = false;
-	goto label _rendezvous_2;
-	_if_true_1:
-	player_control = true;
-	_rendezvous_2:
-}

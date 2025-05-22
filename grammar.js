@@ -461,12 +461,12 @@ module.exports = grammar({
 		action_pause_script: $ => seq(
 			'pause',
 			field('entity', $.entity_or_map_identifier_expandable),
-			field('script', $.string_expandable),
+			field('script_slot', $.string_expandable),
 		),
 		action_unpause_script: $ => seq(
 			'unpause',
 			field('entity', $.entity_or_map_identifier_expandable),
-			field('script', $.string_expandable),
+			field('script_slot', $.string_expandable),
 		),
 
 		action_camera_fade_in: $ => seq(
@@ -980,10 +980,10 @@ module.exports = grammar({
 			field('script', $.string_expandable),
 		),
 		op_equals: $ => choice('?=', '+=', '-=', '*=', '/=', '%='),
-		action_op_equals: $ => seq(
-			field('lhs', $.STRING),
+		action_op_equals: $ => prec(1, seq(
+			field('lhs', choice($.STRING, $.int_setable_expandable)),
 			field('operator', $.op_equals),
-			field('rhs', $._int_expression),
-		),
+			field('rhs', $.int_expression_expandable),
+		)),
 	},
 });

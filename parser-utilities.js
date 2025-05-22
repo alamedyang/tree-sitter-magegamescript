@@ -1,4 +1,4 @@
-let verbose = true;
+let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
 const reportMissingChildNodes = (f, node) => {
@@ -83,13 +83,24 @@ const expandCondition = (f, node, condition, ifLabel) => {
 	} else if (condition === false) {
 		return [];
 	}
+	if (typeof condition === 'string') {
+		return [{
+			action: "CHECK_SAVE_FLAG",
+			expected_bool: true,
+			save_flag: condition,
+			label: ifLabel,
+			mathlang: 'goto_label',
+		}];
+	}
 	if (condition.mathlang === 'check_save_flag') {
 		const expected_bool = !condition.invert;
-		return {
+		return [{
 			action: "CHECK_SAVE_FLAG",
 			expected_bool,
 			save_flag: condition.value,
-		}
+			label: ifLabel,
+			mathlang: 'goto_label',
+		}]
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
 		throw new Error("not yet implemented")
@@ -206,14 +217,19 @@ const gotoLabel = (f, node, label) => ({
 	// debug: node,
 	// fileName: f.fileName,
 });
-
-const newSequence = (f, node, steps, type) => ({
-	mathlang: 'sequence',
-	type: type || 'generic_sequence',
-	steps,
-	debug: node,
-	fileName: f.fileName
-});
+const newComment = (comment) => ({ mathlang: 'comment', comment });
+const newSequence = (f, node, steps, _type) => {
+	const type = _type || 'generic_sequence';
+	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
+	steps.unshift(newComment(`${type}: ${comment}`));
+	return {
+		mathlang: 'sequence',
+		type,
+		steps,
+		debug: node,
+		fileName: f.fileName
+	};
+};
 const newDialog = (f, node, dialogName, dialogs) => ({
 	mathlang: 'dialog_definition',
 	dialogName,
@@ -266,7 +282,12 @@ const flattenGotos = (actions) => {
 		const uses = actions.filter(v=>v.mathlang === "goto_label" && v.label === k);
 		if (uses.length === 1) {
 			const index = gotoLabelThenLabelDef[k];
-			queue.splice(index, 2);
+			const cut = queue.splice(index, 2);
+			debugLog('reduced goto: ', JSON.stringify(cut));
+		} else {
+			const index = gotoLabelThenLabelDef[k];
+			const cut = queue.splice(index, 1);
+			debugLog('reduced goto: ', JSON.stringify(cut));
 		}
 	});
 	Object.entries(labelDefThenGotoLabel).forEach(([k, v])=>{
@@ -307,6 +328,7 @@ module.exports = {
 	gotoLabel,
 	simpleBranchMaker,
 	newSequence,
+	newComment,
 	newSerialDialog,
 	showSerialDialog,
 	newDialog,

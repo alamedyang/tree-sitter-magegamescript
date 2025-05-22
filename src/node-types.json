@@ -641,6 +641,14 @@
           {
             "type": "QUOTED_STRING",
             "named": true
+          },
+          {
+            "type": "int_setable",
+            "named": true
+          },
+          {
+            "type": "int_setable_expansion",
+            "named": true
           }
         ]
       },
@@ -679,6 +687,10 @@
             "named": true
           },
           {
+            "type": "int_expression_expansion",
+            "named": true
+          },
+          {
             "type": "int_getable",
             "named": true
           },
@@ -708,7 +720,7 @@
           }
         ]
       },
-      "script": {
+      "script_slot": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1691,7 +1703,7 @@
           }
         ]
       },
-      "script": {
+      "script_slot": {
         "multiple": false,
         "required": true,
         "types": [
