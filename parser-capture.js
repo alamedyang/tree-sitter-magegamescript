@@ -431,7 +431,7 @@ const captureFns = {
 			} else if (property === 'on_interact') {
 				ret.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
 				ret.stringLabel = 'expected_script';
-			} else if (property === 'on_interact') {
+			} else if (property === 'name') {
 				ret.action = 'CHECK_ENTITY_NAME';
 				ret.stringLabel = 'string';
 			} else if (property === 'path') {

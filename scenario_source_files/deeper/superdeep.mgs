@@ -25,7 +25,7 @@
 // 		wait 2;
 // 	}
 // }
-intExpressions {
-	player x += player y + 10;
-}
+// intExpressions {
+// 	player x += player y + 10;
+// }
 
