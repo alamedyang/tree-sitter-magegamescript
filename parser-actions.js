@@ -471,7 +471,7 @@ const actionData = {
 					f.newWarning({
 						locations: printNodes.map(v => ({ node: v })),
 						message: 'these identifiers could be ints or bools',
-						footer: `Both identifiers will be interpreted as ints unless you coerse the right-hand side to a bool expression, like this:\n`
+						footer: `Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:\n`
 							+ `    !!${suggestion}`,
 					});
 					return setVarToVar(v.lhs, v.rhs);
@@ -562,6 +562,7 @@ const actionData = {
 						ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
 						ret.relative_direction = v.rhs;
 					} 
+					return ret;
 				}
 			},
 			{

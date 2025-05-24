@@ -348,7 +348,7 @@ const nodeFns = {
 		const nameNode = node.namedChildren[0];
 		return [{
 			mathlang: 'copy_script',
-			name: handleCapture(f, nameNode),
+			script: handleCapture(f, nameNode),
 			debug: node,
 			fileName: f.fileName,
 		}]

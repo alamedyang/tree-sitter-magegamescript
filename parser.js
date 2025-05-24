@@ -18,7 +18,6 @@ const makeMap = path => {
 	)) {
 		if (file.name === '.DS_Store') continue;
 		let filePath = `${path}/${file.name}`
-
 		if (file.isDirectory()) {
 			map = {
 				...map,
@@ -78,6 +77,9 @@ const parseProject = async () => {
 
 	// check whether multiple registrations have been made for anything global
 	p.detectDuplicates();
+
+	// copyscript - TODO: check for recursion?
+	p.copyScriptAll();
 
 	// print error messages
 	p.printProblems();

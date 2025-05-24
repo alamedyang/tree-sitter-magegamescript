@@ -629,12 +629,12 @@ const captureFns = {
 		}
 	},
 };
+
 const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
 	direction: nsewNode.text,
 	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
 });
-
 const compareString = (f, checkableNode, stringNode) => {
 	const checkable = handleCapture(f, checkableNode);
 	const string = handleCapture(f, stringNode);
@@ -651,7 +651,6 @@ const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 		[checkable.numberLabel]: number,
 	}
 };
-
 const extractEntityName = (f, node, _typeNode) => {
 	const typeNode = _typeNode || node.childForFieldName('type');
 	const type = typeNode.text;

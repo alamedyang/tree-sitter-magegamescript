@@ -54,10 +54,9 @@ const makeProjectState = (tsParser, fileMap) => {
 				} else if (node.mathlang === 'sequence') {
 					node.steps.forEach(step=>finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {
-					// TODO: do this as a separate layer
-				} else if (node.mathlang === 'goto_label') {
 					finalizedActions.push(node);
-				} else if (node.mathlang === 'label_definition') {
+					// TODO: do this as a separate layer
+				} else if (node.mathlang.includes('label')) {
 					finalizedActions.push(node);
 				} else {
 					console.error(node);
@@ -116,6 +115,41 @@ const makeProjectState = (tsParser, fileMap) => {
 						});
 					}
 				});
+			});
+		},
+		copyScriptOne: (scriptName) => {
+			const finalActions = [];
+			const scriptData = p.scripts[scriptName];
+			scriptData.actions.forEach(action=>{
+				if (action.mathlang !== 'copy_script') {
+					finalActions.push(action);
+					return;
+				}
+				if (!p.scripts[action.script].copyScriptResolved) {
+					p.copyScriptOne(action.script);
+				}
+				const labelSuffix = 'c' + p.advanceGotoSuffix();
+				const copiedInsert = p.scripts[action.script].actions;
+				finalActions.push(...copiedInsert.map(insert=>{
+					if (insert.mathlang?.includes('label')) {
+						const newInsert = {};
+						Object.entries(insert).forEach(([k, v])=>{
+							newInsert[k] = v;
+						})
+						newInsert.label += labelSuffix;
+						return newInsert;
+					}
+					return insert;
+				}));
+			});
+			p.scripts[scriptName].copyScriptResolved = true;
+			p.scripts[scriptName].actions = finalActions;
+		},
+		copyScriptAll: () => {
+			Object.keys(p.scripts).forEach(scriptName=>{
+				if (!p.scripts[scriptName].copyScriptDone) {
+					p.copyScriptOne(scriptName);
+				}
 			});
 		},
 

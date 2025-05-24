@@ -70,7 +70,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			expected_bool: condition.expected_bool === undefined
 				? true
 				: condition.expected_bool,
-			mathlang: 'goto_label',
+			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
 		}
 		if (action.invert) {
@@ -89,7 +89,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			expected_bool: true,
 			save_flag: condition,
 			label: ifLabel,
-			mathlang: 'goto_label',
+			mathlang: 'if_branch_goto_label',
 		}];
 	}
 	if (condition.mathlang === 'check_save_flag') {
@@ -99,7 +99,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			expected_bool,
 			save_flag: condition.value,
 			label: ifLabel,
-			mathlang: 'goto_label',
+			mathlang: 'if_branch_goto_label',
 		}]
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
@@ -266,10 +266,10 @@ const flattenGotos = (actions) => {
 	actions.forEach((action, i)=>{
 		if (action.mathlang === 'label_definition') {
 			const next = actions[i+1];
-			if (next?.mathlang === 'goto_label' && !next.action) {
+			if (next?.mathlang === 'goto_label') {
 				labelDefThenGotoLabel[action.label] = next.label;
 			}
-		} else if (action.mathlang === 'goto_label' && !action.action) {
+		} else if (action.mathlang === 'goto_label') {
 			const next = actions[i+1];
 			if (next.mathlang === 'label_definition' && next.label === action.label) {
 				gotoLabelThenLabelDef[action.label] = i;
@@ -303,7 +303,6 @@ const flattenGotos = (actions) => {
 			} else if (
 				action.label === v
 				&& action.mathlang === 'goto_label'
-				&& !action.action
 			) {
 				// do nothing (it dies)
 			} else {

@@ -29,7 +29,7 @@ const sanitizeLabel = label => {
 };
 
 const validateGoto = (data) => {
-	if (data.mathlang === 'goto_label' || data.mathlang === 'bool_getable') {
+	if (data.mathlang.includes('goto_label') || data.mathlang === 'bool_getable') {
 		if (!data.label || typeof data.label !== 'string') {
 			throw new Error ('Goto not a label jump?', data);
 		}
@@ -268,6 +268,7 @@ const actions = {
 }
 
 const mathlang = {
+	if_branch_goto_label: (data) => `${validateGoto(data)};`,
 	goto_label: (data) => `${validateGoto(data)};`,
 	label_definition: (data) => `${sanitizeLabel(data.label)}:`,
 }

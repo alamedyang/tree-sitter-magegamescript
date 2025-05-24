@@ -1,4 +1,4 @@
-include "header.mgs";
+// include "header.mgs";
 // dialog goatTalk {
 // 	PLAYER
 // 	wrap 20
@@ -36,3 +36,19 @@ include "header.mgs";
 // 		"WOOT"
 // 	};
 // }
+
+copyMe {
+	show dialog { PLAYER "Hi there" }
+	if (debug_mode) {
+		player x = 0;
+	}
+}
+
+willCopyThatOne {
+	show dialog { Bob "Who goes there?" }
+	wait 20;
+	copy!(copyMe)
+	wait 100;
+	copy!(copyMe)
+	wait 10000;
+}
