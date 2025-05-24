@@ -2,7 +2,7 @@ let indent = '  ';
 
 const translateOne = (data) => {
 	if (data.mathlang === 'comment') {
-		return `// ${data.comment}`;
+		return `\n${indent}// ${data.comment}\n`;
 	}
 	if (data.action) {
 		const fn = actions[data.action];
@@ -18,7 +18,7 @@ const translateOne = (data) => {
 		return `// ERROR: ${data.debug.text.replace(/[\t\n\s]+/g, ' ')}`
 	}
 	throw new Error ('Fn needed for ???')
-}
+};
 
 const sanitizeLabel = label => {
 	if (label.includes(' ')) {
@@ -26,10 +26,10 @@ const sanitizeLabel = label => {
 	} else {
 		return '_'+label;
 	}
-}
+};
 
 const validateGoto = (data) => {
-	if (data.mathlang === 'goto_label') {
+	if (data.mathlang === 'goto_label' || data.mathlang === 'bool_getable') {
 		if (!data.label || typeof data.label !== 'string') {
 			throw new Error ('Goto not a label jump?', data);
 		}
@@ -39,18 +39,18 @@ const validateGoto = (data) => {
 		throw new Error ('Goto not a index jump?', data);
 	}
 	return `goto index ${data.jump_index}`;
-}
+};
 const setBool = (data, lhs) => {
-	const param = data.boolParamName || 'expected_bool';
+	const param = data.boolParamName || 'bool_value';
 	return `${lhs} = ${data[param]};`
-}
+};
 
 const check = (data, lhs, smartInvert) => {
 	const param = data.boolParamName || 'expected_bool';
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = validateGoto(data);
 	return `if (${bang}${lhs}) { ${goto}; }`;
-}
+};
 
 const printEntity = (entity) => {
 	if (entity === '%PLAYER%') return 'player';
@@ -58,7 +58,7 @@ const printEntity = (entity) => {
 	if (entity === '%MAP%') return 'map';
 	if (entity === '%CAMERA%') return 'camera';
 	return `entity "${entity}"`;
-}
+};
 const printDuration = (duration) => duration + 'ms';
 const printGeometry = (geometry) => `geometry "${geometry}"`;
 const opIntoStringMap = {
@@ -77,7 +77,7 @@ const stringIntoOpMap = {
 	DIV: '/',
 	MOD: '%',
 	RNG: '?',
-	SET: ':',
+	SET: '',
 };
 const actions = {
 	// Branch on bool equality (==)
@@ -85,8 +85,8 @@ const actions = {
 	CHECK_SERIAL_DIALOG_OPEN: (v) => check(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`, true),
 	CHECK_DIALOG_OPEN: (v) => check(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`, true),
 	CHECK_SAVE_FLAG: (v) => check(v, v.save_flag, true),
-	CHECK_FOR_BUTTON_PRESS: (v) => check(v, `buttom ${v.button} pressed`, true),
-	CHECK_FOR_BUTTON_STATE: (v) => check(v, `buttom ${v.button} ${v.expected_bool ? 'down' : 'up'}`, true),
+	CHECK_FOR_BUTTON_PRESS: (v) => check(v, `button ${v.value} pressed`, true),
+	CHECK_FOR_BUTTON_STATE: (v) => check(v, `button ${v.value} ${v.expected_bool ? 'up' : 'down'}`, true),
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v) => check(v, `${printEntity(v.entity)} intersects ${printGeometry(v.geometry)}`, true),
 	CHECK_ENTITY_GLITCHED: (v) => check(v, `${printEntity(v.entity)} glitched`, true),
 	
@@ -123,8 +123,8 @@ const actions = {
 	},
 	CHECK_ENTITY_CURRENT_FRAME: (v) => {
 		return v.expected_bool
-			? check(v, `${printEntity(v.entity)} primary_id == ${v.expected_byte}`)
-			: check(v, `${printEntity(v.entity)} primary_id != ${v.expected_byte}`);
+			? check(v, `${printEntity(v.entity)} animation_frame == ${v.expected_byte}`)
+			: check(v, `${printEntity(v.entity)} animation_frame != ${v.expected_byte}`);
 	},
 	
 	// Branch on int comparison (== < <= => >)
@@ -184,7 +184,7 @@ const actions = {
 	SET_SERIAL_DIALOG_CONTROL: (v) => setBool(v, `serial_control`),
 	SET_PLAYER_CONTROL: (v) => setBool(v, `player_control`),
 	SET_LIGHTS_CONTROL: (v) => setBool(v, `lights_control`),
-	SET_LIGHTS_STATE: (v) => setBool(v, `light ${v.light}`),
+	SET_LIGHTS_STATE: (v) => setBool(v, `light ${v.value}`),
 	SET_ENTITY_GLITCHED: (v) => setBool(v, `${printEntity(v.entity)} glitched`),
 
 	// Set int (expressions OK)
@@ -264,7 +264,7 @@ const actions = {
 	SET_SCRIPT_PAUSE: (v) => `${v.bool_value ? '' : 'un'}pause ${printEntity(v.entity)} ${v.script_slot};`,
 	GOTO_ACTION_INDEX: (v) => `goto index ${v.action_index};`,
 	RUN_SCRIPT: (v) => `goto ${v.script};`,
-	COPY_SCRIPT: (v) => `copy!(${v.scriptName})`
+	COPY_SCRIPT: (v) => `copy!(${v.scriptName})`,
 }
 
 const mathlang = {

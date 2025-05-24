@@ -154,7 +154,7 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 		setLhsIfTrue,
 		label(f, rhsRaw.debug, rendezvousLabel),
 	];
-	return newSequence(f, rhsRaw.debug, steps, 'set_bool');
+	return newSequence(f, rhsRaw.debug, steps, 'set bool on');
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
@@ -461,11 +461,11 @@ const actionData = {
 					// `i` is from the caller, who knows which one we're looking at now.
 					// Basically, the whole spread might not be ambiguous, so we need to report
 					// only once the action is identified (with isMatch()), not all the time.
-					const lhsNode = node.childForFieldName('lhs').namedChildren?.[i];
-					const rhsNode = node.childForFieldName('rhs').namedChildren?.[i];
+					const lhsNode = node.childForFieldName('lhs').namedChildren?.[i] || node.childForFieldName('lhs');
+					const rhsNode = node.childForFieldName('rhs').namedChildren?.[i] || node.childForFieldName('rhs');
 					// These are the nodes that will get squigglies
 					const printNodes = [lhsNode, rhsNode];
-					const suggestion = rhsNode.text.includes(' ')
+					const suggestion = v.rhs.includes(' ')
 						? '"' + ident + '"'
 						: ident;
 					f.newWarning({
@@ -483,6 +483,12 @@ const actionData = {
 			},
 			{
 				isMatch: (v, f, node) => {
+					return node.childForFieldName('rhs').grammarType === 'int_getable';
+				},
+				finalizeValues: (v) => copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs),
+			},
+			{
+				isMatch: (v, f, node) => {
 					return node.childForFieldName('rhs')
 						.grammarType
 						.includes('int');
@@ -492,11 +498,11 @@ const actionData = {
 					const steps = makeIntExpression(f, v.rhs);
 					dropTemporary();
 					steps.push(setVarToVar(v.lhs, temporary));
-					return newSequence(f, node, steps, 'set_ambiguous_int');
+					return newSequence(f, node, steps, 'set int (ambiguous lhs)');
 				}
 			},
 			{
-				isMatch: (v) => typeof v.rhs === 'bool',
+				isMatch: (v) => typeof v.rhs === 'boolean',
 				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
 			},
 			{
@@ -526,7 +532,41 @@ const actionData = {
 		detective: [
 			{
 				isMatch: (v) => typeof v.rhs === 'number',
-				finalizeValues: (v) => copyVarIntoEntityField(
+				finalizeValues: (v) => {
+					const ret = { entity: v.lhs.entity };
+					if (v.lhs.field === 'x') {
+						ret.action = 'SET_ENTITY_X';
+						ret.u2_value = v.rhs;
+					} else if (v.lhs.field === 'y') {
+						ret.action = 'SET_ENTITY_Y';
+						ret.u2_value = v.rhs;
+					} else if (v.lhs.field === 'primary_id') {
+						ret.action = 'SET_ENTITY_PRIMARY_ID';
+						ret.u2_value = v.rhs;
+					} else if (v.lhs.field === 'secondary_id') {
+						ret.action = 'SET_ENTITY_SECONDARY_ID';
+						ret.u2_value = v.rhs;
+					} else if (v.lhs.field === 'primary_id_type') {
+						ret.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
+						ret.byte_value = v.rhs;
+					} else if (v.lhs.field === 'current_animation') {
+						ret.action = 'SET_ENTITY_CURRENT_ANIMATION';
+						ret.u2_value = v.rhs;
+					} else if (v.lhs.field === 'animation_frame') {
+						ret.action = 'SET_ENTITY_CURRENT_FRAME';
+						ret.byte_value = v.rhs;
+					} else if (v.lhs.field === 'strafe') {
+						ret.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
+						ret.relative_direction = v.rhs;
+					} else if (v.lhs.field === 'relative_direction') {
+						ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
+						ret.relative_direction = v.rhs;
+					} 
+				}
+			},
+			{
+				isMatch: (v) => typeof v.rhs === 'string',
+				finalizeValues: (v, f, node) => copyVarIntoEntityField(
 					v.rhs, v.lhs.entity, v.lhs.field
 				),
 			},
@@ -540,7 +580,7 @@ const actionData = {
 					const steps = makeIntExpression(f, v.rhs);
 					dropTemporary();
 					steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-					return newSequence(f, node, steps, 'set_ambiguous_int');
+					return newSequence(f, node, steps, 'set int');
 				},
 			},
 		],
@@ -711,7 +751,7 @@ const actionData = {
 						copyVarIntoEntityField(variable, copyFrom, 'y'),
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
-					return newSequence(f, node, steps, 'set_position');
+					return newSequence(f, node, steps, 'set position');
 				},
 			},
 		],
@@ -925,7 +965,7 @@ const actionData = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, v.debug, steps, 'op_equals_number');
+					return newSequence(f, v.debug, steps, 'set op-equals with number');
 				},
 			},
 			{
@@ -942,7 +982,7 @@ const actionData = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, v.debug, steps, 'op_equals_string');
+					return newSequence(f, v.debug, steps, 'set op-equals with string (identifier)');
 				},
 			},
 			{
@@ -952,7 +992,7 @@ const actionData = {
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, v.operator))
-					return newSequence(f, node, steps, 'op_equals_int_binary_expression');
+					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				},
 			},
 			{
@@ -968,7 +1008,7 @@ const actionData = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(f, node, steps, 'op_equals_int_binary_expression');
+					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				},
 			},
 			{
@@ -979,7 +1019,7 @@ const actionData = {
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.identifier, temp, v.operator)
 					]
-					return newSequence(f, node, steps, 'op_equals_int_getable');
+					return newSequence(f, node, steps, 'set op-equals with int getable');
 				},
 			},
 			{
@@ -995,7 +1035,7 @@ const actionData = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(f, node, steps, 'op_equals_int_getable');
+					return newSequence(f, node, steps, 'set op-equals with int getable');
 				},
 			},
 			{

@@ -214,8 +214,7 @@ const nodeFns = {
 	},
 	add_serial_dialog_settings: (f, node) => {
 		const parameters = node.namedChildren
-			.map(child=>handleNode(f, child))
-			.flat();
+			.map(child=>handleCapture(f, child));
 		parameters.forEach(param=>{
 			f.settings.serial[param.property] = param.value;
 		})
@@ -414,7 +413,7 @@ const nodeFns = {
 			gotoLabel(f, node, conditionLabel),
 			label(f, node, rendezvousLabel),
 		];
-		return newSequence(f, node, steps, 'while_sequence');
+		return newSequence(f, node, steps, 'while sequence');
 	},
 	do_while_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
@@ -441,7 +440,7 @@ const nodeFns = {
 			...expandCondition(f, conditionNode, rawCondition, bodyLabel),
 			label(f, node, rendezvousLabel),
 		];
-		return newSequence(f, node, steps, 'do_while_sequence');
+		return newSequence(f, node, steps, 'do-while sequence');
 	},
 	for_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
@@ -472,7 +471,7 @@ const nodeFns = {
 			gotoLabel(f, node, conditionLabel),
 			label(f, node, rendezvousLabel),
 		];
-		return newSequence(f, node, steps, 'for_sequence');
+		return newSequence(f, node, steps, 'for sequence');
 	},
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');
@@ -503,11 +502,12 @@ const nodeFns = {
 		if (elzeNode) {
 			steps.push(
 				...elzeNode.lastChild.namedChildren.map(v=>handleNode(f, v)).flat(),
-				gotoLabel(f, node, rendezvousLabel),
+				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
+		steps.push(gotoLabel(f, node, rendezvousLabel));
 		const combined = steps.concat(bottomSteps);
-		return newSequence(f, node, combined, 'if_sequence');
+		return newSequence(f, node, combined, 'if sequence');
 	},
 };
 

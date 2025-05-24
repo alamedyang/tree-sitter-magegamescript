@@ -95,17 +95,6 @@ parseProject().then((p)=>{
 		console.log(translated);
 	}).join('\n\n')
 	console.log(printable);
-	// entries.forEach(([thingName, values]) => {
-	// 	console.log('   ' + thingName + ' ------------>')
-	// 	console.log(JSON.stringify(
-	// 		values.actions
-	// 			.map(cleanseDebug)
-	// 		,
-	// 		null,
-	// 		'  '
-	// 	));
-	// });
-	console.log("breakpoint me")
 });
 
 // Strips debug info from items so JSON.stringify() isn't monstrously long

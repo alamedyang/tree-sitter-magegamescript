@@ -5104,24 +5104,6 @@
             "named": false
           }
         ]
-      },
-      "warp_state": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "BAREWORD",
-            "named": true
-          },
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
-            "type": "QUOTED_STRING",
-            "named": true
-          }
-        ]
       }
     }
   },

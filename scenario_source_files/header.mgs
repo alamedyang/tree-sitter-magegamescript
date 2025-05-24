@@ -1,5 +1,3 @@
-$trombones = 76;
-
 add dialog settings {
 	label PLAYER {
 		entity "%PLAYER%"

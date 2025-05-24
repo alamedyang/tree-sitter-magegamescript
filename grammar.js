@@ -51,7 +51,7 @@ module.exports = grammar({
 		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
 		line_comment: $ => token(repeat1(seq('//', repeat(/[^\n]/)))),
 	
-		BOOL: $ => token(prec(1,/true|false|on|off|open|closed/)),
+		BOOL: $ => token(prec(1, /true|false|on|off|open|closed|up|down/)),
 		BAREWORD: $ => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
 		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
@@ -228,11 +228,11 @@ module.exports = grammar({
 			repeat(field('dialog_option', $.dialog_option)),
 		),
 		dialog_identifier: $ => choice(
-			field('label', $.BAREWORD),
 			seq(
 				field('type', choice('entity', 'name')),
 				field('value', $.STRING)
 			),
+			field('label', $.BAREWORD),
 		),
 		dialog_option: $ => seq(
 			'>',
@@ -725,7 +725,7 @@ module.exports = grammar({
 				field('entity_identifier', $.entity_identifier),
 				field('property', $.entity_property_string)
 			),
-			seq(field('type', 'warp_state'), field('warp_state', $.string))
+			field('type', 'warp_state')
 		),
 
 		action_set_bool: $ => seq(

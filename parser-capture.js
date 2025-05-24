@@ -57,6 +57,8 @@ const captureFns = {
 		if (text === 'off') return false;
 		if (text === 'open') return true;
 		if (text === 'closed') return false;
+		if (text === 'down') return true;
+		if (text === 'up') return false;
 	},
 	BAREWORD: (f, node) => node.text,
 	QUOTED_STRING: (f, node) => node.text.slice(1, -1),
@@ -147,10 +149,12 @@ const captureFns = {
 			value = valueNode
 				? handleCapture(f, valueNode)
 				: 'MALFORMED ENTITY IDENTIFIER';
-			f.newError({
-				locations: [{ node }],
-				message: `dialog identifier lacks a value`,
-			});
+			if (!valueNode) {
+				f.newError({
+					locations: [{ node }],
+					message: `dialog identifier lacks a value`,
+				});
+			}
 		}
 		return {
 			mathlang: 'dialog_identifier',
@@ -392,7 +396,7 @@ const captureFns = {
 				? 'CHECK_DIALOG_OPEN'
 				: 'CHECK_SERIAL_DIALOG_OPEN';
 			const valueNode = node.childForFieldName('value')
-			ret.value = handleCapture(f, valueNode);
+			ret.value = valueNode.text;
 		} else if (type === 'button') {
 			ret.value = node.childForFieldName('button').text;
 			const stateNode = node.childForFieldName('state');
@@ -441,6 +445,7 @@ const captureFns = {
 			const type = node.childForFieldName('type');
 			if (type.text === 'warp_state') {
 				ret.action = 'CHECK_WARP_STATE';
+				ret.stringLabel = 'string';
 			} else {
 				throw new Error (`this shouldn't happen`)
 			}
