@@ -28,15 +28,6 @@ const opIntoStringMap = {
 	'/': 'DIV',
 	'%': 'MOD',
 	'?': 'RNG',
-}
-const stringIntoOpMap = {
-	ADD: '+',
-	SUB: '-',
-	MUL: '*',
-	DIV: '/',
-	MOD: '%',
-	RNG: '?',
-	SET: ':',
 };
 
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
@@ -57,61 +48,32 @@ const latestTemporary = () => temporaries[0];
 // ------------------------ INT EXPRESSIONS ------------------------ //
 
 const flattenIntBinaryExpression = (exp, steps) => {
-	const variable = latestTemporary();
+	const temporary = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
 	const rhs = exp.rhs;
 	if (typeof lhs === 'number') {
-		steps.push(setVarToValue(variable, lhs));
+		steps.push(setVarToValue(temporary, lhs));
 	} else if (lhs.entity) {
-		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, variable));
+		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary));
 	} else if (lhs.mathlang === 'int_binary_expression') {
 		// can use the same temporary since it's the lhs and we're going LTR
+		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(lhs, steps);
 	}
 	if (typeof rhs === 'number') {
-		steps.push(changeVarByValue(variable, rhs, op))
+		steps.push(changeVarByValue(temporary, rhs, op))
 	} else if (rhs.entity) {
 		const temp = quickTemporary();
 		steps.push(copyEntityFieldIntoVar(rhs.entity, rhs.field, temp));
-		steps.push(changeVarByVar(variable, temp, op));
+		steps.push(changeVarByVar(temporary, temp, op));
 	} else if (rhs.mathlang === 'int_binary_expression') {
 		// this one DOES need a new temporary
-		const temp = newTemporary();
+		const innerTemporary = newTemporary();
 		flattenIntBinaryExpression(rhs, steps);
-		steps.push(changeVarByVar(variable, temp, op));
+		steps.push(changeVarByVar(temporary, innerTemporary, op));
 		dropTemporary();
 	}
-	return steps;
-};
-
-const printFlatIntExpression = (a) => {
-	if (a.action === 'MUTATE_VARIABLE') {
-		if (a.operation === 'SET') {
-			return `${a.variable} := ${a.value}`;
-		} else {
-			return `${a.variable} ${stringIntoOpMap[a.operation]}= ${a.value}`;
-		}
-	} else if (a.action === 'MUTATE_VARIABLES') {
-		if (a.operation === 'SET') {
-			return `${a.variable} := ${a.source}`;
-		} else {
-			return `${a.variable} ${stringIntoOpMap[a.operation]}= ${a.source}`;
-		}
-	} else if (a.action === 'COPY_VARIABLE') {
-		if (a.inbound) {
-			return `${a.variable} := ${a.entity}.${a.field}`;
-		} else {
-			return `${a.entity}.${a.field} := ${a.variable}`;
-		}
-	}
-};
-
-const makeIntExpression = (f, expressionNode) => {
-	const steps = [];
-	flattenIntBinaryExpression(expressionNode, steps);
-	debugLog("EXPRESSION: " + expressionNode.debug.text)
-	debugLog(steps.map(printFlatIntExpression).join('\n') + '\n')
 	return steps;
 };
 
@@ -135,9 +97,7 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 			{ ...lhs, [lhs.boolParamName]: false },
 		)
 	}
-	// if (typeof lhs !== 'string') {
-	// 	throw new Error ('edge case?')
-	// }
+	// Everything hereafter is a bool expression (?)
 	const setLhsIfTrue = typeof lhs === 'string'
 		? setFlag(lhs, true)
 		: { ...lhs, [lhs.boolParamName]: true };
@@ -160,7 +120,7 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
 
 // Takes an object with simple values and an object with array values and "spreads" them --
-// e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e}]
+// e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
 const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 	// count spreads
 	let spreadSize = -Infinity;
@@ -277,7 +237,7 @@ const handleAction = (f, node) => { // ->[]
 	return spreads;
 };
 
-// Put things here if you don't care about auto-spreading them
+// Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
 const actionFns = {
 	action_show_dialog: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
@@ -308,6 +268,7 @@ const actionFns = {
 	},
 };
 
+// TODO: why use an action detective? Why not put it all the logic and process values stuff in the same function?
 const actionData = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
@@ -457,8 +418,8 @@ const actionData = {
 				},
 				finalizeValues: (v, f, node, i) => {
 					const ident = v.rhs;
-					// For expansions, we only want to print one ambiguous identifier at a time.
-					// `i` is from the caller, who knows which one we're looking at now.
+					// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
+					// `i` is from the caller, who knows which one of the set we're looking at now.
 					// Basically, the whole spread might not be ambiguous, so we need to report
 					// only once the action is identified (with isMatch()), not all the time.
 					const lhsNode = node.childForFieldName('lhs').namedChildren?.[i] || node.childForFieldName('lhs');
@@ -478,34 +439,44 @@ const actionData = {
 				}
 			},
 			{
+				// We know the RHS is a number
+				// ... but it's a simple case, so use a simple action for this
 				isMatch: (v) => typeof v.rhs === 'number',
 				finalizeValues: (v) => setVarToValue(v.lhs, v.rhs),
 			},
 			{
-				isMatch: (v, f, node) => {
-					return node.childForFieldName('rhs').grammarType === 'int_getable';
-				},
+				// We know the RHS is a number
+				// ... but it's a simple "getable" so use a simple action for this
+				isMatch: (v, f, node) => node.childForFieldName('rhs')
+					.grammarType === 'int_getable',
 				finalizeValues: (v) => copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs),
 			},
 			{
-				isMatch: (v, f, node) => {
-					return node.childForFieldName('rhs')
-						.grammarType
-						.includes('int');
-				},
+				// We know the RHS is a int expression
+				isMatch: (v, f, node) => node.childForFieldName('rhs')
+					.grammarType.includes('int'),
 				finalizeValues: (v, f, node) => {
-					const temporary = newTemporary();
-					const steps = makeIntExpression(f, v.rhs);
-					dropTemporary();
+					// Make a temporary variable to store the value of the expression
+					newTemporary();
+					// Play out the expression
+					const steps = flattenIntBinaryExpression(v.rhs, []);
+					// Clean up the temporary (but retain the variable name)
+					const temporary = dropTemporary();
+					// do `LHS = temporary`
 					steps.push(setVarToVar(v.lhs, temporary));
 					return newSequence(f, node, steps, 'set int (ambiguous lhs)');
 				}
 			},
 			{
+				// We know the RHS is a boolean
+				// ... but it's a simple case, so use a simple action for this
 				isMatch: (v) => typeof v.rhs === 'boolean',
 				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
 			},
 			{
+				// We know the RHS is a boolean (in a more complex structure)
+				// ... but this has got an "inversion" flag set, so invert the result
+				// TODO: Do we still need this? Do I not just invert the bool in place?
 				isMatch: (v) => typeof v.rhs.value === 'bool',
 				finalizeValues: (v) => setFlag(
 					v.lhs,
@@ -513,12 +484,12 @@ const actionData = {
 				),
 			},
 			{
-				isMatch: (v, f, node) => {
-					return node.childForFieldName('rhs')
-						.grammarType
-						.includes('bool');
-				},
+				// We know the RHS is a bool expression
+				// ... it's complicated.
+				isMatch: (v, f, node) => node.childForFieldName('rhs')
+					.grammarType.includes('bool'),
 				finalizeValues: (v, f, node) => {
+					// TODO: review this fn
 					const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
 					ret.steps.push(setFlagToFlag(f, node, v.lhs, quickTemporary()));
 					return ret;
@@ -527,10 +498,13 @@ const actionData = {
 		],
 	},
 	action_set_int: {
+		// If we've matched this, we know the LHS is not a variable name. Only other option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
 		detective: [
 			{
+				// RHS is number, simple case
+				// Different LHSs need different actions, though
 				isMatch: (v) => typeof v.rhs === 'number',
 				finalizeValues: (v) => {
 					const ret = { entity: v.lhs.entity };
@@ -566,20 +540,22 @@ const actionData = {
 				}
 			},
 			{
+				// RHS is variable name, simple case
+				// The field is part of the JSON action
 				isMatch: (v) => typeof v.rhs === 'string',
 				finalizeValues: (v, f, node) => copyVarIntoEntityField(
 					v.rhs, v.lhs.entity, v.lhs.field
 				),
 			},
 			{
-				// apart from variables, only entity fields can be set as ints,
-				// so entity stuff on the LHS is a given if we're here
-				// (variables on the LHS is handled by the "ambiguous" stuff)
+				// RHS is something more complex (everything else)
+				// Do the expression thing, like above, but the final step is different
+				// (It's going into an entity field, not a variable)
 				isMatch: (v) => true,
 				finalizeValues: (v, f, node) => {
-					const temporary = newTemporary();
-					const steps = makeIntExpression(f, v.rhs);
-					dropTemporary();
+					newTemporary();
+					const steps = flattenIntBinaryExpression(v.rhs, []);
+					const temporary = dropTemporary();
 					steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
 					return newSequence(f, node, steps, 'set int');
 				},
@@ -587,33 +563,10 @@ const actionData = {
 		],
 	},
 	action_set_bool: {
+		// If we've matched this, we know the LHS is not a variable name.
 		values: {},
 		captures: ['lhs', 'rhs'],
 		detective: [
-			{
-				isMatch: (v) => v.lhs.type === 'save_flag'
-					&& typeof v.rhs === 'bool',
-				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'save_flag'
-					&& typeof v.rhs.value === 'bool',
-				finalizeValues: (v) => setFlag(
-					v.lhs,
-					v.rhs.invert ? !v.rhs : v.rhs
-				),
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'save_flag',
-				finalizeValues: (v, f, node) => {
-					const lhsAction = {
-						action: 'SET_SAVE_FLAG',
-						save_flag: v.lhs.value,
-						boolParamName: 'bool_value',
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
 			{
 				isMatch: (v) => v.lhs.type === 'entity',
 				finalizeValues: (v, f, node) => {
@@ -1112,14 +1065,6 @@ const setFlagToFlag = (f, node, save_flag, source) => {
 		checkFlag(source, true),
 		{ ...action, bool_value: true }, // if true
 		{ ...action, bool_value: false } // if false
-	);
-};
-const setFlagToGettableValue = (f, node, save_flag, gettable) => {
-	return simpleBranchMaker(
-		f,
-		gettable,
-		setFlag(save_flag, true), // if true
-		setFlag(save_flag, false), // if false
 	);
 };
 

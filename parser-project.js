@@ -182,7 +182,6 @@ const makeProjectState = (tsParser, fileMap) => {
 						action.jump_index = jump_index;
 					}
 				})
-				console.log('check this')
 			});
 		},
 
