@@ -2,18 +2,21 @@ let indent = '  ';
 
 const translateOne = (data) => {
 	if (data.mathlang === 'comment') {
-		return `\n${indent}// ${data.comment}\n`;
+		return `// ${data.comment}`;
 	}
 	if (data.action) {
 		const fn = actions[data.action];
 		if (!fn) throw new Error ('Fn needed for ' + data.action);
-		return fn(data);
+		const print = fn(data);
+		const comment = data.comment ? ' // ' + data.comment : '';
+		return print + comment;
 	}
 	if (data.mathlang) {
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error ('Fn needed for ' + data.mathlang);
-		return fn(data);
-	}
+		const print = fn(data);
+		const comment = data.comment ? ' // ' + data.comment : '';
+		return print + comment;	}
 	if (data.error) {
 		return `// ERROR: ${data.debug.text.replace(/[\t\n\s]+/g, ' ')}`
 	}
@@ -29,13 +32,13 @@ const sanitizeLabel = label => {
 };
 
 const validateGoto = (data) => {
-	if (data.mathlang.includes('goto_label') || data.mathlang === 'bool_getable') {
+	if (data.mathlang?.includes('goto_label') || data.mathlang === 'bool_getable') {
 		if (!data.label || typeof data.label !== 'string') {
 			throw new Error ('Goto not a label jump?', data);
 		}
 		return `goto label ${sanitizeLabel(data.label)}`;
 	}
-	if (!data.jump_index) {
+	if (data.jump_index === undefined) {
 		throw new Error ('Goto not a index jump?', data);
 	}
 	return `goto index ${data.jump_index}`;
@@ -262,7 +265,7 @@ const actions = {
 	CLOSE_SERIAL_DIALOG: (v) => `close serial_dialog;`,
 	SET_CONNECT_SERIAL_DIALOG: (v) => `serial_connect = ${v.serial_dialog};`,
 	SET_SCRIPT_PAUSE: (v) => `${v.bool_value ? '' : 'un'}pause ${printEntity(v.entity)} ${v.script_slot};`,
-	GOTO_ACTION_INDEX: (v) => `goto index ${v.action_index};`,
+	GOTO_ACTION_INDEX: (v) => `goto index ${v.jump_index};`,
 	RUN_SCRIPT: (v) => `goto ${v.script};`,
 	COPY_SCRIPT: (v) => `copy!(${v.scriptName})`,
 }

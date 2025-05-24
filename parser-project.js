@@ -1,5 +1,5 @@
 const { ansiTags: ansi } = require('./parser-dialogs.js');
-const { makeMessagePrintable, flattenGotos } = require('./parser-utilities.js');
+const { makeMessagePrintable, flattenGotos, newComment } = require('./parser-utilities.js');
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
@@ -150,6 +150,39 @@ const makeProjectState = (tsParser, fileMap) => {
 				if (!p.scripts[scriptName].copyScriptDone) {
 					p.copyScriptOne(scriptName);
 				}
+			});
+		},
+		bakeLabels: () => {
+			Object.values(p.scripts).forEach(scriptData=>{
+				const registry = {};
+				const actions = scriptData.actions;
+				let commentlessIndex = 0;
+				for (let i = 0; i < actions.length; i++) {
+					const currAction = actions[i];
+					if (currAction.mathlang === 'comment') {
+						continue;
+					} else {
+						commentlessIndex += 1;
+					}
+					if (currAction.mathlang === 'label_definition') {
+						registry[currAction.label] = commentlessIndex;
+						actions[i] = newComment(`'${currAction.label}':`);
+						commentlessIndex -= 1;
+					}
+				}
+				actions.forEach(action=>{
+					if (action.mathlang?.includes('label')) {
+						const jump_index = registry[action.label];
+						if (action.mathlang === 'goto_label') {
+							action.action = 'GOTO_ACTION_INDEX';
+						}
+						action.comment = `goto label '${action.label}'`;
+						delete action.label;
+						delete action.mathlang;
+						action.jump_index = jump_index;
+					}
+				})
+				console.log('check this')
 			});
 		},
 

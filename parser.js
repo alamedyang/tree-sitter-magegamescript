@@ -80,6 +80,9 @@ const parseProject = async () => {
 
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
+	
+	// bake all the labels into hard-coded action indices
+	p.bakeLabels();
 
 	// print error messages
 	p.printProblems();
