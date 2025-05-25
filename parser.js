@@ -80,10 +80,15 @@ const parseProject = async () => {
 
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
-	
+
 	// bake all the labels into hard-coded action indices
 	p.bakeLabels();
-
+	
+	// Make script plaintext readable
+	Object.keys(p.scripts).forEach(scriptName=>{
+		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
+	})
+	
 	// print error messages
 	p.printProblems();
 	
@@ -93,13 +98,8 @@ const parseProject = async () => {
 
 parseProject().then((p)=>{
 	console.log('PROJECT', p);
-	console.log('\nSCRIPTS');
-	const entries = Object.entries(p.scripts);
-	const printable = entries.map(([scriptName, values])=>{
-		const translated = printScript(scriptName, values.actions);
-		console.log(translated);
-	}).join('\n\n')
-	console.log(printable);
+	const printAll = Object.values(p.scripts).map(v=>v.print).join('\n\n');
+	console.log(printAll);
 });
 
 // Strips debug info from items so JSON.stringify() isn't monstrously long
