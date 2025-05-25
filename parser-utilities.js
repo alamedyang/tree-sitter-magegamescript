@@ -243,9 +243,9 @@ const showDialog = (f, node, name) => ({
 	debug: node,
 	fileName: f.fileName
 });
-const newSerialDialog = (f, node, dialogName, serialDialog) => ({
+const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
 	mathlang: 'serial_dialog_definition',
-	dialogName,
+	serialDialogName,
 	serialDialog,
 	debug: node,
 	fileName: f.fileName,

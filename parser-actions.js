@@ -403,7 +403,7 @@ const actionData = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			is_fail: true
 		},
-		captures: [ 'command', 'argumant', 'script' ]
+		captures: [ 'command', 'argument', 'script' ]
 	},
 	action_set_ambiguous: {
 		values: {},
@@ -525,7 +525,7 @@ const actionData = {
 						ret.byte_value = v.rhs;
 					} else if (v.lhs.field === 'current_animation') {
 						ret.action = 'SET_ENTITY_CURRENT_ANIMATION';
-						ret.u2_value = v.rhs;
+						ret.byte_value = v.rhs;
 					} else if (v.lhs.field === 'animation_frame') {
 						ret.action = 'SET_ENTITY_CURRENT_FRAME';
 						ret.byte_value = v.rhs;
@@ -901,6 +901,36 @@ const actionData = {
 			}
 		},
 	},
+	action_set_entity_string: {
+		values: {},
+		captures: [ 'entity', 'field', 'value' ],
+		detective: [
+			{
+				isMatch: (v) => v.field === 'name',
+				finalizeValues: (v) => ({
+					action: 'SET_ENTITY_NAME',
+					entity: v.entity,
+					string: v.value,
+				})
+			},
+			{
+				isMatch: (v) => v.field === 'type',
+				finalizeValues: (v) => ({
+					action: 'SET_ENTITY_TYPE',
+					entity: v.entity,
+					entity_type: v.value,
+				})
+			},
+			{
+				isMatch: (v) => v.field === 'path',
+				finalizeValues: (v) => ({
+					action: 'SET_ENTITY_PATH',
+					entity: v.entity,
+					geometry: v.value,
+				})
+			},
+		]
+	},
 	action_op_equals: {
 		values: {},
 		captures: [ 'lhs', 'operator', 'rhs' ],
@@ -999,7 +1029,20 @@ const actionData = {
 				},
 			},
 		],
-	}
+	},
+	// action_set_entity_direction: {
+	// 	values: {},
+	// 	captures: [ 'entity_direction', 'towards' ],
+	// 	detective: [
+	// 		{
+	// 			isMatch: (v) => true,
+	// 			finalizeValues: (v) => ({
+	// 				...v.towards,
+	// 				entity: v.entity_direction,
+	// 			})
+	// 		}
+	// 	]
+	// },
 };
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //

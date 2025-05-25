@@ -95,21 +95,21 @@ const printActionFns = {
 
 	// Set string
 	SET_WARP_STATE: (v) => `warp_state = ${v.string};`,
-	SET_ENTITY_NAME: (v) => `${printEntityIdentifier} ${v.string} = ${v.stringLabel};`,
-	SET_ENTITY_TYPE: (v) => `${printEntityIdentifier} ${v.entity_type} = ${v.stringLabel};`,
-	SET_ENTITY_PATH: (v) => `${printEntityIdentifier} ${v.geometry} = ${v.stringLabel};`,
-	SET_ENTITY_DIRECTION: (v) => `${printEntityIdentifier} ${v.direction} = ${v.stringLabel};`,
-	SET_ENTITY_LOOK_SCRIPT: (v) => `${printEntityIdentifier} ${v.script} = ${v.stringLabel};`,
-	SET_ENTITY_INTERACT_SCRIPT: (v) => `${printEntityIdentifier} ${v.script} = ${v.stringLabel};`,
-	SET_ENTITY_TICK_SCRIPT: (v) => `${printEntityIdentifier} ${v.script} = ${v.stringLabel};`,
-	SET_MAP_TICK_SCRIPT: (v) => `${printEntityIdentifier} ${v.script} = ${v.stringLabel};`,
+	SET_ENTITY_NAME: (v) => `${printEntityIdentifier(v.entity)} name = ${v.string};`,
+	SET_ENTITY_TYPE: (v) => `${printEntityIdentifier(v.entity)} type = ${v.entity_type};`,
+	SET_ENTITY_PATH: (v) => `${printEntityIdentifier(v.entity)} path = ${v.geometry};`,
+	SET_ENTITY_DIRECTION: (v) => `${printEntityIdentifier(v.entity)} direction = ${v.direction};`,
+	SET_ENTITY_LOOK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_look = ${v.script};`,
+	SET_ENTITY_INTERACT_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_interact = ${v.script};`,
+	SET_ENTITY_TICK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_tick = ${v.script};`,
+	SET_MAP_TICK_SCRIPT: (v) => `map on_tick = ${v.script};`,
 
 	// Set position
 	SET_CAMERA_TO_FOLLOW_ENTITY: (v) => `camera = ${printEntityIdentifier(v.entity)};`,
 	TELEPORT_CAMERA_TO_GEOMETRY: (v) => `camera = ${printGeometry(v.geometry)};`,
 	TELEPORT_ENTITY_TO_GEOMETRY: (v) => `${printEntityIdentifier(v.entity)} position = ${printGeometry(v.geometry)};`,
-	SET_ENTITY_DIRECTION_TARGET_ENTITY: (v) => { throw new Error ('not yet implemented') },
-	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (v) => { throw new Error ('not yet implemented') },
+	SET_ENTITY_DIRECTION_TARGET_ENTITY: (v) => `${printEntityIdentifier(v.entity)} direction = ${printEntityIdentifier(v.target_entity)};`,
+	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (v) => `${printEntityIdentifier(v.entity)} direction = ${printGeometry(v.target_geometry)};`,
 
 	// Set position over time
 	WALK_ENTITY_TO_GEOMETRY: (v) => `${printEntityIdentifier(v.entity)} position -> ${printGeometry(v.geometry)} origin over ${printDuration(v.duration)};`,
@@ -124,7 +124,7 @@ const printActionFns = {
 	SET_SCREEN_SHAKE: (v) => `camera shake -> ${v.amplitude} ${v.distance} over ${printDuration(v.duration)};`,
 	SCREEN_FADE_IN: (v) => `camera fade in -> ${v.color} over ${printDuration(v.duration)};`,
 	SCREEN_FADE_OUT: (v) => `camera fade out -> ${v.color} over ${printDuration(v.duration)};`,
-	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${animation} ${count};`,
+	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.count};`,
 
 	// Commands and aliases
 	REGISTER_SERIAL_DIALOG_COMMAND: (v) => v.is_fail
@@ -135,7 +135,7 @@ const printActionFns = {
 	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v) => `delete command ${v.command} + ${v.argument};`,
 	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `alias ${v.alias} = ${v.command};`,
 	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `delete alias ${v.alias};`,
-	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v) => `${v.is_visible ? 'un' : ''}unhide command ${v.command};`,
+	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v) => `${v.is_visible ? 'un' : ''}hide command ${v.command};`,
 
 	// Other
 	SLOT_SAVE: (v) => `save slot;`,

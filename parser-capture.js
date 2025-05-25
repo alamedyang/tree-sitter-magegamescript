@@ -499,21 +499,47 @@ const captureFns = {
 		return handleCapture(f, v);
 	},
 	nsew: (f, node) => node.text,
-	nsew_checkable: (f, node) => {
+	entity_direction: (f, node) => {
 		const entityIdentNode = node.childForFieldName('entity_identifier');
 		return extractEntityName(f, entityIdentNode);
+	},
+	towards: (f, node) => {
+		const nsewNode = node.childForFieldName('nsew');
+		if (nsewNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION',
+				direction: nsewNode.text,
+				type: 'nsew',
+			};
+		}
+		const geometryNode = node.childForFieldName('geometry_identifier');
+		if (geometryNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
+				target_geometry: handleCapture(f, geometryNode),
+				type: 'geometry',
+			};
+		}
+		const entityNode = node.childForFieldName('entity_identifier');
+		if (entityNode) {
+			return {
+				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
+				target_entity: handleCapture(f, entityNode),
+				type: 'entity',
+			};
+		}
 	},
 	bool_comparison: (f, node) => {
 		const lhsN = node.childForFieldName('lhs');
 		const rhsN = node.childForFieldName('rhs');
-		if (lhsN.grammarType === 'nsew_checkable') {
+		if (lhsN.grammarType === 'entity_direction') {
 			return {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
 			}
 		} 
-		if (rhsN.grammarType === 'nsew_checkable') {
+		if (rhsN.grammarType === 'entity_direction') {
 			return {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, rhsN, lhsN),
@@ -628,6 +654,7 @@ const captureFns = {
 			};
 		}
 	},
+	set_entity_string_field: (f, node) => node.text,
 };
 
 const compareNSEW = (f, node, nsewNode) => ({

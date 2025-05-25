@@ -71,7 +71,7 @@ module.exports = grammar({
 				optional(field('suffix', token.immediate(/x/)))
 			)),
 		),
-		COLOR: $ => token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-F]{3,6}/)),
+		COLOR: $ => token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}/)),
 		CONSTANT: $ => token(/\$[_a-zA-Z0-9]+/),
 		CONSTANT_VALUE: $ => choice(
 			$.NUMBER, $.DURATION, $.DISTANCE, $.QUANTITY,
@@ -371,8 +371,10 @@ module.exports = grammar({
 			$.action_set_command,
 			$.action_set_command_fail,
 			$.action_set_command_arg,
+			$.action_set_entity_string,
 			$.action_set_script,
 			$.action_op_equals,
+			// $.action_set_entity_direction,
 		),
 		action_break_statement: $ => 'break',
 		action_continue_statement: $ => 'continue',
@@ -385,7 +387,7 @@ module.exports = grammar({
 		action_load_map: $ => seq('load', 'map', field('map', $.string_expandable)),
 		action_run_script: $ => seq('goto', field('script', $.string_expandable)),
 		action_goto_label: $ => seq('goto', 'label', field('label', $.bareword_expandable)),
-		action_goto_index: $ => seq('goto', 'index', field('index', $.number_expandable)),
+		action_goto_index: $ => seq('goto', 'index', field('action_index', $.number_expandable)),
 		action_non_blocking_delay: $ => seq('wait', field('duration', $.duration_expandable)),
 		action_blocking_delay: $ => seq('block', field('duration', $.duration_expandable)),
 
@@ -666,14 +668,14 @@ module.exports = grammar({
 		),
 		bool_comparison: $ => choice(
 			seq(
-				field('lhs', $.nsew_checkable),
+				field('lhs', $.entity_direction),
 				field('operator', $.EQUALITY),
 				field('rhs', $.nsew),
 			),
 			seq(
 				field('lhs', $.nsew),
 				field('operator', $.EQUALITY),
-				field('rhs', $.nsew_checkable),
+				field('rhs', $.entity_direction),
 			),
 			seq(
 				field('lhs', $.string_checkable),
@@ -715,7 +717,7 @@ module.exports = grammar({
 			field('entity_identifier', $.entity_identifier),
 			field('property', $.entity_property_int),
 		)),
-		nsew_checkable: $ => seq(
+		entity_direction: $ => seq(
 			field('entity_identifier', $.entity_identifier),
 			'direction',
 		),
@@ -985,5 +987,21 @@ module.exports = grammar({
 			field('operator', $.op_equals),
 			field('rhs', $.int_expression_expandable),
 		)),
+		action_set_entity_direction: $ => seq(
+			field('entity_direction', $.entity_direction),
+			$.assignment_operator,
+			field('towards', choice(
+				field('entity_identifier', $.entity_identifier),
+				field('geometry_identifier', $.geometry_identifier),
+				field('nsew', $.nsew),
+			)),
+		),
+		action_set_entity_string: $ => seq(
+			field('entity', $.entity_identifier_expandable),
+			field('field', $.set_entity_string_field),
+			$.assignment_operator,
+			field('value', $.string_expandable),
+		),
+		set_entity_string_field: $ => choice('name', 'type', 'path'),
 	},
 });

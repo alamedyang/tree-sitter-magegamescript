@@ -231,7 +231,7 @@
         "value": 1,
         "content": {
           "type": "PATTERN",
-          "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-F]{3,6}"
+          "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}"
         }
       }
     },
@@ -2224,6 +2224,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "action_set_entity_string"
+        },
+        {
+          "type": "SYMBOL",
           "name": "action_set_script"
         },
         {
@@ -2397,7 +2401,7 @@
         },
         {
           "type": "FIELD",
-          "name": "index",
+          "name": "action_index",
           "content": {
             "type": "SYMBOL",
             "name": "number_expandable"
@@ -4137,7 +4141,7 @@
               "name": "lhs",
               "content": {
                 "type": "SYMBOL",
-                "name": "nsew_checkable"
+                "name": "entity_direction"
               }
             },
             {
@@ -4182,7 +4186,7 @@
               "name": "rhs",
               "content": {
                 "type": "SYMBOL",
-                "name": "nsew_checkable"
+                "name": "entity_direction"
               }
             }
           ]
@@ -4417,7 +4421,7 @@
         ]
       }
     },
-    "nsew_checkable": {
+    "entity_direction": {
       "type": "SEQ",
       "members": [
         {
@@ -5939,6 +5943,106 @@
           }
         ]
       }
+    },
+    "action_set_entity_direction": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "entity_direction",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_direction"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "towards",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "entity_identifier",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "entity_identifier"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "geometry_identifier",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "geometry_identifier"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "nsew",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "nsew"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "action_set_entity_string": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "entity",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_identifier_expandable"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "field",
+          "content": {
+            "type": "SYMBOL",
+            "name": "set_entity_string_field"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "assignment_operator"
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_expandable"
+          }
+        }
+      ]
+    },
+    "set_entity_string_field": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "name"
+        },
+        {
+          "type": "STRING",
+          "value": "type"
+        },
+        {
+          "type": "STRING",
+          "value": "path"
+        }
+      ]
     }
   },
   "extras": [

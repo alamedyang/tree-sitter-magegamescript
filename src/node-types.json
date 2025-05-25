@@ -406,7 +406,7 @@
     "type": "action_goto_index",
     "named": true,
     "fields": {
-      "index": {
+      "action_index": {
         "multiple": false,
         "required": true,
         "types": [
@@ -1316,6 +1316,68 @@
     }
   },
   {
+    "type": "action_set_entity_string",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "field": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "set_entity_string_field",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "string_expansion",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "action_set_int",
     "named": true,
     "fields": {
@@ -1984,11 +2046,11 @@
             "named": true
           },
           {
-            "type": "nsew",
+            "type": "entity_direction",
             "named": true
           },
           {
-            "type": "nsew_checkable",
+            "type": "nsew",
             "named": true
           },
           {
@@ -2036,11 +2098,11 @@
             "named": true
           },
           {
-            "type": "nsew",
+            "type": "entity_direction",
             "named": true
           },
           {
-            "type": "nsew_checkable",
+            "type": "nsew",
             "named": true
           },
           {
@@ -3087,6 +3149,22 @@
     }
   },
   {
+    "type": "entity_direction",
+    "named": true,
+    "fields": {
+      "entity_identifier": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "entity_identifier",
     "named": true,
     "fields": {
@@ -3367,6 +3445,10 @@
             "named": true
           },
           {
+            "type": "action_set_entity_string",
+            "named": true
+          },
+          {
             "type": "action_set_int",
             "named": true
           },
@@ -3530,6 +3612,10 @@
           },
           {
             "type": "action_set_direction",
+            "named": true
+          },
+          {
+            "type": "action_set_entity_string",
             "named": true
           },
           {
@@ -4212,6 +4298,10 @@
           "named": true
         },
         {
+          "type": "action_set_entity_string",
+          "named": true
+        },
+        {
           "type": "action_set_int",
           "named": true
         },
@@ -4355,22 +4445,6 @@
     "type": "nsew",
     "named": true,
     "fields": {}
-  },
-  {
-    "type": "nsew_checkable",
-    "named": true,
-    "fields": {
-      "entity_identifier": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "entity_identifier",
-            "named": true
-          }
-        ]
-      }
-    }
   },
   {
     "type": "number_checkable_equality",
@@ -4598,6 +4672,10 @@
           "named": true
         },
         {
+          "type": "action_set_entity_string",
+          "named": true
+        },
+        {
           "type": "action_set_int",
           "named": true
         },
@@ -4806,6 +4884,10 @@
         },
         {
           "type": "action_set_direction",
+          "named": true
+        },
+        {
+          "type": "action_set_entity_string",
           "named": true
         },
         {
@@ -5070,6 +5152,11 @@
         ]
       }
     }
+  },
+  {
+    "type": "set_entity_string_field",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "string_checkable",
