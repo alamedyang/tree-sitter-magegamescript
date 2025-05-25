@@ -89,13 +89,13 @@ const makeProjectState = (tsParser, fileMap) => {
 		},
 		addSerialDialog: (data, fileName) => {
 			const serialDialogName = data.serialDialogName;
-			if (!p.dialogs[serialDialogName]) {
-				p.dialogs[serialDialogName] = data;
+			if (!p.serialDialogs[serialDialogName]) {
+				p.serialDialogs[serialDialogName] = data;
 			} else {
-				if (!p.dialogs[serialDialogName].duplicates) {
-					p.dialogs[serialDialogName].duplicates = [ p.dialogs[serialDialogName] ];
+				if (!p.serialDialogs[serialDialogName].duplicates) {
+					p.serialDialogs[serialDialogName].duplicates = [ p.serialDialogs[serialDialogName] ];
 				}
-				p.dialogs[serialDialogName].duplicates.push(data);
+				p.serialDialogs[serialDialogName].duplicates.push(data);
 			}
 		},
 

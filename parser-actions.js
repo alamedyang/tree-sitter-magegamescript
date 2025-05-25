@@ -246,11 +246,11 @@ const actionFns = {
 		const dialogs = (dialogNodes || [])
 			.map(child => handleNode(f, child))
 			.flat();
-		const showDialogAction = showDialog(f, node, name);
-		return [
-			newDialog(f, node, name, dialogs),
-			showDialogAction
-		];
+		const ret = [ showDialog(f, node, name) ];
+		if (dialogs.length) {
+			ret.unshift(newDialog(f, node, name, dialogs));
+		}
+		return ret;
 	},
 	action_concat_serial_dialog: (f, node) => actionFns.action_show_serial_dialog(f, node, true),
 	action_show_serial_dialog: (f, node, isConcat) => {
@@ -260,11 +260,11 @@ const actionFns = {
 		const serialDialogs = (serialDialogNodes || [])
 			.map(child => handleNode(f, child))
 			.flat();
-		const def = showSerialDialog(f, node, name, false);
-		return [
-			newSerialDialog(f, node, name, serialDialogs[0]),
-			def,
-		];
+		const ret = [ showSerialDialog(f, node, name, false) ];
+		if (serialDialogs.length) {
+			ret.unshift(newSerialDialog(f, node, name, serialDialogs[0]));
+		}
+		return ret;
 	},
 };
 

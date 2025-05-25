@@ -97,7 +97,8 @@ const parseProject = async () => {
 };
 
 parseProject().then((p)=>{
-	console.log('PROJECT', p);
+	console.log('PROJECT');
+	console.log(p);
 	const printAll = Object.values(p.scripts).map(v=>v.print).join('\n\n');
 	console.log(printAll);
 });
