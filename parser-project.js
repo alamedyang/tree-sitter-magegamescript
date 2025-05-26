@@ -3,9 +3,10 @@ const { makeMessagePrintable, flattenGotos, newComment } = require('./parser-uti
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
-const makeProjectState = (tsParser, fileMap) => {
+const makeProjectState = (tsParser, fileMap, scenarioData) => {
 	// project crawl state
 	const p = {
+		...(scenarioData || {}),
 		parser: tsParser,
 		fileMap,
 
@@ -173,13 +174,15 @@ const makeProjectState = (tsParser, fileMap) => {
 				actions.forEach(action=>{
 					if (action.mathlang?.includes('label')) {
 						const jump_index = registry[action.label];
+						let param = 'jump_index';
 						if (action.mathlang === 'goto_label') {
 							action.action = 'GOTO_ACTION_INDEX';
+							param = 'action_index';
 						}
 						action.comment = `goto label '${action.label}'`;
 						delete action.label;
 						delete action.mathlang;
-						action.jump_index = jump_index;
+						action[param] = jump_index;
 					}
 				})
 			});
@@ -229,7 +232,8 @@ const makeProjectState = (tsParser, fileMap) => {
 		parseFile: (fileName) => {
 			const fileMap = p.fileMap;
 			// tree-sitter things
-			const ast = tsParser.parse(fileMap[fileName].text);
+			const text = fileMap[fileName].fileText;
+			const ast = tsParser.parse(text);
 			let document = ast.rootNode;
 			// file crawl state
 			const f = makeFileState(p, fileName);

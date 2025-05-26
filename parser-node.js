@@ -69,10 +69,16 @@ const nodeFns = {
 	script_definition: (f, node) => {
 		const nameNode = node.childForFieldName('script_name');
 		const name = handleCapture(f, nameNode);
+		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const actions = node.lastChild
 			.namedChildren // error nodes are caught above
-			.map(node=>handleNode(f, node))
-			.flat();
+			.map(v=>handleNode(f, v))
+			.flat()
+			.map(v => v.mathlang === 'return_statement'
+				? gotoLabel(f, v.debug, returnLabel)
+				: v
+			);
+		actions.push(label(f, node.lastChild, returnLabel));
 		return [{
 			mathlang: 'script_definition',
 			scriptName: name,

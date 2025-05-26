@@ -376,5 +376,14 @@ other {
 	goto scriptName;
 
 	// COPY_SCRIPT
-	copy!(branch_on_bool_equality)
+	copy!(simple_copy)
+
+	return;
+}
+simple_copy {
+	wait 1;
+	wait 2;
+	wait 3;
+	return;
+	wait 4;
 }

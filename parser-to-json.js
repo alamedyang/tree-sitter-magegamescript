@@ -14,7 +14,8 @@ const printAction = (data) => {
 		if (!fn) throw new Error ('Fn needed for ' + data.mathlang);
 		const print = fn(data);
 		const comment = data.comment ? ' // ' + data.comment : '';
-		return print + comment;	}
+		return print + comment;
+	}
 	if (data.error) {
 		return `// ERROR: ${data.debug.text.replace(/[\t\n\s]+/g, ' ')}`
 	}
@@ -56,7 +57,7 @@ const printActionFns = {
 		? printCheckAction(v, `warp_state == "${v.string}"`)
 		: printCheckAction(v, `warp_state != "${v.string}"`),
 	CHECK_ENTITY_NAME: (v) => printEntityFieldEquality(v, 'name', v.string),
-	CHECK_ENTITY_TYPE: (v) => printEntityFieldEquality(v, 'type', v.string),
+	CHECK_ENTITY_TYPE: (v) => printEntityFieldEquality(v, 'type', v.entity_type),
 	CHECK_ENTITY_INTERACT_SCRIPT: (v) => printEntityFieldEquality(v, 'on_interact', v.expected_script),
 	CHECK_ENTITY_TICK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_tick', v.expected_script),
 	CHECK_ENTITY_LOOK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_look', v.expected_script),
@@ -72,7 +73,7 @@ const printActionFns = {
 	SET_SERIAL_DIALOG_CONTROL: (v) => printSetBoolAction(v, `serial_control`),
 	SET_PLAYER_CONTROL: (v) => printSetBoolAction(v, `player_control`),
 	SET_LIGHTS_CONTROL: (v) => printSetBoolAction(v, `lights_control`),
-	SET_LIGHTS_STATE: (v) => printSetBoolAction(v, `light ${v.value}`),
+	SET_LIGHTS_STATE: (v) => printSetBoolAction(v, `light ${v.lights}`),
 	SET_ENTITY_GLITCHED: (v) => printSetBoolAction(v, `${printEntityIdentifier(v.entity)} glitched`),
 
 	// Set int (expressions OK)
@@ -150,7 +151,7 @@ const printActionFns = {
 	CLOSE_SERIAL_DIALOG: (v) => `close serial_dialog;`,
 	SET_CONNECT_SERIAL_DIALOG: (v) => `serial_connect = ${v.serial_dialog};`,
 	SET_SCRIPT_PAUSE: (v) => `${v.bool_value ? '' : 'un'}pause ${printEntityIdentifier(v.entity)} ${v.script_slot};`,
-	GOTO_ACTION_INDEX: (v) => `goto index ${v.jump_index};`,
+	GOTO_ACTION_INDEX: (v) => `goto index ${v.action_index};`,
 	RUN_SCRIPT: (v) => `goto ${v.script};`,
 	COPY_SCRIPT: (v) => `copy!(${v.scriptName})`,
 };

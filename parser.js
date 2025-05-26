@@ -9,6 +9,7 @@ const { printScript } = require('./parser-to-json.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
 
+// /*
 // stolen from the other place
 const makeMap = path => {
 	let map = {};
@@ -17,40 +18,51 @@ const makeMap = path => {
 		{ withFileTypes: true }
 	)) {
 		if (file.name === '.DS_Store') continue;
-		let filePath = `${path}/${file.name}`
+		let filePath = `${path}/${file.name}`;
 		if (file.isDirectory()) {
 			map = {
 				...map,
 				...makeMap(filePath)
 			};
 		} else {
-			let text = fs.readFileSync(filePath, 'utf-8')
-			let type = filePath.split('.').pop()
+			let fileBlob = fs.readFileSync(filePath);
+			let type = filePath.split('.').pop();
 			map[file.name] = {
-				fileName: file.name,
+				name: file.name,
 				type,
-				text,
-			}
+				arrayBuffer: () => {
+					return new Promise((resolve) => {
+						resolve(fileBlob);
+					});
+				},
+				text: () => {
+					return new Promise(resolve => {
+						resolve(fileBlob.toString('utf8'));
+					});
+				},
+				get fileText () {
+					return fileBlob.toString('utf8');
+				}
+			};
 		}
 	}
 	return map;
 };
+// */
 
-const parseProject = async () => {
+const parseProject = async (fileMap, scenarioData) => {
 	// tree-sitter
 	await Parser.init();
 	const parser = new Parser();
-	const Lang = await Language.load('tree-sitter-magegamescript.wasm');
+	const wasmPath = path.resolve(__dirname + '/tree-sitter-magegamescript.wasm');
+	const Lang = await Language.load(wasmPath);
 	parser.setLanguage(Lang);
-
-	const inputPath = path.resolve('./scenario_source_files');
-	const fileMap = makeMap(inputPath);
 	
 	// my the-rest-of-the-owl
-	const p = makeProjectState(parser, fileMap);
+	const p = makeProjectState(parser, fileMap, scenarioData);
 	// parse each file
 	Object.keys(fileMap).forEach(fileName=>{
-		if (!fileMap[fileName].parsed) {
+		if (fileName.endsWith('.mgs') && !fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
 			p.parseFile(fileName);
 		}
@@ -89,33 +101,25 @@ const parseProject = async () => {
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
 	})
 	
-	// print error messages
+	// print fancy squiggly error messages
 	p.printProblems();
 	
 	// done!
 	return p;
 };
 
-parseProject().then((p)=>{
+// /*
+const inputPath = path.resolve('./scenario_source_files');
+const fileMap = makeMap(inputPath);
+
+parseProject(fileMap).then((p)=>{
 	console.log('PROJECT');
 	console.log(p);
-	const printAll = Object.values(p.scripts).map(v=>v.print).join('\n\n');
+	const printAll = Object.values(p.scripts)
+		.map(v=>v.print)
+		.join('\n\n');
 	console.log(printAll);
 });
-
-// Strips debug info from items so JSON.stringify() isn't monstrously long
-const cleanseDebug = (obj) => {
-	const keys = Object.keys(obj);
-	keys.forEach(key=>{
-		if (key === 'debug') {
-			delete obj.debug;
-		} else if (key === 'fileName') {
-			delete obj.fileName;
-		} else if (typeof obj[key] === 'object') {
-			cleanseDebug(obj[key]);
-		}
-	});
-	return obj;
-};
+// */
 
 module.exports = { parseProject };

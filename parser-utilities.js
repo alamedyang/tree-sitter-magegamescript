@@ -26,7 +26,7 @@ const reportErrorNodes = (f, node) => {
 
 const getPrintableLocationData = (fileMap, location) => {
 	const fileName = location.fileName;
-	const allLines = fileMap[fileName].text.split('\n');
+	const allLines = fileMap[fileName].fileText.split('\n');
 	let row = location.node.startPosition.row;
 	let col = location.node.startPosition.column;
 	let endRow = location.node.endPosition.row;
