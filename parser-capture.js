@@ -2,6 +2,7 @@ const {
 	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
+	invert,
 } = require('./parser-utilities.js');
 
 const inverseOpMap = {
@@ -336,26 +337,10 @@ const captureFns = {
 		const op = opNode.text;
 		if (op !== '!') throw new Error ("what kind of unary is " + op + '?');
 		const valueNode = node.childForFieldName('operand');
-		const value = handleCapture(f, valueNode);
-		if (typeof value === 'boolean') return !value;
-		if (typeof value === 'string') {
-			return {
-				mathlang: 'check_save_flag',
-				fileName: f.fileName,
-				debug: node,
-				invert: true,
-				value,
-			}
-		}
-		value.invert = !value.invert;
-		value.debug = node;
-		if (value.mathlang === 'bool_binary_expression' && value.invert) {
-			value.invert = !value.invert;
-			value.op = inverseOpMap[value.op];
-			value.lhs.invert = !value.lhs.invert;
-			value.rhs.invert = !value.rhs.invert;
-		}
-		return value;
+		const capture = handleCapture(f, valueNode);
+		const inverted = invert(f, node, capture);
+		inverted.debug = node;
+		return inverted;
 	},
 	int_getable: (f, node) => {
 		const propertyNode = node.childForFieldName('property');

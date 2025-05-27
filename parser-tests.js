@@ -414,7 +414,7 @@ const roundTripTestData = {
 		autoAddReturn: true,
 		input: [
 			// MUTATE_VARIABLES
-			'goatCount = ambiguous;',
+			'bothVarsAre = ambiguous;', // and that's ok
 
 			// MUTATE_VARIABLE
 			'goatCount = 0;',

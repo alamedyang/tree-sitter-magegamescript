@@ -84,6 +84,7 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 		lhs[lhs.boolParamName] = rhsRaw;
 		return lhs;
 	}
+	// TODO: put 'bool_getable' on 'check_save_flag' and remove all bodges
 	if (rhsRaw.mathlang === 'bool_getable' || rhsRaw.mathlang === 'check_save_flag') {
 		let baseAction;
 		if (rhsRaw.mathlang === 'bool_getable') {
@@ -1111,6 +1112,7 @@ const setFlag = (save_flag, bool_value) => {
 		save_flag,
 	};
 };
+// TODO: consolidate all CHECK_SAVE_FLAG things
 const checkFlag = (save_flag, expected_bool) => ({
 	action: 'CHECK_SAVE_FLAG',
 	expected_bool,

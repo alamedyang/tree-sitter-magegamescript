@@ -1,6 +1,16 @@
 let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
+const inverseOpMap = {
+	'<': '>=',
+	'<=': '>',
+	'>=': '<',
+	'>': '<=',
+	'==': '!=',
+	'!==': '==',
+	'&&': '||',
+	'||': '&&',
+};
 const reportMissingChildNodes = (f, node) => {
 	const missingNodes = node.children
 		.filter(child=>child.isMissing);
@@ -204,6 +214,28 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	];
 	return newSequence(f, node, steps, 'simple branch on');
 };
+const invert = (f, node, thing) => {
+	if (typeof thing === 'boolean') return !thing;
+	if (typeof thing === 'string') {
+		return {
+			mathlang: 'check_save_flag',
+			fileName: f.fileName,
+			debug: node,
+			invert: true,
+			value: thing,
+		}
+	}
+	if (thing.mathlang === 'bool_binary_expression') {
+		const inverted = {...thing};
+		inverted.invert = !thing.invert;
+		inverted.op = inverseOpMap[thing.op];
+		inverted.lhs = invert(f, node, thing.lhs);
+		inverted.rhs = invert(f, node, thing.rhs);
+		return inverted;
+	}
+	thing.invert = !thing.invert;
+	return thing;
+};
 
 const label = (f, node, label) => ({
 	mathlang: 'label_definition',
@@ -333,4 +365,5 @@ module.exports = {
 	newDialog,
 	showDialog,
 	flattenGotos,
+	invert,
 };
