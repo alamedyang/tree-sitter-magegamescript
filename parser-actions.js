@@ -84,15 +84,20 @@ const actionSetBoolMaker = (f, rhsRaw, lhs) => {
 		lhs[lhs.boolParamName] = rhsRaw;
 		return lhs;
 	}
-	if (rhsRaw.mathlang === 'bool_getable') {
-		const boolGetable = {
-			...rhsRaw,
-			[rhsRaw.boolParamName]: !rhsRaw.invert,
+	if (rhsRaw.mathlang === 'bool_getable' || rhsRaw.mathlang === 'check_save_flag') {
+		let baseAction;
+		if (rhsRaw.mathlang === 'bool_getable') {
+			baseAction = {
+				...rhsRaw,
+				[rhsRaw.boolParamName]: !rhsRaw.invert,
+			}
+		} else {
+			baseAction = checkFlag(rhsRaw.value, !rhsRaw.invert);
 		}
 		return simpleBranchMaker(
 			f,
-			rhsRaw,
-			boolGetable,
+			rhsRaw.debug,
+			baseAction,
 			{ ...lhs, [lhs.boolParamName]: true },
 			{ ...lhs, [lhs.boolParamName]: false },
 		)
@@ -474,15 +479,25 @@ const actionData = {
 				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
 			},
 			{
-				// We know the RHS is a boolean (in a more complex structure)
-				// ... but this has got an "inversion" flag set, so invert the result
-				// TODO: Do we still need this? Do I not just invert the bool in place?
-				isMatch: (v) => typeof v.rhs.value === 'bool',
-				finalizeValues: (v) => setFlag(
-					v.lhs,
-					v.rhs.invert ? !v.rhs : v.rhs
-				),
+				// We know the RHS is a boolean
+				// ... and RHS is a save flag (not a simple string; that case was handled)
+				// It must have been unary'd or something
+				isMatch: (v) => v.rhs.mathlang === 'check_save_flag',
+				finalizeValues: (v, f, node) => {
+					const invert = v.rhs.invert;
+					return setFlagToFlag(f, node, v.lhs, v.rhs.value, invert);
+				},
 			},
+			// {
+			// 	// We know the RHS is a boolean (in a more complex structure)
+			// 	// ... but this has got an "inversion" flag set, so invert the result
+			// 	// TODO: Do we still need this? Do I not just invert the bool in place?
+			// 	isMatch: (v) => typeof v.rhs.value === 'bool',
+			// 	finalizeValues: (v) => setFlag(
+			// 		v.lhs,
+			// 		v.rhs.invert ? !v.rhs : v.rhs
+			// 	),
+			// },
 			{
 				// We know the RHS is a bool expression
 				// ... it's complicated.
@@ -491,7 +506,8 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					// TODO: review this fn
 					const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
-					ret.steps.push(setFlagToFlag(f, node, v.lhs, quickTemporary()));
+					const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
+					ret.steps.push(...setFlagSteps.steps);
 					return ret;
 				}
 			},
@@ -1086,9 +1102,9 @@ const copyEntityFieldIntoVar = (entity, field, variable) => ({
 	variable,
 });
 const setFlag = (save_flag, bool_value) => {
-	if (typeof bool_value !== 'boolean' || typeof save_flag !== 'string') {
-		throw new Error ('this was (not) forseen')
-	}
+	// if (typeof bool_value !== 'boolean' || typeof save_flag !== 'string') {
+	// 	throw new Error ('this was (not) forseen')
+	// }
 	return {
 		action: "SET_SAVE_FLAG",
 		bool_value,
@@ -1100,12 +1116,12 @@ const checkFlag = (save_flag, expected_bool) => ({
 	expected_bool,
 	save_flag,
 })
-const setFlagToFlag = (f, node, save_flag, source) => {
+const setFlagToFlag = (f, node, save_flag, source, invert) => {
 	const action = setFlag(save_flag, null);
 	return simpleBranchMaker(
 		f,
 		node,
-		checkFlag(source, true),
+		checkFlag(source, !invert),
 		{ ...action, bool_value: true }, // if true
 		{ ...action, bool_value: false } // if false
 	);

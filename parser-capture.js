@@ -341,11 +341,14 @@ const captureFns = {
 		if (typeof value === 'string') {
 			return {
 				mathlang: 'check_save_flag',
+				fileName: f.fileName,
+				debug: node,
 				invert: true,
 				value,
 			}
 		}
 		value.invert = !value.invert;
+		value.debug = node;
 		if (value.mathlang === 'bool_binary_expression' && value.invert) {
 			value.invert = !value.invert;
 			value.op = inverseOpMap[value.op];

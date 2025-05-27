@@ -65,7 +65,7 @@ const printActionFns = {
 	CHECK_ENTITY_PATH: (v) => printEntityFieldEquality(v, 'path', v.geometry),
 
 	// Set bool (expressions OK)
-	SET_SAVE_FLAG: (v) => printSetBoolAction(v, v.lhs),
+	SET_SAVE_FLAG: (v) => printSetBoolAction(v, v.save_flag),
 	SET_HEX_EDITOR_STATE: (v) => printSetBoolAction(v, `hex_editor`),
 	SET_HEX_EDITOR_DIALOG_MODE: (v) => printSetBoolAction(v, `hex_dialog_mode`),
 	SET_HEX_EDITOR_CONTROL: (v) => printSetBoolAction(v, `hex_control`),
@@ -173,7 +173,11 @@ const sanitizeLabel = label => label.includes(' ')
 	: label;
 
 const printGotoSegment = (data) => {
-	if (data.mathlang?.includes('goto_label') || data.mathlang === 'bool_getable') {
+	if (
+		data.mathlang?.includes('goto_label')
+		|| data.mathlang === 'bool_getable'
+		|| data.action === 'CHECK_SAVE_FLAG'
+	) {
 		return `goto label ${sanitizeLabel(data.label)}`;
 	} else {
 		return `goto index ${data.jump_index}`;

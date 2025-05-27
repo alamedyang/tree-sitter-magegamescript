@@ -202,7 +202,7 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 		...ifBody,
 		{ mathlang: 'label_definition', label: rendezvousLabel },
 	];
-	return newSequence(f, node.debug, steps, 'simple branch on');
+	return newSequence(f, node, steps, 'simple branch on');
 };
 
 const label = (f, node, label) => ({
