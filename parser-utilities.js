@@ -68,6 +68,7 @@ const autoIdentifierName = (f, node) => {
 		+ '-' + node.startPosition.row
 		+ ':' + node.startPosition.column;
 };
+// todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
 const expandCondition = (f, node, condition, ifLabel) => {
 	if (
 		condition.mathlang === 'bool_getable'
@@ -94,23 +95,9 @@ const expandCondition = (f, node, condition, ifLabel) => {
 		return [];
 	}
 	if (typeof condition === 'string') {
-		return [{
-			action: "CHECK_SAVE_FLAG",
-			expected_bool: true,
-			save_flag: condition,
-			label: ifLabel,
-			mathlang: 'if_branch_goto_label',
-		}];
-	}
-	if (condition.mathlang === 'check_save_flag') {
-		const expected_bool = !condition.invert;
-		return [{
-			action: "CHECK_SAVE_FLAG",
-			expected_bool,
-			save_flag: condition.value,
-			label: ifLabel,
-			mathlang: 'if_branch_goto_label',
-		}]
+		const action = checkFlag(f, node, condition, ifLabel, true)
+		action.mathlang = 'if_branch_goto_label';
+		return [ action ];
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
 		throw new Error("not yet implemented")
@@ -143,7 +130,10 @@ const expandCondition = (f, node, condition, ifLabel) => {
 	if (op !== '==' && op !== '!=') {
 		throw new Error ("What kind of other thing is this?")
 	}
-	if (op === '!=') rhs.invert = !rhs.invert;
+	if (op === '!=') {
+		rhs.invert = !rhs.invert;
+		op = '=='
+	}
 	// todo: if any of these are == bool literal, they can be simplified
 	const expandAs = {
 		mathlang: 'bool_binary_expression',
@@ -217,21 +207,18 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 const invert = (f, node, thing) => {
 	if (typeof thing === 'boolean') return !thing;
 	if (typeof thing === 'string') {
-		return {
-			mathlang: 'check_save_flag',
-			fileName: f.fileName,
-			debug: node,
-			invert: true,
-			value: thing,
-		}
+		const action = checkFlag(f, node, thing);
+		action.invert = true;
+		return action;
 	}
 	if (thing.mathlang === 'bool_binary_expression') {
-		const inverted = {...thing};
-		inverted.invert = !thing.invert;
-		inverted.op = inverseOpMap[thing.op];
-		inverted.lhs = invert(f, node, thing.lhs);
-		inverted.rhs = invert(f, node, thing.rhs);
-		return inverted;
+		if (thing.op === '||' || thing.op === '&&') {
+			thing.lhs = invert(f, node, thing.lhs);
+			thing.rhs = invert(f, node, thing.rhs);
+		}
+		thing.op = inverseOpMap[thing.op];
+		thing.invert = !thing.invert;
+		return thing;
 	}
 	thing.invert = !thing.invert;
 	return thing;
@@ -289,6 +276,18 @@ const showSerialDialog = (f, node, name, isConcat) => ({
 	debug: node,
 	fileName: f.fileName
 });
+const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
+	return {
+		mathlang: 'bool_getable',
+		action: "CHECK_SAVE_FLAG",
+		save_flag,
+		value: save_flag,
+		expected_bool: expected_bool || true,
+		label: gotoLabel || 'UNDEFINED LABEL',
+		fileName: f.fileName,
+		debug: node,
+	}
+};
 
 const flattenGotos = (actions) => {
 	// replace labels of k with v; remove label definitions for k
@@ -366,4 +365,5 @@ module.exports = {
 	showDialog,
 	flattenGotos,
 	invert,
+	inverseOpMap,
 };

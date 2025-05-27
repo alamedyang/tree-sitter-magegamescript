@@ -573,6 +573,9 @@ const captureFns = {
 					source: rhs,
 					comparison: node.childForFieldName('operator').text,
 					expected_bool: true,
+					boolParamName: 'expected_bool',
+					debug: node,
+					fileName: f.fileName,
 				}
 			} else if (typeof rhs === 'number') {
 				return {
@@ -582,6 +585,9 @@ const captureFns = {
 					value: rhs,
 					comparison: node.childForFieldName('operator').text,
 					expected_bool: true,
+					boolParamName: 'expected_bool',
+					debug: node,
+					fileName: f.fileName,
 				}
 			} else {
 				throw new Error ('not yet implemented');
@@ -596,6 +602,8 @@ const captureFns = {
 					value: lhs,
 					comparison: inverseOpMap[comparison],
 					expected_bool: true,
+					debug: node,
+					fileName: f.fileName,
 				}
 			} else {
 				throw new Error ('not yet implemented');
@@ -647,6 +655,7 @@ const captureFns = {
 
 const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
+	boolParamName: 'expected_bool',
 	direction: nsewNode.text,
 	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
 });

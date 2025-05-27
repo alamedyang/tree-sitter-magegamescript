@@ -315,7 +315,6 @@ const roundTripTestData = {
 			'entity Bob glitched = debug_mode',
 		],
 		expected: [
-			'// simple branch on: debug_mode',
 			'if (debug_mode) { goto label if_***; }',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_***;',
@@ -503,10 +502,63 @@ const roundTripTestData = {
 			'if (!notAmbiguous) { goto label if_***; }',
 			'goatCount = false;',
 			'goto label rendezvous_***;',
-			"if_***:",
+			'if_***:',
 			'goatCount = true;',
-			"rendezvous_***:",
+			'rendezvous_***:',
 		],
+	},
+	int_expression_invert_comparison: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName < 6;',
+			'entity Bob glitched = !(intName < 6);',
+		],
+		expected: [
+			'if (intName < 6) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+			'if (intName >= 6) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+		]
+	},
+	int_expression_invert_string_equality: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = warp_state == "landing";',
+			'entity Bob glitched = !(warp_state == "landing");',
+			'entity Bob glitched = warp_state != "landing";',
+		],
+		expected: [
+			'if (warp_state == "landing") { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (warp_state != "landing") { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (warp_state != "landing") { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
 	},
 };
 
@@ -548,12 +600,22 @@ const makeTextUniform = (text) => text.trim()
 	.replace(/\/\/.*?[\n$]/g, '');
 const compareTexts = (_found, _expected, fileName, scriptName) => {
 	const foundLines = makeTextUniform(_found)
-		.replaceAll('=', '\n=')
+		.replaceAll('+=', '+\n=')
+		.replaceAll('-=', '-\n=')
+		.replaceAll('*=', '*\n=')
+		.replaceAll('/=', '/\n=')
+		.replaceAll('?=', '?\n=')
+		.replaceAll('%=', '%\n=')
 		.split(/\n/g)
 		.map(v=>v.trim())
 		.filter(v=>!!v);
 	const expectedLines = makeTextUniform(_expected)
-		.replaceAll('=', '\n=')
+	.replaceAll('+=', '+\n=')
+	.replaceAll('-=', '-\n=')
+	.replaceAll('*=', '*\n=')
+	.replaceAll('/=', '/\n=')
+	.replaceAll('?=', '?\n=')
+	.replaceAll('%=', '%\n=')
 		.split(/\n/g)
 		.map(v=>v.trim())
 		.filter(v=>!!v);
@@ -688,7 +750,7 @@ const runTests = async () => {
 		if (errors.length === 0) {
 			console.log("All tests good, chief!");
 		}
-		console.log('BREAK ME');
+		console.log('BREAKPOINT HERE');
 	});
 };
 

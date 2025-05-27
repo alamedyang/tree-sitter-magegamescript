@@ -1,3 +1,6 @@
+const {
+	inverseOpMap,
+} = require('./parser-utilities.js');
 const printAction = (data) => {
 	if (data.mathlang === 'comment') {
 		return `// ${data.comment}`;
@@ -49,8 +52,18 @@ const printActionFns = {
 	CHECK_ENTITY_CURRENT_FRAME: (v) => printEntityFieldEquality(v, 'animation_frame', v.expected_byte),
 	
 	// Branch on int comparison (== < <= => >)
-	CHECK_VARIABLE: (v) => printCheckAction(v, `${v.variable} ${v.comparison} ${v.value}`),
-	CHECK_VARIABLES: (v) => printCheckAction(v, `${v.variable} ${v.comparison} ${v.source}`),
+	CHECK_VARIABLE: (v) => {
+		const op = v.expected_bool
+			? v.comparison
+			: inverseOpMap[v.comparison];
+		return printCheckAction(v, `${v.variable} ${op} ${v.value}`);
+	},
+	CHECK_VARIABLES: (v) => {
+		const op = v.expected_bool
+			? v.comparison
+			: inverseOpMap[v.comparison];
+		return printCheckAction(v, `${v.variable} ${op} ${v.source}`);
+	},
 
 	// Branch on string equality (==)
 	CHECK_WARP_STATE: (v) => v.expected_bool
@@ -176,6 +189,9 @@ const printGotoSegment = (data) => {
 	if (
 		data.mathlang?.includes('goto_label')
 		|| data.mathlang === 'bool_getable'
+		|| data.mathlang === 'bool_comparison'
+		|| data.mathlang === 'string_checkable'
+		|| data.mathlang === 'number_checkable_equality'
 		|| data.action === 'CHECK_SAVE_FLAG'
 	) {
 		return `goto label ${sanitizeLabel(data.label)}`;
