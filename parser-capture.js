@@ -69,7 +69,7 @@ const captureFns = {
 		if (suffixNode?.text === 's') n *= 1000; 
 		return n;
 	},
-	DISTANCE: (f, node) => Number(node.text),
+	DISTANCE: (f, node) => parseInt(node.text),
 	QUANTITY: (f, node) => {
 		if (node.childCount === 0) {
 			if (node.text === 'once') return 1;

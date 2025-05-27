@@ -106,7 +106,7 @@ const printActionFns = {
 	SET_MAP_TICK_SCRIPT: (v) => `map on_tick = ${v.script};`,
 
 	// Set position
-	SET_CAMERA_TO_FOLLOW_ENTITY: (v) => `camera = ${printEntityIdentifier(v.entity)};`,
+	SET_CAMERA_TO_FOLLOW_ENTITY: (v) => `camera = ${printEntityIdentifier(v.entity)} position;`,
 	TELEPORT_CAMERA_TO_GEOMETRY: (v) => `camera = ${printGeometry(v.geometry)};`,
 	TELEPORT_ENTITY_TO_GEOMETRY: (v) => `${printEntityIdentifier(v.entity)} position = ${printGeometry(v.geometry)};`,
 	SET_ENTITY_DIRECTION_TARGET_ENTITY: (v) => `${printEntityIdentifier(v.entity)} direction = ${printEntityIdentifier(v.target_entity)};`,
@@ -122,10 +122,10 @@ const printActionFns = {
 	LOOP_CAMERA_ALONG_GEOMETRY: (v) => `camera -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)} forever;`,
 	
 	// Other do over time
-	SET_SCREEN_SHAKE: (v) => `camera shake -> ${v.amplitude} ${v.distance} over ${printDuration(v.duration)};`,
+	SET_SCREEN_SHAKE: (v) => `camera shake -> ${v.amplitude}ms ${v.distance}px over ${printDuration(v.duration)};`,
 	SCREEN_FADE_IN: (v) => `camera fade in -> ${v.color} over ${printDuration(v.duration)};`,
 	SCREEN_FADE_OUT: (v) => `camera fade out -> ${v.color} over ${printDuration(v.duration)};`,
-	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.count};`,
+	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.count}x;`,
 
 	// Commands and aliases
 	REGISTER_SERIAL_DIALOG_COMMAND: (v) => v.is_fail
@@ -206,12 +206,13 @@ const printEntityFieldEquality = (v, param, value) => {
 };
 
 const printScript = (scriptName, actions) => {
+	const printedActions = actions
+		.map(printAction)
+		.filter(v=>v!==undefined)
+		.map(v=>`   ${v}`);
 	return [
 		`${scriptName} {`,
-		...actions
-			.map(printAction)
-			.filter(v=>v!==undefined)
-			.map(v=>`   ${v}`),
+		...printedActions,
 		'}'
 	].join('\n');
 };
