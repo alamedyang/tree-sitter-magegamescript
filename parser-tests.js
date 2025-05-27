@@ -316,13 +316,13 @@ const roundTripTestData = {
 	// 	],
 	// 	expected: [
 	// 		'// simple branch on: debug_mode',
-	// 		'if (debug_mode) { goto label if_*; }',
+	// 		'if (debug_mode) { goto label if_***; }',
 	// 		'entity Bob glitched = false;',
-	// 		'goto label rendezvous_*;',
-	// 		"if_*:",
+	// 		'goto label rendezvous_***;',
+	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
-	// 		"rendezvous_*:",
-	// 		"end_of_script_*:",
+	// 		"rendezvous_***:",
+	// 		"end_of_script_***:",
 	// 	],
 	// },
 	// bool_exp_simple_branch_inverse: {
@@ -332,13 +332,13 @@ const roundTripTestData = {
 	// 		'entity Bob glitched = !debug_mode',
 	// 	],
 	// 	expected: [
-	// 		'if (!debug_mode) { goto label if_*; }',
+	// 		'if (!debug_mode) { goto label if_***; }',
 	// 		'entity Bob glitched = false;',
-	// 		'goto label rendezvous_*;',
-	// 		"if_*:",
+	// 		'goto label rendezvous_***;',
+	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
-	// 		"rendezvous_*:",
-	// 		"end_of_script_*:",
+	// 		"rendezvous_***:",
+	// 		"end_of_script_***:",
 	// 	],
 	// },
 	// bool_exp_simple_or: {
@@ -348,36 +348,55 @@ const roundTripTestData = {
 	// 		'entity Bob glitched = debug_mode || isGoatGrumpy',
 	// 	],
 	// 	expected: [
-	// 		'if (debug_mode) { goto label if_*; }',
-	// 		'if (isGoatGrumpy) { goto label if_*; }',
+	// 		'if (debug_mode) { goto label if_***; }',
+	// 		'if (isGoatGrumpy) { goto label if_***; }',
 	// 		'entity Bob glitched = false;',
-	// 		'goto label rendezvous_*;',
-	// 		"if_*:",
+	// 		'goto label rendezvous_***;',
+	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
-	// 		"rendezvous_*:",
-	// 		"end_of_script_*:",
+	// 		"rendezvous_***:",
+	// 		"end_of_script_***:",
 	// 	],
 	// },
-	bool_exp_simple_and: {
+	// bool_exp_simple_and: {
+	// 	type: 'actions',
+	// 	autoAddReturn: false,
+	// 	input: [
+	// 		'entity Bob glitched = debug_mode && isGoatGrumpy',
+	// 	],
+	// 	expected: [
+	// 		'if (debug_mode) { goto label if_true_*A*; }',
+	// 		'goto label rendezvous_*A*;',
+	// 		'if_true_*A*:',
+	// 		'if (isGoatGrumpy) { goto label if_true_*B*; }',
+	// 		'rendezvous_*A*:',
+	// 		'entity \'Bob\' glitched = false;',
+	// 		'goto label rendezvous_*Y*;',
+	// 		'if_true_*B*:',
+	// 		'entity \'Bob\' glitched = true;',
+	// 		'rendezvous_*Y*:',
+	// 		'end_of_script_*Z*:',
+	// 	],
+	// },
+	bool_exp_invert_or: {
 		type: 'actions',
 		autoAddReturn: false,
 		input: [
-			'entity Bob glitched = debug_mode && isGoatGrumpy',
-			// 'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
+			'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
 			// 'entity Bob glitched = !(debug_mode || !isGoatGrumpy)',
 		],
 		expected: [
-			'if (debug_mode) { goto label if_true_*; }', // A
-			'goto label rendezvous_*;', // A
-			'if_true_*:', // A
-			'if (isGoatGrumpy) { goto label if_true_*; }', // B
-			'rendezvous_*:', // A
+			'if (!debug_mode) { goto label if_true_*A*; }',
+			'goto label rendezvous_*A*;',
+			'if_true_*A*:',
+			'if (!isGoatGrumpy) { goto label if_true_*B*; }',
+			'rendezvous_*A*:',
 			'entity \'Bob\' glitched = false;',
-			'goto label rendezvous_*;', // Y
-			'if_true_*:', // B
+			'goto label rendezvous_*Y*;',
+			'if_true_*B*:',
 			'entity \'Bob\' glitched = true;',
-			'rendezvous_*:', // Y
-			'end_of_script_*:', // Z
+			'rendezvous_*Y*:',
+			'end_of_script_*Z*:',
 		],
 	},
 };
@@ -414,6 +433,7 @@ const fileMap = {
 	},
 };
 
+const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|])/g, '\\$1');
 const makeTextUniform = (text) => text.trim()
 	.replace(/[\t ]+/g, ' ')
 	.replace(/\/\/.*?[\n$]/g, '');
@@ -433,20 +453,43 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 		}
 	}
 	const lines = [];
+	const registeredLabels = {};
 	foundLines.forEach((found,  i)=>{
 		const expected = expectedLines[i];
 		if (expected === found) {
 			return;
 		}
-		// pull out the wildcards
-		const clean = expected
-			.replace(/([\{\}\[\]\(\)\.\$\|])/g, '\\$1')
-			.replaceAll('*', '.+?')
+		// registering specific wildcards
+		const wild = expected.match(/(.*)(\*[A-Z]+\*)(.*)/);
+		if (wild){
+			const sanitary = wild.map(sanitize);
+			const pattern = new RegExp(`${sanitary[1]}(\\d+)${sanitary[3]}`);
+			const label = sanitary[2];
+			const capture = found.match(pattern);
+			if (capture) {
+				if (!registeredLabels[label]) {
+					registeredLabels[label] = capture[1];
+				} else if (registeredLabels[label] !== capture[1]) {
+					const diff = wild[1] + ansiTags.yellow + capture[1] + wild[3];
+					lines.push({
+						expected,
+						found,
+						diff,
+						value: capture[1],
+						fileName,
+						lineIndex: i
+					})
+				}
+				return;
+			}
+		}
+		// wild wildcards
+		const clean = sanitize(expected).replaceAll('***', '.+?');
 		const regExpected = new RegExp(clean);
 		if (found.match(regExpected)) {
 			return;
 		}
-		if (found.replaceAll('"', '') === expected.replaceAll('"', '')) {
+		if (found.replace(/"|'/g, '') === expected.replaceAll(/"|'/g, '')) {
 			return;
 		}
 		// or they really are different
@@ -471,7 +514,18 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 		return {
 			status: 'fail',
 			message: `${scriptName}: lines do not match`,
-			lines,
+			lines: lines.map(v=>{
+				if (v.value) {
+					let registered;
+					Object.entries(registeredLabels).forEach(([k,val])=>{
+						if (val===v.value) {
+							registered = k;
+						}
+					});
+					v.diff += ` (${registered})`;
+				}
+				return v;
+			}),
 		}
 	} else {
 		return {
