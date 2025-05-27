@@ -17,7 +17,7 @@ const { ansiTags } = require('./parser-dialogs.js');
 // };
 
 const roundTripTestData = {
-	// noArgActions: {
+	// no_arg_actions: {
 	// 	type: 'actions',
 	// 	autoAddReturn: true,
 	// 	input: [
@@ -29,7 +29,7 @@ const roundTripTestData = {
 	// 		'close serial_dialog;',
 	// 	],
 	// },
-	// simpleActions: {
+	// simple_actions: {
 	// 	type: 'actions',
 	// 	autoAddReturn: true,
 	// 	input: [
@@ -310,7 +310,7 @@ const roundTripTestData = {
 	// },
 	// bool_exp_simple_branch: {
 	// 	type: 'actions',
-	// 	autoAddReturn: false,
+	// 	autoAddReturn: true,
 	// 	input: [
 	// 		'entity Bob glitched = debug_mode',
 	// 	],
@@ -322,12 +322,11 @@ const roundTripTestData = {
 	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
 	// 		"rendezvous_***:",
-	// 		"end_of_script_***:",
 	// 	],
 	// },
 	// bool_exp_simple_branch_inverse: {
 	// 	type: 'actions',
-	// 	autoAddReturn: false,
+	// 	autoAddReturn: true,
 	// 	input: [
 	// 		'entity Bob glitched = !debug_mode',
 	// 	],
@@ -338,14 +337,13 @@ const roundTripTestData = {
 	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
 	// 		"rendezvous_***:",
-	// 		"end_of_script_***:",
 	// 	],
 	// },
 	// bool_exp_simple_or: {
 	// 	type: 'actions',
-	// 	autoAddReturn: false,
+	// 	autoAddReturn: true,
 	// 	input: [
-	// 		'entity Bob glitched = debug_mode || isGoatGrumpy',
+	// 		'entity Bob glitched = debug_mode || isGoatGrumpy;',
 	// 	],
 	// 	expected: [
 	// 		'if (debug_mode) { goto label if_***; }',
@@ -355,14 +353,13 @@ const roundTripTestData = {
 	// 		"if_***:",
 	// 		'entity Bob glitched = true;',
 	// 		"rendezvous_***:",
-	// 		"end_of_script_***:",
 	// 	],
 	// },
 	// bool_exp_simple_and: {
 	// 	type: 'actions',
-	// 	autoAddReturn: false,
+	// 	autoAddReturn: true,
 	// 	input: [
-	// 		'entity Bob glitched = debug_mode && isGoatGrumpy',
+	// 		'entity Bob glitched = debug_mode && isGoatGrumpy;',
 	// 	],
 	// 	expected: [
 	// 		'if (debug_mode) { goto label if_true_*A*; }',
@@ -375,29 +372,111 @@ const roundTripTestData = {
 	// 		'if_true_*B*:',
 	// 		'entity \'Bob\' glitched = true;',
 	// 		'rendezvous_*Y*:',
-	// 		'end_of_script_*Z*:',
 	// 	],
 	// },
-	bool_exp_invert_or: {
+	// bool_exp_invert_or: {
+	// 	type: 'actions',
+	// 	autoAddReturn: true,
+	// 	input: [
+	// 		'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
+	// 	],
+	// 	expected: [
+	// 		'if (!debug_mode) { goto label if_true_*A*; }',
+	// 		'goto label rendezvous_*A*;',
+	// 		'if_true_*A*:',
+	// 		'if (!isGoatGrumpy) { goto label if_true_*B*; }',
+	// 		'rendezvous_*A*:',
+	// 		'entity \'Bob\' glitched = false;',
+	// 		'goto label rendezvous_*Y*;',
+	// 		'if_true_*B*:',
+	// 		'entity \'Bob\' glitched = true;',
+	// 		'rendezvous_*Y*:',
+	// 	],
+	// },
+	// bool_exp_invert_and: {
+	// 	type: 'actions',
+	// 	autoAddReturn: true,
+	// 	input: [
+	// 		'entity Bob glitched = !(debug_mode && isGoatGrumpy)',
+	// 	],
+	// 	expected: [
+	// 		"if (!debug_mode) { goto label if_true_*A*; }",
+	// 		"if (!isGoatGrumpy) { goto label if_true_*A*; }",
+	// 		"entity \"Bob\" glitched = false;",
+	// 		"goto label rendezvous_*Y*;",
+	// 		"if_true_*A*:",
+	// 		"entity \"Bob\" glitched = true;",
+	// 		"rendezvous_*Y*:",
+	// 	],
+	// },
+	// set_int_exp_ok: {
+	// 	type: 'actions',
+	// 	autoAddReturn: false,
+	// 	input: [
+	// 		// MUTATE_VARIABLES
+	// 		'goatCount = index;',
+
+	// 		// MUTATE_VARIABLE
+	// 		'goatCount = 0;',
+
+	// 		// COPY_VARIABLE
+	// 		'goatCount = player x;',
+	// 		'player y = goatCount;',
+	// 	]
+	// },
+	// int_exp_chain_literal_getable: {
+	// 	type: 'actions',
+	// 	autoAddReturn: true,
+	// 	input: [
+	// 		'goatCount = 1 + player x;',
+	// 	],
+	// 	expected: [
+	// 		"*A* = 1;",
+	// 		"*B* = player x;",
+	// 		"*A* += *B*;",
+	// 		"goatCount = *A*;",
+	// 	],
+	// },
+	// int_exp_chain_getable_getable: {
+	// 	type: 'actions',
+	// 	autoAddReturn: true,
+	// 	input: [
+	// 		'goatCount = player y + player x;',
+	// 	],
+	// 	expected: [
+	// 		"*A* = player y;",
+	// 		"*B* = player x;",
+	// 		"*A* += *B*;",
+	// 		"goatCount = *A*;",
+	// 	],
+	// },
+	// int_exp_chain_literal_getable_mult: {
+	// 	type: 'actions',
+	// 	autoAddReturn: true,
+	// 	input: [
+	// 		'goatCount = 1 + player x * 99;',
+	// 	],
+	// 	expected: [
+	// 		"*A* = 1;",
+	// 		"*B* = player x;",
+	// 		"*B* *= 99;",
+	// 		"*A* += *B*;",
+	// 		"goatCount = *A*;",
+	// 	  ],
+	// },
+	int_exp_chain_literal_getable_mult_parens: {
 		type: 'actions',
-		autoAddReturn: false,
+		autoAddReturn: true,
 		input: [
-			'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
-			// 'entity Bob glitched = !(debug_mode || !isGoatGrumpy)',
+			'goatCount = (1 + player x) * 99;',
 		],
 		expected: [
-			'if (!debug_mode) { goto label if_true_*A*; }',
-			'goto label rendezvous_*A*;',
-			'if_true_*A*:',
-			'if (!isGoatGrumpy) { goto label if_true_*B*; }',
-			'rendezvous_*A*:',
-			'entity \'Bob\' glitched = false;',
-			'goto label rendezvous_*Y*;',
-			'if_true_*B*:',
-			'entity \'Bob\' glitched = true;',
-			'rendezvous_*Y*:',
-			'end_of_script_*Z*:',
-		],
+			"*A* = 1;",
+			"*B* = player x;",
+			"*A* += *B*;",
+			"*A* *= 99;",
+			"goatCount = *A*;",
+		  ],
 	},
 };
 
@@ -407,7 +486,7 @@ const actionArrayToScript = (scriptName, actionArray, autoAddReturn) => {
 		...actionArray.map(v=>'\t'+v),
 	];
 	if (autoAddReturn) {
-		ret.push(`\tend_of_script_*:`);
+		ret.push(`\tend_of_script_***:`);
 	}
 	ret.push('}');
 	return ret.join('\n')
@@ -433,17 +512,19 @@ const fileMap = {
 	},
 };
 
-const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|])/g, '\\$1');
+const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
 const makeTextUniform = (text) => text.trim()
 	.replace(/[\t ]+/g, ' ')
 	.replace(/\/\/.*?[\n$]/g, '');
 const compareTexts = (_found, _expected, fileName, scriptName) => {
 	const foundLines = makeTextUniform(_found)
-		.split('\n')
+		.replaceAll('=', '\n=')
+		.split(/\n/g)
 		.map(v=>v.trim())
 		.filter(v=>!!v);
 	const expectedLines = makeTextUniform(_expected)
-		.split('\n')
+		.replaceAll('=', '\n=')
+		.split(/\n/g)
 		.map(v=>v.trim())
 		.filter(v=>!!v);
 	if (foundLines.length !== expectedLines.length) {
@@ -463,7 +544,7 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 		const wild = expected.match(/(.*)(\*[A-Z]+\*)(.*)/);
 		if (wild){
 			const sanitary = wild.map(sanitize);
-			const pattern = new RegExp(`${sanitary[1]}(\\d+)${sanitary[3]}`);
+			const pattern = new RegExp(`${sanitary[1]}([\\da-zA-Z_]+)${sanitary[3]}`);
 			const label = sanitary[2];
 			const capture = found.match(pattern);
 			if (capture) {
@@ -484,7 +565,7 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 			}
 		}
 		// wild wildcards
-		const clean = sanitize(expected).replaceAll('***', '.+?');
+		const clean = sanitize(expected).replaceAll('\\*\\*\\*', '.+?');
 		const regExpected = new RegExp(clean);
 		if (found.match(regExpected)) {
 			return;

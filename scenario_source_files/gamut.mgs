@@ -186,8 +186,8 @@ set_int_exp_ok {
 	//expressions
 	goatCount = 1 + player x;
 	goatCount = player y + player x;
-	goatCount = player y + player x * 99;
-	goatCount = 7 * (self x + player primary_id);
+	goatCount = 1 + player x * 99;
+	goatCount = 7 * (1 + player x);
 }
 
 set_int_exp_not_ok {
