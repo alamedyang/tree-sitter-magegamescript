@@ -34,7 +34,11 @@ const handleNode = (f, node) => { // ->[]
 	// Look up the handler function
 	const nodeFn = nodeFns[node.grammarType];
 	if (!nodeFn) {
-		throw new Error ('no named node function for '+ node.grammarType);
+		f.newError({
+			locations: [{ node }],
+			message: 'no parser-node function for '+ node.grammarType,
+		})
+		return [];
 	}
 
 	// Do it

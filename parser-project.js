@@ -1,5 +1,11 @@
 const { ansiTags: ansi } = require('./parser-dialogs.js');
-const { makeMessagePrintable, flattenGotos, newComment } = require('./parser-utilities.js');
+const {
+	makeMessagePrintable,
+	flattenGotos,
+	newComment,
+	reportMissingChildNodes,
+	reportErrorNodes,
+} = require('./parser-utilities.js');
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
@@ -126,11 +132,22 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					finalActions.push(action);
 					return;
 				}
+				if (!p.scripts[action.script]) {
+					p.newError({
+						locations: [{
+							fileName: action.fileName,
+							node: action.debug.childForFieldName('script') || action.debug
+						}],
+						message: 'no script found by this name',
+					});
+					return;
+				}
 				if (!p.scripts[action.script].copyScriptResolved) {
 					p.copyScriptOne(action.script);
 				}
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedInsert = p.scripts[action.script].actions;
+				finalActions.push(newComment(`Copying: ${action.script}`));
 				finalActions.push(...copiedInsert.map(insert=>{
 					if (insert.mathlang?.includes('label')) {
 						const newInsert = {};
@@ -237,9 +254,32 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			let document = ast.rootNode;
 			// file crawl state
 			const f = makeFileState(p, fileName);
+			if (document.isError) {
+			}
+			let catastrophicErrorReported = false;
 			const nodes = document.namedChildren
-				.map(node=>handleNode(f, node))
-				.flat();
+				.map(node=>{
+					if (catastrophicErrorReported) { // Nuke the map()!
+						return;
+					} else if (!node.isError) { // Normal
+						return handleNode(f, node)
+					} else if (!catastrophicErrorReported) {
+						// The first catastrophic error should be the last!
+						// Every node underneath is just wrecked. Nuke it all!
+						f.newError({
+							locations: [{ node }],
+							message: `catastrophic syntax error (naive guess: invalid script name)`,
+							footer: `Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n`
+							+ `   add { ... } // INVALID\n`
+							+ `   include { ... } // INVALID\n`
+							+ `   script add { ... } // fix with keyword\n`
+							+ `   "include" { ... } // fix with quotes\n`
+						});
+						catastrophicErrorReported = true;
+					}
+				})
+				.flat()
+				.filter(v=>v); // catastrophic errors are undefined nodes
 			f.nodes = nodes;
 			// add parsed file to the pile
 			fileMap[fileName].parsed = f;

@@ -12,7 +12,18 @@
   {
     "type": "DISTANCE",
     "named": true,
-    "fields": {},
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "distance_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": true,
@@ -27,7 +38,18 @@
   {
     "type": "DURATION",
     "named": true,
-    "fields": {},
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "duration_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": true,
@@ -52,7 +74,18 @@
   {
     "type": "QUANTITY",
     "named": true,
-    "fields": {},
+    "fields": {
+      "suffix": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "quantity_suffix",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": false,
@@ -5489,8 +5522,16 @@
     "named": false
   },
   {
+    "type": "distance_suffix",
+    "named": true
+  },
+  {
     "type": "do",
     "named": false
+  },
+  {
+    "type": "duration_suffix",
+    "named": true
   },
   {
     "type": "east",
@@ -5696,6 +5737,10 @@
   {
     "type": "primary_id_type",
     "named": false
+  },
+  {
+    "type": "quantity_suffix",
+    "named": true
   },
   {
     "type": "rand",

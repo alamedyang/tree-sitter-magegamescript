@@ -34,10 +34,10 @@ enum ts_symbol_identifiers {
   sym_BAREWORD = 4,
   sym_QUOTED_STRING = 5,
   sym_NUMBER = 6,
-  aux_sym_DURATION_token1 = 7,
-  aux_sym_DISTANCE_token1 = 8,
-  aux_sym_QUANTITY_token1 = 9,
-  aux_sym_QUANTITY_token2 = 10,
+  sym_duration_suffix = 7,
+  sym_distance_suffix = 8,
+  sym_quantity_suffix = 9,
+  aux_sym_QUANTITY_token1 = 10,
   sym_COLOR = 11,
   sym_CONSTANT = 12,
   anon_sym_LBRACK = 13,
@@ -348,10 +348,10 @@ static const char * const ts_symbol_names[] = {
   [sym_BAREWORD] = "BAREWORD",
   [sym_QUOTED_STRING] = "QUOTED_STRING",
   [sym_NUMBER] = "NUMBER",
-  [aux_sym_DURATION_token1] = "DURATION_token1",
-  [aux_sym_DISTANCE_token1] = "DISTANCE_token1",
+  [sym_duration_suffix] = "duration_suffix",
+  [sym_distance_suffix] = "distance_suffix",
+  [sym_quantity_suffix] = "quantity_suffix",
   [aux_sym_QUANTITY_token1] = "QUANTITY_token1",
-  [aux_sym_QUANTITY_token2] = "QUANTITY_token2",
   [sym_COLOR] = "COLOR",
   [sym_CONSTANT] = "CONSTANT",
   [anon_sym_LBRACK] = "[",
@@ -662,10 +662,10 @@ static const TSSymbol ts_symbol_map[] = {
   [sym_BAREWORD] = sym_BAREWORD,
   [sym_QUOTED_STRING] = sym_QUOTED_STRING,
   [sym_NUMBER] = sym_NUMBER,
-  [aux_sym_DURATION_token1] = aux_sym_DURATION_token1,
-  [aux_sym_DISTANCE_token1] = aux_sym_DISTANCE_token1,
+  [sym_duration_suffix] = sym_duration_suffix,
+  [sym_distance_suffix] = sym_distance_suffix,
+  [sym_quantity_suffix] = sym_quantity_suffix,
   [aux_sym_QUANTITY_token1] = aux_sym_QUANTITY_token1,
-  [aux_sym_QUANTITY_token2] = aux_sym_QUANTITY_token2,
   [sym_COLOR] = sym_COLOR,
   [sym_CONSTANT] = sym_CONSTANT,
   [anon_sym_LBRACK] = anon_sym_LBRACK,
@@ -997,19 +997,19 @@ static const TSSymbolMetadata ts_symbol_metadata[] = {
     .visible = true,
     .named = true,
   },
-  [aux_sym_DURATION_token1] = {
-    .visible = false,
-    .named = false,
+  [sym_duration_suffix] = {
+    .visible = true,
+    .named = true,
   },
-  [aux_sym_DISTANCE_token1] = {
-    .visible = false,
-    .named = false,
+  [sym_distance_suffix] = {
+    .visible = true,
+    .named = true,
+  },
+  [sym_quantity_suffix] = {
+    .visible = true,
+    .named = true,
   },
   [aux_sym_QUANTITY_token1] = {
-    .visible = false,
-    .named = false,
-  },
-  [aux_sym_QUANTITY_token2] = {
     .visible = false,
     .named = false,
   },
@@ -4043,7 +4043,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
         's', 954,
         't', 414,
         'u', 378,
-        'x', 958,
+        'x', 957,
       );
       if (('\t' <= lookahead && lookahead <= '\r') ||
           lookahead == ' ') SKIP(21);
@@ -4535,7 +4535,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == 'e') ADVANCE(987);
       END_STATE();
     case 149:
-      if (lookahead == 'e') ADVANCE(957);
+      if (lookahead == 'e') ADVANCE(958);
       END_STATE();
     case 150:
       if (lookahead == 'e') ADVANCE(1025);
@@ -6617,7 +6617,7 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       END_STATE();
     case 628:
       ACCEPT_TOKEN(sym_BAREWORD);
-      if (lookahead == 'e') ADVANCE(957);
+      if (lookahead == 'e') ADVANCE(958);
       if (('0' <= lookahead && lookahead <= '9') ||
           ('A' <= lookahead && lookahead <= 'Z') ||
           lookahead == '_' ||
@@ -9244,10 +9244,10 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (('0' <= lookahead && lookahead <= '9')) ADVANCE(953);
       END_STATE();
     case 954:
-      ACCEPT_TOKEN(aux_sym_DURATION_token1);
+      ACCEPT_TOKEN(sym_duration_suffix);
       END_STATE();
     case 955:
-      ACCEPT_TOKEN(aux_sym_DURATION_token1);
+      ACCEPT_TOKEN(sym_duration_suffix);
       if (lookahead == 'a') ADVANCE(497);
       if (lookahead == 'c') ADVANCE(396);
       if (lookahead == 'e') ADVANCE(107);
@@ -9257,13 +9257,13 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead == 't') ADVANCE(400);
       END_STATE();
     case 956:
-      ACCEPT_TOKEN(aux_sym_DISTANCE_token1);
+      ACCEPT_TOKEN(sym_distance_suffix);
       END_STATE();
     case 957:
-      ACCEPT_TOKEN(aux_sym_QUANTITY_token1);
+      ACCEPT_TOKEN(sym_quantity_suffix);
       END_STATE();
     case 958:
-      ACCEPT_TOKEN(aux_sym_QUANTITY_token2);
+      ACCEPT_TOKEN(aux_sym_QUANTITY_token1);
       END_STATE();
     case 959:
       ACCEPT_TOKEN(sym_COLOR);
@@ -11030,10 +11030,10 @@ static const uint16_t ts_parse_table[LARGE_STATE_COUNT][SYMBOL_COUNT] = {
     [sym_block_comment] = ACTIONS(3),
     [sym_line_comment] = ACTIONS(3),
     [sym_QUOTED_STRING] = ACTIONS(1),
-    [aux_sym_DURATION_token1] = ACTIONS(1),
-    [aux_sym_DISTANCE_token1] = ACTIONS(1),
+    [sym_duration_suffix] = ACTIONS(1),
+    [sym_distance_suffix] = ACTIONS(1),
+    [sym_quantity_suffix] = ACTIONS(1),
     [aux_sym_QUANTITY_token1] = ACTIONS(1),
-    [aux_sym_QUANTITY_token2] = ACTIONS(1),
     [sym_COLOR] = ACTIONS(1),
     [sym_CONSTANT] = ACTIONS(1),
     [anon_sym_LBRACK] = ACTIONS(1),
@@ -19814,7 +19814,7 @@ static const uint16_t ts_small_parse_table[] = {
       anon_sym_name,
   [7103] = 3,
     ACTIONS(906), 1,
-      aux_sym_DURATION_token1,
+      sym_duration_suffix,
     ACTIONS(3), 2,
       sym_block_comment,
       sym_line_comment,
@@ -21715,7 +21715,7 @@ static const uint16_t ts_small_parse_table[] = {
       anon_sym_self,
   [9584] = 3,
     ACTIONS(1255), 1,
-      aux_sym_QUANTITY_token2,
+      sym_quantity_suffix,
     ACTIONS(3), 2,
       sym_block_comment,
       sym_line_comment,
@@ -21925,11 +21925,11 @@ static const uint16_t ts_small_parse_table[] = {
       sym_line_comment,
   [9868] = 5,
     ACTIONS(906), 1,
-      aux_sym_DURATION_token1,
+      sym_duration_suffix,
     ACTIONS(1255), 1,
-      aux_sym_QUANTITY_token2,
+      sym_quantity_suffix,
     ACTIONS(1295), 1,
-      aux_sym_DISTANCE_token1,
+      sym_distance_suffix,
     ACTIONS(1297), 1,
       sym_semicolon,
     ACTIONS(3), 2,
@@ -22108,7 +22108,7 @@ static const uint16_t ts_small_parse_table[] = {
       anon_sym_path,
   [10108] = 3,
     ACTIONS(1295), 1,
-      aux_sym_DISTANCE_token1,
+      sym_distance_suffix,
     ACTIONS(3), 2,
       sym_block_comment,
       sym_line_comment,

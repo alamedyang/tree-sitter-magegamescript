@@ -56,19 +56,22 @@ module.exports = grammar({
 		QUOTED_STRING: $ => token(/"(?:[^"\\]|\\.)*"/),
 		STRING: $ => choice($.QUOTED_STRING, $.BAREWORD),
 		NUMBER: $ => token(/-?[0-9]+/),
+		duration_suffix: $ => token.immediate(/m?s/),
 		DURATION: $ => prec.right(seq(
 			$.NUMBER,
-			optional(field('suffix', token.immediate(/m?s/)))
+			optional(field('suffix', $.duration_suffix))
 		)),
+		distance_suffix: $ => token.immediate(/pix|px/),
 		DISTANCE: $ => prec.right(seq(
 			$.NUMBER,
-			optional(field('suffix', token.immediate(/pix|px/)))
+			optional(field('suffix', $.distance_suffix))
 		)),
+		quantity_suffix: $ => token.immediate(/x/),
 		QUANTITY: $ => choice(
 			token(prec(1, choice('once', 'twice', 'thrice'))),
 			prec.right(seq(
 				$.NUMBER,
-				optional(field('suffix', token.immediate(/x/)))
+				optional(field('suffix', $.quantity_suffix))
 			)),
 		),
 		COLOR: $ => token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}/)),

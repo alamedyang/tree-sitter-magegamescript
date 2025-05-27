@@ -99,6 +99,13 @@
         "value": "-?[0-9]+"
       }
     },
+    "duration_suffix": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "m?s"
+      }
+    },
     "DURATION": {
       "type": "PREC_RIGHT",
       "value": 0,
@@ -116,11 +123,8 @@
                 "type": "FIELD",
                 "name": "suffix",
                 "content": {
-                  "type": "IMMEDIATE_TOKEN",
-                  "content": {
-                    "type": "PATTERN",
-                    "value": "m?s"
-                  }
+                  "type": "SYMBOL",
+                  "name": "duration_suffix"
                 }
               },
               {
@@ -129,6 +133,13 @@
             ]
           }
         ]
+      }
+    },
+    "distance_suffix": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "pix|px"
       }
     },
     "DISTANCE": {
@@ -148,11 +159,8 @@
                 "type": "FIELD",
                 "name": "suffix",
                 "content": {
-                  "type": "IMMEDIATE_TOKEN",
-                  "content": {
-                    "type": "PATTERN",
-                    "value": "pix|px"
-                  }
+                  "type": "SYMBOL",
+                  "name": "distance_suffix"
                 }
               },
               {
@@ -161,6 +169,13 @@
             ]
           }
         ]
+      }
+    },
+    "quantity_suffix": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "x"
       }
     },
     "QUANTITY": {
@@ -207,11 +222,8 @@
                     "type": "FIELD",
                     "name": "suffix",
                     "content": {
-                      "type": "IMMEDIATE_TOKEN",
-                      "content": {
-                        "type": "PATTERN",
-                        "value": "x"
-                      }
+                      "type": "SYMBOL",
+                      "name": "quantity_suffix"
                     }
                   },
                   {

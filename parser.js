@@ -93,13 +93,13 @@ const parseProject = async (fileMap, scenarioData) => {
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
 
-	// bake all the labels into hard-coded action indices
-	p.bakeLabels();
-	
 	// Make script plaintext readable
 	Object.keys(p.scripts).forEach(scriptName=>{
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
 	})
+	
+	// bake all the labels into hard-coded action indices
+	p.bakeLabels();
 	
 	// print fancy squiggly error messages
 	p.printProblems();
@@ -108,7 +108,7 @@ const parseProject = async (fileMap, scenarioData) => {
 	return p;
 };
 
-// /*
+/*
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
@@ -120,6 +120,6 @@ parseProject(fileMap).then((p)=>{
 		.join('\n\n');
 	console.log(printAll);
 });
-// */
+*/
 
 module.exports = { parseProject };
