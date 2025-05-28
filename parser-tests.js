@@ -1206,9 +1206,21 @@ const actionTests = {
 
 // --------------------------- FILE-LEVEL TESTS ---------------------------
 const fileMap = {
-	'constants.mgs': {
+	'header.mgs': {
 		fileText: `
-			$trombones = 76;
+			$magicNumber = 76;
+		`,
+		expected: {
+			scripts: {},
+			constants: {
+				$magicNumber: { fileName: 'header.mgs', value: 76 },
+			},
+		}
+	},
+	'constants_include.mgs': {
+		fileText: `
+			include "header.mgs";
+			$trombones = $magicNumber;
 			$hamburgers = "steamed hams";
 			constants {
 				player x = $trombones;
@@ -1222,6 +1234,11 @@ const fileMap = {
 					warp_state = "steamed hams";
 					end_of_script_***:
 				}`,
+			},
+			constants: {
+				$magicNumber: { fileName: 'header.mgs', value: 76 },
+				$trombones: { fileName: 'constants.mgs', value: 76 },
+				$hamburgers: { fileName: 'constants.mgs', value: 'steamed hams' },
 			},
 		},
 	},
@@ -1247,7 +1264,7 @@ const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1')
 const makeTextUniform = (text) => text.trim()
 	.replace(/[\t ]+/g, ' ')
 	.replace(/\/\/.*?[\n$]/g, '');
-const compareTexts = (_found, _expected, fileName, scriptName) => {
+const compareTexts = (_found, _expected, fileName, thingName) => {
 	const foundLines = makeTextUniform(_found)
 		.replaceAll('+=', '+\n=')
 		.replaceAll('-=', '-\n=')
@@ -1287,7 +1304,7 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 		}
 		return {
 			status: 'fail',
-			message: scriptName + ': different line counts',
+			message: thingName + ': different line counts',
 			lengthDiff: comboLines,
 		}
 	}
@@ -1352,7 +1369,7 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 	if (lines.length) {
 		return {
 			status: 'fail',
-			message: `${scriptName}: mismatched lines`,
+			message: `${thingName}: mismatched lines`,
 			lines: lines.map(v=>{
 				if (v.value) {
 					let registered;
@@ -1375,34 +1392,86 @@ const compareTexts = (_found, _expected, fileName, scriptName) => {
 
 const errors = [];
 
+// --------------------------- Other diagnostics ---------------------------
+
+const compareConstants = (fileName, _found, _expected) => {
+	const messages = [];
+	const foundKeys = Object.keys(_found);
+	const expectedKeys = Object.keys(_expected);
+	expectedKeys.forEach(k=>{
+		if (!foundKeys.includes(k)) {
+			messages.push({
+				status: 'fail',
+				message: `${fileName}: Did not find expected constant '${k}'`,
+			});
+			return;
+		}
+	});
+	foundKeys.forEach(k=>{
+		if (!expectedKeys.includes(k)) {
+			messages.push({
+				status: 'fail',
+				message: `${fileName}: Found unexpected constant '${k}'`,
+			});
+			return;
+		}
+		const found = _found[k];
+		const expected = _expected[k];
+		if (found.value !== expected.value) {
+			const compared = compareTexts(String(found.value), String(expected.value), fileName, k);
+			if (compared.status !== 'success') {
+				errors.push(compared);
+			}
+		}
+	});
+	return messages;
+}
+
+// --------------------------- THE OWL ---------------------------
 const runTests = async () => {
 	parseProject(fileMap, {}).then(result=>{
-		// Action tests
+
+		// ACTION TESTS
 		const actionTestNames = Object.keys(actionTests);
 		const actionExpected = fileMap['actionTests.mgs'].expected.scripts;
-		const actionResults = result.scripts;
+		const actionFound = result.scripts;
 		actionTestNames.forEach(scriptName => {
 			const expected = actionExpected[scriptName];
-			const found = actionResults[scriptName].print;
+			const found = actionFound[scriptName].print;
 			const compared = compareTexts(found, expected, '', scriptName);
 			if (compared.status !== 'success') {
 				errors.push(compared);
 			}
 		});
-		// File tests
+
+		// FILE TESTS
 		fileTestNames.forEach(fileName=>{
-			const projectExpected = fileMap[fileName].expected;
-			const projectFound = result;
-			const scriptNames = Object.keys(projectExpected.scripts);
-			scriptNames.forEach(scriptName=>{
-				const expected = projectExpected.scripts[scriptName].trim();
-				const found = result.scripts[scriptName].print.trim();
+
+			// Scripts
+			const fileExpectedData = fileMap[fileName].expected;
+			const fileFoundP = fileMap[fileName].parsed;
+			const fileScriptNames = Object.keys(fileExpectedData.scripts);
+			const allScripts = result.scripts;
+			fileScriptNames.forEach(scriptName=>{
+				const expected = fileExpectedData.scripts[scriptName].trim();
+				const found = allScripts[scriptName].print.trim();
 				const compared = compareTexts(found, expected, '', scriptName);
 				if (compared.status !== 'success') {
 					errors.push(compared);
 				}
 			});
+
+			// Constants
+			const constants = compareConstants(
+				fileName,
+				fileFoundP.constants,
+				fileExpectedData.constants || {},
+			);
+			errors.push(...constants);
+
 		});
+
+		// PROBLEMS
 		errors.forEach(error=>{
 			console.error('\n'+error.message);
 			if (error.lines) {
@@ -1415,6 +1484,8 @@ const runTests = async () => {
 				console.error(error.lengthDiff.join('\n'));
 			}
 		});
+
+		// DONE
 		if (errors.length === 0) {
 			console.log("All tests good, chief!");
 		}
