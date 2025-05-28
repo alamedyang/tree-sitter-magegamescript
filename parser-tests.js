@@ -2,22 +2,21 @@ const { debugLog } = require('./parser-utilities.js');
 const { parseProject } = require('./parser.js');
 const { ansiTags } = require('./parser-dialogs.js');
 
-const roundTripTestData = {
-	no_arg_actions: {
-		type: 'actions',
-		autoAddReturn: true,
-		input: [
-			// SLOT_SAVE
-			'save slot;',
-			// CLOSE_DIALOG
-			'close dialog;',
-			// CLOSE_SERIAL_DIALOG
-			'close serial_dialog;',
-		],
-	},
+const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
+	const ret = [
+		`${scriptName} {`,
+		...actionArray.map(v=>'\t'+v),
+	];
+	if (autoAddEOF) {
+		ret.push(`\tend_of_script_***:`);
+	}
+	ret.push('}');
+	return ret.join('\n')
+};
+
+// --------------------------- ACTION TESTS ---------------------------
+const actionTests = {
 	simple_copy: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'wait 1;',
 			'copy!(no_arg_actions)',
@@ -32,9 +31,17 @@ const roundTripTestData = {
 			'wait 2ms;',
 		]
 	},
+	no_arg_actions: {
+		input: [
+			// SLOT_SAVE
+			'save slot;',
+			// CLOSE_DIALOG
+			'close dialog;',
+			// CLOSE_SERIAL_DIALOG
+			'close serial_dialog;',
+		],
+	},
 	simple_actions: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// BLOCKING_DELAY
 			'wait 1000ms;',
@@ -49,7 +56,6 @@ const roundTripTestData = {
 		],
 	},
 	SET_SCRIPT_PAUSE: {
-		autoAddReturn: true,
 		input: [
 			// SET_SCRIPT_PAUSE
 			'pause player on_look;',
@@ -85,8 +91,6 @@ const roundTripTestData = {
 		],
 	},
 	commands_and_aliases: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// REGISTER_SERIAL_DIALOG_COMMAND
 			'command callGoat = goatScript;',
@@ -108,8 +112,6 @@ const roundTripTestData = {
 		],
 	},
 	set_position: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// SET_CAMERA_TO_FOLLOW_ENTITY
 			'camera = player position;',
@@ -134,8 +136,6 @@ const roundTripTestData = {
 		],
 	},
 	set_position_over_time: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// WALK_ENTITY_TO_GEOMETRY
 			'player position -> geometry stick origin over 1ms;',
@@ -162,8 +162,6 @@ const roundTripTestData = {
 		],
 	},
 	other_do_over_time: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// SET_SCREEN_SHAKE
 			'camera shake -> 20ms 50px over 100ms;',
@@ -178,8 +176,6 @@ const roundTripTestData = {
 		],
 	},
 	simpleTranslations: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// seconds -> milliseconds
 			`wait 1s;`,
@@ -220,8 +216,6 @@ const roundTripTestData = {
 		],
 	},
 	set_string: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// SET_WARP_STATE
 			'warp_state = goat;',
@@ -258,8 +252,6 @@ const roundTripTestData = {
 		],
 	},
 	set_bool_exp_ok: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// SET_SAVE_FLAG
 			'flagName = true;',
@@ -284,8 +276,6 @@ const roundTripTestData = {
 		],
 	},
 	set_bool_exp_ok_translations: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'flagName = true;',
 			'hex_editor = on;',
@@ -312,8 +302,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_debug_mode: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_DEBUG_MODE
 			'entity Bob glitched = debug_mode;',
@@ -344,8 +332,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_dialog_open: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_DIALOG_OPEN
 			'entity Bob glitched = dialog open;',
@@ -400,8 +386,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_serial_dialog_open: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_SERIAL_DIALOG_OPEN
 			'entity Bob glitched = serial_dialog open;',
@@ -456,8 +440,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_check_flag: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_SAVE_FLAG
 			'entity Bob glitched = flagName;',
@@ -488,8 +470,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_button_press: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_FOR_BUTTON_PRESS
 			'entity Bob glitched = button MEM1 pressed;',
@@ -520,8 +500,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_button_state: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_FOR_BUTTON_STATE
 			'entity Bob glitched = button MEM1 down;',
@@ -576,8 +554,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_intersects: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_IF_ENTITY_IS_IN_GEOMETRY
 			'entity Bob glitched = player intersects geometry BOX;',
@@ -608,8 +584,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_branch_glitched: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// CHECK_ENTITY_GLITCHED
 			'entity Bob glitched = player glitched;',
@@ -640,8 +614,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_simple_or: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = debug_mode || isGoatGrumpy;',
 		],
@@ -656,8 +628,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_simple_and: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = debug_mode && isGoatGrumpy;',
 		],
@@ -675,8 +645,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_invert_or: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
 		],
@@ -694,8 +662,6 @@ const roundTripTestData = {
 		],
 	},
 	bool_exp_invert_and: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = !(debug_mode && isGoatGrumpy)',
 		],
@@ -710,8 +676,6 @@ const roundTripTestData = {
 		],
 	},
 	set_int_exp_not_ok: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// SET_ENTITY_X
 			'player x = 1;',
@@ -734,8 +698,6 @@ const roundTripTestData = {
 		],
 	},
 	set_int_exp_ok: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			// MUTATE_VARIABLES
 			'bothVarsAre = ambiguous;', // and that's ok
@@ -749,8 +711,6 @@ const roundTripTestData = {
 		]
 	},
 	int_exp_chain_literal_getable: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = 1 + player x;',
 		],
@@ -762,8 +722,6 @@ const roundTripTestData = {
 		],
 	},
 	int_exp_chain_getable_getable: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = player y + player x;',
 		],
@@ -775,8 +733,6 @@ const roundTripTestData = {
 		],
 	},
 	int_exp_chain_literal_getable_mult: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = 1 + player x * 99;',
 		],
@@ -789,8 +745,6 @@ const roundTripTestData = {
 		  ],
 	},
 	int_exp_chain_literal_getable_mult_parens: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = (1 + player x) * 99;',
 		],
@@ -803,8 +757,6 @@ const roundTripTestData = {
 		],
 	},
 	ambiguous_bool_single_invert: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = !notAmbiguous;',
 		],
@@ -818,8 +770,6 @@ const roundTripTestData = {
 		],
 	},
 	ambiguous_bool_disambiguate: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'goatCount = !!notAmbiguous;',
 		],
@@ -833,8 +783,6 @@ const roundTripTestData = {
 		],
 	},
 	int_expression_invert_comparison_lt: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName < 6;',
 			'entity Bob glitched = !(intName < 6);',
@@ -856,8 +804,6 @@ const roundTripTestData = {
 		]
 	},
 	int_expression_invert_comparison_lteq: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName <= 6;',
 			'entity Bob glitched = !(intName <= 6);',
@@ -879,8 +825,6 @@ const roundTripTestData = {
 		]
 	},
 	int_expression_invert_comparison_gt: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName > 6;',
 			'entity Bob glitched = !(intName > 6);',
@@ -902,8 +846,6 @@ const roundTripTestData = {
 		]
 	},
 	int_expression_invert_comparison_gteq: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName >= 6;',
 			'entity Bob glitched = !(intName >= 6);',
@@ -925,8 +867,6 @@ const roundTripTestData = {
 		]
 	},
 	int_expression_invert_comparison_eq: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName == 6;',
 			'entity Bob glitched = !(intName == 6);',
@@ -948,8 +888,6 @@ const roundTripTestData = {
 		]
 	},
 	int_expression_invert_comparison_noteq: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = intName != 6;',
 			'entity Bob glitched = !(intName != 6);',
@@ -971,8 +909,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_warp_state: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = warp_state == "landing";',
 			'entity Bob glitched = !(warp_state == "landing");',
@@ -1002,8 +938,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_name: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player name == goat;',
 			'entity Bob glitched = !(player name == goat);',
@@ -1033,8 +967,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_type: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player type == goat;',
 			'entity Bob glitched = !(player type == goat);',
@@ -1064,8 +996,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_interact: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player on_interact == goat;',
 			'entity Bob glitched = !(player on_interact == goat);',
@@ -1095,8 +1025,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_tick: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player on_tick == goat;',
 			'entity Bob glitched = !(player on_tick == goat);',
@@ -1126,8 +1054,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_look: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player on_look == goat;',
 			'entity Bob glitched = !(player on_look == goat);',
@@ -1157,8 +1083,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_direction: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player direction == north;',
 			'entity Bob glitched = !(player direction == east);',
@@ -1188,8 +1112,6 @@ const roundTripTestData = {
 		]
 	},
 	branch_on_string_equality_direction: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'entity Bob glitched = player path == longWalk;',
 			'entity Bob glitched = !(player path == longWalk);',
@@ -1219,8 +1141,6 @@ const roundTripTestData = {
 		]
 	},
 	while_simple: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'while (player glitched) { wait 1; }',
 		],
@@ -1235,8 +1155,6 @@ const roundTripTestData = {
 		],
 	},
 	number_comparison: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'player_control = 7 < 5;',
 			'player_control = 7 == 7;',
@@ -1249,8 +1167,6 @@ const roundTripTestData = {
 		],
 	},
 	spread_simple: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'wait [1ms, 2ms];',
 			'[player x, self y] = [10, intName];'
@@ -1263,8 +1179,6 @@ const roundTripTestData = {
 		],
 	},
 	rand_simple: {
-		type: 'actions',
-		autoAddReturn: true,
 		input: [
 			'rand!(',
 			'	wait [1ms, 2ms];',
@@ -1288,9 +1202,12 @@ const roundTripTestData = {
 			'rendezvous_*C*:',
 		],
 	},
-	constants: {
-		type: 'file',
-		input: `
+};
+
+// --------------------------- FILE-LEVEL TESTS ---------------------------
+const fileMap = {
+	'constants.mgs': {
+		fileText: `
 			$trombones = 76;
 			$hamburgers = "steamed hams";
 			constants {
@@ -1305,53 +1222,25 @@ const roundTripTestData = {
 					warp_state = "steamed hams";
 					end_of_script_***:
 				}`,
-			}
-		}
+			},
+		},
 	},
 };
+const fileTestNames = Object.keys(fileMap);
 
-const actionArrayToScript = (scriptName, actionArray, autoAddReturn) => {
-	const ret = [
-		`${scriptName} {`,
-		...actionArray.map(v=>'\t'+v),
-	];
-	if (autoAddReturn) {
-		ret.push(`\tend_of_script_***:`);
+// --------------------------- Putting all the tests into a "project" ---------------------------
+fileMap['actionTests.mgs'] = {
+	fileText: Object.entries(actionTests)
+		.map(([k,v])=>actionArrayToScript(k, v.input))
+		.join('\n\n'),
+	expected: {
+		scripts: {},
 	}
-	ret.push('}');
-	return ret.join('\n')
 };
-
-// The actual tests that are to be run
-const roundTripTests = {};
-Object.entries(roundTripTestData).forEach(([testName, data])=>{
-	if (data.type === 'actions') {
-		const fileText = actionArrayToScript(testName, data.input);
-		const expected = data.expected
-			? actionArrayToScript(testName, data.expected, data.autoAddReturn)
-			: actionArrayToScript(testName, data.input, data.autoAddReturn);
-		roundTripTests[testName] = {
-			fileText,
-			expected,
-			type: 'actions',
-		};
-	}
-});
-const fileMap = {
-	'roundTripTests.mgs': {
-		fileText: Object.values(roundTripTests)
-			.map(v=>v.fileText)
-			.join('\n\n'),
-		type: 'actions',
-	},
-};
-Object.entries(roundTripTestData).forEach(([k,v])=>{
-	if (v.type !== 'file') return;
-	fileMap[k+'.mgs'] = {
-		fileText: v.input,
-		type: 'file',
-		expected: v.expected,
-	};
+Object.entries(actionTests).forEach(([testName, data])=>{
+	const expectedArr = data.expected ? data.expected : data.input;
+	const expectedPrint = actionArrayToScript(testName, expectedArr, true);
+	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
 const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
@@ -1488,31 +1377,32 @@ const errors = [];
 
 const runTests = async () => {
 	parseProject(fileMap, {}).then(result=>{
-		// console.log(result);
-		const actionTestNames = Object.keys(roundTripTestData)
-			.filter(s=>roundTripTestData[s].type === 'actions');
+		// Action tests
+		const actionTestNames = Object.keys(actionTests);
+		const actionExpected = fileMap['actionTests.mgs'].expected.scripts;
+		const actionResults = result.scripts;
 		actionTestNames.forEach(scriptName => {
-			const expected = roundTripTests[scriptName].expected;
-			const found = result.scripts[scriptName].print;
+			const expected = actionExpected[scriptName];
+			const found = actionResults[scriptName].print;
 			const compared = compareTexts(found, expected, '', scriptName);
 			if (compared.status !== 'success') {
 				errors.push(compared);
 			}
 		});
-		Object.keys(roundTripTestData)
-			.filter(s=>roundTripTestData[s].type === 'file')
-			.forEach(fileName=>{
-				const scripts = roundTripTestData[fileName].expected.scripts;
-				const scriptNames = Object.keys(scripts);
-				scriptNames.forEach(scriptName=>{
-					const expected = scripts[scriptName].trim();
-					const found = result.scripts[scriptName].print.trim();
-					const compared = compareTexts(found, expected, '', scriptName);
-					if (compared.status !== 'success') {
-						errors.push(compared);
-					}
-				});
+		// File tests
+		fileTestNames.forEach(fileName=>{
+			const projectExpected = fileMap[fileName].expected;
+			const projectFound = result;
+			const scriptNames = Object.keys(projectExpected.scripts);
+			scriptNames.forEach(scriptName=>{
+				const expected = projectExpected.scripts[scriptName].trim();
+				const found = result.scripts[scriptName].print.trim();
+				const compared = compareTexts(found, expected, '', scriptName);
+				if (compared.status !== 'success') {
+					errors.push(compared);
+				}
 			});
+		});
 		errors.forEach(error=>{
 			console.error('\n'+error.message);
 			if (error.lines) {
