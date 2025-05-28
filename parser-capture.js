@@ -29,6 +29,9 @@ const opIntoStringMap = {
 	'?': 'RNG',
 };
 
+// TODO: auto apply fileName and debug:node at the end of the function lookup
+// no need to add it individually each time
+// (be sure it can be overridden though)
 const handleCapture = (f, node) => {
 	debugLog(`-->> Capturing: ${node.grammarType}`);
 	reportErrorNodes(f, node);
@@ -68,9 +71,9 @@ const captureFns = {
 	QUOTED_STRING: (f, node) => node.text.slice(1, -1),
 	NUMBER: (f, node) => Number(node.text),
 	DURATION: (f, node) => {
+		const suffixNode = textForFieldName(f, node, 'suffix');
 		let n = parseInt(node.namedChild('NUMBER').text);
-		let suffixNode = node.childForFieldName('suffix');
-		if (suffixNode?.text === 's') n *= 1000; 
+		if (suffixNode === 's') n *= 1000; 
 		return n;
 	},
 	DISTANCE: (f, node) => parseInt(node.text),
@@ -80,9 +83,9 @@ const captureFns = {
 			if (node.text === 'twice') return 2;
 			if (node.text === 'thrice') return 3;
 		}
+		const suffixNode = textForFieldName(f, node, 'suffix');
 		let n = parseInt(node.namedChild('NUMBER').text);
-		let suffixNode = node.childForFieldName('suffix');
-		if (suffixNode?.text === 's') n *= 1000; 
+		if (suffixNode === 's') n *= 1000; 
 		return n;
 	},
 	COLOR: (f, node) => {
@@ -107,18 +110,12 @@ const captureFns = {
 	CONSTANT: (f, node) => node.text,
 	op_equals: (f, node) => opIntoStringMap[node.text[0]],
 	forever: (f, node) => true,
-	entity_or_map_identifier: (f, node) => {
-		// for 'entity' fields (-> string)
-		const typeNode = node.childForFieldName('type');
-		return typeNode.text === 'map'
+	entity_or_map_identifier: (f, node) => { // for 'entity' fields (-> string)
+		return textForFieldName(f, node, 'type') === 'map'
 			? '%MAP%'
-			: extractEntityName(f, node, typeNode);
+			: extractEntityName(f, node);
 	},
-	entity_identifier: (f, node) => {
-		// for 'entity' fields (-> string)
-		const typeNode = node.childForFieldName('type');
-		return extractEntityName(f, node, typeNode);
-	},
+	entity_identifier: (f, node) => extractEntityName(f, node), // for 'entity' fields (-> string)
 	movable_identifier: (f, node) => {
 		// not just for 'entity' fields;
 		// result determines which action it is,
@@ -128,12 +125,12 @@ const captureFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		const typeNode = node.childForFieldName('type');
-		if (typeNode.text === 'camera') {
+		const type = textForFieldName(f, node, 'type');
+		if (type === 'camera') {
 			ret.type = 'camera';
 			ret.value = 'camera';
 		} else {
-			const entityName = extractEntityName(f, node, typeNode);
+			const entityName = extractEntityName(f, node);
 			ret.type = 'entity';
 			ret.value = entityName;
 		}
@@ -142,18 +139,14 @@ const captureFns = {
 	dialog_identifier: (f, node) => {
 		let type;
 		let value;
-		const labelNode = node.childForFieldName('label');
-		if (labelNode) {
+		const label = textForFieldName(f, node, 'label');
+		if (!label) {
 			type = 'label';
-			value = labelNode.text;
+			value = label;
 		} else {
-			const typeNode = node.childForFieldName('type');
-			const valueNode = node.childForFieldName('value');
-			type = typeNode.text;
-			value = valueNode
-				? handleCapture(f, valueNode)
-				: 'MALFORMED ENTITY IDENTIFIER';
-			if (!valueNode) {
+			type = textForFieldName(f, node, 'type');
+			value = captureForFieldName(f, node, 'value');
+			if (!value) {
 				f.newError({
 					locations: [{ node }],
 					message: `dialog identifier lacks a value`,
@@ -169,45 +162,37 @@ const captureFns = {
 		};
 	},
 	dialog_parameter: (f, node) => {
-		const propNode = node.childForFieldName('property');
-		const valueNode = node.childForFieldName('value');
 		return {
 			mathlang: 'dialog_parameter',
-			property: propNode.text,
-			value: handleCapture(f, valueNode),
+			property: textForFieldName(f, node, 'property'),
+			value: captureForFieldName(f, node, 'value'),
 			debug: node,
 			fileName: f.fileName,
 		};
 	},
 	serial_dialog_parameter: (f, node) => {
-		const propNode = node.childForFieldName('property');
-		const valueNode = node.childForFieldName('value');
 		return {
 			mathlang: 'serial_dialog_parameter',
-			property: propNode.text,
-			value: handleCapture(f, valueNode),
+			property: textForFieldName(f, node, 'property'),
+			value: captureForFieldName(f, node, 'value'),
 			debug: node,
 			fileName: f.fileName,
 		};
 	},
 	coordinate_identifier: (f, node) => {
-		const typeNode = node.childForFieldName('type');
-		const type = typeNode.text;
+		const type = textForFieldName(f, node, 'type');
 		const ret = {
 			mathlang: 'coordinate_identifier',
 			debug: node,
 			fileName: f.fileName,
 		};
 		if (type === 'geometry') {
-			const geometryNode = node.childForFieldName('geometry');
-			const polygonTypeNode = node.childForFieldName('polygon_type');
 			ret.type = 'geometry';
-			ret.value = extractGeometryName(f, geometryNode);
-			ret.polygonType = polygonTypeNode?.text;
+			ret.value = captureForFieldName(f, node, 'geometry');
+			ret.polygonType = textForFieldName(f, node, 'polygon_type');
 		} else {
-			const entityName = extractEntityName(f, node, typeNode);
 			ret.type = 'entity';
-			ret.value = entityName;
+			ret.value = extractEntityName(f, node);
 		}
 		return ret;
 	},
@@ -217,27 +202,22 @@ const captureFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		const typeNode = node.childForFieldName('type');
-		if (!typeNode) {
+		const type = textForFieldName(f, node, 'type');
+		if (!type) {
 			// ret.action = 'SET_SAVE_FLAG';
-			const flagNameNode = node.childForFieldName('flag');
-			ret.value = handleCapture(f, flagNameNode);
+			ret.value = captureForFieldName(f, node, 'flag');
 			ret.type = 'save_flag';
 			return ret;
 		}
-		const type = typeNode.text;
 		if (type === 'glitched') {
 			// ret.action = 'SET_ENTITY_GLITCHED';
-			const entityIdentNode = node.childForFieldName('entity_identifier');
-			const entityTypeNode = entityIdentNode.childForFieldName('type');
-			ret.value = extractEntityName(f, entityIdentNode, entityTypeNode);
+			ret.value = captureForFieldName(f, node, 'entity_identifier');
 			ret.type = 'entity';
 			return ret;
 		}
 		if (type === 'light') {
 			// ret.action = 'SET_LIGHTS_STATE';
-			const lightIdentNode = node.childForFieldName('light');
-			ret.value = handleCapture(f, lightIdentNode);
+			ret.value = captureForFieldName(f, node, 'light');
 			ret.type = 'light';
 			return ret;
 		}
@@ -247,10 +227,9 @@ const captureFns = {
 	int_binary_expression: (f, node) => {
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
-		const opNode = node.childForFieldName('operator');
+		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		const op = opNode.text;
 		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'number') {
 			f.newError({
 				locations: [
@@ -287,13 +266,11 @@ const captureFns = {
 		};
 	},
 	bool_binary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
-		// const inner = node.namedChildren[0];
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
-		const opNode = node.childForFieldName('operator');
+		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		const op = opNode.text;
 		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'boolean') {
 			f.newError({
 				locations: [
@@ -331,68 +308,51 @@ const captureFns = {
 			op,
 		};
 	},
-	bool_grouping: (f, node) => {
-		const inner = node.childForFieldName('inner');
-		return handleCapture(f, inner);
-	},
+	bool_grouping: (f, node) => captureForFieldName(f, node, 'inner'),
 	bool_unary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
-		const opNode = node.childForFieldName('operator');
-		const op = opNode.text;
+		const op = textForFieldName(f, node, 'operator');
 		if (op !== '!') throw new Error ("what kind of unary is '" + op + "'?");
-		const valueNode = node.childForFieldName('operand');
-		const capture = handleCapture(f, valueNode);
+		const capture = captureForFieldName(f, node, 'operand');
 		const toInvert = typeof capture === 'object'  ? {...capture} : capture;
 		const inverted = invert(f, node, toInvert);
 		inverted.debug = node;
 		return inverted;
 	},
 	int_getable: (f, node) => {
-		const propertyNode = node.childForFieldName('property');
-		const field = propertyNode.text;
-		const entityNode = node.childForFieldName('entity_identifier');
-		const entity = handleCapture(f, entityNode);
 		return {
 			mathlang: 'int_getable',
 			debug: node,
 			fileName: f.fileName,
-			field,
-			entity
+			field: textForFieldName(f, node, 'property'),
+			entity: captureForFieldName(f, node, 'entity_identifier'),
 		}
 	},
 	bool_getable: (f, node) => { // PART OF BOOL EXPRESSIONS
-		const typeNode = node.childForFieldName('type');
-		const type = typeNode.text;
+		const type = textForFieldName(f, node, 'type');
 		const ret = {
 			mathlang: 'bool_getable',
 			debug: node,
 			fileName: f.fileName,
-			type,
 		};
 		if (type === 'debug_mode') {
 			ret.action = 'CHECK_DEBUG_MODE';
 		} else if (type === 'glitched') {
 			ret.action = 'CHECK_ENTITY_GLITCHED';
-			const entityIdentNode = node.childForFieldName('entity_identifier');
-			const entityTypeNode = entityIdentNode.childForFieldName('type');
-			ret.entity = extractEntityName(f, entityIdentNode, entityTypeNode);
+			ret.entity = captureForFieldName(f, node, 'entity_identifier');
 		} else if (type === 'intersects') {
 			ret.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
-			const entityIdentNode = node.childForFieldName('entity_identifier');
-			const entityTypeNode = entityIdentNode.childForFieldName('type');
-			ret.entity = extractEntityName(f, entityIdentNode, entityTypeNode);
-			const geometryIdentNode = node.childForFieldName('geometry_identifier');
-			ret.geometry = handleCapture(f, geometryIdentNode);
+			ret.entity = captureForFieldName(f, node, 'entity_identifier');
+			ret.geometry = captureForFieldName(f, node, 'geometry_identifier');
 		} else if (type === 'dialog' || type === 'serial_dialog') {
 			ret.action = type === 'dialog'
 				? 'CHECK_DIALOG_OPEN'
 				: 'CHECK_SERIAL_DIALOG_OPEN';
-			const valueNode = node.childForFieldName('value');
 			const param = getBoolFieldForAction(ret.action);
-			const state = valueNode.text;
+			const state = textForFieldName(f, node, 'value');
 			if (state === 'open') ret[param] = true;
 			if (state === 'closed') ret[param] = false;
 		} else if (type === 'button') {
-			ret.value = node.childForFieldName('button').text;
+			ret.value = textForFieldName(f, node, 'button');
 			const stateNode = node.childForFieldName('state');
 			if (stateNode.text === 'pressed') {
 				ret.action = 'CHECK_FOR_BUTTON_PRESS';
@@ -414,33 +374,32 @@ const captureFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		const entityIdentNode = node.childForFieldName('entity_identifier');
-		if (entityIdentNode) {
-			ret.entity = extractEntityName(f, entityIdentNode);
-			const property = node.childForFieldName('property')?.text;
-			ret.property = property;
-			if (property === 'on_tick') {
+		const entity = captureForFieldName(f, node, 'entity_identifier');
+		if (entity) {
+			ret.entity = entity;
+			ret.property = textForFieldName(f, node, 'property');
+			if (ret.property === 'on_tick') {
 				ret.action = 'CHECK_ENTITY_TICK_SCRIPT';
 				ret.stringLabel = 'expected_script';
-			} else if (property === 'on_look') {
+			} else if (ret.property === 'on_look') {
 				ret.action = 'CHECK_ENTITY_LOOK_SCRIPT';
 				ret.stringLabel = 'expected_script';
-			} else if (property === 'on_interact') {
+			} else if (ret.property === 'on_interact') {
 				ret.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
 				ret.stringLabel = 'expected_script';
-			} else if (property === 'name') {
+			} else if (ret.property === 'name') {
 				ret.action = 'CHECK_ENTITY_NAME';
 				ret.stringLabel = 'string';
-			} else if (property === 'path') {
+			} else if (ret.property === 'path') {
 				ret.action = 'CHECK_ENTITY_PATH';
 				ret.stringLabel = 'geometry';
-			} else if (property === 'type') {
+			} else if (ret.property === 'type') {
 				ret.action = 'CHECK_ENTITY_TYPE';
 				ret.stringLabel = 'entity_type';
 			}
 		} else {
-			const type = node.childForFieldName('type');
-			if (type.text === 'warp_state') {
+			const type = textForFieldName(f, node, 'type');
+			if (type === 'warp_state') {
 				ret.action = 'CHECK_WARP_STATE';
 				ret.stringLabel = 'string';
 			} else {
@@ -455,34 +414,32 @@ const captureFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		const entityIdentNode = node.childForFieldName('entity_identifier');
-		if (entityIdentNode) {
-			ret.entity = extractEntityName(f, entityIdentNode);
-			const propertyNode = node.childForFieldName('property');
-			const property = propertyNode.text;
-			ret.property = property;
-			if (property === 'x') {
+		const entity = captureForFieldName(f, node, 'entity_identifier');
+		if (entity) {
+			ret.entity = entity;
+			ret.property = textForFieldName(f, node, 'property');
+			if (ret.property === 'x') {
 				ret.action = 'CHECK_ENTITY_X';
 				ret.numberLabel = 'expected_u2';
-			} else if (property === 'y') {
+			} else if (ret.property === 'y') {
 				ret.action = 'CHECK_ENTITY_Y';
 				ret.numberLabel = 'expected_u2';
-			} else if (property === 'primary_id') {
+			} else if (ret.property === 'primary_id') {
 				ret.action = 'CHECK_ENTITY_PRIMARY_ID';
 				ret.numberLabel = 'expected_u2';
-			} else if (property === 'secondary_id') {
+			} else if (ret.property === 'secondary_id') {
 				ret.action = 'CHECK_ENTITY_SECONDARY_ID';
 				ret.numberLabel = 'expected_u2';
-			} else if (property === 'primary_id_type') {
+			} else if (ret.property === 'primary_id_type') {
 				ret.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 				ret.numberLabel = 'expected_byte';
-			} else if (property === 'current_animation') {
+			} else if (ret.property === 'current_animation') {
 				ret.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
 				ret.numberLabel = 'expected_byte';
-			} else if (property === 'animation_frame') {
+			} else if (ret.property === 'animation_frame') {
 				ret.action = 'CHECK_ENTITY_CURRENT_FRAME';
 				ret.numberLabel = 'expected_byte';
-			} else if (property === 'strafe') {
+			} else if (ret.property === 'strafe') {
 				f.newError({
 					location: [{ node: propertyNode }],
 					message: `This property is not supported in boolean expressions`
@@ -491,90 +448,80 @@ const captureFns = {
 		}
 		return ret;
 	},
-	geometry_identifier: (f, node) => {
-		const v = node.childForFieldName('geometry');
-		return handleCapture(f, v);
-	},
-	nsew: (f, node) => node.text,
-	entity_direction: (f, node) => {
-		const entityIdentNode = node.childForFieldName('entity_identifier');
-		return extractEntityName(f, entityIdentNode);
-	},
+	geometry_identifier: (f, node) => captureForFieldName(f, node, 'geometry'),
+	nsew: (f, node) => node.text, // not used but maybe good for error'd nodes
+	entity_direction: (f, node) => captureForFieldName(f, node, 'entity_identifier'),
 	towards: (f, node) => {
-		const nsewNode = node.childForFieldName('nsew');
-		if (nsewNode) {
+		const direction = textForFieldName(f, node, 'nsew');
+		if (direction) {
 			return {
 				action: 'SET_ENTITY_DIRECTION',
-				direction: nsewNode.text,
-				type: 'nsew',
+				direction,
 			};
 		}
-		const geometryNode = node.childForFieldName('geometry_identifier');
-		if (geometryNode) {
+		const target_geometry = captureForFieldName(f, node, 'geometry');
+		if (target_geometry) {
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
-				target_geometry: handleCapture(f, geometryNode),
-				type: 'geometry',
+				target_geometry,
 			};
 		}
-		const entityNode = node.childForFieldName('entity_identifier');
-		if (entityNode) {
+		const target_entity = captureForFieldName(f, node, 'entity_identifier');
+		if (target_entity) {
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
-				target_entity: handleCapture(f, entityNode),
-				type: 'entity',
+				target_entity,
 			};
 		}
 	},
 	bool_comparison: (f, node) => { // PART OF BOOL EXPRESSIONS
-		const lhsN = node.childForFieldName('lhs');
-		const rhsN = node.childForFieldName('rhs');
-		if (lhsN.grammarType === 'entity_direction') {
+		const lhsNode = node.childForFieldName('lhs');
+		const rhsNode = node.childForFieldName('rhs');
+		const op = textForFieldName(f, node, 'operator');
+		if (lhsNode.grammarType === 'entity_direction') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNSEW(f, lhsN, rhsN),
-				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareNSEW(f, lhsNode, rhsNode),
+				expected_bool: op === '==',
 			}
 		} 
-		if (rhsN.grammarType === 'entity_direction') {
+		if (rhsNode.grammarType === 'entity_direction') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNSEW(f, rhsN, lhsN),
-				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareNSEW(f, rhsNode, lhsNode),
+				expected_bool: op === '==',
 			}
 		}
-		if (lhsN.grammarType === 'string_checkable') {
-			const op = node.childForFieldName('operator').text;
-			const expected_bool = op === '==';
+		if (lhsNode.grammarType === 'string_checkable') {
 			return {
 				mathlang: 'bool_comparison',
-				expected_bool,
-				...compareString(f, lhsN, rhsN),
+				expected_bool: op === '==',
+				...compareString(f, lhsNode, rhsNode),
 			}
 		}
-		if (rhsN.grammarType === 'string_checkable') {
+		if (rhsNode.grammarType === 'string_checkable') {
 			return {
 				mathlang: 'bool_comparison',
-				expected_bool: node.childForFieldName('operator').text === '==',
-				...compareString(f, rhsN, lhsN),
+				expected_bool: op === '==',
+				...compareString(f, rhsNode, lhsNode),
 			}
 		}
-		if (lhsN.grammarType === 'number_checkable_equality') {
+		if (lhsNode.grammarType === 'number_checkable_equality') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNumberCheckableEquality(f, lhsN, rhsN),
-				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareNumberCheckableEquality(f, lhsNode, rhsNode),
+				expected_bool: op === '==',
 			}
 		}
-		if (rhsN.grammarType === 'number_checkable_equality') {
+		if (rhsNode.grammarType === 'number_checkable_equality') {
 			return {
 				mathlang: 'bool_comparison',
-				...compareNumberCheckableEquality(f, rhsN, lhsN),
-				expected_bool: node.childForFieldName('operator').text === '==',
+				...compareNumberCheckableEquality(f, rhsNode, lhsNode),
+				expected_bool: op === '==',
 			}
 		}
-		const lhs = handleCapture(f, lhsN);
-		const rhs = handleCapture(f, rhsN);
+		const lhs = handleCapture(f, lhsNode);
+		const rhs = handleCapture(f, rhsNode);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
 				return {
@@ -582,7 +529,7 @@ const captureFns = {
 					action: 'CHECK_VARIABLES',
 					variable: lhs,
 					source: rhs,
-					comparison: node.childForFieldName('operator').text,
+					comparison: op,
 					expected_bool: true,
 					debug: node,
 					fileName: f.fileName,
@@ -593,7 +540,7 @@ const captureFns = {
 					action: 'CHECK_VARIABLE',
 					variable: lhs,
 					value: rhs,
-					comparison: node.childForFieldName('operator').text,
+					comparison: op,
 					expected_bool: true,
 					debug: node,
 					fileName: f.fileName,
@@ -603,7 +550,7 @@ const captureFns = {
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
-				const comparison = node.childForFieldName('operator').text;
+				const comparison = op;
 				return {
 					mathlang: 'bool_comparison',
 					action: 'CHECK_VARIABLE',
@@ -622,40 +569,36 @@ const captureFns = {
 		}
 	},
 	int_setable: (f, node) => {
-		const propertyNode = node.childForFieldName('property');
-		const field = propertyNode.text;
-		const entityNode = node.childForFieldName('entity_identifier');
-		const entity = handleCapture(f, entityNode);
 		return {
 			mathlang: 'int_getable',
 			debug: node,
 			fileName: f.fileName,
-			field,
-			entity
+			field: textForFieldName(f, node, 'property'),
+			entity: captureForFieldName(f, node, 'entity_identifier')
 		}
 	},
 	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 	bool_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 	direction_target: (f, node) => {
-		const nsewNode = node.childForFieldName('nsew');
-		if (nsewNode) {
+		const direction = textForFieldName(f, node, 'nsew');
+		if (direction) {
 			return {
 				action: 'SET_ENTITY_DIRECTION',
-				direction: nsewNode.text,
+				direction,
 			};
 		}
-		const geometryNode = node.childForFieldName('geometry');
-		if (geometryNode) {
+		const target_geometry = captureForFieldName(f, node, 'geometry');
+		if (target_geometry) {
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
-				target_geometry: handleCapture(f, geometryNode),
+				target_geometry,
 			};
 		}
-		const entityNode = node.childForFieldName('entity');
-		if (entityNode) {
+		const target_entity = captureForFieldName(f, node, 'entity');
+		if (target_entity) {
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
-				target_entity: handleCapture(f, entityNode),
+				target_entity,
 			};
 		}
 	},
@@ -665,7 +608,7 @@ const captureFns = {
 const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
 	direction: nsewNode.text,
-	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
+	entity: captureForFieldName(f, node, 'entity_identifier'),
 	fileName: f.fileName,
 	debug: node,
 });
@@ -685,38 +628,39 @@ const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 		[checkable.numberLabel]: number,
 	};
 };
-const extractEntityName = (f, node, _typeNode) => {
-	const typeNode = _typeNode || node.childForFieldName('type');
-	const type = typeNode.text;
-	let entity;
-	if (type === 'self') entity = '%SELF%'
-	if (type === 'player') entity = '%PLAYER%'
-	if (type === 'entity') {
-		const entityNode = node.childForFieldName('entity');
-		if (entityNode) {
-			entity = handleCapture(f, entityNode);
-		} else {
-			entity = 'UNDEFINED ENTITY';
-			f.newError({
-				locations: [{ node }],
-				message: 'undefined entity identifier'
-			});
-		}
-	}
-	return entity;
-};
-const extractGeometryName = (f, geometryNode) => {
-	let geometry;
-	if (geometryNode) {
-		geometry = handleCapture(f, geometryNode);
-	} else {
-		geometry = 'UNDEFINED GEOMETRY';
-		f.newError({
-			locations: [{ node }],
-			message: 'undefined geometry identifier'
-		});
-	}
-	return geometry;
+const extractEntityName = (f, node) => {
+	const type = textForFieldName(f, node, 'type');
+	if (type === 'self') return '%SELF%'
+	if (type === 'player') return '%PLAYER%'
+	if (type !== 'entity') throw new Error ('Entity identifier not an entity?');
+	return captureForFieldName(f, node, 'entity');
 };
 
-module.exports = handleCapture;
+const captureForFieldName = (f, node, fieldName) => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) return undefined;
+	return handleCapture(f, captureNode);
+};
+const capturesForFieldName = (f, node, fieldName) => {
+	return (node.childrenForFieldName(fieldName) || [])
+		.map(v=>handleCapture(f, v))
+		.flat();
+};
+const textForFieldName = (f, node, fieldName) => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) return undefined;
+	return captureNode.text;
+};
+const grammarTypeForFieldName = (f, node, fieldName) => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) return undefined;
+	return captureNode.grammarType;
+};
+
+module.exports = {
+	handleCapture,
+	captureForFieldName,
+	capturesForFieldName,
+	textForFieldName,
+	grammarTypeForFieldName,
+};

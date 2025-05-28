@@ -1,4 +1,9 @@
-const handleCapture = require('./parser-capture.js');
+const {
+	captureForFieldName,
+	capturesForFieldName,
+	textForFieldName,
+	grammarTypeForFieldName,
+ } = require('./parser-capture.js');
 const {
 	autoIdentifierName,
 	expandCondition,
@@ -201,8 +206,8 @@ const handleAction = (f, node) => { // ->[]
 	const captures = data.captures || [];
 	const fieldsToSpread = {};
 	captures.forEach(fieldName => {
-		const fieldNode = node.childForFieldName(fieldName);
-		if (!fieldNode) {
+		const capture = captureForFieldName(f, node, fieldName);
+		if (capture === undefined) {
 			if (data.optionalCaptures?.includes(fieldName)) {
 				action[fieldName] = null;
 			} else {
@@ -210,12 +215,11 @@ const handleAction = (f, node) => { // ->[]
 			}
 			return;
 		}
-		const capture = handleCapture(f, fieldNode);
 		if (!Array.isArray(capture)) {
 			action[fieldName] = capture;
 		} else {
 			fieldsToSpread[fieldName] = {
-				node: fieldNode,
+				node: capture,
 				captures: capture,
 			};
 		}
@@ -259,8 +263,7 @@ const actionFns = {
 	action_show_dialog: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
-		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = (dialogNodes || [])
+		const dialogs = (node.childrenForFieldName('dialog') || [])
 			.map(child => handleNode(f, child))
 			.flat();
 		const ret = [ showDialog(f, node, name) ];
@@ -273,8 +276,7 @@ const actionFns = {
 	action_show_serial_dialog: (f, node, isConcat) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
-		const serialDialogNodes = node.childrenForFieldName('serial_dialog');
-		const serialDialogs = (serialDialogNodes || [])
+		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
 			.map(child => handleNode(f, child))
 			.flat();
 		const ret = [ showSerialDialog(f, node, name, false) ];
@@ -428,7 +430,7 @@ const actionData = {
 		detective: [
 			{
 				isMatch: (v, f, node) => {
-					const type = node.childForFieldName('rhs').grammarType;
+					const type = grammarTypeForFieldName(f, node, 'rhs');
 					return type === 'ambiguous_identifier_expansion'
 						|| type === 'BAREWORD'
 						|| type === 'QUOTED_STRING'
@@ -464,14 +466,12 @@ const actionData = {
 			{
 				// We know the RHS is a number
 				// ... but it's a simple "getable" so use a simple action for this
-				isMatch: (v, f, node) => node.childForFieldName('rhs')
-					.grammarType === 'int_getable',
+				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs') === 'int_getable',
 				finalizeValues: (v) => copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs),
 			},
 			{
 				// We know the RHS is a int expression
-				isMatch: (v, f, node) => node.childForFieldName('rhs')
-					.grammarType.includes('int'),
+				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs').includes('int'),
 				finalizeValues: (v, f, node) => {
 					// Make a temporary variable to store the value of the expression
 					newTemporary();
@@ -503,8 +503,7 @@ const actionData = {
 			{
 				// We know the RHS is a bool expression
 				// ... it's complicated.
-				isMatch: (v, f, node) => node.childForFieldName('rhs')
-					.grammarType.includes('bool'),
+				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs').includes('bool'),
 				finalizeValues: (v, f, node) => {
 					// TODO: review this fn
 					const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
@@ -561,9 +560,7 @@ const actionData = {
 				// RHS is variable name, simple case
 				// The field is part of the JSON action
 				isMatch: (v) => typeof v.rhs === 'string',
-				finalizeValues: (v, f, node) => copyVarIntoEntityField(
-					v.rhs, v.lhs.entity, v.lhs.field
-				),
+				finalizeValues: (v, f, node) => copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field),
 			},
 			{
 				// RHS is something more complex (everything else)

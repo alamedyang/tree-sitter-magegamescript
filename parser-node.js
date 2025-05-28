@@ -16,7 +16,12 @@ const {
 	buildDialogFromInfo,
 } = require('./parser-dialogs.js');
 
-const handleCapture = require('./parser-capture.js');
+const {
+	handleCapture,
+	captureForFieldName,
+	textForFieldName,
+	capturesForFieldName,
+} = require('./parser-capture.js');
 const { handleAction, handleActionsInit } = require('./parser-actions.js');
 
 const handleNode = (f, node) => { // ->[]
@@ -71,8 +76,7 @@ const nodeFns = {
 		return [];
 	},
 	script_definition: (f, node) => {
-		const nameNode = node.childForFieldName('script_name');
-		const name = handleCapture(f, nameNode);
+		const name = captureForFieldName(f, node, 'script_name');
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const actions = node.lastChild
 			.namedChildren // error nodes are caught above
@@ -92,10 +96,8 @@ const nodeFns = {
 		}];
 	},
 	constant_assignment: (f, node) => {
-		const labelNode = node.childForFieldName('label');
-		const valueNode = node.childForFieldName('value');
-		const label = labelNode.text;
-		const value = handleCapture(f, valueNode);
+		const label = textForFieldName(f, node, 'label');
+		const value = captureForFieldName(f, node, 'value');
 		f.constants = f.constants || {};
 		if (f.constants[label]) {
 			f.newError({
@@ -118,8 +120,7 @@ const nodeFns = {
 	},
 	include_macro: (f, node) => {
 		// TODO: ~~handle~~ prevent recursive references
-		let fileNameNode = node.childForFieldName('fileName');
-		let fileName = handleCapture(f, fileNameNode);
+		const fileName = captureForFieldName(f, node, 'fileName');
 		const prerequesites = Array.isArray(fileName) ? fileName : [ fileName ];
 		prerequesites.forEach(prereqName=> {
 			if (!f.p.fileMap[prereqName].parsed) {
@@ -170,10 +171,7 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
-	label_definition: (f, node) => {
-		const printLabel = node.childForFieldName('label').text;
-		return label(f, node, printLabel);
-	},
+	label_definition: (f, node) => label(f, node, textForFieldName(f, node, 'label')),
 	add_dialog_settings: (f, node) => {
 		const targets = node.namedChildren
 			.map(child=>handleNode(f, child)) // add_dialog_settings_target
@@ -198,9 +196,8 @@ const nodeFns = {
 		if (type === 'default') {
 			settingsTarget = f.settings.default;
 		} else if (type === 'label' || type === 'entity') {
-			const targetNode = node.childForFieldName('target');
-			if (targetNode) {
-				const target = handleCapture(f, targetNode);
+			const target = captureForFieldName(f, node, 'target');
+			if (target !== undefined) {
 				f.settings[type][target] = f.settings[type][target] || {};
 				settingsTarget = f.settings[type][target];
 				ret.target = target;
@@ -214,8 +211,7 @@ const nodeFns = {
 			throw new Error(`Unknown dialog settings target type: ${type}`);
 		}
 		// find the settings themselves
-		const parameters = node.childrenForFieldName('dialog_parameter')
-			.map(innerChild=>handleCapture(f, innerChild));
+		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
 		parameters.forEach(param=>{
 			settingsTarget[param.property] = param.value;
 		});
@@ -227,7 +223,7 @@ const nodeFns = {
 			.map(child=>handleCapture(f, child));
 		parameters.forEach(param=>{
 			f.settings.serial[param.property] = param.value;
-		})
+		});
 		return [{
 			mathlang: 'add_serial_dialog_settings',
 			parameters,
@@ -236,42 +232,36 @@ const nodeFns = {
 		}];
 	},
 	serial_dialog_option: (f, node) => {
-		const optionNode = node.childForFieldName('option_type');
-		const labelNode = node.childForFieldName('label');
-		const scriptNode = node.childForFieldName('script');
+		const optionChar = textForFieldName(f, node, 'option_type');
 		let optionType;
-		if (optionNode.text === '_') optionType = 'text_options';
-		else if (optionNode.text === '#') optionType = 'options';
+		if (optionChar === '_') optionType = 'text_options';
+		else if (optionChar === '#') optionType = 'options';
 		return [{
 			mathlang: 'serial_dialog_option',
 			optionType,
-			label: handleCapture(f, labelNode),
-			script: handleCapture(f, scriptNode),
+			label: captureForFieldName(f, node, 'label'),
+			script: captureForFieldName(f, node, 'script'),
 			debug: node,
 			fileName: f.fileName,
 		}];
 	},
 	dialog_option: (f, node) => {
-		const labelNode = node.childForFieldName('label');
-		const scriptNode = node.childForFieldName('script');
 		return [{
 			mathlang: 'dialog_option',
-			label: handleCapture(f, labelNode),
-			script: handleCapture(f, scriptNode),
+			label: captureForFieldName(f, node, 'label'),
+			script: captureForFieldName(f, node, 'script'),
 			debug: node,
 			fileName: f.fileName,
 		}];
 	},
 	serial_dialog_definition: (f, node) => {
-		const nameNode = node.childForFieldName('serial_dialog_name');
 		const serialDialogNode = node.childForFieldName('serial_dialog');
-		const name = handleCapture(f, nameNode);
+		const name = captureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialog = handleNode(f, serialDialogNode);
 		return [ newSerialDialog(f, node, name, serialDialog[0]) ];
 	},
 	dialog_definition: (f, node) => {
-		const nameNode = node.childForFieldName('dialog_name');
-		const dialogName = handleCapture(f, nameNode);
+		const dialogName = captureForFieldName(f, node, 'dialog_name');
 		const dialogNodes = node.childrenForFieldName('dialog');
 		const dialogs = dialogNodes.map(v=>handleNode(f, v)).flat();
 		return [{
@@ -283,18 +273,16 @@ const nodeFns = {
 		}];
 	},
 	serial_dialog: (f, node) => {
-		const paramNodes = node.childrenForFieldName('serial_dialog_parameter');
-		const messageNodes = node.childrenForFieldName('serial_message');
-		const optionNodes = node.childrenForFieldName('serial_dialog_option');
-		const params = paramNodes.map(v=>handleCapture(f, v));
-		const options = optionNodes.map(v=>handleNode(f, v)).flat();
-		// TODO: make options more closely resemble final form?
 		const settings = {};
-		params.forEach(param=>{ settings[param.property] = param.value; });
-		const messages = messageNodes.map(v=>handleCapture(f, v));
+		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
+		params.forEach(v=>{ settings[v.property] = v.value; });
+		// TODO: make options more closely resemble final form?
+		const options = node.childrenForFieldName('serial_dialog_option')
+			.map(v=>handleNode(f, v))
+			.flat();
 		const info = {
 			settings,
-			messages,
+			messages: capturesForFieldName(f, node, 'serial_message'),
 			options
 		};
 		const serialDialog = buildSerialDialogFromInfo(f, info, node);
@@ -306,23 +294,17 @@ const nodeFns = {
 		}];
 	},
 	dialog: (f, node) => {
-		const identifierNode = node.childForFieldName('dialog_identifier');
-		const paramNodes = node.childrenForFieldName('dialog_parameter');
-		const messageNodes = node.childrenForFieldName('message');
-		const optionNodes = node.childrenForFieldName('dialog_option');
 		// better way to do this?
-		const identifier = handleCapture(f, identifierNode);
-		const params = paramNodes.map(v=>handleCapture(f, v));
 		const settings = {};
-		params.forEach(param=>{
-			settings[param.property] = param.value;
-		});
-		const messages = messageNodes.map(v=>handleCapture(f, v));
-		const options = optionNodes.map(v=>handleNode(f, v)).flat();
+		const params = capturesForFieldName(f, node, 'dialog_parameter')
+		params.forEach(v=>{ settings[v.property] = v.value; });
+		const options = node.childrenForFieldName('dialog_option')
+			.map(v=>handleNode(f, v))
+			.flat();
 		const info = {
-			identifier,
+			identifier: captureForFieldName(f, node, 'dialog_identifier'),
 			settings,
-			messages,
+			messages: capturesForFieldName(f, node, 'message'),
 			options,
 		};
 		const dialogs = buildDialogFromInfo(f, info, messageNodes);
@@ -354,15 +336,12 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
-	copy_macro: (f, node) => {
-		const nameNode = node.namedChildren[0];
-		return [{
-			mathlang: 'copy_script',
-			script: handleCapture(f, nameNode),
-			debug: node,
-			fileName: f.fileName,
-		}]
-	},
+	copy_macro: (f, node) => ([{
+		mathlang: 'copy_script',
+		script: captureForFieldName(f, node, 'script'),
+		debug: node,
+		fileName: f.fileName,
+	}]),
 	debug_macro: (f, node) => {
 		const ret = [];
 		let name;
@@ -372,8 +351,7 @@ const nodeFns = {
 			name = autoIdentifierName(f, node);
 			ret.push(newSerialDialog(f, node, name, serialDialog));
 		} else {
-			const nameNode = node.childForFieldName('serial_dialog_name');
-			name = handleCapture(f, nameNode);
+			name = captureForFieldName(f, node, 'serial_dialog_name');
 		}
 		const action = simpleBranchMaker(
 			f,

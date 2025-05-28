@@ -1,6 +1,3 @@
-const TreeSitter = require('web-tree-sitter');
-const { Parser, Language } = TreeSitter;
-
 const { debugLog } = require('./parser-utilities.js');
 const { parseProject } = require('./parser.js');
 const { ansiTags } = require('./parser-dialogs.js');

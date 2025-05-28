@@ -428,7 +428,7 @@ const isFieldForAction = (field, action) => {
 	const fields = actionFields[action];
 	if (fields.includes(field)) return true;
 	if (fields.includes('JUMP_SPECIAL')) {
-		return JUMP_FIELDS.includes(field);
+		return JUMP_SPECIAL.includes(field);
 	}
 }
 const getBoolFieldForAction = (action) => {
