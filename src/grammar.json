@@ -3837,28 +3837,70 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "STRING",
-          "value": ">"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": ">"
+            }
+          }
         },
         {
-          "type": "STRING",
-          "value": ">="
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": ">="
+            }
+          }
         },
         {
-          "type": "STRING",
-          "value": "<"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "<"
+            }
+          }
         },
         {
-          "type": "STRING",
-          "value": "<="
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "<="
+            }
+          }
         },
         {
-          "type": "STRING",
-          "value": "=="
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "=="
+            }
+          }
         },
         {
-          "type": "STRING",
-          "value": "!="
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": "!="
+            }
+          }
         }
       ]
     },
@@ -3934,11 +3976,11 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "bool_binary_expression"
+          "name": "bool_comparison"
         },
         {
           "type": "SYMBOL",
-          "name": "bool_comparison"
+          "name": "bool_binary_expression"
         },
         {
           "type": "SYMBOL",
@@ -4153,6 +4195,93 @@
               "name": "lhs",
               "content": {
                 "type": "SYMBOL",
+                "name": "number"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "operator",
+              "content": {
+                "type": "SYMBOL",
+                "name": "COMPARISON"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "rhs",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "lhs",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "operator",
+              "content": {
+                "type": "SYMBOL",
+                "name": "COMPARISON"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "rhs",
+              "content": {
+                "type": "SYMBOL",
+                "name": "number"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "lhs",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "operator",
+              "content": {
+                "type": "SYMBOL",
+                "name": "COMPARISON"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "rhs",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "lhs",
+              "content": {
+                "type": "SYMBOL",
                 "name": "entity_direction"
               }
             },
@@ -4315,93 +4444,6 @@
               "content": {
                 "type": "SYMBOL",
                 "name": "number_checkable_equality"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "lhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "number"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "operator",
-              "content": {
-                "type": "SYMBOL",
-                "name": "COMPARISON"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "rhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "lhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "operator",
-              "content": {
-                "type": "SYMBOL",
-                "name": "COMPARISON"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "rhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "lhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "operator",
-              "content": {
-                "type": "SYMBOL",
-                "name": "COMPARISON"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "rhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "number"
               }
             }
           ]

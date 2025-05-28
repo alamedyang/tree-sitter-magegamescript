@@ -619,7 +619,14 @@ module.exports = grammar({
 		AND: $ => '&&',
 		OR: $ => '||',
 		BANG: $ => '!',
-		COMPARISON: $ => choice('>', '>=', '<', '<=', '==', '!='),
+		COMPARISON: $ => choice(
+			token(prec(1, '>')),
+			token(prec(1, '>=')),
+			token(prec(1, '<')),
+			token(prec(1, '<=')),
+			token(prec(1, '==')),
+			token(prec(1, '!=')),
+		),
 		EQUALITY: $ => choice('==', '!='),
 		_bool_unit: $ => prec(7, choice(
 			$.BOOL,
@@ -632,8 +639,8 @@ module.exports = grammar({
 		
 		bool_grouping: $ => seq('(', field('inner',$._bool_expression), ')'),
 		_bool_expression: $ => choice(
-			$.bool_binary_expression,
 			$.bool_comparison,
+			$.bool_binary_expression,
 			$._bool_unit,
 		),
 		bool_expression_expandable: $ => choice(
@@ -669,7 +676,23 @@ module.exports = grammar({
 				field('operator', $.OR),
 				field('rhs', $._bool_expression))),
 		),
+		// can't be expressions, so needs to be a separate thing
 		bool_comparison: $ => choice(
+			seq(
+				field('lhs', $.number),
+				field('operator', $.COMPARISON),
+				field('rhs', $.string),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.COMPARISON),
+				field('rhs', $.number),
+			),
+			seq(
+				field('lhs', $.string),
+				field('operator', $.COMPARISON),
+				field('rhs', $.string),
+			),
 			seq(
 				field('lhs', $.entity_direction),
 				field('operator', $.EQUALITY),
@@ -699,21 +722,6 @@ module.exports = grammar({
 				field('lhs', $.number),
 				field('operator', $.EQUALITY),
 				field('rhs', $.number_checkable_equality),
-			),
-			seq(
-				field('lhs', $.number),
-				field('operator', $.COMPARISON),
-				field('rhs', $.string),
-			),
-			seq(
-				field('lhs', $.string),
-				field('operator', $.COMPARISON),
-				field('rhs', $.string),
-			),
-			seq(
-				field('lhs', $.string),
-				field('operator', $.COMPARISON),
-				field('rhs', $.number),
 			),
 		),
 		number_checkable_equality: $=> prec(1,seq(

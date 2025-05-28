@@ -529,9 +529,6 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 			}
 		} 
 		if (rhsN.grammarType === 'entity_direction') {
@@ -539,9 +536,6 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, rhsN, lhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 			}
 		}
 		if (lhsN.grammarType === 'string_checkable') {
@@ -550,9 +544,6 @@ const captureFns = {
 			return {
 				mathlang: 'bool_comparison',
 				expected_bool,
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 				...compareString(f, lhsN, rhsN),
 			}
 		}
@@ -561,9 +552,6 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				expected_bool: node.childForFieldName('operator').text === '==',
 				...compareString(f, rhsN, lhsN),
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 			}
 		}
 		if (lhsN.grammarType === 'number_checkable_equality') {
@@ -571,9 +559,6 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNumberCheckableEquality(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 			}
 		}
 		if (rhsN.grammarType === 'number_checkable_equality') {
@@ -581,9 +566,6 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNumberCheckableEquality(f, rhsN, lhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
-				// this isn't something the action actually wants
-				// but since we "changed" it let's set this to pass through
-				op: '==',
 			}
 		}
 		const lhs = handleCapture(f, lhsN);
@@ -679,6 +661,8 @@ const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
 	direction: nsewNode.text,
 	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
+	fileName: f.fileName,
+	debug: node,
 });
 const compareString = (f, checkableNode, stringNode) => {
 	const checkable = handleCapture(f, checkableNode);

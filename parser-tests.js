@@ -29,6 +29,23 @@ const roundTripTestData = {
 			'close serial_dialog;',
 		],
 	},
+	simple_copy: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'wait 1;',
+			'copy!(no_arg_actions)',
+			'wait 2;',
+		],
+		expected: [
+			'wait 1ms;',
+			'save slot;',
+			'close dialog;',
+			'close serial_dialog;',
+			'end_of_script_***',
+			'wait 2ms;',
+		]
+	},
 	simple_actions: {
 		type: 'actions',
 		autoAddReturn: true,
@@ -338,6 +355,21 @@ const roundTripTestData = {
 			"rendezvous_***:",
 		],
 	},
+	bool_exp_simple_branch_group_inverse: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = !(debug_mode)',
+		],
+		expected: [
+			'if (!debug_mode) { goto label if_***; }',
+			'entity Bob glitched = false;',
+			'goto label rendezvous_***;',
+			"if_***:",
+			'entity Bob glitched = true;',
+			"rendezvous_***:",
+		],
+	},
 	bool_exp_simple_or: {
 		type: 'actions',
 		autoAddReturn: true,
@@ -406,6 +438,30 @@ const roundTripTestData = {
 			"if_true_*A*:",
 			"entity \"Bob\" glitched = true;",
 			"rendezvous_*Y*:",
+		],
+	},
+	set_int_exp_not_ok: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			// SET_ENTITY_X
+			'player x = 1;',
+			// SET_ENTITY_Y
+			'player y = 1;',
+			// SET_ENTITY_PRIMARY_ID
+			'player primary_id = 1;',
+			// SET_ENTITY_SECONDARY_ID
+			'player secondary_id = 1;',
+			// SET_ENTITY_PRIMARY_ID_TYPE
+			'player primary_id_type = 1;',
+			// SET_ENTITY_CURRENT_ANIMATION
+			'player current_animation = 1;',
+			// SET_ENTITY_CURRENT_FRAME
+			'player animation_frame = 1;',
+			// SET_ENTITY_MOVEMENT_RELATIVE
+			'player strafe = 1;',
+			// SET_ENTITY_DIRECTION_RELATIVE
+			// TODO: ??????????????
 		],
 	},
 	set_int_exp_ok: {
@@ -477,21 +533,6 @@ const roundTripTestData = {
 			"goatCount = *A*;",
 		],
 	},
-	ambiguous_bool_disambiguate: {
-		type: 'actions',
-		autoAddReturn: true,
-		input: [
-			'goatCount = !!notAmbiguous;',
-		],
-		expected: [
-			'if (notAmbiguous) { goto label if_***; }',
-			'goatCount = false;',
-			'goto label rendezvous_***;',
-			"if_***:",
-			'goatCount = true;',
-			"rendezvous_***:",
-		],
-	},
 	ambiguous_bool_single_invert: {
 		type: 'actions',
 		autoAddReturn: true,
@@ -507,7 +548,22 @@ const roundTripTestData = {
 			'rendezvous_***:',
 		],
 	},
-	int_expression_invert_comparison: {
+	ambiguous_bool_disambiguate: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'goatCount = !!notAmbiguous;',
+		],
+		expected: [
+			'if (notAmbiguous) { goto label if_***; }',
+			'goatCount = false;',
+			'goto label rendezvous_***;',
+			"if_***:",
+			'goatCount = true;',
+			"rendezvous_***:",
+		],
+	},
+	int_expression_invert_comparison_lt: {
 		type: 'actions',
 		autoAddReturn: true,
 		input: [
@@ -521,6 +577,7 @@ const roundTripTestData = {
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
+
 			'if (intName >= 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
@@ -529,7 +586,122 @@ const roundTripTestData = {
 			'rendezvous_*B*:',
 		]
 	},
-	int_expression_invert_string_equality: {
+	int_expression_invert_comparison_lteq: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName <= 6;',
+			'entity Bob glitched = !(intName <= 6);',
+		],
+		expected: [
+			'if (intName <= 6) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (intName > 6) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+		]
+	},
+	int_expression_invert_comparison_gt: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName > 6;',
+			'entity Bob glitched = !(intName > 6);',
+		],
+		expected: [
+			'if (intName > 6) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (intName <= 6) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+		]
+	},
+	int_expression_invert_comparison_gteq: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName >= 6;',
+			'entity Bob glitched = !(intName >= 6);',
+		],
+		expected: [
+			'if (intName >= 6) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (intName < 6) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+		]
+	},
+	int_expression_invert_comparison_eq: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName == 6;',
+			'entity Bob glitched = !(intName == 6);',
+		],
+		expected: [
+			'if (intName == 6) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (intName != 6) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	int_expression_invert_comparison_noteq: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = intName != 6;',
+			'entity Bob glitched = !(intName != 6);',
+		],
+		expected: [
+			'if (intName != 6) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (intName == 6) { goto label if_*D*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*D*;',
+			'if_*D*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*D*:',
+		]
+	},
+	branch_on_string_equality_warp_state: {
 		type: 'actions',
 		autoAddReturn: true,
 		input: [
@@ -553,6 +725,223 @@ const roundTripTestData = {
 			'rendezvous_*B*:',
 
 			'if (warp_state != "landing") { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_name: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player name == goat;',
+			'entity Bob glitched = !(player name == goat);',
+			'entity Bob glitched = player name != goat;',
+		],
+		expected: [
+			'if (player name == goat) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player name != goat) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player name != goat) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_type: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player type == goat;',
+			'entity Bob glitched = !(player type == goat);',
+			'entity Bob glitched = player type != goat;',
+		],
+		expected: [
+			'if (player type == goat) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player type != goat) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player type != goat) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_interact: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player on_interact == goat;',
+			'entity Bob glitched = !(player on_interact == goat);',
+			'entity Bob glitched = player on_interact != goat;',
+		],
+		expected: [
+			'if (player on_interact == goat) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player on_interact != goat) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player on_interact != goat) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_tick: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player on_tick == goat;',
+			'entity Bob glitched = !(player on_tick == goat);',
+			'entity Bob glitched = player on_tick != goat;',
+		],
+		expected: [
+			'if (player on_tick == goat) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player on_tick != goat) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player on_tick != goat) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_look: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player on_look == goat;',
+			'entity Bob glitched = !(player on_look == goat);',
+			'entity Bob glitched = player on_look != goat;',
+		],
+		expected: [
+			'if (player on_look == goat) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player on_look != goat) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player on_look != goat) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_direction: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player direction == north;',
+			'entity Bob glitched = !(player direction == east);',
+			'entity Bob glitched = player direction != south;',
+		],
+		expected: [
+			'if (player direction == north) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player direction != east) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player direction != south) { goto label if_*C*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*C*;',
+			'if_*C*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*C*:',
+		]
+	},
+	branch_on_string_equality_direction: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'entity Bob glitched = player path == longWalk;',
+			'entity Bob glitched = !(player path == longWalk);',
+			'entity Bob glitched = player path != longWalk;',
+		],
+		expected: [
+			'if (player path == longWalk) { goto label if_*A*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*A*;',
+			'if_*A*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*A*:',
+
+			'if (player path != longWalk) { goto label if_*B*; }',
+			'entity "Bob" glitched = false;',
+			'goto label rendezvous_*B*;',
+			'if_*B*:',
+			'entity "Bob" glitched = true;',
+			'rendezvous_*B*:',
+
+			'if (player path != longWalk) { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
