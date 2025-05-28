@@ -1218,6 +1218,22 @@ const roundTripTestData = {
 			'rendezvous_*C*:',
 		]
 	},
+	while_simple: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'while (player glitched) { wait 1; }',
+		],
+		expected: [
+			'while_condition_***:',
+			'if (player glitched) { goto label while_body_***; }',
+			'goto label while_rendezvous_***;',
+			'while_body_***:',
+			'wait 1ms;',
+			'goto label while_condition_***;',
+			'while_rendezvous_***:',
+		],
+	},
 	constants: {
 		type: 'file',
 		input: `
@@ -1237,7 +1253,7 @@ const roundTripTestData = {
 				}`,
 			}
 		}
-	}
+	},
 };
 
 const actionArrayToScript = (scriptName, actionArray, autoAddReturn) => {

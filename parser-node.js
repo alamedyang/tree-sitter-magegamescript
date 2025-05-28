@@ -185,7 +185,7 @@ const nodeFns = {
 	},
 	add_dialog_settings_target: (f, node) => {
 		let settingsTarget;
-		const type = node.firstChild.text;
+		const type = textForFieldName(f, node, 'type');
 		const ret = {
 			mathlang: 'add_dialog_settings_target',
 			type,
@@ -219,8 +219,7 @@ const nodeFns = {
 		return [ret];
 	},
 	add_serial_dialog_settings: (f, node) => {
-		const parameters = node.namedChildren
-			.map(child=>handleCapture(f, child));
+		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
 		parameters.forEach(param=>{
 			f.settings.serial[param.property] = param.value;
 		});
@@ -313,7 +312,7 @@ const nodeFns = {
 			info,
 			dialogs,
 			debug: node,
-			fileName: f.fileName,
+			fileName: f.fileName,s
 		}];
 	},
 	json_literal: (f, node) => {
@@ -379,7 +378,7 @@ const nodeFns = {
 		const conditionLabel = `while condition #${n}`;
 		const bodyLabel = `while body #${n}`;
 		const rendezvousLabel = `while rendezvous #${n}`;
-		const conditionNode = node.childForFieldName('condition').namedChildren[0];
+		const conditionNode = node.childForFieldName('condition');
 		const condition = handleCapture(f, conditionNode);
 		const bodyNode = node.childForFieldName('body');
 		const body = handleNode(f, bodyNode).flat()
@@ -396,9 +395,9 @@ const nodeFns = {
 			label(f, conditionNode, conditionLabel),
 			...expandCondition(f, conditionNode, condition, bodyLabel),
 			gotoLabel(f, node, rendezvousLabel),
-			label(f, node, bodyLabel),
+			label(f, bodyNode, bodyLabel),
 			...body,
-			gotoLabel(f, node, conditionLabel),
+			gotoLabel(f, conditionNode, conditionLabel),
 			label(f, node, rendezvousLabel),
 		];
 		return newSequence(f, node, steps, 'while sequence');
@@ -408,7 +407,7 @@ const nodeFns = {
 		const conditionLabel = `do while condition #${n}`;
 		const bodyLabel = `do while body #${n}`;
 		const rendezvousLabel = `do while rendezvous #${n}`;
-		const conditionNode = node.childForFieldName('condition').namedChildren[0];
+		const conditionNode = node.childForFieldName('condition');
 		const rawCondition = handleCapture(f, conditionNode);
 		const bodyNode = node.childForFieldName('body');
 		const body = handleNode(f, bodyNode).flat()
@@ -422,7 +421,7 @@ const nodeFns = {
 				}
 			});
 			const steps = [
-			label(f, node, bodyLabel),
+			label(f, bodyNode, bodyLabel),
 			...body,
 			label(f, conditionNode, conditionLabel),
 			...expandCondition(f, conditionNode, rawCondition, bodyLabel),
@@ -436,8 +435,10 @@ const nodeFns = {
 		const bodyLabel = `for body #${n}`;
 		const rendezvousLabel = `for rendezvous #${n}`;
 		const continueLabel = `for continue #${n}`;
-		const conditionNode = node.childForFieldName('condition').namedChildren[0];
-		const body = handleNode(f, node.childForFieldName('body')).flat()
+		const conditionNode = node.childForFieldName('condition');
+		const bodyNode = node.childForFieldName('body');
+		const incrementerNode = node.childForFieldName('incrementer');
+		const body = handleNode(f, bodyNode).flat()
 			.map(v=>{
 				if (v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, continueLabel);
@@ -452,11 +453,11 @@ const nodeFns = {
 			label(f, conditionNode, conditionLabel),
 			...expandCondition(f, conditionNode, handleCapture(f, conditionNode), bodyLabel),
 			gotoLabel(f, node, rendezvousLabel),
-			label(f, node, bodyLabel),
+			label(f, bodyNode, bodyLabel),
 			...body,
-			label(f, node, continueLabel),
-			...handleNode(f, node.childForFieldName('incrementer')),
-			gotoLabel(f, node, conditionLabel),
+			label(f, incrementerNode, continueLabel),
+			...handleNode(f, incrementerNode),
+			gotoLabel(f, conditionNode, conditionLabel),
 			label(f, node, rendezvousLabel),
 		];
 		return newSequence(f, node, steps, 'for sequence');
@@ -472,7 +473,7 @@ const nodeFns = {
 		ifs.forEach(iff=>{
 			const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 			// const elseLabel = `if else #${f.p.getGotoSuffix()}`;
-			const conditionNode = iff.childForFieldName('condition').namedChildren[0];
+			const conditionNode = iff.childForFieldName('condition');
 			const condition = handleCapture(f, conditionNode);
 			const bodyNode = iff.childForFieldName('body');
 			const body = bodyNode.namedChildren.map(v=>handleNode(f, v)).flat();
@@ -481,9 +482,9 @@ const nodeFns = {
 				.forEach(v=>steps.push(v));
 			// add bottom half
 			const bottomInsert = [
-				label(f, node, ifLabel),
+				label(f, bodyNode, ifLabel),
 				...body,
-				gotoLabel(f, node, rendezvousLabel),
+				gotoLabel(f, bodyNode, rendezvousLabel),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});

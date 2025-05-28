@@ -1147,8 +1147,12 @@
         {
           "type": "REPEAT",
           "content": {
-            "type": "SYMBOL",
-            "name": "serial_dialog_parameter"
+            "type": "FIELD",
+            "name": "serial_dialog_parameter",
+            "content": {
+              "type": "SYMBOL",
+              "name": "serial_dialog_parameter"
+            }
           }
         },
         {
@@ -4834,8 +4838,17 @@
               "type": "FIELD",
               "name": "value",
               "content": {
-                "type": "SYMBOL",
-                "name": "bool"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "open"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "closed"
+                  }
+                ]
               }
             }
           ]
@@ -4855,8 +4868,17 @@
               "type": "FIELD",
               "name": "value",
               "content": {
-                "type": "SYMBOL",
-                "name": "bool"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": "open"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "closed"
+                  }
+                ]
               }
             }
           ]
@@ -5349,7 +5371,7 @@
           "name": "condition",
           "content": {
             "type": "SYMBOL",
-            "name": "condition"
+            "name": "_condition"
           }
         },
         {
@@ -5383,7 +5405,7 @@
         }
       ]
     },
-    "condition": {
+    "_condition": {
       "type": "CHOICE",
       "members": [
         {
@@ -5459,7 +5481,7 @@
           "name": "condition",
           "content": {
             "type": "SYMBOL",
-            "name": "condition"
+            "name": "_condition"
           }
         },
         {
@@ -5504,7 +5526,7 @@
           "name": "condition",
           "content": {
             "type": "SYMBOL",
-            "name": "condition"
+            "name": "_condition"
           }
         },
         {
@@ -5541,7 +5563,7 @@
           "name": "condition",
           "content": {
             "type": "SYMBOL",
-            "name": "condition"
+            "name": "_condition"
           }
         },
         {

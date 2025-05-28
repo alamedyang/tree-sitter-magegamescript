@@ -178,7 +178,7 @@ module.exports = grammar({
 		),
 		add_serial_dialog_settings: $ => seq(
 			'add', 'serial_dialog', 'settings', '{',
-			repeat($.serial_dialog_parameter),
+			repeat(field('serial_dialog_parameter', $.serial_dialog_parameter)),
 			'}'
 		),
 		serial_dialog_parameter: $ => choice(
@@ -886,14 +886,14 @@ module.exports = grammar({
 			optional(field('else_block', $.else_block))
 		),
 		if_block: $ => seq(
-			'if', '(', field('condition', $.condition), ')',
+			'if', '(', field('condition', $._condition), ')',
 			field('body', $.script_block),
 		),
 		else_block: $ => seq(
 			'else',
 			field('body', $.script_block),
 		),
-		condition: $ => choice(
+		_condition: $ => choice(
 			$._bool_expression,
 		),
 		looping_block: $ => seq(
@@ -907,7 +907,7 @@ module.exports = grammar({
 		),
 		while_block: $ => seq(
 			'while', '(',
-			field('condition', $.condition),
+			field('condition', $._condition),
 			')',
 			field('body', $.looping_block),
 		),
@@ -915,7 +915,7 @@ module.exports = grammar({
 			'do',
 			field('body', $.looping_block),
 			'while', '(',
-			field('condition', $.condition),
+			field('condition', $._condition),
 			')'
 		),
 		for_block: $ => seq(
@@ -923,7 +923,7 @@ module.exports = grammar({
 			'(',
 			field('initializer', $._action_item),
 			$.semicolon,
-			field('condition', $.condition),
+			field('condition', $._condition),
 			$.semicolon,
 			field('incrementer', $._action_item),
 			')',
