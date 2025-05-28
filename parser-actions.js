@@ -15,7 +15,6 @@ const {
 	showSerialDialog,
 	newDialog,
 	showDialog,
-	doInvertIfAny,
 } = require('./parser-utilities.js');
 const {
 	getBoolFieldForAction,
@@ -72,8 +71,10 @@ const flattenIntBinaryExpression = (exp, steps) => {
 		steps.push(changeVarByValue(temporary, rhs, op))
 	} else if (rhs.entity) {
 		const temp = quickTemporary();
-		steps.push(copyEntityFieldIntoVar(rhs.entity, rhs.field, temp));
-		steps.push(changeVarByVar(temporary, temp, op));
+		steps.push(
+			copyEntityFieldIntoVar(rhs.entity, rhs.field, temp),
+			changeVarByVar(temporary, temp, op)
+		);
 	} else if (rhs.mathlang === 'int_binary_expression') {
 		// this one DOES need a new temporary
 		const innerTemporary = newTemporary();
@@ -87,17 +88,15 @@ const flattenIntBinaryExpression = (exp, steps) => {
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
 const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
-	const lhs = typeof _lhs === 'string'
-		? setFlag(_lhs, true)
-		: _lhs;
+	// get the action JSON for the LHS
+	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
 	if (typeof _rhsRaw === 'boolean') {
 		lhs[lhsParam] = _rhsRaw;
 		return lhs;
 	}
-	const rhsRaw = typeof _rhsRaw === 'string'
-		? checkFlag(_rhsRaw, true)
-		: _rhsRaw;
+	// get the action JSON for the RHS
+	const rhsRaw = typeof _rhsRaw === 'string' ? checkFlag(_rhsRaw, true) : _rhsRaw;
 	if (
 		rhsRaw.mathlang === 'bool_getable'
 		|| rhsRaw.mathlang === 'bool_comparison'
@@ -114,7 +113,7 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 		return simpleBranchMaker(
 			f,
 			rhsRaw.debug || backupNode,
-			doInvertIfAny(f, rhsRaw.debug, baseAction),
+			baseAction,
 			{ ...lhs, [lhsParam]: true },
 			{ ...lhs, [lhsParam]: false },
 		)
@@ -495,9 +494,8 @@ const actionData = {
 				// ... and RHS is a simple bool getable
 				isMatch: (v) => v.rhs.mathlang === 'bool_getable',
 				finalizeValues: (v, f, node) => {
-					const rhs = doInvertIfAny(f, node, v.rhs);
-					const param = getBoolFieldForAction(rhs.action);
-					return setFlagToFlag(f, node, v.lhs, rhs.value, !rhs[param]);
+					const param = getBoolFieldForAction(v.rhs.action);
+					return setFlagToFlag(f, node, v.lhs, v.rhs.value, !v.rhs[param]);
 				},
 			},
 			{

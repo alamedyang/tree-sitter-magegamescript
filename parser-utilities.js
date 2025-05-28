@@ -86,7 +86,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
 		}
-		return [ doInvertIfAny(f, node, action) ];
+		return [ action ];
 	}
 	if (condition === true) {
 		return [ gotoLabel(f, node, ifLabel) ];
@@ -129,7 +129,6 @@ const expandCondition = (f, node, condition, ifLabel) => {
 	if (op !== '==' && op !== '!=') {
 		throw new Error ("What kind of other thing is this?")
 	}
-	rhs = doInvertIfAny(f, rhs.debug, rhs);
 	// todo: if any of these are == bool literal, they can be simplified
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs = {
@@ -178,9 +177,6 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-const doInvertIfAny = (f, node, thing) => {
-	return thing.invert ? invert(f, node, thing) : thing;
-};
 const invert = (f, node, boolExp) => {
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
@@ -340,6 +336,5 @@ module.exports = {
 	showDialog,
 	flattenGotos,
 	invert,
-	doInvertIfAny,
 	inverseOpMap,
 };

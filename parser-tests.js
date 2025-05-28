@@ -1234,6 +1234,20 @@ const roundTripTestData = {
 			'while_rendezvous_***:',
 		],
 	},
+	spread_simple: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'wait [1ms, 2ms];',
+			'[player x, self y] = [10, intName];'
+		],
+		expected: [
+			'wait 1ms;',
+			'wait 2ms;',
+			'player x = 10;',
+			'self y = intName;',
+		],
+	},
 	constants: {
 		type: 'file',
 		input: `
