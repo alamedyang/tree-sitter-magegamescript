@@ -4834,17 +4834,8 @@
               "type": "FIELD",
               "name": "value",
               "content": {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "open"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "closed"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "bool"
               }
             }
           ]
@@ -4864,17 +4855,8 @@
               "type": "FIELD",
               "name": "value",
               "content": {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "open"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "closed"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "bool"
               }
             }
           ]

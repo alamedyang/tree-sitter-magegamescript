@@ -386,8 +386,11 @@ const captureFns = {
 			ret.action = type === 'dialog'
 				? 'CHECK_DIALOG_OPEN'
 				: 'CHECK_SERIAL_DIALOG_OPEN';
-			const valueNode = node.childForFieldName('value')
-			ret.value = valueNode.text;
+			const valueNode = node.childForFieldName('value');
+			const param = getBoolFieldForAction(ret.action);
+			const state = valueNode.text;
+			if (state === 'open') ret[param] = true;
+			if (state === 'closed') ret[param] = false;
 		} else if (type === 'button') {
 			ret.value = node.childForFieldName('button').text;
 			const stateNode = node.childForFieldName('state');
@@ -400,7 +403,7 @@ const captureFns = {
 			}
 		}
 		const param = getBoolFieldForAction(ret.action);
-		ret[param] = true;
+		ret[param] = ret[param] === undefined ? true : ret[param];
 		return ret;
 	},
 	string_checkable: (f, node) => {

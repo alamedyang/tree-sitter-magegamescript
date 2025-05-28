@@ -2288,12 +2288,12 @@
         "required": false,
         "types": [
           {
-            "type": "closed",
-            "named": false
+            "type": "BOOL",
+            "named": true
           },
           {
-            "type": "open",
-            "named": false
+            "type": "CONSTANT",
+            "named": true
           }
         ]
       }
@@ -5478,10 +5478,6 @@
     "named": false
   },
   {
-    "type": "closed",
-    "named": false
-  },
-  {
     "type": "command",
     "named": false
   },
@@ -5684,10 +5680,6 @@
   },
   {
     "type": "on_tick",
-    "named": false
-  },
-  {
-    "type": "open",
     "named": false
   },
   {
