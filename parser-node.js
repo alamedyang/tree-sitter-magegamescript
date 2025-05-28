@@ -70,7 +70,8 @@ const nodeFns = {
 		}
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
-		if (node.namedChildren.some(v=>v.type === 'over_time_operator')) {
+		// (This is only for nodes so malformed that tree-sitter can't tell what it is)
+		if (node.namedChildren.some(v=>v.grammarType === 'over_time_operator')) {
 			err.message = `malformed 'do over time' expression`
 			err.footer = `should take the form '@movable -> @coordinate over @duration [forever];'\n`
 				+ `   @movable = (player | self | entity @string) position | camera\n`
@@ -152,7 +153,8 @@ const nodeFns = {
 				const len = handled.length;
 				if (len === 0) return; // empties are ignored
 				horizontal.push(handled);
-				if (len === 1) return;
+				// count how much it spread
+				if (len === 1) return; // singles are fine wherever
 				if (multipleCount === -Infinity) multipleCount = len;
 				if (multipleCount !== len) {
 					f.newError({
@@ -179,9 +181,9 @@ const nodeFns = {
 			},
 		];
 		let bottomSteps = [];
-		const rendezvousLabel = `rendezvous #${f.p.gotoSuffixValue}`;
+		const rendezvousL = `rendezvous #${f.p.gotoSuffixValue}`;
 		vertical.forEach((body, i)=>{
-			const ifLabel = `if RNG #${f.p.advanceGotoSuffix()}`;
+			const ifL = `if RNG #${f.p.advanceGotoSuffix()}`;
 			// add top half
 			const condition = {
 				mathlang: 'bool_comparison',
@@ -190,22 +192,22 @@ const nodeFns = {
 				value: i,
 				comparison: '==',
 				expected_bool: true,
-				label: ifLabel,
+				label: ifL,
 				debug: node,
 				fileName: f.fileName,
 			};
 			steps.push(condition);
 			// add bottom half
 			const bottomInsert = [
-				label(f, node, ifLabel),
+				label(f, node, ifL),
 				...body,
-				gotoLabel(f, node, rendezvousLabel),
+				gotoLabel(f, node, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		dropTemporary();
 		const combined = steps.concat(bottomSteps);
-		combined.push(label(f, node, rendezvousLabel));
+		combined.push(label(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
 	label_definition: (f, node) => label(f, node, textForFieldName(f, node, 'label')),
@@ -267,6 +269,7 @@ const nodeFns = {
 			fileName: f.fileName,
 		}];
 	},
+	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them
 	serial_dialog_option: (f, node) => {
 		const optionChar = textForFieldName(f, node, 'option_type');
 		let optionType;
@@ -330,7 +333,6 @@ const nodeFns = {
 		}];
 	},
 	dialog: (f, node) => {
-		// better way to do this?
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter')
 		params.forEach(v=>{ settings[v.property] = v.value; });
@@ -412,125 +414,125 @@ const nodeFns = {
 	},
 	while_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionLabel = `while condition #${n}`;
-		const bodyLabel = `while body #${n}`;
-		const rendezvousLabel = `while rendezvous #${n}`;
-		const conditionNode = node.childForFieldName('condition');
-		const condition = handleCapture(f, conditionNode);
-		const bodyNode = node.childForFieldName('body');
-		const body = handleNode(f, bodyNode).flat()
+		const conditionL = `while condition #${n}`;
+		const bodyL = `while body #${n}`;
+		const rendezvousL = `while rendezvous #${n}`;
+		const conditionN = node.childForFieldName('condition');
+		const condition = handleCapture(f, conditionN);
+		const bodyN = node.childForFieldName('body');
+		const body = handleNode(f, bodyN).flat()
 			.map(v=>{
 				if (v.mathlang === 'continue_statement') {
-					return gotoLabel(f, node, conditionLabel);
+					return gotoLabel(f, node, conditionL);
 				} else if (v.mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousLabel);
+					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
 		const steps = [
-			label(f, conditionNode, conditionLabel),
-			...expandCondition(f, conditionNode, condition, bodyLabel),
-			gotoLabel(f, node, rendezvousLabel),
-			label(f, bodyNode, bodyLabel),
+			label(f, conditionN, conditionL),
+			...expandCondition(f, conditionN, condition, bodyL),
+			gotoLabel(f, node, rendezvousL),
+			label(f, bodyN, bodyL),
 			...body,
-			gotoLabel(f, conditionNode, conditionLabel),
-			label(f, node, rendezvousLabel),
+			gotoLabel(f, conditionN, conditionL),
+			label(f, node, rendezvousL),
 		];
 		return newSequence(f, node, steps, 'while sequence');
 	},
 	do_while_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionLabel = `do while condition #${n}`;
-		const bodyLabel = `do while body #${n}`;
-		const rendezvousLabel = `do while rendezvous #${n}`;
-		const conditionNode = node.childForFieldName('condition');
-		const rawCondition = handleCapture(f, conditionNode);
-		const bodyNode = node.childForFieldName('body');
-		const body = handleNode(f, bodyNode).flat()
+		const conditionL = `do while condition #${n}`;
+		const bodyL = `do while body #${n}`;
+		const rendezvousL = `do while rendezvous #${n}`;
+		const conditionN = node.childForFieldName('condition');
+		const condition = handleCapture(f, conditionN);
+		const bodyN = node.childForFieldName('body');
+		const body = handleNode(f, bodyN).flat()
 			.map(v=>{
 				if (v.mathlang === 'continue_statement') {
-					return gotoLabel(f, node, conditionLabel);
+					return gotoLabel(f, node, conditionL);
 				} else if (v.mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousLabel);
+					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
 			const steps = [
-			label(f, bodyNode, bodyLabel),
+			label(f, bodyN, bodyL),
 			...body,
-			label(f, conditionNode, conditionLabel),
-			...expandCondition(f, conditionNode, rawCondition, bodyLabel),
-			label(f, node, rendezvousLabel),
+			label(f, conditionN, conditionL),
+			...expandCondition(f, conditionN, condition, bodyL),
+			label(f, node, rendezvousL),
 		];
 		return newSequence(f, node, steps, 'do-while sequence');
 	},
 	for_block: (f, node) => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionLabel = `for condition #${n}`;
-		const bodyLabel = `for body #${n}`;
-		const rendezvousLabel = `for rendezvous #${n}`;
-		const continueLabel = `for continue #${n}`;
-		const conditionNode = node.childForFieldName('condition');
-		const bodyNode = node.childForFieldName('body');
-		const incrementerNode = node.childForFieldName('incrementer');
-		const body = handleNode(f, bodyNode).flat()
+		const conditionL = `for condition #${n}`;
+		const bodyL = `for body #${n}`;
+		const rendezvousL = `for rendezvous #${n}`;
+		const continueL = `for continue #${n}`;
+		const conditionN = node.childForFieldName('condition');
+		const bodyN = node.childForFieldName('body');
+		const incrementerN = node.childForFieldName('incrementer');
+		const body = handleNode(f, bodyN).flat()
 			.map(v=>{
 				if (v.mathlang === 'continue_statement') {
-					return gotoLabel(f, node, continueLabel);
+					return gotoLabel(f, node, continueL);
 				} else if (v.mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousLabel);
+					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
 		const steps = [
 			...handleNode(f, node.childForFieldName('initializer')),
-			label(f, conditionNode, conditionLabel),
-			...expandCondition(f, conditionNode, handleCapture(f, conditionNode), bodyLabel),
-			gotoLabel(f, node, rendezvousLabel),
-			label(f, bodyNode, bodyLabel),
+			label(f, conditionN, conditionL),
+			...expandCondition(f, conditionN, handleCapture(f, conditionN), bodyL),
+			gotoLabel(f, node, rendezvousL),
+			label(f, bodyN, bodyL),
 			...body,
-			label(f, incrementerNode, continueLabel),
-			...handleNode(f, incrementerNode),
-			gotoLabel(f, conditionNode, conditionLabel),
-			label(f, node, rendezvousLabel),
+			label(f, incrementerN, continueL),
+			...handleNode(f, incrementerN),
+			gotoLabel(f, conditionN, conditionL),
+			label(f, node, rendezvousL),
 		];
 		return newSequence(f, node, steps, 'for sequence');
 	},
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');
-		const elzeNode = node.childForFieldName('else_block');
-		const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+		const elzeN = node.childForFieldName('else_block');
+		const rendezvousL = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const steps = [];
 		let bottomSteps = [
-			label(f, node, rendezvousLabel),
+			label(f, node, rendezvousL),
 		];
 		ifs.forEach(iff=>{
-			const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
-			const conditionNode = iff.childForFieldName('condition');
-			const condition = handleCapture(f, conditionNode);
-			const bodyNode = iff.childForFieldName('body');
-			const body = bodyNode.namedChildren.map(v=>handleNode(f, v)).flat();
+			const ifL = `if true #${f.p.advanceGotoSuffix()}`;
+			const conditionN = iff.childForFieldName('condition');
+			const condition = handleCapture(f, conditionN);
+			const bodyN = iff.childForFieldName('body');
+			const body = bodyN.namedChildren.map(v=>handleNode(f, v)).flat();
 			// add top half
-			expandCondition(f, conditionNode, condition, ifLabel)
+			expandCondition(f, conditionN, condition, ifL)
 				.forEach(v=>steps.push(v));
 			// add bottom half
 			const bottomInsert = [
-				label(f, bodyNode, ifLabel),
+				label(f, bodyN, ifL),
 				...body,
-				gotoLabel(f, bodyNode, rendezvousLabel),
+				gotoLabel(f, bodyN, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
-		if (elzeNode) {
+		if (elzeN) {
 			steps.push(
-				...elzeNode.lastChild.namedChildren.map(v=>handleNode(f, v)).flat(),
+				...elzeN.lastChild.namedChildren.map(v=>handleNode(f, v)).flat(),
 				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
-		steps.push(gotoLabel(f, node, rendezvousLabel));
+		steps.push(gotoLabel(f, node, rendezvousL));
 		const combined = steps.concat(bottomSteps);
 		return newSequence(f, node, combined, 'if sequence');
 	},

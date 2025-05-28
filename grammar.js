@@ -679,19 +679,9 @@ module.exports = grammar({
 		// can't be expressions, so needs to be a separate thing
 		bool_comparison: $ => choice(
 			seq(
-				field('lhs', $.number),
+				field('lhs', choice($.number, $.string)),
 				field('operator', $.COMPARISON),
-				field('rhs', $.string),
-			),
-			seq(
-				field('lhs', $.string),
-				field('operator', $.COMPARISON),
-				field('rhs', $.number),
-			),
-			seq(
-				field('lhs', $.string),
-				field('operator', $.COMPARISON),
-				field('rhs', $.string),
+				field('rhs', choice($.number, $.string)),
 			),
 			seq(
 				field('lhs', $.entity_direction),

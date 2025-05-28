@@ -1234,6 +1234,20 @@ const roundTripTestData = {
 			'while_rendezvous_***:',
 		],
 	},
+	number_comparison: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'player_control = 7 < 5;',
+			'player_control = 7 == 7;',
+			'player_control = 7 != 5;',
+		],
+		expected: [
+			'player_control = false;',
+			'player_control = true;',
+			'player_control = true;',
+		],
+	},
 	spread_simple: {
 		type: 'actions',
 		autoAddReturn: true,

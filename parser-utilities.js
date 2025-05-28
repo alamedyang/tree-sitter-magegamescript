@@ -356,7 +356,4 @@ module.exports = {
 	dropTemporary,
 	quickTemporary,
 	latestTemporary,
-
-
-
 };

@@ -4198,8 +4198,17 @@
               "type": "FIELD",
               "name": "lhs",
               "content": {
-                "type": "SYMBOL",
-                "name": "number"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "number"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "string"
+                  }
+                ]
               }
             },
             {
@@ -4214,66 +4223,17 @@
               "type": "FIELD",
               "name": "rhs",
               "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "lhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "operator",
-              "content": {
-                "type": "SYMBOL",
-                "name": "COMPARISON"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "rhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "number"
-              }
-            }
-          ]
-        },
-        {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "lhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "operator",
-              "content": {
-                "type": "SYMBOL",
-                "name": "COMPARISON"
-              }
-            },
-            {
-              "type": "FIELD",
-              "name": "rhs",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "number"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "string"
+                  }
+                ]
               }
             }
           ]
