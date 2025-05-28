@@ -15,6 +15,10 @@ const {
 	showSerialDialog,
 	newDialog,
 	showDialog,
+	newTemporary,
+	dropTemporary,
+	quickTemporary,
+	latestTemporary,
 } = require('./parser-utilities.js');
 const {
 	getBoolFieldForAction,
@@ -35,21 +39,6 @@ const opIntoStringMap = {
 	'%': 'MOD',
 	'?': 'RNG',
 };
-
-// ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
-
-const TEMP = '__TEMP_'
-const temporaries = [];
-const newTemporary = () => {
-	temporaries.unshift(TEMP + temporaries.length);
-	return temporaries[0];
-};
-const dropTemporary = () => temporaries.shift();
-const quickTemporary = () => {
-	newTemporary();
-	return dropTemporary();
-}
-const latestTemporary = () => temporaries[0];
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 

@@ -9,6 +9,10 @@ const {
 	newSequence,
 	newSerialDialog,
 	showSerialDialog,
+	newTemporary,
+	dropTemporary,
+	quickTemporary,
+	latestTemporary,
 } = require('./parser-utilities.js');
 
 const {
@@ -164,12 +168,45 @@ const nodeFns = {
 			})
 			vertical.push(insert);
 		}
-		return [{
-			mathlang: 'rand_macro',
-			splits: vertical,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		// put the slices into a sequence
+		const temporary = newTemporary();
+		const steps = [
+			{
+				action: 'MUTATE_VARIABLE',
+				operation: 'RNG',
+				value: vertical.length,
+				variable: temporary,
+			},
+		];
+		let bottomSteps = [];
+		const rendezvousLabel = `rendezvous #${f.p.gotoSuffixValue}`;
+		vertical.forEach((body, i)=>{
+			const ifLabel = `if RNG #${f.p.advanceGotoSuffix()}`;
+			// add top half
+			const condition = {
+				mathlang: 'bool_comparison',
+				action: 'CHECK_VARIABLE',
+				variable: temporary,
+				value: i,
+				comparison: '==',
+				expected_bool: true,
+				label: ifLabel,
+				debug: node,
+				fileName: f.fileName,
+			};
+			steps.push(condition);
+			// add bottom half
+			const bottomInsert = [
+				label(f, node, ifLabel),
+				...body,
+				gotoLabel(f, node, rendezvousLabel),
+			];
+			bottomSteps = bottomInsert.concat(bottomSteps);
+		});
+		dropTemporary();
+		const combined = steps.concat(bottomSteps);
+		combined.push(label(f, node, rendezvousLabel));
+		return [newSequence(f, node, combined, 'rand macro')];
 	},
 	label_definition: (f, node) => label(f, node, textForFieldName(f, node, 'label')),
 	add_dialog_settings: (f, node) => {
@@ -472,7 +509,6 @@ const nodeFns = {
 		];
 		ifs.forEach(iff=>{
 			const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
-			// const elseLabel = `if else #${f.p.getGotoSuffix()}`;
 			const conditionNode = iff.childForFieldName('condition');
 			const condition = handleCapture(f, conditionNode);
 			const bodyNode = iff.childForFieldName('body');

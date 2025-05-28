@@ -3,6 +3,21 @@ const { getBoolFieldForAction } = require("./parser-bytecode-info");
 let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
+// ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
+
+const TEMP = '__TEMP_'
+const temporaries = [];
+const newTemporary = () => {
+	temporaries.unshift(TEMP + temporaries.length);
+	return temporaries[0];
+};
+const dropTemporary = () => temporaries.shift();
+const quickTemporary = () => {
+	newTemporary();
+	return dropTemporary();
+}
+const latestTemporary = () => temporaries[0];
+
 const inverseOpMap = {
 	'<': '>=',
 	'<=': '>',
@@ -337,4 +352,11 @@ module.exports = {
 	flattenGotos,
 	invert,
 	inverseOpMap,
+	newTemporary,
+	dropTemporary,
+	quickTemporary,
+	latestTemporary,
+
+
+
 };

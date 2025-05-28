@@ -1248,6 +1248,32 @@ const roundTripTestData = {
 			'self y = intName;',
 		],
 	},
+	rand_simple: {
+		type: 'actions',
+		autoAddReturn: true,
+		input: [
+			'rand!(',
+			'	wait [1ms, 2ms];',
+			'	close dialog;',
+			'	[player x, self y] = [10, intName];',
+			')',
+		],
+		expected: [
+			'__TEMP_0 ?= 2;',
+			'if (__TEMP_0 == 0) { goto label if_RNG_*A*; }',
+			'if (__TEMP_0 == 1) { goto label if_RNG_*B*; }',
+			'if_RNG_*B*:',
+			'wait 2ms;',
+			'close dialog',
+			'self y = intName;',
+			'goto label rendezvous_*C*;',
+			'if_RNG_*A*:',
+			'wait 1ms;',
+			'close dialog',
+			'player x = 10;',
+			'rendezvous_*C*:',
+		],
+	},
 	constants: {
 		type: 'file',
 		input: `
