@@ -1,3 +1,4 @@
+const { getBoolFieldForAction } = require('./parser-bytecode-info.js');
 const {
 	inverseOpMap,
 } = require('./parser-utilities.js');
@@ -200,13 +201,13 @@ const printGotoSegment = (data) => {
 	}
 };
 const printCheckAction = (data, lhs, smartInvert) => {
-	const param = data.boolParamName || 'expected_bool';
+	const param = getBoolFieldForAction(data.action);
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = printGotoSegment(data);
 	return `if (${bang}${lhs}) { ${goto}; }`;
 };
 const printSetBoolAction = (data, lhs) => {
-	const param = data.boolParamName || 'bool_value';
+	const param = getBoolFieldForAction(data.action);
 	return `${lhs} = ${data[param]};`
 };
 const printDuration = (duration) => duration + 'ms';

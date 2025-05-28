@@ -378,7 +378,7 @@ const nodeFns = {
 		const action = simpleBranchMaker(
 			f,
 			node,
-			{ action: 'CHECK_DEBUG_MODE', boolParamName: 'expected_bool' },
+			{ action: 'CHECK_DEBUG_MODE' },
 			showSerialDialog(f, node, name),
 			[],
 		);

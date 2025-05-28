@@ -4,6 +4,9 @@ const {
 	reportErrorNodes,
 	invert,
 } = require('./parser-utilities.js');
+const {
+	getBoolFieldForAction,
+} = require('./parser-bytecode-info.js');
 
 const inverseOpMap = {
 	'<': '>=',
@@ -283,7 +286,7 @@ const captureFns = {
 			op
 		};
 	},
-	bool_binary_expression: (f, node) => {
+	bool_binary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
 		// const inner = node.namedChildren[0];
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
@@ -332,13 +335,14 @@ const captureFns = {
 		const inner = node.childForFieldName('inner');
 		return handleCapture(f, inner);
 	},
-	bool_unary_expression: (f, node) => {
+	bool_unary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
 		const opNode = node.childForFieldName('operator');
 		const op = opNode.text;
-		if (op !== '!') throw new Error ("what kind of unary is " + op + '?');
+		if (op !== '!') throw new Error ("what kind of unary is '" + op + "'?");
 		const valueNode = node.childForFieldName('operand');
 		const capture = handleCapture(f, valueNode);
-		const inverted = invert(f, node, capture);
+		const toInvert = typeof capture === 'object'  ? {...capture} : capture;
+		const inverted = invert(f, node, toInvert);
 		inverted.debug = node;
 		return inverted;
 	},
@@ -355,16 +359,15 @@ const captureFns = {
 			entity
 		}
 	},
-	bool_getable: (f, node) => {
+	bool_getable: (f, node) => { // PART OF BOOL EXPRESSIONS
+		const typeNode = node.childForFieldName('type');
+		const type = typeNode.text;
 		const ret = {
 			mathlang: 'bool_getable',
 			debug: node,
 			fileName: f.fileName,
-			boolParamName: 'expected_bool',
+			type,
 		};
-		const typeNode = node.childForFieldName('type');
-		const type = typeNode.text;
-		ret.type = type;
 		if (type === 'debug_mode') {
 			ret.action = 'CHECK_DEBUG_MODE';
 		} else if (type === 'glitched') {
@@ -396,6 +399,8 @@ const captureFns = {
 				ret.state = handleCapture(f, stateNode);
 			}
 		}
+		const param = getBoolFieldForAction(ret.action);
+		ret[param] = true;
 		return ret;
 	},
 	string_checkable: (f, node) => {
@@ -403,7 +408,6 @@ const captureFns = {
 			mathlang: 'string_checkable',
 			debug: node,
 			fileName: f.fileName,
-			boolParamName: 'expected_bool',
 		};
 		const entityIdentNode = node.childForFieldName('entity_identifier');
 		if (entityIdentNode) {
@@ -517,7 +521,7 @@ const captureFns = {
 			};
 		}
 	},
-	bool_comparison: (f, node) => {
+	bool_comparison: (f, node) => { // PART OF BOOL EXPRESSIONS
 		const lhsN = node.childForFieldName('lhs');
 		const rhsN = node.childForFieldName('rhs');
 		if (lhsN.grammarType === 'entity_direction') {
@@ -525,6 +529,9 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 			}
 		} 
 		if (rhsN.grammarType === 'entity_direction') {
@@ -532,12 +539,20 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNSEW(f, rhsN, lhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 			}
 		}
 		if (lhsN.grammarType === 'string_checkable') {
+			const op = node.childForFieldName('operator').text;
+			const expected_bool = op === '==';
 			return {
 				mathlang: 'bool_comparison',
-				expected_bool: node.childForFieldName('operator').text === '==',
+				expected_bool,
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 				...compareString(f, lhsN, rhsN),
 			}
 		}
@@ -546,6 +561,9 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				expected_bool: node.childForFieldName('operator').text === '==',
 				...compareString(f, rhsN, lhsN),
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 			}
 		}
 		if (lhsN.grammarType === 'number_checkable_equality') {
@@ -553,6 +571,9 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNumberCheckableEquality(f, lhsN, rhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 			}
 		}
 		if (rhsN.grammarType === 'number_checkable_equality') {
@@ -560,6 +581,9 @@ const captureFns = {
 				mathlang: 'bool_comparison',
 				...compareNumberCheckableEquality(f, rhsN, lhsN),
 				expected_bool: node.childForFieldName('operator').text === '==',
+				// this isn't something the action actually wants
+				// but since we "changed" it let's set this to pass through
+				op: '==',
 			}
 		}
 		const lhs = handleCapture(f, lhsN);
@@ -573,7 +597,6 @@ const captureFns = {
 					source: rhs,
 					comparison: node.childForFieldName('operator').text,
 					expected_bool: true,
-					boolParamName: 'expected_bool',
 					debug: node,
 					fileName: f.fileName,
 				}
@@ -585,7 +608,6 @@ const captureFns = {
 					value: rhs,
 					comparison: node.childForFieldName('operator').text,
 					expected_bool: true,
-					boolParamName: 'expected_bool',
 					debug: node,
 					fileName: f.fileName,
 				}
@@ -655,7 +677,6 @@ const captureFns = {
 
 const compareNSEW = (f, node, nsewNode) => ({
 	action: "CHECK_ENTITY_DIRECTION",
-	boolParamName: 'expected_bool',
 	direction: nsewNode.text,
 	entity: extractEntityName(f, node.childForFieldName('entity_identifier')),
 });
@@ -665,7 +686,7 @@ const compareString = (f, checkableNode, stringNode) => {
 	return {
 		...checkable,
 		[checkable.stringLabel]: string,
-	}
+	};
 };
 const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 	const checkable = handleCapture(f, checkableNode);
@@ -673,7 +694,7 @@ const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 	return {
 		...checkable,
 		[checkable.numberLabel]: number,
-	}
+	};
 };
 const extractEntityName = (f, node, _typeNode) => {
 	const typeNode = _typeNode || node.childForFieldName('type');

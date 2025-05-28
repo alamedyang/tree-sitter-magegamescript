@@ -1,3 +1,5 @@
+const { getBoolFieldForAction } = require("./parser-bytecode-info");
+
 let verbose = false;
 const debugLog = (message) => { if (verbose) console.log(message); };
 
@@ -84,10 +86,7 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
 		}
-		if (action.invert) {
-			action.expected_bool = !action.expected_bool;
-		}
-		return [ action ];
+		return [ doInvertIfAny(f, node, action) ];
 	}
 	if (condition === true) {
 		return [ gotoLabel(f, node, ifLabel) ];
@@ -130,11 +129,9 @@ const expandCondition = (f, node, condition, ifLabel) => {
 	if (op !== '==' && op !== '!=') {
 		throw new Error ("What kind of other thing is this?")
 	}
-	if (op === '!=') {
-		rhs.invert = !rhs.invert;
-		op = '=='
-	}
+	rhs = doInvertIfAny(f, rhs.debug, rhs);
 	// todo: if any of these are == bool literal, they can be simplified
+	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs = {
 		mathlang: 'bool_binary_expression',
 		debug: condition.node,
@@ -145,40 +142,16 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			debug: condition.node,
 			fileName: f.fileName,
 			op: '&&',
-			lhs: typeof lhs === 'boolean'
-				? lhs
-				: {
-					...condition.lhs,
-					debug: condition.lhsNode,
-					expected_bool: !condition.lhs.invert,
-				},
-			rhs: typeof rhs === 'boolean'
-				? rhs
-				: {
-					...condition.rhs,
-					debug: condition.rhsNode,
-					expected_bool: !condition.rhs.invert,
-				},
+			lhs,
+			rhs,
 		},
 		rhs: {
 			mathlang: 'bool_binary_expression',
 			debug: condition.node,
 			fileName: f.fileName,
 			op: '&&',
-			lhs: typeof lhs === 'boolean'
-				? !lhs
-				: {
-					...condition.lhs,
-					debug: condition.lhsNode,
-					expected_bool: !!condition.lhs.invert,
-				},
-			rhs: typeof rhs === 'boolean'
-				? !rhs
-				: {
-					...condition.rhs,
-					debug: condition.rhsNode,
-					expected_bool: !!condition.rhs.invert,
-				},
+			lhs: invert(lhs),
+			rhs: invert(rhs),
 		}
 	}
 	return expandCondition(f, node, expandAs, ifLabel);
@@ -204,24 +177,26 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	];
 	return newSequence(f, node, steps, 'simple branch on');
 };
-const invert = (f, node, thing) => {
-	if (typeof thing === 'boolean') return !thing;
-	if (typeof thing === 'string') {
-		const action = checkFlag(f, node, thing);
-		action.invert = true;
-		return action;
+
+const doInvertIfAny = (f, node, thing) => {
+	return thing.invert ? invert(f, node, thing) : thing;
+};
+const invert = (f, node, boolExp) => {
+	if (typeof boolExp === 'boolean') return !boolExp;
+	if (typeof boolExp === 'string') {
+		return checkFlag(f, node, boolExp, '', false);
 	}
-	if (thing.mathlang === 'bool_binary_expression') {
-		if (thing.op === '||' || thing.op === '&&') {
-			thing.lhs = invert(f, node, thing.lhs);
-			thing.rhs = invert(f, node, thing.rhs);
+	if (boolExp.mathlang === 'bool_binary_expression') {
+		if (boolExp.op === '||' || boolExp.op === '&&') {
+			boolExp.lhs = invert(f, node, boolExp.lhs);
+			boolExp.rhs = invert(f, node, boolExp.rhs);
 		}
-		thing.op = inverseOpMap[thing.op];
-		thing.invert = !thing.invert;
-		return thing;
+		boolExp.op = inverseOpMap[boolExp.op];
+		return boolExp;
 	}
-	thing.invert = !thing.invert;
-	return thing;
+	const param = getBoolFieldForAction(boolExp.action);
+	boolExp[param] = !boolExp[param];
+	return boolExp;
 };
 
 const label = (f, node, label) => ({
@@ -282,7 +257,7 @@ const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 		action: "CHECK_SAVE_FLAG",
 		save_flag,
 		value: save_flag,
-		expected_bool: expected_bool || true,
+		expected_bool: expected_bool !== undefined ? expected_bool : true,
 		label: gotoLabel || 'UNDEFINED LABEL',
 		fileName: f.fileName,
 		debug: node,
@@ -365,5 +340,6 @@ module.exports = {
 	showDialog,
 	flattenGotos,
 	invert,
+	doInvertIfAny,
 	inverseOpMap,
 };

@@ -10,7 +10,11 @@ const {
 	showSerialDialog,
 	newDialog,
 	showDialog,
+	doInvertIfAny,
 } = require('./parser-utilities.js');
+const {
+	getBoolFieldForAction,
+} = require('./parser-bytecode-info.js');
 
 // Cyclic dependency bodge
 let handleNode;
@@ -81,8 +85,9 @@ const actionSetBoolMaker = (f, rhsRaw, _lhs) => {
 	const lhs = typeof _lhs === 'string'
 		? setFlag(_lhs, true)
 		: _lhs;
+	const lhsParam = getBoolFieldForAction(lhs.action);
 	if (typeof rhsRaw === 'boolean') {
-		lhs[lhs.boolParamName] = rhsRaw;
+		lhs[lhsParam] = rhsRaw;
 		return lhs;
 	}
 	if (
@@ -91,30 +96,28 @@ const actionSetBoolMaker = (f, rhsRaw, _lhs) => {
 		|| rhsRaw.mathlang === 'string_checkable'
 		|| rhsRaw.mathlang === 'number_checkable_equality'
 	) {
-		const param = rhsRaw.boolParamName
+		const rhsParam = getBoolFieldForAction(rhsRaw.action);
+		const existingValue = rhsRaw[rhsParam];
+		if (existingValue === undefined) throw new Error ("Found a hole! " + rhsRaw.action);
 		const baseAction = {
 			...rhsRaw,
-			[param]: rhsRaw[param] === undefined ? true : rhsRaw[param],
+			[rhsParam]: existingValue,
 		};
-		if (rhsRaw.invert) {
-			baseAction[param] = !baseAction[param];
-			rhsRaw.invert = !rhsRaw.invert;
-		}
 		return simpleBranchMaker(
 			f,
 			rhsRaw.debug,
-			baseAction,
-			{ ...lhs, [lhs.boolParamName]: true },
-			{ ...lhs, [lhs.boolParamName]: false },
+			doInvertIfAny(f, rhsRaw.debug, baseAction),
+			{ ...lhs, [lhsParam]: true },
+			{ ...lhs, [lhsParam]: false },
 		)
 	}
 	// Everything hereafter is a bool expression (?)
 	const setLhsIfTrue = typeof lhs === 'string'
 		? setFlag(lhs, true)
-		: { ...lhs, [lhs.boolParamName]: true };
+		: { ...lhs, [lhsParam]: true };
 	const setLhsIfFalse = typeof lhs === 'string'
 		? setFlag(lhs, false)
-		: { ...lhs, [lhs.boolParamName]: false };
+		: { ...lhs, [lhsParam]: false };
 	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps = [
@@ -489,8 +492,9 @@ const actionData = {
 				// ... and RHS is a simple bool getable
 				isMatch: (v) => v.rhs.mathlang === 'bool_getable',
 				finalizeValues: (v, f, node) => {
-					const invert = v.rhs.invert;
-					return setFlagToFlag(f, node, v.lhs, v.rhs.value, invert);
+					const rhs = doInvertIfAny(f, node, v.rhs);
+					const param = getBoolFieldForAction(rhs.action);
+					return setFlagToFlag(f, node, v.lhs, rhs.value, !rhs[param]);
 				},
 			},
 			{
@@ -584,7 +588,7 @@ const actionData = {
 					const lhsAction = {
 						action: 'SET_ENTITY_GLITCHED',
 						entity: v.lhs.value,
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -595,7 +599,7 @@ const actionData = {
 					const lhsAction = {
 						action: 'SET_LIGHTS_STATE',
 						lights: v.lhs.value,
-						boolParamName: 'enabled',
+						enabled: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -605,7 +609,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_PLAYER_CONTROL',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -615,7 +619,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_LIGHTS_CONTROL',
-						boolParamName: 'enabled',
+						enabled: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -625,7 +629,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_STATE',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -635,7 +639,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_DIALOG_MODE',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -645,7 +649,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_CONTROL',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -655,7 +659,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
@@ -665,7 +669,7 @@ const actionData = {
 				finalizeValues: (v, f, node) => {
 					const lhsAction = {
 						action: 'SET_SERIAL_DIALOG_CONTROL',
-						boolParamName: 'bool_value',
+						bool_value: true,
 					};
 					return actionSetBoolMaker(f, v.rhs, lhsAction);
 				},
