@@ -35,11 +35,11 @@ const mathlang = {
 const printActionFns = {
 	// Branch on bool equality (==)
 	CHECK_DEBUG_MODE: (v) => printCheckAction(v, 'debug_mode', true),
-	CHECK_SERIAL_DIALOG_OPEN: (v) => printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`, true),
+	CHECK_SERIAL_DIALOG_OPEN: (v) => printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_DIALOG_OPEN: (v) => printCheckAction(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_SAVE_FLAG: (v) => printCheckAction(v, v.save_flag, true),
 	CHECK_FOR_BUTTON_PRESS: (v) => printCheckAction(v, `button ${v.value} pressed`, true),
-	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.value} ${v.expected_bool ? 'up' : 'down'}`),
+	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.value} ${v.expected_bool ? 'down' : 'up'}`),
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} intersects ${printGeometry(v.geometry)}`, true),
 	CHECK_ENTITY_GLITCHED: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} glitched`, true),
 	

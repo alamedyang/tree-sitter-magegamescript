@@ -399,7 +399,9 @@ const captureFns = {
 				ret.state = 'pressed';
 			} else {
 				ret.action = 'CHECK_FOR_BUTTON_STATE';
-				ret.state = handleCapture(f, stateNode);
+				const state = handleCapture(f, stateNode);
+				const param = getBoolFieldForAction(ret.action);
+				ret[param] = state;
 			}
 		}
 		const param = getBoolFieldForAction(ret.action);

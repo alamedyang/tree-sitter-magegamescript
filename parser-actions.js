@@ -81,15 +81,18 @@ const flattenIntBinaryExpression = (exp, steps) => {
 
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
-const actionSetBoolMaker = (f, rhsRaw, _lhs) => {
+const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 	const lhs = typeof _lhs === 'string'
 		? setFlag(_lhs, true)
 		: _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
-	if (typeof rhsRaw === 'boolean') {
-		lhs[lhsParam] = rhsRaw;
+	if (typeof _rhsRaw === 'boolean') {
+		lhs[lhsParam] = _rhsRaw;
 		return lhs;
 	}
+	const rhsRaw = typeof _rhsRaw === 'string'
+		? checkFlag(_rhsRaw, true)
+		: _rhsRaw;
 	if (
 		rhsRaw.mathlang === 'bool_getable'
 		|| rhsRaw.mathlang === 'bool_comparison'
@@ -105,7 +108,7 @@ const actionSetBoolMaker = (f, rhsRaw, _lhs) => {
 		};
 		return simpleBranchMaker(
 			f,
-			rhsRaw.debug,
+			rhsRaw.debug || backupNode,
 			doInvertIfAny(f, rhsRaw.debug, baseAction),
 			{ ...lhs, [lhsParam]: true },
 			{ ...lhs, [lhsParam]: false },
@@ -590,7 +593,7 @@ const actionData = {
 						entity: v.lhs.value,
 						bool_value: true,
 					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
+					return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 				},
 			},
 			{
@@ -1108,6 +1111,7 @@ const setFlag = (save_flag, bool_value) => {
 	};
 };
 const checkFlag = (save_flag, expected_bool) => ({
+	mathlang: 'bool_getable',
 	action: 'CHECK_SAVE_FLAG',
 	expected_bool,
 	save_flag,
