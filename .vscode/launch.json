@@ -11,7 +11,7 @@
 			"skipFiles": [
 				"<node_internals>/**"
 			],
-			"program": "${workspaceFolder}/comparisons/translate"
+			"program": "${workspaceFolder}/comparisons/manual_translation"
 		}
 	]
 }

@@ -108,7 +108,13 @@ const printActionFns = {
 	SET_ENTITY_CURRENT_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} current_animation = ${v.byte_value};`,
 	SET_ENTITY_CURRENT_FRAME: (v) => `${printEntityIdentifier(v.entity)} animation_frame = ${v.byte_value};`,
 	SET_ENTITY_MOVEMENT_RELATIVE: (v) => `${printEntityIdentifier(v.entity)} strafe = ${v.relative_direction};`,
-	SET_ENTITY_DIRECTION_RELATIVE: (v) => { throw new Error ('not yet implemented') },
+	SET_ENTITY_DIRECTION_RELATIVE: (v) => {
+		if (v.relative_direction < 0) {
+			return `${printEntityIdentifier(v.entity)} direction -= ${v.relative_direction};`
+		} else {
+			return `${printEntityIdentifier(v.entity)} direction += ${v.relative_direction};`
+		}
+	},
 
 	// Set string
 	SET_WARP_STATE: (v) => `warp_state = "${v.string}";`,

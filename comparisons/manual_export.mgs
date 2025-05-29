@@ -1,0 +1,319 @@
+include "header.mgs";
+
+"show_dialog-timewarp" {
+	command "rtfm" = "command-rtfm";
+	if (!"demo-cutseen-timewarp") {
+		camera fade out -> #000000 over 1ms;
+		wait 200ms;
+		player_control = off;
+		player direction = south;
+		show dialog {
+			name "" "...."
+			"Am I asleep?"
+		};
+		camera fade in -> #000000 over 2000ms;
+		show dialog {
+			PLAYER alignment BL
+			"Huh? Is this the village?"
+			"No, this is the village of the past. But
+I still have Ring Zero...."
+			"This has got to be a dream."
+		};
+		player_control = on;
+		"demo-cutseen-timewarp" = true;
+	}
+	hex_control = on;
+}
+
+"show_dialog-bob-first-demo_map" {
+	if (!"demo-bob-backstory") {
+		show dialog {
+			SELF "Name's Bob."
+			"Stone Cold Bob Austin."
+			"Right, what's yours, then?"
+			PLAYER "You don't know who I am? We've both lived here for years!"
+			SELF "Don't know nobody. All I know is, gotta keep everyone out."
+			"You know, unless their name is Bob."
+			PLAYER "Bob?"
+			SELF "Bob. Camel case.
+Nice and plain.
+Traditional."
+			"'Cause this club is Bobs-only. You know, the Bobs-Only Club."
+			PLAYER "Why is it Bobs only?"
+			SELF "Why?
+Why is it Bobs only?"
+			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
+		};
+		"demo-bob-backstory" = true;
+	} else if ("demo-bob-notimplemented") {
+		show dialog {
+			SELF "So, what's your name, then?"
+			PLAYER "The door doesn't work! What does it matter what my name is?"
+			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
+		};
+	} else {
+		show dialog {
+			SELF "So, what's your name then?"
+		};
+		if (player name != "Bob") {
+			show dialog {
+				PLAYER "Um.... it's not Bob."
+				SELF "Sorry, can't unlock the door for ya. Bobs only."
+			};
+			return; // return early
+		}
+		show dialog {
+			PLAYER "Why, what luck!
+My name happens to be Bob!"
+			SELF "Nice. Great name.
+I'll unlock the door."
+		};
+		entity "Bob" position -> geometry "%ENTITY_PATH%" origin over 666ms;
+		entity "Bob" direction = west;
+		wait 666ms;
+		entity "Bob" direction = south;
+		show dialog {
+			SELF "There you go. It's open."
+		};
+		player position -> geometry "predoor" origin over 666ms;
+		player position -> geometry "door" origin over 1333ms;
+		wait 666ms;
+		player direction = east;
+		show dialog {
+			PLAYER "Hey, what gives?
+I still can't get in."
+		};
+		entity "Bob" direction = west;
+		show dialog {
+			SELF "Oh, it's unlocked."
+			PLAYER "Then why won't it open?"
+			SELF "Oh. The door's not implemented yet."
+			PLAYER "...."
+			"You could've said that from the start!"
+			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
+		};
+		entity "Bob" direction = south;
+		"demo-bob-notimplemented" = true;
+	}
+}
+
+"show_dialog-sheep-demo_map" {
+	show dialog { SELF "...." };
+}
+"show_dialog-dsheep-demo_map" {
+	show dialog { SELF "...?" };
+}
+
+"show_dialog-max-demo_map" {
+	copy!("face-player")
+	show dialog {
+		SELF "Ah, a citizen!"
+		"I wondered if you could help me!"
+		PLAYER "What do you need?"
+		SELF "My name's Swagger! Max Swagger!"
+		"I was doing a bit of reconnoissance, looking for a place where I can open my new fashion shop."
+		"The board here says there's space available, but I can't seem to find the building it's talking about."
+		"The only thing actually here is the Bobs-Only Club!"
+		PLAYER "Well, the town isn't fully implemented yet, so... you might have to wait a few more weeks for the rest of the buildings to return."
+	};
+	player_control = off;
+	self direction -= 2;
+	wait 800ms;
+	self direction += 1;
+	wait 800ms;
+	player_control = on;
+	copy!("face-player")
+	show dialog {
+		SELF "Not fully implemented?"
+		PLAYER "Sorry."
+		"But I can personally guarantee you can have a building all to yourself when the time comes."
+		SELF "Oh! That's good news! All to myself?"
+		"I'm picturing two stories... no, three!"
+		"Lush woven carpets... vaulted ceilings... beautiful oak doors... hand-carved decorative moulding...."
+		PLAYER "Um, well.... You'll definitely get a building."
+		SELF "Excellent! Then I shall return when the time comes!"
+		"Until that glorious day, farewell!"
+	};
+	self position -> geometry "%ENTITY_PATH%" length over 9000ms;
+	self position = geometry "hiding";
+}
+
+"show_dialog-timmy-demo_map" {
+	copy!("interrupt-walk")
+	show dialog {
+		SELF "I'm practicing for my triathlon!"
+		"Running is my weakest event, so I'm working hard to improve my time!"
+		PLAYER "Don't you need legs to run?"
+		SELF "...?"
+		"No?"
+	};
+	copy!("resume-walk")
+}
+
+"show_dialog-kid-demo_map" {
+	copy!("interrupt-walk")
+	show dialog {
+		SELF "I'm gonna be a Blitzball when I grow up!"
+	};
+	copy!("resume-walk")
+}
+
+"show_dialog-goose-demo_map" {
+	show dialog {
+		SELF "Honk!"
+	};
+}
+
+"show_dialog-beatrice-demo_map" {
+	player_control = off;
+	copy!("face-player")
+	show dialog {
+		SELF "Back when he was a young man, my husband Delmar hand-carved all the statues on the fountains around town."
+		"Such a shame that this one isn't working. I wonder if something is clogging the pump."
+	};
+	self direction += 1;
+	wait 600ms;
+	self direction -= 2;
+	wait 600ms;
+	copy!("face-player")
+	show dialog {
+		SELF "Between you and me.... I think the goose has something to do with it."
+	};
+	player_control = on;
+	self direction = south;
+}
+
+"show_dialog-trekkie-demo_map" {
+	copy!("face-player")
+	show dialog {
+		SELF "Me heard you will soon have a birthday!"
+		PLAYER "That's right! I'll be turning 16, and I'll get to be an official village mage!"
+		SELF "Me hope you have happy birthday!"
+		PLAYER "Thanks very much, %Trekkie%!"
+	};
+}
+
+"show_dialog-verthandi-demo_map" {
+	copy!("face-player")
+	show dialog {
+		SELF "I'm so glad the goats made up and are friends again!"
+	};
+	self direction = south;
+}
+
+"show_dialog-goat-demo_map" {
+	show dialog { SELF "Baaahhh!" };
+}
+
+"show_dialog-cleo1-demo_map" {
+	show dialog {
+		Cat "Meowrrow."
+		Cleo "Oh, you don't say!"
+		Cat "Meow!"
+		Cleo "He didn't!"
+	};
+	self on_interact = "show_dialog-cleo2";
+}
+
+"show_dialog-cleo2-demo_map" {
+	show dialog {
+		Cat "Meowwowow."
+		Cleo "That's what I've been saying this whole time!"
+		Cat "Meowwrrrr!"
+		Cleo "Oh, I know!"
+	};
+	self on_interact = "show_dialog-cleo1-demo_map";
+}
+
+"show_dialog-cat-demo_map" {
+	show dialog {
+		PLAYER "Hey there, cat!"
+		Cat "...."
+		Cleo "Excuse me, but we were in the middle of a conversation."
+		PLAYER "Oh, sorry. Carry on."
+	};
+}
+
+"show_dialog-smith-demo_map" {
+	copy!("face-player")
+	show dialog {
+		SELF "I came here on a blacksmithing scholarship, but there's not much blacksmithing to do at the moment."
+		"I think I'll stick around anyway. See what happens."
+	};
+}
+
+"check_if_player_is_goat_high-demo_map" {
+	if (player intersects geometry "high") {
+		entity "goat1" on_tick = "move_goat1_to_low-demo_map";
+		entity "goat2" on_tick = "move_goat2_to_low-demo_map";
+		goto "check_if_player_is_goat_low-demo_map";
+	}
+}
+
+"check_if_player_is_goat_low-demo_map" {
+	if (player intersects geometry "low") {
+		entity "goat1" on_tick = "move_goat1_to_high-demo_map";
+		entity "goat2" on_tick = "move_goat2_to_high-demo_map";
+		goto "check_if_player_is_goat_high-demo_map";
+	}
+}
+
+"move_goat1_to_low-demo_map" {
+	entity "goat1" position -> geometry "low1" origin over 600ms;
+	entity "goat1" position -> geometry "low1" length over 2000ms forever;
+}
+
+"move_goat2_to_low-demo_map" {
+	entity "goat2" position -> geometry "low2" origin over 733ms;
+	entity "goat2" position -> geometry "low2" length over 2266ms forever;
+}
+
+"move_goat1_to_high-demo_map" {
+	entity "goat1" position -> geometry "high1" origin over 600ms;
+	entity "goat1" position -> geometry "high1" length over 2000ms forever;
+}
+
+"move_goat2_to_high-demo_map" {
+	entity "goat2" position -> geometry "high2" origin over 733ms;
+	entity "goat2" position -> geometry "high2" length over 2266ms forever;
+}
+
+"loop_on_path_30s-demo_map" {
+	self position -> geometry "%ENTITY_PATH%" length over 20000ms forever;
+}
+
+"loop_on_path_10s-demo_map" {
+	self position -> geometry "%ENTITY_PATH%" length over 6666ms forever;
+}
+
+"loop_on_path_3s-demo_map" {
+	self position -> geometry "%ENTITY_PATH%" length over 2000ms forever;
+}
+
+// Chaos fish
+"show_dialog-demo-end-dream-q" {
+	show dialog {
+		SELF
+		portrait goldfish
+		"End this dream?"
+		> "Yes (save and quit)" = "demo-end-dream-yes-save"
+		> "Yes (quit without saving)" = "demo-end-dream-yes"
+		> "No (continue dream)" = "demo-end-dream-no"
+	};
+}
+"demo-end-dream-yes" {
+	load map "main_menu";
+}
+"demo-end-dream-yes-save" {
+	save slot;
+	load map "main_menu";
+}
+"demo-end-dream-no" {
+	self on_interact = "show_dialog-demo-end-dream-q";
+}
+
+// Unused (from original prerelease demo; did not get plugged in properly)
+dialog "dialog-max3-demo_map" {
+	PLAYER "Not much of a market for fashion here, I would've thought."
+	"Best of luck, Max Swagger!"
+}

@@ -1,35 +1,41 @@
 const fs = require('node:fs');
 const { printScript } = require('../parser-to-json.js');
 const { composites } = require('./exfiltrated_composites.js');
-const { scripts } = require('./one_file_at_a_time.js');
 
 const exfiltrate = {};
 
 // script list goes here
 [
-	'start_bling-rotate-auto',
-	'start_bling-rotate-manual',
-	'bling-goto-branches',
-	// 'on_load-bling-mode-map',
-	'bling-detect-mode',
-	'loop-bling-listen-any',
-	'loop-bling-listen-hax',
-	'bling-goto-menu',
-	'bling-rotate-state-increment',
-	'bling-rotate-state-decrement',
-	'loop-bling_timer',
-	'loop-bling_timer-wait',
-	'loop-bling-listen-manualrotate',
-	'bling-manual-rotate-left',
-	'bling-manual-rotate-right',
-	'start_bling-dc801',
-	'start_bling-dc801-2',
-	'start_bling-zero',
-	'start_bling-serial',
-	'start_bling-digi-mage',
-	'start_bling-digi-mage2',
-	'start_bling-flying-toasters',
-	'start_bling-qr',
+	'show_dialog-timewarp',
+	'show_dialog-bob-first-demo_map',
+	'show_dialog-sheep-demo_map',
+	'show_dialog-dsheep-demo_map',
+	'show_dialog-max-demo_map',
+	'show_dialog-timmy-demo_map',
+	'show_dialog-kid-demo_map',
+	'show_dialog-goose-demo_map',
+	'show_dialog-beatrice-demo_map',
+	'show_dialog-trekkie-demo_map',
+	'show_dialog-verthandi-demo_map',
+	'show_dialog-goat-demo_map',
+	'show_dialog-cleo1-demo_map',
+	// 'show_dialog-cleo2-demo_map',
+	'show_dialog-cat-demo_map',
+	'show_dialog-smith-demo_map',
+	'check_if_player_is_goat_high-demo_map',
+	'check_if_player_is_goat_low-demo_map',
+	'move_goat1_to_low-demo_map',
+	'move_goat2_to_low-demo_map',
+	'move_goat1_to_high-demo_map',
+	'move_goat2_to_high-demo_map',
+	'loop_on_path_30s-demo_map',
+	'loop_on_path_10s-demo_map',
+	'loop_on_path_3s-demo_map',
+	'show_dialog-demo-end-dream-q',
+	'demo-end-dream-yes',
+	'demo-end-dream-yes-save',
+	'demo-end-dream-no',
+		
 ].forEach(scriptName=>{
 	const fromOtherThing = composites[scriptName];
 	exfiltrate[scriptName] = fromOtherThing;
