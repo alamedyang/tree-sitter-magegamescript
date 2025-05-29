@@ -171,10 +171,15 @@ const buildSerialDialogFromInfo = (f, info) => {
 const buildDialogFromInfo = (f, info, messageNodes) => {
 	const ident = info.identifier;
 	let specificSettings = {};
+	let found = false;
 	if (ident.type === 'label') {
 		specificSettings = f.settings.label[ident.value] || {};
-	} else if (ident.type === 'entity') {
+	}
+	if (!found || ident.type === 'entity') {
 		specificSettings = f.settings.entity[ident.value] || {};
+		if (!specificSettings.entity) {
+			specificSettings.entity = ident.value;
+		}
 	}
 	const dialog = {
 		wrap: 42,

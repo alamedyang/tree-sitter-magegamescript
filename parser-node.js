@@ -334,7 +334,8 @@ const nodeFns = {
 	},
 	dialog: (f, node) => {
 		const settings = {};
-		const params = capturesForFieldName(f, node, 'dialog_parameter')
+		const params = capturesForFieldName(f, node, 'dialog_parameter');
+		const messageN = node.childrenForFieldName('message');
 		params.forEach(v=>{ settings[v.property] = v.value; });
 		const options = node.childrenForFieldName('dialog_option')
 			.map(v=>handleNode(f, v))
@@ -342,16 +343,16 @@ const nodeFns = {
 		const info = {
 			identifier: captureForFieldName(f, node, 'dialog_identifier'),
 			settings,
-			messages: capturesForFieldName(f, node, 'message'),
+			messages: messageN.map(v=>handleCapture(f, v)),
 			options,
 		};
-		const dialogs = buildDialogFromInfo(f, info, messageNodes);
+		const dialogs = buildDialogFromInfo(f, info, messageN);
 		return [{
 			mathlang: 'dialog',
 			info,
-			dialogs,
 			debug: node,
-			fileName: f.fileName,s
+			fileName: f.fileName,
+			...dialogs,
 		}];
 	},
 	json_literal: (f, node) => {

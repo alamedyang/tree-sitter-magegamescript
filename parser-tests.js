@@ -1237,8 +1237,38 @@ const fileMap = {
 			},
 			constants: {
 				$magicNumber: { fileName: 'header.mgs', value: 76 },
-				$trombones: { fileName: 'constants.mgs', value: 76 },
-				$hamburgers: { fileName: 'constants.mgs', value: 'steamed hams' },
+				$trombones: { fileName: 'constants_include.mgs', value: 76 },
+				$hamburgers: { fileName: 'constants_include.mgs', value: 'steamed hams' },
+			},
+		},
+	},
+	'basic_dialog.mgs': {
+		fileText: `
+			dialog "bobIntro" {
+				Bob "Well, hi there!"
+				Jackob "Oh!"
+			}
+		`,
+		expected: {
+			dialogs: {
+				bobIntro: {
+					dialogs: [
+						{
+							entity: "Bob",
+							alignment: "BOTTOM_LEFT",
+							messages: [
+								"Well, hi there!"
+							],
+						},
+						{
+							alignment: "BOTTOM_LEFT",
+							entity: "Jackob",
+							messages: [
+								"Oh!"
+							],
+						},
+					],
+				},
 			},
 		},
 	},
@@ -1394,38 +1424,139 @@ const errors = [];
 
 // --------------------------- Other diagnostics ---------------------------
 
-const compareConstants = (fileName, _found, _expected) => {
+// Borrowed from an earlier iteration of mathlang
+const simplifyValues = (lh, rh) => {
+	if (lh === null) return simplifyLiteral(lh, rh);
+	if (Array.isArray(lh)) return simplifyArrays(lh, rh);
+	if (typeof lh === 'object') return simplifyObjects(lh, rh);
+	return simplifyLiteral(lh, rh);
+}
+const simplifyLiteral = (lh, rh) => {
+	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
+	const diff = lh === rh
+		? rh
+		: red + ` (expected ${ansiTags.yellow}${JSON.stringify(lh)}${ansiTags.reset})`;
+	return { lh, rh, diff };
+};
+const simplifyArrays = (origLH = [], origRH = []) => {
+	const newLH = [];
+	const newRH = [];
+	const newDiffs = [];
+	origLH.forEach((left, i)=>{
+		const right = origRH[i];
+		if (Array.isArray(left)) {
+			const { lh, rh, diff } = simplifyArrays(left, right);
+			newLH.push(lh);
+			newRH.push(rh);
+			newDiffs.push(diff);
+		} else if (typeof left === 'object') {
+			const { lh, rh, diff } = simplifyObjects(left, right);
+			newLH.push(lh);
+			newRH.push(rh);
+			newDiffs.push(diff);
+		} else {
+			const { lh, rh, diff } = simplifyLiteral(left, right);
+			newLH.push(lh);
+			newRH.push(rh);
+			newDiffs.push(diff);
+		}
+	});
+	return { lh: newLH, rh: newRH, diff: newDiffs };
+};
+const simplifyObjects = (origLH = {}, origRH = {}) => {
+	delete origLH.debug;
+	delete origRH.debug;
+	const sortedLH = {};
+	const sortedRH = {};
+	const sortedDiff = {};
+	Object.keys(origLH).sort().forEach(k=>{
+		if (origLH[k] === null) {
+			const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+			sortedLH[k] = lh;
+			sortedRH[k] = rh;
+			sortedDiff[k] = diff;
+		} else if (Array.isArray(origLH[k])) {
+			const { lh, rh, diff } = simplifyArrays(origLH[k], origRH[k]);
+			sortedLH[k] = lh;
+			sortedRH[k] = rh;
+			sortedDiff[k] = diff;
+		} else if (typeof origLH[k] === 'object') {
+			const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
+			sortedLH[k] = lh;
+			sortedRH[k] = rh;
+			sortedDiff[k] = diff;
+		} else {
+			const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+			sortedLH[k] = lh;
+			sortedRH[k] = rh;
+			sortedDiff[k] = diff;
+		}
+	});
+	return { lh: sortedLH, rh: sortedRH, diff: sortedDiff };
+};
+const reportObjectDiffs = (expected, found) => {
 	const messages = [];
+	const {lh, rh, diff} = simplifyValues(expected, found);
+	const jsonLeft = JSON.stringify(lh, null, '  ');
+	const jsonRight = JSON.stringify(rh, null, '  ');
+	if (jsonLeft !== jsonRight) {
+		if (typeof lh === 'object') {
+			const message = `Found ${JSON.stringify(diff, null, '  ')}`
+			messages.push(message);
+		} else {
+			const message = `Found ${ansiTags.red}${key}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`
+			messages.push(message);
+		}
+	}
+	return messages.map(s=>s.replaceAll('\\u001b', '\u001b'));
+};
+
+const compareConstants = (fileName, _found, _expected) => {
+	const errors = [];
 	const foundKeys = Object.keys(_found);
 	const expectedKeys = Object.keys(_expected);
 	expectedKeys.forEach(k=>{
 		if (!foundKeys.includes(k)) {
-			messages.push({
-				status: 'fail',
-				message: `${fileName}: Did not find expected constant '${k}'`,
-			});
-			return;
+			errors.push({ status: 'fail', message: `${fileName}: Did not find expected constant '${k}'`});
 		}
 	});
 	foundKeys.forEach(k=>{
 		if (!expectedKeys.includes(k)) {
-			messages.push({
-				status: 'fail',
-				message: `${fileName}: Found unexpected constant '${k}'`,
-			});
-			return;
+			errors.push({ status: 'fail', message: `${fileName}: Found unexpected constant '${k}'`});
+			return; // quit exploring this constant
 		}
 		const found = _found[k];
 		const expected = _expected[k];
-		if (found.value !== expected.value) {
-			const compared = compareTexts(String(found.value), String(expected.value), fileName, k);
-			if (compared.status !== 'success') {
-				errors.push(compared);
-			}
+		const comparedErrors = reportObjectDiffs(expected, found);
+		comparedErrors.forEach(string=>{
+			errors.push({
+				status: 'fail',
+				message: `${fileName} constants values do not match:\n${string}`,
+			});
+		});
+	});
+	return errors;
+};
+const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => {
+	const errors = [];
+	if (expectedDialogs.length !== foundDialogs.length) {
+		return [{
+			status: 'fail',
+			message: `${fileName}: differing dialog quantity for ${dialogName}`,
+		}];
+	}
+	expectedDialogs.forEach((expected, i)=>{
+		const found = foundDialogs[i];
+		const diffs = reportObjectDiffs(expected, found);
+		if (diffs.length) {
+			errors.push({
+				type: 'fail',
+				message: `${fileName}: dialog "${dialogName}" [${i}] mismatch\n${diffs.join('\n')}`,
+			})
 		}
 	});
-	return messages;
-}
+	return errors;
+};
 
 // --------------------------- THE OWL ---------------------------
 const runTests = async () => {
@@ -1448,9 +1579,9 @@ const runTests = async () => {
 		fileTestNames.forEach(fileName=>{
 
 			// Scripts
-			const fileExpectedData = fileMap[fileName].expected;
+			const fileExpectedData = fileMap[fileName].expected || {};
 			const fileFoundP = fileMap[fileName].parsed;
-			const fileScriptNames = Object.keys(fileExpectedData.scripts);
+			const fileScriptNames = Object.keys(fileExpectedData.scripts || {});
 			const allScripts = result.scripts;
 			fileScriptNames.forEach(scriptName=>{
 				const expected = fileExpectedData.scripts[scriptName].trim();
@@ -1462,12 +1593,25 @@ const runTests = async () => {
 			});
 
 			// Constants
-			const constants = compareConstants(
+			const constantsDiffs = compareConstants(
 				fileName,
-				fileFoundP.constants,
+				fileFoundP.constants || {},
 				fileExpectedData.constants || {},
 			);
-			errors.push(...constants);
+			if (constantsDiffs.length) {
+				errors.push(...constantsDiffs);
+			}
+
+			// Dialogs
+			const allDialogs = result.dialogs;
+			const expectedDialogs = fileExpectedData.dialogs || {};
+			const dialogNames = Object.keys(expectedDialogs) || {};
+			dialogNames.forEach(dialogName=>{
+				const expected = expectedDialogs[dialogName].dialogs || {};
+				const found = allDialogs[dialogName].dialogs || {};
+				const compared = compareDialogs(fileName, dialogName, expected, found);
+				compared.forEach(err=>{ errors.push(err) });
+			});
 
 		});
 
