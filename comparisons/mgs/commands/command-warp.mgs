@@ -1,0 +1,316 @@
+include "header.mgs";
+
+// REGISTER
+
+"register-warp" {
+	// NOTE: No need to branch any of these (WOPR excepting); you only get warping powers when the castle has been entirely explored
+
+	command "warp" = "command-warp";
+	command "warp" fail = "warp-fail";
+
+	command "man" + "warp" = "man-warp";
+
+	// convenience numbers -- not documented in game, but useful for debugging if nothing else
+	command "warp" + "1" = "warp-ch2-1";
+	command "warp" + "11" = "warp-ch2-11";
+	command "warp" + "12" = "warp-ch2-12";
+	command "warp" + "13" = "warp-ch2-13";
+	command "warp" + "14" = "warp-ch2-14";
+	command "warp" + "21" = "warp-ch2-21";
+	command "warp" + "22" = "warp-ch2-22";
+	command "warp" + "23" = "warp-ch2-23";
+	command "warp" + "31" = "warp-ch2-31";
+	command "warp" + "32" = "warp-ch2-32";
+	command "warp" + "33" = "warp-ch2-33";
+	command "warp" + "34" = "warp-ch2-34";
+	command "warp" + "99" = "warp-ch2-99";
+	// end debug
+
+	// CH2 ROOMS
+
+	command "warp" + "castle exterior" = "warp-ch2-castle-exterior";
+	command "warp" + "castle entrance" = "warp-ch2-1";
+	command "warp" + "castle hallway front" = "warp-ch2-11";
+	command "warp" + "castle hallway back" = "warp-ch2-12";
+
+	command "warp" + "castle throne room" = "warp-ch2-13";
+	command "warp" + "throne room" = "warp-ch2-13";
+	
+	command "warp" + "castle bedroom" = "warp-ch2-14";
+	command "warp" + "gibson's bedroom" = "warp-ch2-14";
+	command "warp" + "gibsons bedroom" = "warp-ch2-14";
+	command "warp" + "gibson bedroom" = "warp-ch2-14";
+	command "warp" + "king gibson's bedroom" = "warp-ch2-14";
+	command "warp" + "king gibsons bedroom" = "warp-ch2-14";
+	command "warp" + "king gibson bedroom" = "warp-ch2-14";
+
+	command "warp" + "workshop" = "warp-ch2-21";
+	command "warp" + "server room" = "warp-ch2-22";
+	command "warp" + "power plant" = "warp-ch2-23";
+
+	command "warp" + "grand hall" = "warp-ch2-31";
+	command "warp" + "castle hall" = "warp-ch2-31";
+
+	command "warp" + "castle kitchen" = "warp-ch2-32";
+
+	command "warp" + "hydroponics" = "warp-ch2-33";
+	command "warp" + "castle hydroponics" = "warp-ch2-33";
+	command "warp" + "hydroponics room" = "warp-ch2-33";
+	
+	command "warp" + "castle pantry" = "warp-ch2-34";
+
+	command "warp" + "secret lab" = "warp-ch2-99";
+
+	// CH1 ROOMS
+	
+	command "warp" + "town" = "warp-ch2-town";
+	command "warp" + "bakery" = "warp-ch2-bakery";
+	command "warp" + "greenhouse" = "warp-ch2-greenhouse";
+
+	command "warp" + "wopr room" = "warp-ch2-wopr";
+	command "warp" + "wopr" = "warp-ch2-wopr";
+
+	command "warp" + "library" = "warp-ch2-library";
+	command "warp" + "lodge" = "warp-ch2-library";
+
+	command "warp" + "inner sanctum" = "warp-ch2-rtfmroom";
+	command "warp" + "rtfm room" = "warp-ch2-rtfmroom";
+	command "warp" + "rtfm" = "warp-ch2-rtfmroom";
+
+	command "warp" + "home" = "warp-ch2-magehouse";
+	command "warp" + "my home" = "warp-ch2-magehouse";
+	command "warp" + "my house" = "warp-ch2-magehouse";
+	
+	command "warp" + "bobsclub" = "warp-ch2-bobsclub";
+	command "warp" + "bobs club" = "warp-ch2-bobsclub";
+	command "warp" + "bob's club" = "warp-ch2-bobsclub";
+	command "warp" + "bobs club basement" = "warp-ch2-bobsclub-basement";
+	command "warp" + "bob's club basement" = "warp-ch2-bobsclub-basement";
+	
+	command "warp" + "beatrice's house" = "warp-ch2-oldcouplehouse";
+	command "warp" + "beatrices house" = "warp-ch2-oldcouplehouse";
+	command "warp" + "beatrice house" = "warp-ch2-oldcouplehouse";
+	command "warp" + "bea" = "warp-ch2-oldcouplehouse";
+
+	command "warp" + "smith's house" = "warp-ch2-smithfamily";
+	command "warp" + "smiths house" = "warp-ch2-smithfamily";
+	command "warp" + "smith house" = "warp-ch2-smithfamily";
+	command "warp" + "smith" = "warp-ch2-smithfamily";
+}
+
+// MAN PAGE
+
+"man-warp" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"<c><bold>MGE GENERAL COMMANDS MANUAL - WARP</>"
+		" "
+		"A powerful command that teleports you to a room you've been to before."
+		" "
+		"To see a list of valid warp desinations, use <c>WARP</> on its own (without a room name)."
+		" "
+		"NOTE: Long distance warps may require access to the Gibson wifi network. If encountering problems, please reduce your distance to the nearest castle wireless base station."
+	};
+}
+
+// FAIL
+
+"warp-fail" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"<bold><r>WARP FAILED!</> You have not been to that destination yet or that destination does not exist."
+	};
+}
+
+// COMMAND
+
+"command-warp" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"List of valid <c>WARP</> destinations:"
+		" "
+		"<bold>-------------------- CASTLE --------------------</>"
+		"  Castle exterior          Server room"
+		"  Castle entrance          Power plant"
+		"  Castle hallway front     Grand hall"
+		"  Castle hallway back      Castle kitchen"
+		"  Castle throne room       Hydroponics room"
+		"  King Gibson's bedroom    Castle pantry"
+		"  Workshop                 Secret lab"
+		" "
+		"<bold>-------------------- TOWN ----------------------</>"
+		"  Town                     Bob's Club"
+		"  Bakery                   Bob's Club basement"
+		"  Greenhouse               Beatrice's house"
+		"  Library                  Smith's house"
+		"  RTFM room                My house"
+	};
+	if ("wopr-backdoor-found") {
+		show serial_dialog { "  WOPR room" };
+	}
+}
+
+// common
+
+"warp-common" {
+	if ("ch2-wait-for-hat-touch") {
+		goto "ch2-wait-for-hat-touch-message";
+	}
+	// all warps will fail before the computer is ok
+	// if you're PHYSICALLY OUTSIDE the castle
+	if (!"ch2-ring-zero-enabled-in-castle") {
+		if (!debug_mode) {
+			if ("ch2-in-room" == 0) {
+				goto "warp-ch2-town-check-fail-message";
+			}
+		}
+	}
+	"ch2-in-room" = 0;
+	"current-chapter" = 2; // todo: remove this; it's here for ch2 debug mode protection for the WOPR room
+	copy!("warping-out-fade-out")
+}
+
+"warp-ch2-castle-exterior" {
+	copy!("warp-common")
+	load map "ch2-castle-outside";
+}
+"warp-ch2-1" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-1-special")
+}
+"warp-ch2-11" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-11-special")
+}
+"warp-ch2-12" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-12-special")
+}
+"warp-ch2-13" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-13-special")
+}
+"warp-ch2-14" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-14-special")
+}
+"warp-ch2-21" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-21-special")
+}
+"warp-ch2-22" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-22-special")
+}
+"warp-ch2-23" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-23-special")
+}
+"warp-ch2-31" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-31-special")
+}
+"warp-ch2-32" {
+	copy!("warp-common")
+	copy!("ch2-load-castle-32-special")
+}
+"warp-ch2-33" {
+	copy!("warp-common")
+	load map "ch2-castle-33";
+}
+"warp-ch2-34" {
+	copy!("warp-common")
+	load map "ch2-castle-34";
+}
+"warp-ch2-99" {
+	copy!("warp-common")
+	load map "ch2-castle-99";
+}
+
+// ch1 stuff
+
+"warp-ch2-town-destination-check" {
+	// all warps will fail before the computer is ok
+	// if your DESTINATION is outside the castle
+	if (!"ch2-ring-zero-enabled-in-castle") {
+		if (!debug_mode) {
+			goto "warp-ch2-town-check-fail-message";
+		}
+	}
+}
+
+"warp-ch2-town-check-fail-message" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"<bold><r>ERROR</>: <bold>warp-assistant</> timed out"
+		" "
+		"DNS lookup for warp destination failed. Could not confirm coordinates of destination. Aborting!"
+		" "
+		"Check your wifi connection and try again."
+		" "
+		"<bold>warp-assistant</>: exited with code -1"
+	};
+}
+
+"warp-ch2-town" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-town";
+}
+"warp-ch2-bakery" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-bakery";
+}
+"warp-ch2-greenhouse" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-greenhouse";
+}
+"warp-ch2-wopr" {
+	if (
+		"wopr-backdoor-found"
+		|| debug_mode
+	) {
+		copy!("warp-ch2-town-destination-check")
+		copy!("warp-common")
+		load map "woprhouse";
+	} else {
+		goto "warp-fail";
+	}
+}
+"warp-ch2-library" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-lodge";
+}
+"warp-ch2-rtfmroom" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-lodge-rtfm";
+}
+"warp-ch2-magehouse" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-magehouse";
+}
+"warp-ch2-bobsclub" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-bobsclub";
+}
+"warp-ch2-bobsclub-basement" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-bobsclub-basement";
+}
+"warp-ch2-oldcouplehouse" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-oldcouplehouse";
+}
+"warp-ch2-smithfamily" {
+	copy!("warp-ch2-town-destination-check")
+	copy!("warp-common")
+	load map "ch2-smithfamily";
+}

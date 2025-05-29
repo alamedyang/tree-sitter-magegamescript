@@ -2,81 +2,36 @@ const fs = require('node:fs');
 
 const file = `include!("header.mgs")
 
-on_load-woprhouse {
-	if (flag tuesdayd is true) {
-		register rtfm -> command-rtfm;
-	}
-	if (variable current-chapter is 2) {
-		// entrance text
-		show serial dialog spacer;
-		show serial dialog { "Entering <bold>WOPR ROOM</>..." }
-		copy ch2-map-init;
-	}
-	if (flag wopr-backdoor-found is false) {
-		turn player control off;
-		set flag wopr-backdoor-found to true;
-		if (warp state is not warped) {
-			walk entity "%PLAYER%" along geometry walk_from-north over 600ms;
-		}
-		wait 400ms;
-		show dialog {
-			PLAYER "Whoa! It looks like I found some kind of back door."
-		}
-		turn player control on;
+man-look {
+	show serial dialog spacer;
+	show serial dialog {
+		"<c><bold>MGE GENERAL COMMANDS MANUAL - LOOK</>"
+		" "
+		"Describes the room you're in. Will describe entities instead if an entity name is provided after the word <c>LOOK</>."
+		" "
+		"Importantly, it can list a room's exits, even if they are invisible."
+		" "
+		"This command may also be triggered with the alias <c>EXAMINE</> or the abbreviations <c>L</> or <c>X</>."
 	}
 }
 
-/* ---------- ON_TICK ---------- */
-
-on_tick-woprhouse {
-	if entity "%PLAYER%" is inside geometry north-hitbox
-		then goto on_walk-woprhouse-north;
-}
-
-/* ---------- EXIT STUFF ---------- */
-
-on_walk-woprhouse-north {
-	// triggered by map's on_tick
-	if (variable current-chapter is 1) {
-		set warp state to exit_from-woprhouse;
-		load map main;
-	} else if (variable current-chapter is 2) {
-		set warp state to walk_from-woprhouse;
-		load map ch2-town;
-	} else {
-		show serial dialog spacer;
-		show serial dialog {
-			"<r>ERROR:</> You're in chapter '$current-chapter$'??"
-			"Back to the main menu for you!"
-		}
-		load map main_menu;
+man-go {
+	show serial dialog spacer;
+	show serial dialog {
+		"<c><bold>MGE GENERAL COMMANDS MANUAL - GO</>"
+		" "
+		"Lets you travel to an adjacent room, even if the actual, physical door is blocked, locked, or hidden. Type <c>GO</> followed by the name of the exit, e.g. <c>GO NORTH</>"
+		" "
+		"To learn the names of the current room's exits, use <c>LOOK</>."
 	}
 }
 
-on_go-woprhouse-north {
-	copy warping-out-fade-out;
-	load map ch2-town;
-}
-
-/* ---------- ENTITIES ---------- */
-
-show_dialog-wopr-start {
-	show dialog {
-		SELF portrait wopr
-		"SHALL WE PLAY A GAME?"
-
-		SELF portrait wopr
-		"PLAY?"
-		> "DO NOT PLAY" : goto "restart-wopr"
-	}
-}
-restart-wopr {
-	set entity "%SELF%" on_interact to show_dialog-wopr-start;
-}
-
-show_dialog-woprbooks {
-	show dialog {
-		PLAYER "These shelves are full of Vogon poetry! What an odd sort of thing for a computer to collect."
+man-help {
+	show serial dialog spacer;
+	show serial dialog {
+		"<c><bold>MGE GENERAL COMMANDS MANUAL - HELP</>"
+		" "
+		"Provides general information for the serial terminal, including a list of valid serial commands."
 	}
 }
 `;
@@ -85,24 +40,19 @@ const replaced = file
 	.replace(/include!\((.+?)\)/g, 'include $1;') // include_macro
 
 	// generic or preparatory
-	.replace(/goto( script)? ("?)([^;]+)(\2)/g, 'goto "$3"') // goto (script)
+	.replace(/goto( script)? ("?)([^\n;]+)(\2)/g, 'goto "$3"') // goto (script)
 	.replace(/serial dialog/g, 'serial_dialog') // serial dialog -> serial_dialog
-	// .replace(/(->|:) (goto)?("?)([^;]+)(\3)/g, '= "$4"') // other script refs
-	.replace( // bareword -> "bareword"
-		/(entity|geometry|map|flag|variable|mutate) ("?)([-_a-zA-Z0-9]+)(\2)/g,
-		'$1 "$3"'
-	)
 	.replace( // scriptName { -> "scriptName" {
-		/(^|\n)([-_A-Z0-9a-z]+) {\n/g,
-		'$1"$2" {\n'
+		/(^|\n)([-_A-Z0-9a-z]+) {/g,
+		'$1"$2" {'
 	)
 	.replace( // dialog bareword { -> dialog "bareword" {
 		/dialog ([-_A-Z0-9a-z]+?)( {\n|;)/g,
 		'dialog "$1"$2'
 	)
 	.replace( // (serial) dialog options
-		/(>|_|#) (.+?) :( goto)?( script)? ([^\n]+)/g,
-		'$1 $2 = $5'
+		/(>|_|#) (.+?) :( goto)?( script)? ("?)([^\n]+)(\5)/g,
+		'$1 $2 = "$6"'
 	)
 	.replace(
 		/(\t+)if (.+)[\s]+then (goto [^;\n]+)(;?)(\n|$)/g,
@@ -113,19 +63,38 @@ const replaced = file
 	// SLOT_SAVE -- ok as is
 	// SLOT_LOAD -- ok as is
 	// SLOT_ERASE -- ok as is
-	// LOAD_MAP -- ok as is
+	.replace( // LOAD_MAP
+		/load map ("?)([^;\n]+)(\1)/g,
+		`load map "$2"`
+	)
 	// BLOCKING_DELAY -- ok as is
 	// NON_BLOCKING_DELAY -- ok as is
-	.replace( // SHOW_DIALOG
-		/show dialog ([^}]+)}/g,
-		'show dialog $1};'
+	// SHOW_DIALOG
+	.replace(
+		/show dialog {([^}]+)}/g,
+		'show dialog {$1};'
 	)
-	// CLOSE_DIALOG -- ok as is
+	.replace(
+		/show dialog ("[-_a-zA-Z0-9]+"){([^}]+)}/g,
+		'show dialog $1 {$2};'
+	)
+	// CLOSE_DIALOG
+	.replace(
+		/end dialog/g,
+		'close dialog'
+	)
 	.replace( // SHOW_SERIAL_DIALOG
-		/show serial_dialog ([^}]+)}/g,
-		'show serial_dialog $1};'
+		/(show|concat) serial_dialog {([^}]+)}/g,
+		'$1 serial_dialog {$2};'
 	)
-	// CLOSE_SERIAL_DIALOG -- ok as is
+	.replace(
+		/(show|concat) serial_dialog ("[-_a-zA-Z0-9]+") {([^}]+)}/g,
+		'$1 serial_dialog $2 {$3};'
+	)
+	.replace( // CLOSE_SERIAL_DIALOG
+		/end serial_dialog/g,
+		'close serial dialog'
+	)
 	// SET_SCRIPT_PAUSE
 	// [TODO]
 	// GOTO_ACTION_INDEX -- ok as is? (todo: check)
@@ -133,24 +102,27 @@ const replaced = file
 
 	// Commands and aliases
 	.replace( // REGISTER_SERIAL_DIALOG_COMMAND
-		/register ("?)([^\n;]+)(\1)( fail)? ->( goto)?( script)? ("?)([^\n;]+)(\7)/g,
-		'command "$2" $4= "$8"'
+		/register ("?)([-_a-zA-Z0-9]+)(\1)( fail)? -> ("?)([^\n;]+)(\5)/g,
+		'command "$2"$4 = "$6"'
 	)
 	.replace( // UNREGISTER_SERIAL_DIALOG_COMMAND
-		/unregister ("?)([^\n;]+)(\1)( fail)?/g,
+		/unregister ("?)([-_a-zA-Z0-9]+)(\1)( fail)?/g,
 		'delete command "$2" $4'
 	)
 	.replace( // REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-		/register ("?)(.+?)(\1) + ("?)([^\n;]+)(\4) ->( goto)?( script)? ("?)([^\n;]+)(\7)/g,
+		/register ("?)([-_a-zA-Z0-9]+)(\1) \+ ("?)([-_a-zA-Z0-9 ']+)(\4) -> ("?)([^\n;]+)(\7)/g,
 		'command "$2" + "$5" = "$8"'
 	)
 	.replace( // UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-		/unregister ("?)(.+?)(\1) + ("?)([^\n;]+)(\4)/g,
+		/unregister ("?)([-_a-zA-Z0-9]+)(\1) \+ ("?)([^\n;]+)(\4)/g,
 		'delete command "$2" + "$5"'
 	)
-	// REGISTER_SERIAL_DIALOG_COMMAND_ALIAS -- ok as is
 	.replace( // REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
-		/unregister alias ("?)([^\n;])(\1)/g,
+		/register alias ("?)([-_a-zA-Z0-9]+)(\1) = ("?)([^\n;]+)(\4)/g,
+		'alias "$2" = "$5"'
+	)
+	.replace( // UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
+		/unregister alias ("?)([^\n;]+)(\1)/g,
 		'delete alias "$2"'
 	)
 	// SET_SERIAL_DIALOG_COMMAND_VISIBILITY -- ok as is
@@ -158,54 +130,54 @@ const replaced = file
 
 	// Set position
 	.replace( // SET_CAMERA_TO_FOLLOW_ENTITY
-		/make camera follow entity ([^;\n]+)/g,
-		'camera = entity $1 position'
+		/make camera follow entity ("?)([^;\n]+)(\1)/g,
+		'camera = entity $2 position'
 	)
 	.replace( // TELEPORT_CAMERA_TO_GEOMETRY
-		/teleport camera to geometry ([^;\n]+)/g,
-		'camera = geometry $1'
+		/teleport camera to geometry ("?)([^;\n]+)(\1)/g,
+		'camera = geometry $2'
 	)
 	.replace( // TELEPORT_ENTITY_TO_GEOMETRY
-		/teleport entity (.+?) to geometry ([^;\n]+)/g,
-		'entity $1 position = geometry $2'
+		/teleport entity ("?)(.+?)(\1) to geometry ("?)([^;\n]+)(\4)/g,
+		'entity $2 position = geometry $5'
 	)
 	.replace( // SET_ENTITY_DIRECTION_TARGET_ENTITY
-		/turn entity (.+?) toward entity ([^;\n]+)/g,
-		'entity $1 direction = entity $2'
+		/turn entity ("?)(.+?)(\1) toward entity ("?)([^;\n]+)(\4)/g,
+		'entity $2 direction = entity $5'
 	)
 	.replace( // SET_ENTITY_DIRECTION_TARGET_GEOMETRY
-		/turn entity (.+?) toward geometry ([^;\n]+)/g,
-		'entity $1 direction = geometry $2'
+		/turn entity ("?)(.+?)(\1) toward geometry ("?)([^;\n]+)(\4)/g,
+		'entity $2 direction = geometry $5'
 	)
 	
 	// Set position over time
 	.replace( // WALK_ENTITY_TO_GEOMETRY
-		/walk entity (.+?) to geometry (.+?) over ([0-9ms]+)/g,
-		'entity $1 position -> geometry $2 origin over $3'
+		/walk entity ("?)(.+?)(\1) to geometry ("?)(.+?)(\4) over ([0-9ms]+)/g,
+		'entity $2 position -> geometry $5 origin over $7'
 	)
 	.replace( // WALK_ENTITY_ALONG_GEOMETRY
-		/walk entity (.+?) along geometry (.+?) over ([0-9ms]+)/g,
-		'entity $1 position -> geometry $2 length over $3'
+		/walk entity ("?)(.+?)(\1) along geometry ("?)(.+?)(\4) over ([0-9ms]+)/g,
+		'entity $2 position -> geometry $5 length over $7'
 	)
 	.replace( // LOOP_ENTITY_ALONG_GEOMETRY
-		/loop entity (.+?) along geometry (.+?) over ([0-9ms]+)/g,
-		'entity $1 position -> geometry $2 length over $3 forever'
+		/loop entity ("?)(.+?)(\1) along geometry ("?)(.+?)(\4) over ([0-9ms]+)/g,
+		'entity $2 position -> geometry $5 length over $7 forever'
 	)
 	.replace( // PAN_CAMERA_TO_ENTITY
-		/pan camera to entity (.+?) over ([0-9ms]+)/g,
-		'camera -> entity $1 position over $2'
+		/pan camera to entity ("?)(.+?)(\1) over ([0-9ms]+)/g,
+		'camera -> entity $2 position over $4'
 	)
 	.replace( // PAN_CAMERA_TO_GEOMETRY
-		/pan camera to geometry (.+?) over ([0-9ms]+)/g,
-		'camera -> geometry $1 origin over $2'
+		/pan camera to geometry ("?)(.+?)(\1) over ([0-9ms]+)/g,
+		'camera -> geometry $2 origin over $4'
 	)
 	.replace( // PAN_CAMERA_ALONG_GEOMETRY
-		/pan camera along geometry (.+?) over ([0-9ms]+)/g,
-		'camera -> geometry $1 length over $2'
+		/pan camera along geometry ("?)(.+?)(\1) over ([0-9ms]+)/g,
+		'camera -> geometry $2 length over $4'
 	)
 	.replace( // LOOP_CAMERA_ALONG_GEOMETRY
-		/loop camera along geometry (.+?) over ([0-9ms]+)/g,
-		'camera -> geometry $1 length over $2 forever'
+		/loop camera along geometry ("?)(.+?)(\1) over ([0-9ms]+)/g,
+		'camera -> geometry $2 length over $4 forever'
 	)
 	
 	// Other do over time
@@ -218,8 +190,8 @@ const replaced = file
 		'camera fade $1 -> $3 over $4'
 	)
 	.replace( // PLAY_ENTITY_ANIMATION
-		/play entity (.+?) animation ([0-9]+) ([0-9]+x?|once|twice|thrice)/g,
-		'entity $1 animation -> $2 $3'
+		/play entity ("?)(.+?)(\1) animation ([0-9]+) ([0-9]+x?|once|twice|thrice)/g,
+		'entity $2 animation -> $4 $5'
 	)
 
 	// Set string
@@ -228,8 +200,8 @@ const replaced = file
 		'warp_state = "$2"'
 	)
 	.replace( // SET_ENTITY_DIRECTION
-		/turn entity (.+?) (north|south|east|west)/g,
-		'entity $1 direction = $2'
+		/turn entity ("?)(.+?)(\1) (north|south|east|west)/g,
+		'entity $2 direction = $4'
 	)
 	// SET_ENTITY_NAME
 	// SET_ENTITY_TYPE
@@ -238,13 +210,13 @@ const replaced = file
 	// SET_ENTITY_INTERACT_SCRIPT
 	// SET_ENTITY_TICK_SCRIPT
 	.replace(
-		/set entity (.+?) (name|type|path|on_interact|on_tick|on_look) to ("?)([^;\n]+)(\3)/g,
-		'entity $1 $2 = "$4"'
+		/set entity ("?)(.+?)(\1) (name|type|path|on_interact|on_tick|on_look) to ("?)([^;\n]+)(\5)/g,
+		'entity $2 $4 = "$5"'
 	)
 	// SET_MAP_TICK_SCRIPT
 	.replace(
-		/set map (.+?) on_tick to ("?)([^;\n]+)(\3)/g,
-		'map $1 on_tick = "$4"'
+		/set map ("?)(.+?)(\1) on_tick to ("?)([^;\n]+)(\4)/g,
+		'map $2 on_tick = "$6"'
 	)
 	
 	// Set int (expressions not allowed)
@@ -257,50 +229,58 @@ const replaced = file
 	// SET_ENTITY_CURRENT_FRAME
 	// SET_ENTITY_MOVEMENT_RELATIVE
 	.replace(
-		/set entity (.+?) (x|y|primary_id|secondary_id|primary_id_type|current_animation|animation_frame|strafe) to ([^;\n]+)/g,
-		'entity $1 $2 = "$4"'
+		/set entity ("?)(.+?)(\1) (x|y|primary_id|secondary_id|primary_id_type|current_animation|animation_frame|strafe) to ([^;\n]+)/g,
+		'entity $2 $4 = "$6"'
 	)
 	// SET_ENTITY_DIRECTION_RELATIVE
 	.replace(
-		/rotate entity (.+?) -([0-9]+)/g,
-		'entity $1 direction -= $2'
+		/rotate entity ("?)(.+?)(\1) -([0-9]+)/g,
+		'entity $2 direction -= $4'
 	)
 	.replace(
-		/rotate entity (.+?) ([0-9]+)/g,
-		'entity $1 direction += $2'
+		/rotate entity ("?)(.+?)(\1) ([0-9]+)/g,
+		'entity $2 direction += $4'
 	)
 	
 	// Set int (expressions OK)
-	.replace( // MUTATE_VARIABLE, MUTATE_VARIABLES
-		/mutate (.+?) (\+|-|\*|\/|\%|\?) ([^;\n]+)/g,
-		'$1 $2= $3'
+	.replace( // MUTATE_VARIABLE
+		/mutate ("?)(.+?)(\1) (\+|-|\*|\/|\%|\?) ([0-9]+)/g,
+		'"$2" $4= $5'
 	)
 	.replace( // ditto
-		/mutate (.+?) = ([^;\n]+)/g,
-		'$1 = $2'
+		/mutate ("?)(.+?)(\1) = ([0-9]+)/g,
+		'"$2" = $4'
+	)
+	.replace( // MUTATE_VARIABLES
+		/mutate ("?)(.+?)(\1) (\+|-|\*|\/|\%|\?) ("?)([^;\n]+)(\5)/g,
+		'"$2" $4= "$6"'
+	)
+	.replace( // ditto
+		/mutate ("?)(.+?)(\1) = ("?)([^;\n]+)(\4)/g,
+		'"$2" = "$5"'
 	)
 	// COPY_VARIABLE
 	.replace(
-		/copy entity (.+?) ([_a-z]+) from variable ([^;\n]+)/g,
-		'entity $1 $2 = $3'
+		/copy entity ("?)(.+?)(\1) ([_a-z]+) from variable ([^;\n]+)/g,
+		'entity $2 $4 = $5'
 	)
 	.replace(
-		/copy entity (.+?) ([_a-z]+) into variable ([^;\n]+)/g,
-		'$3 = entity $1 $2'
+		/copy entity ("?)(.+?)(\1) ([_a-z]+) into variable ([^;\n]+)/g,
+		'$5 = entity $2 $4'
 	)
 	.replace(
-		/copy variable (.+?) from entity (.+?) ([_a-z]+)/g,
-		'$1 = entity $2 $3'
+		/copy variable (.+?) from entity ("?)(.+?)(\2) ([_a-z]+)/g,
+		'$2 = entity $4 $5'
 	)
 	.replace(
-		/copy variable (.+?) into entity (.+?) ([_a-z]+)/g,
-		'entity $2 $3 = $1'
+		/copy variable (.+?) into entity ("?)(.+?)(\2) ([_a-z]+)/g,
+		'entity $4 $5 = $2'
 	)
 
 	// Set bool (expressions OK)
 	.replace( // SET_SAVE_FLAG
-		/set flag (.+?) to ([^;\n]+)/g,
-		'$1 = $2'
+		/set flag ("?)(.+)(\1) to ([^;\n]+)/g,
+		'"$2" = $4'
 	)
 	.replace( // SET_HEX_EDITOR_STATE
 		/(on|off|true|false|open|close|yes|no) hex editor/g,
@@ -335,12 +315,12 @@ const replaced = file
 		'light $2$3 = $1$4'
 	)
 	.replace( // SET_ENTITY_GLITCHED
-		/make entity (.+?) glitched/g,
-		'entity $1 glitched = true'
+		/make entity ("?)(.+?)(\1) glitched/g,
+		'entity $2 glitched = true'
 	)
 	.replace( // ditto
-		/make entity (.+?) unglitched/g,
-		'entity $1 glitched = false'
+		/make entity ("?)(.+?)(\1) unglitched/g,
+		'entity $2 glitched = false'
 	)
 	
 	// Branch on string equality
@@ -368,37 +348,49 @@ const replaced = file
 	// CHECK_ENTITY_LOOK_SCRIPT
 	// CHECK_ENTITY_PATH
 	.replace(
-		/entity (.+?) (name|type|path|on_interact|on_tick|on_look) is not ("?)([^)]+)(\3)/g,
-		'entity $1 $2 != "$4"'
+		/entity ("?)(.+?)(\1) (name|type|path|on_interact|on_tick|on_look) is not ("?)([^)]+)(\5)/g,
+		'entity $2 $4 != "$6"'
 	)
 	.replace(
-		/entity (.+?) (name|type|path|on_interact|on_tick|on_look) is ("?)([^)]+)(\3)/g,
-		'entity $1 $2 == "$4"'
+		/entity ("?)(.+?)(\1) (name|type|path|on_interact|on_tick|on_look) is ("?)([^)]+)(\5)/g,
+		'entity $2 $4 == "$6"'
 	)
 	// CHECK_ENTITY_DIRECTION
 	.replace(
-		/entity (.+?) direction is not (north|south|east|west)/g,
-		'entity $1 direction != $2'
+		/entity ("?)(.+?)(\1) direction is not (north|south|east|west)/g,
+		'entity $2 direction != $4'
 	)
 	.replace(
-		/entity (.+?) direction is (north|south|east|west)/g,
-		'entity $1 direction == $2'
+		/entity ("?)(.+?)(\1) direction is (north|south|east|west)/g,
+		'entity $2 direction == $4'
 	)
 	
 	// Branch on int comparison (== < <= => >)
-	// CHECK_VARIABLE, CHECK_VARIABLES
+	// CHECK_VARIABLE
 	.replace(
-		/variable (.+?) is not ([-_0-9A-Za-z]+)/g,
-		'$1 != $2'
+		/variable ("?)(.+?)(\1) is not ([0-9]+)/g,
+		'"$2" != $4'
 	)
 	.replace(
-		/variable (.+?) is ([-_0-9A-Za-z]+)/g,
-		'$1 == $2'
+		/variable ("?)(.+?)(\1) is ([0-9]+)/g,
+		'"$2" == $4'
 	)
-	// CHECK_VARIABLE, CHECK_VARIABLES
 	.replace(
-		/variable (.+?) is ([<=>]+) ([-_0-9A-Za-z]+)/g,
-		'$1 $2 $3'
+		/variable ("?)(.+?)(\1) is ([<=>]+) ([0-9]+)/g,
+		'"$2" $4 $5'
+	)
+	// CHECK_VARIABLES
+	.replace(
+		/variable ("?)(.+?)(\1) is not ("?)([-_0-9A-Za-z]+)(\4)/g,
+		'"$2" != "$5"'
+	)
+	.replace(
+		/variable ("?)(.+?)(\1) is ("?)([-_0-9A-Za-z]+)(\4)/g,
+		'"$2" == "$5"'
+	)
+	.replace(
+		/variable ("?)(.+?)(\1) is ([<=>]+) ("?)([-_0-9A-Za-z]+)(\5)/g,
+		'"$2" $4 "$6"'
 	)
 
 	// Branch on int equality (==)
@@ -410,12 +402,12 @@ const replaced = file
 	// CHECK_ENTITY_CURRENT_ANIMATION
 	// CHECK_ENTITY_CURRENT_FRAME
 	.replace(
-		/entity (.+?) ([a-z]+) is not ([0-9]+)/g,
-		'entity $1 $2 != $3'
+		/entity ("?)(.+?)(\1) ([a-z]+) is not ([0-9]+)/g,
+		'entity $2 $4 != $5'
 	)
 	.replace(
-		/entity (.+?) ([a-z]+) is ([0-9]+)/g,
-		'entity $1 $2 == $3'
+		/entity ("?)(.+?)(\1) ([a-z]+) is ([0-9]+)/g,
+		'entity $2 $4 == $5'
 	)
 	
 	// Branch on bool equality (==)
@@ -435,10 +427,10 @@ const replaced = file
 	.replace(/serial_dialog is (close|off|false|no)/g, 'serial_dialog closed')
 	.replace(/serial_dialog is not (close|off|false|no)/g, 'serial_dialog open')
 	// CHECK_SAVE_FLAG
-	.replace(/flag (.+?) is (open|on|true|yes)/g, '$1')
-	.replace(/flag (.+?) is (close|off|false|no)/g, '!$1')
-	.replace(/flag (.+?) is not (open|on|true|yes)/g, '!$1')
-	.replace(/flag (.+?) is not (close|off|false|no)/g, '$1')
+	.replace(/flag (.+?) is (open|on|true|yes)/g, '"$1"')
+	.replace(/flag (.+?) is (close|off|false|no)/g, '!"$1"')
+	.replace(/flag (.+?) is not (open|on|true|yes)/g, '!"$1"')
+	.replace(/flag (.+?) is not (close|off|false|no)/g, '"$1"')
 	// CHECK_FOR_BUTTON_PRESS
 	.replace(/button ([A-Z0-9]+)/g, 'button $1 pressed')
 	.replace(/not button ([A-Z0-9]+)/g, '!button $1 pressed')
@@ -447,21 +439,21 @@ const replaced = file
 	.replace(/button ([A-Z0-9]+) is not curently pressed/g, '!button $1 up')
 	// CHECK_IF_ENTITY_IS_IN_GEOMETRY
 	.replace(
-		/entity (.+?) is inside geometry ([^\)]+)/g,
-		'entity $1 intersects geometry $2'
+		/entity ("?)(.+?)(\1) is inside geometry ("?)([^\)]+)(\4)/g,
+		'entity $2 intersects geometry $5'
 	)
 	.replace(
-		/entity (.+?) is not inside geometry ([^\)]+)/g,
-		'!entity $1 intersects geometry $2'
+		/entity ("?)(.+?)(\1) is not inside geometry ("?)([^\)]+)(\4)/g,
+		'!entity $2 intersects geometry $5'
 	)
 	// CHECK_ENTITY_GLITCHED
 	.replace(
-		/entity (.+?) is glitched/g,
-		'entity $1 glitched'
+		/entity ("?)(.+?)(\1) is glitched/g,
+		'entity $2 glitched'
 	)
 	.replace(
-		/entity (.+?) is not glitched/g,
-		'!entity $1 glitched'
+		/entity ("?)(.+?)(\1) is not glitched/g,
+		'!entity $2 glitched'
 	)
 
 	// Has to be last
@@ -473,6 +465,10 @@ const replaced = file
 	.replace(/entity "%PLAYER%"/g, 'player')
 	.replace(/entity "%SELF%"/g, 'self')
 	.replace(/"(\$[_-a-zA-Z0-9]+)"/g, '$1')
+	.replace(
+		/settings for (serial )?dialog {/g,
+		'add $1dialog settings {'
+	)
 
 	fs.writeFileSync('./comparisons/manual_export.mgs', replaced);
 
