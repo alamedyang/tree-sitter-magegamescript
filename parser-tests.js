@@ -1243,12 +1243,10 @@ const fileMap = {
 		},
 	},
 	'basic_dialog.mgs': {
-		fileText: `
-			dialog "bobIntro" {
-				Bob "Well, hi there!"
-				Jackob "Oh!"
-			}
-		`,
+		fileText: `dialog "bobIntro" {
+			Bob "Well, hi there!"
+			Jackob "Oh!"
+		}`,
 		expected: {
 			dialogs: {
 				bobIntro: {
@@ -1265,6 +1263,78 @@ const fileMap = {
 							entity: "Jackob",
 							messages: [
 								"Oh!"
+							],
+						},
+					],
+				},
+			},
+		},
+	},
+	'dialog_error_wrap.mgs': {
+		fileText: `dialog "tooLong" {
+			Bob wrap 20
+			"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
+		}`,
+		expected: {
+			warningCount: 1,
+			dialogs: {
+				tooLong: {
+					dialogs: [
+						{
+							entity: "Bob",
+							alignment: "BOTTOM_LEFT",
+							messages: [
+								'ACK!\n\nA goat! Oh, I guess\nI need to make sure\nthis thing wraps.\nLet\'s see. How many\nchars can this be?',
+							],
+						},
+					],
+				},
+			},
+		},
+
+	},
+	'dialog_wrapping.mgs': {
+		fileText: `dialog "wrapBasics" {
+			Bob wrap 20
+			"12345678901234567890"
+			"123456789012\\%4567890"
+			"123456789012\\%45678901"
+			"123456789012\\% 567890"
+			"123456789012\\% 5678901"
+			"%12% a b c d e f g h"
+			"%1234% a b c d e f g h"
+			"%123456% a b c d e f g h"
+			"%12345678% a b c d e f g h"
+			"%1234567890% a b c d e f g h"
+			"$1$ a b c d e f g h"
+			"$123$ a b c d e f g h"
+			"$12345$ a b c d e f g h"
+			"$1234567$ a b c d e f g h"
+			"$123456789$ a b c d e f g h"
+		}`,
+		expected: {
+			dialogs: {
+				wrapBasics: {
+					dialogs: [
+						{
+							entity: "Bob",
+							alignment: "BOTTOM_LEFT",
+							messages: [
+								'12345678901234567890',
+								'123456789012\\%4567890',
+								'123456789012\\%45678901',
+								'123456789012\\% 567890',
+								'123456789012\\%\n5678901',
+								'%12% a b c d\ne f g h',
+								'%1234% a b c d\ne f g h',
+								'%123456% a b c d\ne f g h',
+								'%12345678% a b c d\ne f g h',
+								'%1234567890% a b c d\ne f g h',
+								'$1$ a b c d e f g\nh',
+								'$123$ a b c d e f g\nh',
+								'$12345$ a b c d e f g\nh',
+								'$1234567$ a b c d e f g\nh',
+								'$123456789$ a b c d e f g\nh',
 							],
 						},
 					],
@@ -1290,6 +1360,18 @@ Object.entries(actionTests).forEach(([testName, data])=>{
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
+const colorDifferentStrings = (expected, found) => {
+	const diff = [];
+	const foundChars = found.split('');
+	for (let i = 0; i < foundChars.length; i++) {
+		const c = foundChars[i];
+		if (c !== expected[i]) {
+			diff.push(ansiTags.yellow);
+		}
+		diff.push(c);
+	}
+	return diff.join('')+ansiTags.reset;
+};
 const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
 const makeTextUniform = (text) => text.trim()
 	.replace(/[\t ]+/g, ' ')
@@ -1379,15 +1461,7 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 			return;
 		}
 		// or they really are different
-		const diff = [];
-		const foundChars = found.split('');
-		for (let i = 0; i < foundChars.length; i++) {
-			const c = foundChars[i];
-			if (c !== expected[i]) {
-				diff.push(ansiTags.yellow);
-			}
-			diff.push(c);
-		}
+		const diff = colorDifferentStrings(expected, found);
 		lines.push({
 			expected,
 			found,
@@ -1435,7 +1509,7 @@ const simplifyLiteral = (lh, rh) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
 	const diff = lh === rh
 		? rh
-		: red + ` (expected ${ansiTags.yellow}${JSON.stringify(lh)}${ansiTags.reset})`;
+		: red + ` (expected ${colorDifferentStrings(rh || '', lh || '')})`;
 	return { lh, rh, diff };
 };
 const simplifyArrays = (origLH = [], origRH = []) => {
@@ -1612,6 +1686,18 @@ const runTests = async () => {
 				const compared = compareDialogs(fileName, dialogName, expected, found);
 				compared.forEach(err=>{ errors.push(err) });
 			});
+
+			// Warningcount
+			const foundWarningCount = fileFoundP.warningCount;
+			const expectedWarningCount = fileExpectedData.warningCount || 0;
+
+			if (foundWarningCount !== expectedWarningCount) {
+				errors.push({
+					status: 'fail',
+					message: `${fileName}: Found ${foundWarningCount} warning(s), `
+						+ `expected ${expectedWarningCount}`,
+				})
+			}
 
 		});
 
