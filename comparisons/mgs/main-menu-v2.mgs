@@ -1,0 +1,490 @@
+include "header.mgs";
+
+"on_load-main_menu" {
+	"current-chapter" = 0;
+	copy!("register-colors")
+
+	// todo: write commentary
+
+	// copy!("register-commentary")
+	// if (!ch1-commentary-notice) {
+	// 	serial-commentary = true;
+	// 	show serial dialog {
+	// 		" "
+	// 		"<c><bold>Serial commentary</> <c>is available for chapter 1!</> (This is on by default.) To enable or disable this commentary, type <c>COMMENTARY ON</> or <c>COMMENTARY OFF</> at the main menu."
+	// 	}
+	// 	ch1-commentary-notice = true;
+	// }
+
+	/* DEBUG QUICK STUFFS */
+	if (debug_mode) {
+		command debug = "debug";
+		command hub = "debug-hub";
+		command honk = "system_bell";
+		command bob = "debug-bob";
+		command bob2 = "debug-bob2";
+		command bob3 = "debug-bob3";
+		command simon = "debug-menu-simon";
+		command king = "debug-king";
+		command ch2 = "menu-chapter_select-2";
+		command rtfm = "command-rtfm";
+		command buffer + "test" = "debug-buffertest";
+		command boot = "ch2-bootup";
+		command post = "debug-post";
+		// command cutbug = ch2-toot-step3-end2;
+		command skip + "1" = "debug-jump-to-round1";
+		command skip + "2" = "debug-jump-to-round2";
+		command skip + "3" = "debug-jump-to-round3";
+		command skip + "4" = "debug-jump-to-round4";
+		copy!("register-warp")
+		copy!("register-storyflag")
+	}
+}
+
+/* DEBUGSSSS */
+"debug-post" {
+	"ch2-wizard-backstory" = true;
+	copy!("debug-set-flags-to-round4")
+	"ch2-seen-room-99" = true;
+	"ch2-map-mainframeos" = false;
+	"ch2-carrying-mainframeos" = true;
+	"ch2-cutseen-castle99" = true;
+	"ch2-carrying-mainframeos" = false;
+	copy!("ch2-install-mainframeos")
+	"ch2-ring-zero-enabled-in-castle" = true;
+	"ch2-storyflag-round" = 5;
+	"credits-from-menu" = false;
+	warp_state = "ch2-ending";
+	load map "ch2-castle-outside";
+}
+
+"debug-menu-simon" {
+	serial_control = true;
+	"ch2-has-artifact" = true;
+	hex_control = true;
+	"current-chapter" = 2;
+	copy!("debug-finish-toot")
+	"ch2-storyflag-round" = 2;
+	copy!("warp-ch2-31") // this has a load_map in it
+}
+
+"debug-hub" {
+	load map "warp_zone";
+}
+
+"system_bell" {
+	show serial_dialog "main_menu.mgs:91:2" {
+		"Honk!"
+	};
+}
+
+"debug-bob" {
+	"ch2-has-artifact" = true;
+	"ch2-has-map" = true;
+	load map "ch2-bobsclub";
+}
+
+"debug-bob2" {
+	warp_state = warping;
+	"ch2-has-artifact" = true;
+	"ch2-has-map" = true;
+	load map "ch2-bobsclub-basement";
+}
+
+"debug-bob3" {
+	warp_state = warping;
+	"ch2-has-artifact" = true;
+	"ch2-has-map" = true;
+	"ch2-cutseen-bob-party" = true;
+	load map "ch2-bobsclub-basement";
+}
+
+"debug-king" {
+	copy!("debug-set-flags-to-round3")
+	"ch2-cutseen-castle13" = true;
+	"ch2-cutseen-castle14" = true;
+	"ch2-king-rescued" = true;
+	warp_state = "Ch2 King Returns";
+	load map "ch2-castle-13";
+}
+
+"debug" {
+	copy!("debug-set-flags-to-round0")
+	copy!("ch2-load-castle-1-special")
+}
+
+/* ---------- INTRO SPLASH ---------- */
+
+// entity listens for a button press, and changes the map's on_tick to the menu itself
+"on_tick-button-to-skip" {
+	if (button ANY pressed) {
+		goto "handler-skip-splash";
+	}
+}
+
+"handler-skip-splash" {
+	map on_tick = "main_menu-fade_in";
+	goto "null_script";
+}
+
+// map script shows the splash, and can be interrupted by the handler above; otherwise it continues to the menu itself
+"on_tick-main_menu" {
+	goto "on_tick-splash";
+}
+
+"on_tick-splash" {
+	hex_control = false;
+	if (warp_state == "from-game") {
+		goto "main_menu-fade_in";
+	}
+	camera = geometry "dc801-center";
+	camera fade in -> #000000 over 800ms;
+	wait 2900ms;
+	camera fade out -> #000000 over 800ms;
+	player on_tick = "null_script";
+	goto "main_menu-fade_in";
+}
+
+"main_menu-fade_in" {
+	hex_control = false;
+	player on_tick = "null_script";
+	camera = geometry "menu-center";
+	camera fade in -> #000000 over 800ms;
+	goto "main_menu";
+}
+
+/* ---------- MAIN MENU ---------- */
+
+"main_menu" {
+	player on_tick = null_script;
+	show dialog "main_menu.mgs:165:2" {
+		name " "
+		border_tileset menu
+		"CHOOSE YOUR FATE"
+		> "Play Game" = "menu-play_game"
+		> "Play Demo" = "load_map-demo_map"
+		> "Bling Mode" = "menu-bling-mode"
+		> "Credits" = "menu-credits-choice"
+	};
+}
+
+/* ---------- CREDITS ---------- */
+
+"menu-credits-choice" {
+	show dialog "main_menu.mgs:179:2" {
+		name " "
+		border_tileset menu
+		"CREDITS"
+		> "Chapter 1 credits" = "menu-credits"
+		> "Chapter 2 credits" = "menu-credits2"
+		> "Back" = "main_menu"
+	};
+}
+
+"menu-credits" {
+	"credits-from-menu" = true;
+	load map "credits";
+}
+
+"menu-credits2" {
+	"credits-from-menu" = true;
+	load map "credits2";
+}
+
+/* ---------- BLING MODE ---------- */
+
+"menu-bling-mode" {
+	show dialog "main_menu.mgs:201:2" {
+		name " "
+		border_tileset menu
+		"SAVE YOUR SCREEN"
+		> "DC801 showcase" = "menu-bling-dc801-showcase"
+		> "Flying \"Toasters\"" = "start_bling-flying-toasters"
+		> "QR Codes" = "start_bling-qr"
+		> "Back" = "main_menu"
+	};
+}
+
+"menu-bling-dc801-showcase" {
+	show dialog "main_menu.mgs:213:2" {
+		name " "
+		border_tileset menu
+		"DC801 SHOWCASE"
+		> "Auto mode" = "start_bling-rotate-auto"
+		> "Manual mode" = "start_bling-rotate-manual"
+		> "Back" = "menu-bling-mode"
+	};
+}
+
+  //---------------------------------//
+ /* ---------- PLAY GAME ---------- */
+//---------------------------------//
+
+"menu-play_game" {
+	show dialog "main_menu.mgs:227:2" {
+		name " "
+		border_tileset menu
+		"PLAY GAME"
+		> "Load Game" = "menu-load_game"
+		> "New Game" = "menu-new_game"
+		> "Erase Save" = "menu-erase_save"
+		> "Back" = "main_menu"
+	};
+}
+
+"menu-erase_save" {
+	show dialog "main_menu.mgs:241:2" {
+		name " "
+		border_tileset menu
+		"BOOM TIME!"
+		> "Erase slot 0" = "menu-erase_save-0"
+		> "Erase slot 1" = "menu-erase_save-1"
+		> "Erase slot 2" = "menu-erase_save-2"
+		> "Back" = "menu-play_game"
+	};
+}
+
+"menu-erase_save-0" {
+	erase slot 0;
+	goto "menu-play_game";
+}
+
+"menu-erase_save-1" {
+	erase slot 1;
+	goto "menu-play_game";
+}
+
+"menu-erase_save-2" {
+	erase slot 2;
+	goto "menu-play_game";
+}
+
+/* ---------- LOAD GAME ---------- */
+
+"menu-load_game" {
+	show dialog "main_menu.mgs:268:2" {
+		name " "
+		border_tileset menu
+		"LOAD GAME"
+		> "Slot 0" = "menu-load_game-0"
+		> "Slot 1" = "menu-load_game-1"
+		> "Slot 2" = "menu-load_game-2"
+		> "Back" = "menu-play_game"
+	};
+}
+
+"menu-load_game-0" {
+	load slot 0;
+	"slot-number" = 0;
+	goto "menu-chapter_select-q";
+}
+
+"menu-load_game-1" {
+	load slot 1;
+	"slot-number" = 1;
+	goto "menu-chapter_select-q";
+}
+
+"menu-load_game-2" {
+	load slot 2;
+	"slot-number" = 2;
+	goto "menu-chapter_select-q";
+}
+
+/* ---------- NEW GAME ---------- */
+
+"menu-new_game" {
+	show dialog "main_menu.mgs:297:2" {
+		name " "
+		border_tileset menu
+		"NEW GAME"
+		> "Slot 0" = "menu-new_game-0"
+		> "Slot 1" = "menu-new_game-1"
+		> "Slot 2" = "menu-new_game-2"
+		> "Back" = "menu-play_game"
+	};
+}
+
+"menu-new_game-0" {
+	erase slot 0;
+	"slot-number" = 0;
+	goto "menu-player-name-q";
+}
+
+"menu-new_game-1" {
+	erase slot 1;
+	"slot-number" = 1;
+	goto "menu-player-name-q";
+}
+
+"menu-new_game-2" {
+	erase slot 2;
+	"slot-number" = 2;
+	goto "menu-player-name-q";
+}
+
+// Set player name
+
+"menu-player-name-q" {
+	show dialog "main_menu.mgs:333:2" {
+		name " "
+		border_tileset menu
+		"NEW GAME: Pick your name."
+		> "Red" = "menu-player-name-preset1"
+		> "Bubbles" = "menu-player-name-preset2"
+		> "Black Mage" = "menu-player-name-preset3"
+		> "Gimme something random" = "menu-player-name-random"
+	};
+}
+
+"menu-player-name-preset1" {
+	player name = "Red";
+	goto "menu-player-name-confirm";
+}
+
+"menu-player-name-preset2" {
+	player name = "Bubbles";
+	goto "menu-player-name-confirm";
+}
+
+"menu-player-name-preset3" {
+	player name = "Black Mage";
+	goto "menu-player-name-confirm";
+}
+
+"menu-player-name-confirm" {
+	show dialog "main_menu.mgs:357:2" {
+		name " "
+		border_tileset menu
+		"Your name is %PLAYER%?"
+		> "Yes" = "start-new-game-with-name"
+		> "No" = "menu-player-name-reset"
+	};
+}
+
+// Random
+
+"menu-player-name-random" {
+	rand!(
+		player name = [
+			"Chara",
+			"Buster",
+			"Tidus",
+			"Frisk",
+			"Farnsworth",
+			"Cloud",
+			"Ash",
+			"Crono",
+			"Terra",
+			"Kremit",
+			"Zidane",
+			"Cecil",
+			"Squall",
+			"Roxas",
+			"Steamed Hams",
+			"Spy",
+			"Tom Honks",
+			"VeeVee",
+			"XDDCC",
+			"Bub"
+		];
+	)
+	show dialog "main_menu.mgs:412:2" {
+		name " "
+		border_tileset menu
+		"Your name is %PLAYER%?"
+		> "Reroll random name" = "menu-player-name-random"
+		> "Yes" = "start-new-game-with-name"
+		> "No" = "menu-player-name-reset"
+	};
+}
+
+"menu-player-name-reset" {
+	player name = "Bub";
+	goto "menu-player-name-q";
+}
+
+// Start new game with name
+
+"start-new-game-with-name" {
+	save slot;
+	goto "menu-chapter_select-q";
+}
+
+/* ---------- CHOOSING A CHAPTER ---------- */
+
+"menu-chapter_select-q" {
+	copy!("ch1-count-flags")
+	copy!("ch2-count-flags")
+	show dialog "main_menu.mgs:438:2" {
+		name " "
+		border_tileset menu
+		"PLAY (slot $slot-number$: \"%PLAYER%\")"
+		> "Chapter 1 ($ch1-storyflags-tally$/11)" = "menu-chapter_select-1"
+		> "Chapter 2 ($ch2-storyflags-tally$/10)" = "menu-chapter_select-2-check"
+		> "Back" = "menu-play_game"
+	};
+}
+
+"menu-chapter_select-1" {
+	"current-chapter" = 1;
+	load map "main";
+}
+
+"menu-chapter_select-2-check" {
+	if ("ch1_finished" || "warned_ch1_incomplete") {
+		// passthrough
+		goto "menu-chapter_select-2";
+	} else {
+		"warned_ch1_incomplete" = true;
+		show dialog "main_menu.mgs:459:3" {
+			name " "
+			border_tileset menu
+			"Chapter 1 is unfinished!"
+			> "Play chapter 2 anyway" = "menu-chapter_select-2"
+			> "Never mind" = "menu-chapter_select-q"
+		};
+	}
+}
+
+"menu-chapter_select-2" {
+	"current-chapter" = 2;
+	if (!"ch2-cutseen-birthday") {
+		load map "ch2-magehouse-birthday";
+	}
+	warp_state = "raw_game_load-ch2";
+	if ("playersave-room" == 1) {
+		copy!("ch2-load-castle-1-special")
+	} else {
+		load map "ch2-town";
+	}
+}
+
+/* ---------- SAVE THE GAME ---------- */
+
+"menu-save_game" {
+	show dialog "main_menu.mgs:485:2" {
+		name "Save Game"
+		border_tileset codec
+		portrait floppy
+		"Would you like to save your progress?"
+		> "Yes" : "menu-save_game-yes"
+		> "No" : "menu-save_game-no"
+		> "Return to Main Menu" : "menu-save_game-main_menu"
+	};
+}
+
+"menu-save_game-yes" {
+	copy!("capture_player_state")
+	save slot;
+	self on_interact = "menu-save_game";
+}
+
+"menu-save_game-no" {
+	self on_interact = "menu-save_game";
+}
+
+"menu-save_game-main_menu" {
+	warp_state = "from-game";
+	load map "main_menu";
+}

@@ -321,10 +321,12 @@ const captureFns = {
 			if (stateNode.text === 'pressed') {
 				ret.action = 'CHECK_FOR_BUTTON_PRESS';
 				ret.state = 'pressed';
+				ret.button_id = ret.value;
 			} else {
 				ret.action = 'CHECK_FOR_BUTTON_STATE';
 				const state = handleCapture(f, stateNode);
 				const param = getBoolFieldForAction(ret.action);
+				ret.button_id = ret.value;
 				ret[param] = state;
 			}
 		}

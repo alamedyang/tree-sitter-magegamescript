@@ -38,7 +38,9 @@ const printActionFns = {
 	CHECK_SERIAL_DIALOG_OPEN: (v) => printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_DIALOG_OPEN: (v) => printCheckAction(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_SAVE_FLAG: (v) => printCheckAction(v, v.save_flag, true),
+	// one of these is broken for ANY if not more
 	CHECK_FOR_BUTTON_PRESS: (v) => printCheckAction(v, `button ${v.value} pressed`, true),
+	// one of these is broken for ANY if not more
 	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.value} ${v.expected_bool ? 'down' : 'up'}`),
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} intersects ${printGeometry(v.geometry)}`, true),
 	CHECK_ENTITY_GLITCHED: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} glitched`, true),
@@ -57,29 +59,29 @@ const printActionFns = {
 		const op = v.expected_bool
 			? v.comparison
 			: inverseOpMap[v.comparison];
-		return printCheckAction(v, `${v.variable} ${op} ${v.value}`);
+		return printCheckAction(v, `"${v.variable}" ${op} ${v.value}`);
 	},
 	CHECK_VARIABLES: (v) => {
 		const op = v.expected_bool
 			? v.comparison
 			: inverseOpMap[v.comparison];
-		return printCheckAction(v, `${v.variable} ${op} ${v.source}`);
+		return printCheckAction(v, `"${v.variable}" ${op} "${v.source}"`);
 	},
 
 	// Branch on string equality (==)
 	CHECK_WARP_STATE: (v) => v.expected_bool
 		? printCheckAction(v, `warp_state == "${v.string}"`)
 		: printCheckAction(v, `warp_state != "${v.string}"`),
-	CHECK_ENTITY_NAME: (v) => printEntityFieldEquality(v, 'name', v.string),
-	CHECK_ENTITY_TYPE: (v) => printEntityFieldEquality(v, 'type', v.entity_type),
-	CHECK_ENTITY_INTERACT_SCRIPT: (v) => printEntityFieldEquality(v, 'on_interact', v.expected_script),
-	CHECK_ENTITY_TICK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_tick', v.expected_script),
-	CHECK_ENTITY_LOOK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_look', v.expected_script),
-	CHECK_ENTITY_DIRECTION: (v) => printEntityFieldEquality(v, 'direction', v.direction),
-	CHECK_ENTITY_PATH: (v) => printEntityFieldEquality(v, 'path', v.geometry),
+	CHECK_ENTITY_NAME: (v) => printEntityFieldEquality(v, 'name', `"${v.string}"`),
+	CHECK_ENTITY_TYPE: (v) => printEntityFieldEquality(v, 'type', `"${v.entity_type}"`),
+	CHECK_ENTITY_INTERACT_SCRIPT: (v) => printEntityFieldEquality(v, 'on_interact', `"${v.expected_script}"`),
+	CHECK_ENTITY_TICK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_tick', `"${v.expected_script}"`),
+	CHECK_ENTITY_LOOK_SCRIPT: (v) => printEntityFieldEquality(v, 'on_look', `"${v.expected_script}"`),
+	CHECK_ENTITY_DIRECTION: (v) => printEntityFieldEquality(v, 'direction', `"${v.direction}"`),
+	CHECK_ENTITY_PATH: (v) => printEntityFieldEquality(v, 'path', `"${v.geometry}"`),
 
 	// Set bool (expressions OK)
-	SET_SAVE_FLAG: (v) => printSetBoolAction(v, v.save_flag),
+	SET_SAVE_FLAG: (v) => printSetBoolAction(v, `"${v.save_flag}`),
 	SET_HEX_EDITOR_STATE: (v) => printSetBoolAction(v, `hex_editor`),
 	SET_HEX_EDITOR_DIALOG_MODE: (v) => printSetBoolAction(v, `hex_dialog_mode`),
 	SET_HEX_EDITOR_CONTROL: (v) => printSetBoolAction(v, `hex_control`),
@@ -91,11 +93,11 @@ const printActionFns = {
 	SET_ENTITY_GLITCHED: (v) => printSetBoolAction(v, `${printEntityIdentifier(v.entity)} glitched`),
 
 	// Set int (expressions OK)
-	MUTATE_VARIABLE: (v) => `${v.variable} ${stringIntoOpMap[v.operation]}= ${v.value};`,
-	MUTATE_VARIABLES: (v) => `${v.variable} ${stringIntoOpMap[v.operation]}= ${v.source};`,
+	MUTATE_VARIABLE: (v) => `"${v.variable}" ${stringIntoOpMap[v.operation]}= ${v.value};`,
+	MUTATE_VARIABLES: (v) => `"${v.variable}" ${stringIntoOpMap[v.operation]}= "${v.source}";`,
 	COPY_VARIABLE: (v) => v.inbound
-		? `${v.variable} = ${printEntityIdentifier(v.entity)} ${v.field};`
-		: `${printEntityIdentifier(v.entity)} ${v.field} = ${v.variable};`,
+		? `"${v.variable}" = ${printEntityIdentifier(v.entity)} ${v.field};`
+		: `${printEntityIdentifier(v.entity)} ${v.field} = "${v.variable}";`,
 
 	// Set int (expressions not allowed)
 	SET_ENTITY_X: (v) => `${printEntityIdentifier(v.entity)} x = ${v.u2_value};`,
@@ -109,15 +111,15 @@ const printActionFns = {
 	SET_ENTITY_DIRECTION_RELATIVE: (v) => { throw new Error ('not yet implemented') },
 
 	// Set string
-	SET_WARP_STATE: (v) => `warp_state = ${v.string};`,
-	SET_ENTITY_NAME: (v) => `${printEntityIdentifier(v.entity)} name = ${v.string};`,
-	SET_ENTITY_TYPE: (v) => `${printEntityIdentifier(v.entity)} type = ${v.entity_type};`,
-	SET_ENTITY_PATH: (v) => `${printEntityIdentifier(v.entity)} path = ${v.geometry};`,
-	SET_ENTITY_DIRECTION: (v) => `${printEntityIdentifier(v.entity)} direction = ${v.direction};`,
-	SET_ENTITY_LOOK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_look = ${v.script};`,
-	SET_ENTITY_INTERACT_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_interact = ${v.script};`,
-	SET_ENTITY_TICK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_tick = ${v.script};`,
-	SET_MAP_TICK_SCRIPT: (v) => `map on_tick = ${v.script};`,
+	SET_WARP_STATE: (v) => `warp_state = "${v.string}";`,
+	SET_ENTITY_NAME: (v) => `${printEntityIdentifier(v.entity)} name = "${v.string}";`,
+	SET_ENTITY_TYPE: (v) => `${printEntityIdentifier(v.entity)} type = "${v.entity_type}";`,
+	SET_ENTITY_PATH: (v) => `${printEntityIdentifier(v.entity)} path = "${v.geometry}";`,
+	SET_ENTITY_DIRECTION: (v) => `${printEntityIdentifier(v.entity)} direction = "${v.direction}";`,
+	SET_ENTITY_LOOK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_look = "${v.script}";`,
+	SET_ENTITY_INTERACT_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_interact = "${v.script}";`,
+	SET_ENTITY_TICK_SCRIPT: (v) => `${printEntityIdentifier(v.entity)} on_tick = "${v.script}";`,
+	SET_MAP_TICK_SCRIPT: (v) => `map on_tick = "${v.script}";`,
 
 	// Set position
 	SET_CAMERA_TO_FOLLOW_ENTITY: (v) => `camera = ${printEntityIdentifier(v.entity)} position;`,
@@ -143,31 +145,31 @@ const printActionFns = {
 
 	// Commands and aliases
 	REGISTER_SERIAL_DIALOG_COMMAND: (v) => v.is_fail
-		? `command ${v.command} fail = ${v.script};`
-		: `command ${v.command} = ${v.script};`,
-	UNREGISTER_SERIAL_DIALOG_COMMAND: (v) => `delete command ${v.command};`,
-	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v) => `command ${v.command} + ${v.argument} = ${v.script};`,
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v) => `delete command ${v.command} + ${v.argument};`,
-	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `alias ${v.alias} = ${v.command};`,
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `delete alias ${v.alias};`,
-	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v) => `${v.is_visible ? 'un' : ''}hide command ${v.command};`,
+		? `command "${v.command}" fail = "${v.script}";`
+		: `command "${v.command}" = "${v.script}";`,
+	UNREGISTER_SERIAL_DIALOG_COMMAND: (v) => `delete command "${v.command}";`,
+	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v) => `command "${v.command}" + "${v.argument}" = "${v.script}";`,
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v) => `delete command "${v.command}" + "${v.argument}";`,
+	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `alias "${v.alias}" = "${v.command}";`,
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `delete alias "${v.alias}";`,
+	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v) => `${v.is_visible ? 'un' : ''}hide command "${v.command}";`,
 
 	// Other
 	SLOT_SAVE: (v) => `save slot;`,
 	SLOT_LOAD: (v) => `load slot ${v.slot};`,
 	SLOT_ERASE: (v) => `erase slot ${v.slot};`,
-	LOAD_MAP: (v) => `load map ${v.map};`,
+	LOAD_MAP: (v) => `load map "${v.map}";`,
 	BLOCKING_DELAY: (v) => `block ${printDuration(v.duration)};`,
 	NON_BLOCKING_DELAY: (v) => `wait ${printDuration(v.duration)};`,
 	SHOW_DIALOG: (v) => `show dialog ${v.dialog};`,
 	CLOSE_DIALOG: (v) => `close dialog;`,
-	SHOW_SERIAL_DIALOG: (v) => `show serial_dialog ${v.serial_dialog};`,
+	SHOW_SERIAL_DIALOG: (v) => `show serial_dialog "${v.serial_dialog}";`,
 	CLOSE_SERIAL_DIALOG: (v) => `close serial_dialog;`,
-	SET_CONNECT_SERIAL_DIALOG: (v) => `serial_connect = ${v.serial_dialog};`,
+	SET_CONNECT_SERIAL_DIALOG: (v) => `serial_connect = "${v.serial_dialog}";`,
 	SET_SCRIPT_PAUSE: (v) => `${v.bool_value ? '' : 'un'}pause ${printEntityIdentifier(v.entity)} ${v.script_slot};`,
 	GOTO_ACTION_INDEX: (v) => `goto index ${v.action_index};`,
-	RUN_SCRIPT: (v) => `goto ${v.script};`,
-	COPY_SCRIPT: (v) => `copy!(${v.scriptName})`,
+	RUN_SCRIPT: (v) => `goto "${v.script}";`,
+	COPY_SCRIPT: (v) => `copy!("${v.scriptName}")`,
 };
 
 const stringIntoOpMap = {
@@ -183,22 +185,29 @@ const stringIntoOpMap = {
 // Auto labels are illegal (contain spaces) on purpose to prevent collisions
 // But that means we don't get round-trip translations unless we sanitze them thus:
 const sanitizeLabel = label => label.includes(' ')
-	? label.replaceAll(' ', '_').replaceAll('#', '')
+	? label
+		.replaceAll(' ', '_')
+		.replaceAll('-', '_')
+		.replaceAll('#', '')
 	: label;
 
 const printGotoSegment = (data) => {
-	if (
-		data.mathlang?.includes('goto_label')
-		|| data.mathlang === 'bool_getable'
-		|| data.mathlang === 'bool_comparison'
-		|| data.mathlang === 'string_checkable'
-		|| data.mathlang === 'number_checkable_equality'
-		|| data.action === 'CHECK_SAVE_FLAG'
-	) {
-		return `goto label ${sanitizeLabel(data.label)}`;
-	} else {
+	if (data.jump_index) {
 		return `goto index ${data.jump_index}`;
+	} else if (data.success_script) {
+		return `goto script "${data.success_script}"`;
+	} else {
+		return `goto label ${sanitizeLabel(data.label)}`;
 	}
+	// if (
+	// 	data.mathlang?.includes('goto_label')
+	// 	|| data.mathlang === 'bool_getable'
+	// 	|| data.mathlang === 'bool_comparison'
+	// 	|| data.mathlang === 'string_checkable'
+	// 	|| data.mathlang === 'number_checkable_equality'
+	// 	|| data.action === 'CHECK_SAVE_FLAG'
+	// ) {
+	// }
 };
 const printCheckAction = (data, lhs, smartInvert) => {
 	const param = getBoolFieldForAction(data.action);
@@ -232,7 +241,7 @@ const printScript = (scriptName, actions) => {
 		.filter(v=>v!==undefined)
 		.map(v=>`   ${v}`);
 	return [
-		`${scriptName} {`,
+		`"${scriptName}" {`,
 		...printedActions,
 		'}'
 	].join('\n');

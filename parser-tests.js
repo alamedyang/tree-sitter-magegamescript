@@ -700,14 +700,14 @@ const actionTests = {
 	set_int_exp_ok: {
 		input: [
 			// MUTATE_VARIABLES
-			'bothVarsAre = ambiguous;', // and that's ok
+			'"bothVarsAre" = "ambiguous";', // and that's ok
 
 			// MUTATE_VARIABLE
-			'goatCount = 0;',
+			'"goatCount" = 0;',
 
 			// COPY_VARIABLE
-			'goatCount = player x;',
-			'player y = goatCount;',
+			'"goatCount" = player x;',
+			'player y = "goatCount";',
 		]
 	},
 	int_exp_chain_literal_getable: {
@@ -715,10 +715,10 @@ const actionTests = {
 			'goatCount = 1 + player x;',
 		],
 		expected: [
-			"*A* = 1;",
-			"*B* = player x;",
-			"*A* += *B*;",
-			"goatCount = *A*;",
+			'*A* = 1;',
+			'*B* = player x;',
+			'*A* += *B*;',
+			'"goatCount" = *A*;',
 		],
 	},
 	int_exp_chain_getable_getable: {
@@ -726,10 +726,10 @@ const actionTests = {
 			'goatCount = player y + player x;',
 		],
 		expected: [
-			"*A* = player y;",
-			"*B* = player x;",
-			"*A* += *B*;",
-			"goatCount = *A*;",
+			'*A* = player y;',
+			'*B* = player x;',
+			'*A* += *B*;',
+			'"goatCount" = *A*;',
 		],
 	},
 	int_exp_chain_literal_getable_mult: {
@@ -737,11 +737,11 @@ const actionTests = {
 			'goatCount = 1 + player x * 99;',
 		],
 		expected: [
-			"*A* = 1;",
-			"*B* = player x;",
-			"*B* *= 99;",
-			"*A* += *B*;",
-			"goatCount = *A*;",
+			'*A* = 1;',
+			'*B* = player x;',
+			'*B* *= 99;',
+			'*A* += *B*;',
+			'"goatCount" = *A*;',
 		  ],
 	},
 	int_exp_chain_literal_getable_mult_parens: {
@@ -749,11 +749,11 @@ const actionTests = {
 			'goatCount = (1 + player x) * 99;',
 		],
 		expected: [
-			"*A* = 1;",
-			"*B* = player x;",
-			"*A* += *B*;",
-			"*A* *= 99;",
-			"goatCount = *A*;",
+			'*A* = 1;',
+			'*B* = player x;',
+			'*A* += *B*;',
+			'*A* *= 99;',
+			'"goatCount" = *A*;',
 		],
 	},
 	ambiguous_bool_single_invert: {
@@ -762,10 +762,10 @@ const actionTests = {
 		],
 		expected: [
 			'if (!notAmbiguous) { goto label if_***; }',
-			'goatCount = false;',
+			'"goatCount" = false;',
 			'goto label rendezvous_***;',
 			'if_***:',
-			'goatCount = true;',
+			'"goatCount" = true;',
 			'rendezvous_***:',
 		],
 	},
@@ -775,10 +775,10 @@ const actionTests = {
 		],
 		expected: [
 			'if (notAmbiguous) { goto label if_***; }',
-			'goatCount = false;',
+			'"goatCount" = false;',
 			'goto label rendezvous_***;',
 			"if_***:",
-			'goatCount = true;',
+			'"goatCount" = true;',
 			"rendezvous_***:",
 		],
 	},
@@ -788,14 +788,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName < 6);',
 		],
 		expected: [
-			'if (intName < 6) { goto label if_*A*; }',
+			'if ("intName" < 6) { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (intName >= 6) { goto label if_*B*; }',
+			'if ("intName" >= 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
@@ -809,14 +809,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName <= 6);',
 		],
 		expected: [
-			'if (intName <= 6) { goto label if_*A*; }',
+			'if ("intName" <= 6) { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (intName > 6) { goto label if_*B*; }',
+			'if ("intName" > 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
@@ -830,14 +830,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName > 6);',
 		],
 		expected: [
-			'if (intName > 6) { goto label if_*A*; }',
+			'if ("intName" > 6) { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (intName <= 6) { goto label if_*B*; }',
+			'if ("intName" <= 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
@@ -851,14 +851,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName >= 6);',
 		],
 		expected: [
-			'if (intName >= 6) { goto label if_*A*; }',
+			'if ("intName" >= 6) { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (intName < 6) { goto label if_*B*; }',
+			'if ("intName" < 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
@@ -872,14 +872,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName == 6);',
 		],
 		expected: [
-			'if (intName == 6) { goto label if_*A*; }',
+			'if ("intName" == 6) { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (intName != 6) { goto label if_*C*; }',
+			'if ("intName" != 6) { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -893,14 +893,14 @@ const actionTests = {
 			'entity Bob glitched = !(intName != 6);',
 		],
 		expected: [
-			'if (intName != 6) { goto label if_*B*; }',
+			'if ("intName" != 6) { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (intName == 6) { goto label if_*D*; }',
+			'if ("intName" == 6) { goto label if_*D*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*D*;',
 			'if_*D*:',
@@ -944,21 +944,21 @@ const actionTests = {
 			'entity Bob glitched = player name != goat;',
 		],
 		expected: [
-			'if (player name == goat) { goto label if_*A*; }',
+			'if (player name == "goat") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player name != goat) { goto label if_*B*; }',
+			'if (player name != "goat") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player name != goat) { goto label if_*C*; }',
+			'if (player name != "goat") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -973,21 +973,21 @@ const actionTests = {
 			'entity Bob glitched = player type != goat;',
 		],
 		expected: [
-			'if (player type == goat) { goto label if_*A*; }',
+			'if (player type == "goat") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player type != goat) { goto label if_*B*; }',
+			'if (player type != "goat") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player type != goat) { goto label if_*C*; }',
+			'if (player type != "goat") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -1002,21 +1002,21 @@ const actionTests = {
 			'entity Bob glitched = player on_interact != goat;',
 		],
 		expected: [
-			'if (player on_interact == goat) { goto label if_*A*; }',
+			'if (player on_interact == "goat") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player on_interact != goat) { goto label if_*B*; }',
+			'if (player on_interact != "goat") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player on_interact != goat) { goto label if_*C*; }',
+			'if (player on_interact != "goat") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -1031,21 +1031,21 @@ const actionTests = {
 			'entity Bob glitched = player on_tick != goat;',
 		],
 		expected: [
-			'if (player on_tick == goat) { goto label if_*A*; }',
+			'if (player on_tick == "goat") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player on_tick != goat) { goto label if_*B*; }',
+			'if (player on_tick != "goat") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player on_tick != goat) { goto label if_*C*; }',
+			'if (player on_tick != "goat") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -1060,21 +1060,21 @@ const actionTests = {
 			'entity Bob glitched = player on_look != goat;',
 		],
 		expected: [
-			'if (player on_look == goat) { goto label if_*A*; }',
+			'if (player on_look == "goat") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player on_look != goat) { goto label if_*B*; }',
+			'if (player on_look != "goat") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player on_look != goat) { goto label if_*C*; }',
+			'if (player on_look != "goat") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -1118,21 +1118,21 @@ const actionTests = {
 			'entity Bob glitched = player path != longWalk;',
 		],
 		expected: [
-			'if (player path == longWalk) { goto label if_*A*; }',
+			'if (player path == "longWalk") { goto label if_*A*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*A*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*A*:',
 
-			'if (player path != longWalk) { goto label if_*B*; }',
+			'if (player path != "longWalk") { goto label if_*B*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*B*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
 
-			'if (player path != longWalk) { goto label if_*C*; }',
+			'if (player path != "longWalk") { goto label if_*C*; }',
 			'entity "Bob" glitched = false;',
 			'goto label rendezvous_*C*;',
 			'if_*C*:',
@@ -1187,9 +1187,9 @@ const actionTests = {
 			')',
 		],
 		expected: [
-			'__TEMP_0 ?= 2;',
-			'if (__TEMP_0 == 0) { goto label if_RNG_*A*; }',
-			'if (__TEMP_0 == 1) { goto label if_RNG_*B*; }',
+			'"__TEMP_0" ?= 2;',
+			'if ("__TEMP_0" == 0) { goto label if_RNG_*A*; }',
+			'if ("__TEMP_0" == 1) { goto label if_RNG_*B*; }',
 			'if_RNG_*B*:',
 			'wait 2ms;',
 			'close dialog',
@@ -1363,10 +1363,12 @@ Object.entries(actionTests).forEach(([testName, data])=>{
 const colorDifferentStrings = (expected, found) => {
 	const diff = [];
 	const foundChars = found.split('');
+	let colored = false;
 	for (let i = 0; i < foundChars.length; i++) {
 		const c = foundChars[i];
-		if (c !== expected[i]) {
+		if (c !== expected[i] && !colored) {
 			diff.push(ansiTags.yellow);
+			colored = true;
 		}
 		diff.push(c);
 	}
@@ -1431,7 +1433,7 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 		const wild = expected.match(/(.*)(\*[A-Z]+\*)(.*)/);
 		if (wild){
 			const sanitary = wild.map(sanitize);
-			const pattern = new RegExp(`${sanitary[1]}([\\da-zA-Z_]+)${sanitary[3]}`);
+			const pattern = new RegExp(`${sanitary[1]}([\\da-zA-Z_"]+)${sanitary[3]}`);
 			const label = sanitary[2];
 			const capture = found.match(pattern);
 			if (capture) {
@@ -1465,7 +1467,7 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 		lines.push({
 			expected,
 			found,
-			diff: diff.join(''),
+			diff,
 			fileName,
 			lineIndex: i
 		});
