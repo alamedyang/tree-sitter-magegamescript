@@ -1,0 +1,35 @@
+"on_load-bling-zero" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-serial" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-digi-mage" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-digi-mage2" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-dc801" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-dc801-2" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+}
+
+"on_load-bling-qr" {
+	camera = geometry "camera-spot";
+	copy!("on_load-bling-mode-map")
+	player_control = true;
+}

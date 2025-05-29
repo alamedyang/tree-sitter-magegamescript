@@ -1,0 +1,142 @@
+"start_bling-rotate-auto" {
+   warp_state = "bling-rotate-auto";
+   "bling-rotate-state" = 0;
+   goto "bling-goto-branches";
+}
+
+"start_bling-rotate-manual" {
+   warp_state = "bling-rotate-manual";
+   "bling-rotate-state" = 0;
+   goto "bling-goto-branches";
+}
+
+"bling-goto-branches" {
+   "bling-rotate-state-calc-done = false;
+   if ("bling-rotate-state" == 0) { goto script "start_bling-dc801-2"; }
+   if ("bling-rotate-state" == 1) { goto script "start_bling-dc801"; }
+   if ("bling-rotate-state" == 2) { goto script "start_bling-digi-mage2"; }
+   if ("bling-rotate-state" == 3) { goto script "start_bling-digi-mage"; }
+   if ("bling-rotate-state" == 4) { goto script "start_bling-zero"; }
+   if ("bling-rotate-state" == 5) { goto script "start_bling-serial"; }
+   goto "bling-goto-menu";
+}
+
+"bling-detect-mode" {
+   wait 150ms;
+   if (warp_state == "bling-rotate-manual") { goto index 4; }
+   if (warp_state == "bling-rotate-auto") { goto index 6; }
+   goto index 9;
+   goto "loop-bling-listen-manualrotate";
+   goto index 9;
+   entity "Timer" on_tick = "loop-bling_timer";
+   goto "loop-bling-listen-any";
+   goto index 9;
+   if (bling-hax-button-only) { goto index 12; }
+   goto "loop-bling-listen-any";
+   goto index 14;
+   goto "loop-bling-listen-hax";
+   goto index 14;
+}
+
+"loop-bling-listen-any" {
+   if (button undefined pressed) { goto script "bling-goto-menu"; }
+}
+
+"loop-bling-listen-hax" {
+   if (button undefined pressed) { goto script "bling-goto-menu"; }
+}
+
+"bling-goto-menu" {
+   warp_state = "from-bling";
+   load map "main_menu";
+}
+
+"bling-rotate-state-increment" {
+   "bling-rotate-state" += 1;
+   "temp" = 5;
+   "temp" += 1;
+   if ("bling-rotate-state" == "temp") { goto index 5; }
+   goto index 7;
+   "bling-rotate-state" = 0;
+   goto index 7;
+   "bling-rotate-state-calc-done = true;
+   self on_tick = "null_script";
+}
+
+"bling-rotate-state-decrement" {
+   "bling-rotate-state" -= 1;
+   if ("bling-rotate-state" == 65535) { goto index 3; }
+   goto index 5;
+   "bling-rotate-state" = 5;
+   goto index 5;
+   "bling-rotate-state-calc-done = true;
+   self on_tick = "null_script";
+}
+
+"loop-bling_timer" {
+   wait 13000ms;
+   entity "Math" on_tick = "bling-rotate-state-increment";
+   goto "loop-bling_timer-wait";
+}
+
+"loop-bling_timer-wait" {
+   if (bling-rotate-state-calc-done) { goto script "bling-goto-branches"; }
+}
+
+"loop-bling-listen-manualrotate" {
+   if (button undefined pressed) { goto script "bling-manual-rotate-left"; }
+   if (button undefined pressed) { goto script "bling-manual-rotate-left"; }
+   if (button undefined pressed) { goto script "bling-manual-rotate-right"; }
+   if (button undefined pressed) { goto script "bling-manual-rotate-right"; }
+   if (button undefined pressed) { goto script "bling-goto-menu"; }
+}
+
+"bling-manual-rotate-left" {
+   entity "Math" on_tick = "bling-rotate-state-decrement";
+   goto "loop-bling_timer-wait";
+}
+
+"bling-manual-rotate-right" {
+   entity "Math" on_tick = "bling-rotate-state-increment";
+   goto "loop-bling_timer-wait";
+}
+
+"start_bling-dc801" {
+   "bling-hax-button-only = false;
+   load map "bling-dc801";
+}
+
+"start_bling-dc801-2" {
+   "bling-hax-button-only = false;
+   load map "bling-dc801-2";
+}
+
+"start_bling-zero" {
+   "bling-hax-button-only = false;
+   load map "bling-zero";
+}
+
+"start_bling-serial" {
+   "bling-hax-button-only = false;
+   load map "bling-serial";
+}
+
+"start_bling-digi-mage" {
+   "bling-hax-button-only = false;
+   load map "bling-digi-mage";
+}
+
+"start_bling-digi-mage2" {
+   "bling-hax-button-only = false;
+   load map "bling-digi-mage2";
+}
+
+"start_bling-flying-toasters" {
+   "bling-hax-button-only = false;
+   load map "flying-toasters";
+}
+
+"start_bling-qr" {
+   "bling-hax-button-only = true;
+   load map "bling-qr";
+}

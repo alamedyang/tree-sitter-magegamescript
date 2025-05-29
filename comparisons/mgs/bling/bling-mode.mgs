@@ -1,0 +1,189 @@
+$maxBling = 5;
+
+/* --- Entrypoints from main menu --- */
+
+"start_bling-rotate-auto" {
+	warp_state = "bling-rotate-auto";
+	"bling-rotate-state" = 0;
+	goto "bling-goto-branches";
+}
+
+"start_bling-rotate-manual" {
+	warp_state = "bling-rotate-manual";
+	"bling-rotate-state" = 0;
+	goto "bling-goto-branches";
+}
+
+"bling-goto-branches" {
+	"bling-rotate-state-calc-done" = false;
+	// can't zigzag // (why though?)
+	if ("bling-rotate-state" == 0) {
+		goto "start_bling-dc801-2";
+	}
+	if ("bling-rotate-state" == 1) {
+		goto "start_bling-dc801";
+	}
+	if ("bling-rotate-state" == 2) {
+		goto "start_bling-digi-mage2";
+	}
+	if ("bling-rotate-state" == 3) {
+		goto "start_bling-digi-mage";
+	}
+	if ("bling-rotate-state" == 4) {
+		goto "start_bling-zero";
+	}
+	if ("bling-rotate-state" == 5) {
+		goto "start_bling-serial";
+	}
+	goto "bling-goto-menu";
+}
+
+/* --- Common to all bling maps --- */
+
+"on_load-bling-mode-map" {
+	hex_control = false;
+	player_control = false;
+	map on_tick = "bling-detect-mode";
+}
+
+"bling-detect-mode" {
+	// delay listening for button presses
+	// otherwise buttons just immediately trigger
+	wait 150ms;
+	// detect rotation modes
+	if (warp_state == "bling-rotate-manual") {
+		goto "loop-bling-listen-manualrotate";
+	} else if (warp_state == "bling-rotate-auto") {
+		// start the timer
+		entity "Timer" on_tick = "loop-bling_timer";
+		goto "loop-bling-listen-any";
+	}
+	// not a rotating mode
+	if ("bling-hax-button-only") {
+		goto "loop-bling-listen-hax";
+	} else {
+		goto "loop-bling-listen-any";
+	}
+}
+
+"loop-bling-listen-any" {
+	if (button ANY pressed) {
+		goto "bling-goto-menu";
+	}
+}
+
+"loop-bling-listen-hax" {
+	if (button HAX pressed) {
+		goto "bling-goto-menu";
+	}
+}
+
+"bling-goto-menu" {
+	warp_state = "from-bling";
+	load map "main_menu";
+}
+
+/* --- for the "Math" entity --- */
+
+"bling-rotate-state-increment" {
+	"bling-rotate-state" += 1;
+	"temp" = 5;
+	"temp" += 1;
+	if ("bling-rotate-state" == "temp") {
+		"bling-rotate-state" = 0;
+	}
+	"bling-rotate-state-calc-done" = true;
+	self on_tick = "null_script";
+}
+
+"bling-rotate-state-decrement" {
+	"bling-rotate-state" -= 1;
+	if ("bling-rotate-state" == 65535) { // aka -1
+		"bling-rotate-state" = $maxBling;
+	}
+	"bling-rotate-state-calc-done" = true;
+	self on_tick = "null_script";
+}
+
+/* --- for the "Timer" entity --- */
+
+"loop-bling_timer" {
+	wait 13000ms;
+	entity "Math" on_tick = "bling-rotate-state-increment";
+	goto "loop-bling_timer-wait";
+}
+
+"loop-bling_timer-wait" {
+	// Waits for entity "Math" to finish
+	if ("bling-rotate-state-calc-done") {
+		goto "bling-goto-branches";
+	}
+}
+
+"loop-bling-listen-manualrotate" {
+	if (button LJOY_LEFT pressed) {
+		goto "bling-manual-rotate-left";
+	}
+	if (button RJOY_LEFT pressed) {
+		goto "bling-manual-rotate-left";
+	}
+	if (button LJOY_RIGHT pressed) {
+		goto "bling-manual-rotate-right";
+	}
+	if (button RJOY_RIGHT pressed) {
+		goto "bling-manual-rotate-right";
+	}
+	if (button HAX pressed) {
+		goto "bling-goto-menu";
+	}
+}
+
+"bling-manual-rotate-left" {
+	entity "Math" on_tick = "bling-rotate-state-decrement";
+	goto "loop-bling_timer-wait";
+}
+
+"bling-manual-rotate-right" {
+	entity "Math" on_tick = "bling-rotate-state-increment";
+	goto "loop-bling_timer-wait";
+}
+
+"start_bling-dc801" {
+	"bling-hax-button-only" = false;
+	load map "bling-dc801";
+}
+
+"start_bling-dc801-2" {
+	"bling-hax-button-only" = false;
+	load map "bling-dc801-2";
+}
+
+"start_bling-zero" {
+	"bling-hax-button-only" = false;
+	load map "bling-zero";
+}
+
+"start_bling-serial" {
+	"bling-hax-button-only" = false;
+	load map "bling-serial";
+}
+
+"start_bling-digi-mage" {
+	"bling-hax-button-only" = false;
+	load map "bling-digi-mage";
+}
+
+"start_bling-digi-mage2" {
+	"bling-hax-button-only" = false;
+	load map "bling-digi-mage2";
+}
+
+"start_bling-flying-toasters" {
+	"bling-hax-button-only" = false;
+	load map "flying-toasters";
+}
+
+"start_bling-qr" {
+	"bling-hax-button-only" = true;
+	load map "bling-qr";
+}

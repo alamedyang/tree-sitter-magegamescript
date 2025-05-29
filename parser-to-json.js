@@ -37,11 +37,11 @@ const printActionFns = {
 	CHECK_DEBUG_MODE: (v) => printCheckAction(v, 'debug_mode', true),
 	CHECK_SERIAL_DIALOG_OPEN: (v) => printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_DIALOG_OPEN: (v) => printCheckAction(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`),
-	CHECK_SAVE_FLAG: (v) => printCheckAction(v, v.save_flag, true),
+	CHECK_SAVE_FLAG: (v) => printCheckAction(v, `"${v.save_flag}"`, true),
 	// one of these is broken for ANY if not more
-	CHECK_FOR_BUTTON_PRESS: (v) => printCheckAction(v, `button ${v.value} pressed`, true),
+	CHECK_FOR_BUTTON_PRESS: (v) => printCheckAction(v, `button ${v.button_id} pressed`, true),
 	// one of these is broken for ANY if not more
-	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.value} ${v.expected_bool ? 'down' : 'up'}`),
+	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.button_id} ${v.expected_bool ? 'down' : 'up'}`),
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} intersects ${printGeometry(v.geometry)}`, true),
 	CHECK_ENTITY_GLITCHED: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} glitched`, true),
 	
@@ -81,7 +81,7 @@ const printActionFns = {
 	CHECK_ENTITY_PATH: (v) => printEntityFieldEquality(v, 'path', `"${v.geometry}"`),
 
 	// Set bool (expressions OK)
-	SET_SAVE_FLAG: (v) => printSetBoolAction(v, `"${v.save_flag}`),
+	SET_SAVE_FLAG: (v) => printSetBoolAction(v, `"${v.save_flag}"`),
 	SET_HEX_EDITOR_STATE: (v) => printSetBoolAction(v, `hex_editor`),
 	SET_HEX_EDITOR_DIALOG_MODE: (v) => printSetBoolAction(v, `hex_dialog_mode`),
 	SET_HEX_EDITOR_CONTROL: (v) => printSetBoolAction(v, `hex_control`),
