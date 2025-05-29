@@ -1,0 +1,320 @@
+include "header.mgs";
+
+"debug-hub-q" {
+	show dialog {
+		SELF portrait goldfish
+		"Go to debug map hub?"
+		> "Yes" = "debug-hub-go"
+		> "No" = "debug-hub-no"
+	};
+}
+
+"debug-hub-go" {
+	goto "load_map-warp_zone";
+}
+
+"debug-hub-no" {
+	self on_interact = "debug-hub-q";
+}
+
+"debug-demobonus-q" {
+	self direction = player;
+	show dialog {
+		SELF portrait goldfish
+		"Demo bonus debugging"
+		> "Set story flags true + ch1_finished true" = "debug-demobonus-pre-flags-true"
+		> "Set story flags true + ch1_finished false" = "debug-demobonus-pre-flags-false"
+		> "Set demo bonus event flags false" = "debug-demobonus-event-flags-false"
+		> "Never mind" = "debug-demobonus-no"
+	};
+}
+
+"debug-demobonus-pre-flags-true" {
+	copy!("set-story-flags-true")
+	"ch1_finished" = true;
+	warp_state = "exit_from-credits";
+	self on_interact = "debug-demobonus-q";
+}
+
+"debug-demobonus-pre-flags-false" {
+	copy!("set-story-flags-false")
+	"ch1_finished" = false;
+	self on_interact = "debug-demobonus-q";
+}
+
+"debug-demobonus-event-flags-false" {
+	"demobonus" = false;
+	"demobonus-jackob-informed" = false;
+	"demobonus-timmy-yell" = false;
+	"demobonus-sportsbook-read" = false;
+	self on_interact = "debug-demobonus-q";
+}
+
+"debug-demobonus-no" {
+	self on_interact = "debug-demobonus-q";
+}
+
+"debug-set-flags-false-q" {
+	self direction = player;
+	show dialog {
+		SELF "Set what to FALSE?"
+		> "Story flags and misc flags" = "debug-set-story-and-misc-flags-false"
+		> "Backstory flags" = "debug-set-backstory-false"
+		> "Unglitch flags" = "debug-set-glitch-flags-false"
+		> "Never mind" = "debug-set-flags-false-no"
+	};
+}
+
+"debug-set-flags-true-q" {
+	self direction = player;
+	show dialog {
+		SELF "Set what to TRUE?"
+		> "Everything (except winning)" = "debug-set-all-true"
+		> "Backstory flags" = "debug-set-backstory-true"
+		> "Unglitch flags" = "debug-set-glitch-flags-true"
+		> "Never mind" = "debug-set-flags-true-no"
+	};
+}
+
+"debug-set-story-and-misc-flags-false" {
+	"hint-tracking" = 0;
+	copy!("set-story-flags-false")
+	copy!("set-misc-flags-false")
+	copy!("set-ch1_finished-flags-false")
+	show dialog {
+		SELF "All story and misc flags set to FALSE."
+	};
+	self on_interact = "debug-set-flags-false-q";
+}
+
+"debug-set-backstory-false" {
+	copy!("set-backstory-flags-false")
+	show dialog {
+		SELF "All entities have forgotten their first\nconversations with you."
+	};
+	self on_interact = "debug-set-flags-false-q";
+}
+
+"debug-set-backstory-true" {
+	copy!("set-backstory-flags-true")
+	show dialog {
+		SELF "All entities are inexplicably under the\nimpression that you've spoken to them\nbefore."
+	};
+	self on_interact = "debug-set-flags-true-q";
+}
+
+"debug-set-glitch-flags-true" {
+	copy!("set-glitch-flags-true")
+	entity "Billy" glitched = false;
+	entity "Kid" glitched = false;
+	entity "Fountain" glitched = false;
+	entity "Hamster" glitched = false;
+	self on_interact = "debug-set-flags-true-q";
+}
+
+"debug-set-glitch-flags-false" {
+	copy!("set-glitch-flags-false")
+	entity "Billy" glitched = true;
+	entity "Kid" glitched = true;
+	entity "Fountain" glitched = true;
+	entity "Hamster" glitched = true;
+	self on_interact = "debug-set-flags-false-q";
+}
+
+"debug-set-all-true" {
+	copy!("set-story-flags-true")
+	copy!("set-glitch-flags-true")
+	copy!("set-goodmorning-flags-true")
+	copy!("set-tuesday-flags-true")
+	copy!("set-artifact-flags-true")
+	copy!("set-backstory-flags-true")
+	copy!("set-misc-flags-true")
+	show dialog {
+		SELF "All flags set to TRUE. You may have to reload the map to see some changes."
+	};
+	self on_interact = "debug-set-flags-true-q";
+}
+
+"debug-set-flags-false-no" {
+	show dialog {
+		SELF "Nothing changed."
+	};
+	self on_interact = "debug-set-flags-false-q";
+}
+
+"debug-set-flags-true-no" {
+	show dialog {
+		SELF "Nothing changed."
+	};
+	self on_interact = "debug-set-flags-true-q";
+}
+
+"load_map-warp_zone" {
+	load map "warp_zone";
+}
+
+"load_map-testbig" {
+	load map "testbig";
+}
+
+"set-artifact-flags-true" {
+	"artifact-broom-touched" = true;
+	"artifact-wand-touched" = true;
+	"artifact-book-touched" = true;
+	"artifact-glasses-touched" = true;
+	"artifact-bracelet-touched" = true;
+}
+
+"set-artifact-flags-false" {
+	"artifact-broom-touched" = false;
+	"artifact-wand-touched" = false;
+	"artifact-book-touched" = false;
+	"artifact-glasses-touched" = false;
+	"artifact-bracelet-touched" = false;
+}
+
+"set-story-flags-true" {
+	"storyflag-bender" = true;
+	"storyflag-baker" = true;
+	"storyflag-bea1" = true;
+	"storyflag-bea2" = true;
+	"storyflag-shepherd" = true;
+	"storyflag-sportskid" = true;
+	"storyflag-catwork" = true;
+	"storyflag-trekkie" = true;
+	"storyflag-rake" = true;
+	"storyflag-bobmoss" = true;
+	"storyflag-verthandi" = true;
+}
+
+"set-story-flags-false" {
+	"storyflag-bender" = false;
+	"storyflag-baker" = false;
+	"storyflag-bea1" = false;
+	"storyflag-bea2" = false;
+	"storyflag-shepherd" = false;
+	"storyflag-sportskid" = false;
+	"storyflag-catwork" = false;
+	"storyflag-trekkie" = false;
+	"storyflag-rake" = false;
+	"storyflag-bobmoss" = false;
+	"storyflag-verthandi" = false;
+}
+
+"set-goodmorning-flags-false" {
+	"walked-to-lodge" = false;
+	"goodmorning" = false;
+}
+
+"set-goodmorning-flags-true" {
+	"walked-to-lodge" = true;
+	"goodmorning" = true;
+}
+
+"set-tuesday-flags-true" {
+	"tuesday-walkedup" = true;
+	"ring-acquired" = true;
+	"hide-lodge-crowd" = true;
+	"hide-lodge-crowd-mini" = true;
+	"tuesdayd" = true;
+	"hintman-explanation" = true;
+}
+
+"set-tuesday-flags-false" {
+	"tuesday-walkedup" = false;
+	"ring-acquired" = false;
+	"hide-lodge-crowd" = false;
+	"hide-lodge-crowd-mini" = false;
+	"tuesdayd" = false;
+	"hintman-explanation" = false;
+}
+
+"set-misc-flags-true" {
+	"bea-sequel-branch" = true;
+	"bobsclub-entered" = true;
+	"glitch-lesson" = true;
+	"wopr-backdoor-found" = true;
+}
+
+"set-misc-flags-false" {
+	"bobsclub-entered" = false;
+	"bea-sequel-branch" = false;
+	"glitch-lesson" = false;
+	"wopr-backdoor-found" = false;
+}
+
+"set-begunthegame-flags-true" {
+	"begunthegame" = true;
+}
+
+"set-begunthegame-flags-false" {
+	"begunthegame" = false;
+}
+
+"set-ch1_finished-flags-true" {
+	"ch1_finished" = true;
+}
+
+"set-ch1_finished-flags-false" {
+	"ch1_finished" = false;
+}
+
+"set-glitch-flags-true" {
+	"billy-unglitched" = true;
+	"kid-unglitched" = true;
+	"goats-both-unglitched" = true;
+	"fountain-unglitched" = true;
+	"lodge_cat-unglitched" = true;
+	"timmy-unglitched" = true;
+	"main_hamster-unglitched" = true;
+	"goldfish-unglitched" = true;
+}
+
+"set-glitch-flags-false" {
+	"billy-unglitched" = false;
+	"kid-unglitched" = false;
+	"goats-both-unglitched" = false;
+	"fountain-unglitched" = false;
+	"lodge_cat-unglitched" = false;
+	"timmy-unglitched" = false;
+	"main_hamster-unglitched" = false;
+	"goldfish-unglitched" = false;
+}
+
+"set-backstory-flags-true" {
+	"baker-backstory" = true;
+	"bender-backstory" = true;
+	"bobrock-backstory" = true;
+	"strong_bad-backstory" = true;
+	"bea1-backstory" = true;
+	"bea2-backstory" = true;
+	"shepherd-backstory" = true;
+	"max-backstory" = true;
+	"trekkie-backstory" = true;
+	"hackbook-backstory" = true;
+	"smith-backstory" = true;
+	"verthandi-backstory" = true;
+	"marta-backstory" = true;
+	"hackbook-endstory" = true;
+	"timmy-endstory" = true;
+	"hamster-endstory" = true;
+}
+
+"set-backstory-flags-false" {
+	"baker-backstory" = false;
+	"bender-backstory" = false;
+	"bobrock-backstory" = false;
+	"strong_bad-backstory" = false;
+	"bea1-backstory" = false;
+	"bea2-backstory" = false;
+	"shepherd-backstory" = false;
+	"max-backstory" = false;
+	"trekkie-backstory" = false;
+	"hackbook-backstory" = false;
+	"smith-backstory" = false;
+	"verthandi-backstory" = false;
+	"marta-backstory" = false;
+	"hackbook-endstory" = false;
+	"timmy-endstory" = false;
+	"hamster-endstory" = false;
+}

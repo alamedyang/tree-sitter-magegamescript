@@ -28,7 +28,7 @@
 }
 
 "spin_self_clockwise" {
-	// This script should spin an entity "around"
+	// This script should spin an entity around
 	wait 500ms; /**/ self direction = north;
 	wait 500ms; /**/ self direction = east;
 	wait 500ms; /**/ self direction = south;
@@ -37,7 +37,7 @@
 }
 
 "spin_self_counterclockwise" {
-	// This script should spin an entity "around"
+	// This script should spin an entity around
 	wait 500ms; /**/ self direction = north;
 	wait 500ms; /**/ self direction = west;
 	wait 500ms; /**/ self direction = south;
@@ -141,10 +141,10 @@
 // from script-town_map.json
 
 "on_tick-town" {
-if (player intersects geometry "door_to-main-east") {
+	if (player intersects geometry "door_to-main-east") {
 		goto "load_map-main-enter_from-east";
 	}
-if (player intersects geometry "door_to-main-west") {
+	if (player intersects geometry "door_to-main-west") {
 		goto "load_map-main-enter_from-west";
 	}
 }
@@ -209,7 +209,7 @@ if (player intersects geometry "door_to-main-west") {
 
 "interrupt-walk" {
 	"captured_animation" = self current_animation;
-	self current_animation = $4;
+	self current_animation = 0;
 	pause self on_tick;
 	copy!("capture_self_direction")
 	copy!("face-player")
@@ -224,7 +224,7 @@ if (player intersects geometry "door_to-main-west") {
 	// todo: when we have functions, genericize this!
 	"playersave-x" = player x;
 	"playersave-y" = player y;
-	"playersave-room" = ch2-in-room;
+	"playersave-room" = "ch2-in-room";
 	if (player direction == north) {
 		"playersave-dir" = 0;
 	} else if (player direction == east) {

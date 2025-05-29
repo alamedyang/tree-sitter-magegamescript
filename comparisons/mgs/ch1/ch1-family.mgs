@@ -1,0 +1,83 @@
+include "header.mgs";
+
+"on_tick-family" {
+	if (player intersects geometry "door-family") {
+		goto "leave-family";
+	}
+}
+"leave-family" {
+	warp_state = "exit_from-family";
+	load map "main";
+}
+"watch-kid" {
+	self direction = entity "Kid";
+}
+"kid-ballwatch" {
+	if (entity "Kid" type == "blitzball") {
+		goto "kid-now-ball";
+	}
+}
+"kid-now-ball" {
+	"storyflag-sportskid" = true;
+	copy!("calculate-hint-tracking-series")
+	if ("hint-tracking-check" == 8) {
+		copy!("set-hint-none")
+	}
+	goto "null_script";
+}
+
+"on_load-family" {
+	if ("tuesdayd") {
+		command "rtfm" = "command-rtfm";
+	}
+	if ("storyflag-sportskid") {
+		entity "Kid" type = "blitzball";
+	}
+}
+
+"show_dialog-kid" {
+	player on_tick = "watch-kid";
+	if (self glitched) {
+		show dialog {
+			SELF "Stb N'r ns fstymjw inrjsxnts!"
+		};
+	} else if (entity "Kid" type == "blitzball") {
+		show dialog "dialog-kid-ball" {
+			SELF "I'm the wind! Whoosh!"
+		};
+	} else {
+		show dialog {
+			SELF "I'm gonna be a Blitzball when I grow up!"
+		};
+		copy!("set-hint-sportskid")
+	}
+	// RESET
+	player on_tick = "null_script";
+	self on_interact = "show_dialog-kid";
+}
+
+"show_dialog-smith" {
+	if (self glitched) {
+		show dialog { SELF "Naa, ptl matm lttz itgxxk, hk lxz ytnem itgxxk?" };
+	} else {
+		entity "Smith" direction = player;
+		if ("smith-backstory") {
+			show dialog { SELF "Real talk, don't eat memory leek soup. It'll mess with your head." };
+		} else {
+			show dialog {
+				SELF "What's for dinner?"
+				"Memory leek soup!"
+				"...."
+				"...Nah, just kidding. It's saag paneer."
+			};
+			"smith-backstory" = true;
+		}
+		entity "Smith" direction = east;
+	}
+	// RESET
+	self on_interact = "show_dialog-smith";
+}
+
+"show_dialog-smith-dinner" {
+	show dialog { PLAYER "Smells good!" };
+}

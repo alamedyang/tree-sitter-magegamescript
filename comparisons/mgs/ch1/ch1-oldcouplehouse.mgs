@@ -1,0 +1,308 @@
+include "header.mgs";
+
+/* --------------- on_tick --------------- */
+
+"on_tick-oldcouplehouse" {
+	if (player intersects geometry "door-oldcouplehouse") {
+		goto "leave-oldcouplehouse";
+	}
+}
+"leave-oldcouplehouse" {
+	warp_state = "exit_from-oldcouplehouse";
+	if ("storyflag-bea1") {
+		"bea-sequel-branch" = true;
+	}
+	load map "main";
+}
+
+/* --------------- on_load --------------- */
+
+"on_load-oldcouplehouse" {
+	if ("tuesdayd") {
+		command "rtfm" = "command-rtfm";
+	}
+	if ("bea-sequel-branch") {
+		if (!"storyflag-bea2") {
+			copy!("make-delmar-man")
+		}
+	}
+}
+"make-delmar-man" {
+	entity "Delmar" type = "old_man";
+	entity "Delmar" current_animation = 3;
+	entity "Delmar" on_tick = "on_tick-delmar-blab-nonman-watch";
+}
+
+/* --------------- Delmar --------------- */
+
+"show_dialog-delmar" {
+	if (self glitched) {
+		show dialog {
+			SELF "Bu, qrne. V zhfg'ir fgbbq hc gbb snfg. Srry n ovg jbbml."
+		};
+	} else if (entity "Delmar" type != "old_man") {
+		show dialog "dialog-dsheep";
+	} else if ("bea-sequel-branch") {
+		show dialog {
+			SELF "...I tied an onion to my belt, which was the style at the time."
+			"Now, to take the ferry cost a nickel, and in those days, nickels had pictures of bumblebees on 'em."
+			"\"Gimme five bees for a quarter,\" you'd say. Now where were we?"
+			"Oh, yeah. The important thing was that I had an onion on my belt, which was the style at the time."
+			"They didn't have any white onions, because of the war. The only thing you could get was those big yellow ones...."
+		};
+	} else if ("storyflag-bea1") {
+		show dialog {
+			Delmar "Huh? What's goin' on? What'd I miss?"
+		};
+	} else {
+		show dialog {
+			SELF "Wha... huh?"
+		};
+	}
+	entity "Delmar" on_interact = "show_dialog-delmar";
+}
+
+
+/* --------------- Delmar --------------- */
+
+"show_dialog-bea-start" {
+	if (self glitched) {
+		show dialog { SELF "Ydy D ymjk ht bgvnnzn? Ocz rjmgy'n bjiz v wdo apuut." };
+	} else {
+		copy!("clear-own-tick")
+		copy!("face-player")
+		if (!"bea-sequel-branch") {
+			goto "show_dialog-bea-part1";
+		} else {
+			goto "show_dialog-bea-part2";
+		}
+	}
+	entity "Beatrice" on_interact = "show_dialog-bea-start";
+}
+
+/* --------------- Beatrice --------------- */
+
+"slow-stare-at-delmar" {
+	player_control = off;
+	wait 100ms;
+	self direction = entity "Delmar";
+	wait 500ms;
+	player_control = on;
+}
+"slow-stare-at-player" {
+	player_control = off;
+	wait 100ms;
+	self direction = player;
+	wait 500ms;
+	player_control = on;
+}
+
+// part 1
+
+"show_dialog-bea-part1" {
+	if (!"storyflag-bea1") { // you did NOT beat part1
+		if (entity "Delmar" type == "old_man") { // win condition met
+			// currently no backstory/!backstory difference
+			player_control = off;
+			copy!("clear-own-tick")
+			copy!("slow-stare-at-delmar")
+			player_control = on;
+			show dialog {
+				SELF "Oh, %Delmar%, it's you! You're a man again! At last!"
+				Delmar "Whazzat, %Beatrice%? Something seems different."
+				SELF "Oh, it's my %Delmar%! Thank you, %PLAYER%!"
+			};
+			self direction = entity "Delmar";
+			copy!("calculate-hint-tracking-series")
+			if ("hint-tracking-check" == 4) {
+				copy!("set-hint-none")
+			}
+			"bea1-backstory" = true;
+			"storyflag-bea1" = true;
+		} else { // win condition NOT met
+			if (!"bea1-backstory") { // you did NOT hear the backstory
+				if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") { // is sheep
+					show dialog {
+						SELF "Forty years ago, things were sure different."
+						"I was a lot younger then, and my husband, %Delmar%...."
+					};
+					copy!("clear-own-tick")
+					copy!("slow-stare-at-delmar")
+					show dialog { SELF "My husband was a real man! Not a farm animal!" };
+					copy!("slow-stare-at-player")
+					player_control = on;
+				} else { // is rando
+					copy!("clear-own-tick")
+					copy!("slow-stare-at-delmar")
+					show dialog { SELF "Oh, %Delmar%! You're... oh...." };
+					copy!("face-player")
+					show dialog {
+						SELF "Oh, goodness. Well, this isn't my %Delmar%, but I suppose it's nice he's not a sheep anymore, at least."
+						"He's been a sheep for so long... well, I suppose it's been forty years."
+					};
+				}
+				show dialog { // is sheep OR rando
+					SELF "That ghastly hacker ruffian hacked him into a sheep on a whim!"
+					"%Delmar% didn't even do anything to him!"
+					"...Other than insult his character, and that of his mother."
+					"...And eat his lunch."
+					"...And cut his brake line."
+					"The point is, child, that %Delmar%'s been stuck as a sheep ever since!"
+					"But you, now that you have Ring Zero...."
+					"You can make things right again, can't you?"
+					"I miss my %Delmar%!"
+					PLAYER "Make things right? Well, I can change what he looks like, anyway."
+					SELF "That works for me!"
+				};
+				"bea1-backstory" = true;
+			} else { // you DID hear the backstory (sheep or rando)
+				show dialog { SELF "Oh, %Delmar%... we'll fix you up real soon!" };
+			}
+			copy!("set_tick-watch-player")
+			copy!("set-hint-bea1")
+		}
+	} else { // you DID beat part1
+		if (entity "Delmar" type == "old_man") {
+			show dialog { SELF "Thank you, %PLAYER%!" };
+		} else if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+			show dialog {
+				SELF "Oh! That's a nasty trick, %PLAYER%!"
+				"How could you?"
+				"Although... I sort of get the feeling he'll be back to normal in a few minutes."
+			};
+		} else {
+			show dialog {
+				SELF "Oh, %Delmar%, you're... uh...."
+			};
+		}
+	}
+	entity "Beatrice" on_interact = "show_dialog-bea-start";
+}
+
+// part 2
+
+"show_dialog-bea-part2" {
+	if (!"storyflag-bea2") { // !part2won
+		if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+			if (!"bea2-backstory") {
+				show dialog {
+					SELF "Oh! And I was just thinking how I wanted him to become a sheep again!"
+					"So gentle... and so quiet!"
+					"Thank you, %PLAYER%!"
+				};
+			} else { // you DID hear the backstory
+				show dialog {
+					SELF "Thank you, child!"
+					"...And, erm, we need not mention this to anyone! You understand?"
+				};
+			}
+			self direction = entity "Delmar";
+			copy!("calculate-hint-tracking-series")
+			if ("hint-tracking-check" == 9) {
+				copy!("set-hint-none")
+			}
+			"bea2-backstory" = true;
+			"storyflag-bea2" = true;
+		} else { // not a sheep
+			if (entity "Delmar" type == "old_man") {
+				if (!"bea2-backstory") {
+					show dialog { SELF "...." "You know, I appreciate what you did, %PLAYER%. I really do." };
+					copy!("clear-own-tick")
+					copy!("slow-stare-at-delmar")
+					show dialog { SELF "...." };
+					copy!("slow-stare-at-player")
+					show dialog {
+						SELF "But now I find myself longing for quiet."
+						"It was so peaceful, before. %Delmar% and I used to get along so well."
+						"And it's so difficult to fall asleep recently."
+						"I hate to ask it, child, but...."
+						"I can't hear myself think! Please change him back!"
+					};
+				} else { // you DID hear the backstory
+					show dialog {
+						SELF "I'm sure he won't mind being a sheep again. In fact, I'm not sure he'll notice."
+						"But I sure will! I won't have peace otherwise!"
+					};
+				}
+			} else { // not a sheep nor a man
+				show dialog {
+					SELF "Oh, um...."
+					"Actually, I was hoping he could become a sheep again."
+				};
+			}
+			copy!("set_tick-watch-player")
+			"bea2-backstory" = true;
+			copy!("set-hint-bea2")
+		}
+	} else { // part2won
+		if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+			show dialog {
+				SELF "Peace at last!"
+			};
+		} else if (entity "Delmar" type == "old_man") {
+			show dialog {
+				SELF "...." "I suddenly have the strangest feeling of deja vu."
+			};
+		} else {
+			show dialog {
+				SELF "Well, I suppose we could give this a try instead...."
+			};
+		}
+	}
+	entity "Beatrice" on_interact = "show_dialog-bea-start";
+}
+
+/* --------------- blab and unblab --------------- */
+
+"delmar-blab" {
+	entity "Delmar" current_animation = 3;
+	entity "Delmar" on_tick = "on_tick-delmar-blab-nonman-watch";
+}
+"on_tick-delmar-blab-nonman-watch" {
+	if (entity "Delmar" type != "old_man") {
+		goto "delmar-unblab";
+	}
+}
+"delmar-unblab" {
+	entity "Delmar" current_animation = 0;
+	entity "Delmar" on_tick = "on_tick-delmar-blab-man-watch";
+}
+"on_tick-delmar-blab-man-watch" {
+	if (entity "Delmar" type == "old_man") {
+		goto "delmar-blab";
+	}
+}
+
+/* --------------- debug --------------- */
+
+"debug-bea-sequel-q" {
+	copy!("face-player")
+	show dialog {
+		SELF "Set sequel branch?"
+		> "Yes (plus man)" = "debug-bea-sequel-man"
+		> "Yes" = "debug-bea-sequel-noman"
+		> "No" = "debug-bea-sequel-no"
+	};
+}
+"debug-bea-sequel-man" {
+	"bea-sequel-branch" = true;
+	"storyflag-bea1" = true;
+	"bea1-backstory" = true;
+	entity "Delmar" type = "old_man";
+	copy!("set-hint-none")
+	copy!("delmar-blab")
+	show dialog { SELF "Sequel branch activated, and Delmar is a man." };
+	self on_interact = "debug-bea-sequel-q";
+}
+"debug-bea-sequel-noman" {
+	"bea-sequel-branch" = true;
+	"storyflag-bea1" = true;
+	"bea1-backstory" = true;
+	copy!("set-hint-none")
+	show dialog { SELF "Sequel branch activated, and Delmar left alone." };
+	self on_interact = "debug-bea-sequel-q";
+}
+"debug-bea-sequel-no" {
+	show dialog { SELF "Nothing changed." };
+	self on_interact = "debug-bea-sequel-q";
+}
