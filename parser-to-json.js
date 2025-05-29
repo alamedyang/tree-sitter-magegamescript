@@ -38,9 +38,7 @@ const printActionFns = {
 	CHECK_SERIAL_DIALOG_OPEN: (v) => printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_DIALOG_OPEN: (v) => printCheckAction(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`),
 	CHECK_SAVE_FLAG: (v) => printCheckAction(v, `"${v.save_flag}"`, true),
-	// one of these is broken for ANY if not more
 	CHECK_FOR_BUTTON_PRESS: (v) => printCheckAction(v, `button ${v.button_id} pressed`, true),
-	// one of these is broken for ANY if not more
 	CHECK_FOR_BUTTON_STATE: (v) => printCheckAction(v, `button ${v.button_id} ${v.expected_bool ? 'down' : 'up'}`),
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} intersects ${printGeometry(v.geometry)}`, true),
 	CHECK_ENTITY_GLITCHED: (v) => printCheckAction(v, `${printEntityIdentifier(v.entity)} glitched`, true),
@@ -160,7 +158,7 @@ const printActionFns = {
 	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v) => `delete alias "${v.alias}";`,
 	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v) => `${v.is_visible ? 'un' : ''}hide command "${v.command}";`,
 
-	// Other
+	// Miscellaneous
 	SLOT_SAVE: (v) => `save slot;`,
 	SLOT_LOAD: (v) => `load slot ${v.slot};`,
 	SLOT_ERASE: (v) => `erase slot ${v.slot};`,

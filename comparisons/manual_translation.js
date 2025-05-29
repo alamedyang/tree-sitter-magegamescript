@@ -2,413 +2,477 @@ const fs = require('node:fs');
 
 const file = `include!("header.mgs")
 
-show_dialog-timewarp {
-	register rtfm -> command-rtfm;
-	if (flag demo-cutseen-timewarp is false) {
-		fade out camera to #000000 over 1ms;
-		wait 200ms;
+on_load-woprhouse {
+	if (flag tuesdayd is true) {
+		register rtfm -> command-rtfm;
+	}
+	if (variable current-chapter is 2) {
+		// entrance text
+		show serial dialog spacer;
+		show serial dialog { "Entering <bold>WOPR ROOM</>..." }
+		copy ch2-map-init;
+	}
+	if (flag wopr-backdoor-found is false) {
 		turn player control off;
-		turn entity "%PLAYER%" south;
-		show dialog {
-			name "" "...."
-			"Am I asleep?"
+		set flag wopr-backdoor-found to true;
+		if (warp state is not warped) {
+			walk entity "%PLAYER%" along geometry walk_from-north over 600ms;
 		}
-		fade in camera from #000000 over 2000ms;
+		wait 400ms;
 		show dialog {
-			PLAYER alignment BL
-			"Huh? Is this the village?"
-			"No, this is the village of the past. But\nI still have Ring Zero...."
-			"This has got to be a dream."
+			PLAYER "Whoa! It looks like I found some kind of back door."
 		}
 		turn player control on;
-		set flag demo-cutseen-timewarp to true;
 	}
-	turn hex control on;
 }
 
-show_dialog-bob-first-demo_map {
-	if (flag demo-bob-backstory is false) {
-		show dialog {
-			SELF "Name's Bob."
-			"Stone Cold Bob Austin."
-			"Right, what's yours, then?"
-			PLAYER "You don't know who I am? We've both lived here for years!"
-			SELF "Don't know nobody. All I know is, gotta keep everyone out."
-			"You know, unless their name is Bob."
-			PLAYER "Bob?"
-			SELF "Bob. Camel case.\nNice and plain.\nTraditional."
-			"'Cause this club is Bobs-only. You know, the Bobs-Only Club."
-			PLAYER "Why is it Bobs only?"
-			SELF "Why?\nWhy is it Bobs only?"
-			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
-		}
-		set flag demo-bob-backstory to true;
-	} else if (flag demo-bob-notimplemented is true) {
-		show dialog {
-			SELF "So, what's your name, then?"
-			PLAYER "The door doesn't work! What does it matter what my name is?"
-			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
-		}
+/* ---------- ON_TICK ---------- */
+
+on_tick-woprhouse {
+	if entity "%PLAYER%" is inside geometry north-hitbox
+		then goto on_walk-woprhouse-north;
+}
+
+/* ---------- EXIT STUFF ---------- */
+
+on_walk-woprhouse-north {
+	// triggered by map's on_tick
+	if (variable current-chapter is 1) {
+		set warp state to exit_from-woprhouse;
+		load map main;
+	} else if (variable current-chapter is 2) {
+		set warp state to walk_from-woprhouse;
+		load map ch2-town;
 	} else {
-		show dialog {
-			SELF "So, what's your name then?"
+		show serial dialog spacer;
+		show serial dialog {
+			"<r>ERROR:</> You're in chapter '$current-chapter$'??"
+			"Back to the main menu for you!"
 		}
-		if (entity "%PLAYER%" name is not Bob) {
-			show dialog {
-				PLAYER "Um.... it's not Bob."
-				SELF "Sorry, can't unlock the door for ya. Bobs only."
-			}
-			return; // return early
-		}
-		show dialog {
-			PLAYER "Why, what luck!\nMy name happens to be Bob!"
-			SELF "Nice. Great name.\nI'll unlock the door."
-		}
-		walk entity Bob to geometry "%ENTITY_PATH%" over 666ms;
-		turn entity Bob west;
-		wait 666ms;
-		turn entity Bob south;
-		show dialog {
-			SELF "There you go. It's open."
-		}
-		walk entity "%PLAYER%" to geometry predoor over 666ms;
-		walk entity "%PLAYER%" to geometry door over 1333ms;
-		wait 666ms;
-		turn entity "%PLAYER%" east;
-		show dialog {
-			PLAYER "Hey, what gives?\nI still can't get in."
-		}
-		turn entity Bob west;
-		show dialog {
-			SELF "Oh, it's unlocked."
-			PLAYER "Then why won't it open?"
-			SELF "Oh. The door's not implemented yet."
-			PLAYER "...."
-			"You could've said that from the start!"
-			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
-		}
-		turn entity Bob south;
-		set flag demo-bob-notimplemented to true;
+		load map main_menu;
 	}
 }
 
-show_dialog-sheep-demo_map {
-	show dialog { SELF "...." }
-}
-show_dialog-dsheep-demo_map {
-	show dialog { SELF "...?" }
+on_go-woprhouse-north {
+	copy warping-out-fade-out;
+	load map ch2-town;
 }
 
-show_dialog-max-demo_map {
-	copy face-player;
+/* ---------- ENTITIES ---------- */
+
+show_dialog-wopr-start {
 	show dialog {
-		SELF "Ah, a citizen!"
-		"I wondered if you could help me!"
-		PLAYER "What do you need?"
-		SELF "My name's Swagger! Max Swagger!"
-		"I was doing a bit of reconnoissance, looking for a place where I can open my new fashion shop."
-		"The board here says there's space available, but I can't seem to find the building it's talking about."
-		"The only thing actually here is the Bobs-Only Club!"
-		PLAYER "Well, the town isn't fully implemented yet, so... you might have to wait a few more weeks for the rest of the buildings to return."
+		SELF portrait wopr
+		"SHALL WE PLAY A GAME?"
+
+		SELF portrait wopr
+		"PLAY?"
+		> "DO NOT PLAY" : goto "restart-wopr"
 	}
-	turn player control off;
-	rotate entity "%SELF%" -2;
-	wait 800ms;
-	rotate entity "%SELF%" 1;
-	wait 800ms;
-	turn player control on;
-	copy face-player;
+}
+restart-wopr {
+	set entity "%SELF%" on_interact to show_dialog-wopr-start;
+}
+
+show_dialog-woprbooks {
 	show dialog {
-		SELF "Not fully implemented?"
-		PLAYER "Sorry."
-		"But I can personally guarantee you can have a building all to yourself when the time comes."
-		SELF "Oh! That's good news! All to myself?"
-		"I'm picturing two stories... no, three!"
-		"Lush woven carpets... vaulted ceilings... beautiful oak doors... hand-carved decorative moulding...."
-		PLAYER "Um, well.... You'll definitely get a building."
-		SELF "Excellent! Then I shall return when the time comes!"
-		"Until that glorious day, farewell!"
+		PLAYER "These shelves are full of Vogon poetry! What an odd sort of thing for a computer to collect."
 	}
-	walk entity "%SELF%" along geometry "%ENTITY_PATH%" over 9000ms;
-	teleport entity "%SELF%" to geometry hiding;
-}
-
-show_dialog-timmy-demo_map {
-	copy interrupt-walk;
-	show dialog {
-		SELF "I'm practicing for my triathlon!"
-		"Running is my weakest event, so I'm working hard to improve my time!"
-		PLAYER "Don't you need legs to run?"
-		SELF "...?"
-		"No?"
-	}
-	copy resume-walk;
-}
-
-show_dialog-kid-demo_map {
-	copy interrupt-walk;
-	show dialog {
-		SELF "I'm gonna be a Blitzball when I grow up!"
-	}
-	copy resume-walk;
-}
-
-show_dialog-goose-demo_map {
-	show dialog {
-		SELF "Honk!"
-	}
-}
-
-show_dialog-beatrice-demo_map {
-	turn player control off;
-	copy face-player;
-	show dialog {
-		SELF "Back when he was a young man, my husband Delmar hand-carved all the statues on the fountains around town."
-		"Such a shame that this one isn't working. I wonder if something is clogging the pump."
-	}
-	rotate entity "%SELF%" 1;
-	wait 600ms;
-	rotate entity "%SELF%" -2;
-	wait 600ms;
-	copy face-player;
-	show dialog {
-		SELF "Between you and me.... I think the goose has something to do with it."
-	}
-	turn player control on;
-	turn entity "%SELF%" south;
-}
-
-show_dialog-trekkie-demo_map {
-	copy face-player;
-	show dialog {
-		SELF "Me heard you will soon have a birthday!"
-		PLAYER "That's right! I'll be turning 16, and I'll get to be an official village mage!"
-		SELF "Me hope you have happy birthday!"
-		PLAYER "Thanks very much, %Trekkie%!"
-	}
-}
-
-show_dialog-verthandi-demo_map {
-	copy face-player;
-	show dialog {
-		SELF "I'm so glad the goats made up and are friends again!"
-	}
-	turn entity "%SELF%" south;
-}
-
-show_dialog-goat-demo_map {
-	show dialog { SELF "Baaahhh!" }
-}
-
-show_dialog-cleo1-demo_map {
-	show dialog {
-		Cat "Meowrrow."
-		Cleo "Oh, you don't say!"
-		Cat "Meow!"
-		Cleo "He didn't!"
-	}
-	set entity "%SELF%" on_interact to show_dialog-cleo2;
-}
-
-show_dialog-cleo2-demo_map {
-	show dialog {
-		Cat "Meowwowow."
-		Cleo "That's what I've been saying this whole time!"
-		Cat "Meowwrrrr!"
-		Cleo "Oh, I know!"
-	}
-	set entity "%SELF%" on_interact to show_dialog-cleo1-demo_map;
-}
-
-show_dialog-cat-demo_map {
-	show dialog {
-		PLAYER "Hey there, cat!"
-		Cat "...."
-		Cleo "Excuse me, but we were in the middle of a conversation."
-		PLAYER "Oh, sorry. Carry on."
-	}
-}
-
-show_dialog-smith-demo_map {
-	copy face-player;
-	show dialog {
-		SELF "I came here on a blacksmithing scholarship, but there's not much blacksmithing to do at the moment."
-		"I think I'll stick around anyway. See what happens."
-	}
-}
-
-check_if_player_is_goat_high-demo_map {
-	if (entity "%PLAYER%" is inside geometry high) {
-		set entity goat1 on_tick to move_goat1_to_low-demo_map;
-		set entity goat2 on_tick to move_goat2_to_low-demo_map;
-		goto check_if_player_is_goat_low-demo_map;
-	}
-}
-
-check_if_player_is_goat_low-demo_map {
-	if (entity "%PLAYER%" is inside geometry low) {
-		set entity goat1 on_tick to move_goat1_to_high-demo_map;
-		set entity goat2 on_tick to move_goat2_to_high-demo_map;
-		goto check_if_player_is_goat_high-demo_map;
-	}
-}
-
-move_goat1_to_low-demo_map {
-	walk entity goat1 to geometry low1 over 600ms;
-	loop entity goat1 along geometry low1 over 2000ms;
-}
-
-move_goat2_to_low-demo_map {
-	walk entity goat2 to geometry low2 over 733ms;
-	loop entity goat2 along geometry low2 over 2266ms;
-}
-
-move_goat1_to_high-demo_map {
-	walk entity goat1 to geometry high1 over 600ms;
-	loop entity goat1 along geometry high1 over 2000ms;
-}
-
-move_goat2_to_high-demo_map {
-	walk entity goat2 to geometry high2 over 733ms;
-	loop entity goat2 along geometry high2 over 2266ms;
-}
-
-loop_on_path_30s-demo_map {
-	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 20000ms;
-}
-
-loop_on_path_10s-demo_map {
-	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 6666ms;
-}
-
-loop_on_path_3s-demo_map {
-	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 2000ms;
-}
-
-// Chaos fish
-show_dialog-demo-end-dream-q {
-	show dialog {
-		SELF
-		portrait goldfish
-		"End this dream?"
-		> "Yes (save and quit)" : goto "demo-end-dream-yes-save"
-		> "Yes (quit without saving)" : goto "demo-end-dream-yes"
-		> "No (continue dream)" : goto "demo-end-dream-no"
-	}
-}
-demo-end-dream-yes {
-	load map main_menu;
-}
-demo-end-dream-yes-save {
-	save slot;
-	load map main_menu;
-}
-demo-end-dream-no {
-	set entity "%SELF%" on_interact to show_dialog-demo-end-dream-q;
-}
-
-// Unused (from original prerelease demo; did not get plugged in properly)
-dialog dialog-max3-demo_map {
-	PLAYER "Not much of a market for fashion here, I would've thought."
-	"Best of luck, Max Swagger!"
 }
 `;
 
-
 const replaced = file
-	.replace(/include!\((.+?)\)/g, 'include $1;')
-	.replace(/copy ("?)([^;]+)(\1);?/g, 'copy!("$2")')
-	.replace(/goto( script)? ("?)([^;]+)(\2)/g, 'goto "$3"')
-	.replace(/(entity|geometry|map) ("?)([-_a-zA-Z0-9]+)(\2)/g, '$1 "$3"')
-	.replace(/(^|\n)([-_A-Z0-9a-z]+?) {\n/g,'$1"$2" {\n')
-	.replace(/(^|\n)dialog ([-_A-Z0-9a-z]+?) {\n/g,'$1dialog "$2" {\n')
-	.replace(
-		/register +(.+?) +-> +([-A-Z0-9a-z]+)/g,
-		'command "$1" = "$2"'
+	.replace(/include!\((.+?)\)/g, 'include $1;') // include_macro
+
+	// generic or preparatory
+	.replace(/goto( script)? ("?)([^;]+)(\2)/g, 'goto "$3"') // goto (script)
+	.replace(/serial dialog/g, 'serial_dialog') // serial dialog -> serial_dialog
+	// .replace(/(->|:) (goto)?("?)([^;]+)(\3)/g, '= "$4"') // other script refs
+	.replace( // bareword -> "bareword"
+		/(entity|geometry|map|flag|variable|mutate) ("?)([-_a-zA-Z0-9]+)(\2)/g,
+		'$1 "$3"'
+	)
+	.replace( // scriptName { -> "scriptName" {
+		/(^|\n)([-_A-Z0-9a-z]+) {\n/g,
+		'$1"$2" {\n'
+	)
+	.replace( // dialog bareword { -> dialog "bareword" {
+		/dialog ([-_A-Z0-9a-z]+?)( {\n|;)/g,
+		'dialog "$1"$2'
+	)
+	.replace( // (serial) dialog options
+		/(>|_|#) (.+?) :( goto)?( script)? ([^\n]+)/g,
+		'$1 $2 = $5'
 	)
 	.replace(
+		/(\t+)if (.+)[\s]+then (goto [^;\n]+)(;?)(\n|$)/g,
+		`$1if ($2) {\n$1\t$3;\n$1}$5`
+	)
+
+	// Miscellaneous
+	// SLOT_SAVE -- ok as is
+	// SLOT_LOAD -- ok as is
+	// SLOT_ERASE -- ok as is
+	// LOAD_MAP -- ok as is
+	// BLOCKING_DELAY -- ok as is
+	// NON_BLOCKING_DELAY -- ok as is
+	.replace( // SHOW_DIALOG
 		/show dialog ([^}]+)}/g,
 		'show dialog $1};'
 	)
-	.replace(
-		/> (.+) : goto( script)? ([^\n]+)/g,
-		'> $1 = $3'
+	// CLOSE_DIALOG -- ok as is
+	.replace( // SHOW_SERIAL_DIALOG
+		/show serial_dialog ([^}]+)}/g,
+		'show serial_dialog $1};'
 	)
-	.replace(/flag ([-A-Z0-9a-z]+) is true/g, '"$1"')
-	.replace(/flag ([-A-Z0-9a-z]+) is false/g, '!"$1"')
-	.replace(/set flag ([-A-Z0-9a-z]+) to (true|false)/g, '"$1" = $2')
-	.replace(
-		/turn player control (on|off)/g,
-		'player_control = $1'
+	// CLOSE_SERIAL_DIALOG -- ok as is
+	// SET_SCRIPT_PAUSE
+	// [TODO]
+	// GOTO_ACTION_INDEX -- ok as is? (todo: check)
+	// RUN_SCRIPT -- ok as is
+
+	// Commands and aliases
+	.replace( // REGISTER_SERIAL_DIALOG_COMMAND
+		/register ("?)([^\n;]+)(\1)( fail)? ->( goto)?( script)? ("?)([^\n;]+)(\7)/g,
+		'command "$2" $4= "$8"'
 	)
-	.replace(
-		/turn hex control (on|off)/g,
-		'hex_control = $1'
+	.replace( // UNREGISTER_SERIAL_DIALOG_COMMAND
+		/unregister ("?)([^\n;]+)(\1)( fail)?/g,
+		'delete command "$2" $4'
 	)
-	.replace(
-		/fade (out|in) camera (to|from) (.+) over (.+)/g,
-		'camera fade $1 -> $3 over $4'
+	.replace( // REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
+		/register ("?)(.+?)(\1) + ("?)([^\n;]+)(\4) ->( goto)?( script)? ("?)([^\n;]+)(\7)/g,
+		'command "$2" + "$5" = "$8"'
 	)
-	.replace(
-		/turn entity (".+") ([a-z]+)/g,
-		'entity $1 direction = $2'
+	.replace( // UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
+		/unregister ("?)(.+?)(\1) + ("?)([^\n;]+)(\4)/g,
+		'delete command "$2" + "$5"'
 	)
-	.replace(
-		/entity (.+) (name|type|path|on_interact|on_tick|on_look) is not ("?)([^)]+)(\3)/g,
-		'entity $1 $2 != "$4"'
+	// REGISTER_SERIAL_DIALOG_COMMAND_ALIAS -- ok as is
+	.replace( // REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
+		/unregister alias ("?)([^\n;])(\1)/g,
+		'delete alias "$2"'
 	)
-	.replace(
-		/entity (.+) (name|type|path|on_interact|on_tick|on_look) is ("?)([^)]+)(\3)/g,
-		'entity $1 $2 == "$4"'
+	// SET_SERIAL_DIALOG_COMMAND_VISIBILITY -- ok as is
+
+
+	// Set position
+	.replace( // SET_CAMERA_TO_FOLLOW_ENTITY
+		/make camera follow entity ([^;\n]+)/g,
+		'camera = entity $1 position'
 	)
-	.replace(
-		/entity (.+) ([a-z]+) is not ([-A-Z0-9a-z]+)/g,
-		'entity $1 $2 != $3'
+	.replace( // TELEPORT_CAMERA_TO_GEOMETRY
+		/teleport camera to geometry ([^;\n]+)/g,
+		'camera = geometry $1'
 	)
-	.replace(
-		/entity (.+) ([a-z]+) is ([-A-Z0-9a-z]+)/g,
-		'entity $1 $2 == $3'
+	.replace( // TELEPORT_ENTITY_TO_GEOMETRY
+		/teleport entity (.+?) to geometry ([^;\n]+)/g,
+		'entity $1 position = geometry $2'
 	)
-	.replace(
-		/walk entity (.+) to geometry (.+) over ([0-9ms]+)/g,
+	.replace( // SET_ENTITY_DIRECTION_TARGET_ENTITY
+		/turn entity (.+?) toward entity ([^;\n]+)/g,
+		'entity $1 direction = entity $2'
+	)
+	.replace( // SET_ENTITY_DIRECTION_TARGET_GEOMETRY
+		/turn entity (.+?) toward geometry ([^;\n]+)/g,
+		'entity $1 direction = geometry $2'
+	)
+	
+	// Set position over time
+	.replace( // WALK_ENTITY_TO_GEOMETRY
+		/walk entity (.+?) to geometry (.+?) over ([0-9ms]+)/g,
 		'entity $1 position -> geometry $2 origin over $3'
 	)
-	.replace(
-		/turn entity (.+) ([a-z]+)/g,
+	.replace( // WALK_ENTITY_ALONG_GEOMETRY
+		/walk entity (.+?) along geometry (.+?) over ([0-9ms]+)/g,
+		'entity $1 position -> geometry $2 length over $3'
+	)
+	.replace( // LOOP_ENTITY_ALONG_GEOMETRY
+		/loop entity (.+?) along geometry (.+?) over ([0-9ms]+)/g,
+		'entity $1 position -> geometry $2 length over $3 forever'
+	)
+	.replace( // PAN_CAMERA_TO_ENTITY
+		/pan camera to entity (.+?) over ([0-9ms]+)/g,
+		'camera -> entity $1 position over $2'
+	)
+	.replace( // PAN_CAMERA_TO_GEOMETRY
+		/pan camera to geometry (.+?) over ([0-9ms]+)/g,
+		'camera -> geometry $1 origin over $2'
+	)
+	.replace( // PAN_CAMERA_ALONG_GEOMETRY
+		/pan camera along geometry (.+?) over ([0-9ms]+)/g,
+		'camera -> geometry $1 length over $2'
+	)
+	.replace( // LOOP_CAMERA_ALONG_GEOMETRY
+		/loop camera along geometry (.+?) over ([0-9ms]+)/g,
+		'camera -> geometry $1 length over $2 forever'
+	)
+	
+	// Other do over time
+	.replace( // SET_SCREEN_SHAKE
+		/shake camera ([0-9ms]+) ([0-9pix]+) for ([0-9ms]+)/g,
+		'camera shake -> $1 $2 over $3;'
+	)
+	.replace( // SCREEN_FADE_IN, SCREEN_FADE_OUT
+		/fade (out|in) camera (to|from) (.+?) over ([0-9ms]+)/g,
+		'camera fade $1 -> $3 over $4'
+	)
+	.replace( // PLAY_ENTITY_ANIMATION
+		/play entity (.+?) animation ([0-9]+) ([0-9]+x?|once|twice|thrice)/g,
+		'entity $1 animation -> $2 $3'
+	)
+
+	// Set string
+	.replace( // SET_WARP_STATE
+		/set warp state to ("?)([^\n;]+)(\1)/g,
+		'warp_state = "$2"'
+	)
+	.replace( // SET_ENTITY_DIRECTION
+		/turn entity (.+?) (north|south|east|west)/g,
 		'entity $1 direction = $2'
 	)
+	// SET_ENTITY_NAME
+	// SET_ENTITY_TYPE
+	// SET_ENTITY_PATH
+	// SET_ENTITY_LOOK_SCRIPT
+	// SET_ENTITY_INTERACT_SCRIPT
+	// SET_ENTITY_TICK_SCRIPT
 	.replace(
-		/rotate entity (.+) -([0-9]+)/g,
+		/set entity (.+?) (name|type|path|on_interact|on_tick|on_look) to ("?)([^;\n]+)(\3)/g,
+		'entity $1 $2 = "$4"'
+	)
+	// SET_MAP_TICK_SCRIPT
+	.replace(
+		/set map (.+?) on_tick to ("?)([^;\n]+)(\3)/g,
+		'map $1 on_tick = "$4"'
+	)
+	
+	// Set int (expressions not allowed)
+	// SET_ENTITY_X
+	// SET_ENTITY_Y
+	// SET_ENTITY_PRIMARY_ID
+	// SET_ENTITY_SECONDARY_ID
+	// SET_ENTITY_PRIMARY_ID_TYPE
+	// SET_ENTITY_CURRENT_ANIMATION
+	// SET_ENTITY_CURRENT_FRAME
+	// SET_ENTITY_MOVEMENT_RELATIVE
+	.replace(
+		/set entity (.+?) (x|y|primary_id|secondary_id|primary_id_type|current_animation|animation_frame|strafe) to ([^;\n]+)/g,
+		'entity $1 $2 = "$4"'
+	)
+	// SET_ENTITY_DIRECTION_RELATIVE
+	.replace(
+		/rotate entity (.+?) -([0-9]+)/g,
 		'entity $1 direction -= $2'
 	)
 	.replace(
-		/rotate entity (.+) ([0-9]+)/g,
+		/rotate entity (.+?) ([0-9]+)/g,
 		'entity $1 direction += $2'
 	)
+	
+	// Set int (expressions OK)
+	.replace( // MUTATE_VARIABLE, MUTATE_VARIABLES
+		/mutate (.+?) (\+|-|\*|\/|\%|\?) ([^;\n]+)/g,
+		'$1 $2= $3'
+	)
+	.replace( // ditto
+		/mutate (.+?) = ([^;\n]+)/g,
+		'$1 = $2'
+	)
+	// COPY_VARIABLE
 	.replace(
-		/walk entity (.+) along geometry ([^\)]+) over ([0-9ms]+)/g,
-		'entity $1 position -> geometry $2 length over $3'
+		/copy entity (.+?) ([_a-z]+) from variable ([^;\n]+)/g,
+		'entity $1 $2 = $3'
 	)
 	.replace(
-		/teleport entity (.+) to geometry ([^\)]+)/g,
-		'entity $1 position = geometry $2'
+		/copy entity (.+?) ([_a-z]+) into variable ([^;\n]+)/g,
+		'$3 = entity $1 $2'
 	)
 	.replace(
-		/set entity (.+) (name|type|path|on_interact|on_tick|on_look) to ("?)([^;]+)(\3)/g,
-		'entity $1 $2 = "$4"'
+		/copy variable (.+?) from entity (.+?) ([_a-z]+)/g,
+		'$1 = entity $2 $3'
 	)
 	.replace(
-		/entity (.+) is inside geometry ([^\)]+)/g,
+		/copy variable (.+?) into entity (.+?) ([_a-z]+)/g,
+		'entity $2 $3 = $1'
+	)
+
+	// Set bool (expressions OK)
+	.replace( // SET_SAVE_FLAG
+		/set flag (.+?) to ([^;\n]+)/g,
+		'$1 = $2'
+	)
+	.replace( // SET_HEX_EDITOR_STATE
+		/(on|off|true|false|open|close|yes|no) hex editor/g,
+		'hex_editor = $1'
+	)
+	.replace( // SET_HEX_EDITOR_DIALOG_MODE
+		/turn (.+?) hex dialog mode|turn hex dialog mode ([^;\n]+)/g,
+		'hex_dialog_mode = $2'
+	)
+	.replace( // SET_HEX_EDITOR_CONTROL
+		/turn (.+?) hex control|turn hex control ([^;\n]+)/g,
+		'hex_control = $1$2'
+	)
+	.replace( // SET_HEX_EDITOR_CONTROL_CLIPBOARD
+		/turn (.+?) hex clipboard|turn hex clipboard ([^;\n]+)/g,
+		'hex_clipboard = $1$2'
+	)
+	.replace( // SET_SERIAL_DIALOG_CONTROL
+		/turn (.+?) serial control|turn serial control ([^;\n]+)/g,
+		'serial_control = $1$2'
+	)
+	.replace( // SET_PLAYER_CONTROL
+		/turn (.+?) player control|turn player control ([^;\n]+)/g,
+		'player_control = $1$2'
+	)
+	.replace( // SET_LIGHTS_CONTROL
+		/turn (.+?) lights control|turn lights control ([^;\n]+)/g,
+		'lights_control = $1$2'
+	)
+	.replace( // SET_LIGHTS_STATE
+		/turn (.+?) light ([A-Z0-9]+)|turn light ([A-Z0-9]+) ([^;\n]+)/g,
+		'light $2$3 = $1$4'
+	)
+	.replace( // SET_ENTITY_GLITCHED
+		/make entity (.+?) glitched/g,
+		'entity $1 glitched = true'
+	)
+	.replace( // ditto
+		/make entity (.+?) unglitched/g,
+		'entity $1 glitched = false'
+	)
+	
+	// Branch on string equality
+	// CHECK_WARP_STATE
+	.replace(
+		/warp state is not ("?)([-_a-zA-Z0-9]+)(\1)/g,
+		'warp_state != "$2"'
+	)
+	.replace(
+		/warp state is ("?)([-_a-zA-Z0-9]+)(\1)/g,
+		'warp_state == "$2"'
+	)
+	.replace(
+		/warp state is not (")([^"]+)(")/g,
+		'warp_state != "$2"'
+	)
+	.replace(
+		/warp state is (")([^"]+)(")/g,
+		'warp_state == "$2"'
+	)
+	// CHECK_ENTITY_NAME
+	// CHECK_ENTITY_TYPE
+	// CHECK_ENTITY_INTERACT_SCRIPT
+	// CHECK_ENTITY_TICK_SCRIPT
+	// CHECK_ENTITY_LOOK_SCRIPT
+	// CHECK_ENTITY_PATH
+	.replace(
+		/entity (.+?) (name|type|path|on_interact|on_tick|on_look) is not ("?)([^)]+)(\3)/g,
+		'entity $1 $2 != "$4"'
+	)
+	.replace(
+		/entity (.+?) (name|type|path|on_interact|on_tick|on_look) is ("?)([^)]+)(\3)/g,
+		'entity $1 $2 == "$4"'
+	)
+	// CHECK_ENTITY_DIRECTION
+	.replace(
+		/entity (.+?) direction is not (north|south|east|west)/g,
+		'entity $1 direction != $2'
+	)
+	.replace(
+		/entity (.+?) direction is (north|south|east|west)/g,
+		'entity $1 direction == $2'
+	)
+	
+	// Branch on int comparison (== < <= => >)
+	// CHECK_VARIABLE, CHECK_VARIABLES
+	.replace(
+		/variable (.+?) is not ([-_0-9A-Za-z]+)/g,
+		'$1 != $2'
+	)
+	.replace(
+		/variable (.+?) is ([-_0-9A-Za-z]+)/g,
+		'$1 == $2'
+	)
+	// CHECK_VARIABLE, CHECK_VARIABLES
+	.replace(
+		/variable (.+?) is ([<=>]+) ([-_0-9A-Za-z]+)/g,
+		'$1 $2 $3'
+	)
+
+	// Branch on int equality (==)
+	// CHECK_ENTITY_X
+	// CHECK_ENTITY_Y
+	// CHECK_ENTITY_PRIMARY_ID
+	// CHECK_ENTITY_SECONDARY_ID
+	// CHECK_ENTITY_PRIMARY_ID_TYPE
+	// CHECK_ENTITY_CURRENT_ANIMATION
+	// CHECK_ENTITY_CURRENT_FRAME
+	.replace(
+		/entity (.+?) ([a-z]+) is not ([0-9]+)/g,
+		'entity $1 $2 != $3'
+	)
+	.replace(
+		/entity (.+?) ([a-z]+) is ([0-9]+)/g,
+		'entity $1 $2 == $3'
+	)
+	
+	// Branch on bool equality (==)
+	// CHECK_DEBUG_MODE
+	.replace(/debug mode is (open|on|true|yes)/g, 'debug_mode')
+	.replace(/debug mode is not (open|on|true|yes)/g, '!debug_mode')
+	.replace(/debug mode is (close|off|false|no)/g, '!debug_mode')
+	.replace(/debug mode is not (close|off|false|no)/g, 'debug_mode')
+	// CHECK_DIALOG_OPEN
+	.replace(/dialog is (open|on|true|yes)/g, 'dialog open')
+	.replace(/dialog is not (open|on|true|yes)/g, 'dialog closed')
+	.replace(/dialog is (close|off|false|no)/g, 'dialog closed')
+	.replace(/dialog is not (close|off|false|no)/g, 'dialog open')
+	// CHECK_SERIAL_DIALOG_OPEN
+	.replace(/serial_dialog is (open|on|true|yes)/g, 'serial_dialog open')
+	.replace(/serial_dialog is not (open|on|true|yes)/g, 'serial_dialog closed')
+	.replace(/serial_dialog is (close|off|false|no)/g, 'serial_dialog closed')
+	.replace(/serial_dialog is not (close|off|false|no)/g, 'serial_dialog open')
+	// CHECK_SAVE_FLAG
+	.replace(/flag (.+?) is (open|on|true|yes)/g, '$1')
+	.replace(/flag (.+?) is (close|off|false|no)/g, '!$1')
+	.replace(/flag (.+?) is not (open|on|true|yes)/g, '!$1')
+	.replace(/flag (.+?) is not (close|off|false|no)/g, '$1')
+	// CHECK_FOR_BUTTON_PRESS
+	.replace(/button ([A-Z0-9]+)/g, 'button $1 pressed')
+	.replace(/not button ([A-Z0-9]+)/g, '!button $1 pressed')
+	// CHECK_FOR_BUTTON_STATE
+	.replace(/button ([A-Z0-9]+) is currently pressed/g, 'button $1 down')
+	.replace(/button ([A-Z0-9]+) is not curently pressed/g, '!button $1 up')
+	// CHECK_IF_ENTITY_IS_IN_GEOMETRY
+	.replace(
+		/entity (.+?) is inside geometry ([^\)]+)/g,
 		'entity $1 intersects geometry $2'
 	)
 	.replace(
-		/loop entity (.+?) along geometry ([^\)]+?) over ([0-9ms]+)/g,
-		'entity $1 position -> geometry $2 length over $3 forever'
+		/entity (.+?) is not inside geometry ([^\)]+)/g,
+		'!entity $1 intersects geometry $2'
 	)
-	// LAST
+	// CHECK_ENTITY_GLITCHED
+	.replace(
+		/entity (.+?) is glitched/g,
+		'entity $1 glitched'
+	)
+	.replace(
+		/entity (.+?) is not glitched/g,
+		'!entity $1 glitched'
+	)
+
+	// Has to be last
+	.replace( // COPY_SCRIPT
+		/copy ("?)([^;\n ]+?)(\1);?(\n)/g,
+		'copy!("$2")\n'
+	)
+	// Final common stuff
 	.replace(/entity "%PLAYER%"/g, 'player')
 	.replace(/entity "%SELF%"/g, 'self')
-
+	.replace(/"(\$[_-a-zA-Z0-9]+)"/g, '$1')
 
 	fs.writeFileSync('./comparisons/manual_export.mgs', replaced);
 
