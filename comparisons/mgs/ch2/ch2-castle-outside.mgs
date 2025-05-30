@@ -1,0 +1,159 @@
+include "header.mgs";
+
+/* ---------- LOOK SCRIPTS ---------- */
+
+"look-ch2-castle-outside" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked around the <c>CASTLE EXTERIOR</>."
+		"\tThe building itself is undeniably ominous with its stark, charcoal-colored stone. You can just make out that the green orbs of light embedded in its walls are flickering slightly. A subtle humming emanates from the nearby pillars. It is no surprise that the townsfolk avoid this place."
+		" "
+	};
+}
+"look-ch2-entrancesign" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at the <m>%SELF%</>."
+		"\tA worn wooden sign inscribed with the words \"King Gibson's castle.\""
+	};
+}
+
+/* ---------- ON_LOAD ---------- */
+
+"on_load-ch2-castle-outside" {
+	player_control = off;
+	if (!"ch2-full-escort-cutseen") {
+		// todo: cutscene: leading you inside
+	}
+	// entrance text
+	show serial_dialog "spacer";
+	show serial_dialog { "Entering <bold>CASTLE EXTERIOR</>..." };
+	// Village elders hiding
+	if ("ch2-storyflag-round" != 0) {
+		entity "Bert" on_tick = "yeet";
+	}
+	if (
+		"ch2-storyflag-round" == 1
+		|| "ch2-storyflag-round" == 2
+		|| "ch2-storyflag-round" == 3
+		|| "ch2-storyflag-round" >= 5
+	) {
+		entity "Jackob" on_tick = "yeet";
+		entity "Alfonso" on_tick = "yeet";
+	}
+	// unique stuff done
+	copy!("ch2-map-init") // (player control comes back here)
+	// animations
+	if (warp_state == "walk_from-north") {
+		player position -> geometry "walk_from-north" length over 200ms;
+	} else if (warp_state == "walk_from-east") {
+		player path = "walk_from-east";
+		player on_tick = "on_tick-ch2-town-walkfadein";
+			// borrowing this from town scripts
+		camera fade in -> #000000 over 400ms;
+	} else if (warp_state == "ch2-ending") {
+		goto "ch2-post-credits";
+	}
+}
+
+/* ---------- ON_TICK ---------- */
+
+"on_tick-ch2-castle-outside" {
+	if (player intersects geometry "north-hitbox") {
+		copy!("on_exit-ch2-castle-outside")
+		warp_state = "walk_from-south";
+		copy!("ch2-load-castle-1-special")
+	}
+	if (player intersects geometry "east-hitbox") {
+		copy!("on_exit-ch2-castle-outside")
+		warp_state = "walk_from-west";
+		player path = "east-point";
+		player on_tick = "on_tick-ch2-town-walkfadeout";
+			// borrowing this from town scripts
+		camera fade out -> #000000 over 500ms;
+		load map "ch2-town";
+	}
+}
+
+/* ---------- EXIT STUFF ---------- */
+
+"on_exit-ch2-castle-outside" {
+	// universal behavior
+}
+
+// SERIAL: go
+
+"on_go-castle-outside-north" {
+	copy!("on_exit-ch2-castle-outside")
+	copy!("warping-out-fade-out")
+	copy!("ch2-load-castle-1-special")
+}
+"on_go-castle-outside-east" {
+	copy!("on_exit-ch2-castle-outside")
+	copy!("warping-out-fade-out")
+	load map "ch2-town";
+}
+
+/* ---------- ENTITIES ---------- */
+
+"interact-ch2-entrancesign" {
+	show dialog {
+		name "" "King Gibson's castle"
+	};
+}
+
+"interact-ch2-alfonso-outside" {
+	if ("ch2-storyflag-round" == 4) {
+		if (!"ch2-alfonso-almostdone") {
+			show dialog {
+				SELF "Word on the street is that you're almost done repairing the artifact." "Very well done so far, but keep going!"
+			};
+			"ch2-alfonso-almostdone" = true;
+		} else {
+			show dialog {
+				SELF "Keep going! We need that artifact working!"
+			};
+		}
+	} else {
+		show dialog {
+			SELF "Go on in! You'll do fine!"
+		};
+	}
+}
+
+"interact-ch2-bert-outside" {
+	show dialog {
+		SELF "Only hackers may cross door into castle."
+	};
+}
+
+"interact-ch2-jackob-outside" {
+	if ("ch2-storyflag-round" == 4) {
+		if (!"ch2-jackob-almostdone") {
+			show dialog {
+				SELF "There's a buzz around town that you're nearly finished. Very impressive."
+			};
+			"ch2-jackob-almostdone" = true;
+		}
+		show dialog {
+			SELF "Don't stop now. Get that software installed quick!"
+		};
+	} else {
+		show dialog {
+			SELF "XA will be able to help you on the inside. Good luck."
+		};
+	}
+}
+
+"interact-ch2-pedestal" {
+	show dialog {
+		PLAYER "What a strange symbol. Like a trident, but with different shapes on the tips of the tines: a square, triangle, and circle."
+		"But what does it mean?" // Frontier psychiatry
+	};
+}
+
+"interact-ch2-pillar" {
+	show dialog {
+		PLAYER "What do these things do?"
+	};
+}

@@ -50,7 +50,7 @@ look-ch2-hexediting2 {
 
 look-ch2-redletters {
 	show serial dialog spacer;
-	show serial dialog red-letter-pamphlet{ // referred to elsewhere
+	show serial dialog red-letter-pamphlet { // referred to elsewhere
 		"You looked at the book called \"<m>%SELF%</>.\""
 		"\tThis sheet -- and its nearby counterpart -- are ripped on the left side, as if torn from a bound book. The paper is yellowed, particularly on the edges, and the ink is smeared in places."
 		"\tSome words are written in an ominous red."

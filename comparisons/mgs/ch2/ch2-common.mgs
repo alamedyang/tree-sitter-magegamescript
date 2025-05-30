@@ -1,0 +1,191 @@
+include "header.mgs";
+
+serial_dialog "spacer" {
+	" "
+	"------------"
+	" "
+}
+serial_dialog "lambda-over" {
+	// check if there's a blank line just before using this dialog (there should be one)
+	"<bold>lambda-talk</>: connection closed successfully"
+}
+
+/* ---------- CASTLE ON_LOAD INIT ---------- */
+
+"ch2-map-init-registers" {
+	"interrupt" = false; // flag set when something happens in the room and you haven't left the room yet
+	"interrupt2" = false; // for when you need a second one
+	"interrupt3" = false; // OwO
+	"tempvar" = 0;
+	"tempvar2" = 0;
+	"can-interrupt-dialog" = false;
+}
+"ch2-map-init-hex" {
+	if (
+		// if you've fixed the mainframe to the point you can use Ring Zero normally inside the castle
+		"ch2-ring-zero-enabled-in-castle"
+		// OR you're not in the castle at all
+		|| "ch2-in-room" == 0
+		// OR debug_mode
+		|| debug_mode
+	) {
+		hex_control = on;
+		lights_control = off;
+		if ("ch2-in-room" == 0) {
+			light LED_USB = off;
+		}
+	} else {
+		hex_control = off;
+		hex_clipboard = off;
+		lights_control = on;
+		light ALL = off;
+	}
+}
+"ch2-map-init-serial" {
+	if (!"ch2-has-artifact") { // no artifact at all
+		serial_control = off;
+	} else { // you have the artifact
+		serial_control = on;
+		copy!("register-rtfm")
+		copy!("register-inventory")
+		copy!("register-manual")
+		copy!("register-eastereggs")
+		alias "h" = "help";
+		alias "l" = "look";
+	}
+	if ("ch2-has-map") {
+		copy!("register-map")
+	}
+	if (debug_mode) {
+		copy!("register-storyflag")
+		copy!("register-warp")
+		serial_control = on;
+	} else if ("ch2-warp-granted") {
+		copy!("register-warp")
+	}
+	if ("ch2-storyflag-round" > 0) {
+		if ("ch2-storyflag-round" < 5) {
+			copy!("register-parts")
+		}
+	}
+}
+"ch2-map-init-inventory-look" {
+	if ("ch2-carrying-monitor") {
+		command "look" + "monitor" = "look-monitor";
+	}
+	if ("ch2-carrying-heatsink") {
+		command "look" + "heat sink" = "look-heatsink";
+	}
+	if ("ch2-carrying-cactuscooler") {
+		command "look" + "cactus cooler" = "look-cactuscooler";
+	}
+	if ("ch2-carrying-powersupply") {
+		command "look" + "power supply" = "look-powersupply";
+	}
+	if ("ch2-carrying-keyboard") {
+		command "look" + "keyboard" = "look-keyboard";
+	}
+	if ("ch2-carrying-mouse") {
+		command "look" + "mouse" = "look-mouse";
+	}
+	if ("ch2-carrying-harddrive") {
+		command "look" + "hard drive" = "look-harddrive";
+	}
+	if ("ch2-carrying-plate") {
+		command "look" + "plate" = "look-plate";
+	}
+	if ("ch2-carrying-needle") {
+		command "look" + "needle" = "look-needle";
+	}
+	if ("ch2-carrying-ramchips") {
+		command "look" + "ram chip" = "look-ramchips";
+		command "look" + "ram" = "look-ramchips";
+	}
+	if ("ch2-carrying-clock") {
+		command "look" + "clock" = "look-clock";
+	}
+	if ("ch2-carrying-cpu") {
+		command "look" + "cpu" = "look-cpu";
+	}
+	if ("ch2-carrying-goldfish") {
+		command "look" + "goldfish" = "look-goldfish";
+	}
+	if ("ch2-carrying-manual") {
+		command "look" + "manual" = "look-manual";
+	}
+	if ("ch2-carrying-abacus") {
+		command "look" + "abacus" = "look-abacus";
+	}
+	if ("ch2-carrying-mainframeos") {
+		command "look" + "mainframeos" = "look-mainframeos";
+	}
+}
+"ch2-map-init-serial-debug-message" {
+	if (debug_mode) {
+		if (!"debug-curr-state") {
+			show serial_dialog {
+				"<y>+-------------------------+</>"
+				"<y>|  DEBUG MODE IS NOW ON!  |</>"
+				"<y>+-------------------------+</>"
+			};
+		}
+		"debug-curr-state" = true;
+	} else {
+		if ("debug-curr-state") {
+			show serial_dialog {
+				"<y>+--------------------------+</>"
+				"<y>|  DEBUG MODE IS NOW OFF!  |</>"
+				"<y>+--------------------------+</>"
+			};
+		}
+		"debug-curr-state" = false;
+	}
+}
+
+"ch2-map-init-warp-in" {
+	if (warp_state == "warping") {
+		copy!("warping-in-fade-in")
+	}
+	player_control = on;
+}
+
+"ch2-map-init" {
+	copy!("ch2-map-init-registers")
+	copy!("ch2-map-init-hex")
+	copy!("ch2-map-init-serial")
+	copy!("ch2-map-init-inventory-look")
+	copy!("ch2-map-init-serial-debug-message")
+	copy!("ch2-map-init-warp-in")
+	// extra goose stuff
+	if ("ch2-goosefacts") {
+		command "stop" = "stop-goosefacts";
+		copy!("goosefacts")
+	}
+}
+
+
+/* ---------- ON_WARP & ON_GO ANIMATION ---------- */
+
+"spin-quickly" {
+	self direction -= 1;
+	wait 150ms;
+}
+
+"warping-out-fade-out" {
+	player_control = off;
+	serial_control = off;
+	warp_state = "warping";
+	player on_tick = "spin-quickly";
+	camera fade out -> #000000 over 500ms;
+}
+
+"warping-in-fade-in" {
+	player position = geometry "warp-spot";
+	player on_tick = "spin-quickly";
+	camera fade in -> #000000 over 300ms;
+	player on_tick = "null_script";
+	player direction = south;
+	warp_state = "warped"; // it needs to be set to SOMETHING...
+	player_control = on; // todo: remove after shared behavior is fully merged
+	serial_control = on; // todo: remove after shared behavior is fully merged
+}

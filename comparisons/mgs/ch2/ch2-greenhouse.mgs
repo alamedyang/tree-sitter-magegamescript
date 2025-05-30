@@ -1,0 +1,329 @@
+include "header.mgs";
+
+/* ---------- LOOK SCRIPTS ---------- */
+
+"look-ch2-greenhouse" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked around the <c>GREENHOUSE</>."
+		"\tThe interior is bright and warm, and the air is lightly muggy. Fragrance from the ether nettle blossoms tempers the scent of greenery and soil. The raised planters smells earthy but not musty."
+		" "
+	};
+}
+
+"look-ch2-trekkie" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at <m>%SELF%</>."
+		"\tHe's softly humming to himself, probably a song from one of those musicals he's always going on about. His eyes dart back and forth across the screen."
+	};
+}
+
+"look-ch2-ethernettles" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at the ethernettles."
+		"\tThe blossoms are strangely fluffy, as if the petals were graced with downy hair. The plants themselves are less inviting, with their spines and the sharp corners on their leaves."
+	};
+
+}
+"look-ch2-ethernettle-top" {
+	show serial_dialog "spacer";
+	concat serial_dialog {
+		"You looked at <m>%SELF%</>.\n"
+		"\tThe "
+	};
+}
+"look-ch2-ethernettle-bot" {
+	concat serial_dialog {
+		/*orange*/" blossoms are strangely fluffy, as if the petals\n"
+	};
+	show serial_dialog {
+		"were graced with downy hair. The plant itself is less inviting, with its spines and the sharp corners on its leaves."
+	};
+}
+"look-ch2-ethernettle-bot-long" {
+	concat serial_dialog {
+		/*orange-and-white*/" blossoms are strangely fluffy, as if\n"
+	};
+	show serial_dialog {
+		"the petals were graced with downy hair. The plant itself is less inviting, with its spines and the sharp corners on its leaves."
+	};
+}
+
+"look-ch2-ethernettle1" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "orange-and-white" };
+	copy!("look-ch2-ethernettle-bot-long")
+}
+
+"look-ch2-ethernettle2" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "orange" };
+	copy!("look-ch2-ethernettle-bot")
+}
+
+"look-ch2-ethernettle3" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "green-and-white" };
+	copy!("look-ch2-ethernettle-bot-long")
+}
+
+"look-ch2-ethernettle4" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "blue" };
+	copy!("look-ch2-ethernettle-bot")
+}
+
+"look-ch2-ethernettle5" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "blue-and-white" };
+	copy!("look-ch2-ethernettle-bot-long")
+}
+
+"look-ch2-ethernettle6" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "green" };
+	copy!("look-ch2-ethernettle-bot")
+}
+
+"look-ch2-ethernettle7" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "brown-and-white" };
+	copy!("look-ch2-ethernettle-bot-long")
+}
+
+"look-ch2-ethernettle8" {
+	copy!("look-ch2-ethernettle-top")
+	concat serial_dialog { "brown" };
+	copy!("look-ch2-ethernettle-bot")
+}
+
+"look-ch2-tumbleweed" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at <m>%SELF%</>."
+		"\tThis cable looks hopelessly tangled. You hope no one needs to use this one any time soon."
+	};
+}
+
+"look-ch2-ethernet" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at <m>%SELF%</>."
+		"\tThe looping on the bundle is tight and neat, like the cable was only just freed from its plastic packaging. The friendly blue makes it look like a network cable to you, but you're not sure why."
+	};
+}
+
+"look-ch2-mulch" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at <m>%SELF%</>."
+		"\tThe bag looks to be a bajillion pounds, and is well worn. It's dirty but in a wholesome, earthy way."
+	};
+}
+
+"look-ch2-modem" {
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"You looked at <m>%SELF%</>."
+		"\tAn arcane black box with a series of enigmatic green lights across the front. It's slightly warm."
+	};
+}
+
+
+
+
+/* ---------- ON_LOAD ---------- */
+
+"on_load-ch2-greenhouse" {
+	command "look" + "ethernettles" = "look-ch2-ethernettles";
+	// entrance text
+	show serial_dialog "spacer";
+	show serial_dialog { "Entering <bold>GREENHOUSE</>..." };
+	"ethernettle_id" = entity "EtherNettle1" primary_id;
+	"EtherNettle1" = entity "EtherNettle1" primary_id;
+	"EtherNettle2" = entity "EtherNettle2" primary_id;
+	"EtherNettle3" = entity "EtherNettle3" primary_id;
+	"EtherNettle4" = entity "EtherNettle4" primary_id;
+	"EtherNettle5" = entity "EtherNettle5" primary_id;
+	"EtherNettle6" = entity "EtherNettle6" primary_id;
+	"EtherNettle7" = entity "EtherNettle7" primary_id;
+	"EtherNettle8" = entity "EtherNettle8" primary_id;
+	copy!("ch2-map-init")
+}
+
+/* ---------- ON_TICK ---------- */
+
+"ch2-capture-ethernettle1" {
+	"EtherNettle1" = entity "EtherNettle1" primary_id;
+}
+"ch2-capture-ethernettle2" {
+	"EtherNettle2" = entity "EtherNettle2" primary_id;
+}
+"ch2-capture-ethernettle3" {
+	"EtherNettle3" = entity "EtherNettle3" primary_id;
+}
+"ch2-capture-ethernettle4" {
+	"EtherNettle4" = entity "EtherNettle4" primary_id;
+}
+"ch2-capture-ethernettle5" {
+	"EtherNettle5" = entity "EtherNettle5" primary_id;
+}
+"ch2-capture-ethernettle6" {
+	"EtherNettle6" = entity "EtherNettle6" primary_id;
+}
+"ch2-capture-ethernettle7" {
+	"EtherNettle7" = entity "EtherNettle7" primary_id;
+}
+"ch2-capture-ethernettle8" {
+	"EtherNettle8" = entity "EtherNettle8" primary_id;
+}
+
+"on_tick-ch2-greenhouse" {
+	// ethernettle interference checks
+	// todo: Make these into functions in the individual Ether Nettle's on_tick when you get functions!
+	if (
+		!entity "EtherNettle1" intersects geometry "EtherNettle1Origin"
+		|| !entity "EtherNettle2" intersects geometry "EtherNettle2Origin"
+		|| !entity "EtherNettle3" intersects geometry "EtherNettle3Origin"
+		|| !entity "EtherNettle4" intersects geometry "EtherNettle4Origin"
+		|| !entity "EtherNettle5" intersects geometry "EtherNettle5Origin"
+		|| !entity "EtherNettle6" intersects geometry "EtherNettle6Origin"
+		|| !entity "EtherNettle7" intersects geometry "EtherNettle7Origin"
+		|| !entity "EtherNettle8" intersects geometry "EtherNettle8Origin"
+		|| "EtherNettle1" != "ethernettle_id"
+		|| "EtherNettle2" != "ethernettle_id"
+		|| "EtherNettle3" != "ethernettle_id"
+		|| "EtherNettle4" != "ethernettle_id"
+		|| "EtherNettle5" != "ethernettle_id"
+		|| "EtherNettle6" != "ethernettle_id"
+		|| "EtherNettle7" != "ethernettle_id"
+		|| "EtherNettle8" != "ethernettle_id"
+		|| entity "EtherNettle1" secondary_id != 3
+		|| entity "EtherNettle2" secondary_id != 2
+		|| entity "EtherNettle3" secondary_id != 7
+		|| entity "EtherNettle4" secondary_id != 0
+		|| entity "EtherNettle5" secondary_id != 1
+		|| entity "EtherNettle6" secondary_id != 6
+		|| entity "EtherNettle7" secondary_id != 5
+		|| entity "EtherNettle8" secondary_id != 4
+		|| entity "EtherNettle1" primary_id_type != 0
+		|| entity "EtherNettle2" primary_id_type != 0
+		|| entity "EtherNettle3" primary_id_type != 0
+		|| entity "EtherNettle4" primary_id_type != 0
+		|| entity "EtherNettle5" primary_id_type != 0
+		|| entity "EtherNettle6" primary_id_type != 0
+		|| entity "EtherNettle7" primary_id_type != 0
+		|| entity "EtherNettle8" primary_id_type != 0
+	) {
+		show dialog {
+			Trekkie "Oh, no you don't! Not after all that work, %PLAYER%! Put Ether Nettle back!"
+		};
+		entity "EtherNettle1" position = geometry "EtherNettle1Origin";
+		entity "EtherNettle2" position = geometry "EtherNettle2Origin";
+		entity "EtherNettle3" position = geometry "EtherNettle3Origin";
+		entity "EtherNettle4" position = geometry "EtherNettle4Origin";
+		entity "EtherNettle5" position = geometry "EtherNettle5Origin";
+		entity "EtherNettle6" position = geometry "EtherNettle6Origin";
+		entity "EtherNettle7" position = geometry "EtherNettle7Origin";
+		entity "EtherNettle8" position = geometry "EtherNettle8Origin";
+		entity "EtherNettle1" primary_id = "ethernettle_id";
+		entity "EtherNettle2" primary_id = "ethernettle_id";
+		entity "EtherNettle3" primary_id = "ethernettle_id";
+		entity "EtherNettle4" primary_id = "ethernettle_id";
+		entity "EtherNettle5" primary_id = "ethernettle_id";
+		entity "EtherNettle6" primary_id = "ethernettle_id";
+		entity "EtherNettle7" primary_id = "ethernettle_id";
+		entity "EtherNettle8" primary_id = "ethernettle_id";
+		entity "EtherNettle1" secondary_id = 3;
+		entity "EtherNettle2" secondary_id = 2;
+		entity "EtherNettle3" secondary_id = 7;
+		entity "EtherNettle4" secondary_id = 0;
+		entity "EtherNettle5" secondary_id = 1;
+		entity "EtherNettle6" secondary_id = 6;
+		entity "EtherNettle7" secondary_id = 5;
+		entity "EtherNettle8" secondary_id = 4;
+		entity "EtherNettle1" primary_id_type = 0;
+		entity "EtherNettle2" primary_id_type = 0;
+		entity "EtherNettle3" primary_id_type = 0;
+		entity "EtherNettle4" primary_id_type = 0;
+		entity "EtherNettle5" primary_id_type = 0;
+		entity "EtherNettle6" primary_id_type = 0;
+		entity "EtherNettle7" primary_id_type = 0;
+		entity "EtherNettle8" primary_id_type = 0;
+	}
+	if (player intersects geometry "south-hitbox") {
+		warp_state = "walk_from-greenhouse";
+		load map "ch2-town";
+	}
+}
+
+
+/* ---------- EXIT STUFF ---------- */
+
+"on_go-ch2-greenhouse-south" {
+	copy!("warping-out-fade-out")
+	load map "ch2-town";
+}
+"on_walk-ch2-greenhouse-south" {
+	// triggered by map's on_tick
+}
+
+/* ---------- ENTITIES ---------- */
+
+"interact-ch2-trekkie" {
+	copy!("face-player")
+	if ("ch2-storyflag-round" == 0) {
+		show dialog {
+			SELF "Oh, %PLAYER%! Me heard you were going to the serial castle in the mountain!"
+			PLAYER "Yeah, I guess."
+			SELF "Me want to wish you the best of luck!"
+			PLAYER "Thanks, %SELF%."
+		};
+	} else if ("ch2-storyflag-round" <= 2) {
+		show dialog {
+			SELF "How are things going, %PLAYER%?"
+			PLAYER "They're going okay, %SELF%. What about you?"
+			SELF "Me thinking of replacing the Ether Nettles with a faster spec. Gigabit Ether Nettles!"
+			PLAYER "(Giga what?)"
+		};
+	} else if ("ch2-storyflag-round" <= 4) {
+		show dialog {
+			PLAYER "Say, %SELF%, have you seen Bert around here recently?"
+			SELF "Me have not seen Bert for a long time. Me sorry, %PLAYER%."
+		};
+	} else {
+		show dialog {
+			SELF "Me heard %PLAYER% got the serial artifact."
+			"Me knew you could do it! Good job!"
+		};
+	}
+	self direction = east;
+}
+
+"interact-ch2-modem" {
+	show dialog {
+		PLAYER "Oh, good. Looks like the internet is still working."
+	};
+}
+"interact-ch2-tumbleweed" {
+	show dialog {
+		PLAYER "I swear, this thing gets more tangled every time I see it."
+	};
+}
+"interact-ch2-ethernet" {
+	show dialog {
+		PLAYER "Looks like this one is new out of the box. Not a kink or pretzel in the whole thing."
+	};
+}
+"interact-ch2-mulch" {
+	show dialog {
+		PLAYER "I bet this mulch is really heavy."
+	};
+}
+"interact-ch2-barrel" {
+	show dialog {
+		PLAYER "I wonder if this is rainwater."
+	};
+}

@@ -186,7 +186,7 @@ ch2-gloria-worry-walk {
 	} else {
 		mutate tempvar ? 2;
 		if (variable tempvar is 0) {
-			set entity "%SELF%" path to worry-walk1
+			set entity "%SELF%" path to worry-walk1;
 		} else {
 			set entity "%SELF%" path to worry-walk3;
 		}

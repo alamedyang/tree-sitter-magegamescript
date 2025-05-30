@@ -1,7 +1,6 @@
 const fs = require('node:fs');
-const path = require('node:path');
 
-const currentFileName = `ch2-castle-31-simon`;
+const currentFileName = `ch2-town`;
 
 const readFrom = `mgs/ch2/${currentFileName}-v1.mgs`;
 const writeTo = `mgs/ch2/${currentFileName}.mgs`;
@@ -15,6 +14,7 @@ const replaced = file
 	.replace(/(\$[-_a-zA-Z0-9]+) = ([0-9]+(ms|s|pix|px|x)?)/g, '$1 = $2;') // const (previously a macro)
 	.replace(/(\$[-_a-zA-Z0-9]+) = (#[0-9A-Fa-f]{3,6})/g, '$1 = $2;') // const (previously a macro)
 	.replace(/(\$[-_a-zA-Z0-9]+) = ([-_0-9A-Za-z]+)\n/g, '$1 = "$2";\n') // const (previously a macro)
+	.replace(/(\$[-_a-zA-Z0-9]+) = ("[^"]+")(?!;)/g, '$1 = $2;') // const (previously a macro)
 	.replace(/(^|\n)(\s*)portrait ("?)([-_a-zA-Z0-9]+)(\3)/g, '$1$2portrait "$4"') // const (previously a macro)
 	.replace(/entity ("?)([-_a-zA-Z0-9]+)(\3) {/g, 'entity "$2" {') // const (previously a macro)
 
@@ -26,8 +26,12 @@ const replaced = file
 		'$1"$2" {'
 	)
 	.replace( // dialog bareword { -> dialog "bareword" {
-		/dialog ([-_A-Z0-9a-z]+?)( {\n|;)/g,
-		'dialog "$1"$2'
+		/(^|\n)(\s*)dialog ([-_A-Z0-9a-z]+?) {/g,
+		'$1$2dialog "$3" {'
+	)
+	.replace( // dialog bareword { -> dialog "bareword" {
+		/(^|\n)(\s*)serial_dialog ([-_A-Z0-9a-z]+?) {/g,
+		'$1$2serial_dialog "$3" {'
 	)
 	.replace( // (serial) dialog options
 		/(>|_|#) (.+?) :( goto)?( script)? ("?)([^\n]+)(\5)/g,
@@ -57,6 +61,10 @@ const replaced = file
 		/show dialog ("?)([-_a-zA-Z0-9]+)(\1) {([^}]+)}/g,
 		'show dialog "$2" {$4};'
 	)
+	.replace(
+		/show dialog ("?)([-_a-zA-Z0-9]+)(\1);/g,
+		'show dialog "$2";'
+	)
 	// CLOSE_DIALOG
 	.replace(
 		/end dialog/g,
@@ -69,6 +77,10 @@ const replaced = file
 	.replace(
 		/(show|concat) serial_dialog ("?)([-_a-zA-Z0-9]+)(\2) {([^}]+)}/g,
 		'$1 serial_dialog "$3" {$4};'
+	)
+	.replace(
+		/(show|concat) serial_dialog ("?)([-_a-zA-Z0-9]+)(\2);/g,
+		'$1 serial_dialog "$3";'
 	)
 	.replace( // CLOSE_SERIAL_DIALOG
 		/end serial_dialog/g,
@@ -162,7 +174,7 @@ const replaced = file
 	// Other do over time
 	.replace( // SET_SCREEN_SHAKE
 		/shake camera ([0-9ms]+) ([0-9pix]+) for ([0-9ms]+)/g,
-		'camera shake -> $1 $2 over $3;'
+		'camera shake -> $1 $2 over $3'
 	)
 	.replace( // SCREEN_FADE_IN, SCREEN_FADE_OUT
 		/fade (out|in) camera (to|from) (.+?) over ([0-9ms]+|\$[-_a-zA-Z0-9]+)/g,
@@ -415,18 +427,18 @@ const replaced = file
 	.replace(/flag (.+?) is not (open|on|true|yes)/g, '!"$1"')
 	.replace(/flag (.+?) is not (close|off|false|no)/g, '"$1"')
 	// CHECK_FOR_BUTTON_PRESS
-	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, 'button $1 pressed')
-	.replace(/not button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, '!button $1 pressed')
+	.replace(/button ([_A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, 'button $1 pressed')
+	.replace(/not button ([_A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, '!button $1 pressed')
 	// CHECK_FOR_BUTTON_STATE
-	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is currently pressed/g, 'button $1 down')
-	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is not currently pressed/g, 'button $1 up')
+	.replace(/button ([_A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is currently pressed/g, 'button $1 down')
+	.replace(/button ([_A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is not currently pressed/g, 'button $1 up')
 	// CHECK_IF_ENTITY_IS_IN_GEOMETRY
 	.replace(
-		/entity ("?)(.+?)(\1) is inside geometry ("?)([^\)]+)(\4)/g,
+		/entity ("?)(.+?)(\1) is inside geometry ("?)([-_0-9A-Za-z]+)(\4)/g,
 		'entity "$2" intersects geometry "$5"'
 	)
 	.replace(
-		/entity ("?)(.+?)(\1) is not inside geometry ("?)([^\)]+)(\4)/g,
+		/entity ("?)(.+?)(\1) is not inside geometry ("?)([-_0-9A-Za-z]+)(\4)/g,
 		'!entity "$2" intersects geometry "$5"'
 	)
 	// CHECK_ENTITY_GLITCHED
@@ -449,8 +461,12 @@ const replaced = file
 	.replace(/entity "%SELF%"/g, 'self')
 	.replace(/"(\$[_-a-zA-Z0-9]+)"/g, '$1')
 	.replace(
-		/settings for (serial )?dialog {/g,
-		'add $1dialog settings {'
+		/settings for dialog {/g,
+		'add dialog settings {'
+	)
+	.replace(
+		/settings for serial_dialog {/g,
+		'add serial_dialog settings {'
 	)
 
 	fs.writeFileSync(`./comparisons/${writeTo}`, replaced);

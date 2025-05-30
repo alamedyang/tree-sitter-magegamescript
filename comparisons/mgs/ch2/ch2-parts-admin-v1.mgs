@@ -171,7 +171,7 @@ ch2-unpickup-cactuscooler { // DEBUG
 	set flag ch2-map-cactuscooler-bobaustin to true;
 	set flag ch2-map-heatsink to false;
 	set flag ch2-carrying-cactuscooler to false;
-	unregister look + "cactus cooler"
+	unregister look + "cactus cooler";
 }
 
 // ROUND 2
@@ -275,7 +275,7 @@ ch2-pickup-mainframeos {
 ch2-install-monitor {
 	set flag ch2-carrying-monitor to false;
 	set flag ch2-installed-monitor to true;
-	unregister look + monitor
+	unregister look + monitor;
 }
 ch2-turn_in-cactuscooler {
 	set flag ch2-carrying-cactuscooler to false;
