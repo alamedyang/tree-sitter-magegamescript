@@ -48,7 +48,8 @@ module.exports = grammar({
 	rules: {
 		document: $ => repeat($._root),
 
-		block_comment: $ => token(seq('/*', repeat(/./), '*/',)),
+		block_comment: $ => seq('/*', optional($.comment_text), '*/',),
+		comment_text: $ => repeat1(token(/.|\n|\r/)),
 		line_comment: $ => token(repeat1(seq('//', repeat(/[^\n]/)))),
 	
 		BOOL: $ => token(prec(1, /true|false|on|off|open|closed|up|down/)),

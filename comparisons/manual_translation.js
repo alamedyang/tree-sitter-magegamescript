@@ -1,9 +1,22 @@
 const fs = require('node:fs');
+const path = require('node:path');
 
-const file = ``;
+const currentFileName = `ch2-castle-31-simon`;
+
+const readFrom = `mgs/ch2/${currentFileName}-v1.mgs`;
+const writeTo = `mgs/ch2/${currentFileName}.mgs`;
+const filePath = `${__dirname}/${readFrom}`
+const file = fs.readFileSync(filePath).toString('utf8');
 
 const replaced = file
 	.replace(/include!\((.+?)\)/g, 'include $1;') // include_macro
+	.replace(/const! *\(([^\)]+)\)/g, '$1') // const (previously a macro)
+	.replace(/(\$[-_a-zA-Z0-9]+) = (true|false|on|off|open|closed|yes|no)/g, '$1 = $2;') // const (previously a macro)
+	.replace(/(\$[-_a-zA-Z0-9]+) = ([0-9]+(ms|s|pix|px|x)?)/g, '$1 = $2;') // const (previously a macro)
+	.replace(/(\$[-_a-zA-Z0-9]+) = (#[0-9A-Fa-f]{3,6})/g, '$1 = $2;') // const (previously a macro)
+	.replace(/(\$[-_a-zA-Z0-9]+) = ([-_0-9A-Za-z]+)\n/g, '$1 = "$2";\n') // const (previously a macro)
+	.replace(/(^|\n)(\s*)portrait ("?)([-_a-zA-Z0-9]+)(\3)/g, '$1$2portrait "$4"') // const (previously a macro)
+	.replace(/entity ("?)([-_a-zA-Z0-9]+)(\3) {/g, 'entity "$2" {') // const (previously a macro)
 
 	// generic or preparatory
 	.replace(/goto( script)? ("?)([^\n;/]+)(\2)/g, 'goto "$3"') // goto (script)
@@ -152,11 +165,11 @@ const replaced = file
 		'camera shake -> $1 $2 over $3;'
 	)
 	.replace( // SCREEN_FADE_IN, SCREEN_FADE_OUT
-		/fade (out|in) camera (to|from) (.+?) over ([0-9ms]+)/g,
+		/fade (out|in) camera (to|from) (.+?) over ([0-9ms]+|\$[-_a-zA-Z0-9]+)/g,
 		'camera fade $1 -> $3 over $4'
 	)
 	.replace( // PLAY_ENTITY_ANIMATION
-		/play entity ("?)(.+?)(\1) animation ([0-9]+) ([0-9]+x?|once|twice|thrice)/g,
+		/play entity ("?)(.+?)(\1) animation ([0-9]+|\$[-_a-zA-Z0-9]+) ([0-9]+x?|once|twice|thrice)/g,
 		'entity "$2" animation -> $4 $5'
 	)
 
@@ -195,6 +208,10 @@ const replaced = file
 	// SET_ENTITY_CURRENT_FRAME
 	// SET_ENTITY_MOVEMENT_RELATIVE
 	.replace(
+		/entity ("?)(.+?)(\1) relative_direction/g,
+		'entity "$2" strafe'
+	)
+	.replace(
 		/set entity ("?)(.+?)(\1) (x|y|primary_id|secondary_id|primary_id_type|current_animation|animation_frame|strafe) to ([^\n;/]+)/g,
 		'entity "$2" $4 = $5'
 	)
@@ -210,19 +227,19 @@ const replaced = file
 	
 	// Set int (expressions OK)
 	.replace( // MUTATE_VARIABLE
-		/mutate ("?)(.+?)(\1) (\+|-|\*|\/|\%|\?) ([0-9]+)/g,
+		/mutate ("?)([-_0-9A-Za-z]+)(\1) (\+|-|\*|\/|\%|\?) ([0-9]+)/g,
 		'"$2" $4= $5'
 	)
 	.replace( // ditto
-		/mutate ("?)(.+?)(\1) = ([0-9]+)/g,
+		/mutate ("?)([-_0-9A-Za-z]+)(\1) = ([0-9]+)/g,
 		'"$2" = $4'
 	)
 	.replace( // MUTATE_VARIABLES
-		/mutate ("?)(.+?)(\1) (\+|-|\*|\/|\%|\?) ("?)([^\n;/]+)(\5)/g,
+		/mutate ("?)([-_0-9A-Za-z]+)(\1) (\+|-|\*|\/|\%|\?) ("?)([^\n;/]+)(\5)/g,
 		'"$2" $4= "$6"'
 	)
 	.replace( // ditto
-		/mutate ("?)(.+?)(\1) = ("?)([^\n;/]+)(\4)/g,
+		/mutate ("?)([-_0-9A-Za-z]+)(\1) = ("?)([^\n;/]+)(\4)/g,
 		'"$2" = "$5"'
 	)
 	// COPY_VARIABLE
@@ -277,7 +294,7 @@ const replaced = file
 		'lights_control = $1$2'
 	)
 	.replace( // SET_LIGHTS_STATE
-		/turn (.+?) light ([A-Z0-9]+)|turn light ([A-Z0-9]+) ([^\n;/]+)/g,
+		/turn (.+?) light ([A-Z0-9]+)|turn light ([_A-Z0-9]+|\$[-_a-zA-Z0-9]+) ([^\n;/]+)/g,
 		'light $2$3 = $1$4'
 	)
 	.replace( // SET_ENTITY_GLITCHED
@@ -334,28 +351,28 @@ const replaced = file
 	// Branch on int comparison (== < <= => >)
 	// CHECK_VARIABLE
 	.replace(
-		/variable ("?)(.+?)(\1) is not ([0-9]+)/g,
-		'"$2" != $4'
+		/variable ("?)(.+?)(\1) is not (== *)?([0-9]+|\$[-_a-zA-Z0-9])/g,
+		'"$2" != $5'
 	)
 	.replace(
-		/variable ("?)(.+?)(\1) is ([0-9]+)/g,
-		'"$2" == $4'
+		/variable ("?)(.+?)(\1) is (== *)?([0-9]+|\$[-_a-zA-Z0-9])/g,
+		'"$2" == $5'
 	)
 	.replace(
-		/variable ("?)(.+?)(\1) is ([<=>]+) ([0-9]+)/g,
+		/variable ("?)(.+?)(\1) is ([<=>]+) *([0-9]+|\$[-_a-zA-Z0-9])/g,
 		'"$2" $4 $5'
 	)
 	// CHECK_VARIABLES
 	.replace(
-		/variable ("?)(.+?)(\1) is not ("?)([-_0-9A-Za-z]+)(\4)/g,
+		/variable ("?)(.+?)(\1) is not ("?)([-_$0-9A-Za-z]+)(\4)/g,
 		'"$2" != "$5"'
 	)
 	.replace(
-		/variable ("?)(.+?)(\1) is ("?)([-_0-9A-Za-z]+)(\4)/g,
+		/variable ("?)(.+?)(\1) is ("?)([-_$0-9A-Za-z]+)(\4)/g,
 		'"$2" == "$5"'
 	)
 	.replace(
-		/variable ("?)(.+?)(\1) is ([<=>]+) ("?)([-_0-9A-Za-z]+)(\5)/g,
+		/variable ("?)(.+?)(\1) is ([<=>]+) *("?)([-_$0-9A-Za-z]+)(\5)/g,
 		'"$2" $4 "$6"'
 	)
 
@@ -385,24 +402,24 @@ const replaced = file
 	// CHECK_DIALOG_OPEN
 	.replace(/dialog is (open|on|true|yes)/g, 'dialog open')
 	.replace(/dialog is not (open|on|true|yes)/g, 'dialog closed')
-	.replace(/dialog is (close|off|false|no)/g, 'dialog closed')
-	.replace(/dialog is not (close|off|false|no)/g, 'dialog open')
+	.replace(/dialog is (closed?|off|false|no)/g, 'dialog closed')
+	.replace(/dialog is not (closed?|off|false|no)/g, 'dialog open')
 	// CHECK_SERIAL_DIALOG_OPEN
 	.replace(/serial_dialog is (open|on|true|yes)/g, 'serial_dialog open')
 	.replace(/serial_dialog is not (open|on|true|yes)/g, 'serial_dialog closed')
-	.replace(/serial_dialog is (close|off|false|no)/g, 'serial_dialog closed')
-	.replace(/serial_dialog is not (close|off|false|no)/g, 'serial_dialog open')
+	.replace(/serial_dialog is (closed?|off|false|no)/g, 'serial_dialog closed')
+	.replace(/serial_dialog is not (closed?|off|false|no)/g, 'serial_dialog open')
 	// CHECK_SAVE_FLAG
 	.replace(/flag (.+?) is (open|on|true|yes)/g, '"$1"')
 	.replace(/flag (.+?) is (close|off|false|no)/g, '!"$1"')
 	.replace(/flag (.+?) is not (open|on|true|yes)/g, '!"$1"')
 	.replace(/flag (.+?) is not (close|off|false|no)/g, '"$1"')
 	// CHECK_FOR_BUTTON_PRESS
-	.replace(/button ([A-Z0-9]+)/g, 'button $1 pressed')
-	.replace(/not button ([A-Z0-9]+)/g, '!button $1 pressed')
+	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, 'button $1 pressed')
+	.replace(/not button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+)/g, '!button $1 pressed')
 	// CHECK_FOR_BUTTON_STATE
-	.replace(/button ([A-Z0-9]+) is currently pressed/g, 'button $1 down')
-	.replace(/button ([A-Z0-9]+) is not currently pressed/g, '!button $1 up')
+	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is currently pressed/g, 'button $1 down')
+	.replace(/button ([A-Z0-9]+|\$[-_a-zA-Z0-9]+) pressed is not currently pressed/g, 'button $1 up')
 	// CHECK_IF_ENTITY_IS_IN_GEOMETRY
 	.replace(
 		/entity ("?)(.+?)(\1) is inside geometry ("?)([^\)]+)(\4)/g,
@@ -436,6 +453,6 @@ const replaced = file
 		'add $1dialog settings {'
 	)
 
-	fs.writeFileSync('./comparisons/manual_export.mgs', replaced);
+	fs.writeFileSync(`./comparisons/${writeTo}`, replaced);
 
 	console.log(replaced);
