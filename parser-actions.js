@@ -1032,19 +1032,23 @@ const actionData = {
 			},
 		],
 	},
-	// action_set_entity_direction: {
-	// 	values: {},
-	// 	captures: [ 'entity_direction', 'towards' ],
-	// 	detective: [
-	// 		{
-	// 			isMatch: (v) => true,
-	// 			finalizeValues: (v) => ({
-	// 				...v.towards,
-	// 				entity: v.entity_direction,
-	// 			})
-	// 		}
-	// 	]
-	// },
+	action_plus_minus_ables: {
+		values: {},
+		captures: [ 'entity', 'operator', 'value' ],
+		detective: [
+			{
+				isMatch: (v) => true,
+				finalizeValues: (v) => {
+					const sign = v.operator === '-=' ? -1 : 1;
+					return {
+						'action': "SET_ENTITY_DIRECTION_RELATIVE",
+						'entity': v.entity,
+						'relative_direction': sign * v.value,
+					};
+				}
+			}
+		]
+	},
 };
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //

@@ -277,6 +277,7 @@ module.exports = grammar({
 			$.json_literal,
 			$.debug_macro,
 			$.copy_macro,
+			$.if_single,
 			$.if_chain,
 			$.while_block,
 			$.do_while_block,
@@ -377,7 +378,7 @@ module.exports = grammar({
 			$.action_set_entity_string,
 			$.action_set_script,
 			$.action_op_equals,
-			// $.action_set_entity_direction,
+			$.action_plus_minus_equals_ables,
 		),
 		action_break_statement: $ => 'break',
 		action_continue_statement: $ => 'continue',
@@ -867,6 +868,33 @@ module.exports = grammar({
 				field('property', $.entity_property_int)
 			),
 		),
+		simple_bool_unary_expression: $ => seq(
+			field('operator', "!"),
+			field('operand', $._simple_bool_unit),
+		),
+		_simple_bool_unit: $ => choice(
+			$.BOOL,
+			$.CONSTANT,
+			$.bool_getable,
+			$.STRING,
+		),
+		_simple_condition: $ => choice(
+			$.bool_comparison,
+			$.bool_unary_expression,
+			$._simple_bool_unit,
+		),
+		if_single: $ => seq(
+			'if',
+			field('condition', $._simple_condition),
+			'then',
+			'goto',
+			choice(
+				seq(optional('script'), field('script', $.string)),
+				seq(field('type', 'index'), field('index', $.number)),
+				seq(field('type', 'label'), field('label', $.BAREWORD)),
+			),
+			$.semicolon,
+		),
 		if_chain: $ => seq(
 			field('if_block', $.if_block),
 			repeat(seq(
@@ -988,6 +1016,13 @@ module.exports = grammar({
 			field('operator', $.op_equals),
 			field('rhs', $.int_expression_expandable),
 		)),
+		plus_minus_equals: $=> choice('+=', '-='),
+		action_plus_minus_equals_ables: $ => seq(
+			field('entity', $.entity_identifier_expandable),
+			'direction',
+			field('operator', $.plus_minus_equals),
+			field('value', $.number_expandable),
+		),
 		action_set_entity_direction: $ => seq(
 			field('entity_direction', $.entity_direction),
 			$.assignment_operator,

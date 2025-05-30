@@ -834,6 +834,54 @@
     }
   },
   {
+    "type": "action_plus_minus_equals_ables",
+    "named": true,
+    "fields": {
+      "entity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "plus_minus_equals",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          },
+          {
+            "type": "number_expansion",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "action_run_script",
     "named": true,
     "fields": {
@@ -3456,6 +3504,10 @@
             "named": true
           },
           {
+            "type": "action_plus_minus_equals_ables",
+            "named": true
+          },
+          {
             "type": "action_return_statement",
             "named": true
           },
@@ -3623,6 +3675,10 @@
           },
           {
             "type": "action_play_entity_animation",
+            "named": true
+          },
+          {
+            "type": "action_plus_minus_equals_ables",
             "named": true
           },
           {
@@ -3830,6 +3886,112 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "if_single",
+    "named": true,
+    "fields": {
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "BOOL",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
+          {
+            "type": "bool_comparison",
+            "named": true
+          },
+          {
+            "type": "bool_getable",
+            "named": true
+          },
+          {
+            "type": "bool_unary_expression",
+            "named": true
+          }
+        ]
+      },
+      "index": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "NUMBER",
+            "named": true
+          }
+        ]
+      },
+      "label": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          }
+        ]
+      },
+      "script": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "index",
+            "named": false
+          },
+          {
+            "type": "label",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "semicolon",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -4341,6 +4503,10 @@
           "named": true
         },
         {
+          "type": "action_plus_minus_equals_ables",
+          "named": true
+        },
+        {
           "type": "action_return_statement",
           "named": true
         },
@@ -4438,6 +4604,10 @@
         },
         {
           "type": "if_chain",
+          "named": true
+        },
+        {
+          "type": "if_single",
           "named": true
         },
         {
@@ -4585,6 +4755,11 @@
     "fields": {}
   },
   {
+    "type": "plus_minus_equals",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "quantity_expansion",
     "named": true,
     "fields": {},
@@ -4715,6 +4890,10 @@
           "named": true
         },
         {
+          "type": "action_plus_minus_equals_ables",
+          "named": true
+        },
+        {
           "type": "action_return_statement",
           "named": true
         },
@@ -4812,6 +4991,10 @@
         },
         {
           "type": "if_chain",
+          "named": true
+        },
+        {
+          "type": "if_single",
           "named": true
         },
         {
@@ -4930,6 +5113,10 @@
           "named": true
         },
         {
+          "type": "action_plus_minus_equals_ables",
+          "named": true
+        },
+        {
           "type": "action_return_statement",
           "named": true
         },
@@ -5027,6 +5214,10 @@
         },
         {
           "type": "if_chain",
+          "named": true
+        },
+        {
+          "type": "if_single",
           "named": true
         },
         {
@@ -5882,6 +6073,10 @@
   },
   {
     "type": "strafe",
+    "named": false
+  },
+  {
+    "type": "then",
     "named": false
   },
   {

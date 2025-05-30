@@ -217,7 +217,7 @@ const printCheckAction = (data, lhs, smartInvert) => {
 	const param = getBoolFieldForAction(data.action);
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = printGotoSegment(data);
-	return `if (${bang}${lhs}) { ${goto}; }`;
+	return `if ${bang}${lhs} then ${goto};`;
 };
 const printSetBoolAction = (data, lhs) => {
 	const param = getBoolFieldForAction(data.action);

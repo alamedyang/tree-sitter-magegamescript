@@ -502,6 +502,58 @@ const nodeFns = {
 		];
 		return newSequence(f, node, steps, 'for sequence');
 	},
+	if_single: (f, node) => {
+		const conditionN = node.childForFieldName('condition');
+		const action = handleCapture(f, conditionN);
+		// condition.mathlang = 'if_single';
+		const type = textForFieldName(f, node, 'type');
+		let isBool = typeof action === 'boolean';
+		if (action === 'string') {
+			action = {
+				mathlang: 'bool_getable',
+				action: 'CHECK_SAVE_FLAG',
+				expected_bool: true,
+				save_flag: action,
+			};
+		}
+		if (!type) {
+			const script = captureForFieldName(f, node, 'script');
+			if (isBool) {
+				return action
+					? [{ action: "RUN_SCRIPT", script }]
+					: [];
+			}
+			delete action.mathlang;
+			return {
+				...action,
+				success_script: script,
+			};
+		} else if (type === 'index') {
+			const index = captureForFieldName(f, node, 'index');
+			if (isBool) {
+				return action
+					? [{ action: "GOTO_ACTION_INDEX", action_index: index }]
+					: [];
+			}
+			delete action.mathlang;
+			return {
+				...action,
+				jump_index: index,
+			};
+		} else if (type === 'label') {
+			const label = captureForFieldName(f, node, 'label');
+			if (isBool) {
+				return action
+					? [ gotoLabel(f, node, label) ]
+					: [];
+			}
+			action.mathlang = 'if_branch_goto_label';
+			return {
+				...action,
+				label,
+			}
+		}
+	},
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeN = node.childForFieldName('else_block');
