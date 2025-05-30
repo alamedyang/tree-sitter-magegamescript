@@ -184,7 +184,7 @@ show_dialog-verthandi-wrapup {
 
 show_dialog-goat {
 	if (entity "%SELF%" is glitched) {
-		show dialog { SELF "ba15456\`-------++++++gf\\n+++++-//==========/*8901ikg" }
+		show dialog { SELF "ba15456\`-------++++++gf\n+++++-//==========/*8901ikg" }
 	} else {
 		show dialog { SELF "Baaahhh!" }
 	}

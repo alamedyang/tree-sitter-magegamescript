@@ -68,6 +68,6 @@ command-plugh {
 command-fum {
 	show serial dialog spacer;
 	show serial dialog {
-		"While I've never actually made a mistake, there have been a few, let's call 'em \\"stnanks,\\" that could be worthy of a do-over."
+		"While I've never actually made a mistake, there have been a few, let's call 'em \"stnanks,\" that could be worthy of a do-over."
 	}
 }

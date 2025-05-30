@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 
-const currentFileName = `ch2-town`;
+const currentFileName = `ch2-bobsclub`;
 
 const readFrom = `mgs/ch2/${currentFileName}-v1.mgs`;
 const writeTo = `mgs/ch2/${currentFileName}.mgs`;
@@ -470,5 +470,3 @@ const replaced = file
 	)
 
 	fs.writeFileSync(`./comparisons/${writeTo}`, replaced);
-
-	console.log(replaced);

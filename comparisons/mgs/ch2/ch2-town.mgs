@@ -231,7 +231,7 @@ include "header.mgs";
 "on_go-ch2-town-wopr" {
 	copy!("on_exit-ch2-town")
 	copy!("warping-out-fade-out")
-	load map "woprhouse; // both chapters use the same map
+	load map "woprhouse"; // both chapters use the same map
 }
 "on_go-ch2-town-beatrice" {
 	copy!("on_exit-ch2-town")

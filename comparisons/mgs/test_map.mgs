@@ -7,24 +7,24 @@ add dialog settings {
 "show_dialog-wisdom" {
 	show dialog {
 		SELF alignment BL
-		"Ah, hello little %PLAYER%.\\nHave you come to me seeking wisdom?"
+		"Ah, hello little %PLAYER%.\nHave you come to me seeking wisdom?"
 
 		PLAYER alignment TR
 		":: goat noises ::"
 
 		SELF alignment BL
-		"If you are the smartest person in the room,\\nthen you are in the wrong room"
-		"You cannot cross the sea merely by standing\\nand staring at the water."
-		"Your assumptions are your windows on the\\nworld. Scrub them off every once in a\\nwhile, or the light won't come in."
-		"Before you criticize someone,\\nyou should walk a mile in their shoes.\\nThat way, when you criticize them, you're\\na mile away and you have their shoes."
+		"If you are the smartest person in the room,\nthen you are in the wrong room"
+		"You cannot cross the sea merely by standing\nand staring at the water."
+		"Your assumptions are your windows on the\nworld. Scrub them off every once in a\nwhile, or the light won't come in."
+		"Before you criticize someone,\nyou should walk a mile in their shoes.\nThat way, when you criticize them, you're\na mile away and you have their shoes."
 
 		PLAYER alignment BR
 		":: goat noises intensify ::"
 
 		SELF alignment BL
 		"..."
-		"Ah, I see that you are seeking only\\nmy strongest wisdom."
-		"When you see a variable \\"prefixed\\" with an\\nampersand, think:\\n\\"that is the `And`ress (address)\\"\\nof the data in question."
+		"Ah, I see that you are seeking only\nmy strongest wisdom."
+		"When you see a variable \"prefixed\" with an\nampersand, think:\n\"that is the `And`ress (address)\"\nof the data in question."
 
 		PLAYER alignment TL
 		":: happy goat noises ::"
@@ -33,12 +33,12 @@ add dialog settings {
 
 "show_dialog-strong_bad" {
 	show dialog {
-		SELF "I was told that Fhqwhgads would be here.\\nHave you seen him?\\nI don't know who it is,\\nbut it probably is Fhqwhgads."
+		SELF "I was told that Fhqwhgads would be here.\nHave you seen him?\nI don't know who it is,\nbut it probably is Fhqwhgads."
 
-		PLAYER "Sounds kinda sketchy.\\nAnd I'm into it.\\nI'll keep an eye out."
+		PLAYER "Sounds kinda sketchy.\nAnd I'm into it.\nI'll keep an eye out."
 
 		SELF "Yeah, you BETTER keep an eye out."
-		"You don't wanna know what could happen...\\nto someone who doesn't keep an eye out."
+		"You don't wanna know what could happen...\nto someone who doesn't keep an eye out."
 	};
 }
 
@@ -46,14 +46,14 @@ add dialog settings {
 	show dialog {
 		PLAYER "Hey, robot, could you make me a smoothie?"
 
-		SELF "PFFFFT NO, make your own smoothie!\\nWho do I look like to you?"
+		SELF "PFFFFT NO, make your own smoothie!\nWho do I look like to you?"
 
-		PLAYER "I don't know, I thought your name was\\nlike... Blender or something?"
+		PLAYER "I don't know, I thought your name was\nlike... Blender or something?"
 
 		entity "Strong Bad" "BWAHAHAHA!"
 
 		SELF "HEY, CAN IT BOXING-MASK FOR FACE!"
-		"For your information, PLAYER,\\nmy name is BENDER! Don't wear it out!"
+		"For your information, PLAYER,\nmy name is BENDER! Don't wear it out!"
 	};
 }
 
@@ -110,13 +110,13 @@ add dialog settings {
 		goto "show_dialog-thanks_for_setting_bob_on_fire";
 	}
 	show dialog {
-		SELF "%Bob%, AKA \\"Stone Cold %Bob% Austin\\"\\nis cold. Would you please warm him up?"
+		SELF "%Bob%, AKA \"Stone Cold %Bob% Austin\"\nis cold. Would you please warm him up?"
 	};
 }
 
 "show_dialog-thanks_for_setting_bob_on_fire" {
 	show dialog {
-		SELF "Thank for warming %Bob% up?\\nI mean, there were other ways to do it,\\nbut that works I guess..."
+		SELF "Thank for warming %Bob% up?\nI mean, there were other ways to do it,\nbut that works I guess..."
 	};
 	self on_interact = "check_save_flag-bobs_not_on_fire";
 }
@@ -127,7 +127,7 @@ add dialog settings {
 	}
 	"No two Bobs are not on fire" = true;
 	show dialog {
-		SELF "I AM %SELF%!\\nI HAVE SET %Bob% ON FIRE!!"
+		SELF "I AM %SELF%!\nI HAVE SET %Bob% ON FIRE!!"
 
 		Bob "Oh yeah! I am so hot right now!"
 	};
@@ -136,7 +136,7 @@ add dialog settings {
 "set_save_flag-bobs_on_fire" {
 	"No two Bobs are not on fire" = false;
 	show dialog {
-		SELF "I AM MERCIFUL %SELF%!\\nI HAVE SET %Bob% OFF FIRE!!"
+		SELF "I AM MERCIFUL %SELF%!\nI HAVE SET %Bob% OFF FIRE!!"
 
 		Bob "Aww man, I was just getting toasty!"
 	};
@@ -155,6 +155,6 @@ add dialog settings {
 
 "show_dialog-lots_of_text" {
 	show dialog {
-		SELF "How long can the text go? ################\\nHow long can the text go? ################\\nHow long can the text go? ################\\nHow long can the text go? ################\\nHow long can the text go? ################"
+		SELF "How long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################"
 	};
 }

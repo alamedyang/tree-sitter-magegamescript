@@ -1,11 +1,9 @@
 include "header.mgs";
 
-
-	$goto_round_2 = 3; // count of story flags through round 1
-	$goto_round_3 = 6; // count of story flags through round 2
-	$goto_round_4 = 9; // count of story flags through round 3
-	$goto_round_5 = 10;
-
+$goto_round_2 = 3; // count of story flags through round 1
+$goto_round_3 = 6; // count of story flags through round 2
+$goto_round_4 = 9; // count of story flags through round 3
+$goto_round_5 = 10;
 
 "ch2-count-flags" {
 	"ch2-storyflags-tally" = 0;
@@ -347,7 +345,7 @@ include "header.mgs";
 	};
 }
 
-$time = "200";;ms
+$time = 200ms;
 "ch2-serial-light-manager" {
 	if (serial_dialog open) {
 		// solid light while in a serial_dialog (interactable)
