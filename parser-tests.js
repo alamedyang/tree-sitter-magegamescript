@@ -14,6 +14,16 @@ const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
 	return ret.join('\n')
 };
 
+// will do all tests if empty
+// if not empty, also won't do any file-level tests
+const onlyDoTheseActionTests = [
+	
+];
+
+const skipTheseTests = new Set ([
+	'set_int_exp_ok',
+]);
+
 // --------------------------- ACTION TESTS ---------------------------
 const actionTests = {
 	simple_copy: {
@@ -749,19 +759,19 @@ const actionTests = {
 			// TODO: ??????????????
 		],
 	},
-	// set_int_exp_ok: {
-	// 	input: [
-	// 		// MUTATE_VARIABLES
-	// 		'"bothVarsAre" = "ambiguous";', // and that's ok
+	set_int_exp_ok: {
+		input: [
+			// MUTATE_VARIABLES
+			'"bothVarsAre" = "ambiguous";', // and that's ok
 
-	// 		// MUTATE_VARIABLE
-	// 		'"goatCount" = 0;',
+			// MUTATE_VARIABLE
+			'"goatCount" = 0;',
 
-	// 		// COPY_VARIABLE
-	// 		'"goatCount" = player x;',
-	// 		'player y = "goatCount";',
-	// 	]
-	// },
+			// COPY_VARIABLE
+			'"goatCount" = player x;',
+			'player y = "goatCount";',
+		]
+	},
 	int_exp_chain_literal_getable: {
 		input: [
 			'goatCount = 1 + player x;',
@@ -1370,7 +1380,6 @@ const fileMap = {
 	// 			},
 	// 		},
 	// 	},
-
 	// },
 	'dialog_wrapping.mgs': {
 		fileText: `dialog "wrapBasics" {
@@ -1425,9 +1434,20 @@ const fileMap = {
 const fileTestNames = Object.keys(fileMap);
 
 // --------------------------- Putting all the tests into a "project" ---------------------------
+
+const actionTestNames = (
+		onlyDoTheseActionTests.length === 0
+			? Object.keys(actionTests)
+			: onlyDoTheseActionTests
+	).filter(testName=>!skipTheseTests.has(testName))
+
 fileMap['actionTests.mgs'] = {
-	fileText: Object.entries(actionTests)
-		.map(([k,v])=>actionArrayToScript(k, v.input))
+	fileText: actionTestNames
+		.filter(testName=>!skipTheseTests.has(testName))
+		.map(testName=>{
+			const v = actionTests[testName];
+			return actionArrayToScript(testName, v.input)
+		})
 		.join('\n\n'),
 	expected: {
 		scripts: {},
@@ -1714,73 +1734,81 @@ const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => 
 };
 
 // --------------------------- THE OWL ---------------------------
+
+
+const doActionTest = (scriptName, actionExpected, actionFound) => {
+	const expected = actionExpected[scriptName];
+	const found = actionFound[scriptName].print;
+	const compared = compareTexts(found, expected, '', scriptName);
+	if (compared.status !== 'success') {
+		return compared;
+	}
+	return null;
+};
+
 const runTests = async () => {
 	parseProject(fileMap, {}).then(result=>{
 
 		// ACTION TESTS
-		const actionTestNames = Object.keys(actionTests);
 		const actionExpected = fileMap['actionTests.mgs'].expected.scripts;
 		const actionFound = result.scripts;
-		actionTestNames.forEach(scriptName => {
-			const expected = actionExpected[scriptName];
-			const found = actionFound[scriptName].print;
-			const compared = compareTexts(found, expected, '', scriptName);
-			if (compared.status !== 'success') {
-				errors.push(compared);
-			}
-		});
+		const actionErrors = actionTestNames
+			.map(v=>doActionTest(v, actionExpected, actionFound))
+			.filter(v=>v!==null);
+		errors.push(...actionErrors);
 
 		// FILE TESTS
-		fileTestNames.forEach(fileName=>{
-
-			// Scripts
-			const fileExpectedData = fileMap[fileName].expected || {};
-			const fileFoundP = fileMap[fileName].parsed;
-			const fileScriptNames = Object.keys(fileExpectedData.scripts || {});
-			const allScripts = result.scripts;
-			fileScriptNames.forEach(scriptName=>{
-				const expected = fileExpectedData.scripts[scriptName].trim();
-				const found = allScripts[scriptName].print.trim();
-				const compared = compareTexts(found, expected, '', scriptName);
-				if (compared.status !== 'success') {
-					errors.push(compared);
+		if (onlyDoTheseActionTests.length === 0) {
+			fileTestNames.forEach(fileName=>{
+	
+				// Scripts
+				const fileExpectedData = fileMap[fileName].expected || {};
+				const fileFoundP = fileMap[fileName].parsed;
+				const fileScriptNames = Object.keys(fileExpectedData.scripts || {});
+				const allScripts = result.scripts;
+				fileScriptNames.forEach(scriptName=>{
+					const expected = fileExpectedData.scripts[scriptName].trim();
+					const found = allScripts[scriptName].print.trim();
+					const compared = compareTexts(found, expected, '', scriptName);
+					if (compared.status !== 'success') {
+						errors.push(compared);
+					}
+				});
+	
+				// Constants
+				const constantsDiffs = compareConstants(
+					fileName,
+					fileFoundP.constants || {},
+					fileExpectedData.constants || {},
+				);
+				if (constantsDiffs.length) {
+					errors.push(...constantsDiffs);
+				}
+	
+				// Dialogs
+				const allDialogs = result.dialogs;
+				const expectedDialogs = fileExpectedData.dialogs || {};
+				const dialogNames = Object.keys(expectedDialogs) || {};
+				dialogNames.forEach(dialogName=>{
+					const expected = expectedDialogs[dialogName].dialogs || {};
+					const found = allDialogs[dialogName].dialogs || {};
+					const compared = compareDialogs(fileName, dialogName, expected, found);
+					compared.forEach(err=>{ errors.push(err) });
+				});
+	
+				// Warningcount
+				const foundWarningCount = fileFoundP.warningCount;
+				const expectedWarningCount = fileExpectedData.warningCount || 0;
+	
+				if (foundWarningCount !== expectedWarningCount) {
+					errors.push({
+						status: 'fail',
+						message: `${fileName}: Found ${foundWarningCount} warning(s), `
+							+ `expected ${expectedWarningCount}`,
+					})
 				}
 			});
-
-			// Constants
-			const constantsDiffs = compareConstants(
-				fileName,
-				fileFoundP.constants || {},
-				fileExpectedData.constants || {},
-			);
-			if (constantsDiffs.length) {
-				errors.push(...constantsDiffs);
-			}
-
-			// Dialogs
-			const allDialogs = result.dialogs;
-			const expectedDialogs = fileExpectedData.dialogs || {};
-			const dialogNames = Object.keys(expectedDialogs) || {};
-			dialogNames.forEach(dialogName=>{
-				const expected = expectedDialogs[dialogName].dialogs || {};
-				const found = allDialogs[dialogName].dialogs || {};
-				const compared = compareDialogs(fileName, dialogName, expected, found);
-				compared.forEach(err=>{ errors.push(err) });
-			});
-
-			// Warningcount
-			const foundWarningCount = fileFoundP.warningCount;
-			const expectedWarningCount = fileExpectedData.warningCount || 0;
-
-			if (foundWarningCount !== expectedWarningCount) {
-				errors.push({
-					status: 'fail',
-					message: `${fileName}: Found ${foundWarningCount} warning(s), `
-						+ `expected ${expectedWarningCount}`,
-				})
-			}
-
-		});
+		}
 
 		// PROBLEMS
 		errors.forEach(error=>{
@@ -1798,7 +1826,7 @@ const runTests = async () => {
 
 		// DONE
 		if (errors.length === 0) {
-			console.log("All tests good, chief!");
+			console.log(`All (${actionTestNames.length}) tests good, chief!`);
 		}
 		console.log('BREAKPOINT HERE');
 	});
