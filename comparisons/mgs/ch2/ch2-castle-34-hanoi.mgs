@@ -450,7 +450,7 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	// run in the map's on_tick
 	player_control = on;
 	light LED_USB = off;
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	copy!("hanoi_unregister")
 	if (!"hanoi_won") {
 		show serial_dialog {

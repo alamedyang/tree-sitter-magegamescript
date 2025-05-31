@@ -3,36 +3,34 @@ $lightsdefault = "ch2-serial-light-manager";
 
 /* ---------- LOAD ---------- */
 
+$roundcount = 7;
 
-	$roundcount = 7;
+$light0 = LED_BIT128;
+$light1 = LED_BIT1;
+$light2 = LED_PAGE;
+$light3 = LED_MEM3;
+$light4 = LED_XOR;
+$light5 = LED_MEM0;
 
-	$light0 = "LED_BIT128";
-	$light1 = "LED_BIT1";
-	$light2 = "LED_PAGE";
-	$light3 = "LED_MEM3";
-	$light4 = "LED_XOR";
-	$light5 = "LED_MEM0";
+$button0 = BIT128; // bottom_left
+$button1 = BIT1; // bottom_right
+$button2 = PAGE; // left
+$button3 = MEM3; // right
+$button4 = XOR; // top left
+$button5 = MEM0; // top right
 
-	$button0 = BIT128; // bottom_left
-	$button1 = BIT1; // bottom_right
-	$button2 = PAGE; // left
-	$button3 = MEM3; // right
-	$button4 = XOR; // top left
-	$button5 = MEM0; // top right
-
-	$animation_padding1 = 50ms;
-	$animation_padding2 = 200ms;
-	$guitar_idle = 3;
-	$pose_pre_right = 4;
-	$pose_pre_left = 5;
-	$pose_top_right = 6;
-	$pose_right = 7;
-	$pose_bottom_right = 8;
-	$pose_top_left = 9;
-	$pose_left = 10;
-	$pose_bottom_left = 11;
-	$rocking = 12;
-
+$animation_padding1 = 50ms;
+$animation_padding2 = 200ms;
+$guitar_idle = 3;
+$pose_pre_right = 4;
+$pose_pre_left = 5;
+$pose_top_right = 6;
+$pose_right = 7;
+$pose_bottom_right = 8;
+$pose_top_left = 9;
+$pose_left = 10;
+$pose_bottom_left = 11;
+$rocking = 12;
 
 "simon-game-launcher" {
 	// hex_control = off
@@ -68,7 +66,6 @@ $lightsdefault = "ch2-serial-light-manager";
 			> "No, let's do a high battle." = "simon-game-start-q-swap"
 			> "What's the difference?" = "simon-game-start-difference"
 			> "Actually, never mind." = "simon-game-start-nevermind"
-
 		};
 	} else {
 		"ch2-simon-high" = true;
@@ -93,7 +90,7 @@ $lightsdefault = "ch2-serial-light-manager";
 	show dialog {
 		Simon "I'm talkin' about these lights up here, of course!"
 	};
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	light ALL = off;
 	show dialog {
 		Simon "A LOW battle is more about quick fingers. It's better for those who prefer to hold their destiny in their own two hands."
@@ -102,7 +99,7 @@ $lightsdefault = "ch2-serial-light-manager";
 	show dialog {
 		Simon "That means these lights down here, naturally!"
 	};
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	copy!("ch2-map-init-hex")
 	goto "simon-game-start-q";
 }
@@ -208,7 +205,7 @@ Simon animations:
 			};
 		}
 	}
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	light ALL = off;
 	goto "simon-enemy-turn-start";
 }
@@ -538,7 +535,7 @@ Simon animations:
 	entity "Lights" on_tick = "screen-lights-lose";
 	player on_tick = "player-lose";
 	show dialog { Simon emote 3 "Too bad! Better luck next time!" };
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	copy!("ch2-map-init-hex")
 	player_control = on;
 	entity "Keyboard" on_tick = "null_script";
@@ -564,7 +561,7 @@ Simon animations:
 	entity "Simon" animation -> 2 once;
 	entity "Simon" current_animation = 4;
 	show dialog { Simon emote 3 "GREAT JOB! Way to go, kid!" };
-	entity "Lights" on_tick = "$lightsdefault";
+	entity "Lights" on_tick = $lightsdefault;
 	copy!("ch2-map-init-hex")
 	player_control = on;
 	if (!"ch2-simon-won-before") {
@@ -651,10 +648,8 @@ Simon animations:
 	}
 }
 
-
-	$time = 200ms;
-	$time_q = 125ms;
-
+$time = 200ms;
+$time_q = 125ms;
 
 "player-win" {
 	player current_animation = $guitar_idle;

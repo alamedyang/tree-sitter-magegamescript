@@ -1,21 +1,19 @@
 include "header.mgs";
 
+$opaque = 3; // idle_plain_opaque (glasses are opaque
+$transparent = 4; // idle_plain_transparent (can see eyes through glasses)
+$toTransparent = 5; // shving_on (opaque -> transparent)
+$toOpaque = 6; // shving_off (transparent -> opaque)
+$lowering = 7; // downcast_lowering (raised -> lowered)
+$lowered = 8; // downcast
+$raising = 9; // downcast_raising (lowered -> raised)
 
-	$opaque = 3; // idle_plain_opaque (glasses are opaque
-	$transparent = 4; // idle_plain_transparent (can see eyes through glasses)
-	$toTransparent  = 5 // shving_on (opaque -> transparent)
-	$toOpaque  = 6 // shving_off (transparent -> opaque)
-	$lowering = 7; // downcast_lowering (raised -> lowered)
-	$lowered = 8; // downcast
-	$raising = 9; // downcast_raising (lowered -> raised)
-
-	$opaque_serious = 0;
-	$opaque_grin = 1;
-	$transparent_serious = 2;
-	$transparent_grin = 3;
-	$opaque_lowered = 4;
-	$opaque_lowered_almost = 5;
-)
+$opaque_serious = 0;
+$opaque_grin = 1;
+$transparent_serious = 2;
+$transparent_grin = 3;
+$opaque_lowered = 4;
+$opaque_lowered_almost = 5;
 
 /* ---------- LOOK SCRIPTS ---------- */
 
@@ -134,7 +132,7 @@ include "header.mgs";
 	// check if you do the cutscene or not
 	if (!"ch2-cutseen-castle99") {
 		if (debug_mode) {
-			command "skip" = "ch2-skip-99"
+			command "skip" = "ch2-skip-99";
 			show serial_dialog {
 				" "
 				"<y>DEBUG></> <c>SKIP</>: skip this cutscene"

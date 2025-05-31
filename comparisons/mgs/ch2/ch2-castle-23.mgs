@@ -127,12 +127,10 @@ include "header.mgs";
 	};
 }
 
-
-	$idle = 3;
-	$twist = 4;
-	$fiddle = 5;
-	$reach = 6;
-
+$idle = 3;
+$twist = 4;
+$fiddle = 5;
+$reach = 6;
 
 "rocco-work-fancy" {
 	entity "Rocco" current_animation = $idle;

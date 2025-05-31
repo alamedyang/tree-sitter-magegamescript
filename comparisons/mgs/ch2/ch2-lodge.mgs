@@ -193,11 +193,11 @@ include "header.mgs";
 	};
 }
 
- $bookcount = 4;
+$bookcount = 4;
 
 "interact-ch2-alfonso-library" {
 	"ch2-alfonso-library-count" += 1;
-	"ch2-alfonso-library-count" %= "$bookcount";
+	"ch2-alfonso-library-count" %= $bookcount;
 	if ("ch2-alfonso-library-count" == 1) {
 		show dialog {
 			SELF "Oh, goodness! It's \"The Importance of Being Earnest.\" I remember this play. Twenty years ago, Jackob and I did a reading of it with --"

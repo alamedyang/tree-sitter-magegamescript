@@ -165,8 +165,7 @@ include "header.mgs";
 	}
 }
 
-
-	$walkspeed = 200ms;
+$walkspeed = 200ms;
 
 "ch2-gloria-worry-walk" {
 	"tempvar" ?= 4;

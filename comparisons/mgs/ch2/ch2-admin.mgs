@@ -177,11 +177,11 @@ $goto_round_5 = 10;
 		copy!("ch2-count-flags")
 		// the below are separate scripts so that multiple things can trigger them
 		// (^^ should this be the case?) (todo: determine this)
-		if ("ch2-storyflags-tally" == "$goto_round_2") {
+		if ("ch2-storyflags-tally" == $goto_round_2) {
 			copy!("ch2-start-round-2")
-		} else if ("ch2-storyflags-tally" == "$goto_round_3") {
+		} else if ("ch2-storyflags-tally" == $goto_round_3) {
 			copy!("ch2-start-round-3")
-		} else if ("ch2-storyflags-tally" == "$goto_round_4") {
+		} else if ("ch2-storyflags-tally" == $goto_round_4) {
 			copy!("ch2-start-round-4")
 		}
 	}

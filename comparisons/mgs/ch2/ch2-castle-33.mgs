@@ -116,9 +116,7 @@ $lightsdefault = "ch2-serial-light-manager";
 
 /* ---------- ENTITIES ---------- */
 
-
-	$time = 200ms;
-
+$time = 200ms;
 
 "screen-lights-flash-bits" {
 	light LED_BIT1 = on;
@@ -288,7 +286,7 @@ $lightsdefault = "ch2-serial-light-manager";
 				SELF "The more lights come on, the closer you are to finding it. Walk around a bit and see for yourself."
 			};
 			copy!("ch2-map-init-hex")
-			entity "Lights" on_tick = "$lightsdefault";
+			entity "Lights" on_tick = $lightsdefault;
 			show dialog {
 				SELF "Well, let me know when you want to have a go, anyway."
 			};
@@ -544,7 +542,7 @@ $lightsdefault = "ch2-serial-light-manager";
 	"mousegame-manhattan" += "mousegame-diffY";
 	"mousegame-diff" = "mousegame-manhattan";
 	"mousegame-diff" *= 16;
-	"mousegame-diff" /= "$max";
+	"mousegame-diff" /= $max;
 	// `mousegame-diff` is now the INVERSE of the number of lights to show
 	if ("mousegame-diff" > 8) {
 		"mousegame-lights" = 0;

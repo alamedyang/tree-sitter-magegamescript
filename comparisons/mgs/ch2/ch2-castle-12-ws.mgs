@@ -1,10 +1,8 @@
-
-	$close = 1; $repeat = 2; $hit = 3; $miss = 4; $cheat = 5;
-	// target words
-	$album = 1; $analog = 2; $audio = 3; $aux = 4; $bass = 5; $beat = 6; $bpm = 7; $broadcast = 8; $cassette = 9; $chiptune = 10; $codec = 11; $compact = 12; $frequency = 13; $headphones = 14; $hifi = 15; $laser = 16; $lofi = 17; $media = 18; $microphone = 19; $midi = 20; $mixing = 21; $music = 22; $phonograph = 23; $radio = 24; $recording = 25; $rhythm = 26; $sequencer = 27; $song = 28; $soundtrack = 29; $speakers = 30; $stereo = 31; $stream = 32; $subwoofer = 33; $surround = 34; $synthesizer = 35; $tape = 36; $treble = 37; $vinyl = 38; $vocoder = 39; $volume = 40;
-	// "close" words
-	$albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chiptunes = 46; $codecs = 47; $frequencies = 48; $gramophone = 49; $headphone = 50; $lasers = 51; $microphones = 52; $phones = 53; $phone = 54; $mic = 55; $musician = 56; $radios = 57; $recordings = 58; $record = 59; $sequence = 60; $sequencers = 61; $sing = 62; $singing = 63; $songs = 64; $sound = 65; $soundtracks = 66; $synth = 67; $synthesizers = 68; $track = 69; $tracks = 70; $speaker = 71; $stereos = 72; $streams = 73; $subwoofers = 74; $tapes = 75; $tune = 76; $tunes = 77; $vinyls = 78; $vocoders = 79;
-
+$close = 1; $repeat = 2; $hit = 3; $miss = 4; $cheat = 5;
+// target words
+$album = 1; $analog = 2; $audio = 3; $aux = 4; $bass = 5; $beat = 6; $bpm = 7; $broadcast = 8; $cassette = 9; $chiptune = 10; $codec = 11; $compact = 12; $frequency = 13; $headphones = 14; $hifi = 15; $laser = 16; $lofi = 17; $media = 18; $microphone = 19; $midi = 20; $mixing = 21; $music = 22; $phonograph = 23; $radio = 24; $recording = 25; $rhythm = 26; $sequencer = 27; $song = 28; $soundtrack = 29; $speakers = 30; $stereo = 31; $stream = 32; $subwoofer = 33; $surround = 34; $synthesizer = 35; $tape = 36; $treble = 37; $vinyl = 38; $vocoder = 39; $volume = 40;
+// "close" words
+$albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chiptunes = 46; $codecs = 47; $frequencies = 48; $gramophone = 49; $headphone = 50; $lasers = 51; $microphones = 52; $phones = 53; $phone = 54; $mic = 55; $musician = 56; $radios = 57; $recordings = 58; $record = 59; $sequence = 60; $sequencers = 61; $sing = 62; $singing = 63; $songs = 64; $sound = 65; $soundtracks = 66; $synth = 67; $synthesizers = 68; $track = 69; $tracks = 70; $speaker = 71; $stereos = 72; $streams = 73; $subwoofers = 74; $tapes = 75; $tune = 76; $tunes = 77; $vinyls = 78; $vocoders = 79;
 
 // todo: should the "unfound" letters be lowercase for accessibility?
 "ch2-ws-count-flags" {
@@ -1304,7 +1302,7 @@ serial_dialog "ch2-ws-input" {
 // Guesses: cheat
 "ch2-ws-guess-cheat" {
 	"ch2-ws-turn-value" = 0;
-	"ch2-ws-turn-status" = "$cheat";
+	"ch2-ws-turn-status" = $cheat;
 	"ch2-ws-album" = true;
 	"ch2-ws-analog" = true;
 	"ch2-ws-audio" = true;
@@ -1350,599 +1348,599 @@ serial_dialog "ch2-ws-input" {
 
 // Guesses: "close" words:
 "ch2-ws-guess-albums" {
-	"ch2-ws-turn-value" = "$albums";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $albums;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-base" {
-	"ch2-ws-turn-value" = "$base";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $base;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-beats" {
-	"ch2-ws-turn-value" = "$beats";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $beats;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-broadcasts" {
-	"ch2-ws-turn-value" = "$broadcasts";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $broadcasts;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-cassettes" {
-	"ch2-ws-turn-value" = "$cassettes";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $cassettes;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-chiptunes" {
-	"ch2-ws-turn-value" = "$chiptunes";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $chiptunes;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-codecs" {
-	"ch2-ws-turn-value" = "$codecs";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $codecs;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-frequencies" {
-	"ch2-ws-turn-value" = "$frequencies";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $frequencies;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-gramophone" {
-	"ch2-ws-turn-value" = "$gramophone";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $gramophone;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-headphone" {
-	"ch2-ws-turn-value" = "$headphone";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $headphone;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-lasers" {
-	"ch2-ws-turn-value" = "$lasers";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $lasers;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-microphones" {
-	"ch2-ws-turn-value" = "$microphones";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $microphones;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-phones" {
-	"ch2-ws-turn-value" = "$phones";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $phones;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-phone" {
-	"ch2-ws-turn-value" = "$phone";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $phone;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-mic" {
-	"ch2-ws-turn-value" = "$mic";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $mic;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-musician" {
-	"ch2-ws-turn-value" = "$musician";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $musician;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-radios" {
-	"ch2-ws-turn-value" = "$radios";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $radios;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-recordings" {
-	"ch2-ws-turn-value" = "$recordings";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $recordings;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-record" {
-	"ch2-ws-turn-value" = "$record";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $record;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-sequence" {
-	"ch2-ws-turn-value" = "$sequence";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $sequence;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-sequencers" {
-	"ch2-ws-turn-value" = "$sequencers";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $sequencers;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-sing" {
-	"ch2-ws-turn-value" = "$sing";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $sing;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-singing" {
-	"ch2-ws-turn-value" = "$singing";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $singing;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-songs" {
-	"ch2-ws-turn-value" = "$songs";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $songs;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-sound" {
-	"ch2-ws-turn-value" = "$sound";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $sound;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-soundtracks" {
-	"ch2-ws-turn-value" = "$soundtracks";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $soundtracks;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-synth" {
-	"ch2-ws-turn-value" = "$synth";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $synth;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-synthesizers" {
-	"ch2-ws-turn-value" = "$synthesizers";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $synthesizers;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-track" {
-	"ch2-ws-turn-value" = "$track";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $track;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-tracks" {
-	"ch2-ws-turn-value" = "$tracks";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $tracks;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-speaker" {
-	"ch2-ws-turn-value" = "$speaker";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $speaker;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-stereos" {
-	"ch2-ws-turn-value" = "$stereos";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $stereos;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-streams" {
-	"ch2-ws-turn-value" = "$streams";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $streams;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-subwoofers" {
-	"ch2-ws-turn-value" = "$subwoofers";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $subwoofers;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-tapes" {
-	"ch2-ws-turn-value" = "$tapes";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $tapes;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-tune" {
-	"ch2-ws-turn-value" = "$tune";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $tune;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-tunes" {
-	"ch2-ws-turn-value" = "$tunes";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $tunes;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-vinyls" {
-	"ch2-ws-turn-value" = "$vinyls";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $vinyls;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-vocoders" {
-	"ch2-ws-turn-value" = "$vocoders";
-	"ch2-ws-turn-status" = "$close";
+	"ch2-ws-turn-value" = $vocoders;
+	"ch2-ws-turn-status" = $close;
 	goto "ch2-ws-doturn";
 }
 
 // Guesses: hits
 "ch2-ws-guess-album" {
-	"ch2-ws-turn-value" = "$album";
+	"ch2-ws-turn-value" = $album;
 	if ("ch2-ws-album") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-album" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-analog" {
-	"ch2-ws-turn-value" = "$analog";
+	"ch2-ws-turn-value" = $analog;
 	if ("ch2-ws-analog") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-analog" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-audio" {
-	"ch2-ws-turn-value" = "$audio";
+	"ch2-ws-turn-value" = $audio;
 	if ("ch2-ws-audio") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-audio" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-aux" {
-	"ch2-ws-turn-value" = "$aux";
+	"ch2-ws-turn-value" = $aux;
 	if ("ch2-ws-aux") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-aux" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-bass" {
-	"ch2-ws-turn-value" = "$bass";
+	"ch2-ws-turn-value" = $bass;
 	if ("ch2-ws-bass") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-bass" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-beat" {
-	"ch2-ws-turn-value" = "$beat";
+	"ch2-ws-turn-value" = $beat;
 	if ("ch2-ws-beat") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-beat" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-bpm" {
-	"ch2-ws-turn-value" = "$bpm";
+	"ch2-ws-turn-value" = $bpm;
 	if ("ch2-ws-bpm") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-bpm" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-broadcast" {
-	"ch2-ws-turn-value" = "$broadcast";
+	"ch2-ws-turn-value" = $broadcast;
 	if ("ch2-ws-broadcast") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-broadcast" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-cassette" {
-	"ch2-ws-turn-value" = "$cassette";
+	"ch2-ws-turn-value" = $cassette;
 	if ("ch2-ws-cassette") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-cassette" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-chiptune" {
-	"ch2-ws-turn-value" = "$chiptune";
+	"ch2-ws-turn-value" = $chiptune;
 	if ("ch2-ws-chiptune") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-chiptune" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-codec" {
-	"ch2-ws-turn-value" = "$codec";
+	"ch2-ws-turn-value" = $codec;
 	if ("ch2-ws-codec") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-codec" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-compact" {
-	"ch2-ws-turn-value" = "$compact";
+	"ch2-ws-turn-value" = $compact;
 	if ("ch2-ws-compact") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-compact" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-frequency" {
-	"ch2-ws-turn-value" = "$frequency";
+	"ch2-ws-turn-value" = $frequency;
 	if ("ch2-ws-frequency") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-frequency" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-headphones" {
-	"ch2-ws-turn-value" = "$headphones";
+	"ch2-ws-turn-value" = $headphones;
 	if ("ch2-ws-headphones") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-headphones" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-hifi" {
-	"ch2-ws-turn-value" = "$hifi";
+	"ch2-ws-turn-value" = $hifi;
 	if ("ch2-ws-hifi") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-hifi" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-laser" {
-	"ch2-ws-turn-value" = "$laser";
+	"ch2-ws-turn-value" = $laser;
 	if ("ch2-ws-laser") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-laser" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-lofi" {
-	"ch2-ws-turn-value" = "$lofi";
+	"ch2-ws-turn-value" = $lofi;
 	if ("ch2-ws-lofi") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-lofi" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-media" {
-	"ch2-ws-turn-value" = "$media";
+	"ch2-ws-turn-value" = $media;
 	if ("ch2-ws-media") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-media" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-microphone" {
-	"ch2-ws-turn-value" = "$microphone";
+	"ch2-ws-turn-value" = $microphone;
 	if ("ch2-ws-microphone") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-microphone" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-midi" {
-	"ch2-ws-turn-value" = "$midi";
+	"ch2-ws-turn-value" = $midi;
 	if ("ch2-ws-midi") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-midi" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-mixing" {
-	"ch2-ws-turn-value" = "$mixing";
+	"ch2-ws-turn-value" = $mixing;
 	if ("ch2-ws-mixing") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-mixing" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-music" {
-	"ch2-ws-turn-value" = "$music";
+	"ch2-ws-turn-value" = $music;
 	if ("ch2-ws-music") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-music" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-phonograph" {
-	"ch2-ws-turn-value" = "$phonograph";
+	"ch2-ws-turn-value" = $phonograph;
 	if ("ch2-ws-phonograph") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-phonograph" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-radio" {
-	"ch2-ws-turn-value" = "$radio";
+	"ch2-ws-turn-value" = $radio;
 	if ("ch2-ws-radio") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-radio" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-recording" {
-	"ch2-ws-turn-value" = "$recording";
+	"ch2-ws-turn-value" = $recording;
 	if ("ch2-ws-recording") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-recording" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-rhythm" {
-	"ch2-ws-turn-value" = "$rhythm";
+	"ch2-ws-turn-value" = $rhythm;
 	if ("ch2-ws-rhythm") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-rhythm" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-sequencer" {
-	"ch2-ws-turn-value" = "$sequencer";
+	"ch2-ws-turn-value" = $sequencer;
 	if ("ch2-ws-sequencer") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-sequencer" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-song" {
-	"ch2-ws-turn-value" = "$song";
+	"ch2-ws-turn-value" = $song;
 	if ("ch2-ws-song") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-song" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-soundtrack" {
-	"ch2-ws-turn-value" = "$soundtrack";
+	"ch2-ws-turn-value" = $soundtrack;
 	if ("ch2-ws-soundtrack") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-soundtrack" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-speakers" {
-	"ch2-ws-turn-value" = "$speakers";
+	"ch2-ws-turn-value" = $speakers;
 	if ("ch2-ws-speakers") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-speakers" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-stereo" {
-	"ch2-ws-turn-value" = "$stereo";
+	"ch2-ws-turn-value" = $stereo;
 	if ("ch2-ws-stereo") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-stereo" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-stream" {
-	"ch2-ws-turn-value" = "$stream";
+	"ch2-ws-turn-value" = $stream;
 	if ("ch2-ws-stream") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-stream" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-subwoofer" {
-	"ch2-ws-turn-value" = "$subwoofer";
+	"ch2-ws-turn-value" = $subwoofer;
 	if ("ch2-ws-subwoofer") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-subwoofer" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-surround" {
-	"ch2-ws-turn-value" = "$surround";
+	"ch2-ws-turn-value" = $surround;
 	if ("ch2-ws-surround") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-surround" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-synthesizer" {
-	"ch2-ws-turn-value" = "$synthesizer";
+	"ch2-ws-turn-value" = $synthesizer;
 	if ("ch2-ws-synthesizer") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-synthesizer" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-tape" {
-	"ch2-ws-turn-value" = "$tape";
+	"ch2-ws-turn-value" = $tape;
 	if ("ch2-ws-tape") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-tape" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-treble" {
-	"ch2-ws-turn-value" = "$treble";
+	"ch2-ws-turn-value" = $treble;
 	if ("ch2-ws-treble") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-treble" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-vinyl" {
-	"ch2-ws-turn-value" = "$vinyl";
+	"ch2-ws-turn-value" = $vinyl;
 	if ("ch2-ws-vinyl") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-vinyl" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-vocoder" {
-	"ch2-ws-turn-value" = "$vocoder";
+	"ch2-ws-turn-value" = $vocoder;
 	if ("ch2-ws-vocoder") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-vocoder" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
 "ch2-ws-guess-volume" {
-	"ch2-ws-turn-value" = "$volume";
+	"ch2-ws-turn-value" = $volume;
 	if ("ch2-ws-volume") {
-		"ch2-ws-turn-status" = "$repeat";
+		"ch2-ws-turn-status" = $repeat;
 	} else {
 		"ch2-ws-volume" = true;
-		"ch2-ws-turn-status" = "$hit";
+		"ch2-ws-turn-status" = $hit;
 	}
 	goto "ch2-ws-doturn";
 }
@@ -1950,11 +1948,11 @@ serial_dialog "ch2-ws-input" {
 // MESSAGES
 
 "ch2-ws-turn-message" {
-	if ("ch2-ws-turn-status" == "$cheat") {
+	if ("ch2-ws-turn-status" == $cheat) {
 		concat serial_dialog {
 			"Whoa! Look who's a medieval man!"
 		};
-	} else if ("ch2-ws-turn-status" == "$miss") {
+	} else if ("ch2-ws-turn-status" == $miss) {
 		concat serial_dialog {
 			"Huh? I don't think I know that word."
 		};
@@ -1962,160 +1960,160 @@ serial_dialog "ch2-ws-input" {
 		concat serial_dialog {
 			"ALBUMS? Love your enthusiasm, but I'm a single-slot kind of guy."
 		};
-	} else if ("ch2-ws-turn-value" == "$base") {
+	} else if ("ch2-ws-turn-value" == $base) {
 		concat serial_dialog {
 			"BASE? Hmmm. Is that how you spell that?"
 		};
-	} else if ("ch2-ws-turn-value" == "$beats") {
+	} else if ("ch2-ws-turn-value" == $beats) {
 		concat serial_dialog {
 			"BEATS? Almost, but not quite what I'm looking for."
 		};
-	} else if ("ch2-ws-turn-value" == "$broadcasts") {
+	} else if ("ch2-ws-turn-value" == $broadcasts) {
 		concat serial_dialog {
 			"BROADCASTS? Optimistic, but I don't know about that."
 		};
-	} else if ("ch2-ws-turn-value" == "$cassettes") {
+	} else if ("ch2-ws-turn-value" == $cassettes) {
 		concat serial_dialog {
 			"CASSETTES? As in multiple? What decade is this?"
 		};
-	} else if ("ch2-ws-turn-value" == "$chiptunes") {
+	} else if ("ch2-ws-turn-value" == $chiptunes) {
 		concat serial_dialog {
 			"CHIPTUNES? I think you're a smidge off, but keep trying."
 		};
-	} else if ("ch2-ws-turn-value" == "$codecs") {
+	} else if ("ch2-ws-turn-value" == $codecs) {
 		concat serial_dialog {
 			"CODECS? I think you're nearly there, but not quite."
 		};
-	} else if ("ch2-ws-turn-value" == "$frequencies") {
+	} else if ("ch2-ws-turn-value" == $frequencies) {
 		concat serial_dialog {
 			"FREQUENCIES? Almost, but not what I'm thinking of."
 		};
-	} else if ("ch2-ws-turn-value" == "$gramophone") {
+	} else if ("ch2-ws-turn-value" == $gramophone) {
 		concat serial_dialog {
 			"GRAMOPHONE? Are you just making things up now?"
 		};
-	} else if ("ch2-ws-turn-value" == "$headphone") {
+	} else if ("ch2-ws-turn-value" == $headphone) {
 		concat serial_dialog {
 			"HEADPHONE? Is that like a 'scissor'? Or a 'pant'?"
 		};
-	} else if ("ch2-ws-turn-value" == "$lasers") {
+	} else if ("ch2-ws-turn-value" == $lasers) {
 		concat serial_dialog {
 			"LASERS? Almost, but not quite. Sounds fun though!"
 		};
-	} else if ("ch2-ws-turn-value" == "$microphones") {
+	} else if ("ch2-ws-turn-value" == $microphones) {
 		concat serial_dialog {
 			"MICROPHONES? Do I look like I need more than one?"
 		};
-	} else if ("ch2-ws-turn-value" == "$phones") {
+	} else if ("ch2-ws-turn-value" == $phones) {
 		concat serial_dialog {
 			"PHONES? Close, but way off."
 		};
-	} else if ("ch2-ws-turn-value" == "$phone") {
+	} else if ("ch2-ws-turn-value" == $phone) {
 		concat serial_dialog {
 			"PHONE? Getting close to something, I can feel it."
 		};
-	} else if ("ch2-ws-turn-value" == "$mic") {
+	} else if ("ch2-ws-turn-value" == $mic) {
 		concat serial_dialog {
 			"MIC? No, but I think that's almost something."
 		};
-	} else if ("ch2-ws-turn-value" == "$musician") {
+	} else if ("ch2-ws-turn-value" == $musician) {
 		concat serial_dialog {
 			"MUSICIAN? A bit overboard, but you're on to something."
 		};
-	} else if ("ch2-ws-turn-value" == "$radios") {
+	} else if ("ch2-ws-turn-value" == $radios) {
 		concat serial_dialog {
 			"RADIOS? Sorry, there's only one of me here."
 		};
-	} else if ("ch2-ws-turn-value" == "$recordings") {
+	} else if ("ch2-ws-turn-value" == $recordings) {
 		concat serial_dialog {
 			"RECORDINGS? Close, but I think you're going a bit overboard."
 		};
-	} else if ("ch2-ws-turn-value" == "$record") {
+	} else if ("ch2-ws-turn-value" == $record) {
 		concat serial_dialog {
 			"RECORD? Aha, yes! Oh, no, wait. Not this time. Close though."
 		};
-	} else if ("ch2-ws-turn-value" == "$sequence") {
+	} else if ("ch2-ws-turn-value" == $sequence) {
 		concat serial_dialog {
 			"SEQUENCE? You're getting somewhere, but no dice this time."
 		};
-	} else if ("ch2-ws-turn-value" == "$sequencers") {
+	} else if ("ch2-ws-turn-value" == $sequencers) {
 		concat serial_dialog {
 			"SEQUENCERS? Were that I was that cool! Maybe scale that back."
 		};
-	} else if ("ch2-ws-turn-value" == "$sing") {
+	} else if ("ch2-ws-turn-value" == $sing) {
 		concat serial_dialog {
 			"SING? I feel like that's close, but I don't know."
 		};
-	} else if ("ch2-ws-turn-value" == "$singing") {
+	} else if ("ch2-ws-turn-value" == $singing) {
 		concat serial_dialog {
 			"SINGING? I mean sure, but... no, that's not what I'm missing."
 		};
-	} else if ("ch2-ws-turn-value" == "$songs") {
+	} else if ("ch2-ws-turn-value" == $songs) {
 		concat serial_dialog {
 			"SONGS? Almost! Not exactly though."
 		};
-	} else if ("ch2-ws-turn-value" == "$sound") {
+	} else if ("ch2-ws-turn-value" == $sound) {
 		concat serial_dialog {
 			"SOUND? I mean sure, but... no, not what I'm looking for."
 		};
-	} else if ("ch2-ws-turn-value" == "$soundtracks") {
+	} else if ("ch2-ws-turn-value" == $soundtracks) {
 		concat serial_dialog {
 			"SOUNDTRACKS? Enthusiastic, aren't you! Not quite, though."
 		};
-	} else if ("ch2-ws-turn-value" == "$synth") {
+	} else if ("ch2-ws-turn-value" == $synth) {
 		concat serial_dialog {
 			"SYNTH? Getting there, but I think you can go bigger!"
 		};
-	} else if ("ch2-ws-turn-value" == "$synthesizers") {
+	} else if ("ch2-ws-turn-value" == $synthesizers) {
 		concat serial_dialog {
 			"SYNTHESIZERS? Almost there, but maybe a little different."
 		};
-	} else if ("ch2-ws-turn-value" == "$track") {
+	} else if ("ch2-ws-turn-value" == $track) {
 		concat serial_dialog {
 			"TRACK? Was it more than that? It's on the tip of my silicon."
 		};
-	} else if ("ch2-ws-turn-value" == "$tracks") {
+	} else if ("ch2-ws-turn-value" == $tracks) {
 		concat serial_dialog {
 			"TRACKS? No, but I think that's close."
 		};
-	} else if ("ch2-ws-turn-value" == "$speaker") {
+	} else if ("ch2-ws-turn-value" == $speaker) {
 		concat serial_dialog {
 			"SPEAKER? Hey, I'm more sophisticated than that! Go bigger!"
 		};
-	} else if ("ch2-ws-turn-value" == "$stereos") {
+	} else if ("ch2-ws-turn-value" == $stereos) {
 		concat serial_dialog {
 			"STEREOS? Can you use the word like that? Was it something similar?"
 		};
-	} else if ("ch2-ws-turn-value" == "$streams") {
+	} else if ("ch2-ws-turn-value" == $streams) {
 		concat serial_dialog {
 			"STREAMS? I'm loving the river vibe, but not exactly right."
 		};
-	} else if ("ch2-ws-turn-value" == "$subwoofers") {
+	} else if ("ch2-ws-turn-value" == $subwoofers) {
 		concat serial_dialog {
 			"SUBWOOFERS? I hardly know her!"
 		};
-	} else if ("ch2-ws-turn-value" == "$tapes") {
+	} else if ("ch2-ws-turn-value" == $tapes) {
 		concat serial_dialog {
 			"TAPES? So close, but a little too much."
 		};
-	} else if ("ch2-ws-turn-value" == "$tune") {
+	} else if ("ch2-ws-turn-value" == $tune) {
 		concat serial_dialog {
 			"TUNE? Hmmm... almost, but not quite. Maybe it's something more."
 		};
-	} else if ("ch2-ws-turn-value" == "$tunes") {
+	} else if ("ch2-ws-turn-value" == $tunes) {
 		concat serial_dialog {
 			"TUNES? Hmmm, maybe something else, something similar."
 		};
-	} else if ("ch2-ws-turn-value" == "$vinyls") {
+	} else if ("ch2-ws-turn-value" == $vinyls) {
 		concat serial_dialog {
 			"VINYLS? No, I don't know if that's quite how that goes."
 		};
-	} else if ("ch2-ws-turn-value" == "$vocoders") {
+	} else if ("ch2-ws-turn-value" == $vocoders) {
 		concat serial_dialog {
 			"VOCODERS? Technically, yes, but not what I'm looking for this time."
 		};
 	} else 	if ("ch2-ws-turn-value" == $album) {
-		if ("ch2-ws-turn-status" == "$repeat") {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"ALBUM? Oh, but you've found that one already."
 			};
@@ -2125,7 +2123,7 @@ serial_dialog "ch2-ws-input" {
 			};
 		}
 	} else if ("ch2-ws-turn-value" == $analog) {
-		if ("ch2-ws-turn-status" == "$repeat") {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"ANALOG? Oh, but you've found that one already."
 			};
@@ -2135,7 +2133,7 @@ serial_dialog "ch2-ws-input" {
 			};
 		}
 	} else if ("ch2-ws-turn-value" == $audio) {
-		if ("ch2-ws-turn-status" == "$repeat") {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"AUDIO? Oh, but you've found that one already."
 			};
@@ -2145,7 +2143,7 @@ serial_dialog "ch2-ws-input" {
 			};
 		}
 	} else if ("ch2-ws-turn-value" == $aux) {
-		if ("ch2-ws-turn-status" == "$repeat") {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"AUX? Oh, but you've found that one already."
 			};
@@ -2154,8 +2152,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>AUX</>! How could I forget? Who would ever want to lose this?"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$bass") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $bass) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"BASS? Oh, but you've found that one already."
 			};
@@ -2164,8 +2162,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BASS</>! Oh, yeah! I'm all about that low frequency! It's the butter zone!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$beat") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $beat) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"BEAT? Oh, but you've found that one already."
 			};
@@ -2174,8 +2172,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BEAT</>! It's all coming back! Makes my LEDs all tingly."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$bpm") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $bpm) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"BPM? Oh, but you've found that one already."
 			};
@@ -2184,8 +2182,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BPM</>! Oh, yeah! Reminds me of my buddy, Metronome!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$broadcast") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $broadcast) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"BROADCAST? Oh, but you've found that one already."
 			};
@@ -2194,8 +2192,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BROADCAST</>! Oh, yeah! Reminds me of those aluminum flags I used to wear."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$cassette") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $cassette) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"CASSETTE? Oh, but you've found that one already."
 			};
@@ -2204,8 +2202,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CASSETTE</>! Oh, I remember those! They're so cute and spindly!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$chiptune") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $chiptune) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"CHIPTUNE? Oh, but you've found that one already."
 			};
@@ -2214,8 +2212,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CHIPTUNE</>! Oh, right! So sine wavey and squarey...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$codec") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $codec) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"CODEC? Oh, but you've found that one already."
 			};
@@ -2224,8 +2222,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CODEC</>! Oh, that's right, I think I know a few of these."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$compact") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $compact) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"COMPACT? Oh, but you've found that one already."
 			};
@@ -2234,8 +2232,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>COMPACT</>! Ha! Compact discs? More like--yeah, no, I got nothing."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$frequency") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $frequency) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"FREQUENCY? Oh, but you've found that one already."
 			};
@@ -2244,8 +2242,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>FREQUENCY</>! That's the best! Dial it in, find the sweet spot...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$headphones") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $headphones) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"HEADPHONES? Oh, but you've found that one already."
 			};
@@ -2254,8 +2252,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>HEADPHONES</>! Yeah, I remember these! Let's get tinitus together!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$hifi") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $hifi) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"HIFI? Oh, but you've found that one already."
 			};
@@ -2264,8 +2262,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>HIFI</>! Who could forget? My audio standards are through the ROOF!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$laser") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $laser) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"LASER? Oh, but you've found that one already."
 			};
@@ -2274,8 +2272,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>LASER</>! Ahaha, that's right! It's all about the 1s and 0s, isn't it?"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$lofi") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $lofi) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"LOFI? Oh, but you've found that one already."
 			};
@@ -2284,8 +2282,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>LOFI</>! Oh, so nostalgic! Oh... I'm tearing up."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$media") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $media) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"MEDIA? Oh, but you've found that one already."
 			};
@@ -2294,8 +2292,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MEDIA</>! Oh, that's right! Anything you can throw at me, I can take!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$microphone") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $microphone) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"MICROPHONE? Oh, but you've found that one already."
 			};
@@ -2304,8 +2302,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MICROPHONE</>! Oh yeah! I used to host karaoke parties all the time!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$midi") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $midi) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"MIDI? Oh, but you've found that one already."
 			};
@@ -2314,8 +2312,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MIDI</>! WOW, that's right! Who has a classy sound font? This guy!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$mixing") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $mixing) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"MIXING? Oh, but you've found that one already."
 			};
@@ -2324,8 +2322,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MIXING</>! Aha, so that's what my second tape deck was for!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$music") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $music) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"MUSIC? Oh, but you've found that one already."
 			};
@@ -2334,8 +2332,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MUSIC</>! Oh, yes! I remember! This is the best part about all of this!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$phonograph") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $phonograph) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"PHONOGRAPH? Oh, but you've found that one already."
 			};
@@ -2344,8 +2342,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>PHONOGRAPH</>! Oh, that's right, my great-grandpa! That takes me back."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$radio") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $radio) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"RADIO? Oh, but you've found that one already."
 			};
@@ -2354,8 +2352,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RADIO</>! Yeah, let's take a caller! Let's go to a commercial!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$recording") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $recording) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"RECORDING? Oh, but you've found that one already."
 			};
@@ -2364,8 +2362,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RECORDING</>! Yes! This is the best part! It's like having a time machine!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$rhythm") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $rhythm) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"RHYTHM? Oh, but you've found that one already."
 			};
@@ -2374,8 +2372,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RHYTHM</>! Yeah! You've hit the nail on the head! That's why we're here!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$sequencer") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $sequencer) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SEQUENCER? Oh, but you've found that one already."
 			};
@@ -2384,8 +2382,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SEQUENCER</>! Oh yeah! I always wanted to be one of these when I grew up."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$song") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $song) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SONG? Oh, but you've found that one already."
 			};
@@ -2394,8 +2392,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SONG</>! Oh, yes! These are like stories, or like memories! I remember...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$soundtrack") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $soundtrack) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SOUNDTRACK? Oh, but you've found that one already."
 			};
@@ -2404,8 +2402,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SOUNDTRACK</>! Aha! Wonderful. I'm remembering...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$speakers") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $speakers) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SPEAKERS? Oh, but you've found that one already."
 			};
@@ -2414,8 +2412,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SPEAKERS</>! Oh, yeah! Without these, music would be DEAD."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$stereo") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $stereo) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"STEREO? Oh, but you've found that one already."
 			};
@@ -2424,8 +2422,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>STEREO</>! Ooh ooh! Yeah, I control the horizontal... of a sort."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$stream") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $stream) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"STREAM? Oh, but you've found that one already."
 			};
@@ -2434,8 +2432,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>STREAM</>! Oh, yeah! Buffer 'til the cows come home!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$subwoofer") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $subwoofer) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SUBWOOFER? Oh, but you've found that one already."
 			};
@@ -2444,8 +2442,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SUBWOOFER</>! Oh, that's right! Let's rattle some windows!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$surround") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $surround) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SURROUND? Oh, but you've found that one already."
 			};
@@ -2454,8 +2452,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SURROUND</>! I remember filling the world with sound from all around!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$synthesizer") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $synthesizer) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"SYNTHESIZER? Oh, but you've found that one already."
 			};
@@ -2464,8 +2462,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SYNTHESIZER</>! Oh! I had a job in college where I worked as one of these."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$tape") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $tape) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"TAPE? Oh, but you've found that one already."
 			};
@@ -2474,8 +2472,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>TAPE</>! Aha, I remember... those things give me indigestion! Yuck!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$treble") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $treble) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"TREBLE? Oh, but you've found that one already."
 			};
@@ -2484,8 +2482,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>TREBLE</>! Of course! Sends shivers down my copper wiring!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$vinyl") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $vinyl) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"VINYL? Oh, but you've found that one already."
 			};
@@ -2494,8 +2492,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>VINYL</>! Oh! What a nostalgic thought! Reminds me of old grandpappy...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$vocoder") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $vocoder) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"VOCODER? Oh, but you've found that one already."
 			};
@@ -2504,8 +2502,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>VOCODER</>! Oh, yeah! I remembered how to do a Dalek voice!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == "$volume") {
-		if ("ch2-ws-turn-status" == "$repeat") {
+	} else if ("ch2-ws-turn-value" == $volume) {
+		if ("ch2-ws-turn-status" == $repeat) {
 			concat serial_dialog {
 				"VOLUME? Oh, but you've found that one already."
 			};
