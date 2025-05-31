@@ -1,9 +1,9 @@
 const fs = require('node:fs');
 
-const currentFileName = `ch2-bobsclub`;
+const currentFileName = `ch1/ch1-map_main`;
 
-const readFrom = `mgs/ch2/${currentFileName}-v1.mgs`;
-const writeTo = `mgs/ch2/${currentFileName}.mgs`;
+const readFrom = `mgs/${currentFileName}-v1.mgs`;
+const writeTo = `mgs/${currentFileName}.mgs`;
 const filePath = `${__dirname}/${readFrom}`
 const file = fs.readFileSync(filePath).toString('utf8');
 
