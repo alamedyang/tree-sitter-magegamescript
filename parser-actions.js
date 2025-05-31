@@ -1,4 +1,5 @@
 const {
+	handleCapture,
 	captureForFieldName,
 	capturesForFieldName,
 	textForFieldName,
@@ -264,7 +265,7 @@ const handleAction = (f, node) => { // ->[]
 const actionFns = {
 	action_show_dialog: (f, node) => {
 		const nameNode = node.childForFieldName('dialog_name');
-		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
+		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
 			.map(child => handleNode(f, child))
 			.flat();
@@ -277,7 +278,7 @@ const actionFns = {
 	action_concat_serial_dialog: (f, node) => actionFns.action_show_serial_dialog(f, node, true),
 	action_show_serial_dialog: (f, node, isConcat) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
-		const name = nameNode ? nameNode.text : autoIdentifierName(f, node);
+		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
 			.map(child => handleNode(f, child))
 			.flat();
@@ -371,7 +372,7 @@ const actionData = {
 	},
 	action_camera_shake: {
 		values: { action: 'SET_SCREEN_SHAKE' },
-		captures: ['amplitude', 'distance', 'duration'],
+		captures: ['frequency', 'amplitude', 'duration'],
 	},
 	action_camera_fade_in: {
 		values: { action: 'SCREEN_FADE_IN' },
@@ -391,7 +392,7 @@ const actionData = {
 	},
 	action_play_entity_animation: {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
-		captures: ['entity', 'animation', 'count'],
+		captures: ['entity', 'animation', 'play_count'],
 	},
 	action_set_warp_state: {
 		values: { action: 'SET_WARP_STATE' },

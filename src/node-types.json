@@ -218,24 +218,6 @@
             "named": true
           },
           {
-            "type": "DURATION",
-            "named": true
-          },
-          {
-            "type": "duration_expansion",
-            "named": true
-          }
-        ]
-      },
-      "distance": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "CONSTANT",
-            "named": true
-          },
-          {
             "type": "DISTANCE",
             "named": true
           },
@@ -246,6 +228,24 @@
         ]
       },
       "duration": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "DURATION",
+            "named": true
+          },
+          {
+            "type": "duration_expansion",
+            "named": true
+          }
+        ]
+      },
+      "frequency": {
         "multiple": false,
         "required": true,
         "types": [
@@ -799,7 +799,21 @@
           }
         ]
       },
-      "count": {
+      "entity": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_identifier",
+            "named": true
+          },
+          {
+            "type": "entity_identifier_expansion",
+            "named": true
+          }
+        ]
+      },
+      "play_count": {
         "multiple": false,
         "required": true,
         "types": [
@@ -813,20 +827,6 @@
           },
           {
             "type": "quantity_expansion",
-            "named": true
-          }
-        ]
-      },
-      "entity": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "entity_identifier",
-            "named": true
-          },
-          {
-            "type": "entity_identifier_expansion",
             "named": true
           }
         ]

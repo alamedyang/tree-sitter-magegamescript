@@ -6,6 +6,7 @@ const {
 	reportMissingChildNodes,
 	reportErrorNodes,
 } = require('./parser-utilities.js');
+const { printScript } = require('./parser-to-json.js')
 const { makeFileState } = require('./parser-file.js')
 const handleNode = require('./parser-node.js');
 
@@ -171,22 +172,28 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			});
 		},
 		bakeLabels: () => {
-			Object.values(p.scripts).forEach(scriptData=>{
+			Object.keys(p.scripts).forEach(scriptName=>{
+				const scriptData = p.scripts[scriptName];
+				scriptData.prePrint = printScript(scriptName, scriptData.actions);
 				const registry = {};
 				const actions = scriptData.actions;
 				let commentlessIndex = 0;
 				for (let i = 0; i < actions.length; i++) {
 					const currAction = actions[i];
-					if (currAction.mathlang === 'comment') {
+					if (
+						currAction.mathlang === 'comment'
+						|| currAction.mathlang === 'dialog_definition'
+						|| currAction.mathlang === 'serial_dialog_definition'
+					) {
 						continue;
+					} else if (currAction.mathlang === 'label_definition') {
+						registry[currAction.label] = commentlessIndex;
+						actions[i] = newComment(`'${currAction.label}':`);
+						// commentlessIndex -= 1;
 					} else {
 						commentlessIndex += 1;
 					}
-					if (currAction.mathlang === 'label_definition') {
-						registry[currAction.label] = commentlessIndex;
-						actions[i] = newComment(`'${currAction.label}':`);
-						commentlessIndex -= 1;
-					}
+					
 				}
 				actions.forEach(action=>{
 					if (action.mathlang?.includes('label')) {

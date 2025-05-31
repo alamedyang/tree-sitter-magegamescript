@@ -73,7 +73,7 @@ include "header.mgs";
 }
 
 "system_bell" {
-	show serial_dialog "main_menu.mgs:91:2" {
+	show serial_dialog {
 		"Honk!"
 	};
 }
@@ -157,7 +157,7 @@ include "header.mgs";
 
 "main_menu" {
 	player on_tick = null_script;
-	show dialog "main_menu.mgs:165:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"CHOOSE YOUR FATE"
@@ -171,7 +171,7 @@ include "header.mgs";
 /* ---------- CREDITS ---------- */
 
 "menu-credits-choice" {
-	show dialog "main_menu.mgs:179:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"CREDITS"
@@ -194,7 +194,7 @@ include "header.mgs";
 /* ---------- BLING MODE ---------- */
 
 "menu-bling-mode" {
-	show dialog "main_menu.mgs:201:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"SAVE YOUR SCREEN"
@@ -206,7 +206,7 @@ include "header.mgs";
 }
 
 "menu-bling-dc801-showcase" {
-	show dialog "main_menu.mgs:213:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"DC801 SHOWCASE"
@@ -221,7 +221,7 @@ include "header.mgs";
 //---------------------------------//
 
 "menu-play_game" {
-	show dialog "main_menu.mgs:227:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"PLAY GAME"
@@ -233,7 +233,7 @@ include "header.mgs";
 }
 
 "menu-erase_save" {
-	show dialog "main_menu.mgs:241:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"BOOM TIME!"
@@ -262,7 +262,7 @@ include "header.mgs";
 /* ---------- LOAD GAME ---------- */
 
 "menu-load_game" {
-	show dialog "main_menu.mgs:268:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"LOAD GAME"
@@ -294,7 +294,7 @@ include "header.mgs";
 /* ---------- NEW GAME ---------- */
 
 "menu-new_game" {
-	show dialog "main_menu.mgs:297:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"NEW GAME"
@@ -326,7 +326,7 @@ include "header.mgs";
 // Set player name
 
 "menu-player-name-q" {
-	show dialog "main_menu.mgs:333:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"NEW GAME: Pick your name."
@@ -353,7 +353,7 @@ include "header.mgs";
 }
 
 "menu-player-name-confirm" {
-	show dialog "main_menu.mgs:357:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"Your name is %PLAYER%?"
@@ -389,7 +389,7 @@ include "header.mgs";
 			"Bub"
 		];
 	)
-	show dialog "main_menu.mgs:412:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"Your name is %PLAYER%?"
@@ -416,7 +416,7 @@ include "header.mgs";
 "menu-chapter_select-q" {
 	copy!("ch1-count-flags")
 	copy!("ch2-count-flags")
-	show dialog "main_menu.mgs:438:2" {
+	show dialog {
 		name " "
 		border_tileset menu
 		"PLAY (slot $slot-number$: \"%PLAYER%\")"
@@ -437,7 +437,7 @@ include "header.mgs";
 		goto "menu-chapter_select-2";
 	} else {
 		"warned_ch1_incomplete" = true;
-		show dialog "main_menu.mgs:459:3" {
+		show dialog {
 			name " "
 			border_tileset menu
 			"Chapter 1 is unfinished!"
@@ -463,7 +463,7 @@ include "header.mgs";
 /* ---------- SAVE THE GAME ---------- */
 
 "menu-save_game" {
-	show dialog "main_menu.mgs:485:2" {
+	show dialog {
 		name "Save Game"
 		border_tileset codec
 		portrait floppy

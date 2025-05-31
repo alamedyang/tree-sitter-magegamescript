@@ -158,10 +158,10 @@ const printActionFns = {
 	LOOP_CAMERA_ALONG_GEOMETRY: (v) => `camera -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)} forever;`,
 	
 	// Other do over time
-	SET_SCREEN_SHAKE: (v) => `camera shake -> ${v.amplitude}ms ${v.distance}px over ${printDuration(v.duration)};`,
+	SET_SCREEN_SHAKE: (v) => `camera shake -> ${v.frequency}ms ${v.amplitude}px over ${printDuration(v.duration)};`,
 	SCREEN_FADE_IN: (v) => `camera fade in -> ${v.color} over ${printDuration(v.duration)};`,
 	SCREEN_FADE_OUT: (v) => `camera fade out -> ${v.color} over ${printDuration(v.duration)};`,
-	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.count}x;`,
+	PLAY_ENTITY_ANIMATION: (v) => `${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.play_count}x;`,
 
 	// Commands and aliases
 	REGISTER_SERIAL_DIALOG_COMMAND: (v) => v.is_fail

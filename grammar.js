@@ -491,8 +491,8 @@ module.exports = grammar({
 		
 		action_camera_shake: $ => seq(
 			'camera', 'shake', '->',
-			field('amplitude', $.duration_expandable),
-			field('distance', $.distance_expandable),
+			field('frequency', $.duration_expandable),
+			field('amplitude', $.distance_expandable),
 			'over',
 			field('duration', $.duration_expandable),
 		),
@@ -501,7 +501,7 @@ module.exports = grammar({
 			field('entity', $.entity_identifier_expandable),
 			'animation', '->',
 			field('animation', $.number_expandable),
-			field('count', $.quantity_expandable),
+			field('play_count', $.quantity_expandable),
 		),
 
 		geometry_identifier: $ => seq(

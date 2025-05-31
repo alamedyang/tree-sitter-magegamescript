@@ -8,6 +8,7 @@ const { debugLog } = require('./parser-utilities.js');
 const { printScript } = require('./parser-to-json.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
+const { composites } = require('./comparisons/exfiltrated_composites.js');
 
 // /*
 // stolen from the other place
@@ -93,14 +94,14 @@ const parseProject = async (fileMap, scenarioData) => {
 
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
+	
+	// bake all the labels into hard-coded action indices
+	p.bakeLabels();
 
 	// Make script plaintext readable
 	Object.keys(p.scripts).forEach(scriptName=>{
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
-	})
-	
-	// bake all the labels into hard-coded action indices
-	p.bakeLabels();
+	});
 	
 	// print fancy squiggly error messages
 	p.printProblems();
@@ -113,6 +114,15 @@ const parseProject = async (fileMap, scenarioData) => {
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
+const sanitizeActions = (action) => {
+	if (action.action === 'SHOW_DIALOG') {
+		action.dialog = action.dialog.replace(/(-|:)\d+:\d+$/, '-XX');
+	} else if (action.action === 'SHOW_SERIAL_DIALOG') {
+		action.serial_dialog = action.serial_dialog.replace(/(-|:)\d+:\d+$/, '-XX');
+	}
+	return action;
+}
+
 parseProject(fileMap).then((p)=>{
 	// console.log('PROJECT');
 	// console.log(p);
@@ -120,7 +130,51 @@ parseProject(fileMap).then((p)=>{
 		.map(v=>v.print)
 		.join('\n\n');
 	// console.log(printAll);
-	console.log("BREAK")
+	const prints = {};
+	let tally = 0;
+	let badTally = 0;
+	let missingTally = 0;
+	Object.entries(p.scripts).forEach(([k,v])=>{
+		if (!composites[k]) {
+			missingTally += 1;
+			return;
+		}
+		const oldVersionFiltered = composites[k]
+			.map(sanitizeActions);
+		const newVersionFiltered = v.actions
+			.filter(vv=>{
+				return vv.mathlang !== 'comment'
+					&& vv.mathlang !== 'dialog_definition'
+					&& vv.mathlang !== 'serial_dialog_definition'
+			})
+			.map(vv=>{
+				delete vv.comment;
+				return sanitizeActions(vv)
+			});
+		const oldVersion = printScript(k, oldVersionFiltered);
+		const newVersion = printScript(k, newVersionFiltered);
+		if (oldVersion !== newVersion) {
+			prints[k] = {
+				mathlangPre: v.prePrint,
+				mathlang: newVersion,
+				natlang: oldVersion,
+				original: v.debug.text,
+			}
+			badTally += 1;
+		} else {
+			tally += 1;
+		}
+	});
+	const lhs = Object.values(prints).map(v=>v.natlang).join('\n\n');
+	const rhs = Object.values(prints).map(v=>v.mathlang).join('\n\n');
+	const rhsPre = Object.values(prints).map(v=>v.mathlangPre).join('\n\n');
+	const original = Object.values(prints).map(v=>v.original).join('\n\n');
+	console.log(`${tally} scripts were identical (${badTally} were different, ${missingTally} missing)`)
+	fs.writeFileSync(`./comparisons/lhs.mgs`, lhs);
+	fs.writeFileSync(`./comparisons/rhs.mgs`, rhs);
+	fs.writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);
+	fs.writeFileSync(`./comparisons/rhsOriginal.mgs`, original);
+
 });
 // */
 

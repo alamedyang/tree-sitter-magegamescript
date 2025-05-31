@@ -3124,7 +3124,7 @@
         },
         {
           "type": "FIELD",
-          "name": "amplitude",
+          "name": "frequency",
           "content": {
             "type": "SYMBOL",
             "name": "duration_expandable"
@@ -3132,7 +3132,7 @@
         },
         {
           "type": "FIELD",
-          "name": "distance",
+          "name": "amplitude",
           "content": {
             "type": "SYMBOL",
             "name": "distance_expandable"
@@ -3181,7 +3181,7 @@
         },
         {
           "type": "FIELD",
-          "name": "count",
+          "name": "play_count",
           "content": {
             "type": "SYMBOL",
             "name": "quantity_expandable"

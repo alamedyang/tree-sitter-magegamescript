@@ -527,7 +527,7 @@ const captureFns = {
 			if (typeof rhs === 'string') {
 				return {
 					...ret,
-					...checkVariables(lhs, rhs, op),
+					...checkVariables(f, lhs, rhs, op),
 				};
 			} else if (typeof rhs === 'number') {
 				return {
@@ -601,13 +601,15 @@ const compareNumberCheckableEquality = (f, checkableNode, numberNode) => {
 		[checkable.numberLabel]: number,
 	};
 };
-const checkVariables = (f, variable, source, comparison) => ({
-	action: 'CHECK_VARIABLES',
-	variable,
-	source,
-	comparison,
-	expected_bool: true,
-});
+const checkVariables = (f, variable, source, comparison) => {
+	return {
+		action: 'CHECK_VARIABLES',
+		variable,
+		source,
+		comparison,
+		expected_bool: true,
+	};
+};
 const checkVariable = (f, variable, value, comparison) => ({
 	action: 'CHECK_VARIABLE',
 	variable,
