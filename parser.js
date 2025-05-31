@@ -109,7 +109,7 @@ const parseProject = async (fileMap, scenarioData) => {
 	return p;
 };
 
-// /*
+/*
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
@@ -119,8 +119,8 @@ parseProject(fileMap).then((p)=>{
 	const printAll = Object.values(p.scripts)
 		.map(v=>v.print)
 		.join('\n\n');
-	// console.log(printAll);
+	console.log(printAll);
 });
-// */
+*/
 
 module.exports = { parseProject };

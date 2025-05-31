@@ -19,6 +19,7 @@ const {
 	dropTemporary,
 	quickTemporary,
 	latestTemporary,
+	newComment,
 } = require('./parser-utilities.js');
 const {
 	getBoolFieldForAction,
@@ -47,7 +48,9 @@ const flattenIntBinaryExpression = (exp, steps) => {
 	const lhs = exp.lhs;
 	const op = exp.op;
 	const rhs = exp.rhs;
-	if (typeof lhs === 'number') {
+	if (typeof lhs === 'string') {
+		steps.push(setVarToVar(temporary, lhs));
+	} else if (typeof lhs === 'number') {
 		steps.push(setVarToValue(temporary, lhs));
 	} else if (lhs.entity) {
 		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary));
@@ -56,8 +59,19 @@ const flattenIntBinaryExpression = (exp, steps) => {
 		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(lhs, steps);
 	}
-	if (typeof rhs === 'number') {
-		steps.push(changeVarByValue(temporary, rhs, op))
+	if (typeof rhs === 'string') {
+		steps.push(changeVarByVar(temporary, rhs, op))
+	} else if (typeof rhs === 'number') {
+		if (
+			op === '+' && rhs === 0
+			|| op === '-' && rhs === 0
+			|| op === '*' && rhs === 1
+			|| op === '/' && rhs === 1
+		) {
+			// do nothing
+		} else {
+			steps.push(changeVarByValue(temporary, rhs, op))
+		}
 	} else if (rhs.entity) {
 		const temp = quickTemporary();
 		steps.push(
@@ -462,7 +476,7 @@ const actionData = {
 				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs').includes('int'),
 				finalizeValues: (v, f, node) => {
 					// Make a temporary variable to store the value of the expression
-					newTemporary();
+					newTemporary(v.lhs);
 					// Play out the expression
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					// Clean up the temporary (but retain the variable name)
@@ -1059,18 +1073,27 @@ const setVarToValue = (variable, value) => ({
 	value,
 	variable,
 });
-const setVarToVar = (variable, source) => ({
-	action: 'MUTATE_VARIABLES',
-	operation: 'SET',
-	source,
-	variable,
-});
-const changeVarByValue = (variable, value, op) => ({
-	action: 'MUTATE_VARIABLE',
-	operation: opIntoStringMap[op] || op,
-	value,
-	variable,
-});
+const setVarToVar = (variable, source) => {
+	if (variable === source) return newComment(`This action was optimized out (setting '${variable}' to itself)`);
+	return {
+		action: 'MUTATE_VARIABLES',
+		operation: 'SET',
+		source,
+		variable,
+	};
+}
+const changeVarByValue = (variable, value, op) => {
+	if (op === '+' && value === 0) return newComment('This action was optimized out (+ 0)');
+	if (op === '*' && value === 1) return newComment('This action was optimized out (* 1)');
+	if (op === '/' && value === 1) return newComment('This action was optimized out (/ 1)');
+	if (op === '-' && value === 0) return newComment('This action was optimized out (- 0)');
+	return {
+		action: 'MUTATE_VARIABLE',
+		operation: opIntoStringMap[op] || op,
+		value,
+		variable,
+	};
+}
 const changeVarByVar = (variable, source, op) => ({
 	action: 'MUTATE_VARIABLES',
 	operation: opIntoStringMap[op] || op,

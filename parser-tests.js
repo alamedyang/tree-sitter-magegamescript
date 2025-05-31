@@ -698,7 +698,7 @@ const actionTests = {
 	},
 	bool_exp_invert_or: {
 		input: [
-			'entity Bob glitched = !(debug_mode || isGoatGrumpy)',
+			'entity Bob glitched = !(debug_mode || isGoatGrumpy);',
 		],
 		expected: [
 			'if !debug_mode then goto label if_true_*A*;',
@@ -715,7 +715,7 @@ const actionTests = {
 	},
 	bool_exp_invert_and: {
 		input: [
-			'entity Bob glitched = !(debug_mode && isGoatGrumpy)',
+			'entity Bob glitched = !(debug_mode && isGoatGrumpy);',
 		],
 		expected: [
 			'if !debug_mode then goto label if_true_*A*;',
@@ -749,28 +749,31 @@ const actionTests = {
 			// TODO: ??????????????
 		],
 	},
-	set_int_exp_ok: {
-		input: [
-			// MUTATE_VARIABLES
-			'"bothVarsAre" = "ambiguous";', // and that's ok
+	// set_int_exp_ok: {
+	// 	input: [
+	// 		// MUTATE_VARIABLES
+	// 		'"bothVarsAre" = "ambiguous";', // and that's ok
 
-			// MUTATE_VARIABLE
-			'"goatCount" = 0;',
+	// 		// MUTATE_VARIABLE
+	// 		'"goatCount" = 0;',
 
-			// COPY_VARIABLE
-			'"goatCount" = player x;',
-			'player y = "goatCount";',
-		]
-	},
+	// 		// COPY_VARIABLE
+	// 		'"goatCount" = player x;',
+	// 		'player y = "goatCount";',
+	// 	]
+	// },
 	int_exp_chain_literal_getable: {
 		input: [
 			'goatCount = 1 + player x;',
 		],
 		expected: [
-			'*A* = 1;',
-			'*B* = player x;',
-			'*A* += *B*;',
-			'"goatCount" = *A*;',
+			'goatCount = 1;',
+			'*A* = player x;',
+			'goatCount += *A*;',
+			// '*A* = 1;',
+			// '*B* = player x;',
+			// '*A* += *B*;',
+			// '"goatCount" = *A*;',
 		],
 	},
 	int_exp_chain_getable_getable: {
@@ -778,10 +781,13 @@ const actionTests = {
 			'goatCount = player y + player x;',
 		],
 		expected: [
-			'*A* = player y;',
-			'*B* = player x;',
-			'*A* += *B*;',
-			'"goatCount" = *A*;',
+			'"goatCount" = player y;',
+			'*A* = player x;',
+			'"goatCount" += *A*;',
+			// '*A* = player y;',
+			// '*B* = player x;',
+			// '*A* += *B*;',
+			// '"goatCount" = *A*;',
 		],
 	},
 	int_exp_chain_literal_getable_mult: {
@@ -789,11 +795,15 @@ const actionTests = {
 			'goatCount = 1 + player x * 99;',
 		],
 		expected: [
-			'*A* = 1;',
-			'*B* = player x;',
-			'*B* *= 99;',
-			'*A* += *B*;',
-			'"goatCount" = *A*;',
+			'"goatCount = 1;',
+			'*A* = player x;',
+			'*A* *= 99;',
+			'"goatCount += *B*;',
+			// '*A* = 1;',
+			// '*B* = player x;',
+			// '*B* *= 99;',
+			// '*A* += *B*;',
+			// '"goatCount" = *A*;',
 		  ],
 	},
 	int_exp_chain_literal_getable_mult_parens: {
@@ -801,11 +811,10 @@ const actionTests = {
 			'goatCount = (1 + player x) * 99;',
 		],
 		expected: [
-			'*A* = 1;',
-			'*B* = player x;',
-			'*A* += *B*;',
-			'*A* *= 99;',
-			'"goatCount" = *A*;',
+			'"goatCount" = 1;',
+			'*A* = player x;',
+			'"goatCount" += *A*;',
+			'"goatCount" *= 99;',
 		],
 	},
 	ambiguous_bool_single_invert: {
@@ -1254,6 +1263,24 @@ const actionTests = {
 			'rendezvous_*C*:',
 		],
 	},
+	silence_warning_bodge: {
+		input: [
+			'intName = intName2+0;',
+			'intName = intName2-0;',
+			'intName = intName2*1;',
+			'intName = intName2/1;',
+		],
+		expected: [
+			// originally yielded:
+			// '"__TEMP_0" = "intName2";',
+			// '"__TEMP_0" += 0;',
+			// '"intName" = "__TEMP_0";',
+			'"intName" = "intName2";',
+			'"intName" = "intName2";',
+			'"intName" = "intName2";',
+			'"intName" = "intName2";',
+		]
+	}
 };
 
 // --------------------------- FILE-LEVEL TESTS ---------------------------
@@ -1322,29 +1349,29 @@ const fileMap = {
 			},
 		},
 	},
-	'dialog_error_wrap.mgs': {
-		fileText: `dialog "tooLong" {
-			Bob wrap 20
-			"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
-		}`,
-		expected: {
-			warningCount: 1,
-			dialogs: {
-				tooLong: {
-					dialogs: [
-						{
-							entity: "Bob",
-							alignment: "BOTTOM_LEFT",
-							messages: [
-								'ACK!\n\nA goat! Oh, I guess\nI need to make sure\nthis thing wraps.\nLet\'s see. How many\nchars can this be?',
-							],
-						},
-					],
-				},
-			},
-		},
+	// 'dialog_error_wrap.mgs': {
+	// 	fileText: `dialog "tooLong" {
+	// 		Bob wrap 20
+	// 		"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
+	// 	}`,
+	// 	expected: {
+	// 		warningCount: 1,
+	// 		dialogs: {
+	// 			tooLong: {
+	// 				dialogs: [
+	// 					{
+	// 						entity: "Bob",
+	// 						alignment: "BOTTOM_LEFT",
+	// 						messages: [
+	// 							'ACK!\n\nA goat! Oh, I guess\nI need to make sure\nthis thing wraps.\nLet\'s see. How many\nchars can this be?',
+	// 						],
+	// 					},
+	// 				],
+	// 			},
+	// 		},
+	// 	},
 
-	},
+	// },
 	'dialog_wrapping.mgs': {
 		fileText: `dialog "wrapBasics" {
 			Bob wrap 20

@@ -214,13 +214,13 @@ Simon animations:
 	"ch2-simon-move-fail" = false;
 	wait 800ms;
 	for ("i" = 0; "i" < "simon-round"; "i" += 1) {
-		if ("i" == 0) { "simon-pos-curr" = "simon-pos1"+0; }
-		else if ("i" == 1) { "simon-pos-curr" = "simon-pos2"+0; }
-		else if ("i" == 2) { "simon-pos-curr" = "simon-pos3"+0; }
-		else if ("i" == 3) { "simon-pos-curr" = "simon-pos4"+0; }
-		else if ("i" == 4) { "simon-pos-curr" = "simon-pos5"+0; }
-		else if ("i" == 5) { "simon-pos-curr" = "simon-pos6"+0; }
-		else if ("i" == 6) { "simon-pos-curr" = "simon-pos7"+0; }
+		if ("i" == 0) { "simon-pos-curr" = "simon-pos1"; }
+		else if ("i" == 1) { "simon-pos-curr" = "simon-pos2"; }
+		else if ("i" == 2) { "simon-pos-curr" = "simon-pos3"; }
+		else if ("i" == 3) { "simon-pos-curr" = "simon-pos4"; }
+		else if ("i" == 4) { "simon-pos-curr" = "simon-pos5"; }
+		else if ("i" == 5) { "simon-pos-curr" = "simon-pos6"; }
+		else if ("i" == 6) { "simon-pos-curr" = "simon-pos7"; }
 		// see $roundcount
 
 		// loopy

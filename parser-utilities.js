@@ -7,11 +7,21 @@ const debugLog = (message) => { if (verbose) console.log(message); };
 
 const TEMP = '__TEMP_'
 const temporaries = [];
-const newTemporary = () => {
-	temporaries.unshift(TEMP + temporaries.length);
+let temporaryStep = 0;
+const newTemporary = (value) => {
+	if (temporaries.length === 0 && value !== undefined) {
+		temporaries.unshift(value);
+	} else {
+		temporaries.unshift(TEMP + temporaryStep);
+		temporaryStep += 1;
+	}
 	return temporaries[0];
 };
-const dropTemporary = () => temporaries.shift();
+const dropTemporary = () => {
+	temporaryStep -= 1;
+	temporaryStep = temporaryStep < 0 ? 0 : temporaryStep;
+	return temporaries.shift();
+}
 const quickTemporary = () => {
 	newTemporary();
 	return dropTemporary();
@@ -228,14 +238,15 @@ const newSequence = (f, node, steps, _type) => {
 	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
 	steps.unshift(newComment(`${type}: ${comment}`));
 	const flatSteps = [];
-	steps.forEach(v=>{
-		if (v.mathlang === 'sequence') {
-			flatSteps.push(...v.steps);
-		} else {
-			flatSteps.push(v);
-		}
-	})
-	// if (flatSteps.some(v=>v.mathlang === 'sequence')) throw new Error ('sequences can only be 1 deep!')
+	steps
+		.filter(v=>v!==null) // might not need this anymore
+		.forEach(v=>{
+			if (v.mathlang === 'sequence') {
+				flatSteps.push(...v.steps);
+			} else {
+				flatSteps.push(v);
+			}
+		});
 	return {
 		mathlang: 'sequence',
 		type,
