@@ -4,7 +4,10 @@ const {
 } = require('./parser-utilities.js');
 const printAction = (data) => {
 	if (data.mathlang === 'comment') {
-		return `// ${data.comment}`;
+		const abridged = data.comment.length > 70
+			? data.comment.slice(0, 70) + '...'
+			: data.comment;
+		return `// ${abridged}`;
 	}
 	if (data.action) {
 		const fn = printActionFns[data.action];
@@ -14,8 +17,18 @@ const printAction = (data) => {
 		return print + comment;
 	}
 	if (data.mathlang) {
-		if (data.mathlang === 'dialog_definition') return '// auto dialog definition';
-		if (data.mathlang === 'serial_dialog_definition') return '// auto serial_dialog definition';
+		if (data.mathlang === 'dialog_definition') {
+			const sample = data.dialogs[0].messages[0]
+				.replaceAll('\n', ' ')
+				.slice(0, 40) + '...';
+			return `// auto dialog: "${sample}"`;
+		}
+		if (data.mathlang === 'serial_dialog_definition') {
+			const sample = data.serialDialog.serialDialog.messages[0]
+				.replaceAll('\n', ' ')
+				.slice(0, 40) + '...';
+			return `// auto serial_dialog: "${sample}"`;
+		}
 		if (data.mathlang === 'return_statement') return '// auto return label';
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error ('Fn needed for ' + data.mathlang);
@@ -168,7 +181,7 @@ const printActionFns = {
 	LOAD_MAP: (v) => `load map "${v.map}";`,
 	BLOCKING_DELAY: (v) => `block ${printDuration(v.duration)};`,
 	NON_BLOCKING_DELAY: (v) => `wait ${printDuration(v.duration)};`,
-	SHOW_DIALOG: (v) => `show dialog ${v.dialog};`,
+	SHOW_DIALOG: (v) => `show dialog "${v.dialog}";`,
 	CLOSE_DIALOG: (v) => `close dialog;`,
 	SHOW_SERIAL_DIALOG: (v) => `show serial_dialog "${v.serial_dialog}";`,
 	CLOSE_SERIAL_DIALOG: (v) => `close serial_dialog;`,

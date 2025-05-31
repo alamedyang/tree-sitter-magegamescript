@@ -35,7 +35,7 @@ include "header.mgs";
     };
     for ("i" = 0; "i" <= "qty"; "i" += 1) {
         print:
-        "mod" = "i";
+        "mod" = "i" *1;
         "mod" %= 16;
         if ("mod" == 0) {
             concat serial_dialog { "\n" };

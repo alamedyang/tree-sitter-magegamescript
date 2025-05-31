@@ -18,55 +18,55 @@ $win_plate = 6;
 		if ("array1_length" == 0) {
 			"checked_value" = 0;
 		} else if ("array1_length" == 1) {
-			"checked_value" = "array1_1";
+			"checked_value" = "array1_1" *1;
 		} else if ("array1_length" == 2) {
-			"checked_value" = "array1_2";
+			"checked_value" = "array1_2" *1;
 		} else if ("array1_length" == 3) {
-			"checked_value" = "array1_3";
+			"checked_value" = "array1_3" *1;
 		} else if ("array1_length" == 4) {
-			"checked_value" = "array1_4";
+			"checked_value" = "array1_4" *1;
 		} else if ("array1_length" == 5) {
-			"checked_value" = "array1_5";
+			"checked_value" = "array1_5" *1;
 		} else if ("array1_length" == 6) {
-			"checked_value" = "array1_6";
+			"checked_value" = "array1_6" *1;
 		} else if ("array1_length" == 7) {
-			"checked_value" = "array1_7";
+			"checked_value" = "array1_7" *1;
 		}
 	} else if ("cursor_pos" == 2) {
 		if ("array2_length" == 0) {
 			"checked_value" = 0;
 		} else if ("array2_length" == 1) {
-			"checked_value" = "array2_1";
+			"checked_value" = "array2_1" *1;
 		} else if ("array2_length" == 2) {
-			"checked_value" = "array2_2";
+			"checked_value" = "array2_2" *1;
 		} else if ("array2_length" == 3) {
-			"checked_value" = "array2_3";
+			"checked_value" = "array2_3" *1;
 		} else if ("array2_length" == 4) {
-			"checked_value" = "array2_4";
+			"checked_value" = "array2_4" *1;
 		} else if ("array2_length" == 5) {
-			"checked_value" = "array2_5";
+			"checked_value" = "array2_5" *1;
 		} else if ("array2_length" == 6) {
-			"checked_value" = "array2_6";
+			"checked_value" = "array2_6" *1;
 		} else if ("array2_length" == 7) {
-			"checked_value" = "array2_7";
+			"checked_value" = "array2_7" *1;
 		}
 	} else if ("cursor_pos" == 3) {
 		if ("array3_length" == 0) {
 			"checked_value" = 0;
 		} else if ("array3_length" == 1) {
-			"checked_value" = "array3_1";
+			"checked_value" = "array3_1" *1;
 		} else if ("array3_length" == 2) {
-			"checked_value" = "array3_2";
+			"checked_value" = "array3_2" *1;
 		} else if ("array3_length" == 3) {
-			"checked_value" = "array3_3";
+			"checked_value" = "array3_3" *1;
 		} else if ("array3_length" == 4) {
-			"checked_value" = "array3_4";
+			"checked_value" = "array3_4" *1;
 		} else if ("array3_length" == 5) {
-			"checked_value" = "array3_5";
+			"checked_value" = "array3_5" *1;
 		} else if ("array3_length" == 6) {
-			"checked_value" = "array3_6";
+			"checked_value" = "array3_6" *1;
 		} else if ("array3_length" == 7) {
-			"checked_value" = "array3_7";
+			"checked_value" = "array3_7" *1;
 		}
 	}
 	if ("checked_value" == 0) {
@@ -284,26 +284,26 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 "draw_plate_row" {
 	// wants `plate1`, `plate2`, `plate3`, and `row`
 	"column" = 1; // col 1
-	"curr_plate" = "plate1";
+	"curr_plate" = "plate1" *1;
 	copy!("draw_tile")
 	"column" = 2; // col 2
-	"curr_plate" = "plate2";
+	"curr_plate" = "plate2" *1;
 	copy!("draw_tile")
 	"column" = 3; // col 3
-	"curr_plate" = "plate3";
+	"curr_plate" = "plate3" *1;
 	copy!("draw_tile")
 	concat serial_dialog "newline";
 }
 "draw_hanoi" {
 	if ("cursor_pos" == 1) {
-		"cursor_grip_height" = "array1_length";
+		"cursor_grip_height" = "array1_length" *1;
 	} else if ("cursor_pos" == 2) {
-		"cursor_grip_height" = "array2_length";
+		"cursor_grip_height" = "array2_length" *1;
 	} else if ("cursor_pos" == 3) {
-		"cursor_grip_height" = "array3_length";
+		"cursor_grip_height" = "array3_length" *1;
 	}
 	"cursor_grip_height" += 2;
-	"cursor_hinge_height" = "cursor_grip_height";
+	"cursor_hinge_height" = "cursor_grip_height" *1;
 	"cursor_hinge_height" += 1;
 	// HEADER
 	show serial_dialog {
@@ -363,53 +363,53 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	
 	// ROW 7
 	"row" = 7;
-	"plate1" = "array1_7";
-	"plate2" = "array2_7";
-	"plate3" = "array3_7";
+	"plate1" = "array1_7" *1;
+	"plate2" = "array2_7" *1;
+	"plate3" = "array3_7" *1;
 	copy!("draw_plate_row")
 
 	// ROW 6
 	"row" = 6;
-	"plate1" = "array1_6";
-	"plate2" = "array2_6";
-	"plate3" = "array3_6";
+	"plate1" = "array1_6" *1;
+	"plate2" = "array2_6" *1;
+	"plate3" = "array3_6" *1;
 	copy!("draw_plate_row")
 	
 	// ROW 5
 	"row" = 5;
-	"plate1" = "array1_5";
-	"plate2" = "array2_5";
-	"plate3" = "array3_5";
+	"plate1" = "array1_5" *1;
+	"plate2" = "array2_5" *1;
+	"plate3" = "array3_5" *1;
 	copy!("draw_plate_row")
 
 	// ROW 4
 	"row" = 4;
-	"plate1" = "array1_4";
-	"plate2" = "array2_4";
-	"plate3" = "array3_4";
+	"plate1" = "array1_4" *1;
+	"plate2" = "array2_4" *1;
+	"plate3" = "array3_4" *1;
 	copy!("draw_plate_row")
 	
 	// ROW 3
 	"row" = 3;
-	"plate1" = "array1_3";
-	"plate2" = "array2_3";
-	"plate3" = "array3_3";
+	"plate1" = "array1_3" *1;
+	"plate2" = "array2_3" *1;
+	"plate3" = "array3_3" *1;
 	copy!("draw_plate_row")
 	
 	// ROW 2
 	"row" = 2;
-	"plate1" = "array1_2";
-	"plate2" = "array2_2";
-	"plate3" = "array3_2";
+	"plate1" = "array1_2" *1;
+	"plate2" = "array2_2" *1;
+	"plate3" = "array3_2" *1;
 	copy!("draw_plate_row")
 
 	// ROW 1
 	"row" = 1;
-	"curr_plate" = "array1_1";
+	"curr_plate" = "array1_1" *1;
 	copy!("draw_curr_plate")
-	"curr_plate" = "array2_1";
+	"curr_plate" = "array2_1" *1;
 	copy!("draw_curr_plate")
-	"curr_plate" = "array3_1";
+	"curr_plate" = "array3_1" *1;
 	copy!("draw_curr_plate")
 	concat serial_dialog "newline";
 
@@ -540,25 +540,25 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 		show serial_dialog { "<r>ERROR!</> Tray #1 is already empty. Cannot pop!" };
 	} else {
 		if ("array1_length" == 7) {
-			"cursor_value" = "array1_7";
+			"cursor_value" = "array1_7" *1;
 			"array1_7" = 0;
 		} else if ("array1_length" == 6) {
-			"cursor_value" = "array1_6";
+			"cursor_value" = "array1_6" *1;
 			"array1_6" = 0;
 		} else if ("array1_length" == 5) {
-			"cursor_value" = "array1_5";
+			"cursor_value" = "array1_5" *1;
 			"array1_5" = 0;
 		} else if ("array1_length" == 4) {
-			"cursor_value" = "array1_4";
+			"cursor_value" = "array1_4" *1;
 			"array1_4" = 0;
 		} else if ("array1_length" == 3) {
-			"cursor_value" = "array1_3";
+			"cursor_value" = "array1_3" *1;
 			"array1_3" = 0;
 		} else if ("array1_length" == 2) {
-			"cursor_value" = "array1_2";
+			"cursor_value" = "array1_2" *1;
 			"array1_2" = 0;
 		} else if ("array1_length" == 1) {
-			"cursor_value" = "array1_1";
+			"cursor_value" = "array1_1" *1;
 			"array1_1" = 0;
 		}
 		"array1_length" -= 1;
@@ -572,25 +572,25 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 		show serial_dialog { "<r>ERROR!</> Array #1 is full! Cannot push!" };
 	} else {
 		if ("array1_length" == 6) {
-			"array1_7" = "cursor_value";
+			"array1_7" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 5) {
-			"array1_6" = "cursor_value";
+			"array1_6" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 4) {
-			"array1_5" = "cursor_value";
+			"array1_5" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 3) {
-			"array1_4" = "cursor_value";
+			"array1_4" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 2) {
-			"array1_3" = "cursor_value";
+			"array1_3" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 1) {
-			"array1_2" = "cursor_value";
+			"array1_2" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array1_length" == 0) {
-			"array1_1" = "cursor_value";
+			"array1_1" = "cursor_value" *1;
 			"cursor_value" = 0;
 		}
 		"array1_length" += 1;
@@ -603,13 +603,13 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 		if ("i" != 1) {
 			concat serial_dialog {" "};
 		}
-		if ("i" == 1) { "printme" = "array1_1"; }
-		else if ("i" == 2) { "printme" = "array1_2"; }
-		else if ("i" == 3) { "printme" = "array1_3"; }
-		else if ("i" == 4) { "printme" = "array1_4"; }
-		else if ("i" == 5) { "printme" = "array1_5"; }
-		else if ("i" == 6) { "printme" = "array1_6"; }
-		else if ("i" == 7) { "printme" = "array1_7"; }
+		if ("i" == 1) { "printme" = "array1_1" *1; }
+		else if ("i" == 2) { "printme" = "array1_2" *1; }
+		else if ("i" == 3) { "printme" = "array1_3" *1; }
+		else if ("i" == 4) { "printme" = "array1_4" *1; }
+		else if ("i" == 5) { "printme" = "array1_5" *1; }
+		else if ("i" == 6) { "printme" = "array1_6" *1; }
+		else if ("i" == 7) { "printme" = "array1_7" *1; }
 		copy!("printme")
 		"printme" = 0;
 	}
@@ -632,25 +632,25 @@ serial_dialog array_print_right { " "}
 		show serial_dialog { "<r>ERROR!</> Array #2 is already empty. Cannot pop!" };
 	} else {
 		if ("array2_length" == 7) {
-			"cursor_value" = "array2_7";
+			"cursor_value" = "array2_7" *1;
 			"array2_7" = 0;
 		} else if ("array2_length" == 6) {
-			"cursor_value" = "array2_6";
+			"cursor_value" = "array2_6" *1;
 			"array2_6" = 0;
 		} else if ("array2_length" == 5) {
-			"cursor_value" = "array2_5";
+			"cursor_value" = "array2_5" *1;
 			"array2_5" = 0;
 		} else if ("array2_length" == 4) {
-			"cursor_value" = "array2_4";
+			"cursor_value" = "array2_4" *1;
 			"array2_4" = 0;
 		} else if ("array2_length" == 3) {
-			"cursor_value" = "array2_3";
+			"cursor_value" = "array2_3" *1;
 			"array2_3" = 0;
 		} else if ("array2_length" == 2) {
-			"cursor_value" = "array2_2";
+			"cursor_value" = "array2_2" *1;
 			"array2_2" = 0;
 		} else if ("array2_length" == 1) {
-			"cursor_value" = "array2_1";
+			"cursor_value" = "array2_1" *1;
 			"array2_1" = 0;
 		}
 		"array2_length" -= 1;
@@ -664,25 +664,25 @@ serial_dialog array_print_right { " "}
 		show serial_dialog { "<r>ERROR!</> Array #2 is full! Cannot push!" };
 	} else {
 		if ("array2_length" == 6) {
-			"array2_7" = "cursor_value";
+			"array2_7" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 5) {
-			"array2_6" = "cursor_value";
+			"array2_6" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 4) {
-			"array2_5" = "cursor_value";
+			"array2_5" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 3) {
-			"array2_4" = "cursor_value";
+			"array2_4" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 2) {
-			"array2_3" = "cursor_value";
+			"array2_3" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 1) {
-			"array2_2" = "cursor_value";
+			"array2_2" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array2_length" == 0) {
-			"array2_1" = "cursor_value";
+			"array2_1" = "cursor_value" *1;
 			"cursor_value" = 0;
 		}
 		"array2_length" += 1;
@@ -695,13 +695,13 @@ serial_dialog array_print_right { " "}
 		if ("i" != 1) {
 			concat serial_dialog {" "};
 		}
-		if ("i" == 1) { "printme" = "array2_1"; }
-		else if ("i" == 2) { "printme" = "array2_2"; }
-		else if ("i" == 3) { "printme" = "array2_3"; }
-		else if ("i" == 4) { "printme" = "array2_4"; }
-		else if ("i" == 5) { "printme" = "array2_5"; }
-		else if ("i" == 6) { "printme" = "array2_6"; }
-		else if ("i" == 7) { "printme" = "array2_7"; }
+		if ("i" == 1) { "printme" = "array2_1" *1; }
+		else if ("i" == 2) { "printme" = "array2_2" *1; }
+		else if ("i" == 3) { "printme" = "array2_3" *1; }
+		else if ("i" == 4) { "printme" = "array2_4" *1; }
+		else if ("i" == 5) { "printme" = "array2_5" *1; }
+		else if ("i" == 6) { "printme" = "array2_6" *1; }
+		else if ("i" == 7) { "printme" = "array2_7" *1; }
 		copy!("printme")
 		"printme" = 0;
 	}
@@ -713,25 +713,25 @@ serial_dialog array_print_right { " "}
 		show serial_dialog { "<r>ERROR!</> Array #3 is already empty. Cannot pop!" };
 	} else {
 		if ("array3_length" == 7) {
-			"cursor_value" = "array3_7";
+			"cursor_value" = "array3_7" *1;
 			"array3_7" = 0;
 		} else if ("array3_length" == 6) {
-			"cursor_value" = "array3_6";
+			"cursor_value" = "array3_6" *1;
 			"array3_6" = 0;
 		} else if ("array3_length" == 5) {
-			"cursor_value" = "array3_5";
+			"cursor_value" = "array3_5" *1;
 			"array3_5" = 0;
 		} else if ("array3_length" == 4) {
-			"cursor_value" = "array3_4";
+			"cursor_value" = "array3_4" *1;
 			"array3_4" = 0;
 		} else if ("array3_length" == 3) {
-			"cursor_value" = "array3_3";
+			"cursor_value" = "array3_3" *1;
 			"array3_3" = 0;
 		} else if ("array3_length" == 2) {
-			"cursor_value" = "array3_2";
+			"cursor_value" = "array3_2" *1;
 			"array3_2" = 0;
 		} else if ("array3_length" == 1) {
-			"cursor_value" = "array3_1";
+			"cursor_value" = "array3_1" *1;
 			"array3_1" = 0;
 		}
 		"array3_length" -= 1;
@@ -745,25 +745,25 @@ serial_dialog array_print_right { " "}
 		show serial_dialog { "<r>ERROR!</> Array #3 is full! Cannot push!" };
 	} else {
 		if ("array3_length" == 6) {
-			"array3_7" = "cursor_value";
+			"array3_7" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 5) {
-			"array3_6" = "cursor_value";
+			"array3_6" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 4) {
-			"array3_5" = "cursor_value";
+			"array3_5" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 3) {
-			"array3_4" = "cursor_value";
+			"array3_4" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 2) {
-			"array3_3" = "cursor_value";
+			"array3_3" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 1) {
-			"array3_2" = "cursor_value";
+			"array3_2" = "cursor_value" *1;
 			"cursor_value" = 0;
 		} else if ("array3_length" == 0) {
-			"array3_1" = "cursor_value";
+			"array3_1" = "cursor_value" *1;
 			"cursor_value" = 0;
 		}
 		"array3_length" += 1;
@@ -776,13 +776,13 @@ serial_dialog array_print_right { " "}
 		if ("i" != 1) {
 			concat serial_dialog {" "};
 		}
-		if ("i" == 1) { "printme" = "array3_1"; }
-		else if ("i" == 2) { "printme" = "array3_2"; }
-		else if ("i" == 3) { "printme" = "array3_3"; }
-		else if ("i" == 4) { "printme" = "array3_4"; }
-		else if ("i" == 5) { "printme" = "array3_5"; }
-		else if ("i" == 6) { "printme" = "array3_6"; }
-		else if ("i" == 7) { "printme" = "array3_7"; }
+		if ("i" == 1) { "printme" = "array3_1" *1; }
+		else if ("i" == 2) { "printme" = "array3_2" *1; }
+		else if ("i" == 3) { "printme" = "array3_3" *1; }
+		else if ("i" == 4) { "printme" = "array3_4" *1; }
+		else if ("i" == 5) { "printme" = "array3_5" *1; }
+		else if ("i" == 6) { "printme" = "array3_6" *1; }
+		else if ("i" == 7) { "printme" = "array3_7" *1; }
 		copy!("printme")
 		"printme" = 0;
 	}

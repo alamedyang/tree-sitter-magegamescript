@@ -147,7 +147,7 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				}
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedInsert = p.scripts[action.script].actions;
-				finalActions.push(newComment(`Copying: ${action.script}`));
+				finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
 				finalActions.push(...copiedInsert.map(insert=>{
 					if (insert.mathlang?.includes('label')) {
 						const newInsert = {};

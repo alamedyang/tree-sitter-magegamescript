@@ -109,18 +109,19 @@ const parseProject = async (fileMap, scenarioData) => {
 	return p;
 };
 
-/*
+// /*
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
 parseProject(fileMap).then((p)=>{
-	console.log('PROJECT');
+	// console.log('PROJECT');
 	// console.log(p);
 	const printAll = Object.values(p.scripts)
 		.map(v=>v.print)
 		.join('\n\n');
-	console.log(printAll);
+	// console.log(printAll);
+	console.log("BREAK")
 });
-*/
+// */
 
 module.exports = { parseProject };

@@ -422,7 +422,7 @@ $time = 200ms;
 	} else { // get a random one, but make sure it's not the current one
 		if ("ch2-mousegame-row" == 1) {
 			"tempvar" += 2; // random 2-3
-			"ch2-mousegame-row" = "tempvar";
+			"ch2-mousegame-row" = "tempvar" *1;
 			// 1 => 2|3
 		} else if ("ch2-mousegame-row" == 2) {
 			if ("tempvar" == 0) {
@@ -433,7 +433,7 @@ $time = 200ms;
 			// 2 => 1|3
 		} else if ("ch2-mousegame-row" == 3) {
 			"tempvar" += 1; // random 1-2
-			"ch2-mousegame-row" = "tempvar";
+			"ch2-mousegame-row" = "tempvar" *1;
 			// 3 => 1|2
 		}
 	}
@@ -524,23 +524,23 @@ $time = 200ms;
 	"mousegame-playerY" = player y;
 	// get diffX
 	if ("mousegame-playerX" > "mousegame-mouseX") {
-		"mousegame-diffX" = "mousegame-playerX";
+		"mousegame-diffX" = "mousegame-playerX" *1;
 		"mousegame-diffX" -= "mousegame-mouseX";
 	} else {
-		"mousegame-diffX" = "mousegame-mouseX";
+		"mousegame-diffX" = "mousegame-mouseX" *1;
 		"mousegame-diffX" -= "mousegame-playerX";
 	}
 	// get diffY
 	if ("mousegame-playerY" > "mousegame-mouseY") {
-		"mousegame-diffY" = "mousegame-playerY";
+		"mousegame-diffY" = "mousegame-playerY" *1;
 		"mousegame-diffY" -= "mousegame-mouseY";
 	} else {
-		"mousegame-diffY" = "mousegame-mouseY";
+		"mousegame-diffY" = "mousegame-mouseY" *1;
 		"mousegame-diffY" -= "mousegame-playerY";
 	}
-	"mousegame-manhattan" = "mousegame-diffX";
+	"mousegame-manhattan" = "mousegame-diffX" *1;
 	"mousegame-manhattan" += "mousegame-diffY";
-	"mousegame-diff" = "mousegame-manhattan";
+	"mousegame-diff" = "mousegame-manhattan" *1;
 	"mousegame-diff" *= 16;
 	"mousegame-diff" /= $max;
 	// `mousegame-diff` is now the INVERSE of the number of lights to show

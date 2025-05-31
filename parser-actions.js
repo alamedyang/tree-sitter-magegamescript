@@ -453,9 +453,12 @@ const actionData = {
 					f.newWarning({
 						locations: printNodes.map(v => ({ node: v })),
 						message: 'these identifiers could be ints or bools',
-						footer: `Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:\n`
-							+ `    !!${suggestion}`,
-					});
+						footer: `Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:`
+							+ `\n    !!${suggestion}`
+							+ `\nTo silence this warning, turn the RHS into a passthrough int expression (which will produce the same output), e.g.:`
+							+ `\n    ${suggestion} + 0`
+							+ `\n    ${suggestion} * 1`
+						});
 					return setVarToVar(v.lhs, v.rhs);
 				}
 			},
