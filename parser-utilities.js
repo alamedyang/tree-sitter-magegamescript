@@ -227,10 +227,19 @@ const newSequence = (f, node, steps, _type) => {
 	const type = _type || 'generic_sequence';
 	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
 	steps.unshift(newComment(`${type}: ${comment}`));
+	const flatSteps = [];
+	steps.forEach(v=>{
+		if (v.mathlang === 'sequence') {
+			flatSteps.push(...v.steps);
+		} else {
+			flatSteps.push(v);
+		}
+	})
+	// if (flatSteps.some(v=>v.mathlang === 'sequence')) throw new Error ('sequences can only be 1 deep!')
 	return {
 		mathlang: 'sequence',
 		type,
-		steps,
+		steps: flatSteps,
 		debug: node,
 		fileName: f.fileName
 	};

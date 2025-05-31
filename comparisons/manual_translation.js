@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 
-const currentFileName = `ch1/ch1-map_main`;
+const currentFileName = `ch1/ch1-goats`;
 
 const readFrom = `mgs/${currentFileName}-v1.mgs`;
 const writeTo = `mgs/${currentFileName}.mgs`;

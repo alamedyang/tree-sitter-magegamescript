@@ -148,7 +148,7 @@ include "header.mgs";
 		" "
 	};
 	show serial_dialog "lambda-over";
-};
+}
 
 /* ---------- ARTIFACT ---------- */
 

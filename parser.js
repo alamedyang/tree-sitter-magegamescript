@@ -71,6 +71,7 @@ const parseProject = async (fileMap, scenarioData) => {
 	// take scripts/dialogs from each file and make global for the project
 	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
 	Object.keys(fileMap).forEach(fileName=>{
+		if (!fileName.endsWith('.mgs')) return;
 		const f = fileMap[fileName].parsed;
 		f.nodes.forEach(node=>{
 			if (node.mathlang === 'script_definition') {
@@ -108,18 +109,18 @@ const parseProject = async (fileMap, scenarioData) => {
 	return p;
 };
 
-/*
+// /*
 const inputPath = path.resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
 parseProject(fileMap).then((p)=>{
 	console.log('PROJECT');
-	console.log(p);
+	// console.log(p);
 	const printAll = Object.values(p.scripts)
 		.map(v=>v.print)
 		.join('\n\n');
-	console.log(printAll);
+	// console.log(printAll);
 });
-*/
+// */
 
 module.exports = { parseProject };

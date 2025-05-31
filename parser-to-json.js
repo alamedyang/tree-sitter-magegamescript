@@ -14,6 +14,9 @@ const printAction = (data) => {
 		return print + comment;
 	}
 	if (data.mathlang) {
+		if (data.mathlang === 'dialog_definition') return '// auto dialog definition';
+		if (data.mathlang === 'serial_dialog_definition') return '// auto serial_dialog definition';
+		if (data.mathlang === 'return_statement') return '// auto return label';
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error ('Fn needed for ' + data.mathlang);
 		const print = fn(data);

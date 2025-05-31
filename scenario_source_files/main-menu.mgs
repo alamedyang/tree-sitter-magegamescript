@@ -468,9 +468,9 @@ include "header.mgs";
 		border_tileset codec
 		portrait floppy
 		"Would you like to save your progress?"
-		> "Yes" : "menu-save_game-yes"
-		> "No" : "menu-save_game-no"
-		> "Return to Main Menu" : "menu-save_game-main_menu"
+		> "Yes" = "menu-save_game-yes"
+		> "No" = "menu-save_game-no"
+		> "Return to Main Menu" = "menu-save_game-main_menu"
 	};
 }
 

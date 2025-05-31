@@ -185,7 +185,7 @@ add dialog settings {
 	self on_interact = "ch2-interact-guestbook";
 }
 
-ch2-stereo-fix-proposal{
+"ch2-stereo-fix-proposal" {
 	show dialog "ch2-stereo-fix-proposal" {
 		PLAYER "Um, about that phonograph. I actually need to borrow the needle for something."
 		Concierge "Hmm? Whatever for?"

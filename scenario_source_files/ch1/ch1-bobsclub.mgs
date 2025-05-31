@@ -328,7 +328,7 @@ Why is it Bobs only?"
 				};
 				copy!("set-hint-baker")
 			} else { // !Bob && BobsClub
-				show dialog show_dialog-bobrock-start-AGAIN { // (reused)
+				show dialog "show_dialog-bobrock-start-AGAIN" { // (reused)
 					PLAYER "We've been through all this before, you know."
 					SELF "Doesn't matter. It's just the rules.\nBobs only."
 				}
@@ -344,7 +344,7 @@ Why is it Bobs only?"
 					SELF "Nice. Great name. I'll open it on up."
 				};
 			} else { // Bob && BobsClub
-				show dialog show_dialog-bobrock-start-AGAIN // from above
+				show dialog "show_dialog-bobrock-start-AGAIN"; // from above
 				show dialog {
 					PLAYER "Well, my name is Bob! Happy?"
 					SELF "Cool. Great name."
@@ -408,7 +408,7 @@ Why is it Bobs only?"
 				PLAYER "You look an awful lot like Strong Bad to me."
 				SELF "Wha-what? STRONG BAD? Never heard of him. Though he sounds like quite the rugged and handsome gentleman."
 				"The name's Strong BOB! Just lookee here at my fake -- I mean real -- ID!"
-				PLAYER "(This ID clearly belongs to "Bob Newhart," but the word Newhart is crossed out.)"
+				PLAYER "(This ID clearly belongs to \"Bob Newhart,\" but the word Newhart is crossed out.)"
 				"(I guess Bob out front doesn't have very good eyes.)"
 			};
 			"strong_bad-backstory" = true;

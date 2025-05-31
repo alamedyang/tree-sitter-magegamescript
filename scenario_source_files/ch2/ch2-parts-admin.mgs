@@ -153,7 +153,7 @@ include "header.mgs";
 	"ch2-map-cactuscooler-bobaustin" = true;
 }
 "ch2-pickup-cactuscooler" {
-	"ch2-map-cactuscooler-castle" = false // just in case you went straight there
+	"ch2-map-cactuscooler-castle" = false; // just in case you went straight there
 	"ch2-map-cactuscooler-bobaustin" = false;
 	"ch2-map-heatsink" = true;
 	"ch2-carrying-cactuscooler" = true;
@@ -161,7 +161,7 @@ include "header.mgs";
 }
 "ch2-pickup-heatsink" {
 	"ch2-cactuscooler-delivered" = true;
-	"ch2-map-cactuscooler-castle" = false // just in case you went straight there
+	"ch2-map-cactuscooler-castle" = false; // just in case you went straight there
 	"ch2-map-heatsink" = false;
 	"ch2-carrying-heatsink" = true;
 	command "look" + "heat sink" = "look-heatsink";

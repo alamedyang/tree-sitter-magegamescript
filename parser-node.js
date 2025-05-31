@@ -92,6 +92,7 @@ const nodeFns = {
 				: v
 			);
 		actions.push(label(f, node.lastChild, returnLabel));
+		if (actions.some(v=>v.mathlang === 'return_statement')) throw new Error ("why is this still here?")
 		return [{
 			mathlang: 'script_definition',
 			scriptName: name,

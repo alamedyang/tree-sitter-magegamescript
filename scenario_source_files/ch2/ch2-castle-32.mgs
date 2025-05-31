@@ -178,7 +178,7 @@ $walkspeed = 200ms;
 	} else {
 		wait 2200ms;
 	}
-	walk self to geometry "%ENTITY_PATH%" over $walkspeed
+	self position -> geometry "%ENTITY_PATH%" origin over $walkspeed;
 	self direction = entity "Samson";
 	if (self path != "worry-walk2") {
 		self path = "worry-walk2";

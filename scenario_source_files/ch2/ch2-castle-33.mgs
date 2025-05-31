@@ -445,7 +445,7 @@ $time = 200ms;
 	} else {
 		"ch2-mousegame-cell" ?= 3;
 	}
-	"ch2-mousegame-cell" += 1 // might as well make this 1-indexed, like everything else :/
+	"ch2-mousegame-cell" += 1; // might as well make this 1-indexed, like everything else :/
 
 	// Teleport the mouse to the cell
 	if ("ch2-mousegame-column" == 1) { // left side

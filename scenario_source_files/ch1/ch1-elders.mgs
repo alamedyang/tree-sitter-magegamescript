@@ -160,7 +160,7 @@ include "header.mgs";
 
 "calculate-hint-tracking-series" {
 	// checks which hint series it is by dividing by 10
-	"hint-tracking-check" = "hint-tracking";
+	"hint-tracking-check" = "hint-tracking"+0;
 	"hint-tracking-check" /= 10;
 }
 

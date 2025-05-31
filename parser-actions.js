@@ -618,7 +618,7 @@ const actionData = {
 						action: 'SET_HEX_EDITOR_STATE',
 						bool_value: true,
 					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
+					return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 				},
 			},
 			{
@@ -1032,7 +1032,7 @@ const actionData = {
 			},
 		],
 	},
-	action_plus_minus_ables: {
+	action_plus_minus_equals_ables: {
 		values: {},
 		captures: [ 'entity', 'operator', 'value' ],
 		detective: [

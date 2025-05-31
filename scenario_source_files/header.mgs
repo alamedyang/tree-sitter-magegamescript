@@ -1,4 +1,4 @@
-settings for dialog {
+add dialog settings {
 	default { alignment BL }
 	label PLAYER { entity "%PLAYER%" alignment BR }
 	label SELF { entity "%SELF%" }
@@ -8,4 +8,4 @@ settings for dialog {
 	label ZAPPY { entity "Uncle Zappy" }
 }
 /* todo: make this wrap to 64 instead, and adjust wrapped word colors */
-settings for serial dialog { wrap 60 }
+add serial_dialog settings { wrap 60 }

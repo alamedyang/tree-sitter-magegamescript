@@ -102,6 +102,7 @@ const captureFns = {
 	},
 	CONSTANT: (f, node) => node.text,
 	op_equals: (f, node) => opIntoStringMap[node.text[0]],
+	plus_minus_equals: (f, node) => node.text,
 	forever: (f, node) => true,
 	entity_or_map_identifier: (f, node) => { // -> string
 		return textForFieldName(f, node, 'type') === 'map'
