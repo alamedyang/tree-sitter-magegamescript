@@ -93,6 +93,11 @@ const parseProject = async (fileMap, scenarioData) => {
 	// check whether multiple registrations have been made for anything global
 	p.detectDuplicates();
 
+	// Make script plaintext readable (pre copy, labels)
+	Object.keys(p.scripts).forEach(scriptName=>{
+		p.scripts[scriptName].prePrint = printScript(scriptName, p.scripts[scriptName].actions);
+	});
+
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
 	
@@ -124,6 +129,44 @@ const sanitizeActions = (action) => {
 	return action;
 }
 
+const compareNonGotoActions = (lhsText, rhsText) => {
+	const lhs = getNonGotoActions(lhsText);
+	const rhs = getNonGotoActions(rhsText);
+	const lhsEntries = Object.entries(lhs);
+	for (let i = 0; i < lhsEntries.length; i++) {
+		const [k, v] = lhsEntries[i];
+		if (rhs[k] !== v) {
+			return false;
+		}
+	}
+	const rhsEntries = Object.entries(rhs);
+	for (let i = 0; i < rhsEntries.length; i++) {
+		const [k, v] = rhsEntries[i];
+		if (lhs[k] !== v) {
+			return false;
+		}
+	}
+	return true;
+}
+const getNonGotoActions = (text) => {
+	const lines = text.split('\n');
+	const counts = {};
+	lines.forEach(line=>{
+		const match = line.match(/((.+) then goto) (index \d+|label .+);/);
+		let key = match ? match[1] : line;
+		if (/^\s*goto /.test(key)) {
+			return;
+		} else if (/^\s*.+:$/.test(key)) {
+			return;
+		} else if (/^\s*\/\//.test(key)) {
+			return;
+		}
+		key = key.replace(/(-|:)\d+:\d+";$/, '-XX";')
+		counts[key] = (counts[key] || 0) + 1;
+	});
+	return counts;
+}
+
 parseProject(fileMap).then((p)=>{
 	// console.log('PROJECT');
 	// console.log(p);
@@ -134,6 +177,7 @@ parseProject(fileMap).then((p)=>{
 	const prints = {};
 	let tally = 0;
 	let badTally = 0;
+	let trustTally = 0;
 	Object.entries(p.scripts).forEach(([k,v])=>{
 		let old = composites[k] || idk[k];
 		const oldVersionFiltered = old
@@ -151,23 +195,31 @@ parseProject(fileMap).then((p)=>{
 			});
 		const oldVersion = printScript(k, oldVersionFiltered);
 		const newVersion = printScript(k, newVersionFiltered);
-		if (oldVersion !== newVersion) {
-			prints[k] = {
-				mathlangPre: v.prePrint,
-				mathlang: newVersion,
-				natlang: oldVersion,
-				original: v.debug.text,
-			}
-			badTally += 1;
-		} else {
+		if (oldVersion === newVersion) {
 			tally += 1;
+		} else if (compareNonGotoActions(oldVersion, newVersion)) {
+			trustTally += 1;
+		} else {
+			const newVersionWithLabels = v.prePrint;
+			const nonGotoActions = compareNonGotoActions(oldVersion, newVersionWithLabels);
+			if (!nonGotoActions) {
+				prints[k] = {
+					mathlangPre: v.prePrint,
+					mathlang: newVersion,
+					natlang: oldVersion,
+					original: v.debug.text,
+				}
+				badTally += 1;
+			} else {
+				trustTally += 1;
+			}
 		}
 	});
 	const lhs = Object.values(prints).map(v=>v.natlang).join('\n\n');
 	const rhs = Object.values(prints).map(v=>v.mathlang).join('\n\n');
 	const rhsPre = Object.values(prints).map(v=>v.mathlangPre).join('\n\n');
 	const original = Object.values(prints).map(v=>v.original).join('\n\n');
-	console.log(`${tally} scripts were identical (${badTally} were different)`)
+	console.log(`${tally} scripts were identical (${badTally} were clearly different, and ${trustTally} are probably okay)`)
 	fs.writeFileSync(`./comparisons/lhs.mgs`, lhs);
 	fs.writeFileSync(`./comparisons/rhs.mgs`, rhs);
 	fs.writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);

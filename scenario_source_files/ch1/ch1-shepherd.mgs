@@ -7,18 +7,18 @@ include "header.mgs";
 	} else if ("storyflag-shepherd") { // if you've solved the puzzle already
 		show dialog { SELF "Thanks a million! I owe you one!" };
 	} else if (
-		!entity "Baa" intersects geometry "sheep-pen
-		|| entity Ram is not inside geometry sheep-pen
-		|| entity Ewe is not inside geometry sheep-pen
-		|| entity Helga is not inside geometry sheep-pen
-	") { // if at least one of the sheep is NOT in the pen... (& puzzle not solved yet)
+		!entity "Baa" intersects geometry "sheep-pen"
+		|| !entity "Ram" intersects geometry "sheep-pen"
+		|| !entity "Ewe" intersects geometry "sheep-pen"
+		|| !entity "Helga" intersects geometry "sheep-pen"
+	) { // if at least one of the sheep is NOT in the pen... (& puzzle not solved yet)
 		if ("shepherd-backstory") { // ...and you've heard the backstory...
 			if (
-				entity "Baa" intersects geometry "sheep-pen
-				|| entity Ram is inside geometry sheep-pen
-				|| entity Ewe is inside geometry sheep-pen
-				|| entity Helga is inside geometry sheep-pen
-			") { // ...and if at least one IS in the pen
+				entity "Baa" intersects geometry "sheep-pen"
+				|| entity "Ram" intersects geometry "sheep-pen"
+				|| entity "Ewe" intersects geometry "sheep-pen"
+				|| entity "Helga" intersects geometry "sheep-pen"
+			) { // ...and if at least one IS in the pen
 				// give a "cheer"
 				copy!("face-player")
 				show dialog { SELF "Awesome! Don't stop, now!" };

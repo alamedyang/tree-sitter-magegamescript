@@ -48,6 +48,7 @@ const mathlang = {
 	if_branch_goto_label: (data) => `${printGotoSegment(data)};`,
 	goto_label: (data) => `${printGotoSegment(data)};`,
 	label_definition: (data) => `${sanitizeLabel(data.label)}:`,
+	copy_script: (data) => `copy!("${data.scriptName ? data.scriptName : data.script}")`,
 };
 
 const printActionFns = {
@@ -196,7 +197,7 @@ const printActionFns = {
 		return `goto index ${v.action_index};`;
 	},
 	RUN_SCRIPT: (v) => `goto "${v.script}";`,
-	COPY_SCRIPT: (v) => `copy!("${v.scriptName}")`,
+	COPY_SCRIPT: (v) => `copy!("${v.scriptName ? v.scriptName : v.script}")`, // TODO fix this properly
 };
 
 const stringIntoOpMap = {

@@ -12,9 +12,8 @@ on_load-bobsclub1 {
 		set entity "Bob Moss" on_interact to null_script;
 		set entity "Bob Moss" type to exa;
 	}
-	if (flag bobsclub-entered is false) {
-		goto show_dialog-bobsclub; // JUMP: Bob's club entrance cutscene
-	}
+	// JUMP: Bob's club entrance cutscene
+	if flag bobsclub-entered is false then goto show_dialog-bobsclub;
 }
 show_dialog-bobsclub {
 	turn player control off;

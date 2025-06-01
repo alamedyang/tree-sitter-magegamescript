@@ -174,7 +174,6 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		bakeLabels: () => {
 			Object.keys(p.scripts).forEach(scriptName=>{
 				const scriptData = p.scripts[scriptName];
-				scriptData.prePrint = printScript(scriptName, scriptData.actions);
 				const registry = {};
 				const actions = scriptData.actions;
 				let commentlessIndex = 0;
