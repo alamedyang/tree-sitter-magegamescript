@@ -167,6 +167,118 @@ const getNonGotoActions = (text) => {
 	return counts;
 }
 
+const chooseYourOwnAdventure = (text) => {
+	const registry = {};
+	const doneCrawlStates = [];
+	const lines = text.split('\n')
+		.slice(1,-1)
+		.map(v=>v.trim());
+	const ifCount = lines.filter(v=>v.startsWith('if')).length;
+	const permutations = 2 ** ifCount;
+	lines.forEach((line, i)=>{
+		const label = line.match(/^([-_a-zA-Z0-9 "]):$/);
+		if (label) {
+			registry[label[1]] = i;
+		}
+	})
+	let crawlStates = [
+		{ pos: 0, seen: [] }
+	];
+	let newCrawlStates = [];
+	while (crawlStates.length) {
+		if (crawlStates.length > 10_000) {
+			return null;
+		}
+		if (crawlStates.length > permutations) {
+			throw new Error ("Don't do it")
+		}
+		for (let i = 0; i < crawlStates.length; i++) {
+			const cs = crawlStates[i];
+			if (cs.seen.length > 10000) {
+				cs.looping = true;
+				doneCrawlStates.push(cs);
+				break;
+			}
+			const line = lines[cs.pos];
+			if (!line) {
+				// we ran out of script: we're done
+				doneCrawlStates.push(cs);
+				break;
+			}
+			if (line.startsWith('//')) {
+				// skip comments
+				cs.pos += 1;
+				newCrawlStates.push(cs);
+				continue;
+			}
+			if (line.startsWith ('load map')) {
+				// control action to leave everything: we're done
+				cs.seen.push(line);
+				doneCrawlStates.push(cs);
+				break;
+			}
+			const simpleGotoIndex = line.match(/^goto index (\d+);$/);
+			if (simpleGotoIndex) {
+				// goto index -- go there
+				cs.pos = Number(simpleGotoIndex[1]);
+				newCrawlStates.push(cs);
+				continue;
+			}
+			const simpleGotoLabel = line.match(/^goto label ([-_a-zA-Z0-9 "]);$/);
+			if (simpleGotoLabel) {
+				// goto label -- look it up and go there
+				cs.pos = Number(registry[line[1]]);
+				newCrawlStates.push(cs);
+				continue;
+			}
+			if (line.startsWith('if')) {
+				// branchu
+				const splits = line.split('goto');
+				cs.seen.push(splits[0] + 'goto');
+				// fall through case
+				newCrawlStates.push({
+					pos: cs.pos += 1,
+					seen: JSON.parse(JSON.stringify((cs.seen))),
+				});
+				// jump case:
+				const indexJump = line.match(/index (\d+);$/);
+				if (indexJump) {
+					// ...index
+					newCrawlStates.push({
+						pos: Number(indexJump[1]),
+						seen: cs.seen,
+					});
+					continue;
+				}
+				const labelJump = line.match(/label ([-_a-zA-Z0-9 "]);$/);
+				if (labelJump) {
+					// ...label
+					newCrawlStates.push({
+						pos: Number(registry[line[1]]),
+						seen: cs.seen,
+					});
+					continue;
+				}
+				// script jumps are here; these count as ending
+				doneCrawlStates.push(cs);
+				break;
+			} else {
+				cs.seen.push(line);
+				newCrawlStates.push({
+					pos: cs.pos += 1,
+					seen: cs.seen,
+				});
+			}
+		}
+		crawlStates = newCrawlStates;
+		newCrawlStates = [];
+	}
+	const flat = doneCrawlStates.map(v=>{
+		return v.seen.join("\n");
+	})
+	return flat;
+};
+
 parseProject(fileMap).then((p)=>{
 	// console.log('PROJECT');
 	// console.log(p);
@@ -178,6 +290,7 @@ parseProject(fileMap).then((p)=>{
 	let tally = 0;
 	let badTally = 0;
 	let trustTally = 0;
+	let funcionalTally = 0;
 	Object.entries(p.scripts).forEach(([k,v])=>{
 		let old = composites[k] || idk[k];
 		const oldVersionFiltered = old
@@ -197,29 +310,43 @@ parseProject(fileMap).then((p)=>{
 		const newVersion = printScript(k, newVersionFiltered);
 		if (oldVersion === newVersion) {
 			tally += 1;
-		} else if (compareNonGotoActions(oldVersion, newVersion)) {
+			return;
+		}
+		if (compareNonGotoActions(oldVersion, newVersion)) {
 			trustTally += 1;
-		} else {
-			const newVersionWithLabels = v.prePrint;
-			const nonGotoActions = compareNonGotoActions(oldVersion, newVersionWithLabels);
-			if (!nonGotoActions) {
-				prints[k] = {
-					mathlangPre: v.prePrint,
-					mathlang: newVersion,
-					natlang: oldVersion,
-					original: v.debug.text,
+			return;
+		}
+		const oldCYOA = chooseYourOwnAdventure(oldVersion);
+		if (oldCYOA) {
+			const newCYOA = chooseYourOwnAdventure(newVersion);
+			if (newCYOA) {
+				const oldJoin = oldCYOA.join('\n\n');
+				const newJoin = newCYOA.join('\n\n');
+				if (oldJoin === newJoin) {
+					funcionalTally += 1;
+					return;
 				}
-				badTally += 1;
-			} else {
-				trustTally += 1;
 			}
+		}
+		const newVersionWithLabels = v.prePrint;
+		const nonGotoActions = compareNonGotoActions(oldVersion, newVersionWithLabels);
+		if (!nonGotoActions) {
+			prints[k] = {
+				mathlangPre: v.prePrint,
+				mathlang: newVersion,
+				natlang: oldVersion,
+				original: v.debug.text,
+			}
+			badTally += 1;
+		} else {
+			trustTally += 1;
 		}
 	});
 	const lhs = Object.values(prints).map(v=>v.natlang).join('\n\n');
 	const rhs = Object.values(prints).map(v=>v.mathlang).join('\n\n');
 	const rhsPre = Object.values(prints).map(v=>v.mathlangPre).join('\n\n');
 	const original = Object.values(prints).map(v=>v.original).join('\n\n');
-	console.log(`${tally} scripts were identical (${badTally} were clearly different, and ${trustTally} are probably okay)`)
+	console.log(`${tally} scripts were identical, ${funcionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`)
 	fs.writeFileSync(`./comparisons/lhs.mgs`, lhs);
 	fs.writeFileSync(`./comparisons/rhs.mgs`, rhs);
 	fs.writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);

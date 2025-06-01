@@ -1326,52 +1326,6 @@
    end_of_script_1474:
 }
 
-"interact-ch2-xa" {
-   // if sequence: if ("ch2-toot-done") { goto "ch2-terminal-setup-check"; }...
-   if "ch2-toot-done" then goto label if_true_1501;
-   // if sequence: if (!"ch2-has-artifact") { player_control = off; show dia...
-   if !"ch2-has-artifact" then goto label if_true_1503;
-   // auto dialog: "Let's get the artifact set up. I can hel..."
-   show dialog "ch2-castle-1.mgs-1364:3";
-   goto label rendezvous_1502;
-   if_true_1503:
-   player_control = false;
-   // auto dialog: "......"
-   show dialog "ch2-castle-1.mgs-1288:3";
-   copy!("ch2-artifact-walk")
-   wait 300ms;
-   // auto dialog: "That was easy. I thought there would be ..."
-   show dialog "ch2-castle-1.mgs-1318:3";
-   player direction = "east";
-   // auto dialog: "Wait. What?..."
-   show dialog "ch2-castle-1.mgs-1323:3";
-   // auto dialog: "Crippled? What happened?..."
-   show dialog "ch2-castle-1.mgs-1329:3";
-   // auto dialog: "What? Why?!..."
-   show dialog "ch2-castle-1.mgs-1334:3";
-   // if sequence: if ("ch2-hax-attempted") { show dialog { PLAYER "Yeah, ab...
-   if "ch2-hax-attempted" then goto label if_true_1505;
-   // auto dialog: "Ring Zero is disabled? Since when?..."
-   show dialog "ch2-castle-1.mgs-1351:4";
-   goto label rendezvous_1504;
-   if_true_1505:
-   // auto dialog: "Yeah, about that... why won't Ring Zero ..."
-   show dialog "ch2-castle-1.mgs-1347:4";
-   rendezvous_1504:
-   // auto dialog: "The castle walls are lined with aluminum..."
-   show dialog "ch2-castle-1.mgs-1356:3";
-   player_control = true;
-   "ch2-has-artifact" = true;
-   rendezvous_1502:
-   // auto dialog: "Er, that is, do you want help?..."
-   show dialog "ch2-castle-1.mgs-1368:2";
-   goto label rendezvous_1500;
-   if_true_1501:
-   goto "ch2-terminal-setup-check";
-   rendezvous_1500:
-   end_of_script_1499:
-}
-
 "ch2-terminal-setup-nevermind" {
    // if sequence: if (!"ch2-toot-done") { show dialog { Lambda "Ah, okay! U...
    if !"ch2-toot-done" then goto label if_true_1511;
@@ -3947,40 +3901,4 @@
 "menu-save_game" {
    show dialog "main-menu.mgs-465:1";
    end_of_script_5210:
-}
-
-"on_load-woprhouse" {
-   // if sequence: if ("tuesdayd") { command "rtfm" = "command-rtfm"; }
-   if "tuesdayd" then goto label if_true_5233;
-   goto label rendezvous_5232;
-   if_true_5233:
-   command "rtfm" = "command-rtfm";
-   rendezvous_5232:
-   // if sequence: if ("current-chapter" == 2) { // entrance text show seria...
-   if "current-chapter" == 2 then goto label if_true_5235;
-   goto label rendezvous_5234;
-   if_true_5235:
-   show serial_dialog "spacer";
-   // auto serial_dialog: "Entering [1mWOPR ROOM[0m......"
-   show serial_dialog "woprhouse.mgs-9:2";
-   copy!("ch2-map-init")
-   rendezvous_5234:
-   // if sequence: if (!"wopr-backdoor-found") { player_control = off; "wopr...
-   if !"wopr-backdoor-found" then goto label if_true_5239;
-   goto label rendezvous_5238;
-   if_true_5239:
-   player_control = false;
-   "wopr-backdoor-found" = true;
-   // if sequence: if (warp_state != "warped") { player position -> geometry...
-   if warp_state != "warped" then goto label if_true_5241;
-   goto label rendezvous_5240;
-   if_true_5241:
-   player position -> geometry "walk_from-north" length over 600ms;
-   rendezvous_5240:
-   wait 400ms;
-   // auto dialog: "Whoa! It looks like I found some kind of..."
-   show dialog "woprhouse.mgs-19:2";
-   player_control = true;
-   rendezvous_5238:
-   end_of_script_5231:
 }
