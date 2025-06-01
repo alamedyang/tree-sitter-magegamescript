@@ -9,6 +9,7 @@ const { printScript } = require('./parser-to-json.js');
 const { makeProjectState } = require('./parser-project.js');
 const { ansiTags } = require('./parser-dialogs.js');
 const { composites } = require('./comparisons/exfiltrated_composites.js');
+const { idk } = require('./comparisons/exfiltrated_idk.js');
 
 // /*
 // stolen from the other place
@@ -126,24 +127,21 @@ const sanitizeActions = (action) => {
 parseProject(fileMap).then((p)=>{
 	// console.log('PROJECT');
 	// console.log(p);
-	const printAll = Object.values(p.scripts)
-		.map(v=>v.print)
-		.join('\n\n');
+	// const printAll = Object.values(p.scripts)
+	// 	.map(v=>v.print)
+	// 	.join('\n\n');
 	// console.log(printAll);
 	const prints = {};
 	let tally = 0;
 	let badTally = 0;
-	let missingTally = 0;
 	Object.entries(p.scripts).forEach(([k,v])=>{
-		if (!composites[k]) {
-			missingTally += 1;
-			return;
-		}
-		const oldVersionFiltered = composites[k]
+		let old = composites[k] || idk[k];
+		const oldVersionFiltered = old
 			.map(sanitizeActions);
 		const newVersionFiltered = v.actions
 			.filter(vv=>{
 				return vv.mathlang !== 'comment'
+					&& vv.mathlang !== 'return_statement'
 					&& vv.mathlang !== 'dialog_definition'
 					&& vv.mathlang !== 'serial_dialog_definition'
 			})
@@ -169,7 +167,7 @@ parseProject(fileMap).then((p)=>{
 	const rhs = Object.values(prints).map(v=>v.mathlang).join('\n\n');
 	const rhsPre = Object.values(prints).map(v=>v.mathlangPre).join('\n\n');
 	const original = Object.values(prints).map(v=>v.original).join('\n\n');
-	console.log(`${tally} scripts were identical (${badTally} were different, ${missingTally} missing)`)
+	console.log(`${tally} scripts were identical (${badTally} were different)`)
 	fs.writeFileSync(`./comparisons/lhs.mgs`, lhs);
 	fs.writeFileSync(`./comparisons/rhs.mgs`, rhs);
 	fs.writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);

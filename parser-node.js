@@ -505,11 +505,11 @@ const nodeFns = {
 	},
 	if_single: (f, node) => {
 		const conditionN = node.childForFieldName('condition');
-		const action = handleCapture(f, conditionN);
+		let action = handleCapture(f, conditionN);
 		// condition.mathlang = 'if_single';
 		const type = textForFieldName(f, node, 'type');
 		let isBool = typeof action === 'boolean';
-		if (action === 'string') {
+		if (typeof action === 'string') {
 			action = {
 				mathlang: 'bool_getable',
 				action: 'CHECK_SAVE_FLAG',
@@ -558,6 +558,45 @@ const nodeFns = {
 	if_chain: (f, node) => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeN = node.childForFieldName('else_block');
+		if (ifs.length === 1 && !elzeN) {
+			const conditionN = ifs[0].childForFieldName('condition');
+			let condition = handleCapture(f, conditionN);
+			const bodyN = ifs[0].childForFieldName('body');
+			const body = bodyN.namedChildren.map(v=>handleNode(f, v)).flat();
+			if (
+				body.length === 1
+				&& (
+					condition.action
+					|| typeof condition === 'string'
+				)
+			) {
+				if (body[0].action === 'RUN_SCRIPT') {
+					if (typeof condition === 'string') {
+						condition = {
+							mathlang: 'bool_getable',
+							action: 'CHECK_SAVE_FLAG',
+							expected_bool: true,
+							save_flag: condition,
+						};
+					}
+					condition.success_script = body[0].script;
+					delete condition.mathlang;
+					return condition;
+				} else if (body[0].mathlang === 'goto_label') {
+					if (typeof condition === 'string') {
+						condition = {
+							mathlang: 'bool_getable',
+							action: 'CHECK_SAVE_FLAG',
+							expected_bool: true,
+							save_flag: condition,
+						};
+					}
+					condition.label = body[0].label;
+					condition.mathlang = 'if_branch_goto_label';
+					return condition;
+				}
+			}
+		}
 		const rendezvousL = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const steps = [];
 		let bottomSteps = [

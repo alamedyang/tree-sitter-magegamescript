@@ -153,9 +153,9 @@
 
 "my_first_script" {
 	wait 100ms;
-	hex_editor = open;
+	hex_editor = true;
 	block 200ms;
-	hex_editor = close;
+	hex_editor = false;
 }
 
 "entity_on_interact_script" {

@@ -8,6 +8,8 @@ const printAction = (data) => {
 			? data.comment.slice(0, 70) + '...'
 			: data.comment;
 		return `// ${abridged}`;
+	} else if (data.action === 'LABEL') {
+		return `${sanitizeLabel(data.value)}:`;
 	}
 	if (data.action) {
 		const fn = printActionFns[data.action];
@@ -187,7 +189,12 @@ const printActionFns = {
 	CLOSE_SERIAL_DIALOG: (v) => `close serial_dialog;`,
 	SET_CONNECT_SERIAL_DIALOG: (v) => `serial_connect = "${v.serial_dialog}";`,
 	SET_SCRIPT_PAUSE: (v) => `${v.bool_value ? '' : 'un'}pause ${printEntityIdentifier(v.entity)} ${v.script_slot};`,
-	GOTO_ACTION_INDEX: (v) => `goto index ${v.action_index};`,
+	GOTO_ACTION_INDEX: (v) => {
+		if (typeof v.action_index === 'string') {
+			return `goto label ${sanitizeLabel(v.action_index)}`;
+		}
+		return `goto index ${v.action_index};`;
+	},
 	RUN_SCRIPT: (v) => `goto "${v.script}";`,
 	COPY_SCRIPT: (v) => `copy!("${v.scriptName}")`,
 };
@@ -213,6 +220,9 @@ const sanitizeLabel = label => label.includes(' ')
 
 const printGotoSegment = (data) => {
 	if (data.jump_index) {
+		if (typeof data.jump_index === 'string') {
+			return `goto label ${sanitizeLabel(data.jump_index)}`;
+		}
 		return `goto index ${data.jump_index}`;
 	} else if (data.success_script) {
 		return `goto script "${data.success_script}"`;

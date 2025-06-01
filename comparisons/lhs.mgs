@@ -1,14 +1,3 @@
-"bling-goto-branches" {
-   "bling-rotate-state-calc-done" = false;
-   if "bling-rotate-state" == 0 then goto script "start_bling-dc801-2";
-   if "bling-rotate-state" == 1 then goto script "start_bling-dc801";
-   if "bling-rotate-state" == 2 then goto script "start_bling-digi-mage2";
-   if "bling-rotate-state" == 3 then goto script "start_bling-digi-mage";
-   if "bling-rotate-state" == 4 then goto script "start_bling-zero";
-   if "bling-rotate-state" == 5 then goto script "start_bling-serial";
-   goto "bling-goto-menu";
-}
-
 "bling-detect-mode" {
    wait 150ms;
    if warp_state == "bling-rotate-manual" then goto index 4;
@@ -24,14 +13,6 @@
    goto index 14;
    goto "loop-bling-listen-hax";
    goto index 14;
-}
-
-"loop-bling-listen-any" {
-   if button ANY pressed then goto script "bling-goto-menu";
-}
-
-"loop-bling-listen-hax" {
-   if button HAX pressed then goto script "bling-goto-menu";
 }
 
 "bling-rotate-state-increment" {
@@ -56,16 +37,86 @@
    self on_tick = "null_script";
 }
 
-"loop-bling_timer-wait" {
-   if "bling-rotate-state-calc-done" then goto script "bling-goto-branches";
+"ch1-count-flags" {
+   "ch1-storyflags-tally" = 0;
+   if "storyflag-catwork" then goto label bodyStart_ZIGZAG_89;
+   goto label LABEL_f127
+   bodyStart_ZIGZAG_89:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f127
+   LABEL_f127:
+   if "storyflag-shepherd" then goto label bodyStart_ZIGZAG_167;
+   goto label LABEL_f205
+   bodyStart_ZIGZAG_167:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f205
+   LABEL_f205:
+   if "storyflag-bender" then goto label bodyStart_ZIGZAG_243;
+   goto label LABEL_f281
+   bodyStart_ZIGZAG_243:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f281
+   LABEL_f281:
+   if "storyflag-baker" then goto label bodyStart_ZIGZAG_318;
+   goto label LABEL_f356
+   bodyStart_ZIGZAG_318:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f356
+   LABEL_f356:
+   if "storyflag-bobmoss" then goto label bodyStart_ZIGZAG_395;
+   goto label LABEL_f433
+   bodyStart_ZIGZAG_395:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f433
+   LABEL_f433:
+   if "storyflag-bea1" then goto label bodyStart_ZIGZAG_469;
+   goto label LABEL_f507
+   bodyStart_ZIGZAG_469:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f507
+   LABEL_f507:
+   if "storyflag-trekkie" then goto label bodyStart_ZIGZAG_546;
+   goto label LABEL_f584
+   bodyStart_ZIGZAG_546:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f584
+   LABEL_f584:
+   if "storyflag-sportskid" then goto label bodyStart_ZIGZAG_625;
+   goto label LABEL_f663
+   bodyStart_ZIGZAG_625:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f663
+   LABEL_f663:
+   if "storyflag-verthandi" then goto label bodyStart_ZIGZAG_704;
+   goto label LABEL_f742
+   bodyStart_ZIGZAG_704:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f742
+   LABEL_f742:
+   if "storyflag-bea2" then goto label bodyStart_ZIGZAG_778;
+   goto label LABEL_f816
+   bodyStart_ZIGZAG_778:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f816
+   LABEL_f816:
+   if "storyflag-rake" then goto label bodyStart_ZIGZAG_852;
+   goto label LABEL_f890
+   bodyStart_ZIGZAG_852:
+   "ch1-storyflags-tally" += 1;
+   goto label LABEL_f890
+   LABEL_f890:
 }
 
-"loop-bling-listen-manualrotate" {
-   if button LJOY_LEFT pressed then goto script "bling-manual-rotate-left";
-   if button RJOY_LEFT pressed then goto script "bling-manual-rotate-left";
-   if button LJOY_RIGHT pressed then goto script "bling-manual-rotate-right";
-   if button RJOY_RIGHT pressed then goto script "bling-manual-rotate-right";
-   if button HAX pressed then goto script "bling-goto-menu";
+"bender-success-backstory" {
+   show dialog "ch1-bender.mgs-XX";
+   copy!("undefined")
+   show dialog "ch1-bender.mgs-XX";
+}
+
+"bender-success-no-backstory" {
+   show dialog "ch1-bender.mgs-XX";
+   copy!("undefined")
+   show dialog "ch1-bender.mgs-XX";
 }
 
 "show_dialog-bender-start" {
@@ -207,14 +258,6 @@
    player direction = entity "Guardian Bob";
    entity "Guardian Bob" direction = player;
    show dialog "ch1-bobsclub.mgs-XX";
-}
-
-"on_tick-bakery" {
-   if player intersects geometry "door-bakery-exit" then goto script "leave-bakery";
-}
-
-"on_tick-bobsclub" {
-   if player intersects geometry "door-bobsclub-exit" then goto script "leave-bobsclub";
 }
 
 "show_dialog-baker-start" {
@@ -671,6 +714,38 @@
    goto index 73;
 }
 
+"earthquake-setpiece" {
+   camera = geometry "earthquake-setpiece-camera-spot";
+   entity "Verthandi" position = geometry "earthquake-setpiece-verthandi-spot";
+   entity "Marta" position = geometry "earthquake-setpiece-marta-spot";
+   camera fade in -> #000000 over 300ms;
+   entity "Cleo" on_tick = "loiter1";
+   entity "Verthandi" on_tick = "loiter2";
+   entity "Marta" on_tick = "loiter3";
+   entity "Cat" on_tick = "loiter4";
+   entity "Hamster" on_tick = "loiter5";
+   wait 1800ms;
+   entity "Cleo" on_tick = "null_script";
+   entity "Verthandi" on_tick = "null_script";
+   entity "Marta" on_tick = "null_script";
+   entity "Cat" on_tick = "null_script";
+   entity "Hamster" on_tick = "null_script";
+   entity "Marta" direction = "south";
+   entity "Cleo" direction = "south";
+   entity "Cat" direction = "south";
+   entity "Verthandi" direction = "south";
+   entity "Hamster" direction = "south";
+   copy!("undefined")
+   wait 500ms;
+   entity "Marta" on_tick = "marta-walk";
+   entity "Cleo" on_tick = "loiter1";
+   entity "Verthandi" on_tick = "loiter2";
+   entity "Cat" on_tick = "loiter4";
+   entity "Hamster" on_tick = "loiter5";
+   wait 500ms;
+   camera fade out -> #000000 over 300ms;
+}
+
 "on_tick-credits" {
    hex_control = false;
    player_control = true;
@@ -692,14 +767,6 @@
    load map "main_menu";
    goto index 19;
    load map "main";
-}
-
-"on_tick-family" {
-   if player intersects geometry "door-family" then goto script "leave-family";
-}
-
-"kid-ballwatch" {
-   if entity "Kid" type == "blitzball" then goto script "kid-now-ball";
 }
 
 "kid-now-ball" {
@@ -753,28 +820,6 @@
    show dialog "ch1-family.mgs-XX";
    goto index 12;
    self on_interact = "show_dialog-smith";
-}
-
-"billy-glitchwatch" {
-   if !entity "Billy" glitched then goto script "billy_now_unglitched";
-}
-
-"kid-glitchwatch" {
-   if !entity "Kid" glitched then goto script "kid_now_unglitched";
-}
-
-"check_if_player_is_goat_high" {
-   if player intersects geometry "high" then goto script "move_goats_to_low";
-}
-
-"check_if_player_is_goat_low" {
-   if player intersects geometry "low" then goto script "move_goats_to_high";
-}
-
-"show_dialog-verthandi-glitched" {
-   if "glitch-lesson" then goto script "show_dialog-verthandi-glitched-q";
-   show dialog "ch1-goats.mgs-XX";
-   goto "show_dialog-verthandi-glitched-lesson";
 }
 
 "show_dialog-verthandi-start" {
@@ -903,34 +948,6 @@
    goto "null_script";
 }
 
-"on_tick-goose-mission-rake-out-of-lake" {
-   if entity "Rake" intersects geometry "rake-point" then goto script "goose-misison-rake-on-rake-point";
-   entity "Goose" direction = "south";
-   entity "Goose" animation -> 2 3x;
-   entity "Goose" position -> geometry "goose_midpoint" origin over 600ms;
-   entity "Goose" position -> geometry "goose_lakepoint" origin over 600ms;
-   entity "Goose" direction = "south";
-   goto "on_tick-goose-mission";
-}
-
-"goose-misison-rake-on-rake-point" {
-   if !entity "Rake" intersects geometry "rake-point" then goto script "on_tick-goose-mission-rake-out-of-lake";
-   entity "Goose" direction = "south";
-   entity "Goose" animation -> 2 3x;
-   entity "Goose" position -> geometry "goose_rakepoint" origin over 1200ms;
-   entity "Goose" direction = entity "Rake";
-   if !entity "Rake" intersects geometry "rake-point" then goto script "on_tick-goose-mission-rake-out-of-lake";
-   entity "Goose" animation -> 2 3x;
-   entity "Goose" position -> geometry "goose_lakepoint" origin over 1200ms;
-   entity "Goose" direction = "south";
-   if !entity "Rake" intersects geometry "rake-point" then goto script "on_tick-goose-mission-rake-out-of-lake";
-   goto "on_tick-goose-mission";
-}
-
-"goose-bounds-watch" {
-   if !entity "Goose" intersects geometry "bounds" then goto script "rescue-goose";
-}
-
 "show_dialog-goose-mad" {
    show dialog "ch1-goose.mgs-XX";
    if !"storyflag-rake" then goto index 3;
@@ -957,18 +974,6 @@
    entity "EtherNettle8" secondary_id = 4;
    entity "Modem" current_animation = 4;
    goto index 16;
-}
-
-"on_tick-greenhouse" {
-   if player intersects geometry "door-greenhouse" then goto script "leave-greenhouse";
-   if !entity "EtherNettle1" intersects geometry "EtherNettle1Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle2" intersects geometry "EtherNettle2Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle3" intersects geometry "EtherNettle3Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle4" intersects geometry "EtherNettle4Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle5" intersects geometry "EtherNettle5Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle6" intersects geometry "EtherNettle6Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle7" intersects geometry "EtherNettle7Origin" then goto script "show_dialog-no_uproot_ethernettle";
-   if !entity "EtherNettle8" intersects geometry "EtherNettle8Origin" then goto script "show_dialog-no_uproot_ethernettle";
 }
 
 "show_dialog-trekkie-start" {
@@ -1067,6 +1072,81 @@
    goto index 93;
    goto index 94;
    self on_interact = "show_dialog-trekkie-start";
+}
+
+"ch1-greenhouse-trekkie-backstory-cutscene" {
+   show dialog "ch1-greenhouse.mgs-XX";
+   player_control = false;
+   wait 200ms;
+   self direction = entity "Modem";
+   wait 900ms;
+   self direction = geometry "Computer";
+   wait 900ms;
+   copy!("undefined")
+   wait 200ms;
+   show dialog "ch1-greenhouse.mgs-XX";
+   wait 100ms;
+   self direction = entity "Modem";
+   wait 400ms;
+   show dialog "ch1-greenhouse.mgs-XX";
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-XX";
+   copy!("undefined")
+   "trekkie-backstory" = true;
+   copy!("undefined")
+   player_control = true;
+}
+
+"ch1-greenhouse-trekkie-backstory-reminder" {
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-XX";
+   copy!("undefined")
+   copy!("undefined")
+}
+
+"ch1-greenhouse-modem-turning-on-cutscene" {
+   self direction = entity "Modem";
+   player direction = entity "Modem";
+   player_control = false;
+   wait 200ms;
+   camera -> entity "Modem" position over 1400ms;
+   wait 200ms;
+   self direction = geometry "Computer";
+   wait 1500ms;
+   self direction = entity "Modem";
+   wait 1200ms;
+   entity "Modem" current_animation = 1;
+   wait 1400ms;
+   show dialog "ch1-greenhouse.mgs-XX";
+   wait 800ms;
+   copy!("undefined")
+   player direction = self;
+   wait 500ms;
+   player direction = entity "Modem";
+   self direction = entity "Modem";
+   wait 1500ms;
+   entity "Modem" current_animation = 2;
+   wait 1400ms;
+   entity "Modem" current_animation = 3;
+   wait 1700ms;
+   entity "Modem" current_animation = 4;
+   wait 900ms;
+   camera -> player position over 1400ms;
+   wait 400ms;
+   player direction = self;
+   wait 150ms;
+   self direction = geometry "Computer";
+   wait 750ms;
+   self direction = entity "Modem";
+   wait 600ms;
+   self direction = geometry "Computer";
+   wait 800ms;
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-XX";
+   self direction = geometry "Computer";
+   "storyflag-trekkie" = true;
+   copy!("undefined")
+   player_control = true;
 }
 
 "show_dialog-ethernettle-start" {
@@ -1194,29 +1274,30 @@
    goto "null_script";
 }
 
-"on_tick-lodge" {
-   if "tuesdayd" then goto script "on_tick-tuesdayd";
-   if player intersects geometry "door-lodge" then goto script "show_dialog-lodge-cantleaveyet";
+"empty-lodge" {
+   copy!("undefined")
+   entity "Cleo" position = geometry "lodge-hidingplace";
+   entity "Shepherd" position = geometry "lodge-hidingplace";
+   entity "Beatrice" position = geometry "lodge-hidingplace";
+   entity "Baker" position = geometry "lodge-hidingplace";
+   entity "Trekkie" position = geometry "lodge-hidingplace";
+   entity "Marta" position = geometry "lodge-hidingplace";
+   entity "Max Swagger" position = geometry "lodge-hidingplace";
+   entity "Smith" position = geometry "lodge-hidingplace";
+   entity "Verthandi" position = geometry "lodge-hidingplace";
+   entity "Uncle Zappy" position = geometry "lodge-hidingplace";
+   entity "Aunt Zippy" position = geometry "lodge-hidingplace";
+   entity "Goose  " position = geometry "lodge-hidingplace";
+   entity "Goose " position = geometry "lodge-hidingplace";
 }
 
-"on_tick-tuesdayd" {
-   if player intersects geometry "door-lodge" then goto script "leave-lodge";
-}
-
-"on_tick-lodge-goose" {
-   if "ring-acquired" then goto script "on_tick-lodge-goose-ring-acquired";
-}
-
-"on_tick-lodge-goose-ring-acquired" {
-   if player intersects geometry "door-secretdoor" then goto script "enter-secretroom";
-}
-
-"lodge_cat-glitchwatch" {
-   if !self glitched then goto script "lodge_cat_now_unglitched";
-}
-
-"timmy-glitchwatch" {
-   if !self glitched then goto script "timmy_now_unglitched";
+"empty-lodge-mini" {
+   entity "Bookcase" position = geometry "lodge-hidingplace";
+   copy!("undefined")
+   copy!("undefined")
+   entity "Jackob" position = geometry "lodge-hidingplace";
+   entity "Alfonso" position = geometry "lodge-hidingplace";
+   entity "Bert" position = geometry "lodge-hidingplace";
 }
 
 "show_dialog-zippy-prechoose" {
@@ -1438,6 +1519,16 @@
    goto "cutscene-artifacts-eval-good";
 }
 
+"player-ringzero-from-landing-10" {
+   player position -> geometry "ringzero-landing-8" origin over 600ms;
+   copy!("undefined")
+}
+
+"player-ringzero-from-landing-1" {
+   player position -> geometry "ringzero-landing-4" origin over 400ms;
+   copy!("undefined")
+}
+
 "show_dialog-lodge_cat" {
    self direction = player;
    if self glitched then goto index 13;
@@ -1498,6 +1589,25 @@
    goto index 7;
 }
 
+"bypass-tuesday" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   hex_control = true;
+   copy!("undefined")
+   copy!("undefined")
+   entity "Marta" position = geometry "lodge-hidingplace";
+}
+
+"skip-artifacts" {
+   copy!("undefined")
+   entity "Alfonso" position = geometry "elder-point";
+   entity "Marta" position = geometry "marta-broom-watch-spot";
+   entity "Broom" position = geometry "lodge-hidingplace";
+   entity "Bracelet" position = geometry "lodge-hidingplace";
+   entity "Marta" type = "marta_broom";
+}
+
 "on_load-magehouse" {
    if "tuesdayd" then goto index 2;
    goto index 4;
@@ -1516,19 +1626,6 @@
    hex_clipboard = false;
    camera fade in -> #000000 over 500ms;
    goto index 17;
-}
-
-"on_tick-magehouse" {
-   if player intersects geometry "door-magehouse" then goto script "leave-magehouse";
-   if !"goodmorning" then goto script "bedroom-door-watch";
-}
-
-"bedroom-door-watch" {
-   if player intersects geometry "bedroom-door" then goto script "goodmorning-cutscene";
-}
-
-"goldfish-glitchwatch" {
-   if !self glitched then goto script "goldfish_now_unglitched";
 }
 
 "show_dialog-zappy-start" {
@@ -1699,34 +1796,6 @@
    player_control = true;
 }
 
-"fountain-glitchwatch" {
-   if !self glitched then goto script "fountain_now_unglitched";
-}
-
-"hamster-glitchwatch" {
-   if !self glitched then goto script "hamster_now_unglitched";
-}
-
-"cat-watch" {
-   if !entity "Cat" intersects geometry "cat-watch-box" then goto script "cat-rescue-protocol";
-}
-
-"cleo-watch" {
-   if !entity "Cleo" intersects geometry "cleo-watch-box" then goto script "cleo-rescue-protocol";
-}
-
-"on_tick-main" {
-   if player intersects geometry "door-bakery-entrance" then goto script "load_map-bakery";
-   if player intersects geometry "door-family-entrance" then goto script "load_map-family";
-   if player intersects geometry "door-greenhouse-entrance" then goto script "load_map-greenhouse";
-   if player intersects geometry "door-magehouse-entrance" then goto script "load_map-magehouse";
-   if player intersects geometry "door-lodge-entrance" then goto script "load_map-lodge";
-   if player intersects geometry "door-oldcouplehouse-entrance" then goto script "load_map-oldcouplehouse";
-   if player intersects geometry "door-woprhouse-entrance" then goto script "load_map-woprhouse";
-   if player intersects geometry "door_to-town-east" then goto script "wrap_from-west";
-   if player intersects geometry "door_to-town-west" then goto script "wrap_from-east";
-}
-
 "fountain-interact" {
    if !self glitched then goto index 3;
    show dialog "ch1-map_main.mgs-XX";
@@ -1734,6 +1803,13 @@
    show dialog "ch1-map_main.mgs-XX";
    goto index 5;
    self on_interact = "fountain-interact";
+}
+
+"cat-and-cleo-convo-turn-player" {
+   copy!("undefined")
+   entity "Cleo" direction = player;
+   entity "Cat" direction = player;
+   copy!("undefined")
 }
 
 "show_dialog-cleo1" {
@@ -1838,71 +1914,6 @@
    "marta-backstory" = true;
    goto index 13;
    self on_interact = "show_dialog-marta-start";
-}
-
-"felix-loiter" {
-   if "storyflag-catwork" then goto script "hiding-cat";
-   self direction = "south";
-   wait 2000ms;
-   self direction = "east";
-   wait 800ms;
-   self direction = "west";
-   wait 1200ms;
-}
-
-"deut-loiter" {
-   if "storyflag-catwork" then goto script "hiding-cat";
-   self direction = "west";
-   wait 900ms;
-   self direction = "east";
-   wait 900ms;
-   self direction = "south";
-   wait 2400ms;
-}
-
-"bmurray-loiter" {
-   if "storyflag-catwork" then goto script "hiding-cat";
-   self direction = "south";
-   wait 1800ms;
-   self direction = "north";
-   wait 900ms;
-   self direction = "east";
-   wait 1000ms;
-}
-
-"maru-loiter" {
-   if "storyflag-catwork" then goto script "hiding-cat";
-   self direction = "west";
-   wait 1400ms;
-   self direction = "south";
-   wait 1800ms;
-   self direction = "north";
-   wait 400ms;
-   self direction = "east";
-   wait 400ms;
-}
-
-"on_tick-max-neutral" {
-   if "storyflag-catwork" then goto script "null_script";
-   if player type == "pipscat" then goto script "on_tick-max-catwatch";
-   entity "Felix" on_tick = "felix-loiter";
-   entity "Maru" on_tick = "maru-loiter";
-   entity "B. Murray" on_tick = "bmurray-loiter";
-   entity "Deuteronomy" on_tick = "deut-loiter";
-}
-
-"on_tick-max-catwatch" {
-   if player type != "pipscat" then goto script "on_tick-max-neutral";
-   entity "Felix" on_tick = "face-player";
-   entity "Maru" on_tick = "face-player";
-   entity "B. Murray" on_tick = "face-player";
-   entity "Deuteronomy" on_tick = "face-player";
-   if player current_animation == 2 then goto script "on_tick-max-thumbwatch";
-}
-
-"on_tick-max-thumbwatch" {
-   if player intersects geometry "catwatch-zone" then goto script "send-cats-to-work";
-   wait 2000ms;
 }
 
 "send-cats-to-work" {
@@ -2040,10 +2051,6 @@
    show dialog "ch1-max.mgs-XX";
    "hint-tracking" = 61;
    goto index 49;
-}
-
-"on_tick-oldcouplehouse" {
-   if player intersects geometry "door-oldcouplehouse" then goto script "leave-oldcouplehouse";
 }
 
 "leave-oldcouplehouse" {
@@ -2235,18 +2242,6 @@
    entity "Beatrice" on_interact = "show_dialog-bea-start";
 }
 
-"on_tick-delmar-blab-nonman-watch" {
-   if entity "Delmar" type != "old_man" then goto script "delmar-unblab";
-}
-
-"on_tick-delmar-blab-man-watch" {
-   if entity "Delmar" type == "old_man" then goto script "delmar-blab";
-}
-
-"on_tick-secretroom" {
-   if player intersects geometry "door-secretdoor-exit" then goto script "leave-secretroom";
-}
-
 "on_load-secretroom" {
    if "tuesdayd" then goto index 3;
    goto "secretroom-cutscene";
@@ -2351,6 +2346,106 @@
    goto index 66;
    "shepherd-backstory" = true;
    goto index 68;
+}
+
+"show_dialog-shepherd-backstory" {
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-XX";
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-XX";
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-XX";
+}
+
+"turn-right-and-left" {
+   copy!("undefined")
+   player_control = false;
+   wait 200ms;
+   self direction += 1;
+   wait 500ms;
+   self direction -= -2;
+   wait 500ms;
+   self direction += 1;
+   wait 200ms;
+   copy!("undefined")
+   player_control = true;
+}
+
+"show_dialog-shepherd-ending" {
+   "storyflag-shepherd" = true;
+   "shepherd-backstory" = true;
+   copy!("undefined")
+   if "hint-tracking-check" == 1 then goto label bodyStart_ZIGZAG_4303;
+   goto label LABEL_f4376
+   bodyStart_ZIGZAG_4303:
+   copy!("undefined")
+   goto label LABEL_f4376
+   LABEL_f4376:
+   entity "Shepherd" on_interact = "show_dialog-shepherd-start";
+}
+
+"ch2-count-flags" {
+   "ch2-storyflags-tally" = 0;
+   if "ch2-installed-heatsink" then goto label bodyStart_ZIGZAG_1057;
+   goto label LABEL_f1095
+   bodyStart_ZIGZAG_1057:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1095
+   LABEL_f1095:
+   if "ch2-installed-powersupply" then goto label bodyStart_ZIGZAG_1142;
+   goto label LABEL_f1180
+   bodyStart_ZIGZAG_1142:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1180
+   LABEL_f1180:
+   if "ch2-installed-monitor" then goto label bodyStart_ZIGZAG_1223;
+   goto label LABEL_f1261
+   bodyStart_ZIGZAG_1223:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1261
+   LABEL_f1261:
+   if "ch2-installed-harddrive" then goto label bodyStart_ZIGZAG_1319;
+   goto label LABEL_f1357
+   bodyStart_ZIGZAG_1319:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1357
+   LABEL_f1357:
+   if "ch2-installed-keyboard" then goto label bodyStart_ZIGZAG_1401;
+   goto label LABEL_f1439
+   bodyStart_ZIGZAG_1401:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1439
+   LABEL_f1439:
+   if "ch2-installed-mouse" then goto label bodyStart_ZIGZAG_1480;
+   goto label LABEL_f1518
+   bodyStart_ZIGZAG_1480:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1518
+   LABEL_f1518:
+   if "ch2-installed-ramchips" then goto label bodyStart_ZIGZAG_1576;
+   goto label LABEL_f1614
+   bodyStart_ZIGZAG_1576:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1614
+   LABEL_f1614:
+   if "ch2-installed-clock" then goto label bodyStart_ZIGZAG_1655;
+   goto label LABEL_f1693
+   bodyStart_ZIGZAG_1655:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1693
+   LABEL_f1693:
+   if "ch2-installed-cpu" then goto label bodyStart_ZIGZAG_1732;
+   goto label LABEL_f1770
+   bodyStart_ZIGZAG_1732:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1770
+   LABEL_f1770:
+   if "ch2-installed-mainframeos" then goto label bodyStart_ZIGZAG_1827;
+   goto label LABEL_f1865
+   bodyStart_ZIGZAG_1827:
+   "ch2-storyflags-tally" += 1;
+   goto label LABEL_f1865
+   LABEL_f1865:
 }
 
 "ch2-interact-mainframe" {
@@ -2697,6 +2792,23 @@
    goto index 341;
 }
 
+"ch2-start-round-2" {
+   player current_animation = 0;
+   copy!("undefined")
+   player_control = false;
+   wait 200ms;
+   show serial_dialog "spacer";
+   show serial_dialog "ch2-admin.mgs-XX";
+   "ch2-lambda-paging" = true;
+   "ch2-cutseen-bert-secret" = true;
+   "ch2-storyflag-round" = 2;
+   wait 900ms;
+   show dialog "ch2-admin.mgs-XX";
+   show serial_dialog "spacer";
+   show serial_dialog "ch2-admin.mgs-XX";
+   player_control = true;
+}
+
 "ch2-serial-light-manager" {
    if serial_dialog open then goto index 5;
    if "ch2-lambda-paging" then goto index 7;
@@ -2723,6 +2835,118 @@
    goto index 4;
    goto "ch2-serial-light-manager";
    goto index 4;
+}
+
+"ch2-load-castle-1-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_11964;
+   load map "ch2-castle-1";
+   goto label LABEL_f12036
+   bodyStart_ZIGZAG_11964:
+   load map "ch2-castle-1-doorless";
+   goto label LABEL_f12036
+   LABEL_f12036:
+}
+
+"ch2-load-castle-11-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12112;
+   load map "ch2-castle-11";
+   goto label LABEL_f12186
+   bodyStart_ZIGZAG_12112:
+   load map "ch2-castle-11-doorless";
+   goto label LABEL_f12186
+   LABEL_f12186:
+}
+
+"ch2-load-castle-12-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12262;
+   load map "ch2-castle-12";
+   goto label LABEL_f12336
+   bodyStart_ZIGZAG_12262:
+   load map "ch2-castle-12-doorless";
+   goto label LABEL_f12336
+   LABEL_f12336:
+}
+
+"ch2-load-castle-13-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12412;
+   load map "ch2-castle-13";
+   goto label LABEL_f12486
+   bodyStart_ZIGZAG_12412:
+   load map "ch2-castle-13-doorless";
+   goto label LABEL_f12486
+   LABEL_f12486:
+}
+
+"ch2-load-castle-14-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12602;
+   if "ch2-king-rescued" then goto label bodyStart_ZIGZAG_12602;
+   load map "ch2-castle-14";
+   goto label LABEL_f12676
+   bodyStart_ZIGZAG_12602:
+   load map "ch2-castle-14-doorless";
+   goto label LABEL_f12676
+   LABEL_f12676:
+}
+
+"ch2-load-castle-21-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12752;
+   load map "ch2-castle-21";
+   goto label LABEL_f12826
+   bodyStart_ZIGZAG_12752:
+   load map "ch2-castle-21-doorless";
+   goto label LABEL_f12826
+   LABEL_f12826:
+}
+
+"ch2-load-castle-22-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_12902;
+   load map "ch2-castle-22";
+   goto label LABEL_f12976
+   bodyStart_ZIGZAG_12902:
+   load map "ch2-castle-22-doorless";
+   goto label LABEL_f12976
+   LABEL_f12976:
+}
+
+"ch2-load-castle-23-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_13052;
+   load map "ch2-castle-23";
+   goto label LABEL_f13126
+   bodyStart_ZIGZAG_13052:
+   load map "ch2-castle-23-doorless";
+   goto label LABEL_f13126
+   LABEL_f13126:
+}
+
+"ch2-load-castle-31-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_13202;
+   load map "ch2-castle-31";
+   goto label LABEL_f13276
+   bodyStart_ZIGZAG_13202:
+   load map "ch2-castle-31-doorless";
+   goto label LABEL_f13276
+   LABEL_f13276:
+}
+
+"ch2-load-castle-32-special" {
+   if "ch2-storyflag-round" >= 5 then goto label bodyStart_ZIGZAG_13352;
+   load map "ch2-castle-32";
+   goto label LABEL_f13426
+   bodyStart_ZIGZAG_13352:
+   load map "ch2-castle-32-doorless";
+   goto label LABEL_f13426
+   LABEL_f13426:
+}
+
+"ch2-player-spawn-click-protection" {
+   if warp_state == "raw_game_load-ch2" then goto label bodyStart_ZIGZAG_13792;
+   goto label LABEL_f13862
+   bodyStart_ZIGZAG_13792:
+   player_control = false;
+   wait 150ms;
+   player_control = true;
+   goto label LABEL_f13862
+   LABEL_f13862:
 }
 
 "on_load-ch2-bakery" {
@@ -3808,6 +4032,36 @@
    wait 4000ms;
 }
 
+"tick-rand-mini" {
+   "rand" ?= 3;
+   if "rand" == 2 then goto label bodyStart_ZIGZAG_4975;
+   if "rand" == 1 then goto label bodyStart_ZIGZAG_5020;
+   wait 4000ms;
+   goto label LABEL_f5055
+   bodyStart_ZIGZAG_4975:
+   wait 2000ms;
+   goto label LABEL_f5055
+   bodyStart_ZIGZAG_5020:
+   wait 3000ms;
+   goto label LABEL_f5055
+   LABEL_f5055:
+}
+
+"tick-rand-broad" {
+   "rand" ?= 3;
+   if "rand" == 2 then goto label bodyStart_ZIGZAG_5120;
+   if "rand" == 1 then goto label bodyStart_ZIGZAG_5165;
+   wait 14000ms;
+   goto label LABEL_f5201
+   bodyStart_ZIGZAG_5120:
+   wait 3000ms;
+   goto label LABEL_f5201
+   bodyStart_ZIGZAG_5165:
+   wait 9000ms;
+   goto label LABEL_f5201
+   LABEL_f5201:
+}
+
 "tick-linger-2" {
    "rand" ?= 3;
    if "rand" == 2 then goto index 5;
@@ -3868,6 +4122,75 @@
    self position -> geometry "linger-spot-4a" origin over 1000ms;
    self direction = "north";
    wait 12000ms;
+}
+
+"ch2-cutscene-bob-party" {
+   player_control = false;
+   wait 1500ms;
+   player on_tick = "look-left-and-right-fast";
+   wait 700ms;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   player on_tick = "null_script";
+   player direction = entity "Guardian Bob";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" position -> geometry "bob-walk" length over 1200ms;
+   wait 800ms;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   if player name == "Bob" then goto label bodyStart_ZIGZAG_7386;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   goto label LABEL_f7538
+   bodyStart_ZIGZAG_7386:
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   goto label LABEL_f7538
+   LABEL_f7538:
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" on_tick = "spin_self_clockwise";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" on_tick = "null_script";
+   entity "Guardian Bob" direction = player;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   wait 100ms;
+   player strafe = 2;
+   player position -> geometry "gasp-spot" origin over 200ms;
+   player strafe = 0;
+   player direction = entity "Guardian Bob";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" direction = "south";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   player direction = "south";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   player direction = entity "Guardian Bob";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" direction = player;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   wait 100ms;
+   player on_tick = "spin_self_clockwise";
+   wait 240ms;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" direction = "south";
+   player on_tick = "null_script";
+   player direction = entity "Guardian Bob";
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" direction = player;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   wait 80ms;
+   entity "Guardian Bob" direction = "north";
+   wait 400ms;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   if "ch2-want-cactuscooler" then goto label bodyStart_ZIGZAG_10050;
+   goto label LABEL_f10283
+   bodyStart_ZIGZAG_10050:
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   entity "Guardian Bob" direction = player;
+   show dialog "ch2-bobsclub-basement.mgs-XX";
+   goto label LABEL_f10283
+   LABEL_f10283:
+   "ch2-cutseen-bob-party" = true;
+   wait 150ms;
+   entity "Guardian Bob" position -> geometry "bob-walk2" origin over 800ms;
+   entity "Guardian Bob" on_tick = "loiter-slow";
+   camera = player position;
+   player_control = true;
 }
 
 "interact-ch2-guardianbob" {
@@ -4652,6 +4975,55 @@
    "ch2-rattle-count" %= 3;
    goto index 51;
    goto index 52;
+}
+
+"ch2-bobrattling" {
+   if !"ch2-cutseen-bob-party" then goto label bodyStart_ZIGZAG_10207;
+   goto label LABEL_f12282
+   bodyStart_ZIGZAG_10207:
+   player on_tick = "look-left-and-right-fast";
+   if "ch2-rattle-count" == 0 then goto label bodyStart_ZIGZAG_10324;
+   if "ch2-rattle-count" == 1 then goto label bodyStart_ZIGZAG_10651;
+   if "ch2-rattle-count" == 2 then goto label bodyStart_ZIGZAG_10961;
+   if "ch2-rattle-count" == 3 then goto label bodyStart_ZIGZAG_11367;
+   if "ch2-rattle-count" == 4 then goto label bodyStart_ZIGZAG_11741;
+   copy!("undefined")
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   bodyStart_ZIGZAG_10324:
+   show dialog "ch2-bobsclub.mgs-XX";
+   copy!("undefined")
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   bodyStart_ZIGZAG_10651:
+   show dialog "ch2-bobsclub.mgs-XX";
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   bodyStart_ZIGZAG_10961:
+   show dialog "ch2-bobsclub.mgs-XX";
+   copy!("undefined")
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   bodyStart_ZIGZAG_11367:
+   show dialog "ch2-bobsclub.mgs-XX";
+   copy!("undefined")
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   bodyStart_ZIGZAG_11741:
+   copy!("undefined")
+   show dialog "ch2-bobsclub.mgs-XX";
+   goto label LABEL_f12126
+   LABEL_f12126:
+   copy!("undefined")
+   "ch2-rattle-count" += 1;
+   if !"ch2-toot-done" then goto label bodyStart_ZIGZAG_12243;
+   goto label LABEL_f12279
+   bodyStart_ZIGZAG_12243:
+   "ch2-rattle-count" %= 3;
+   goto label LABEL_f12279
+   LABEL_f12279:
+   goto label LABEL_f12282
+   LABEL_f12282:
 }
 
 "ch2-bert-secret-lambda-intro" {
@@ -5816,6 +6188,28 @@
    goto index 13;
 }
 
+"on_tick-ch2-castle-1-hexwait-protec" {
+   if player intersects geometry "south-hitbox" then goto label bodyStart_ZIGZAG_12407;
+   goto label LABEL_f12567
+   bodyStart_ZIGZAG_12407:
+   copy!("undefined")
+   player_control = false;
+   player position -> geometry "walk_from-south" origin over 200ms;
+   player_control = true;
+   goto label LABEL_f12567
+   LABEL_f12567:
+}
+
+"on_exit-ch2-castle-1" {
+   if "ch2-wait-for-hat-touch" then goto label bodyStart_ZIGZAG_12704;
+   goto label LABEL_f12746
+   bodyStart_ZIGZAG_12704:
+   goto "ch2-wait-for-hat-touch-message";
+   goto label LABEL_f12746
+   LABEL_f12746:
+   "ch2-in-room" = 0;
+}
+
 "on_go-castle-1-north" {
    if !"ch2-toot-done" then goto index 17;
    if "ch2-wait-for-hat-touch" then goto index 3;
@@ -6040,6 +6434,61 @@
    show dialog "ch2-castle-1.mgs-XX";
    goto "ch2-install-wizard-resume2";
    goto index 147;
+}
+
+"ch2-install-wizard" {
+   serial_control = false;
+   player_control = false;
+   show dialog "ch2-castle-1.mgs-XX";
+   entity "Wizard" on_tick = "null_script";
+   copy!("undefined")
+   show dialog "ch2-castle-1.mgs-XX";
+   entity "Wizard" direction = entity "mainframe";
+   show dialog "ch2-castle-1.mgs-XX";
+   player_control = false;
+   if player intersects geometry "mainframe-watchbox" then goto label bodyStart_ZIGZAG_19986;
+   if player intersects geometry "mainframe-watchdonut" then goto label bodyStart_ZIGZAG_20067;
+   player position -> geometry "mainframe-look-spot" origin over 500ms;
+   goto label LABEL_f20218
+   bodyStart_ZIGZAG_19986:
+   goto label LABEL_f20218
+   bodyStart_ZIGZAG_20067:
+   player position -> geometry "mainframe-look-spot" origin over 300ms;
+   goto label LABEL_f20218
+   LABEL_f20218:
+   player direction = "north";
+   wait 900ms;
+   player direction = entity "Wizard";
+   show dialog "ch2-castle-1.mgs-XX";
+   player direction = entity "mainframe";
+   show dialog "ch2-castle-1.mgs-XX";
+   wait 800ms;
+   serial_control = false;
+   show serial_dialog "spacer";
+   show serial_dialog "ch2-castle-1.mgs-XX";
+   wait 100ms;
+   show dialog "ch2-castle-1.mgs-XX";
+   player direction = entity "Wizard";
+   show dialog "ch2-castle-1.mgs-XX";
+   player direction = entity "mainframe";
+   entity "Wizard" direction = "west";
+   wait 200ms;
+   entity "Wizard" direction = "east";
+   wait 200ms;
+   entity "Wizard" direction = "west";
+   wait 200ms;
+   entity "Wizard" direction = "east";
+   show dialog "ch2-castle-1.mgs-XX";
+   entity "Wizard" direction = "south";
+   show dialog "ch2-castle-1.mgs-XX";
+   entity "Wizard" direction = "east";
+   player on_tick = "ch2-wait-for-boot";
+   copy!("undefined")
+   serial_control = false;
+   player_control = false;
+   wait 1200ms;
+   show dialog "ch2-castle-1.mgs-XX";
+   goto "ch2-install-wizard-resume2";
 }
 
 "ch2-install-wizard2" {
@@ -7122,6 +7571,59 @@
    goto index 465;
 }
 
+"ch2-cutscene-castle11" {
+   player_control = false;
+   wait 500ms;
+   entity "Kuro" on_tick = "null_script";
+   if !"ch2-blockage" then goto label bodyStart_ZIGZAG_3064;
+   goto label LABEL_f3196
+   bodyStart_ZIGZAG_3064:
+   "ch2-blockage" = true;
+   show dialog "ch2-castle-11.mgs-XX";
+   goto label LABEL_f3196
+   LABEL_f3196:
+   show dialog "ch2-castle-11.mgs-XX";
+   player on_tick = "watch-kuro";
+   entity "Kuro" position -> geometry "kuro-walk" origin over 300ms;
+   entity "Kuro" position -> geometry "kuro-spot" origin over 300ms;
+   entity "Kuro" position -> geometry "kuro-walk" origin over 300ms;
+   entity "Kuro" direction = "south";
+   wait 400ms;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 1;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 0;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 1;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" position -> geometry "kuro-spot" origin over 250ms;
+   entity "Kuro" position -> geometry "kuro-walk" origin over 250ms;
+   entity "Kuro" direction = "south";
+   wait 140ms;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 1;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 0;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 1;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" current_animation = 0;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" on_tick = "ch2-walk-to-monitor";
+   player on_tick = "null_script";
+   player position -> geometry "warp-spot" length over 1900ms;
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" on_tick = "null_script";
+   entity "Kuro" direction = "south";
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" on_tick = "kuro-hop";
+   show dialog "ch2-castle-11.mgs-XX";
+   entity "Kuro" on_tick = "face-player";
+   player_control = true;
+   player on_tick = "null_script";
+   "ch2-cutseen-castle11" = true;
+}
+
 "on_tick-ch2-castle-11-doorless" {
    if player intersects geometry "south-hitbox" then goto index 4;
    if player intersects geometry "north-hitbox" then goto index 12;
@@ -7193,6 +7695,1651 @@
    goto index 11;
    load map "ch2-castle-1-doorless";
    goto index 11;
+}
+
+"ch2-ws-count-flags" {
+   "ch2-ws-flags-tally" = 0;
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_1336;
+   goto label LABEL_f1372
+   bodyStart_ZIGZAG_1336:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1372
+   LABEL_f1372:
+   if "ch2-ws-analog" then goto label bodyStart_ZIGZAG_1407;
+   goto label LABEL_f1443
+   bodyStart_ZIGZAG_1407:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1443
+   LABEL_f1443:
+   if "ch2-ws-audio" then goto label bodyStart_ZIGZAG_1477;
+   goto label LABEL_f1513
+   bodyStart_ZIGZAG_1477:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1513
+   LABEL_f1513:
+   if "ch2-ws-aux" then goto label bodyStart_ZIGZAG_1545;
+   goto label LABEL_f1581
+   bodyStart_ZIGZAG_1545:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1581
+   LABEL_f1581:
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_1614;
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1614:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1650
+   LABEL_f1650:
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_1683;
+   goto label LABEL_f1719
+   bodyStart_ZIGZAG_1683:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1719
+   LABEL_f1719:
+   if "ch2-ws-bpm" then goto label bodyStart_ZIGZAG_1751;
+   goto label LABEL_f1787
+   bodyStart_ZIGZAG_1751:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1787
+   LABEL_f1787:
+   if "ch2-ws-broadcast" then goto label bodyStart_ZIGZAG_1825;
+   goto label LABEL_f1861
+   bodyStart_ZIGZAG_1825:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1861
+   LABEL_f1861:
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_1898;
+   goto label LABEL_f1934
+   bodyStart_ZIGZAG_1898:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f1934
+   LABEL_f1934:
+   if "ch2-ws-chiptune" then goto label bodyStart_ZIGZAG_1971;
+   goto label LABEL_f2007
+   bodyStart_ZIGZAG_1971:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2007
+   LABEL_f2007:
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_2041;
+   goto label LABEL_f2077
+   bodyStart_ZIGZAG_2041:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2077
+   LABEL_f2077:
+   if "ch2-ws-compact" then goto label bodyStart_ZIGZAG_2113;
+   goto label LABEL_f2149
+   bodyStart_ZIGZAG_2113:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2149
+   LABEL_f2149:
+   if "ch2-ws-frequency" then goto label bodyStart_ZIGZAG_2187;
+   goto label LABEL_f2223
+   bodyStart_ZIGZAG_2187:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2223
+   LABEL_f2223:
+   if "ch2-ws-headphones" then goto label bodyStart_ZIGZAG_2262;
+   goto label LABEL_f2298
+   bodyStart_ZIGZAG_2262:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2298
+   LABEL_f2298:
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_2331;
+   goto label LABEL_f2367
+   bodyStart_ZIGZAG_2331:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2367
+   LABEL_f2367:
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_2401;
+   goto label LABEL_f2437
+   bodyStart_ZIGZAG_2401:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2437
+   LABEL_f2437:
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_2470;
+   goto label LABEL_f2506
+   bodyStart_ZIGZAG_2470:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2506
+   LABEL_f2506:
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_2540;
+   goto label LABEL_f2576
+   bodyStart_ZIGZAG_2540:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2576
+   LABEL_f2576:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_2615;
+   goto label LABEL_f2651
+   bodyStart_ZIGZAG_2615:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2651
+   LABEL_f2651:
+   if "ch2-ws-midi" then goto label bodyStart_ZIGZAG_2684;
+   goto label LABEL_f2720
+   bodyStart_ZIGZAG_2684:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2720
+   LABEL_f2720:
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_2755;
+   goto label LABEL_f2791
+   bodyStart_ZIGZAG_2755:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2791
+   LABEL_f2791:
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_2825;
+   goto label LABEL_f2861
+   bodyStart_ZIGZAG_2825:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2861
+   LABEL_f2861:
+   if "ch2-ws-phonograph" then goto label bodyStart_ZIGZAG_2900;
+   goto label LABEL_f2936
+   bodyStart_ZIGZAG_2900:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f2936
+   LABEL_f2936:
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_2970;
+   goto label LABEL_f3006
+   bodyStart_ZIGZAG_2970:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3006
+   LABEL_f3006:
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_3044;
+   goto label LABEL_f3080
+   bodyStart_ZIGZAG_3044:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3080
+   LABEL_f3080:
+   if "ch2-ws-rhythm" then goto label bodyStart_ZIGZAG_3115;
+   goto label LABEL_f3151
+   bodyStart_ZIGZAG_3115:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3151
+   LABEL_f3151:
+   if "ch2-ws-sequencer" then goto label bodyStart_ZIGZAG_3189;
+   goto label LABEL_f3225
+   bodyStart_ZIGZAG_3189:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3225
+   LABEL_f3225:
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_3258;
+   goto label LABEL_f3294
+   bodyStart_ZIGZAG_3258:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3294
+   LABEL_f3294:
+   if "ch2-ws-soundtrack" then goto label bodyStart_ZIGZAG_3333;
+   goto label LABEL_f3369
+   bodyStart_ZIGZAG_3333:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3369
+   LABEL_f3369:
+   if "ch2-ws-speakers" then goto label bodyStart_ZIGZAG_3406;
+   goto label LABEL_f3442
+   bodyStart_ZIGZAG_3406:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3442
+   LABEL_f3442:
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_3477;
+   goto label LABEL_f3513
+   bodyStart_ZIGZAG_3477:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3513
+   LABEL_f3513:
+   if "ch2-ws-stream" then goto label bodyStart_ZIGZAG_3548;
+   goto label LABEL_f3584
+   bodyStart_ZIGZAG_3548:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3584
+   LABEL_f3584:
+   if "ch2-ws-subwoofer" then goto label bodyStart_ZIGZAG_3622;
+   goto label LABEL_f3658
+   bodyStart_ZIGZAG_3622:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3658
+   LABEL_f3658:
+   if "ch2-ws-surround" then goto label bodyStart_ZIGZAG_3695;
+   goto label LABEL_f3731
+   bodyStart_ZIGZAG_3695:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3731
+   LABEL_f3731:
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_3771;
+   goto label LABEL_f3807
+   bodyStart_ZIGZAG_3771:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3807
+   LABEL_f3807:
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_3840;
+   goto label LABEL_f3876
+   bodyStart_ZIGZAG_3840:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3876
+   LABEL_f3876:
+   if "ch2-ws-treble" then goto label bodyStart_ZIGZAG_3911;
+   goto label LABEL_f3947
+   bodyStart_ZIGZAG_3911:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f3947
+   LABEL_f3947:
+   if "ch2-ws-vinyl" then goto label bodyStart_ZIGZAG_3981;
+   goto label LABEL_f4017
+   bodyStart_ZIGZAG_3981:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f4017
+   LABEL_f4017:
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_4053;
+   goto label LABEL_f4089
+   bodyStart_ZIGZAG_4053:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f4089
+   LABEL_f4089:
+   if "ch2-ws-volume" then goto label bodyStart_ZIGZAG_4124;
+   goto label LABEL_f4160
+   bodyStart_ZIGZAG_4124:
+   "ch2-ws-flags-tally" += 1;
+   goto label LABEL_f4160
+   LABEL_f4160:
+}
+
+"ch2-ws-draw-map" {
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_4264;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4356
+   bodyStart_ZIGZAG_4264:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4356
+   LABEL_f4356:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_4395;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4487
+   bodyStart_ZIGZAG_4395:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4487
+   LABEL_f4487:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vinyl" then goto label bodyStart_ZIGZAG_4552;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4660
+   bodyStart_ZIGZAG_4552:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4660
+   LABEL_f4660:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_4745;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4837
+   bodyStart_ZIGZAG_4745:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f4837
+   LABEL_f4837:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-aux" then goto label bodyStart_ZIGZAG_4942;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5021
+   bodyStart_ZIGZAG_4942:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5021
+   LABEL_f5021:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_5092;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5187
+   bodyStart_ZIGZAG_5092:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5187
+   LABEL_f5187:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_5301;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5393
+   bodyStart_ZIGZAG_5301:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5393
+   LABEL_f5393:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_5432;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5524
+   bodyStart_ZIGZAG_5432:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5524
+   LABEL_f5524:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_5589;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5681
+   bodyStart_ZIGZAG_5589:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5681
+   LABEL_f5681:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-chiptune" then goto label bodyStart_ZIGZAG_5751;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5871
+   bodyStart_ZIGZAG_5751:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f5871
+   LABEL_f5871:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_5942;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6034
+   bodyStart_ZIGZAG_5942:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6034
+   LABEL_f6034:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-bpm" then goto label bodyStart_ZIGZAG_6141;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6220
+   bodyStart_ZIGZAG_6141:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6220
+   LABEL_f6220:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-soundtrack" then goto label bodyStart_ZIGZAG_6291;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6384
+   bodyStart_ZIGZAG_6291:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6384
+   LABEL_f6384:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_6498;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6590
+   bodyStart_ZIGZAG_6498:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6590
+   LABEL_f6590:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_6629;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6721
+   bodyStart_ZIGZAG_6629:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6721
+   LABEL_f6721:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_6788;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6880
+   bodyStart_ZIGZAG_6788:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f6880
+   LABEL_f6880:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-aux" then goto label bodyStart_ZIGZAG_6943;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7035
+   bodyStart_ZIGZAG_6943:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7035
+   LABEL_f7035:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_7118;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7210
+   bodyStart_ZIGZAG_7118:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7210
+   LABEL_f7210:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_7275;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7367
+   bodyStart_ZIGZAG_7275:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7367
+   LABEL_f7367:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_7439;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7531
+   bodyStart_ZIGZAG_7439:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7531
+   LABEL_f7531:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_7598;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7679
+   bodyStart_ZIGZAG_7598:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7679
+   LABEL_f7679:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-phonograph" then goto label bodyStart_ZIGZAG_7749;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7842
+   bodyStart_ZIGZAG_7749:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f7842
+   LABEL_f7842:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_7956;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8048
+   bodyStart_ZIGZAG_7956:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8048
+   LABEL_f8048:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_8087;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8179
+   bodyStart_ZIGZAG_8087:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8179
+   LABEL_f8179:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_8248;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8340
+   bodyStart_ZIGZAG_8248:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8340
+   LABEL_f8340:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-aux" then goto label bodyStart_ZIGZAG_8403;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8495
+   bodyStart_ZIGZAG_8403:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8495
+   LABEL_f8495:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_8574;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8666
+   bodyStart_ZIGZAG_8574:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8666
+   LABEL_f8666:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_8733;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8825
+   bodyStart_ZIGZAG_8733:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8825
+   LABEL_f8825:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_8895;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8987
+   bodyStart_ZIGZAG_8895:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f8987
+   LABEL_f8987:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_9085;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9166
+   bodyStart_ZIGZAG_9085:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9166
+   LABEL_f9166:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_9236;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9329
+   bodyStart_ZIGZAG_9236:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9329
+   LABEL_f9329:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_9480;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9572
+   bodyStart_ZIGZAG_9480:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9572
+   LABEL_f9572:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_9639;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9731
+   bodyStart_ZIGZAG_9639:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9731
+   LABEL_f9731:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_9796;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9888
+   bodyStart_ZIGZAG_9796:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f9888
+   LABEL_f9888:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-aux" then goto label bodyStart_ZIGZAG_9951;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10043
+   bodyStart_ZIGZAG_9951:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10043
+   LABEL_f10043:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_10118;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10210
+   bodyStart_ZIGZAG_10118:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10210
+   LABEL_f10210:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_10279;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10371
+   bodyStart_ZIGZAG_10279:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10371
+   LABEL_f10371:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_10439;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10531
+   bodyStart_ZIGZAG_10439:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10531
+   LABEL_f10531:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_10631;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10712
+   bodyStart_ZIGZAG_10631:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10712
+   LABEL_f10712:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-headphones" then goto label bodyStart_ZIGZAG_10782;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10875
+   bodyStart_ZIGZAG_10782:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f10875
+   LABEL_f10875:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_11026;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11118
+   bodyStart_ZIGZAG_11026:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11118
+   LABEL_f11118:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_11185;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11277
+   bodyStart_ZIGZAG_11185:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11277
+   LABEL_f11277:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_11344;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11436
+   bodyStart_ZIGZAG_11344:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11436
+   LABEL_f11436:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-compact" then goto label bodyStart_ZIGZAG_11509;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11625
+   bodyStart_ZIGZAG_11509:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11625
+   LABEL_f11625:
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_11659;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11751
+   bodyStart_ZIGZAG_11659:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11751
+   LABEL_f11751:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_11817;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11909
+   bodyStart_ZIGZAG_11817:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f11909
+   LABEL_f11909:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_11974;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12066
+   bodyStart_ZIGZAG_11974:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12066
+   LABEL_f12066:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_12164;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12245
+   bodyStart_ZIGZAG_12164:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12245
+   LABEL_f12245:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-subwoofer" then goto label bodyStart_ZIGZAG_12315;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12406
+   bodyStart_ZIGZAG_12315:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12406
+   LABEL_f12406:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_12523;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12615
+   bodyStart_ZIGZAG_12523:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12615
+   LABEL_f12615:
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_12654;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12746
+   bodyStart_ZIGZAG_12654:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12746
+   LABEL_f12746:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_12846;
+   if "ch2-ws-sequencer" then goto label bodyStart_ZIGZAG_12846;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12938
+   bodyStart_ZIGZAG_12846:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f12938
+   LABEL_f12938:
+   if "ch2-ws-sequencer" then goto label bodyStart_ZIGZAG_12976;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13096
+   bodyStart_ZIGZAG_12976:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13096
+   LABEL_f13096:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_13171;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13263
+   bodyStart_ZIGZAG_13171:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13263
+   LABEL_f13263:
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_13298;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13390
+   bodyStart_ZIGZAG_13298:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13390
+   LABEL_f13390:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_13455;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13547
+   bodyStart_ZIGZAG_13455:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13547
+   LABEL_f13547:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-midi" then goto label bodyStart_ZIGZAG_13647;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13728
+   bodyStart_ZIGZAG_13647:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13728
+   LABEL_f13728:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-sequencer" then goto label bodyStart_ZIGZAG_13798;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13889
+   bodyStart_ZIGZAG_13798:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f13889
+   LABEL_f13889:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_14071;
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_14071;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14163
+   bodyStart_ZIGZAG_14071:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14163
+   LABEL_f14163:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_14230;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14322
+   bodyStart_ZIGZAG_14230:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14322
+   LABEL_f14322:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_14398;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14490
+   bodyStart_ZIGZAG_14398:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14490
+   LABEL_f14490:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_14570;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14662
+   bodyStart_ZIGZAG_14570:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14662
+   LABEL_f14662:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_14727;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14819
+   bodyStart_ZIGZAG_14727:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f14819
+   LABEL_f14819:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_14921;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15002
+   bodyStart_ZIGZAG_14921:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15002
+   LABEL_f15002:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_15072;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15163
+   bodyStart_ZIGZAG_15072:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15163
+   LABEL_f15163:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_15314;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15406
+   bodyStart_ZIGZAG_15314:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15406
+   LABEL_f15406:
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_15442;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15534
+   bodyStart_ZIGZAG_15442:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15534
+   LABEL_f15534:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_15599;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15691
+   bodyStart_ZIGZAG_15599:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15691
+   LABEL_f15691:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_15761;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15853
+   bodyStart_ZIGZAG_15761:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15853
+   LABEL_f15853:
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_15890;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15982
+   bodyStart_ZIGZAG_15890:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f15982
+   LABEL_f15982:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-stream" then goto label bodyStart_ZIGZAG_16048;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16160
+   bodyStart_ZIGZAG_16048:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16160
+   LABEL_f16160:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_16227;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16319
+   bodyStart_ZIGZAG_16227:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16319
+   LABEL_f16319:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-tape" then goto label bodyStart_ZIGZAG_16423;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16504
+   bodyStart_ZIGZAG_16423:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16504
+   LABEL_f16504:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-frequency" then goto label bodyStart_ZIGZAG_16574;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16665
+   bodyStart_ZIGZAG_16574:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16665
+   LABEL_f16665:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-microphone" then goto label bodyStart_ZIGZAG_16816;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16908
+   bodyStart_ZIGZAG_16816:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f16908
+   LABEL_f16908:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_16975;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17067
+   bodyStart_ZIGZAG_16975:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17067
+   LABEL_f17067:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_17137;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17229
+   bodyStart_ZIGZAG_17137:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17229
+   LABEL_f17229:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_17297;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17389
+   bodyStart_ZIGZAG_17297:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17389
+   LABEL_f17389:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_17468;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17560
+   bodyStart_ZIGZAG_17468:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17560
+   LABEL_f17560:
+   if "ch2-ws-audio" then goto label bodyStart_ZIGZAG_17594;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17702
+   bodyStart_ZIGZAG_17594:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17702
+   LABEL_f17702:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_17770;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17853
+   bodyStart_ZIGZAG_17770:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f17853
+   LABEL_f17853:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-broadcast" then goto label bodyStart_ZIGZAG_17922;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18013
+   bodyStart_ZIGZAG_17922:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18013
+   LABEL_f18013:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_18168;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18260
+   bodyStart_ZIGZAG_18168:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18260
+   LABEL_f18260:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_18326;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18418
+   bodyStart_ZIGZAG_18326:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18418
+   LABEL_f18418:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_18488;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18580
+   bodyStart_ZIGZAG_18488:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18580
+   LABEL_f18580:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-midi" then goto label bodyStart_ZIGZAG_18648;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18752
+   bodyStart_ZIGZAG_18648:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18752
+   LABEL_f18752:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_18820;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18912
+   bodyStart_ZIGZAG_18820:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f18912
+   LABEL_f18912:
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_18946;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19038
+   bodyStart_ZIGZAG_18946:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19038
+   LABEL_f19038:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-audio" then goto label bodyStart_ZIGZAG_19141;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19224
+   bodyStart_ZIGZAG_19141:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19224
+   LABEL_f19224:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-surround" then goto label bodyStart_ZIGZAG_19293;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19382
+   bodyStart_ZIGZAG_19293:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19382
+   LABEL_f19382:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_19502;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19594
+   bodyStart_ZIGZAG_19502:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19594
+   LABEL_f19594:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_19667;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19759
+   bodyStart_ZIGZAG_19667:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19759
+   LABEL_f19759:
+   if "ch2-ws-song" then goto label bodyStart_ZIGZAG_19792;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19884
+   bodyStart_ZIGZAG_19792:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f19884
+   LABEL_f19884:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-headphones" then goto label bodyStart_ZIGZAG_19956;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20048
+   bodyStart_ZIGZAG_19956:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20048
+   LABEL_f20048:
+   if "ch2-ws-headphones" then goto label bodyStart_ZIGZAG_20119;
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_20119;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20211
+   bodyStart_ZIGZAG_20119:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20211
+   LABEL_f20211:
+   if "ch2-ws-headphones" then goto label bodyStart_ZIGZAG_20250;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20370
+   bodyStart_ZIGZAG_20250:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20370
+   LABEL_f20370:
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_20405;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20497
+   bodyStart_ZIGZAG_20405:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20497
+   LABEL_f20497:
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_20530;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20622
+   bodyStart_ZIGZAG_20530:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20622
+   LABEL_f20622:
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_20656;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20748
+   bodyStart_ZIGZAG_20656:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20748
+   LABEL_f20748:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-bpm" then goto label bodyStart_ZIGZAG_20841;
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_20841;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20933
+   bodyStart_ZIGZAG_20841:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f20933
+   LABEL_f20933:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-codec" then goto label bodyStart_ZIGZAG_21001;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21084
+   bodyStart_ZIGZAG_21001:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21084
+   LABEL_f21084:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-speakers" then goto label bodyStart_ZIGZAG_21153;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21242
+   bodyStart_ZIGZAG_21153:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21242
+   LABEL_f21242:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_21393;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21485
+   bodyStart_ZIGZAG_21393:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21485
+   LABEL_f21485:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_21558;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21650
+   bodyStart_ZIGZAG_21558:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21650
+   LABEL_f21650:
+   if "ch2-ws-rhythm" then goto label bodyStart_ZIGZAG_21685;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21785
+   bodyStart_ZIGZAG_21685:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21785
+   LABEL_f21785:
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_21852;
+   if "ch2-ws-rhythm" then goto label bodyStart_ZIGZAG_21852;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21944
+   bodyStart_ZIGZAG_21852:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f21944
+   LABEL_f21944:
+   if "ch2-ws-rhythm" then goto label bodyStart_ZIGZAG_21979;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22075
+   bodyStart_ZIGZAG_21979:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22075
+   LABEL_f22075:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_22149;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22241
+   bodyStart_ZIGZAG_22149:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22241
+   LABEL_f22241:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_22305;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22397
+   bodyStart_ZIGZAG_22305:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22397
+   LABEL_f22397:
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_22431;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22523
+   bodyStart_ZIGZAG_22431:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22523
+   LABEL_f22523:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-bpm" then goto label bodyStart_ZIGZAG_22586;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22678
+   bodyStart_ZIGZAG_22586:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22678
+   LABEL_f22678:
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_22711;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22803
+   bodyStart_ZIGZAG_22711:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22803
+   LABEL_f22803:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-laser" then goto label bodyStart_ZIGZAG_22871;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22954
+   bodyStart_ZIGZAG_22871:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f22954
+   LABEL_f22954:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-chiptune" then goto label bodyStart_ZIGZAG_23023;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23112
+   bodyStart_ZIGZAG_23023:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23112
+   LABEL_f23112:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_23265;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23357
+   bodyStart_ZIGZAG_23265:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23357
+   LABEL_f23357:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_23434;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23534
+   bodyStart_ZIGZAG_23434:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23534
+   LABEL_f23534:
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_23606;
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_23606;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23698
+   bodyStart_ZIGZAG_23606:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23698
+   LABEL_f23698:
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_23738;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23850
+   bodyStart_ZIGZAG_23738:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f23850
+   LABEL_f23850:
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_23920;
+   if "ch2-ws-synthesizer" then goto label bodyStart_ZIGZAG_23920;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24012
+   bodyStart_ZIGZAG_23920:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24012
+   LABEL_f24012:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_24078;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24170
+   bodyStart_ZIGZAG_24078:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24170
+   LABEL_f24170:
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_24204;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24296
+   bodyStart_ZIGZAG_24204:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24296
+   LABEL_f24296:
+   if "ch2-ws-bpm" then goto label bodyStart_ZIGZAG_24328;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24420
+   bodyStart_ZIGZAG_24328:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24420
+   LABEL_f24420:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_24484;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24576
+   bodyStart_ZIGZAG_24484:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24576
+   LABEL_f24576:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-media" then goto label bodyStart_ZIGZAG_24644;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24727
+   bodyStart_ZIGZAG_24644:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24727
+   LABEL_f24727:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_24796;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24885
+   bodyStart_ZIGZAG_24796:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f24885
+   LABEL_f24885:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_25040;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25132
+   bodyStart_ZIGZAG_25040:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25132
+   LABEL_f25132:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-cassette" then goto label bodyStart_ZIGZAG_25210;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25302
+   bodyStart_ZIGZAG_25210:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25302
+   LABEL_f25302:
+   if "ch2-ws-frequency" then goto label bodyStart_ZIGZAG_25340;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25448
+   bodyStart_ZIGZAG_25340:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25448
+   LABEL_f25448:
+   if "ch2-ws-frequency" then goto label bodyStart_ZIGZAG_25516;
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_25516;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25608
+   bodyStart_ZIGZAG_25516:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25608
+   LABEL_f25608:
+   if "ch2-ws-frequency" then goto label bodyStart_ZIGZAG_25646;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25746
+   bodyStart_ZIGZAG_25646:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25746
+   LABEL_f25746:
+   if "ch2-ws-lofi" then goto label bodyStart_ZIGZAG_25779;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25871
+   bodyStart_ZIGZAG_25779:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25871
+   LABEL_f25871:
+   if "ch2-ws-album" then goto label bodyStart_ZIGZAG_25905;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25997
+   bodyStart_ZIGZAG_25905:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f25997
+   LABEL_f25997:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-beat" then goto label bodyStart_ZIGZAG_26063;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26155
+   bodyStart_ZIGZAG_26063:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26155
+   LABEL_f26155:
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-music" then goto label bodyStart_ZIGZAG_26223;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26306
+   bodyStart_ZIGZAG_26223:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26306
+   LABEL_f26306:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-vocoder" then goto label bodyStart_ZIGZAG_26375;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26462
+   bodyStart_ZIGZAG_26375:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26462
+   LABEL_f26462:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-surround" then goto label bodyStart_ZIGZAG_26612;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26712
+   bodyStart_ZIGZAG_26612:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26712
+   LABEL_f26712:
+   if "ch2-ws-surround" then goto label bodyStart_ZIGZAG_26782;
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_26782;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26874
+   bodyStart_ZIGZAG_26782:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f26874
+   LABEL_f26874:
+   if "ch2-ws-surround" then goto label bodyStart_ZIGZAG_26911;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27015
+   bodyStart_ZIGZAG_26911:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27015
+   LABEL_f27015:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-broadcast" then goto label bodyStart_ZIGZAG_27090;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27186
+   bodyStart_ZIGZAG_27090:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27186
+   LABEL_f27186:
+   if "ch2-ws-broadcast" then goto label bodyStart_ZIGZAG_27254;
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_27254;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27346
+   bodyStart_ZIGZAG_27254:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27346
+   LABEL_f27346:
+   if "ch2-ws-broadcast" then goto label bodyStart_ZIGZAG_27384;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27496
+   bodyStart_ZIGZAG_27384:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27496
+   LABEL_f27496:
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_27529;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27621
+   bodyStart_ZIGZAG_27529:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27621
+   LABEL_f27621:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-radio" then goto label bodyStart_ZIGZAG_27722;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27805
+   bodyStart_ZIGZAG_27722:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27805
+   LABEL_f27805:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-compact" then goto label bodyStart_ZIGZAG_27874;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27961
+   bodyStart_ZIGZAG_27874:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f27961
+   LABEL_f27961:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-soundtrack" then goto label bodyStart_ZIGZAG_28113;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28217
+   bodyStart_ZIGZAG_28113:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28217
+   LABEL_f28217:
+   if "ch2-ws-soundtrack" then goto label bodyStart_ZIGZAG_28289;
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_28289;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28381
+   bodyStart_ZIGZAG_28289:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28381
+   LABEL_f28381:
+   if "ch2-ws-soundtrack" then goto label bodyStart_ZIGZAG_28420;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28528
+   bodyStart_ZIGZAG_28420:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28528
+   LABEL_f28528:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-treble" then goto label bodyStart_ZIGZAG_28594;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28694
+   bodyStart_ZIGZAG_28594:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28694
+   LABEL_f28694:
+   if "ch2-ws-treble" then goto label bodyStart_ZIGZAG_28757;
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_28757;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28849
+   bodyStart_ZIGZAG_28757:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28849
+   LABEL_f28849:
+   if "ch2-ws-treble" then goto label bodyStart_ZIGZAG_28884;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28980
+   bodyStart_ZIGZAG_28884:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f28980
+   LABEL_f28980:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_29048;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29140
+   bodyStart_ZIGZAG_29048:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29140
+   LABEL_f29140:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-vinyl" then goto label bodyStart_ZIGZAG_29243;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29326
+   bodyStart_ZIGZAG_29243:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29326
+   LABEL_f29326:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-volume" then goto label bodyStart_ZIGZAG_29395;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29480
+   bodyStart_ZIGZAG_29395:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29480
+   LABEL_f29480:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   if "ch2-ws-volume" then goto label bodyStart_ZIGZAG_29597;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29709
+   bodyStart_ZIGZAG_29597:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29709
+   LABEL_f29709:
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_29747;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29839
+   bodyStart_ZIGZAG_29747:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f29839
+   LABEL_f29839:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-analog" then goto label bodyStart_ZIGZAG_29905;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30017
+   bodyStart_ZIGZAG_29905:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30017
+   LABEL_f30017:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_30081;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30173
+   bodyStart_ZIGZAG_30081:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30173
+   LABEL_f30173:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_30243;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30335
+   bodyStart_ZIGZAG_30243:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30335
+   LABEL_f30335:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-analog" then goto label bodyStart_ZIGZAG_30441;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30526
+   bodyStart_ZIGZAG_30441:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30526
+   LABEL_f30526:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-treble" then goto label bodyStart_ZIGZAG_30594;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30679
+   bodyStart_ZIGZAG_30594:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30679
+   LABEL_f30679:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_30842;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30934
+   bodyStart_ZIGZAG_30842:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f30934
+   LABEL_f30934:
+   if "ch2-ws-speakers" then goto label bodyStart_ZIGZAG_30971;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31087
+   bodyStart_ZIGZAG_30971:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31087
+   LABEL_f31087:
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_31152;
+   if "ch2-ws-speakers" then goto label bodyStart_ZIGZAG_31152;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31244
+   bodyStart_ZIGZAG_31152:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31244
+   LABEL_f31244:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-hifi" then goto label bodyStart_ZIGZAG_31312;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31404
+   bodyStart_ZIGZAG_31312:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31404
+   LABEL_f31404:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-mixing" then goto label bodyStart_ZIGZAG_31512;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31597
+   bodyStart_ZIGZAG_31512:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31597
+   LABEL_f31597:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-stream" then goto label bodyStart_ZIGZAG_31665;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31750
+   bodyStart_ZIGZAG_31665:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f31750
+   LABEL_f31750:
+   show serial_dialog "newline";
+   show serial_dialog "ch2-ws-rowstart";
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-phonograph" then goto label bodyStart_ZIGZAG_31906;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32014
+   bodyStart_ZIGZAG_31906:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32014
+   LABEL_f32014:
+   if "ch2-ws-recording" then goto label bodyStart_ZIGZAG_32086;
+   if "ch2-ws-phonograph" then goto label bodyStart_ZIGZAG_32086;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32178
+   bodyStart_ZIGZAG_32086:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32178
+   LABEL_f32178:
+   if "ch2-ws-phonograph" then goto label bodyStart_ZIGZAG_32217;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32321
+   bodyStart_ZIGZAG_32217:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32321
+   LABEL_f32321:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-subwoofer" then goto label bodyStart_ZIGZAG_32420;
+   if "ch2-ws-bass" then goto label bodyStart_ZIGZAG_32420;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32512
+   bodyStart_ZIGZAG_32420:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32512
+   LABEL_f32512:
+   if "ch2-ws-subwoofer" then goto label bodyStart_ZIGZAG_32550;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32670
+   bodyStart_ZIGZAG_32550:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32670
+   LABEL_f32670:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   show serial_dialog "ch2-ws-col";
+   if "ch2-ws-rhythm" then goto label bodyStart_ZIGZAG_32770;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32855
+   bodyStart_ZIGZAG_32770:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f32855
+   LABEL_f32855:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   if "ch2-ws-stereo" then goto label bodyStart_ZIGZAG_32923;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f33008
+   bodyStart_ZIGZAG_32923:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f33008
+   LABEL_f33008:
+   show serial_dialog "newline";
 }
 
 "ch2-ws-guess-album" {
@@ -7633,6 +9780,586 @@
    "ch2-ws-turn-status" = 2;
    goto index 7;
    goto "ch2-ws-doturn";
+}
+
+"ch2-ws-turn-message" {
+   if "ch2-ws-turn-status" == 5 then goto label bodyStart_ZIGZAG_52019;
+   if "ch2-ws-turn-status" == 4 then goto label bodyStart_ZIGZAG_52138;
+   if "ch2-ws-turn-value" == 41 then goto label bodyStart_ZIGZAG_52263;
+   if "ch2-ws-turn-value" == 42 then goto label bodyStart_ZIGZAG_52413;
+   if "ch2-ws-turn-value" == 43 then goto label bodyStart_ZIGZAG_52539;
+   if "ch2-ws-turn-value" == 44 then goto label bodyStart_ZIGZAG_52681;
+   if "ch2-ws-turn-value" == 45 then goto label bodyStart_ZIGZAG_52824;
+   if "ch2-ws-turn-value" == 46 then goto label bodyStart_ZIGZAG_52962;
+   if "ch2-ws-turn-value" == 47 then goto label bodyStart_ZIGZAG_53106;
+   if "ch2-ws-turn-value" == 48 then goto label bodyStart_ZIGZAG_53250;
+   if "ch2-ws-turn-value" == 49 then goto label bodyStart_ZIGZAG_53392;
+   if "ch2-ws-turn-value" == 50 then goto label bodyStart_ZIGZAG_53529;
+   if "ch2-ws-turn-value" == 51 then goto label bodyStart_ZIGZAG_53666;
+   if "ch2-ws-turn-value" == 52 then goto label bodyStart_ZIGZAG_53808;
+   if "ch2-ws-turn-value" == 53 then goto label bodyStart_ZIGZAG_53945;
+   if "ch2-ws-turn-value" == 54 then goto label bodyStart_ZIGZAG_54059;
+   if "ch2-ws-turn-value" == 55 then goto label bodyStart_ZIGZAG_54193;
+   if "ch2-ws-turn-value" == 56 then goto label bodyStart_ZIGZAG_54328;
+   if "ch2-ws-turn-value" == 57 then goto label bodyStart_ZIGZAG_54470;
+   if "ch2-ws-turn-value" == 58 then goto label bodyStart_ZIGZAG_54605;
+   if "ch2-ws-turn-value" == 59 then goto label bodyStart_ZIGZAG_54753;
+   if "ch2-ws-turn-value" == 60 then goto label bodyStart_ZIGZAG_54903;
+   if "ch2-ws-turn-value" == 61 then goto label bodyStart_ZIGZAG_55053;
+   if "ch2-ws-turn-value" == 62 then goto label bodyStart_ZIGZAG_55200;
+   if "ch2-ws-turn-value" == 63 then goto label bodyStart_ZIGZAG_55338;
+   if "ch2-ws-turn-value" == 64 then goto label bodyStart_ZIGZAG_55486;
+   if "ch2-ws-turn-value" == 65 then goto label bodyStart_ZIGZAG_55607;
+   if "ch2-ws-turn-value" == 66 then goto label bodyStart_ZIGZAG_55756;
+   if "ch2-ws-turn-value" == 67 then goto label bodyStart_ZIGZAG_55900;
+   if "ch2-ws-turn-value" == 68 then goto label bodyStart_ZIGZAG_56046;
+   if "ch2-ws-turn-value" == 69 then goto label bodyStart_ZIGZAG_56190;
+   if "ch2-ws-turn-value" == 70 then goto label bodyStart_ZIGZAG_56338;
+   if "ch2-ws-turn-value" == 71 then goto label bodyStart_ZIGZAG_56464;
+   if "ch2-ws-turn-value" == 72 then goto label bodyStart_ZIGZAG_56611;
+   if "ch2-ws-turn-value" == 73 then goto label bodyStart_ZIGZAG_56766;
+   if "ch2-ws-turn-value" == 74 then goto label bodyStart_ZIGZAG_56916;
+   if "ch2-ws-turn-value" == 75 then goto label bodyStart_ZIGZAG_57033;
+   if "ch2-ws-turn-value" == 76 then goto label bodyStart_ZIGZAG_57158;
+   if "ch2-ws-turn-value" == 77 then goto label bodyStart_ZIGZAG_57308;
+   if "ch2-ws-turn-value" == 78 then goto label bodyStart_ZIGZAG_57449;
+   if "ch2-ws-turn-value" == 79 then goto label bodyStart_ZIGZAG_57594;
+   if "ch2-ws-turn-value" == 1 then goto label bodyStart_ZIGZAG_57749;
+   if "ch2-ws-turn-value" == 2 then goto label bodyStart_ZIGZAG_58042;
+   if "ch2-ws-turn-value" == 3 then goto label bodyStart_ZIGZAG_58341;
+   if "ch2-ws-turn-value" == 4 then goto label bodyStart_ZIGZAG_58637;
+   if "ch2-ws-turn-value" == 5 then goto label bodyStart_ZIGZAG_58934;
+   if "ch2-ws-turn-value" == 6 then goto label bodyStart_ZIGZAG_59245;
+   if "ch2-ws-turn-value" == 7 then goto label bodyStart_ZIGZAG_59537;
+   if "ch2-ws-turn-value" == 8 then goto label bodyStart_ZIGZAG_59830;
+   if "ch2-ws-turn-value" == 9 then goto label bodyStart_ZIGZAG_60150;
+   if "ch2-ws-turn-value" == 10 then goto label bodyStart_ZIGZAG_60458;
+   if "ch2-ws-turn-value" == 11 then goto label bodyStart_ZIGZAG_60753;
+   if "ch2-ws-turn-value" == 12 then goto label bodyStart_ZIGZAG_61052;
+   if "ch2-ws-turn-value" == 13 then goto label bodyStart_ZIGZAG_61363;
+   if "ch2-ws-turn-value" == 14 then goto label bodyStart_ZIGZAG_61677;
+   if "ch2-ws-turn-value" == 15 then goto label bodyStart_ZIGZAG_61986;
+   if "ch2-ws-turn-value" == 16 then goto label bodyStart_ZIGZAG_62291;
+   if "ch2-ws-turn-value" == 17 then goto label bodyStart_ZIGZAG_62599;
+   if "ch2-ws-turn-value" == 18 then goto label bodyStart_ZIGZAG_62885;
+   if "ch2-ws-turn-value" == 19 then goto label bodyStart_ZIGZAG_63198;
+   if "ch2-ws-turn-value" == 20 then goto label bodyStart_ZIGZAG_63509;
+   if "ch2-ws-turn-value" == 21 then goto label bodyStart_ZIGZAG_63814;
+   if "ch2-ws-turn-value" == 22 then goto label bodyStart_ZIGZAG_64113;
+   if "ch2-ws-turn-value" == 23 then goto label bodyStart_ZIGZAG_64428;
+   if "ch2-ws-turn-value" == 24 then goto label bodyStart_ZIGZAG_64742;
+   if "ch2-ws-turn-value" == 25 then goto label bodyStart_ZIGZAG_65047;
+   if "ch2-ws-turn-value" == 26 then goto label bodyStart_ZIGZAG_65365;
+   if "ch2-ws-turn-value" == 27 then goto label bodyStart_ZIGZAG_65681;
+   if "ch2-ws-turn-value" == 28 then goto label bodyStart_ZIGZAG_65996;
+   if "ch2-ws-turn-value" == 29 then goto label bodyStart_ZIGZAG_66313;
+   if "ch2-ws-turn-value" == 30 then goto label bodyStart_ZIGZAG_66610;
+   if "ch2-ws-turn-value" == 31 then goto label bodyStart_ZIGZAG_66911;
+   if "ch2-ws-turn-value" == 32 then goto label bodyStart_ZIGZAG_67216;
+   if "ch2-ws-turn-value" == 33 then goto label bodyStart_ZIGZAG_67512;
+   if "ch2-ws-turn-value" == 34 then goto label bodyStart_ZIGZAG_67816;
+   if "ch2-ws-turn-value" == 35 then goto label bodyStart_ZIGZAG_68133;
+   if "ch2-ws-turn-value" == 36 then goto label bodyStart_ZIGZAG_68451;
+   if "ch2-ws-turn-value" == 37 then goto label bodyStart_ZIGZAG_68757;
+   if "ch2-ws-turn-value" == 38 then goto label bodyStart_ZIGZAG_69055;
+   if "ch2-ws-turn-value" == 39 then goto label bodyStart_ZIGZAG_69368;
+   if "ch2-ws-turn-value" == 40 then goto label bodyStart_ZIGZAG_69669;
+   if "ch2-ws-flags-tally" == 40 then goto label bodyStart_ZIGZAG_69962;
+   if "ch2-ws-won" then goto label bodyStart_ZIGZAG_70104;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70289
+   bodyStart_ZIGZAG_69962:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70289
+   bodyStart_ZIGZAG_70104:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70289
+   LABEL_f70289:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52019:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52138:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52263:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52413:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52539:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52681:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52824:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_52962:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53106:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53250:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53392:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53529:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53666:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53808:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_53945:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54059:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54193:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54328:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54470:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54605:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54753:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_54903:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55053:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55200:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55338:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55486:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55607:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55756:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_55900:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56046:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56190:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56338:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56464:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56611:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56766:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_56916:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57033:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57158:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57308:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57449:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57594:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_57749:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_57797;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f57989
+   bodyStart_ZIGZAG_57797:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f57989
+   LABEL_f57989:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_58042:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_58090;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58289
+   bodyStart_ZIGZAG_58090:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58289
+   LABEL_f58289:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_58341:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_58389;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58587
+   bodyStart_ZIGZAG_58389:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58587
+   LABEL_f58587:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_58637:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_58685;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58883
+   bodyStart_ZIGZAG_58685:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f58883
+   LABEL_f58883:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_58934:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_58982;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59194
+   bodyStart_ZIGZAG_58982:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59194
+   LABEL_f59194:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_59245:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_59293;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59487
+   bodyStart_ZIGZAG_59293:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59487
+   LABEL_f59487:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_59537:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_59585;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59774
+   bodyStart_ZIGZAG_59585:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f59774
+   LABEL_f59774:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_59830:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_59878;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60095
+   bodyStart_ZIGZAG_59878:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60095
+   LABEL_f60095:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_60150:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_60198;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60403
+   bodyStart_ZIGZAG_60198:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60403
+   LABEL_f60403:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_60458:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_60506;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60701
+   bodyStart_ZIGZAG_60506:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60701
+   LABEL_f60701:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_60753:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_60801;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60998
+   bodyStart_ZIGZAG_60801:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f60998
+   LABEL_f60998:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_61052:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_61100;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61307
+   bodyStart_ZIGZAG_61100:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61307
+   LABEL_f61307:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_61363:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_61411;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61620
+   bodyStart_ZIGZAG_61411:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61620
+   LABEL_f61620:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_61677:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_61725;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61935
+   bodyStart_ZIGZAG_61725:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f61935
+   LABEL_f61935:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_61986:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_62034;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62239
+   bodyStart_ZIGZAG_62034:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62239
+   LABEL_f62239:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_62291:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_62339;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62548
+   bodyStart_ZIGZAG_62339:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62548
+   LABEL_f62548:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_62599:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_62647;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62833
+   bodyStart_ZIGZAG_62647:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f62833
+   LABEL_f62833:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_62885:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_62933;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63141
+   bodyStart_ZIGZAG_62933:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63141
+   LABEL_f63141:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_63198:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_63246;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63458
+   bodyStart_ZIGZAG_63246:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63458
+   LABEL_f63458:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_63509:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_63557;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63761
+   bodyStart_ZIGZAG_63557:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f63761
+   LABEL_f63761:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_63814:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_63862;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64061
+   bodyStart_ZIGZAG_63862:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64061
+   LABEL_f64061:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_64113:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_64161;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64371
+   bodyStart_ZIGZAG_64161:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64371
+   LABEL_f64371:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_64428:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_64476;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64690
+   bodyStart_ZIGZAG_64476:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64690
+   LABEL_f64690:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_64742:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_64790;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64991
+   bodyStart_ZIGZAG_64790:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f64991
+   LABEL_f64991:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_65047:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_65095;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65312
+   bodyStart_ZIGZAG_65095:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65312
+   LABEL_f65312:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_65365:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_65413;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65625
+   bodyStart_ZIGZAG_65413:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65625
+   LABEL_f65625:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_65681:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_65729;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65945
+   bodyStart_ZIGZAG_65729:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f65945
+   LABEL_f65945:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_65996:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_66044;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66256
+   bodyStart_ZIGZAG_66044:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66256
+   LABEL_f66256:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_66313:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_66361;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66555
+   bodyStart_ZIGZAG_66361:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66555
+   LABEL_f66555:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_66610:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_66658;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66858
+   bodyStart_ZIGZAG_66658:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f66858
+   LABEL_f66858:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_66911:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_66959;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67163
+   bodyStart_ZIGZAG_66959:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67163
+   LABEL_f67163:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_67216:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_67264;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67456
+   bodyStart_ZIGZAG_67264:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67456
+   LABEL_f67456:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_67512:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_67560;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67761
+   bodyStart_ZIGZAG_67560:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f67761
+   LABEL_f67761:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_67816:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_67864;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68075
+   bodyStart_ZIGZAG_67864:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68075
+   LABEL_f68075:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_68133:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_68181;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68400
+   bodyStart_ZIGZAG_68181:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68400
+   LABEL_f68400:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_68451:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_68499;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68704
+   bodyStart_ZIGZAG_68499:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f68704
+   LABEL_f68704:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_68757:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_68805;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69003
+   bodyStart_ZIGZAG_68805:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69003
+   LABEL_f69003:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_69055:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_69103;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69314
+   bodyStart_ZIGZAG_69103:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69314
+   LABEL_f69314:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_69368:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_69416;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69616
+   bodyStart_ZIGZAG_69416:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69616
+   LABEL_f69616:
+   goto label LABEL_f70292
+   bodyStart_ZIGZAG_69669:
+   if "ch2-ws-turn-status" == 2 then goto label bodyStart_ZIGZAG_69717;
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69909
+   bodyStart_ZIGZAG_69717:
+   show serial_dialog "ch2-castle-12-ws.mgs-XX";
+   goto label LABEL_f69909
+   LABEL_f69909:
+   goto label LABEL_f70292
+   LABEL_f70292:
 }
 
 "look-ch2-castle-12" {
@@ -11518,6 +14245,139 @@
    goto index 6;
 }
 
+"ch2-cutscene-castle12" {
+   if debug_mode then goto label bodyStart_ZIGZAG_5347;
+   goto label LABEL_f5464
+   bodyStart_ZIGZAG_5347:
+   command "skip" = "ch2-skip-13";
+   show serial_dialog "ch2-castle-13.mgs-XX";
+   goto label LABEL_f5464
+   LABEL_f5464:
+   player_control = false;
+   wait 300ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   player direction = "north";
+   show dialog "ch2-castle-13.mgs-XX";
+   camera fade out -> #000000 over 600ms;
+   camera = geometry "camera-spot";
+   player position = geometry "mage-walk";
+   camera fade in -> #000000 over 600ms;
+   entity "Templeton" on_tick = "spin_self_clockwise";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" on_tick = "ch2-sebastian-paceonce";
+   show dialog "ch2-castle-13.mgs-XX";
+   "ch2-templeton-pace" = true;
+   entity "Templeton" on_tick = "ch2-templeton-pace";
+   show dialog "ch2-castle-13.mgs-XX";
+   "ch2-templeton-pace" = false;
+   entity "Templeton" direction = "east";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" on_tick = "ch2-sebastian-stomp";
+   wait 200ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" position -> geometry "lizard1" origin over 400ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Templeton" direction = "south";
+   show dialog "ch2-castle-13.mgs-XX";
+   camera fade out -> #000000 over 600ms;
+   camera = player position;
+   player on_tick = "ch2-mage-approach";
+   camera fade in -> #000000 over 600ms;
+   entity "Sebastian" on_tick = "ch2-sebastian-approach";
+   wait 2600ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" on_tick = "ch2-lizard-lurch";
+   wait 150ms;
+   player strafe = 2;
+   player position -> geometry "mage-backup" origin over 200ms;
+   player strafe = 0;
+   player direction = "east";
+   show dialog "ch2-castle-13.mgs-XX";
+   player direction = "north";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" on_tick = "ch2-lizard-withdraw";
+   player direction = "east";
+   show dialog "ch2-castle-13.mgs-XX";
+   player direction = "north";
+   show dialog "ch2-castle-13.mgs-XX";
+   if !"ch2-seen-room-21" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-22" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-23" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-31" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-32" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-33" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-34" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-11" then goto label bodyStart_ZIGZAG_8935;
+   if !"ch2-seen-room-12" then goto label bodyStart_ZIGZAG_8935;
+   show dialog "ch2-castle-13.mgs-XX";
+   goto label LABEL_f9177
+   bodyStart_ZIGZAG_8935:
+   show dialog "ch2-castle-13.mgs-XX";
+   goto label LABEL_f9177
+   LABEL_f9177:
+   show dialog "ch2-castle-13.mgs-XX";
+   "ch2-cutseen-castle13" = true;
+   player_control = true;
+}
+
+"ch2-cutscene-kingreturns" {
+   camera fade out -> #000000 over 1ms;
+   player_control = false;
+   player direction = entity "King Gibson";
+   entity "Templeton" direction = entity "King Gibson";
+   entity "Sebastian" direction = entity "King Gibson";
+   entity "King Gibson" on_tick = "walk-over-1500";
+   wait 200ms;
+   player on_tick = "walk-over-1500";
+   camera fade in -> #000000 over 600ms;
+   entity "Templeton" direction = entity "King Gibson";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" direction = entity "King Gibson";
+   show dialog "ch2-castle-13.mgs-XX";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction = entity "Aurelius";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction += 1;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction = entity "Sebastian";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction = entity "Aurelius";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction = entity "Sebastian";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" direction = "south";
+   show dialog "ch2-castle-13.mgs-XX";
+   camera fade out -> #000000 over 600ms;
+   player position = geometry "end-player";
+   entity "King Gibson" position = geometry "end-king";
+   entity "Sebastian" position = geometry "end-sebastian";
+   entity "Templeton" position = geometry "end-templeton";
+   entity "Aurelius" position = geometry "end-fish";
+   player direction = entity "King Gibson";
+   camera = geometry "camera-spot3";
+   camera fade in -> #000000 over 600ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" position -> geometry "end-sebastian2" origin over 400ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Sebastian" position -> geometry "end-sebastian" origin over 400ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Templeton" position -> geometry "end-templeton1" origin over 200ms;
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "Templeton" on_tick = "templeton-catalog-search";
+   show dialog "ch2-castle-13.mgs-XX";
+   entity "King Gibson" on_tick = "king-walk-to-debris";
+   show dialog "ch2-castle-13.mgs-XX";
+   copy!("undefined")
+   entity "King Gibson" direction = player;
+   show dialog "ch2-castle-13.mgs-XX";
+   copy!("undefined")
+   warp_state = "nothing lol";
+   "ch2-king-rescued" = true;
+   camera -> player position over 700ms;
+   player_control = true;
+}
+
 "on_tick-ch2-castle-13-doorless" {
    if player intersects geometry "south-hitbox" then goto index 3;
    if player intersects geometry "north-hitbox" then goto index 11;
@@ -11692,6 +14552,20 @@
    goto index 103;
 }
 
+"ch2-king-unharmed" {
+   if !"ch2-king-report" then goto label bodyStart_ZIGZAG_18604;
+   goto label LABEL_f18975
+   bodyStart_ZIGZAG_18604:
+   show dialog "ch2-castle-13.mgs-XX";
+   player direction = entity "Templeton";
+   show dialog "ch2-castle-13.mgs-XX";
+   player direction = entity "Aurelius";
+   show dialog "ch2-castle-13.mgs-XX";
+   goto label LABEL_f18975
+   LABEL_f18975:
+   show dialog "ch2-castle-13.mgs-XX";
+}
+
 "interact-ch2-sebastian" {
    self direction = player;
    if !"ch2-cutseen-castle14" then goto index 9;
@@ -11777,6 +14651,102 @@
    goto index 53;
    "ch2-king-report" = true;
    goto index 55;
+}
+
+"interrupt-king-walk" {
+   "captured_animation2" = entity "King Gibson" current_animation;
+   entity "King Gibson" current_animation = 0;
+   pause entity "King Gibson" on_tick;
+   if entity "King Gibson" direction == "north" then goto label bodyStart_ZIGZAG_20976;
+   if entity "King Gibson" direction == "east" then goto label bodyStart_ZIGZAG_21053;
+   if entity "King Gibson" direction == "south" then goto label bodyStart_ZIGZAG_21131;
+   if entity "King Gibson" direction == "west" then goto label bodyStart_ZIGZAG_21208;
+   goto label LABEL_f21234
+   bodyStart_ZIGZAG_20976:
+   "tempvar2" = 0;
+   goto label LABEL_f21234
+   bodyStart_ZIGZAG_21053:
+   "tempvar2" = 1;
+   goto label LABEL_f21234
+   bodyStart_ZIGZAG_21131:
+   "tempvar2" = 2;
+   goto label LABEL_f21234
+   bodyStart_ZIGZAG_21208:
+   "tempvar2" = 3;
+   goto label LABEL_f21234
+   LABEL_f21234:
+   entity "King Gibson" direction = player;
+}
+
+"resume-king-walk" {
+   entity "King Gibson" current_animation = "captured_animation2";
+   unpause entity "King Gibson" on_tick;
+   if "tempvar2" == 0 then goto label bodyStart_ZIGZAG_21458;
+   if "tempvar2" == 1 then goto label bodyStart_ZIGZAG_21531;
+   if "tempvar2" == 2 then goto label bodyStart_ZIGZAG_21603;
+   if "tempvar2" == 3 then goto label bodyStart_ZIGZAG_21676;
+   goto label LABEL_f21713
+   bodyStart_ZIGZAG_21458:
+   entity "King Gibson" direction = "north";
+   goto label LABEL_f21713
+   bodyStart_ZIGZAG_21531:
+   entity "King Gibson" direction = "east";
+   goto label LABEL_f21713
+   bodyStart_ZIGZAG_21603:
+   entity "King Gibson" direction = "south";
+   goto label LABEL_f21713
+   bodyStart_ZIGZAG_21676:
+   entity "King Gibson" direction = "west";
+   goto label LABEL_f21713
+   LABEL_f21713:
+}
+
+"interrupt-templeton-walk" {
+   "captured_animation3" = entity "Templeton" current_animation;
+   entity "Templeton" current_animation = 0;
+   pause entity "Templeton" on_tick;
+   if entity "Templeton" direction == "north" then goto label bodyStart_ZIGZAG_21968;
+   if entity "Templeton" direction == "east" then goto label bodyStart_ZIGZAG_22041;
+   if entity "Templeton" direction == "south" then goto label bodyStart_ZIGZAG_22115;
+   if entity "Templeton" direction == "west" then goto label bodyStart_ZIGZAG_22188;
+   goto label LABEL_f22214
+   bodyStart_ZIGZAG_21968:
+   "tempvar3" = 0;
+   goto label LABEL_f22214
+   bodyStart_ZIGZAG_22041:
+   "tempvar3" = 1;
+   goto label LABEL_f22214
+   bodyStart_ZIGZAG_22115:
+   "tempvar3" = 2;
+   goto label LABEL_f22214
+   bodyStart_ZIGZAG_22188:
+   "tempvar3" = 3;
+   goto label LABEL_f22214
+   LABEL_f22214:
+   entity "Templeton" direction = player;
+}
+
+"resume-templeton-walk" {
+   entity "Templeton" current_animation = "captured_animation3";
+   unpause entity "Templeton" on_tick;
+   if "tempvar3" == 0 then goto label bodyStart_ZIGZAG_22431;
+   if "tempvar3" == 1 then goto label bodyStart_ZIGZAG_22500;
+   if "tempvar3" == 2 then goto label bodyStart_ZIGZAG_22568;
+   if "tempvar3" == 3 then goto label bodyStart_ZIGZAG_22637;
+   goto label LABEL_f22670
+   bodyStart_ZIGZAG_22431:
+   entity "Templeton" direction = "north";
+   goto label LABEL_f22670
+   bodyStart_ZIGZAG_22500:
+   entity "Templeton" direction = "east";
+   goto label LABEL_f22670
+   bodyStart_ZIGZAG_22568:
+   entity "Templeton" direction = "south";
+   goto label LABEL_f22670
+   bodyStart_ZIGZAG_22637:
+   entity "Templeton" direction = "west";
+   goto label LABEL_f22670
+   LABEL_f22670:
 }
 
 "templeton-catalog-search" {
@@ -18236,6 +21206,14 @@
    self direction = "south";
 }
 
+"interact-ch2-seamoss-cutscene" {
+   player_control = false;
+   show dialog "ch2-castle-32.mgs-XX";
+   wait 100ms;
+   player on_tick = "ch2-walk-to-vend";
+   copy!("undefined")
+}
+
 "ch2-touch-ramchips" {
    if !"ch2-ramchips-firstlook" then goto index 3;
    show dialog "ch2-castle-32.mgs-XX";
@@ -19133,6 +22111,205 @@
    light LED_BIT1 = true;
    goto index 112;
    map on_tick = "on_tick-ch2-castle-33";
+}
+
+"start-hanoi" {
+   player_control = false;
+   copy!("undefined")
+   copy!("undefined")
+   map on_tick = "tick_hanoi";
+}
+
+"check_cursor" {
+   if "cursor_pos" == 1 then goto label bodyStart_ZIGZAG_1020;
+   if "cursor_pos" == 2 then goto label bodyStart_ZIGZAG_1690;
+   if "cursor_pos" == 3 then goto label bodyStart_ZIGZAG_2360;
+   goto label LABEL_f2993
+   bodyStart_ZIGZAG_1020:
+   if "array1_length" == 0 then goto label bodyStart_ZIGZAG_1057;
+   if "array1_length" == 1 then goto label bodyStart_ZIGZAG_1130;
+   if "array1_length" == 2 then goto label bodyStart_ZIGZAG_1210;
+   if "array1_length" == 3 then goto label bodyStart_ZIGZAG_1290;
+   if "array1_length" == 4 then goto label bodyStart_ZIGZAG_1370;
+   if "array1_length" == 5 then goto label bodyStart_ZIGZAG_1450;
+   if "array1_length" == 6 then goto label bodyStart_ZIGZAG_1530;
+   if "array1_length" == 7 then goto label bodyStart_ZIGZAG_1610;
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1057:
+   "checked_value" = 0;
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1130:
+   "checked_value" = "array1_1";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1210:
+   "checked_value" = "array1_2";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1290:
+   "checked_value" = "array1_3";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1370:
+   "checked_value" = "array1_4";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1450:
+   "checked_value" = "array1_5";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1530:
+   "checked_value" = "array1_6";
+   goto label LABEL_f1650
+   bodyStart_ZIGZAG_1610:
+   "checked_value" = "array1_7";
+   goto label LABEL_f1650
+   LABEL_f1650:
+   goto label LABEL_f2993
+   bodyStart_ZIGZAG_1690:
+   if "array2_length" == 0 then goto label bodyStart_ZIGZAG_1727;
+   if "array2_length" == 1 then goto label bodyStart_ZIGZAG_1800;
+   if "array2_length" == 2 then goto label bodyStart_ZIGZAG_1880;
+   if "array2_length" == 3 then goto label bodyStart_ZIGZAG_1960;
+   if "array2_length" == 4 then goto label bodyStart_ZIGZAG_2040;
+   if "array2_length" == 5 then goto label bodyStart_ZIGZAG_2120;
+   if "array2_length" == 6 then goto label bodyStart_ZIGZAG_2200;
+   if "array2_length" == 7 then goto label bodyStart_ZIGZAG_2280;
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_1727:
+   "checked_value" = 0;
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_1800:
+   "checked_value" = "array2_1";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_1880:
+   "checked_value" = "array2_2";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_1960:
+   "checked_value" = "array2_3";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_2040:
+   "checked_value" = "array2_4";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_2120:
+   "checked_value" = "array2_5";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_2200:
+   "checked_value" = "array2_6";
+   goto label LABEL_f2320
+   bodyStart_ZIGZAG_2280:
+   "checked_value" = "array2_7";
+   goto label LABEL_f2320
+   LABEL_f2320:
+   goto label LABEL_f2993
+   bodyStart_ZIGZAG_2360:
+   if "array3_length" == 0 then goto label bodyStart_ZIGZAG_2397;
+   if "array3_length" == 1 then goto label bodyStart_ZIGZAG_2470;
+   if "array3_length" == 2 then goto label bodyStart_ZIGZAG_2550;
+   if "array3_length" == 3 then goto label bodyStart_ZIGZAG_2630;
+   if "array3_length" == 4 then goto label bodyStart_ZIGZAG_2710;
+   if "array3_length" == 5 then goto label bodyStart_ZIGZAG_2790;
+   if "array3_length" == 6 then goto label bodyStart_ZIGZAG_2870;
+   if "array3_length" == 7 then goto label bodyStart_ZIGZAG_2950;
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2397:
+   "checked_value" = 0;
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2470:
+   "checked_value" = "array3_1";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2550:
+   "checked_value" = "array3_2";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2630:
+   "checked_value" = "array3_3";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2710:
+   "checked_value" = "array3_4";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2790:
+   "checked_value" = "array3_5";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2870:
+   "checked_value" = "array3_6";
+   goto label LABEL_f2990
+   bodyStart_ZIGZAG_2950:
+   "checked_value" = "array3_7";
+   goto label LABEL_f2990
+   LABEL_f2990:
+   goto label LABEL_f2993
+   LABEL_f2993:
+   if "checked_value" == 0 then goto label bodyStart_ZIGZAG_3029;
+   if "checked_value" > "cursor_value" then goto label bodyStart_ZIGZAG_3114;
+   "can_drop" = false;
+   goto label LABEL_f3186
+   bodyStart_ZIGZAG_3029:
+   "can_drop" = true;
+   goto label LABEL_f3186
+   bodyStart_ZIGZAG_3114:
+   "can_drop" = true;
+   goto label LABEL_f3186
+   LABEL_f3186:
+}
+
+"hanoi_move" {
+   if "cursor_value" == 0 then goto label bodyStart_ZIGZAG_3237;
+   copy!("undefined")
+   if "can_drop" then goto label bodyStart_ZIGZAG_3617;
+   "hanoi_warning_size" = true;
+   goto label LABEL_f3862
+   bodyStart_ZIGZAG_3617:
+   if "cursor_pos" == 1 then goto label bodyStart_ZIGZAG_3652;
+   if "cursor_pos" == 2 then goto label bodyStart_ZIGZAG_3716;
+   if "cursor_pos" == 3 then goto label bodyStart_ZIGZAG_3780;
+   goto label LABEL_f3807
+   bodyStart_ZIGZAG_3652:
+   copy!("undefined")
+   goto label LABEL_f3807
+   bodyStart_ZIGZAG_3716:
+   copy!("undefined")
+   goto label LABEL_f3807
+   bodyStart_ZIGZAG_3780:
+   copy!("undefined")
+   goto label LABEL_f3807
+   LABEL_f3807:
+   goto label LABEL_f3862
+   LABEL_f3862:
+   goto label LABEL_f3865
+   bodyStart_ZIGZAG_3237:
+   if "cursor_pos" == 1 then goto label bodyStart_ZIGZAG_3271;
+   if "cursor_pos" == 2 then goto label bodyStart_ZIGZAG_3378;
+   if "cursor_pos" == 3 then goto label bodyStart_ZIGZAG_3485;
+   goto label LABEL_f3555
+   bodyStart_ZIGZAG_3271:
+   if "array1_length" > 0 then goto label bodyStart_ZIGZAG_3311;
+   goto label LABEL_f3337
+   bodyStart_ZIGZAG_3311:
+   copy!("undefined")
+   goto label LABEL_f3337
+   LABEL_f3337:
+   goto label LABEL_f3555
+   bodyStart_ZIGZAG_3378:
+   if "array2_length" > 0 then goto label bodyStart_ZIGZAG_3418;
+   goto label LABEL_f3444
+   bodyStart_ZIGZAG_3418:
+   copy!("undefined")
+   goto label LABEL_f3444
+   LABEL_f3444:
+   goto label LABEL_f3555
+   bodyStart_ZIGZAG_3485:
+   if "array3_length" > 0 then goto label bodyStart_ZIGZAG_3525;
+   goto label LABEL_f3551
+   bodyStart_ZIGZAG_3525:
+   copy!("undefined")
+   goto label LABEL_f3551
+   LABEL_f3551:
+   goto label LABEL_f3555
+   LABEL_f3555:
+   goto label LABEL_f3865
+   LABEL_f3865:
+   if "cursor_value" == 6 then goto label bodyStart_ZIGZAG_3909;
+   goto label LABEL_f3942
+   bodyStart_ZIGZAG_3909:
+   "hanoi_won" = true;
+   goto label LABEL_f3942
+   LABEL_f3942:
+   copy!("undefined")
 }
 
 "hanoi_move_1" {
@@ -30625,6 +33802,165 @@
    goto index 5427;
 }
 
+"hanoi_won_message_A" {
+   if "cursor_pos" == 1 then goto label bodyStart_ZIGZAG_6290;
+   if "cursor_pos" == 2 then goto label bodyStart_ZIGZAG_6374;
+   if "cursor_pos" == 3 then goto label bodyStart_ZIGZAG_6458;
+   goto label LABEL_f6505
+   bodyStart_ZIGZAG_6290:
+   show serial_dialog "hanoi_won_message1a";
+   goto label LABEL_f6505
+   bodyStart_ZIGZAG_6374:
+   show serial_dialog "hanoi_won_message2a";
+   goto label LABEL_f6505
+   bodyStart_ZIGZAG_6458:
+   show serial_dialog "hanoi_won_message3a";
+   goto label LABEL_f6505
+   LABEL_f6505:
+}
+
+"hanoi_won_message_B" {
+   if "cursor_pos" == 1 then goto label bodyStart_ZIGZAG_6562;
+   if "cursor_pos" == 2 then goto label bodyStart_ZIGZAG_6646;
+   if "cursor_pos" == 3 then goto label bodyStart_ZIGZAG_6730;
+   goto label LABEL_f7033
+   bodyStart_ZIGZAG_6562:
+   show serial_dialog "hanoi_won_message1b";
+   goto label LABEL_f7033
+   bodyStart_ZIGZAG_6646:
+   show serial_dialog "hanoi_won_message2b";
+   goto label LABEL_f7033
+   bodyStart_ZIGZAG_6730:
+   if "hanoi_move_count" < 100 then goto label bodyStart_ZIGZAG_6774;
+   if "hanoi_move_count" < 1000 then goto label bodyStart_ZIGZAG_6883;
+   show serial_dialog "hanoi_won_message3b4";
+   goto label LABEL_f7030
+   bodyStart_ZIGZAG_6774:
+   show serial_dialog "hanoi_won_message3b2";
+   goto label LABEL_f7030
+   bodyStart_ZIGZAG_6883:
+   show serial_dialog "hanoi_won_message3b3";
+   goto label LABEL_f7030
+   LABEL_f7030:
+   goto label LABEL_f7033
+   LABEL_f7033:
+}
+
+"draw_cursor_grip" {
+   if "cursor_value" == 0 then goto label bodyStart_ZIGZAG_9114;
+   if "cursor_value" == 1 then goto label bodyStart_ZIGZAG_9200;
+   if "cursor_value" == 2 then goto label bodyStart_ZIGZAG_9286;
+   if "cursor_value" == 3 then goto label bodyStart_ZIGZAG_9372;
+   if "cursor_value" == 4 then goto label bodyStart_ZIGZAG_9458;
+   if "cursor_value" == 5 then goto label bodyStart_ZIGZAG_9544;
+   if "cursor_value" == 6 then goto label bodyStart_ZIGZAG_9630;
+   if "cursor_value" == 7 then goto label bodyStart_ZIGZAG_9716;
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9114:
+   show serial_dialog "hanoi_cursor_grip_0";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9200:
+   show serial_dialog "hanoi_cursor_grip_1";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9286:
+   show serial_dialog "hanoi_cursor_grip_2";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9372:
+   show serial_dialog "hanoi_cursor_grip_3";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9458:
+   show serial_dialog "hanoi_cursor_grip_4";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9544:
+   show serial_dialog "hanoi_cursor_grip_5";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9630:
+   show serial_dialog "hanoi_cursor_grip_6";
+   goto label LABEL_f9763
+   bodyStart_ZIGZAG_9716:
+   show serial_dialog "hanoi_cursor_grip_7";
+   goto label LABEL_f9763
+   LABEL_f9763:
+}
+
+"draw_curr_plate" {
+   if "curr_plate" == 0 then goto label bodyStart_ZIGZAG_9816;
+   if "curr_plate" == 1 then goto label bodyStart_ZIGZAG_9892;
+   if "curr_plate" == 2 then goto label bodyStart_ZIGZAG_9970;
+   if "curr_plate" == 3 then goto label bodyStart_ZIGZAG_10048;
+   if "curr_plate" == 4 then goto label bodyStart_ZIGZAG_10126;
+   if "curr_plate" == 5 then goto label bodyStart_ZIGZAG_10204;
+   if "curr_plate" == 6 then goto label bodyStart_ZIGZAG_10282;
+   if "curr_plate" == 7 then goto label bodyStart_ZIGZAG_10360;
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_9816:
+   show serial_dialog "hanoi_space";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_9892:
+   show serial_dialog "hanoi_plate_1";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_9970:
+   show serial_dialog "hanoi_plate_2";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_10048:
+   show serial_dialog "hanoi_plate_3";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_10126:
+   show serial_dialog "hanoi_plate_4";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_10204:
+   show serial_dialog "hanoi_plate_5";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_10282:
+   show serial_dialog "hanoi_plate_6";
+   goto label LABEL_f10401
+   bodyStart_ZIGZAG_10360:
+   show serial_dialog "hanoi_plate_7";
+   goto label LABEL_f10401
+   LABEL_f10401:
+}
+
+"draw_tile" {
+   if "curr_plate" != 0 then goto label bodyStart_ZIGZAG_10488;
+   if "cursor_pos" == "column" then goto label bodyStart_ZIGZAG_10560;
+   show serial_dialog "hanoi_space";
+   goto label LABEL_f10929
+   bodyStart_ZIGZAG_10488:
+   copy!("undefined")
+   goto label LABEL_f10929
+   bodyStart_ZIGZAG_10560:
+   if "cursor_hinge_height" < "row" then goto label bodyStart_ZIGZAG_10607;
+   if "cursor_hinge_height" == "row" then goto label bodyStart_ZIGZAG_10704;
+   if "cursor_grip_height" == "row" then goto label bodyStart_ZIGZAG_10802;
+   show serial_dialog "hanoi_space";
+   goto label LABEL_f10880
+   bodyStart_ZIGZAG_10607:
+   show serial_dialog "hanoi_cursor_arm";
+   goto label LABEL_f10880
+   bodyStart_ZIGZAG_10704:
+   show serial_dialog "hanoi_cursor_hinge";
+   goto label LABEL_f10880
+   bodyStart_ZIGZAG_10802:
+   copy!("undefined")
+   goto label LABEL_f10880
+   LABEL_f10880:
+   goto label LABEL_f10929
+   LABEL_f10929:
+}
+
+"draw_plate_row" {
+   "column" = 1;
+   "curr_plate" = "plate1";
+   copy!("undefined")
+   "column" = 2;
+   "curr_plate" = "plate2";
+   copy!("undefined")
+   "column" = 3;
+   "curr_plate" = "plate3";
+   copy!("undefined")
+   show serial_dialog "newline";
+}
+
 "draw_hanoi" {
    if "cursor_pos" == 1 then goto index 4;
    if "cursor_pos" == 2 then goto index 6;
@@ -32299,6 +35635,24 @@
    show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
    "hanoi_draw_help" = false;
    goto index 1673;
+}
+
+"hanoi_unregister" {
+   delete command "1";
+   delete command "2";
+   delete command "3";
+   delete command "T";
+   delete command "TIPS";
+   delete command "R";
+   delete command "RESET";
+   delete command "Q";
+   delete command "QUIT";
+   if debug_mode then goto label bodyStart_ZIGZAG_15041;
+   goto label LABEL_f15064
+   bodyStart_ZIGZAG_15041:
+   delete command "WIN";
+   goto label LABEL_f15064
+   LABEL_f15064:
 }
 
 "hanoi_quit" {
@@ -36070,6 +39424,33 @@
    goto index 1703;
 }
 
+"hanoi_init_game" {
+   if !"hanoi_init_done" then goto label bodyStart_ZIGZAG_16479;
+   if "hanoi_won" then goto label bodyStart_ZIGZAG_16479;
+   goto label LABEL_f16511
+   bodyStart_ZIGZAG_16479:
+   copy!("undefined")
+   goto label LABEL_f16511
+   LABEL_f16511:
+   command "1" = "hanoi_move_1";
+   command "2" = "hanoi_move_2";
+   command "3" = "hanoi_move_3";
+   command "T" = "hanoi_help";
+   command "TIPS" = "hanoi_help";
+   command "R" = "hanoi_reset";
+   command "RESET" = "hanoi_reset";
+   command "Q" = "hanoi_quit_from_terminal";
+   command "QUIT" = "hanoi_quit_from_terminal";
+   if debug_mode then goto label bodyStart_ZIGZAG_16843;
+   goto label LABEL_f16877
+   bodyStart_ZIGZAG_16843:
+   command "WIN" = "hanoi_win";
+   goto label LABEL_f16877
+   LABEL_f16877:
+   light LED_USB = true;
+   entity "Lights" on_tick = "null_script";
+}
+
 "hanoi_win" {
    "hanoi_won" = true;
    delete command "1";
@@ -36086,6 +39467,507 @@
    delete command "WIN";
    goto index 14;
    goto "draw_hanoi";
+}
+
+"array1_pop" {
+   if "array1_length" == 0 then goto label bodyStart_ZIGZAG_17171;
+   if "array1_length" == 7 then goto label bodyStart_ZIGZAG_17296;
+   if "array1_length" == 6 then goto label bodyStart_ZIGZAG_17399;
+   if "array1_length" == 5 then goto label bodyStart_ZIGZAG_17502;
+   if "array1_length" == 4 then goto label bodyStart_ZIGZAG_17605;
+   if "array1_length" == 3 then goto label bodyStart_ZIGZAG_17708;
+   if "array1_length" == 2 then goto label bodyStart_ZIGZAG_17811;
+   if "array1_length" == 1 then goto label bodyStart_ZIGZAG_17914;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17296:
+   "cursor_value" = "array1_7";
+   "array1_7" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17399:
+   "cursor_value" = "array1_6";
+   "array1_6" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17502:
+   "cursor_value" = "array1_5";
+   "array1_5" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17605:
+   "cursor_value" = "array1_4";
+   "array1_4" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17708:
+   "cursor_value" = "array1_3";
+   "array1_3" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17811:
+   "cursor_value" = "array1_2";
+   "array1_2" = 0;
+   goto label LABEL_f17977
+   bodyStart_ZIGZAG_17914:
+   "cursor_value" = "array1_1";
+   "array1_1" = 0;
+   goto label LABEL_f17977
+   LABEL_f17977:
+   "array1_length" -= 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f18039
+   bodyStart_ZIGZAG_17171:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f18039
+   LABEL_f18039:
+}
+
+"array1_push" {
+   if "cursor_value" == 0 then goto label bodyStart_ZIGZAG_18090;
+   if "array1_length" >= 7 then goto label bodyStart_ZIGZAG_18206;
+   if "array1_length" == 6 then goto label bodyStart_ZIGZAG_18324;
+   if "array1_length" == 5 then goto label bodyStart_ZIGZAG_18431;
+   if "array1_length" == 4 then goto label bodyStart_ZIGZAG_18538;
+   if "array1_length" == 3 then goto label bodyStart_ZIGZAG_18645;
+   if "array1_length" == 2 then goto label bodyStart_ZIGZAG_18752;
+   if "array1_length" == 1 then goto label bodyStart_ZIGZAG_18859;
+   if "array1_length" == 0 then goto label bodyStart_ZIGZAG_18966;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18324:
+   "array1_7" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18431:
+   "array1_6" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18538:
+   "array1_5" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18645:
+   "array1_4" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18752:
+   "array1_3" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18859:
+   "array1_2" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   bodyStart_ZIGZAG_18966:
+   "array1_1" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f19033
+   LABEL_f19033:
+   "array1_length" += 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f19095
+   bodyStart_ZIGZAG_18090:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f19095
+   bodyStart_ZIGZAG_18206:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f19095
+   LABEL_f19095:
+}
+
+"array1_print" {
+   show serial_dialog "array_print_left";
+   "i" = 1;
+   goto label loopcheck_WHYLE_19159
+   loopbody_WHYLE_19220:
+   if "i" != 1 then goto label bodyStart_ZIGZAG_19249;
+   goto label LABEL_f19283
+   bodyStart_ZIGZAG_19249:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f19283
+   LABEL_f19283:
+   if "i" == 1 then goto label bodyStart_ZIGZAG_19308;
+   if "i" == 2 then goto label bodyStart_ZIGZAG_19367;
+   if "i" == 3 then goto label bodyStart_ZIGZAG_19426;
+   if "i" == 4 then goto label bodyStart_ZIGZAG_19485;
+   if "i" == 5 then goto label bodyStart_ZIGZAG_19544;
+   if "i" == 6 then goto label bodyStart_ZIGZAG_19603;
+   if "i" == 7 then goto label bodyStart_ZIGZAG_19662;
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19308:
+   "printme" = "array1_1";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19367:
+   "printme" = "array1_2";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19426:
+   "printme" = "array1_3";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19485:
+   "printme" = "array1_4";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19544:
+   "printme" = "array1_5";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19603:
+   "printme" = "array1_6";
+   goto label LABEL_f19691
+   bodyStart_ZIGZAG_19662:
+   "printme" = "array1_7";
+   goto label LABEL_f19691
+   LABEL_f19691:
+   copy!("undefined")
+   "printme" = 0;
+   continuepoint_WHYLE_19218:
+   "i" += 1;
+   loopcheck_WHYLE_19159:
+   if "i" <= "array1_length" then goto label bodyStart_ZIGZAG_19218;
+   goto label LABEL_f19218
+   bodyStart_ZIGZAG_19218:
+   goto label loopbody_WHYLE_19220
+   goto label LABEL_f19218
+   LABEL_f19218:
+   loopover_WHYLE_19732:
+   show serial_dialog "array_print_right";
+}
+
+"printme" {
+   if "printme" == 1 then goto label bodyStart_ZIGZAG_19815;
+   if "printme" == 2 then goto label bodyStart_ZIGZAG_19879;
+   if "printme" == 3 then goto label bodyStart_ZIGZAG_19943;
+   if "printme" == 4 then goto label bodyStart_ZIGZAG_20007;
+   if "printme" == 5 then goto label bodyStart_ZIGZAG_20071;
+   if "printme" == 6 then goto label bodyStart_ZIGZAG_20135;
+   if "printme" == 7 then goto label bodyStart_ZIGZAG_20199;
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_19815:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_19879:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_19943:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_20007:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_20071:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_20135:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   bodyStart_ZIGZAG_20199:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f20228
+   LABEL_f20228:
+}
+
+"array2_pop" {
+   if "array2_length" == 0 then goto label bodyStart_ZIGZAG_20364;
+   if "array2_length" == 7 then goto label bodyStart_ZIGZAG_20490;
+   if "array2_length" == 6 then goto label bodyStart_ZIGZAG_20593;
+   if "array2_length" == 5 then goto label bodyStart_ZIGZAG_20696;
+   if "array2_length" == 4 then goto label bodyStart_ZIGZAG_20799;
+   if "array2_length" == 3 then goto label bodyStart_ZIGZAG_20902;
+   if "array2_length" == 2 then goto label bodyStart_ZIGZAG_21005;
+   if "array2_length" == 1 then goto label bodyStart_ZIGZAG_21108;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_20490:
+   "cursor_value" = "array2_7";
+   "array2_7" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_20593:
+   "cursor_value" = "array2_6";
+   "array2_6" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_20696:
+   "cursor_value" = "array2_5";
+   "array2_5" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_20799:
+   "cursor_value" = "array2_4";
+   "array2_4" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_20902:
+   "cursor_value" = "array2_3";
+   "array2_3" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_21005:
+   "cursor_value" = "array2_2";
+   "array2_2" = 0;
+   goto label LABEL_f21171
+   bodyStart_ZIGZAG_21108:
+   "cursor_value" = "array2_1";
+   "array2_1" = 0;
+   goto label LABEL_f21171
+   LABEL_f21171:
+   "array2_length" -= 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f21233
+   bodyStart_ZIGZAG_20364:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f21233
+   LABEL_f21233:
+}
+
+"array2_push" {
+   if "cursor_value" == 0 then goto label bodyStart_ZIGZAG_21284;
+   if "array2_length" >= 7 then goto label bodyStart_ZIGZAG_21400;
+   if "array2_length" == 6 then goto label bodyStart_ZIGZAG_21518;
+   if "array2_length" == 5 then goto label bodyStart_ZIGZAG_21625;
+   if "array2_length" == 4 then goto label bodyStart_ZIGZAG_21732;
+   if "array2_length" == 3 then goto label bodyStart_ZIGZAG_21839;
+   if "array2_length" == 2 then goto label bodyStart_ZIGZAG_21946;
+   if "array2_length" == 1 then goto label bodyStart_ZIGZAG_22053;
+   if "array2_length" == 0 then goto label bodyStart_ZIGZAG_22160;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_21518:
+   "array2_7" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_21625:
+   "array2_6" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_21732:
+   "array2_5" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_21839:
+   "array2_4" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_21946:
+   "array2_3" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_22053:
+   "array2_2" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   bodyStart_ZIGZAG_22160:
+   "array2_1" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f22227
+   LABEL_f22227:
+   "array2_length" += 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f22289
+   bodyStart_ZIGZAG_21284:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f22289
+   bodyStart_ZIGZAG_21400:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f22289
+   LABEL_f22289:
+}
+
+"array2_print" {
+   show serial_dialog "array_print_left";
+   "i" = 1;
+   goto label loopcheck_WHYLE_22353
+   loopbody_WHYLE_22414:
+   if "i" != 1 then goto label bodyStart_ZIGZAG_22443;
+   goto label LABEL_f22477
+   bodyStart_ZIGZAG_22443:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f22477
+   LABEL_f22477:
+   if "i" == 1 then goto label bodyStart_ZIGZAG_22502;
+   if "i" == 2 then goto label bodyStart_ZIGZAG_22561;
+   if "i" == 3 then goto label bodyStart_ZIGZAG_22620;
+   if "i" == 4 then goto label bodyStart_ZIGZAG_22679;
+   if "i" == 5 then goto label bodyStart_ZIGZAG_22738;
+   if "i" == 6 then goto label bodyStart_ZIGZAG_22797;
+   if "i" == 7 then goto label bodyStart_ZIGZAG_22856;
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22502:
+   "printme" = "array2_1";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22561:
+   "printme" = "array2_2";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22620:
+   "printme" = "array2_3";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22679:
+   "printme" = "array2_4";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22738:
+   "printme" = "array2_5";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22797:
+   "printme" = "array2_6";
+   goto label LABEL_f22885
+   bodyStart_ZIGZAG_22856:
+   "printme" = "array2_7";
+   goto label LABEL_f22885
+   LABEL_f22885:
+   copy!("undefined")
+   "printme" = 0;
+   continuepoint_WHYLE_22412:
+   "i" += 1;
+   loopcheck_WHYLE_22353:
+   if "i" <= "array2_length" then goto label bodyStart_ZIGZAG_22412;
+   goto label LABEL_f22412
+   bodyStart_ZIGZAG_22412:
+   goto label loopbody_WHYLE_22414
+   goto label LABEL_f22412
+   LABEL_f22412:
+   loopover_WHYLE_22926:
+   show serial_dialog "array_print_right";
+}
+
+"array3_pop" {
+   if "array3_length" == 0 then goto label bodyStart_ZIGZAG_23019;
+   if "array3_length" == 7 then goto label bodyStart_ZIGZAG_23145;
+   if "array3_length" == 6 then goto label bodyStart_ZIGZAG_23248;
+   if "array3_length" == 5 then goto label bodyStart_ZIGZAG_23351;
+   if "array3_length" == 4 then goto label bodyStart_ZIGZAG_23454;
+   if "array3_length" == 3 then goto label bodyStart_ZIGZAG_23557;
+   if "array3_length" == 2 then goto label bodyStart_ZIGZAG_23660;
+   if "array3_length" == 1 then goto label bodyStart_ZIGZAG_23763;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23145:
+   "cursor_value" = "array3_7";
+   "array3_7" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23248:
+   "cursor_value" = "array3_6";
+   "array3_6" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23351:
+   "cursor_value" = "array3_5";
+   "array3_5" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23454:
+   "cursor_value" = "array3_4";
+   "array3_4" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23557:
+   "cursor_value" = "array3_3";
+   "array3_3" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23660:
+   "cursor_value" = "array3_2";
+   "array3_2" = 0;
+   goto label LABEL_f23826
+   bodyStart_ZIGZAG_23763:
+   "cursor_value" = "array3_1";
+   "array3_1" = 0;
+   goto label LABEL_f23826
+   LABEL_f23826:
+   "array3_length" -= 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f23888
+   bodyStart_ZIGZAG_23019:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f23888
+   LABEL_f23888:
+}
+
+"array3_push" {
+   if "cursor_value" == 0 then goto label bodyStart_ZIGZAG_23939;
+   if "array3_length" >= 7 then goto label bodyStart_ZIGZAG_24055;
+   if "array3_length" == 6 then goto label bodyStart_ZIGZAG_24173;
+   if "array3_length" == 5 then goto label bodyStart_ZIGZAG_24280;
+   if "array3_length" == 4 then goto label bodyStart_ZIGZAG_24387;
+   if "array3_length" == 3 then goto label bodyStart_ZIGZAG_24494;
+   if "array3_length" == 2 then goto label bodyStart_ZIGZAG_24601;
+   if "array3_length" == 1 then goto label bodyStart_ZIGZAG_24708;
+   if "array3_length" == 0 then goto label bodyStart_ZIGZAG_24815;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24173:
+   "array3_7" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24280:
+   "array3_6" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24387:
+   "array3_5" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24494:
+   "array3_4" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24601:
+   "array3_3" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24708:
+   "array3_2" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   bodyStart_ZIGZAG_24815:
+   "array3_1" = "cursor_value";
+   "cursor_value" = 0;
+   goto label LABEL_f24882
+   LABEL_f24882:
+   "array3_length" += 1;
+   "hanoi_move_count" += 1;
+   goto label LABEL_f24944
+   bodyStart_ZIGZAG_23939:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f24944
+   bodyStart_ZIGZAG_24055:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f24944
+   LABEL_f24944:
+}
+
+"array3_print" {
+   show serial_dialog "array_print_left";
+   "i" = 1;
+   goto label loopcheck_WHYLE_25008
+   loopbody_WHYLE_25069:
+   if "i" != 1 then goto label bodyStart_ZIGZAG_25098;
+   goto label LABEL_f25132
+   bodyStart_ZIGZAG_25098:
+   show serial_dialog "ch2-castle-34-hanoi.mgs-XX";
+   goto label LABEL_f25132
+   LABEL_f25132:
+   if "i" == 1 then goto label bodyStart_ZIGZAG_25157;
+   if "i" == 2 then goto label bodyStart_ZIGZAG_25216;
+   if "i" == 3 then goto label bodyStart_ZIGZAG_25275;
+   if "i" == 4 then goto label bodyStart_ZIGZAG_25334;
+   if "i" == 5 then goto label bodyStart_ZIGZAG_25393;
+   if "i" == 6 then goto label bodyStart_ZIGZAG_25452;
+   if "i" == 7 then goto label bodyStart_ZIGZAG_25511;
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25157:
+   "printme" = "array3_1";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25216:
+   "printme" = "array3_2";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25275:
+   "printme" = "array3_3";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25334:
+   "printme" = "array3_4";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25393:
+   "printme" = "array3_5";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25452:
+   "printme" = "array3_6";
+   goto label LABEL_f25540
+   bodyStart_ZIGZAG_25511:
+   "printme" = "array3_7";
+   goto label LABEL_f25540
+   LABEL_f25540:
+   copy!("undefined")
+   "printme" = 0;
+   continuepoint_WHYLE_25067:
+   "i" += 1;
+   loopcheck_WHYLE_25008:
+   if "i" <= "array3_length" then goto label bodyStart_ZIGZAG_25067;
+   goto label LABEL_f25067
+   bodyStart_ZIGZAG_25067:
+   goto label loopbody_WHYLE_25069
+   goto label LABEL_f25067
+   LABEL_f25067:
+   loopover_WHYLE_25581:
+   show serial_dialog "array_print_right";
 }
 
 "on_load-ch2-castle-34" {
@@ -36543,6 +40425,27 @@
    goto index 7;
    show dialog "ch2-castle-34.mgs-XX";
    goto index 7;
+}
+
+"ch2-iron-content" {
+   pause entity "Clara" on_tick;
+   entity "Clara" direction = player;
+   player direction = entity "Clara";
+   show dialog "ch2-castle-34.mgs-XX";
+   player direction = entity "PlateMover90";
+   show dialog "ch2-castle-34.mgs-XX";
+   if "ch2-plate-firstlook" then goto label bodyStart_ZIGZAG_5107;
+   show dialog "ch2-castle-34.mgs-XX";
+   "ch2-plate-firstlook" = true;
+   goto label LABEL_f5350
+   bodyStart_ZIGZAG_5107:
+   show dialog "ch2-castle-34.mgs-XX";
+   goto label LABEL_f5350
+   LABEL_f5350:
+   player direction = entity "Clara";
+   show dialog "ch2-castle-34.mgs-XX";
+   "ch2-jukebox-backstory" = true;
+   unpause entity "Clara" on_tick;
 }
 
 "ch2-interact-dishshelf" {
@@ -38399,6 +42302,22 @@
    goto index 1749;
 }
 
+"won_hanoi_get_plate" {
+   copy!("undefined")
+   show dialog "ch2-castle-34.mgs-XX";
+   if "hanoi_move_count" == 33 then goto label bodyStart_ZIGZAG_11539;
+   if "hanoi_move_count" == 69 then goto label bodyStart_ZIGZAG_11683;
+   show dialog "ch2-castle-34.mgs-XX";
+   goto label LABEL_f11771
+   bodyStart_ZIGZAG_11539:
+   show dialog "ch2-castle-34.mgs-XX";
+   goto label LABEL_f11771
+   bodyStart_ZIGZAG_11683:
+   show dialog "ch2-castle-34.mgs-XX";
+   goto label LABEL_f11771
+   LABEL_f11771:
+}
+
 "on_load-ch2-castle-99" {
    "ch2-in-room" = 99;
    show serial_dialog "spacer";
@@ -39344,6 +43263,221 @@
    goto index 10;
 }
 
+"ch2-map-init-hex" {
+   if "ch2-ring-zero-enabled-in-castle" then goto label bodyStart_ZIGZAG_1631;
+   if "ch2-in-room" == 0 then goto label bodyStart_ZIGZAG_1631;
+   if debug_mode then goto label bodyStart_ZIGZAG_1631;
+   hex_control = false;
+   hex_clipboard = false;
+   lights_control = true;
+   light ALL = false;
+   goto label LABEL_f1858
+   bodyStart_ZIGZAG_1631:
+   hex_control = true;
+   lights_control = false;
+   if "ch2-in-room" == 0 then goto label bodyStart_ZIGZAG_1716;
+   goto label LABEL_f1747
+   bodyStart_ZIGZAG_1716:
+   light LED_USB = false;
+   goto label LABEL_f1747
+   LABEL_f1747:
+   goto label LABEL_f1858
+   LABEL_f1858:
+}
+
+"ch2-map-init-serial" {
+   if !"ch2-has-artifact" then goto label bodyStart_ZIGZAG_1921;
+   serial_control = true;
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   alias "h" = "help";
+   alias "l" = "look";
+   goto label LABEL_f2189
+   bodyStart_ZIGZAG_1921:
+   serial_control = false;
+   goto label LABEL_f2189
+   LABEL_f2189:
+   if "ch2-has-map" then goto label bodyStart_ZIGZAG_2222;
+   goto label LABEL_f2246
+   bodyStart_ZIGZAG_2222:
+   copy!("undefined")
+   goto label LABEL_f2246
+   LABEL_f2246:
+   if debug_mode then goto label bodyStart_ZIGZAG_2271;
+   if "ch2-warp-granted" then goto label bodyStart_ZIGZAG_2391;
+   goto label LABEL_f2416
+   bodyStart_ZIGZAG_2271:
+   copy!("undefined")
+   copy!("undefined")
+   serial_control = true;
+   goto label LABEL_f2416
+   bodyStart_ZIGZAG_2391:
+   copy!("undefined")
+   goto label LABEL_f2416
+   LABEL_f2416:
+   if "ch2-storyflag-round" > 0 then goto label bodyStart_ZIGZAG_2460;
+   goto label LABEL_f2536
+   bodyStart_ZIGZAG_2460:
+   if "ch2-storyflag-round" < 5 then goto label bodyStart_ZIGZAG_2505;
+   goto label LABEL_f2533
+   bodyStart_ZIGZAG_2505:
+   copy!("undefined")
+   goto label LABEL_f2533
+   LABEL_f2533:
+   goto label LABEL_f2536
+   LABEL_f2536:
+}
+
+"ch2-map-init-inventory-look" {
+   if "ch2-carrying-monitor" then goto label bodyStart_ZIGZAG_2610;
+   goto label LABEL_f2656
+   bodyStart_ZIGZAG_2610:
+   command "look" + "monitor" = "look-monitor";
+   goto label LABEL_f2656
+   LABEL_f2656:
+   if "ch2-carrying-heatsink" then goto label bodyStart_ZIGZAG_2699;
+   goto label LABEL_f2750
+   bodyStart_ZIGZAG_2699:
+   command "look" + "heat sink" = "look-heatsink";
+   goto label LABEL_f2750
+   LABEL_f2750:
+   if "ch2-carrying-cactuscooler" then goto label bodyStart_ZIGZAG_2797;
+   goto label LABEL_f2856
+   bodyStart_ZIGZAG_2797:
+   command "look" + "cactus cooler" = "look-cactuscooler";
+   goto label LABEL_f2856
+   LABEL_f2856:
+   if "ch2-carrying-powersupply" then goto label bodyStart_ZIGZAG_2902;
+   goto label LABEL_f2959
+   bodyStart_ZIGZAG_2902:
+   command "look" + "power supply" = "look-powersupply";
+   goto label LABEL_f2959
+   LABEL_f2959:
+   if "ch2-carrying-keyboard" then goto label bodyStart_ZIGZAG_3002;
+   goto label LABEL_f3050
+   bodyStart_ZIGZAG_3002:
+   command "look" + "keyboard" = "look-keyboard";
+   goto label LABEL_f3050
+   LABEL_f3050:
+   if "ch2-carrying-mouse" then goto label bodyStart_ZIGZAG_3090;
+   goto label LABEL_f3132
+   bodyStart_ZIGZAG_3090:
+   command "look" + "mouse" = "look-mouse";
+   goto label LABEL_f3132
+   LABEL_f3132:
+   if "ch2-carrying-harddrive" then goto label bodyStart_ZIGZAG_3176;
+   goto label LABEL_f3229
+   bodyStart_ZIGZAG_3176:
+   command "look" + "hard drive" = "look-harddrive";
+   goto label LABEL_f3229
+   LABEL_f3229:
+   if "ch2-carrying-plate" then goto label bodyStart_ZIGZAG_3269;
+   goto label LABEL_f3311
+   bodyStart_ZIGZAG_3269:
+   command "look" + "plate" = "look-plate";
+   goto label LABEL_f3311
+   LABEL_f3311:
+   if "ch2-carrying-needle" then goto label bodyStart_ZIGZAG_3352;
+   goto label LABEL_f3396
+   bodyStart_ZIGZAG_3352:
+   command "look" + "needle" = "look-needle";
+   goto label LABEL_f3396
+   LABEL_f3396:
+   if "ch2-carrying-ramchips" then goto label bodyStart_ZIGZAG_3439;
+   goto label LABEL_f3529
+   bodyStart_ZIGZAG_3439:
+   command "look" + "ram chip" = "look-ramchips";
+   command "look" + "ram" = "look-ramchips";
+   goto label LABEL_f3529
+   LABEL_f3529:
+   if "ch2-carrying-clock" then goto label bodyStart_ZIGZAG_3569;
+   goto label LABEL_f3611
+   bodyStart_ZIGZAG_3569:
+   command "look" + "clock" = "look-clock";
+   goto label LABEL_f3611
+   LABEL_f3611:
+   if "ch2-carrying-cpu" then goto label bodyStart_ZIGZAG_3649;
+   goto label LABEL_f3687
+   bodyStart_ZIGZAG_3649:
+   command "look" + "cpu" = "look-cpu";
+   goto label LABEL_f3687
+   LABEL_f3687:
+   if "ch2-carrying-goldfish" then goto label bodyStart_ZIGZAG_3730;
+   goto label LABEL_f3778
+   bodyStart_ZIGZAG_3730:
+   command "look" + "goldfish" = "look-goldfish";
+   goto label LABEL_f3778
+   LABEL_f3778:
+   if "ch2-carrying-manual" then goto label bodyStart_ZIGZAG_3819;
+   goto label LABEL_f3863
+   bodyStart_ZIGZAG_3819:
+   command "look" + "manual" = "look-manual";
+   goto label LABEL_f3863
+   LABEL_f3863:
+   if "ch2-carrying-abacus" then goto label bodyStart_ZIGZAG_3904;
+   goto label LABEL_f3948
+   bodyStart_ZIGZAG_3904:
+   command "look" + "abacus" = "look-abacus";
+   goto label LABEL_f3948
+   LABEL_f3948:
+   if "ch2-carrying-mainframeos" then goto label bodyStart_ZIGZAG_3994;
+   goto label LABEL_f4048
+   bodyStart_ZIGZAG_3994:
+   command "look" + "mainframeos" = "look-mainframeos";
+   goto label LABEL_f4048
+   LABEL_f4048:
+}
+
+"ch2-map-init-serial-debug-message" {
+   if debug_mode then goto label bodyStart_ZIGZAG_4111;
+   if "debug-curr-state" then goto label bodyStart_ZIGZAG_4390;
+   goto label LABEL_f4546
+   bodyStart_ZIGZAG_4390:
+   show serial_dialog "ch2-common.mgs-XX";
+   goto label LABEL_f4546
+   LABEL_f4546:
+   "debug-curr-state" = false;
+   goto label LABEL_f4587
+   bodyStart_ZIGZAG_4111:
+   if !"debug-curr-state" then goto label bodyStart_ZIGZAG_4151;
+   goto label LABEL_f4304
+   bodyStart_ZIGZAG_4151:
+   show serial_dialog "ch2-common.mgs-XX";
+   goto label LABEL_f4304
+   LABEL_f4304:
+   "debug-curr-state" = true;
+   goto label LABEL_f4587
+   LABEL_f4587:
+}
+
+"ch2-map-init-warp-in" {
+   if warp_state == "warping" then goto label bodyStart_ZIGZAG_4643;
+   goto label LABEL_f4673
+   bodyStart_ZIGZAG_4643:
+   copy!("undefined")
+   goto label LABEL_f4673
+   LABEL_f4673:
+   player_control = true;
+}
+
+"ch2-map-init" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   if "ch2-goosefacts" then goto label bodyStart_ZIGZAG_4959;
+   goto label LABEL_f5017
+   bodyStart_ZIGZAG_4959:
+   command "stop" = "stop-goosefacts";
+   copy!("undefined")
+   goto label LABEL_f5017
+   LABEL_f5017:
+}
+
 "on_tick-ch2-credits" {
    hex_control = false;
    serial_control = false;
@@ -39536,6 +43670,105 @@
    player on_tick = "null_script";
    camera fade out -> #000000 over 1200ms;
    load map "credits2";
+}
+
+"goosefacts" {
+   if "ch2-goosefacts" then goto label bodyStart_ZIGZAG_1019;
+   goto label LABEL_f7615
+   bodyStart_ZIGZAG_1019:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   if "goosefact" == 0 then goto label bodyStart_ZIGZAG_1148;
+   if "goosefact" == 1 then goto label bodyStart_ZIGZAG_1447;
+   if "goosefact" == 2 then goto label bodyStart_ZIGZAG_1798;
+   if "goosefact" == 3 then goto label bodyStart_ZIGZAG_2107;
+   if "goosefact" == 4 then goto label bodyStart_ZIGZAG_2297;
+   if "goosefact" == 5 then goto label bodyStart_ZIGZAG_2503;
+   if "goosefact" == 6 then goto label bodyStart_ZIGZAG_2832;
+   if "goosefact" == 7 then goto label bodyStart_ZIGZAG_3164;
+   if "goosefact" == 8 then goto label bodyStart_ZIGZAG_3379;
+   if "goosefact" == 9 then goto label bodyStart_ZIGZAG_3672;
+   if "goosefact" == 10 then goto label bodyStart_ZIGZAG_3876;
+   if "goosefact" == 11 then goto label bodyStart_ZIGZAG_4246;
+   if "goosefact" == 12 then goto label bodyStart_ZIGZAG_4613;
+   if "goosefact" == 13 then goto label bodyStart_ZIGZAG_5046;
+   if "goosefact" == 14 then goto label bodyStart_ZIGZAG_5464;
+   if "goosefact" == 15 then goto label bodyStart_ZIGZAG_5777;
+   if "goosefact" == 16 then goto label bodyStart_ZIGZAG_6097;
+   if "goosefact" == 17 then goto label bodyStart_ZIGZAG_6400;
+   if "goosefact" == 18 then goto label bodyStart_ZIGZAG_6714;
+   if "goosefact" == 19 then goto label bodyStart_ZIGZAG_7119;
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_1148:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_1447:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_1798:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_2107:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_2297:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_2503:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_2832:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_3164:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_3379:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_3672:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_3876:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_4246:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_4613:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_5046:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_5464:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_5777:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_6097:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_6400:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_6714:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   bodyStart_ZIGZAG_7119:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   goto label LABEL_f7400
+   LABEL_f7400:
+   show serial_dialog "ch2-goosefacts.mgs-XX";
+   "goosefact" += 1;
+   if "goosefact" == 20 then goto label bodyStart_ZIGZAG_7565;
+   goto label LABEL_f7609
+   bodyStart_ZIGZAG_7565:
+   "goosefact" = 0;
+   goto label LABEL_f7609
+   LABEL_f7609:
+   goto label LABEL_f7615
+   LABEL_f7615:
 }
 
 "on_load-ch2-greenhouse" {
@@ -40464,27 +44697,6 @@
    warp_state = "walk_from-north";
    load map "ch2-lodge";
    goto index 5;
-}
-
-"interact-ch2-alfonso-rtfm" {
-   if "ch2-storyflag-round" != 3 then goto script "null_script";
-   self direction = player;
-   show dialog "ch2-lodge-rtfm.mgs-XX";
-   self direction = "west";
-}
-
-"interact-ch2-jackob-rtfm" {
-   if "ch2-storyflag-round" != 3 then goto script "null_script";
-   self direction = player;
-   show dialog "ch2-lodge-rtfm.mgs-XX";
-   self direction = "south";
-}
-
-"interact-ch2-bert-rtfm" {
-   if "ch2-storyflag-round" != 1 then goto script "null_script";
-   self direction = player;
-   show dialog "ch2-lodge-rtfm.mgs-XX";
-   self direction = "north";
 }
 
 "on_load-ch2-lodge" {
@@ -42625,6 +46837,47 @@
    goto index 217;
 }
 
+"debug-set-flags-to-round1" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+}
+
+"debug-set-flags-to-round2" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-bert-secret" = true;
+   "ch2-lambda-bert-backstory" = true;
+   "ch2-parts-round-2-backstory" = true;
+   copy!("undefined")
+}
+
+"debug-set-flags-to-round3" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-bert-message" = true;
+   "ch2-parts-round-3-backstory" = true;
+   copy!("undefined")
+}
+
+"debug-set-flags-to-round4" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-last-parts-done" = true;
+   "ch2-warp-granted" = true;
+   "ch2-parts-round-4-backstory" = true;
+   copy!("undefined")
+}
+
 "ch2-pickup-plate" {
    "ch2-map-plate" = false;
    "ch2-carrying-plate" = true;
@@ -42663,6 +46916,16 @@
    "ch2-map-solder" = true;
    goto index 6;
    command "look" + "abacus" = "look-abacus";
+}
+
+"interact-ch2-solderzone-harddrive" {
+   show dialog "ch2-parts-admin.mgs-XX";
+   copy!("undefined")
+}
+
+"interact-ch2-solderzone-cpu" {
+   show dialog "ch2-parts-admin.mgs-XX";
+   copy!("undefined")
 }
 
 "interact-ch2-solderzone" {
@@ -44862,6 +49125,51 @@
    goto index 72;
 }
 
+"register-colors" {
+   command "colors" = "command-colors";
+   command "colors" + "bg" = "command-colors-bg";
+   command "colors" + "bold" = "command-colors-bold";
+   command "colors" + "dim" = "command-colors-dim";
+}
+
+"register-commentary" {
+   command "commentary" = "command-commentary-solo";
+   command "commentary" + "on" = "command-commentary-on";
+   command "commentary" + "off" = "command-commentary-off";
+}
+
+"command-commentary-on" {
+   show serial_dialog "spacer";
+   if !"serial-commentary" then goto label bodyStart_ZIGZAG_1435;
+   show serial_dialog "command-commentary.mgs-XX";
+   goto label LABEL_f1694
+   bodyStart_ZIGZAG_1435:
+   show serial_dialog "command-commentary.mgs-XX";
+   "serial-commentary" = true;
+   goto label LABEL_f1694
+   LABEL_f1694:
+}
+
+"command-commentary-off" {
+   show serial_dialog "spacer";
+   if "serial-commentary" then goto label bodyStart_ZIGZAG_1789;
+   show serial_dialog "command-commentary.mgs-XX";
+   goto label LABEL_f2051
+   bodyStart_ZIGZAG_1789:
+   show serial_dialog "command-commentary.mgs-XX";
+   "serial-commentary" = false;
+   goto label LABEL_f2051
+   LABEL_f2051:
+}
+
+"register-inventory" {
+   command "man" + "inventory" = "man-inventory";
+   command "inventory" = "command-inventory";
+   alias "i" = "inventory";
+   alias "examine" = "look";
+   alias "x" = "look";
+}
+
 "man-inventory" {
    show serial_dialog "spacer";
    show serial_dialog "command-inventory.mgs-XX";
@@ -45024,6 +49332,16 @@
    "only-count-inventory" = false;
    "ch2-counted-inventory" = "ch2-count-inventory";
    "ch2-count-inventory" = 0;
+}
+
+"register-manual" {
+   command "man" = "command-man";
+   command "man" + "man" = "man-man";
+   command "man" + "look" = "man-look";
+   command "man" + "go" = "man-go";
+   command "man" + "help" = "man-help";
+   command "man" + "rtfm" = "man-rtfm";
+   command "man" fail = "man-fail";
 }
 
 "command-man" {
@@ -45456,6 +49774,16 @@
    serial_control = true;
 }
 
+"register-parts" {
+   command "man" + "parts" = "man-parts";
+   command "parts" = "command-parts";
+   command "parts" fail = "command-parts-fail";
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+}
+
 "command-parts-fail" {
    if "ch2-ring-zero-enabled-in-castle" then goto index 5;
    if "ch2-in-room" != 0 then goto index 5;
@@ -45886,6 +50214,34 @@
    goto index 6;
 }
 
+"warp-common" {
+   if "ch2-wait-for-hat-touch" then goto label bodyStart_ZIGZAG_5887;
+   goto label LABEL_f5929
+   bodyStart_ZIGZAG_5887:
+   goto "ch2-wait-for-hat-touch-message";
+   goto label LABEL_f5929
+   LABEL_f5929:
+   if !"ch2-ring-zero-enabled-in-castle" then goto label bodyStart_ZIGZAG_6077;
+   goto label LABEL_f6195
+   bodyStart_ZIGZAG_6077:
+   if !debug_mode then goto label bodyStart_ZIGZAG_6104;
+   goto label LABEL_f6192
+   bodyStart_ZIGZAG_6104:
+   if "ch2-in-room" == 0 then goto label bodyStart_ZIGZAG_6140;
+   goto label LABEL_f6188
+   bodyStart_ZIGZAG_6140:
+   goto "warp-ch2-town-check-fail-message";
+   goto label LABEL_f6188
+   LABEL_f6188:
+   goto label LABEL_f6192
+   LABEL_f6192:
+   goto label LABEL_f6195
+   LABEL_f6195:
+   "ch2-in-room" = 0;
+   "current-chapter" = 2;
+   copy!("undefined")
+}
+
 "warp-ch2-castle-exterior" {
    if "ch2-wait-for-hat-touch" then goto index 2;
    goto index 4;
@@ -46275,6 +50631,20 @@
    player on_tick = "spin-quickly";
    camera fade out -> #000000 over 500ms;
    load map "ch2-castle-99";
+}
+
+"warp-ch2-town-destination-check" {
+   if !"ch2-ring-zero-enabled-in-castle" then goto label bodyStart_ZIGZAG_7505;
+   goto label LABEL_f7581
+   bodyStart_ZIGZAG_7505:
+   if !debug_mode then goto label bodyStart_ZIGZAG_7532;
+   goto label LABEL_f7578
+   bodyStart_ZIGZAG_7532:
+   goto "warp-ch2-town-check-fail-message";
+   goto label LABEL_f7578
+   LABEL_f7578:
+   goto label LABEL_f7581
+   LABEL_f7581:
 }
 
 "warp-ch2-town" {
@@ -46773,31 +51143,107 @@
    goto index 6;
 }
 
-"map_on_tick-doors" {
-   if player intersects geometry "door-main" then goto script "load_map-main";
-   if player intersects geometry "door-test" then goto script "load_map-test";
-   if player intersects geometry "door-town" then goto script "load_map-town";
-   if player intersects geometry "door-episode2" then goto script "load_map-chapter2-start";
-   if player intersects geometry "door-action_testing_01" then goto script "load_map-action_testing_01";
-   if player intersects geometry "door-action_testing_02" then goto script "load_map-action_testing_02";
-   if player intersects geometry "door-testbig" then goto script "load_map-testbig";
+"capture_self_direction" {
+   if self direction == "north" then goto label bodyStart_ZIGZAG_3920;
+   if self direction == "east" then goto label bodyStart_ZIGZAG_3991;
+   if self direction == "south" then goto label bodyStart_ZIGZAG_4063;
+   if self direction == "west" then goto label bodyStart_ZIGZAG_4134;
+   goto label LABEL_f4159
+   bodyStart_ZIGZAG_3920:
+   "tempvar" = 0;
+   goto label LABEL_f4159
+   bodyStart_ZIGZAG_3991:
+   "tempvar" = 1;
+   goto label LABEL_f4159
+   bodyStart_ZIGZAG_4063:
+   "tempvar" = 2;
+   goto label LABEL_f4159
+   bodyStart_ZIGZAG_4134:
+   "tempvar" = 3;
+   goto label LABEL_f4159
+   LABEL_f4159:
 }
 
-"on_load-east_west" {
-   if warp_state == "enter_from-east" then goto script "enter_from-east";
-   if warp_state == "enter_from-west" then goto script "enter_from-west";
+"restore_self_direction" {
+   if "tempvar" == 0 then goto label bodyStart_ZIGZAG_4216;
+   if "tempvar" == 1 then goto label bodyStart_ZIGZAG_4283;
+   if "tempvar" == 2 then goto label bodyStart_ZIGZAG_4349;
+   if "tempvar" == 3 then goto label bodyStart_ZIGZAG_4416;
+   goto label LABEL_f4448
+   bodyStart_ZIGZAG_4216:
+   self direction = "north";
+   goto label LABEL_f4448
+   bodyStart_ZIGZAG_4283:
+   self direction = "east";
+   goto label LABEL_f4448
+   bodyStart_ZIGZAG_4349:
+   self direction = "south";
+   goto label LABEL_f4448
+   bodyStart_ZIGZAG_4416:
+   self direction = "west";
+   goto label LABEL_f4448
+   LABEL_f4448:
 }
 
-"on_tick-town" {
-   if player intersects geometry "door_to-main-east" then goto script "load_map-main-enter_from-east";
-   if player intersects geometry "door_to-main-west" then goto script "load_map-main-enter_from-west";
+"interrupt-walk" {
+   "captured_animation" = self current_animation;
+   self current_animation = 0;
+   pause self on_tick;
+   copy!("undefined")
+   copy!("undefined")
 }
 
-"my_first_script" {
-   wait 100ms;
-   hex_editor = true;
-   block 200ms;
-   hex_editor = false;
+"resume-walk" {
+   self current_animation = "captured_animation";
+   unpause self on_tick;
+   copy!("undefined")
+}
+
+"capture_player_state" {
+   "playersave-x" = player x;
+   "playersave-y" = player y;
+   "playersave-room" = "ch2-in-room";
+   if player direction == "north" then goto label bodyStart_ZIGZAG_5091;
+   if player direction == "east" then goto label bodyStart_ZIGZAG_5171;
+   if player direction == "south" then goto label bodyStart_ZIGZAG_5252;
+   if player direction == "west" then goto label bodyStart_ZIGZAG_5332;
+   goto label LABEL_f5364
+   bodyStart_ZIGZAG_5091:
+   "playersave-dir" = 0;
+   goto label LABEL_f5364
+   bodyStart_ZIGZAG_5171:
+   "playersave-dir" = 1;
+   goto label LABEL_f5364
+   bodyStart_ZIGZAG_5252:
+   "playersave-dir" = 2;
+   goto label LABEL_f5364
+   bodyStart_ZIGZAG_5332:
+   "playersave-dir" = 3;
+   goto label LABEL_f5364
+   LABEL_f5364:
+}
+
+"restore_player_state" {
+   player x = "playersave-x";
+   player y = "playersave-y";
+   if "playersave-dir" == 0 then goto label bodyStart_ZIGZAG_5535;
+   if "playersave-dir" == 1 then goto label bodyStart_ZIGZAG_5611;
+   if "playersave-dir" == 2 then goto label bodyStart_ZIGZAG_5686;
+   if "playersave-dir" == 3 then goto label bodyStart_ZIGZAG_5762;
+   goto label LABEL_f5796
+   bodyStart_ZIGZAG_5535:
+   player direction = "north";
+   goto label LABEL_f5796
+   bodyStart_ZIGZAG_5611:
+   player direction = "east";
+   goto label LABEL_f5796
+   bodyStart_ZIGZAG_5686:
+   player direction = "south";
+   goto label LABEL_f5796
+   bodyStart_ZIGZAG_5762:
+   player direction = "west";
+   goto label LABEL_f5796
+   LABEL_f5796:
 }
 
 "on_load-main_menu" {
@@ -47392,21 +51838,6 @@
    goto index 10;
 }
 
-"on_tick-button-to-skip" {
-   if button ANY pressed then goto script "handler-skip-splash";
-}
-
-"on_tick-splash" {
-   hex_control = false;
-   if warp_state == "from-game" then goto script "main_menu-fade_in";
-   camera = geometry "dc801-center";
-   camera fade in -> #000000 over 800ms;
-   wait 2900ms;
-   camera fade out -> #000000 over 800ms;
-   player on_tick = "null_script";
-   goto "main_menu-fade_in";
-}
-
 "main_menu" {
    player on_tick = "null_script";
    show dialog "main_menu.mgs-XX";
@@ -47653,21 +52084,6 @@
    goto index 16;
    save slot;
    self on_interact = "menu-save_game";
-}
-
-"check_if_player_is_at_log" {
-   if player intersects geometry "log_ellipse" then goto script "walk_self_to_path_and_loop";
-}
-
-"check_save_flag-bobs_not_on_fire" {
-   if "No two Bobs are not on fire" then goto script "show_dialog-thanks_for_setting_bob_on_fire";
-   show dialog "test_map.mgs-XX";
-}
-
-"set_save_flag-bobs_not_on_fire" {
-   if "No two Bobs are not on fire" then goto script "set_save_flag-bobs_on_fire";
-   "No two Bobs are not on fire" = true;
-   show dialog "test_map.mgs-XX";
 }
 
 "on_load-woprhouse" {
@@ -48092,10 +52508,6 @@
    show dialog "woprhouse.mgs-XX";
    player_control = true;
    goto index 421;
-}
-
-"on_tick-woprhouse" {
-   if player intersects geometry "north-hitbox" then goto script "on_walk-woprhouse-north";
 }
 
 "on_walk-woprhouse-north" {
