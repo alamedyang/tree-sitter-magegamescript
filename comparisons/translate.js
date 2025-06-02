@@ -1,6 +1,6 @@
-const fs = require('node:fs');
-const { printScript } = require('../parser-to-json.js');
-const { composites } = require('./exfiltrated_composites.js');
+import { writeFileSync } from 'node:fs';
+import { printScript } from '../parser-to-json.js';
+import { composites } from './exfiltrated_composites.js';
 
 const exfiltrate = {};
 
@@ -35,17 +35,16 @@ const exfiltrate = {};
 	'demo-end-dream-yes',
 	'demo-end-dream-yes-save',
 	'demo-end-dream-no',
-		
-].forEach(scriptName=>{
+].forEach((scriptName) => {
 	const fromOtherThing = composites[scriptName];
 	exfiltrate[scriptName] = fromOtherThing;
 });
 
 const printedMap = {};
-Object.entries(exfiltrate).forEach(([k,v])=>{
+Object.entries(exfiltrate).forEach(([k, v]) => {
 	const printed = printScript(k, v);
 	printedMap[k] = printed;
 });
-const copyFromThis = Object.values(printedMap).join('\n\n')
+const copyFromThis = Object.values(printedMap).join('\n\n');
 
-fs.writeFileSync('./comparisons/export.mgs', copyFromThis);
+writeFileSync('./comparisons/export.mgs', copyFromThis);

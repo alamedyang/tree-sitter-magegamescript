@@ -1,11 +1,5 @@
-const {
-	handleCapture,
-	captureForFieldName,
-	capturesForFieldName,
-	textForFieldName,
-	grammarTypeForFieldName,
- } = require('./parser-capture.js');
-const {
+import { handleCapture, captureForFieldName, grammarTypeForFieldName } from './parser-capture.js';
+import {
 	autoIdentifierName,
 	expandCondition,
 	label,
@@ -21,14 +15,12 @@ const {
 	quickTemporary,
 	latestTemporary,
 	newComment,
-} = require('./parser-utilities.js');
-const {
-	getBoolFieldForAction,
-} = require('./parser-bytecode-info.js');
+} from './parser-utilities.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.js';
 
 // Cyclic dependency bodge
 let handleNode;
-const handleActionsInit = (handleNodeFn) => {
+export const handleActionsInit = (handleNodeFn) => {
 	handleNode = handleNodeFn;
 };
 
@@ -61,23 +53,23 @@ const flattenIntBinaryExpression = (exp, steps) => {
 		flattenIntBinaryExpression(lhs, steps);
 	}
 	if (typeof rhs === 'string') {
-		steps.push(changeVarByVar(temporary, rhs, op))
+		steps.push(changeVarByVar(temporary, rhs, op));
 	} else if (typeof rhs === 'number') {
 		if (
-			op === '+' && rhs === 0
-			|| op === '-' && rhs === 0
-			|| op === '*' && rhs === 1
-			|| op === '/' && rhs === 1
+			(op === '+' && rhs === 0) ||
+			(op === '-' && rhs === 0) ||
+			(op === '*' && rhs === 1) ||
+			(op === '/' && rhs === 1)
 		) {
 			// do nothing
 		} else {
-			steps.push(changeVarByValue(temporary, rhs, op))
+			steps.push(changeVarByValue(temporary, rhs, op));
 		}
 	} else if (rhs.entity) {
 		const temp = quickTemporary();
 		steps.push(
 			copyEntityFieldIntoVar(rhs.entity, rhs.field, temp),
-			changeVarByVar(temporary, temp, op)
+			changeVarByVar(temporary, temp, op),
 		);
 	} else if (rhs.mathlang === 'int_binary_expression') {
 		// this one DOES need a new temporary
@@ -102,14 +94,14 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 	// get the action JSON for the RHS
 	const rhsRaw = typeof _rhsRaw === 'string' ? checkFlag(_rhsRaw, true) : _rhsRaw;
 	if (
-		rhsRaw.mathlang === 'bool_getable'
-		|| rhsRaw.mathlang === 'bool_comparison'
-		|| rhsRaw.mathlang === 'string_checkable'
-		|| rhsRaw.mathlang === 'number_checkable_equality'
+		rhsRaw.mathlang === 'bool_getable' ||
+		rhsRaw.mathlang === 'bool_comparison' ||
+		rhsRaw.mathlang === 'string_checkable' ||
+		rhsRaw.mathlang === 'number_checkable_equality'
 	) {
 		const rhsParam = getBoolFieldForAction(rhsRaw.action);
 		const existingValue = rhsRaw[rhsParam];
-		if (existingValue === undefined) throw new Error ("Found a hole! " + rhsRaw.action);
+		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsRaw.action);
 		const baseAction = {
 			...rhsRaw,
 			[rhsParam]: existingValue,
@@ -120,15 +112,13 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 			baseAction,
 			{ ...lhs, [lhsParam]: true },
 			{ ...lhs, [lhsParam]: false },
-		)
+		);
 	}
 	// Everything hereafter is a bool expression (?)
-	const setLhsIfTrue = typeof lhs === 'string'
-		? setFlag(lhs, true)
-		: { ...lhs, [lhsParam]: true };
-	const setLhsIfFalse = typeof lhs === 'string'
-		? setFlag(lhs, false)
-		: { ...lhs, [lhsParam]: false };
+	const setLhsIfTrue =
+		typeof lhs === 'string' ? setFlag(lhs, true) : { ...lhs, [lhsParam]: true };
+	const setLhsIfFalse =
+		typeof lhs === 'string' ? setFlag(lhs, false) : { ...lhs, [lhsParam]: false };
 	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps = [
@@ -146,10 +136,11 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
-const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
+const spreadValues = (f, commonFields, fieldsToSpread) => {
+	// ->[]
 	// count spreads
 	let spreadSize = -Infinity;
-	Object.values(fieldsToSpread).forEach(fieldName => {
+	Object.values(fieldsToSpread).forEach((fieldName) => {
 		const len = fieldName.captures.length;
 		// spreadSize won't be 1 btw, because 1s go to commonFields
 		if (spreadSize === -Infinity) spreadSize = len;
@@ -169,7 +160,7 @@ const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 	let ret = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = { ...commonFields };
-		Object.keys(fieldsToSpread).forEach(fieldName => {
+		Object.keys(fieldsToSpread).forEach((fieldName) => {
 			const allValues = fieldsToSpread[fieldName].captures;
 			const currValue = allValues[i % allValues.length];
 			insert[fieldName] = currValue;
@@ -188,16 +179,22 @@ const spreadValues = (f, commonFields, fieldsToSpread) => { // ->[]
 // it will add the action as a "sequence", which will need to be expanded later
 // (for a few reasons, the result must be a single "unit" at this stage)
 // TODO: why then return an array?
-const handleAction = (f, node) => { // ->[]
+export const handleAction = (f, node) => {
+	// ->[]
 	// Cyclic dependency bodge
 	if (!handleNode) {
-		throw new Error("handleAction cannot be called until handleNode has been provided to the init function");
+		throw new Error(
+			'handleAction cannot be called until handleNode has been provided to the init function',
+		);
 	}
 	// From the action dictionary
 	const data = actionData[node.grammarType];
 	if (!data) {
 		const customFn = actionFns[node.grammarType];
-		if (!customFn) throw new Error(`No action data nor handler function found for action ${node.grammarType}`);
+		if (!customFn)
+			throw new Error(
+				`No action data nor handler function found for action ${node.grammarType}`,
+			);
 		return customFn(f, node);
 	}
 	let action = {
@@ -208,13 +205,15 @@ const handleAction = (f, node) => { // ->[]
 	// Action params
 	const captures = data.captures || [];
 	const fieldsToSpread = {};
-	captures.forEach(fieldName => {
+	captures.forEach((fieldName) => {
 		const capture = captureForFieldName(f, node, fieldName);
 		if (capture === undefined) {
 			if (data.optionalCaptures?.includes(fieldName)) {
 				action[fieldName] = null;
 			} else {
-				throw new Error(`Capture found for field not associated with this action (${fieldName})`)
+				throw new Error(
+					`Capture found for field not associated with this action (${fieldName})`,
+				);
 			}
 			return;
 		}
@@ -239,8 +238,9 @@ const handleAction = (f, node) => { // ->[]
 				if (solved) {
 					// todo: reorder the arguments in .values()?
 					const values = currClueData.finalizeValues(action, f, node, actionIndex);
-					Object.entries(values)
-						.forEach(([k, v]) => { action[k] = v; });
+					Object.entries(values).forEach(([k, v]) => {
+						action[k] = v;
+					});
 					return;
 				}
 			}
@@ -252,7 +252,7 @@ const handleAction = (f, node) => { // ->[]
 			} else {
 				f.newError({
 					locations: [{ node }],
-					message: `syntax error in action '${node.grammarType}'`
+					message: `syntax error in action '${node.grammarType}'`,
 				});
 				// console.warn(`No custom error handler found for action '${node.grammarType}' node`);
 			}
@@ -267,9 +267,9 @@ const actionFns = {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
-			.map(child => handleNode(f, child))
+			.map((child) => handleNode(f, child))
 			.flat();
-		const ret = [ showDialog(f, node, name) ];
+		const ret = [showDialog(f, node, name)];
 		if (dialogs.length) {
 			ret.unshift(newDialog(f, node, name, dialogs));
 		}
@@ -280,9 +280,9 @@ const actionFns = {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
-			.map(child => handleNode(f, child))
+			.map((child) => handleNode(f, child))
 			.flat();
-		const ret = [ showSerialDialog(f, node, name, false) ];
+		const ret = [showSerialDialog(f, node, name, isConcat || false)];
 		if (serialDialogs.length) {
 			ret.unshift(newSerialDialog(f, node, name, serialDialogs[0]));
 		}
@@ -384,11 +384,11 @@ const actionData = {
 	},
 	action_pause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
-		captures: ['script_slot', 'entity' ],
+		captures: ['script_slot', 'entity'],
 	},
 	action_unpause_script: {
 		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
-		captures: ['script_slot', 'entity' ],
+		captures: ['script_slot', 'entity'],
 	},
 	action_play_entity_animation: {
 		values: { action: 'PLAY_ENTITY_ANIMATION' },
@@ -396,36 +396,36 @@ const actionData = {
 	},
 	action_set_warp_state: {
 		values: { action: 'SET_WARP_STATE' },
-		captures: [ 'string' ]
+		captures: ['string'],
 	},
 	action_set_serial_connect: {
 		values: { action: 'SET_CONNECT_SERIAL_DIALOG' },
-		captures: [ 'serial_dialog' ]
+		captures: ['serial_dialog'],
 	},
 	action_set_alias: {
 		values: { action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
-		captures: [ 'alias', 'command' ]
+		captures: ['alias', 'command'],
 	},
 	action_set_command: {
 		values: {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
-			is_fail: false
+			is_fail: false,
 		},
-		captures: [ 'command', 'script' ]
+		captures: ['command', 'script'],
 	},
 	action_set_command_fail: {
 		values: {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
-			is_fail: true
+			is_fail: true,
 		},
-		captures: [ 'command', 'script' ]
+		captures: ['command', 'script'],
 	},
 	action_set_command_arg: {
 		values: {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
-			is_fail: true
+			is_fail: true,
 		},
-		captures: [ 'command', 'argument', 'script' ]
+		captures: ['command', 'argument', 'script'],
 	},
 	action_set_ambiguous: {
 		values: {},
@@ -434,9 +434,11 @@ const actionData = {
 			{
 				isMatch: (v, f, node) => {
 					const type = grammarTypeForFieldName(f, node, 'rhs');
-					return type === 'ambiguous_identifier_expansion'
-						|| type === 'BAREWORD'
-						|| type === 'QUOTED_STRING'
+					return (
+						type === 'ambiguous_identifier_expansion' ||
+						type === 'BAREWORD' ||
+						type === 'QUOTED_STRING'
+					);
 				},
 				finalizeValues: (v, f, node, i) => {
 					const ident = v.rhs;
@@ -444,24 +446,27 @@ const actionData = {
 					// `i` is from the caller, who knows which one of the set we're looking at now.
 					// Basically, the whole spread might not be ambiguous, so we need to report
 					// only once the action is identified (with isMatch()), not all the time.
-					const lhsNode = node.childForFieldName('lhs').namedChildren?.[i] || node.childForFieldName('lhs');
-					const rhsNode = node.childForFieldName('rhs').namedChildren?.[i] || node.childForFieldName('rhs');
+					const lhsNode =
+						node.childForFieldName('lhs').namedChildren?.[i] ||
+						node.childForFieldName('lhs');
+					const rhsNode =
+						node.childForFieldName('rhs').namedChildren?.[i] ||
+						node.childForFieldName('rhs');
 					// These are the nodes that will get squigglies
 					const printNodes = [lhsNode, rhsNode];
-					const suggestion = v.rhs.includes(' ')
-						? '"' + ident + '"'
-						: ident;
+					const suggestion = v.rhs.includes(' ') ? '"' + ident + '"' : ident;
 					f.newWarning({
-						locations: printNodes.map(v => ({ node: v })),
+						locations: printNodes.map((v) => ({ node: v })),
 						message: 'these identifiers could be ints or bools',
-						footer: `Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:`
-							+ `\n    !!${suggestion}`
-							+ `\nTo silence this warning, turn the RHS into a passthrough int expression (which will produce the same output), e.g.:`
-							+ `\n    ${suggestion} + 0`
-							+ `\n    ${suggestion} * 1`
-						});
+						footer:
+							`Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:` +
+							`\n    !!${suggestion}` +
+							`\nTo silence this warning, turn the RHS into a passthrough int expression (which will produce the same output), e.g.:` +
+							`\n    ${suggestion} + 0` +
+							`\n    ${suggestion} * 1`,
+					});
 					return setVarToVar(v.lhs, v.rhs);
-				}
+				},
 			},
 			{
 				// We know the RHS is a number
@@ -488,7 +493,7 @@ const actionData = {
 					// do `LHS = temporary`
 					steps.push(setVarToVar(v.lhs, temporary));
 					return newSequence(f, node, steps, 'set int (ambiguous lhs)');
-				}
+				},
 			},
 			{
 				// We know the RHS is a boolean
@@ -515,7 +520,7 @@ const actionData = {
 					const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
 					ret.steps.push(...setFlagSteps.steps);
 					return ret;
-				}
+				},
 			},
 		],
 	},
@@ -557,21 +562,21 @@ const actionData = {
 					} else if (v.lhs.field === 'relative_direction') {
 						ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
 						ret.relative_direction = v.rhs;
-					} 
+					}
 					return ret;
-				}
+				},
 			},
 			{
 				// RHS is variable name, simple case
 				// The field is part of the JSON action
 				isMatch: (v) => typeof v.rhs === 'string',
-				finalizeValues: (v, f, node) => copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field),
+				finalizeValues: (v) => copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field),
 			},
 			{
 				// RHS is something more complex (everything else)
 				// Do the expression thing, like above, but the final step is different
 				// (It's going into an entity field, not a variable)
-				isMatch: (v) => true,
+				isMatch: () => true,
 				finalizeValues: (v, f, node) => {
 					newTemporary();
 					const steps = flattenIntBinaryExpression(v.rhs, []);
@@ -600,7 +605,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'light',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_LIGHTS_STATE',
 						lights: v.lhs.value,
@@ -611,7 +616,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'player_control',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_PLAYER_CONTROL',
 						bool_value: true,
@@ -621,7 +626,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'lights_control',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_LIGHTS_CONTROL',
 						enabled: true,
@@ -641,7 +646,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_dialog_mode',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_DIALOG_MODE',
 						bool_value: true,
@@ -651,7 +656,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_control',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_CONTROL',
 						bool_value: true,
@@ -661,7 +666,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'hex_clipboard',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
 						bool_value: true,
@@ -671,7 +676,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => v.lhs.type === 'serial_control',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const lhsAction = {
 						action: 'SET_SERIAL_DIALOG_CONTROL',
 						bool_value: true,
@@ -686,26 +691,27 @@ const actionData = {
 		captures: ['movable', 'coordinate'],
 		detective: [
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType !== 'length',
+				isMatch: (v) =>
+					v.movable.type === 'camera' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType !== 'length',
 				finalizeValues: (v) => ({
 					action: 'TELEPORT_CAMERA_TO_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'entity',
+				isMatch: (v) => v.movable.type === 'camera' && v.coordinate.type === 'entity',
 				finalizeValues: (v) => ({
 					action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
 					entity: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'entity'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType !== 'length',
+				isMatch: (v) =>
+					v.movable.type === 'entity' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType !== 'length',
 				finalizeValues: (v) => ({
 					action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 					entity: v.movable.value,
@@ -713,8 +719,7 @@ const actionData = {
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'entity'
-					&& v.coordinate.type === 'entity',
+				isMatch: (v) => v.movable.type === 'entity' && v.coordinate.type === 'entity',
 				finalizeValues: (v, f, node) => {
 					const variable = quickTemporary();
 					const copyFrom = v.coordinate.value;
@@ -740,49 +745,52 @@ const actionData = {
 		optionalCaptures: ['forever'],
 		detective: [
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'origin'
-					&& !v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'camera' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'origin' &&
+					!v.forever,
 				finalizeValues: (v) => ({
 					action: 'PAN_CAMERA_TO_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'length'
-					&& !v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'camera' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'length' &&
+					!v.forever,
 				finalizeValues: (v) => ({
 					action: 'PAN_CAMERA_ALONG_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'length'
-					&& !!v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'camera' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'length' &&
+					!!v.forever,
 				finalizeValues: (v) => ({
 					action: 'LOOP_CAMERA_ALONG_GEOMETRY',
 					geometry: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'camera'
-					&& v.coordinate.type === 'entity'
-					&& !v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'camera' && v.coordinate.type === 'entity' && !v.forever,
 				finalizeValues: (v) => ({
 					action: 'PAN_CAMERA_TO_ENTITY',
 					entity: v.coordinate.value,
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'entity'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'origin'
-					&& !v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'entity' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'origin' &&
+					!v.forever,
 				finalizeValues: (v) => ({
 					action: 'WALK_ENTITY_TO_GEOMETRY',
 					entity: v.movable.value,
@@ -790,10 +798,11 @@ const actionData = {
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'entity'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'length'
-					&& !v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'entity' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'length' &&
+					!v.forever,
 				finalizeValues: (v) => ({
 					action: 'WALK_ENTITY_ALONG_GEOMETRY',
 					entity: v.movable.value,
@@ -801,10 +810,11 @@ const actionData = {
 				}),
 			},
 			{
-				isMatch: (v) => v.movable.type === 'entity'
-					&& v.coordinate.type === 'geometry'
-					&& v.coordinate.polygonType === 'length'
-					&& !!v.forever,
+				isMatch: (v) =>
+					v.movable.type === 'entity' &&
+					v.coordinate.type === 'geometry' &&
+					v.coordinate.polygonType === 'length' &&
+					!!v.forever,
 				finalizeValues: (v) => ({
 					action: 'LOOP_ENTITY_ALONG_GEOMETRY',
 					entity: v.movable.value,
@@ -835,10 +845,10 @@ const actionData = {
 	},
 	action_set_direction: {
 		values: {},
-		captures: [ 'entity', 'target' ],
+		captures: ['entity', 'target'],
 		detective: [
 			{
-				isMatch: (v) => true,
+				isMatch: () => true,
 				finalizeValues: (v) => {
 					return {
 						...v.target,
@@ -850,11 +860,10 @@ const actionData = {
 	},
 	action_set_script: {
 		values: {},
-		captures: [ 'entity', 'script_slot', 'script' ],
+		captures: ['entity', 'script_slot', 'script'],
 		detective: [
 			{
-				isMatch: (v) => v.entity === '%MAP%'
-					&& v.script_slot === 'on_tick',
+				isMatch: (v) => v.entity === '%MAP%' && v.script_slot === 'on_tick',
 				finalizeValues: (v) => {
 					return {
 						action: 'SET_MAP_TICK_SCRIPT',
@@ -863,8 +872,7 @@ const actionData = {
 				},
 			},
 			{
-				isMatch: (v) => v.entity !== '%MAP%'
-					&& v.script_slot === 'on_tick',
+				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_tick',
 				finalizeValues: (v) => {
 					return {
 						action: 'SET_ENTITY_TICK_SCRIPT',
@@ -874,8 +882,7 @@ const actionData = {
 				},
 			},
 			{
-				isMatch: (v) => v.entity !== '%MAP%'
-					&& v.script_slot === 'on_interact',
+				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_interact',
 				finalizeValues: (v) => {
 					return {
 						action: 'SET_ENTITY_INTERACT_SCRIPT',
@@ -885,8 +892,7 @@ const actionData = {
 				},
 			},
 			{
-				isMatch: (v) => v.entity !== '%MAP%'
-					&& v.script_slot === 'on_look',
+				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_look',
 				finalizeValues: (v) => {
 					return {
 						action: 'SET_ENTITY_LOOK_SCRIPT',
@@ -898,32 +904,32 @@ const actionData = {
 		],
 		detectError: (v) => {
 			if (v.entity === '%MAP%') {
-				return  {
+				return {
 					message: `invalid map script slot`,
 					locations: [{ node: v.debug.childForFieldName('script_slot') }],
-					footer: `You can only set a map's 'on_tick' slot`
+					footer: `You can only set a map's 'on_tick' slot`,
 				};
 			} else if (
-				v.script_slot !== 'on_tick'
-				|| v.script_slot !== 'on_interact'
-				|| v.script_slot !== 'on_look'
+				v.script_slot !== 'on_tick' ||
+				v.script_slot !== 'on_interact' ||
+				v.script_slot !== 'on_look'
 			) {
-				return  {
+				return {
 					message: `invalid entity script slot`,
 					locations: [{ node: v.debug.childForFieldName('script_slot') }],
 					footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
-				}
+				};
 			} else {
-				return  {
+				return {
 					message: `set script slot syntax error`,
 					locations: [{ node: v.debug }],
-				}
+				};
 			}
 		},
 	},
 	action_set_entity_string: {
 		values: {},
-		captures: [ 'entity', 'field', 'value' ],
+		captures: ['entity', 'field', 'value'],
 		detective: [
 			{
 				isMatch: (v) => v.field === 'name',
@@ -931,7 +937,7 @@ const actionData = {
 					action: 'SET_ENTITY_NAME',
 					entity: v.entity,
 					string: v.value,
-				})
+				}),
 			},
 			{
 				isMatch: (v) => v.field === 'type',
@@ -939,7 +945,7 @@ const actionData = {
 					action: 'SET_ENTITY_TYPE',
 					entity: v.entity,
 					entity_type: v.value,
-				})
+				}),
 			},
 			{
 				isMatch: (v) => v.field === 'path',
@@ -947,13 +953,13 @@ const actionData = {
 					action: 'SET_ENTITY_PATH',
 					entity: v.entity,
 					geometry: v.value,
-				})
+				}),
 			},
-		]
+		],
 	},
 	action_op_equals: {
 		values: {},
-		captures: [ 'lhs', 'operator', 'rhs' ],
+		captures: ['lhs', 'operator', 'rhs'],
 		detective: [
 			{
 				isMatch: (v) => typeof v.rhs === 'number' && typeof v.lhs === 'string',
@@ -961,7 +967,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => typeof v.rhs === 'number' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const temporary = newTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
@@ -978,7 +984,7 @@ const actionData = {
 			},
 			{
 				isMatch: (v) => typeof v.rhs === 'string' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f, node) => {
+				finalizeValues: (v, f) => {
 					const temporary = newTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
@@ -990,17 +996,19 @@ const actionData = {
 				},
 			},
 			{
-				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression' && typeof v.lhs === 'string',
+				isMatch: (v) =>
+					v.rhs.mathlang === 'int_binary_expression' && typeof v.lhs === 'string',
 				finalizeValues: (v, f, node) => {
 					const temporary = newTemporary();
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
-					steps.push(changeVarByVar(v.lhs, temporary, v.operator))
+					steps.push(changeVarByVar(v.lhs, temporary, v.operator));
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				},
 			},
 			{
-				isMatch: (v) => v.rhs.mathlang === 'int_binary_expression' && v.lhs.mathlang === 'int_getable',
+				isMatch: (v) =>
+					v.rhs.mathlang === 'int_binary_expression' && v.lhs.mathlang === 'int_getable',
 				finalizeValues: (v, f, node) => {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
@@ -1021,13 +1029,14 @@ const actionData = {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
-						changeVarByVar(v.identifier, temp, v.operator)
-					]
+						changeVarByVar(v.identifier, temp, v.operator),
+					];
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				},
 			},
 			{
-				isMatch: (v) => v.rhs.mathlang === 'int_getable' && v.lhs.mathlang === 'int_getable',
+				isMatch: (v) =>
+					v.rhs.mathlang === 'int_getable' && v.lhs.mathlang === 'int_getable',
 				finalizeValues: (v, f, node) => {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
@@ -1043,29 +1052,29 @@ const actionData = {
 				},
 			},
 			{
-				isMatch: (v) => true,
-				finalizeValues: (v) => {
-					console.log("WHAT WAS THIS AGAIN")
+				isMatch: () => true,
+				finalizeValues: () => {
+					console.log('WHAT WAS THIS AGAIN');
 				},
 			},
 		],
 	},
 	action_plus_minus_equals_ables: {
 		values: {},
-		captures: [ 'entity', 'operator', 'value' ],
+		captures: ['entity', 'operator', 'value'],
 		detective: [
 			{
-				isMatch: (v) => true,
+				isMatch: () => true,
 				finalizeValues: (v) => {
 					const sign = v.operator === '-=' ? -1 : 1;
 					return {
-						'action': "SET_ENTITY_DIRECTION_RELATIVE",
-						'entity': v.entity,
-						'relative_direction': sign * v.value,
+						action: 'SET_ENTITY_DIRECTION_RELATIVE',
+						entity: v.entity,
+						relative_direction: sign * v.value,
 					};
-				}
-			}
-		]
+				},
+			},
+		],
 	},
 };
 
@@ -1078,14 +1087,15 @@ const setVarToValue = (variable, value) => ({
 	variable,
 });
 const setVarToVar = (variable, source) => {
-	if (variable === source) return newComment(`This action was optimized out (setting '${variable}' to itself)`);
+	if (variable === source)
+		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
 	return {
 		action: 'MUTATE_VARIABLES',
 		operation: 'SET',
 		source,
 		variable,
 	};
-}
+};
 const changeVarByValue = (variable, value, op) => {
 	if (op === '+' && value === 0) return newComment('This action was optimized out (+ 0)');
 	if (op === '*' && value === 1) return newComment('This action was optimized out (* 1)');
@@ -1097,7 +1107,7 @@ const changeVarByValue = (variable, value, op) => {
 		value,
 		variable,
 	};
-}
+};
 const changeVarByVar = (variable, source, op) => ({
 	action: 'MUTATE_VARIABLES',
 	operation: opIntoStringMap[op] || op,
@@ -1105,14 +1115,14 @@ const changeVarByVar = (variable, source, op) => ({
 	variable,
 });
 const copyVarIntoEntityField = (variable, entity, field) => ({
-	action: "COPY_VARIABLE",
+	action: 'COPY_VARIABLE',
 	entity,
 	field,
 	inbound: false,
 	variable,
 });
 const copyEntityFieldIntoVar = (entity, field, variable) => ({
-	action: "COPY_VARIABLE",
+	action: 'COPY_VARIABLE',
 	entity,
 	field,
 	inbound: true,
@@ -1120,7 +1130,7 @@ const copyEntityFieldIntoVar = (entity, field, variable) => ({
 });
 const setFlag = (save_flag, bool_value) => {
 	return {
-		action: "SET_SAVE_FLAG",
+		action: 'SET_SAVE_FLAG',
 		bool_value,
 		save_flag,
 	};
@@ -1138,8 +1148,6 @@ const setFlagToFlag = (f, node, save_flag, source, invert) => {
 		node,
 		checkFlag(source, !invert),
 		{ ...action, bool_value: true }, // if true
-		{ ...action, bool_value: false } // if false
+		{ ...action, bool_value: false }, // if false
 	);
 };
-
-module.exports = { handleAction, handleActionsInit };

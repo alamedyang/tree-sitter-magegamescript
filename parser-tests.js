@@ -1,37 +1,25 @@
-const { debugLog } = require('./parser-utilities.js');
-const { parseProject } = require('./parser.js');
-const { ansiTags } = require('./parser-dialogs.js');
+import { parseProject } from './parser.js';
+import { ansiTags } from './parser-dialogs.js';
 
 const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
-	const ret = [
-		`${scriptName} {`,
-		...actionArray.map(v=>'\t'+v),
-	];
+	const ret = [`${scriptName} {`, ...actionArray.map((v) => '\t' + v)];
 	if (autoAddEOF) {
 		ret.push(`\tend_of_script_***:`);
 	}
 	ret.push('}');
-	return ret.join('\n')
+	return ret.join('\n');
 };
 
 // will do all tests if empty
 // if not empty, also won't do any file-level tests
-const onlyDoTheseActionTests = [
-	
-];
+const onlyDoTheseActionTests = [];
 
-const skipTheseTests = new Set ([
-	'set_int_exp_ok',
-]);
+const skipTheseTests = new Set(['set_int_exp_ok']);
 
 // --------------------------- ACTION TESTS ---------------------------
 const actionTests = {
 	simple_copy: {
-		input: [
-			'wait 1;',
-			'copy!(no_arg_actions)',
-			'wait 2;',
-		],
+		input: ['wait 1;', 'copy!(no_arg_actions)', 'wait 2;'],
 		expected: [
 			'wait 1ms;',
 			'save slot;',
@@ -39,7 +27,7 @@ const actionTests = {
 			'close serial_dialog;',
 			'end_of_script_***',
 			'wait 2ms;',
-		]
+		],
 	},
 	if_single: {
 		input: [
@@ -91,7 +79,7 @@ const actionTests = {
 			'if button HAX down then goto index 99;',
 			'if button HAX down then goto index 99;',
 			'if button HAX up then goto index 99;',
-		]
+		],
 	},
 	no_arg_actions: {
 		input: [
@@ -374,23 +362,23 @@ const actionTests = {
 			'if debug_mode then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if !debug_mode then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if !debug_mode then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 		],
 	},
 	bool_exp_branch_dialog_open: {
@@ -407,44 +395,44 @@ const actionTests = {
 			'if dialog open then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if dialog closed then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if dialog closed then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 
 			'if dialog closed then goto label if_*D*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*D*;',
-			"if_*D*:",
+			'if_*D*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*D*:",
+			'rendezvous_*D*:',
 
 			'if dialog open then goto label if_*E*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*E*;',
-			"if_*E*:",
+			'if_*E*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*E*:",
+			'rendezvous_*E*:',
 
 			'if dialog open then goto label if_*F*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*F*;',
-			"if_*F*:",
+			'if_*F*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*F*:",
+			'rendezvous_*F*:',
 		],
 	},
 	bool_exp_branch_serial_dialog_open: {
@@ -461,44 +449,44 @@ const actionTests = {
 			'if serial_dialog open then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if serial_dialog closed then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if serial_dialog closed then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 
 			'if serial_dialog closed then goto label if_*D*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*D*;',
-			"if_*D*:",
+			'if_*D*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*D*:",
+			'rendezvous_*D*:',
 
 			'if serial_dialog open then goto label if_*E*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*E*;',
-			"if_*E*:",
+			'if_*E*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*E*:",
+			'rendezvous_*E*:',
 
 			'if serial_dialog open then goto label if_*F*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*F*;',
-			"if_*F*:",
+			'if_*F*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*F*:",
+			'rendezvous_*F*:',
 		],
 	},
 	bool_exp_branch_check_flag: {
@@ -512,23 +500,23 @@ const actionTests = {
 			'if "flagName" then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if !"flagName" then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if !"flagName" then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 		],
 	},
 	bool_exp_branch_button_press: {
@@ -542,23 +530,23 @@ const actionTests = {
 			'if button MEM1 pressed then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if !button MEM1 pressed then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if !button MEM1 pressed then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 		],
 	},
 	bool_exp_branch_button_state: {
@@ -575,44 +563,44 @@ const actionTests = {
 			'if button MEM1 down then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if button MEM1 up then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if button MEM1 up then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 
 			'if button MEM1 up then goto label if_*D*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*D*;',
-			"if_*D*:",
+			'if_*D*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*D*:",
+			'rendezvous_*D*:',
 
 			'if button MEM1 down then goto label if_*E*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*E*;',
-			"if_*E*:",
+			'if_*E*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*E*:",
+			'rendezvous_*E*:',
 
 			'if button MEM1 down then goto label if_*F*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*F*;',
-			"if_*F*:",
+			'if_*F*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*F*:",
+			'rendezvous_*F*:',
 		],
 	},
 	bool_exp_branch_intersects: {
@@ -626,23 +614,23 @@ const actionTests = {
 			'if player intersects geometry "BOX" then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if !player intersects geometry "BOX" then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if !player intersects geometry "BOX" then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 		],
 	},
 	bool_exp_branch_glitched: {
@@ -656,77 +644,69 @@ const actionTests = {
 			'if player glitched then goto label if_*A*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*A*;',
-			"if_*A*:",
+			'if_*A*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*A*:",
+			'rendezvous_*A*:',
 
 			'if !player glitched then goto label if_*B*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*B*;',
-			"if_*B*:",
+			'if_*B*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*B*:",
+			'rendezvous_*B*:',
 
 			'if !player glitched then goto label if_*C*;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_*C*;',
-			"if_*C*:",
+			'if_*C*:',
 			'entity Bob glitched = true;',
-			"rendezvous_*C*:",
+			'rendezvous_*C*:',
 		],
 	},
 	bool_exp_simple_or: {
-		input: [
-			'entity Bob glitched = debug_mode || isGoatGrumpy;',
-		],
+		input: ['entity Bob glitched = debug_mode || isGoatGrumpy;'],
 		expected: [
 			'if debug_mode then goto label if_***;',
 			'if "isGoatGrumpy" then goto label if_***;',
 			'entity Bob glitched = false;',
 			'goto label rendezvous_***;',
-			"if_***:",
+			'if_***:',
 			'entity Bob glitched = true;',
-			"rendezvous_***:",
+			'rendezvous_***:',
 		],
 	},
 	bool_exp_simple_and: {
-		input: [
-			'entity Bob glitched = debug_mode && isGoatGrumpy;',
-		],
+		input: ['entity Bob glitched = debug_mode && isGoatGrumpy;'],
 		expected: [
 			'if debug_mode then goto label if_true_*A*;',
 			'goto label rendezvous_*A*;',
 			'if_true_*A*:',
 			'if "isGoatGrumpy" then goto label if_true_*B*;',
 			'rendezvous_*A*:',
-			'entity \'Bob\' glitched = false;',
+			"entity 'Bob' glitched = false;",
 			'goto label rendezvous_*Y*;',
 			'if_true_*B*:',
-			'entity \'Bob\' glitched = true;',
+			"entity 'Bob' glitched = true;",
 			'rendezvous_*Y*:',
 		],
 	},
 	bool_exp_invert_or: {
-		input: [
-			'entity Bob glitched = !(debug_mode || isGoatGrumpy);',
-		],
+		input: ['entity Bob glitched = !(debug_mode || isGoatGrumpy);'],
 		expected: [
 			'if !debug_mode then goto label if_true_*A*;',
 			'goto label rendezvous_*A*;',
 			'if_true_*A*:',
 			'if !"isGoatGrumpy" then goto label if_true_*B*;',
 			'rendezvous_*A*:',
-			'entity \'Bob\' glitched = false;',
+			"entity 'Bob' glitched = false;",
 			'goto label rendezvous_*Y*;',
 			'if_true_*B*:',
-			'entity \'Bob\' glitched = true;',
+			"entity 'Bob' glitched = true;",
 			'rendezvous_*Y*:',
 		],
 	},
 	bool_exp_invert_and: {
-		input: [
-			'entity Bob glitched = !(debug_mode && isGoatGrumpy);',
-		],
+		input: ['entity Bob glitched = !(debug_mode && isGoatGrumpy);'],
 		expected: [
 			'if !debug_mode then goto label if_true_*A*;',
 			'if !"isGoatGrumpy" then goto label if_true_*A*;',
@@ -770,12 +750,10 @@ const actionTests = {
 			// COPY_VARIABLE
 			'"goatCount" = player x;',
 			'player y = "goatCount";',
-		]
+		],
 	},
 	int_exp_chain_literal_getable: {
-		input: [
-			'goatCount = 1 + player x;',
-		],
+		input: ['goatCount = 1 + player x;'],
 		expected: [
 			'goatCount = 1;',
 			'*A* = player x;',
@@ -787,9 +765,7 @@ const actionTests = {
 		],
 	},
 	int_exp_chain_getable_getable: {
-		input: [
-			'goatCount = player y + player x;',
-		],
+		input: ['goatCount = player y + player x;'],
 		expected: [
 			'"goatCount" = player y;',
 			'*A* = player x;',
@@ -801,9 +777,7 @@ const actionTests = {
 		],
 	},
 	int_exp_chain_literal_getable_mult: {
-		input: [
-			'goatCount = 1 + player x * 99;',
-		],
+		input: ['goatCount = 1 + player x * 99;'],
 		expected: [
 			'"goatCount = 1;',
 			'*A* = player x;',
@@ -814,12 +788,10 @@ const actionTests = {
 			// '*B* *= 99;',
 			// '*A* += *B*;',
 			// '"goatCount" = *A*;',
-		  ],
+		],
 	},
 	int_exp_chain_literal_getable_mult_parens: {
-		input: [
-			'goatCount = (1 + player x) * 99;',
-		],
+		input: ['goatCount = (1 + player x) * 99;'],
 		expected: [
 			'"goatCount" = 1;',
 			'*A* = player x;',
@@ -828,9 +800,7 @@ const actionTests = {
 		],
 	},
 	ambiguous_bool_single_invert: {
-		input: [
-			'goatCount = !notAmbiguous;',
-		],
+		input: ['goatCount = !notAmbiguous;'],
 		expected: [
 			'if !"notAmbiguous" then goto label if_***;',
 			'"goatCount" = false;',
@@ -841,23 +811,18 @@ const actionTests = {
 		],
 	},
 	ambiguous_bool_disambiguate: {
-		input: [
-			'goatCount = !!notAmbiguous;',
-		],
+		input: ['goatCount = !!notAmbiguous;'],
 		expected: [
 			'if "notAmbiguous" then goto label if_***;',
 			'"goatCount" = false;',
 			'goto label rendezvous_***;',
-			"if_***:",
+			'if_***:',
 			'"goatCount" = true;',
-			"rendezvous_***:",
+			'rendezvous_***:',
 		],
 	},
 	int_expression_invert_comparison_lt: {
-		input: [
-			'entity Bob glitched = intName < 6;',
-			'entity Bob glitched = !(intName < 6);',
-		],
+		input: ['entity Bob glitched = intName < 6;', 'entity Bob glitched = !(intName < 6);'],
 		expected: [
 			'if "intName" < 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
@@ -872,13 +837,10 @@ const actionTests = {
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
-		]
+		],
 	},
 	int_expression_invert_comparison_lteq: {
-		input: [
-			'entity Bob glitched = intName <= 6;',
-			'entity Bob glitched = !(intName <= 6);',
-		],
+		input: ['entity Bob glitched = intName <= 6;', 'entity Bob glitched = !(intName <= 6);'],
 		expected: [
 			'if "intName" <= 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
@@ -893,13 +855,10 @@ const actionTests = {
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
-		]
+		],
 	},
 	int_expression_invert_comparison_gt: {
-		input: [
-			'entity Bob glitched = intName > 6;',
-			'entity Bob glitched = !(intName > 6);',
-		],
+		input: ['entity Bob glitched = intName > 6;', 'entity Bob glitched = !(intName > 6);'],
 		expected: [
 			'if "intName" > 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
@@ -914,13 +873,10 @@ const actionTests = {
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
-		]
+		],
 	},
 	int_expression_invert_comparison_gteq: {
-		input: [
-			'entity Bob glitched = intName >= 6;',
-			'entity Bob glitched = !(intName >= 6);',
-		],
+		input: ['entity Bob glitched = intName >= 6;', 'entity Bob glitched = !(intName >= 6);'],
 		expected: [
 			'if "intName" >= 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
@@ -935,13 +891,10 @@ const actionTests = {
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*B*:',
-		]
+		],
 	},
 	int_expression_invert_comparison_eq: {
-		input: [
-			'entity Bob glitched = intName == 6;',
-			'entity Bob glitched = !(intName == 6);',
-		],
+		input: ['entity Bob glitched = intName == 6;', 'entity Bob glitched = !(intName == 6);'],
 		expected: [
 			'if "intName" == 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
@@ -956,13 +909,10 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	int_expression_invert_comparison_noteq: {
-		input: [
-			'entity Bob glitched = intName != 6;',
-			'entity Bob glitched = !(intName != 6);',
-		],
+		input: ['entity Bob glitched = intName != 6;', 'entity Bob glitched = !(intName != 6);'],
 		expected: [
 			'if "intName" != 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
@@ -977,7 +927,7 @@ const actionTests = {
 			'if_*D*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*D*:',
-		]
+		],
 	},
 	branch_on_string_equality_warp_state: {
 		input: [
@@ -1006,7 +956,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_name: {
 		input: [
@@ -1035,7 +985,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_type: {
 		input: [
@@ -1064,7 +1014,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_interact: {
 		input: [
@@ -1093,7 +1043,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_tick: {
 		input: [
@@ -1122,7 +1072,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_look: {
 		input: [
@@ -1151,7 +1101,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_direction: {
 		input: [
@@ -1180,7 +1130,7 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	branch_on_string_equality_direction: {
 		input: [
@@ -1209,12 +1159,10 @@ const actionTests = {
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
 			'rendezvous_*C*:',
-		]
+		],
 	},
 	while_simple: {
-		input: [
-			'while (player glitched) { wait 1; }',
-		],
+		input: ['while (player glitched) { wait 1; }'],
 		expected: [
 			'while_condition_***:',
 			'if player glitched then goto label while_body_***;',
@@ -1226,28 +1174,12 @@ const actionTests = {
 		],
 	},
 	number_comparison: {
-		input: [
-			'player_control = 7 < 5;',
-			'player_control = 7 == 7;',
-			'player_control = 7 != 5;',
-		],
-		expected: [
-			'player_control = false;',
-			'player_control = true;',
-			'player_control = true;',
-		],
+		input: ['player_control = 7 < 5;', 'player_control = 7 == 7;', 'player_control = 7 != 5;'],
+		expected: ['player_control = false;', 'player_control = true;', 'player_control = true;'],
 	},
 	spread_simple: {
-		input: [
-			'wait [1ms, 2ms];',
-			'[player x, self y] = [10, intName];'
-		],
-		expected: [
-			'wait 1ms;',
-			'wait 2ms;',
-			'player x = 10;',
-			'self y = intName;',
-		],
+		input: ['wait [1ms, 2ms];', '[player x, self y] = [10, intName];'],
+		expected: ['wait 1ms;', 'wait 2ms;', 'player x = 10;', 'self y = intName;'],
 	},
 	rand_simple: {
 		input: [
@@ -1289,8 +1221,8 @@ const actionTests = {
 			'"intName" = "intName2";',
 			'"intName" = "intName2";',
 			'"intName" = "intName2";',
-		]
-	}
+		],
+	},
 };
 
 // --------------------------- FILE-LEVEL TESTS ---------------------------
@@ -1304,7 +1236,7 @@ const fileMap = {
 			constants: {
 				$magicNumber: { fileName: 'header.mgs', value: 76 },
 			},
-		}
+		},
 	},
 	'constants_include.mgs': {
 		fileText: `
@@ -1341,18 +1273,14 @@ const fileMap = {
 				bobIntro: {
 					dialogs: [
 						{
-							entity: "Bob",
-							alignment: "BOTTOM_LEFT",
-							messages: [
-								"Well, hi there!"
-							],
+							entity: 'Bob',
+							alignment: 'BOTTOM_LEFT',
+							messages: ['Well, hi there!'],
 						},
 						{
-							alignment: "BOTTOM_LEFT",
-							entity: "Jackob",
-							messages: [
-								"Oh!"
-							],
+							alignment: 'BOTTOM_LEFT',
+							entity: 'Jackob',
+							messages: ['Oh!'],
 						},
 					],
 				},
@@ -1405,8 +1333,8 @@ const fileMap = {
 				wrapBasics: {
 					dialogs: [
 						{
-							entity: "Bob",
-							alignment: "BOTTOM_LEFT",
+							entity: 'Bob',
+							alignment: 'BOTTOM_LEFT',
 							messages: [
 								'12345678901234567890',
 								'123456789012\\%4567890',
@@ -1436,24 +1364,22 @@ const fileTestNames = Object.keys(fileMap);
 // --------------------------- Putting all the tests into a "project" ---------------------------
 
 const actionTestNames = (
-		onlyDoTheseActionTests.length === 0
-			? Object.keys(actionTests)
-			: onlyDoTheseActionTests
-	).filter(testName=>!skipTheseTests.has(testName))
+	onlyDoTheseActionTests.length === 0 ? Object.keys(actionTests) : onlyDoTheseActionTests
+).filter((testName) => !skipTheseTests.has(testName));
 
 fileMap['actionTests.mgs'] = {
 	fileText: actionTestNames
-		.filter(testName=>!skipTheseTests.has(testName))
-		.map(testName=>{
+		.filter((testName) => !skipTheseTests.has(testName))
+		.map((testName) => {
 			const v = actionTests[testName];
-			return actionArrayToScript(testName, v.input)
+			return actionArrayToScript(testName, v.input);
 		})
 		.join('\n\n'),
 	expected: {
 		scripts: {},
-	}
+	},
 };
-Object.entries(actionTests).forEach(([testName, data])=>{
+Object.entries(actionTests).forEach(([testName, data]) => {
 	const expectedArr = data.expected ? data.expected : data.input;
 	const expectedPrint = actionArrayToScript(testName, expectedArr, true);
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
@@ -1471,12 +1397,14 @@ const colorDifferentStrings = (expected, found) => {
 		}
 		diff.push(c);
 	}
-	return diff.join('')+ansiTags.reset;
+	return diff.join('') + ansiTags.reset;
 };
 const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
-const makeTextUniform = (text) => text.trim()
-	.replace(/[\t ]+/g, ' ')
-	.replace(/\/\/.*?[\n$]/g, '');
+const makeTextUniform = (text) =>
+	text
+		.trim()
+		.replace(/[\t ]+/g, ' ')
+		.replace(/\/\/.*?[\n$]/g, '');
 const compareTexts = (_found, _expected, fileName, thingName) => {
 	const foundLines = makeTextUniform(_found)
 		.replaceAll('+=', '+\n=')
@@ -1486,8 +1414,8 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 		.replaceAll('?=', '?\n=')
 		.replaceAll('%=', '%\n=')
 		.split(/\n/g)
-		.map(v=>v.trim())
-		.filter(v=>!!v);
+		.map((v) => v.trim())
+		.filter((v) => !!v);
 	const expectedLines = makeTextUniform(_expected)
 		.replaceAll('+=', '+\n=')
 		.replaceAll('-=', '-\n=')
@@ -1496,14 +1424,17 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 		.replaceAll('?=', '?\n=')
 		.replaceAll('%=', '%\n=')
 		.split(/\n/g)
-		.map(v=>v.trim())
-		.filter(v=>!!v);
+		.map((v) => v.trim())
+		.filter((v) => !!v);
 	if (foundLines.length !== expectedLines.length) {
 		expectedLines.unshift('EXPECTED');
 		foundLines.unshift('FOUND');
-		const maxLength = expectedLines.reduce((acc, curr)=>Math.max(acc, curr.length),-Infinity);
-		const flushLines = expectedLines.map(s=>'   '+s.padEnd(maxLength+4, ' '));
-		const comboLines = flushLines.map((left, i)=>{
+		const maxLength = expectedLines.reduce(
+			(acc, curr) => Math.max(acc, curr.length),
+			-Infinity,
+		);
+		const flushLines = expectedLines.map((s) => '   ' + s.padEnd(maxLength + 4, ' '));
+		const comboLines = flushLines.map((left, i) => {
 			let right = foundLines[i] || '';
 			if (expectedLines[i] !== right) {
 				right = ansiTags.yellow + right + ansiTags.reset;
@@ -1511,26 +1442,26 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 			return left + right;
 		});
 		for (let i = comboLines.length; i < foundLines.length; i++) {
-			const left = ' '.repeat(maxLength+4);
+			const left = ' '.repeat(maxLength + 4);
 			const right = foundLines[i];
-			comboLines.push(left+right);
+			comboLines.push(left + right);
 		}
 		return {
 			status: 'fail',
 			message: thingName + ': different line counts',
 			lengthDiff: comboLines,
-		}
+		};
 	}
 	const lines = [];
 	const registeredLabels = {};
-	foundLines.forEach((found,  i)=>{
+	foundLines.forEach((found, i) => {
 		const expected = expectedLines[i];
 		if (expected === found) {
 			return;
 		}
 		// registering specific wildcards
 		const wild = expected.match(/(.*)(\*[A-Z]+\*)(.*)/);
-		if (wild){
+		if (wild) {
 			const sanitary = wild.map(sanitize);
 			const pattern = new RegExp(`${sanitary[1]}([\\da-zA-Z_"]+)${sanitary[3]}`);
 			const label = sanitary[2];
@@ -1546,8 +1477,8 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 						diff,
 						value: capture[1],
 						fileName,
-						lineIndex: i
-					})
+						lineIndex: i,
+					});
 				}
 				return;
 			}
@@ -1568,18 +1499,18 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 			found,
 			diff,
 			fileName,
-			lineIndex: i
+			lineIndex: i,
 		});
-	})
+	});
 	if (lines.length) {
 		return {
 			status: 'fail',
 			message: `${thingName}: mismatched lines`,
-			lines: lines.map(v=>{
+			lines: lines.map((v) => {
 				if (v.value) {
 					let registered;
-					Object.entries(registeredLabels).forEach(([k,val])=>{
-						if (val===v.value) {
+					Object.entries(registeredLabels).forEach(([k, val]) => {
+						if (val === v.value) {
 							registered = k;
 						}
 					});
@@ -1587,11 +1518,11 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 				}
 				return v;
 			}),
-		}
+		};
 	} else {
 		return {
-			status: 'success'
-		}
+			status: 'success',
+		};
 	}
 };
 
@@ -1605,19 +1536,17 @@ const simplifyValues = (lh, rh) => {
 	if (Array.isArray(lh)) return simplifyArrays(lh, rh);
 	if (typeof lh === 'object') return simplifyObjects(lh, rh);
 	return simplifyLiteral(lh, rh);
-}
+};
 const simplifyLiteral = (lh, rh) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
-	const diff = lh === rh
-		? rh
-		: red + ` (expected ${colorDifferentStrings(rh || '', lh || '')})`;
+	const diff = lh === rh ? rh : red + ` (expected ${colorDifferentStrings(rh || '', lh || '')})`;
 	return { lh, rh, diff };
 };
 const simplifyArrays = (origLH = [], origRH = []) => {
 	const newLH = [];
 	const newRH = [];
 	const newDiffs = [];
-	origLH.forEach((left, i)=>{
+	origLH.forEach((left, i) => {
 		const right = origRH[i];
 		if (Array.isArray(left)) {
 			const { lh, rh, diff } = simplifyArrays(left, right);
@@ -1644,66 +1573,74 @@ const simplifyObjects = (origLH = {}, origRH = {}) => {
 	const sortedLH = {};
 	const sortedRH = {};
 	const sortedDiff = {};
-	Object.keys(origLH).sort().forEach(k=>{
-		if (origLH[k] === null) {
-			const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-			sortedLH[k] = lh;
-			sortedRH[k] = rh;
-			sortedDiff[k] = diff;
-		} else if (Array.isArray(origLH[k])) {
-			const { lh, rh, diff } = simplifyArrays(origLH[k], origRH[k]);
-			sortedLH[k] = lh;
-			sortedRH[k] = rh;
-			sortedDiff[k] = diff;
-		} else if (typeof origLH[k] === 'object') {
-			const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
-			sortedLH[k] = lh;
-			sortedRH[k] = rh;
-			sortedDiff[k] = diff;
-		} else {
-			const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-			sortedLH[k] = lh;
-			sortedRH[k] = rh;
-			sortedDiff[k] = diff;
-		}
-	});
+	Object.keys(origLH)
+		.sort()
+		.forEach((k) => {
+			if (origLH[k] === null) {
+				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			} else if (Array.isArray(origLH[k])) {
+				const { lh, rh, diff } = simplifyArrays(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			} else if (typeof origLH[k] === 'object') {
+				const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			} else {
+				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			}
+		});
 	return { lh: sortedLH, rh: sortedRH, diff: sortedDiff };
 };
 const reportObjectDiffs = (expected, found) => {
 	const messages = [];
-	const {lh, rh, diff} = simplifyValues(expected, found);
+	const { lh, rh, diff } = simplifyValues(expected, found);
 	const jsonLeft = JSON.stringify(lh, null, '  ');
 	const jsonRight = JSON.stringify(rh, null, '  ');
 	if (jsonLeft !== jsonRight) {
 		if (typeof lh === 'object') {
-			const message = `Found ${JSON.stringify(diff, null, '  ')}`
+			const message = `Found ${JSON.stringify(diff, null, '  ')}`;
 			messages.push(message);
 		} else {
-			const message = `Found ${ansiTags.red}${key}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`
+			const message = `Found ${ansiTags.red}${key}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`;
 			messages.push(message);
 		}
 	}
-	return messages.map(s=>s.replaceAll('\\u001b', '\u001b'));
+	return messages.map((s) => s.replaceAll('\\u001b', '\u001b'));
 };
 
 const compareConstants = (fileName, _found, _expected) => {
 	const errors = [];
 	const foundKeys = Object.keys(_found);
 	const expectedKeys = Object.keys(_expected);
-	expectedKeys.forEach(k=>{
+	expectedKeys.forEach((k) => {
 		if (!foundKeys.includes(k)) {
-			errors.push({ status: 'fail', message: `${fileName}: Did not find expected constant '${k}'`});
+			errors.push({
+				status: 'fail',
+				message: `${fileName}: Did not find expected constant '${k}'`,
+			});
 		}
 	});
-	foundKeys.forEach(k=>{
+	foundKeys.forEach((k) => {
 		if (!expectedKeys.includes(k)) {
-			errors.push({ status: 'fail', message: `${fileName}: Found unexpected constant '${k}'`});
+			errors.push({
+				status: 'fail',
+				message: `${fileName}: Found unexpected constant '${k}'`,
+			});
 			return; // quit exploring this constant
 		}
 		const found = _found[k];
 		const expected = _expected[k];
 		const comparedErrors = reportObjectDiffs(expected, found);
-		comparedErrors.forEach(string=>{
+		comparedErrors.forEach((string) => {
 			errors.push({
 				status: 'fail',
 				message: `${fileName} constants values do not match:\n${string}`,
@@ -1715,26 +1652,27 @@ const compareConstants = (fileName, _found, _expected) => {
 const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => {
 	const errors = [];
 	if (expectedDialogs.length !== foundDialogs.length) {
-		return [{
-			status: 'fail',
-			message: `${fileName}: differing dialog quantity for ${dialogName}`,
-		}];
+		return [
+			{
+				status: 'fail',
+				message: `${fileName}: differing dialog quantity for ${dialogName}`,
+			},
+		];
 	}
-	expectedDialogs.forEach((expected, i)=>{
+	expectedDialogs.forEach((expected, i) => {
 		const found = foundDialogs[i];
 		const diffs = reportObjectDiffs(expected, found);
 		if (diffs.length) {
 			errors.push({
 				type: 'fail',
 				message: `${fileName}: dialog "${dialogName}" [${i}] mismatch\n${diffs.join('\n')}`,
-			})
+			});
 		}
 	});
 	return errors;
 };
 
 // --------------------------- THE OWL ---------------------------
-
 
 const doActionTest = (scriptName, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
@@ -1747,26 +1685,24 @@ const doActionTest = (scriptName, actionExpected, actionFound) => {
 };
 
 const runTests = async () => {
-	parseProject(fileMap, {}).then(result=>{
-
+	parseProject(fileMap, {}).then((result) => {
 		// ACTION TESTS
 		const actionExpected = fileMap['actionTests.mgs'].expected.scripts;
 		const actionFound = result.scripts;
 		const actionErrors = actionTestNames
-			.map(v=>doActionTest(v, actionExpected, actionFound))
-			.filter(v=>v!==null);
+			.map((v) => doActionTest(v, actionExpected, actionFound))
+			.filter((v) => v !== null);
 		errors.push(...actionErrors);
 
 		// FILE TESTS
 		if (onlyDoTheseActionTests.length === 0) {
-			fileTestNames.forEach(fileName=>{
-	
+			fileTestNames.forEach((fileName) => {
 				// Scripts
 				const fileExpectedData = fileMap[fileName].expected || {};
 				const fileFoundP = fileMap[fileName].parsed;
 				const fileScriptNames = Object.keys(fileExpectedData.scripts || {});
 				const allScripts = result.scripts;
-				fileScriptNames.forEach(scriptName=>{
+				fileScriptNames.forEach((scriptName) => {
 					const expected = fileExpectedData.scripts[scriptName].trim();
 					const found = allScripts[scriptName].print.trim();
 					const compared = compareTexts(found, expected, '', scriptName);
@@ -1774,7 +1710,7 @@ const runTests = async () => {
 						errors.push(compared);
 					}
 				});
-	
+
 				// Constants
 				const constantsDiffs = compareConstants(
 					fileName,
@@ -1784,37 +1720,40 @@ const runTests = async () => {
 				if (constantsDiffs.length) {
 					errors.push(...constantsDiffs);
 				}
-	
+
 				// Dialogs
 				const allDialogs = result.dialogs;
 				const expectedDialogs = fileExpectedData.dialogs || {};
 				const dialogNames = Object.keys(expectedDialogs) || {};
-				dialogNames.forEach(dialogName=>{
+				dialogNames.forEach((dialogName) => {
 					const expected = expectedDialogs[dialogName].dialogs || {};
 					const found = allDialogs[dialogName].dialogs || {};
 					const compared = compareDialogs(fileName, dialogName, expected, found);
-					compared.forEach(err=>{ errors.push(err) });
+					compared.forEach((err) => {
+						errors.push(err);
+					});
 				});
-	
+
 				// Warningcount
 				const foundWarningCount = fileFoundP.warningCount;
 				const expectedWarningCount = fileExpectedData.warningCount || 0;
-	
+
 				if (foundWarningCount !== expectedWarningCount) {
 					errors.push({
 						status: 'fail',
-						message: `${fileName}: Found ${foundWarningCount} warning(s), `
-							+ `expected ${expectedWarningCount}`,
-					})
+						message:
+							`${fileName}: Found ${foundWarningCount} warning(s), ` +
+							`expected ${expectedWarningCount}`,
+					});
 				}
 			});
 		}
 
 		// PROBLEMS
-		errors.forEach(error=>{
-			console.error('\n'+error.message);
+		errors.forEach((error) => {
+			console.error('\n' + error.message);
 			if (error.lines) {
-				error.lines.forEach(v=>{
+				error.lines.forEach((v) => {
 					console.error(`   Found: ${v.diff}`);
 					console.error(`Expected: ${v.expected}`);
 				});

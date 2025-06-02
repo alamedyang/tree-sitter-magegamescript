@@ -1,14 +1,16 @@
-const { getBoolFieldForAction } = require("./parser-bytecode-info");
+import { getBoolFieldForAction } from './parser-bytecode-info.js';
 
-let verbose = false;
-const debugLog = (message) => { if (verbose) console.log(message); };
+export let verbose = false;
+export const debugLog = (message) => {
+	if (verbose) console.log(message);
+};
 
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
 
-const TEMP = '__TEMP_'
+const TEMP = '__TEMP_';
 const temporaries = [];
 let temporaryStep = 0;
-const newTemporary = (value) => {
+export const newTemporary = (value) => {
 	if (temporaries.length === 0 && value !== undefined) {
 		temporaries.unshift(value);
 	} else {
@@ -17,18 +19,18 @@ const newTemporary = (value) => {
 	}
 	return temporaries[0];
 };
-const dropTemporary = () => {
+export const dropTemporary = () => {
 	temporaryStep -= 1;
 	temporaryStep = temporaryStep < 0 ? 0 : temporaryStep;
 	return temporaries.shift();
-}
-const quickTemporary = () => {
+};
+export const quickTemporary = () => {
 	newTemporary();
 	return dropTemporary();
-}
-const latestTemporary = () => temporaries[0];
+};
+export const latestTemporary = () => temporaries[0];
 
-const inverseOpMap = {
+export const inverseOpMap = {
 	'<': '>=',
 	'<=': '>',
 	'>=': '<',
@@ -38,26 +40,24 @@ const inverseOpMap = {
 	'&&': '||',
 	'||': '&&',
 };
-const reportMissingChildNodes = (f, node) => {
-	const missingNodes = node.children
-		.filter(child=>child.isMissing);
-	missingNodes.forEach(missingChild=>{
+export const reportMissingChildNodes = (f, node) => {
+	const missingNodes = node.children.filter((child) => child.isMissing);
+	missingNodes.forEach((missingChild) => {
 		f.newError({
 			locations: [{ node: missingChild }],
-			message: `missing token: ${missingChild.type}`
+			message: `missing token: ${missingChild.type}`,
 		});
 	});
 	return missingNodes;
 };
-const reportErrorNodes = (f, node) => {
-	const errorNodes = node.namedChildren
-		.filter(child=>child.type === 'ERROR');
-	errorNodes.forEach(errorNode=>{
+export const reportErrorNodes = (f, node) => {
+	const errorNodes = node.namedChildren.filter((child) => child.type === 'ERROR');
+	errorNodes.forEach((errorNode) => {
 		f.newError({
 			locations: [{ node: errorNode }],
 			message: 'syntax error',
-		})
-	})
+		});
+	});
 	return errorNodes;
 };
 
@@ -69,62 +69,56 @@ const getPrintableLocationData = (fileMap, location) => {
 	let endRow = location.node.endPosition.row;
 	let endCol = location.node.endPosition.column;
 	const line = allLines[row].replaceAll('\t', ' ');
-	const squigglySize = row === endRow
-		? endCol - col
-		: allLines[row].length - col;
+	const squigglySize = row === endRow ? endCol - col : allLines[row].length - col;
 	const arrow = '~'.repeat(col) + '^'.repeat(squigglySize);
-	const message
-		= `╓-${fileName} ${row}:${col}\n`
-		+ '║ ' + `${line}\n`
-		+ '╙~' + arrow;
+	const message = `╓-${fileName} ${row}:${col}\n` + '║ ' + `${line}\n` + '╙~' + arrow;
 	return message;
 };
 
-const makeMessagePrintable = (fileMap, prefix, item) => {
-	let message = `${prefix}: ${item.message}\n`
-		+ item.locations.map(location=>{
-			return getPrintableLocationData(fileMap, location);
-		}).join('\n');
+export const makeMessagePrintable = (fileMap, prefix, item) => {
+	let message =
+		`${prefix}: ${item.message}\n` +
+		item.locations
+			.map((location) => {
+				return getPrintableLocationData(fileMap, location);
+			})
+			.join('\n');
 	if (item.footer) {
 		message += '\n' + item.footer;
 	}
 	return message + '\n';
 };
-const autoIdentifierName = (f, node) => {
-	return f.fileName
-		+ '-' + node.startPosition.row
-		+ ':' + node.startPosition.column;
+export const autoIdentifierName = (f, node) => {
+	return f.fileName + '-' + node.startPosition.row + ':' + node.startPosition.column;
 };
 // todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
-const expandCondition = (f, node, condition, ifLabel) => {
+export const expandCondition = (f, node, condition, ifLabel) => {
 	if (
-		condition.mathlang === 'bool_getable'
-		|| condition.mathlang === 'bool_comparison'
-		|| condition.mathlang === 'string_checkable'
-		|| condition.mathlang === 'number_checkable_equality'
+		condition.mathlang === 'bool_getable' ||
+		condition.mathlang === 'bool_comparison' ||
+		condition.mathlang === 'string_checkable' ||
+		condition.mathlang === 'number_checkable_equality'
 	) {
 		const action = {
 			...condition,
-			expected_bool: condition.expected_bool === undefined
-				? true
-				: condition.expected_bool,
+			expected_bool: condition.expected_bool === undefined ? true : condition.expected_bool,
 			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
-		}
-		return [ action ];
+		};
+		return [action];
 	}
 	if (condition === true) {
-		return [ gotoLabel(f, node, ifLabel) ];
+		return [gotoLabel(f, node, ifLabel)];
 	} else if (condition === false) {
 		return [];
 	}
 	if (typeof condition === 'string') {
-		const action = checkFlag(f, node, condition, ifLabel, true)
+		const action = checkFlag(f, node, condition, ifLabel, true);
 		action.mathlang = 'if_branch_goto_label';
-		return [ action ];
+		return [action];
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
-		throw new Error("not yet implemented")
+		throw new Error('not yet implemented');
 	}
 	const op = condition.op;
 	const lhs = condition.lhs;
@@ -146,13 +140,13 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
 			gotoLabel(f, node, innerRendezvousLabel),
 			label(f, node, innerIfTrueLabel),
-			expandCondition(f, condition.rhsNode, rhs, ifLabel), 
+			expandCondition(f, condition.rhsNode, rhs, ifLabel),
 			label(f, node, innerRendezvousLabel),
 		];
 		return inner.flat();
 	}
 	if (op !== '==' && op !== '!=') {
-		throw new Error ("What kind of other thing is this?")
+		throw new Error('What kind of other thing is this?');
 	}
 	// todo: if any of these are == bool literal, they can be simplified
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
@@ -176,14 +170,14 @@ const expandCondition = (f, node, condition, ifLabel) => {
 			op: '&&',
 			lhs: invert(lhs),
 			rhs: invert(rhs),
-		}
-	}
+		},
+	};
 	return expandCondition(f, node, expandAs, ifLabel);
 };
 
-const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
-	const ifBody = Array.isArray(_ifBody) ? _ifBody : [ _ifBody ];
-	const elseBody = Array.isArray(_elseBody) ? _elseBody : [ _elseBody ];
+export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
+	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
+	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.getGotoSuffix();
 	const ifLabel = `if #${gotoLabel}`;
 	const rendezvousLabel = `rendezvous #${gotoLabel}`;
@@ -202,7 +196,7 @@ const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-const invert = (f, node, boolExp) => {
+export const invert = (f, node, boolExp) => {
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
 		return checkFlag(f, node, boolExp, '', false);
@@ -220,27 +214,27 @@ const invert = (f, node, boolExp) => {
 	return boolExp;
 };
 
-const label = (f, node, label) => ({
+export const label = (f, node, label) => ({
 	mathlang: 'label_definition',
 	label,
 	// debug: node,
 	// fileName: f.fileName,
 });
-const gotoLabel = (f, node, label) => ({
+export const gotoLabel = (f, node, label) => ({
 	mathlang: 'goto_label',
 	label,
 	// debug: node,
 	// fileName: f.fileName,
 });
-const newComment = (comment) => ({ mathlang: 'comment', comment });
-const newSequence = (f, node, steps, _type) => {
+export const newComment = (comment) => ({ mathlang: 'comment', comment });
+export const newSequence = (f, node, steps, _type) => {
 	const type = _type || 'generic_sequence';
 	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
 	steps.unshift(newComment(`${type}: ${comment}`));
 	const flatSteps = [];
 	steps
-		.filter(v=>v!==null) // might not need this anymore
-		.forEach(v=>{
+		.filter((v) => v !== null) // might not need this anymore
+		.forEach((v) => {
 			if (v.mathlang === 'sequence') {
 				flatSteps.push(...v.steps);
 			} else {
@@ -252,62 +246,62 @@ const newSequence = (f, node, steps, _type) => {
 		type,
 		steps: flatSteps,
 		debug: node,
-		fileName: f.fileName
+		fileName: f.fileName,
 	};
 };
-const newDialog = (f, node, dialogName, dialogs) => ({
+export const newDialog = (f, node, dialogName, dialogs) => ({
 	mathlang: 'dialog_definition',
 	dialogName,
 	dialogs,
 	debug: node,
 	fileName: f.fileName,
 });
-const showDialog = (f, node, name) => ({
+export const showDialog = (f, node, name) => ({
 	action: 'SHOW_DIALOG',
 	dialog: name,
 	debug: node,
-	fileName: f.fileName
+	fileName: f.fileName,
 });
-const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
+export const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
 	mathlang: 'serial_dialog_definition',
 	serialDialogName,
 	serialDialog,
 	debug: node,
 	fileName: f.fileName,
 });
-const showSerialDialog = (f, node, name, isConcat) => ({
+export const showSerialDialog = (f, node, name, isConcat) => ({
 	action: 'SHOW_SERIAL_DIALOG',
 	disable_newline: !isConcat,
 	serial_dialog: name,
 	debug: node,
-	fileName: f.fileName
+	fileName: f.fileName,
 });
 const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 	return {
 		mathlang: 'bool_getable',
-		action: "CHECK_SAVE_FLAG",
+		action: 'CHECK_SAVE_FLAG',
 		save_flag,
 		value: save_flag,
 		expected_bool: expected_bool !== undefined ? expected_bool : true,
 		label: gotoLabel || 'UNDEFINED LABEL',
 		fileName: f.fileName,
 		debug: node,
-	}
+	};
 };
 
-const flattenGotos = (actions) => {
+export const flattenGotos = (actions) => {
 	// replace labels of k with v; remove label definitions for k
 	const labelDefThenGotoLabel = {}; // Record<string, string>
 	// Index of label definition where there's a goto for that k immediately before
 	const gotoLabelThenLabelDef = {}; // Record<string, number>
-	actions.forEach((action, i)=>{
+	actions.forEach((action, i) => {
 		if (action.mathlang === 'label_definition') {
-			const next = actions[i+1];
+			const next = actions[i + 1];
 			if (next?.mathlang === 'goto_label') {
 				labelDefThenGotoLabel[action.label] = next.label;
 			}
 		} else if (action.mathlang === 'goto_label') {
-			const next = actions[i+1];
+			const next = actions[i + 1];
 			if (next.mathlang === 'label_definition' && next.label === action.label) {
 				gotoLabelThenLabelDef[action.label] = i;
 			}
@@ -315,19 +309,21 @@ const flattenGotos = (actions) => {
 	});
 	let queue = actions;
 	let processed = [];
-	Object.keys(gotoLabelThenLabelDef).reverse().forEach(k=>{
-		const uses = actions.filter(v=>v.mathlang === "goto_label" && v.label === k);
-		if (uses.length === 1) {
-			const index = gotoLabelThenLabelDef[k];
-			const cut = queue.splice(index, 2);
-			debugLog('reduced goto: ', JSON.stringify(cut));
-		} else {
-			const index = gotoLabelThenLabelDef[k];
-			const cut = queue.splice(index, 1);
-			debugLog('reduced goto: ', JSON.stringify(cut));
-		}
-	});
-	Object.entries(labelDefThenGotoLabel).forEach(([k, v])=>{
+	Object.keys(gotoLabelThenLabelDef)
+		.reverse()
+		.forEach((k) => {
+			const uses = actions.filter((v) => v.mathlang === 'goto_label' && v.label === k);
+			if (uses.length === 1) {
+				const index = gotoLabelThenLabelDef[k];
+				const cut = queue.splice(index, 2);
+				debugLog('reduced goto: ', JSON.stringify(cut));
+			} else {
+				const index = gotoLabelThenLabelDef[k];
+				const cut = queue.splice(index, 1);
+				debugLog('reduced goto: ', JSON.stringify(cut));
+			}
+		});
+	Object.entries(labelDefThenGotoLabel).forEach(([k, v]) => {
 		for (let i = 0; i < queue.length; i++) {
 			const action = queue[i];
 			if (action.label === k) {
@@ -337,10 +333,7 @@ const flattenGotos = (actions) => {
 					action.label = v;
 					processed.push(action);
 				}
-			} else if (
-				action.label === v
-				&& action.mathlang === 'goto_label'
-			) {
+			} else if (action.label === v && action.mathlang === 'goto_label') {
 				// do nothing (it dies)
 			} else {
 				processed.push(action);
@@ -350,30 +343,4 @@ const flattenGotos = (actions) => {
 		processed = [];
 	});
 	return queue;
-};
-
-module.exports = {
-	verbose,
-	debugLog,
-	reportMissingChildNodes,
-	reportErrorNodes,
-	makeMessagePrintable,
-	autoIdentifierName,
-	expandCondition,
-	label,
-	gotoLabel,
-	simpleBranchMaker,
-	newSequence,
-	newComment,
-	newSerialDialog,
-	showSerialDialog,
-	newDialog,
-	showDialog,
-	flattenGotos,
-	invert,
-	inverseOpMap,
-	newTemporary,
-	dropTemporary,
-	quickTemporary,
-	latestTemporary,
 };

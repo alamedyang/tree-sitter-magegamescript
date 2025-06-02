@@ -1,33 +1,36 @@
-const TreeSitter = require('web-tree-sitter');
-const {Parser, Language} = TreeSitter;
+import { Parser, Language } from 'web-tree-sitter';
 
-const fs = require('node:fs');
-const path = require('node:path');
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve as _resolve } from 'node:path';
 
-const { debugLog } = require('./parser-utilities.js');
-const { printScript } = require('./parser-to-json.js');
-const { makeProjectState } = require('./parser-project.js');
-const { ansiTags } = require('./parser-dialogs.js');
-const { composites } = require('./comparisons/exfiltrated_composites.js');
-const { idk } = require('./comparisons/exfiltrated_idk.js');
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+export const __filename = fileURLToPath(import.meta.url);
+export const __dirname = dirname(__filename);
+
+import { debugLog } from './parser-utilities.js';
+import { printScript } from './parser-to-json.js';
+import { makeProjectState } from './parser-project.js';
+import { ansiTags } from './parser-dialogs.js';
+import { composites } from './comparisons/exfiltrated_composites.js';
+import { idk } from './comparisons/exfiltrated_idk.js';
 
 // /*
 // stolen from the other place
-const makeMap = path => {
+const makeMap = (path) => {
 	let map = {};
-	for (file of fs.readdirSync(
-		path,
-		{ withFileTypes: true }
-	)) {
+	const files = readdirSync(path, { withFileTypes: true });
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
 		if (file.name === '.DS_Store') continue;
 		let filePath = `${path}/${file.name}`;
 		if (file.isDirectory()) {
 			map = {
 				...map,
-				...makeMap(filePath)
+				...makeMap(filePath),
 			};
 		} else {
-			let fileBlob = fs.readFileSync(filePath);
+			let fileBlob = readFileSync(filePath);
 			let type = filePath.split('.').pop();
 			map[file.name] = {
 				name: file.name,
@@ -38,13 +41,13 @@ const makeMap = path => {
 					});
 				},
 				text: () => {
-					return new Promise(resolve => {
+					return new Promise((resolve) => {
 						resolve(fileBlob.toString('utf8'));
 					});
 				},
-				get fileText () {
+				get fileText() {
 					return fileBlob.toString('utf8');
-				}
+				},
 			};
 		}
 	}
@@ -52,18 +55,18 @@ const makeMap = path => {
 };
 // */
 
-const parseProject = async (fileMap, scenarioData) => {
+export const parseProject = async (fileMap, scenarioData) => {
 	// tree-sitter
 	await Parser.init();
 	const parser = new Parser();
-	const wasmPath = path.resolve(__dirname + '/tree-sitter-magegamescript.wasm');
+	const wasmPath = _resolve(__dirname + '/tree-sitter-magegamescript.wasm');
 	const Lang = await Language.load(wasmPath);
 	parser.setLanguage(Lang);
-	
+
 	// my the-rest-of-the-owl
 	const p = makeProjectState(parser, fileMap, scenarioData);
 	// parse each file
-	Object.keys(fileMap).forEach(fileName=>{
+	Object.keys(fileMap).forEach((fileName) => {
 		if (fileName.endsWith('.mgs') && !fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
 			p.parseFile(fileName);
@@ -72,10 +75,10 @@ const parseProject = async (fileMap, scenarioData) => {
 
 	// take scripts/dialogs from each file and make global for the project
 	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
-	Object.keys(fileMap).forEach(fileName=>{
+	Object.keys(fileMap).forEach((fileName) => {
 		if (!fileName.endsWith('.mgs')) return;
 		const f = fileMap[fileName].parsed;
-		f.nodes.forEach(node=>{
+		f.nodes.forEach((node) => {
 			if (node.mathlang === 'script_definition') {
 				p.addScript(node, fileName);
 			} else if (node.mathlang === 'dialog_definition') {
@@ -83,41 +86,41 @@ const parseProject = async (fileMap, scenarioData) => {
 			} else if (node.mathlang === 'serial_dialog_definition') {
 				p.addSerialDialog(node, fileName);
 			}
-		})
+		});
 		debugLog(
-			`File ${ansiTags.c}"${fileName}"${ansiTags.reset} complete! `
-			+ f.printableMessageInformation()
+			`File ${ansiTags.c}"${fileName}"${ansiTags.reset} complete! ` +
+				f.printableMessageInformation(),
 		);
-	})
+	});
 
 	// check whether multiple registrations have been made for anything global
 	p.detectDuplicates();
 
 	// Make script plaintext readable (pre copy, labels)
-	Object.keys(p.scripts).forEach(scriptName=>{
+	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].prePrint = printScript(scriptName, p.scripts[scriptName].actions);
 	});
 
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
-	
+
 	// bake all the labels into hard-coded action indices
 	p.bakeLabels();
 
 	// Make script plaintext readable
-	Object.keys(p.scripts).forEach(scriptName=>{
+	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
 	});
-	
+
 	// print fancy squiggly error messages
 	p.printProblems();
-	
+
 	// done!
 	return p;
 };
 
 // /*
-const inputPath = path.resolve('./scenario_source_files');
+const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
 const sanitizeActions = (action) => {
@@ -127,7 +130,7 @@ const sanitizeActions = (action) => {
 		action.serial_dialog = action.serial_dialog.replace(/(-|:)\d+:\d+$/, '-XX');
 	}
 	return action;
-}
+};
 
 const compareNonGotoActions = (lhsText, rhsText) => {
 	const lhs = getNonGotoActions(lhsText);
@@ -147,11 +150,11 @@ const compareNonGotoActions = (lhsText, rhsText) => {
 		}
 	}
 	return true;
-}
+};
 const getNonGotoActions = (text) => {
 	const lines = text.split('\n');
 	const counts = {};
-	lines.forEach(line=>{
+	lines.forEach((line) => {
 		const match = line.match(/((.+) then goto) (index \d+|label .+);/);
 		let key = match ? match[1] : line;
 		if (/^\s*goto /.test(key)) {
@@ -161,36 +164,35 @@ const getNonGotoActions = (text) => {
 		} else if (/^\s*\/\//.test(key)) {
 			return;
 		}
-		key = key.replace(/(-|:)\d+:\d+";$/, '-XX";')
+		key = key.replace(/(-|:)\d+:\d+";$/, '-XX";');
 		counts[key] = (counts[key] || 0) + 1;
 	});
 	return counts;
-}
+};
 
 const chooseYourOwnAdventure = (text) => {
 	const registry = {};
 	const doneCrawlStates = [];
-	const lines = text.split('\n')
-		.slice(1,-1)
-		.map(v=>v.trim());
-	const ifCount = lines.filter(v=>v.startsWith('if')).length;
+	const lines = text
+		.split('\n')
+		.slice(1, -1)
+		.map((v) => v.trim());
+	const ifCount = lines.filter((v) => v.startsWith('if')).length;
 	const permutations = 2 ** ifCount;
-	lines.forEach((line, i)=>{
+	lines.forEach((line, i) => {
 		const label = line.match(/^([-_a-zA-Z0-9 "]):$/);
 		if (label) {
 			registry[label[1]] = i;
 		}
-	})
-	let crawlStates = [
-		{ pos: 0, seen: [] }
-	];
+	});
+	let crawlStates = [{ pos: 0, seen: [] }];
 	let newCrawlStates = [];
 	while (crawlStates.length) {
 		if (crawlStates.length > 10_000) {
 			return null;
 		}
 		if (crawlStates.length > permutations) {
-			throw new Error ("Don't do it")
+			throw new Error("Don't do it");
 		}
 		for (let i = 0; i < crawlStates.length; i++) {
 			const cs = crawlStates[i];
@@ -211,7 +213,7 @@ const chooseYourOwnAdventure = (text) => {
 				newCrawlStates.push(cs);
 				continue;
 			}
-			if (line.startsWith ('load map')) {
+			if (line.startsWith('load map')) {
 				// control action to leave everything: we're done
 				cs.seen.push(line);
 				doneCrawlStates.push(cs);
@@ -237,8 +239,8 @@ const chooseYourOwnAdventure = (text) => {
 				cs.seen.push(splits[0] + 'goto');
 				// fall through case
 				newCrawlStates.push({
-					pos: cs.pos += 1,
-					seen: JSON.parse(JSON.stringify((cs.seen))),
+					pos: (cs.pos += 1),
+					seen: JSON.parse(JSON.stringify(cs.seen)),
 				});
 				// jump case:
 				const indexJump = line.match(/index (\d+);$/);
@@ -265,7 +267,7 @@ const chooseYourOwnAdventure = (text) => {
 			} else {
 				cs.seen.push(line);
 				newCrawlStates.push({
-					pos: cs.pos += 1,
+					pos: (cs.pos += 1),
 					seen: cs.seen,
 				});
 			}
@@ -273,13 +275,13 @@ const chooseYourOwnAdventure = (text) => {
 		crawlStates = newCrawlStates;
 		newCrawlStates = [];
 	}
-	const flat = doneCrawlStates.map(v=>{
-		return v.seen.join("\n");
-	})
+	const flat = doneCrawlStates.map((v) => {
+		return v.seen.join('\n');
+	});
 	return flat;
 };
 
-parseProject(fileMap).then((p)=>{
+parseProject(fileMap).then((p) => {
 	// console.log('PROJECT');
 	// console.log(p);
 	// const printAll = Object.values(p.scripts)
@@ -291,20 +293,21 @@ parseProject(fileMap).then((p)=>{
 	let badTally = 0;
 	let trustTally = 0;
 	let funcionalTally = 0;
-	Object.entries(p.scripts).forEach(([k,v])=>{
+	Object.entries(p.scripts).forEach(([k, v]) => {
 		let old = composites[k] || idk[k];
-		const oldVersionFiltered = old
-			.map(sanitizeActions);
+		const oldVersionFiltered = old.map(sanitizeActions);
 		const newVersionFiltered = v.actions
-			.filter(vv=>{
-				return vv.mathlang !== 'comment'
-					&& vv.mathlang !== 'return_statement'
-					&& vv.mathlang !== 'dialog_definition'
-					&& vv.mathlang !== 'serial_dialog_definition'
+			.filter((vv) => {
+				return (
+					vv.mathlang !== 'comment' &&
+					vv.mathlang !== 'return_statement' &&
+					vv.mathlang !== 'dialog_definition' &&
+					vv.mathlang !== 'serial_dialog_definition'
+				);
 			})
-			.map(vv=>{
+			.map((vv) => {
 				delete vv.comment;
-				return sanitizeActions(vv)
+				return sanitizeActions(vv);
 			});
 		const oldVersion = printScript(k, oldVersionFiltered);
 		const newVersion = printScript(k, newVersionFiltered);
@@ -336,23 +339,30 @@ parseProject(fileMap).then((p)=>{
 				mathlang: newVersion,
 				natlang: oldVersion,
 				original: v.debug.text,
-			}
+			};
 			badTally += 1;
 		} else {
 			trustTally += 1;
 		}
 	});
-	const lhs = Object.values(prints).map(v=>v.natlang).join('\n\n');
-	const rhs = Object.values(prints).map(v=>v.mathlang).join('\n\n');
-	const rhsPre = Object.values(prints).map(v=>v.mathlangPre).join('\n\n');
-	const original = Object.values(prints).map(v=>v.original).join('\n\n');
-	console.log(`${tally} scripts were identical, ${funcionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`)
-	fs.writeFileSync(`./comparisons/lhs.mgs`, lhs);
-	fs.writeFileSync(`./comparisons/rhs.mgs`, rhs);
-	fs.writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);
-	fs.writeFileSync(`./comparisons/rhsOriginal.mgs`, original);
-
+	const lhs = Object.values(prints)
+		.map((v) => v.natlang)
+		.join('\n\n');
+	const rhs = Object.values(prints)
+		.map((v) => v.mathlang)
+		.join('\n\n');
+	const rhsPre = Object.values(prints)
+		.map((v) => v.mathlangPre)
+		.join('\n\n');
+	const original = Object.values(prints)
+		.map((v) => v.original)
+		.join('\n\n');
+	console.log(
+		`${tally} scripts were identical, ${funcionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`,
+	);
+	writeFileSync(`./comparisons/lhs.mgs`, lhs);
+	writeFileSync(`./comparisons/rhs.mgs`, rhs);
+	writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);
+	writeFileSync(`./comparisons/rhsOriginal.mgs`, original);
 });
 // */
-
-module.exports = { parseProject };

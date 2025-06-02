@@ -1,4 +1,4 @@
-const {
+import {
 	reportMissingChildNodes,
 	reportErrorNodes,
 	debugLog,
@@ -11,24 +11,20 @@ const {
 	showSerialDialog,
 	newTemporary,
 	dropTemporary,
-	quickTemporary,
-	latestTemporary,
-} = require('./parser-utilities.js');
+} from './parser-utilities.js';
 
-const {
-	buildSerialDialogFromInfo,
-	buildDialogFromInfo,
-} = require('./parser-dialogs.js');
+import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.js';
 
-const {
+import {
 	handleCapture,
 	captureForFieldName,
 	textForFieldName,
 	capturesForFieldName,
-} = require('./parser-capture.js');
-const { handleAction, handleActionsInit } = require('./parser-actions.js');
+} from './parser-capture.js';
+import { handleAction, handleActionsInit } from './parser-actions.js';
 
-const handleNode = (f, node) => { // ->[]
+export const handleNode = (f, node) => {
+	// ->[]
 	debugLog(`handleNode: ${node.grammarType}`);
 
 	// Tree-sitter does not (?) report these on its own; we have to seek them each time
@@ -45,8 +41,8 @@ const handleNode = (f, node) => { // ->[]
 	if (!nodeFn) {
 		f.newError({
 			locations: [{ node }],
-			message: 'no parser-node function for '+ node.grammarType,
-		})
+			message: 'no parser-node function for ' + node.grammarType,
+		});
 		return [];
 	}
 
@@ -60,22 +56,23 @@ handleActionsInit(handleNode);
 // These must return an array, because they might produce multiple things (or zero things)
 // NOTICE: The caller should flat() what it receives!
 const nodeFns = {
-	line_comment: (f, node) => [],
-	block_comment: (f, node) => [],
-	semicolon: (f, node) => [],
+	line_comment: () => [],
+	block_comment: () => [],
+	semicolon: () => [],
 	ERROR: (f, node) => {
 		const err = {
 			locations: [{ node }],
 			message: 'syntax error',
-		}
+		};
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
 		// (This is only for nodes so malformed that tree-sitter can't tell what it is)
-		if (node.namedChildren.some(v=>v.grammarType === 'over_time_operator')) {
-			err.message = `malformed 'do over time' expression`
-			err.footer = `should take the form '@movable -> @coordinate over @duration [forever];'\n`
-				+ `   @movable = (player | self | entity @string) position | camera\n`
-				+ `   @coordinate = (player | self | entity @string) position | geometry @string (origin | length)`
+		if (node.namedChildren.some((v) => v.grammarType === 'over_time_operator')) {
+			err.message = `malformed 'do over time' expression`;
+			err.footer =
+				`should take the form '@movable -> @coordinate over @duration [forever];'\n` +
+				`   @movable = (player | self | entity @string) position | camera\n` +
+				`   @coordinate = (player | self | entity @string) position | geometry @string (origin | length)`;
 		}
 		f.newError(err);
 		return [];
@@ -83,23 +80,24 @@ const nodeFns = {
 	script_definition: (f, node) => {
 		const name = captureForFieldName(f, node, 'script_name');
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
-		const actions = node.lastChild
-			.namedChildren // error nodes are caught above
-			.map(v=>handleNode(f, v))
+		const actions = node.lastChild.namedChildren // error nodes are caught above
+			.map((v) => handleNode(f, v))
 			.flat()
-			.map(v => v.mathlang === 'return_statement'
-				? gotoLabel(f, v.debug, returnLabel)
-				: v
+			.map((v) =>
+				v.mathlang === 'return_statement' ? gotoLabel(f, v.debug, returnLabel) : v,
 			);
 		actions.push(label(f, node.lastChild, returnLabel));
-		if (actions.some(v=>v.mathlang === 'return_statement')) throw new Error ("why is this still here?")
-		return [{
-			mathlang: 'script_definition',
-			scriptName: name,
-			actions,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		if (actions.some((v) => v.mathlang === 'return_statement'))
+			throw new Error('why is this still here?');
+		return [
+			{
+				mathlang: 'script_definition',
+				scriptName: name,
+				actions,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	constant_assignment: (f, node) => {
 		const label = textForFieldName(f, node, 'label');
@@ -116,19 +114,21 @@ const nodeFns = {
 			debug: node,
 			fileName: f.fileName,
 		};
-		return [{
-			mathlang: 'constant_assignment',
-			label,
-			value,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'constant_assignment',
+				label,
+				value,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	include_macro: (f, node) => {
 		// TODO: ~~handle~~ prevent recursive references
 		const fileName = captureForFieldName(f, node, 'fileName');
-		const prerequesites = Array.isArray(fileName) ? fileName : [ fileName ];
-		prerequesites.forEach(prereqName=> {
+		const prerequesites = Array.isArray(fileName) ? fileName : [fileName];
+		prerequesites.forEach((prereqName) => {
 			if (!f.p.fileMap[prereqName].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
 				f.p.parseFile(prereqName);
@@ -138,37 +138,38 @@ const nodeFns = {
 			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
 			f.includeFile(prereqName); // incorporate their crawl state into us
 		});
-		return [{
-			mathlang: 'include_macro',
-			value: fileName,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'include_macro',
+				value: fileName,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	rand_macro: (f, node) => {
 		const horizontal = [];
 		let multipleCount = -Infinity;
-		node.namedChildren
-			.forEach(node=>{
-				const handled = handleNode(f, node);
-				const len = handled.length;
-				if (len === 0) return; // empties are ignored
-				horizontal.push(handled);
-				// count how much it spread
-				if (len === 1) return; // singles are fine wherever
-				if (multipleCount === -Infinity) multipleCount = len;
-				if (multipleCount !== len) {
-					f.newError({
-						locations: [{ node }],
-						message: `spreads inside rand!() must contain same number of items`,
-					});
-				}
-			});
+		node.namedChildren.forEach((node) => {
+			const handled = handleNode(f, node);
+			const len = handled.length;
+			if (len === 0) return; // empties are ignored
+			horizontal.push(handled);
+			// count how much it spread
+			if (len === 1) return; // singles are fine wherever
+			if (multipleCount === -Infinity) multipleCount = len;
+			if (multipleCount !== len) {
+				f.newError({
+					locations: [{ node }],
+					message: `spreads inside rand!() must contain same number of items`,
+				});
+			}
+		});
 		const vertical = [];
 		for (let i = 0; i < multipleCount; i++) {
-			const insert = horizontal.map(unit=>{
+			const insert = horizontal.map((unit) => {
 				return unit[i % unit.length];
-			})
+			});
 			vertical.push(insert);
 		}
 		// put the slices into a sequence
@@ -183,7 +184,7 @@ const nodeFns = {
 		];
 		let bottomSteps = [];
 		const rendezvousL = `rendezvous #${f.p.gotoSuffixValue}`;
-		vertical.forEach((body, i)=>{
+		vertical.forEach((body, i) => {
 			const ifL = `if RNG #${f.p.advanceGotoSuffix()}`;
 			// add top half
 			const condition = {
@@ -199,11 +200,7 @@ const nodeFns = {
 			};
 			steps.push(condition);
 			// add bottom half
-			const bottomInsert = [
-				label(f, node, ifL),
-				...body,
-				gotoLabel(f, node, rendezvousL),
-			];
+			const bottomInsert = [label(f, node, ifL), ...body, gotoLabel(f, node, rendezvousL)];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		dropTemporary();
@@ -214,14 +211,16 @@ const nodeFns = {
 	label_definition: (f, node) => label(f, node, textForFieldName(f, node, 'label')),
 	add_dialog_settings: (f, node) => {
 		const targets = node.namedChildren
-			.map(child=>handleNode(f, child)) // add_dialog_settings_target
+			.map((child) => handleNode(f, child)) // add_dialog_settings_target
 			.flat();
-		return [{
-			mathlang: 'add_dialog_settings',
-			targets,
-			debug: node,
-			fileName: f.fileName,
-		}]
+		return [
+			{
+				mathlang: 'add_dialog_settings',
+				targets,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	add_dialog_settings_target: (f, node) => {
 		let settingsTarget;
@@ -252,7 +251,7 @@ const nodeFns = {
 		}
 		// find the settings themselves
 		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
-		parameters.forEach(param=>{
+		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
 		});
 		ret.parameters = parameters;
@@ -260,15 +259,17 @@ const nodeFns = {
 	},
 	add_serial_dialog_settings: (f, node) => {
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		parameters.forEach(param=>{
+		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
-		return [{
-			mathlang: 'add_serial_dialog_settings',
-			parameters,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'add_serial_dialog_settings',
+				parameters,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them
 	serial_dialog_option: (f, node) => {
@@ -276,85 +277,101 @@ const nodeFns = {
 		let optionType;
 		if (optionChar === '_') optionType = 'text_options';
 		else if (optionChar === '#') optionType = 'options';
-		return [{
-			mathlang: 'serial_dialog_option',
-			optionType,
-			label: captureForFieldName(f, node, 'label'),
-			script: captureForFieldName(f, node, 'script'),
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'serial_dialog_option',
+				optionType,
+				label: captureForFieldName(f, node, 'label'),
+				script: captureForFieldName(f, node, 'script'),
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	dialog_option: (f, node) => {
-		return [{
-			mathlang: 'dialog_option',
-			label: captureForFieldName(f, node, 'label'),
-			script: captureForFieldName(f, node, 'script'),
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'dialog_option',
+				label: captureForFieldName(f, node, 'label'),
+				script: captureForFieldName(f, node, 'script'),
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	serial_dialog_definition: (f, node) => {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		const name = captureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialog = handleNode(f, serialDialogNode);
-		return [ newSerialDialog(f, node, name, serialDialog[0]) ];
+		return [newSerialDialog(f, node, name, serialDialog[0])];
 	},
 	dialog_definition: (f, node) => {
 		const dialogName = captureForFieldName(f, node, 'dialog_name');
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = dialogNodes.map(v=>handleNode(f, v)).flat();
-		return [{
-			mathlang: 'dialog_definition',
-			dialogName,
-			dialogs,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		const dialogs = dialogNodes.map((v) => handleNode(f, v)).flat();
+		return [
+			{
+				mathlang: 'dialog_definition',
+				dialogName,
+				dialogs,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	serial_dialog: (f, node) => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		params.forEach(v=>{ settings[v.property] = v.value; });
+		params.forEach((v) => {
+			settings[v.property] = v.value;
+		});
 		// TODO: make options more closely resemble final form?
-		const options = node.childrenForFieldName('serial_dialog_option')
-			.map(v=>handleNode(f, v))
+		const options = node
+			.childrenForFieldName('serial_dialog_option')
+			.map((v) => handleNode(f, v))
 			.flat();
 		const info = {
 			settings,
 			messages: capturesForFieldName(f, node, 'serial_message'),
-			options
+			options,
 		};
 		const serialDialog = buildSerialDialogFromInfo(f, info, node);
-		return [{
-			mathlang: 'serial_dialog',
-			serialDialog,
-			debug: node,
-			fileName: f.fileName,
-		}];
+		return [
+			{
+				mathlang: 'serial_dialog',
+				serialDialog,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
 	},
 	dialog: (f, node) => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
 		const messageN = node.childrenForFieldName('message');
-		params.forEach(v=>{ settings[v.property] = v.value; });
-		const options = node.childrenForFieldName('dialog_option')
-			.map(v=>handleNode(f, v))
+		params.forEach((v) => {
+			settings[v.property] = v.value;
+		});
+		const options = node
+			.childrenForFieldName('dialog_option')
+			.map((v) => handleNode(f, v))
 			.flat();
 		const info = {
 			identifier: captureForFieldName(f, node, 'dialog_identifier'),
 			settings,
-			messages: messageN.map(v=>handleCapture(f, v)),
+			messages: messageN.map((v) => handleCapture(f, v)),
 			options,
 		};
 		const dialogs = buildDialogFromInfo(f, info, messageN);
-		return [{
-			mathlang: 'dialog',
-			info,
-			debug: node,
-			fileName: f.fileName,
-			...dialogs,
-		}];
+		return [
+			{
+				mathlang: 'dialog',
+				info,
+				debug: node,
+				fileName: f.fileName,
+				...dialogs,
+			},
+		];
 	},
 	json_literal: (f, node) => {
 		// todo: do it more by hand so that errors can be reported more accurately?
@@ -369,19 +386,23 @@ const nodeFns = {
 				message: `JSON syntax error`,
 			});
 		}
-		return [{
-			mathlang: 'json_literal',
-			json: parsed,
+		return [
+			{
+				mathlang: 'json_literal',
+				json: parsed,
+				debug: node,
+				fileName: f.fileName,
+			},
+		];
+	},
+	copy_macro: (f, node) => [
+		{
+			mathlang: 'copy_script',
+			script: captureForFieldName(f, node, 'script'),
 			debug: node,
 			fileName: f.fileName,
-		}];
-	},
-	copy_macro: (f, node) => ([{
-		mathlang: 'copy_script',
-		script: captureForFieldName(f, node, 'script'),
-		debug: node,
-		fileName: f.fileName,
-	}]),
+		},
+	],
 	debug_macro: (f, node) => {
 		const ret = [];
 		let name;
@@ -404,7 +425,7 @@ const nodeFns = {
 		return ret;
 	},
 	looping_block: (f, node, printGotoLabel) => {
-		return node.namedChildren.map(v=>{
+		return node.namedChildren.map((v) => {
 			const handled = handleNode(f, v);
 			if (handled.mathlang === 'continue_statement') {
 				return gotoLabel(f, v, `while condition #${printGotoLabel}`);
@@ -422,8 +443,9 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		const condition = handleCapture(f, conditionN);
 		const bodyN = node.childForFieldName('body');
-		const body = handleNode(f, bodyN).flat()
-			.map(v=>{
+		const body = handleNode(f, bodyN)
+			.flat()
+			.map((v) => {
 				if (v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, conditionL);
 				} else if (v.mathlang === 'break_statement') {
@@ -451,8 +473,9 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		const condition = handleCapture(f, conditionN);
 		const bodyN = node.childForFieldName('body');
-		const body = handleNode(f, bodyN).flat()
-			.map(v=>{
+		const body = handleNode(f, bodyN)
+			.flat()
+			.map((v) => {
 				if (v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, conditionL);
 				} else if (v.mathlang === 'break_statement') {
@@ -461,7 +484,7 @@ const nodeFns = {
 					return v;
 				}
 			});
-			const steps = [
+		const steps = [
 			label(f, bodyN, bodyL),
 			...body,
 			label(f, conditionN, conditionL),
@@ -479,8 +502,9 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		const bodyN = node.childForFieldName('body');
 		const incrementerN = node.childForFieldName('incrementer');
-		const body = handleNode(f, bodyN).flat()
-			.map(v=>{
+		const body = handleNode(f, bodyN)
+			.flat()
+			.map((v) => {
 				if (v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, continueL);
 				} else if (v.mathlang === 'break_statement') {
@@ -520,9 +544,7 @@ const nodeFns = {
 		if (!type) {
 			const script = captureForFieldName(f, node, 'script');
 			if (isBool) {
-				return action
-					? [{ action: "RUN_SCRIPT", script }]
-					: [];
+				return action ? [{ action: 'RUN_SCRIPT', script }] : [];
 			}
 			delete action.mathlang;
 			return {
@@ -532,9 +554,7 @@ const nodeFns = {
 		} else if (type === 'index') {
 			const index = captureForFieldName(f, node, 'index');
 			if (isBool) {
-				return action
-					? [{ action: "GOTO_ACTION_INDEX", action_index: index }]
-					: [];
+				return action ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
 			}
 			delete action.mathlang;
 			return {
@@ -544,15 +564,13 @@ const nodeFns = {
 		} else if (type === 'label') {
 			const label = captureForFieldName(f, node, 'label');
 			if (isBool) {
-				return action
-					? [ gotoLabel(f, node, label) ]
-					: [];
+				return action ? [gotoLabel(f, node, label)] : [];
 			}
 			action.mathlang = 'if_branch_goto_label';
 			return {
 				...action,
 				label,
-			}
+			};
 		}
 	},
 	if_chain: (f, node) => {
@@ -562,14 +580,8 @@ const nodeFns = {
 			const conditionN = ifs[0].childForFieldName('condition');
 			let condition = handleCapture(f, conditionN);
 			const bodyN = ifs[0].childForFieldName('body');
-			const body = bodyN.namedChildren.map(v=>handleNode(f, v)).flat();
-			if (
-				body.length === 1
-				&& (
-					condition.action
-					|| typeof condition === 'string'
-				)
-			) {
+			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
+			if (body.length === 1 && (condition.action || typeof condition === 'string')) {
 				if (body[0].action === 'RUN_SCRIPT') {
 					if (typeof condition === 'string') {
 						condition = {
@@ -599,29 +611,22 @@ const nodeFns = {
 		}
 		const rendezvousL = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const steps = [];
-		let bottomSteps = [
-			label(f, node, rendezvousL),
-		];
-		ifs.forEach(iff=>{
+		let bottomSteps = [label(f, node, rendezvousL)];
+		ifs.forEach((iff) => {
 			const ifL = `if true #${f.p.advanceGotoSuffix()}`;
 			const conditionN = iff.childForFieldName('condition');
 			const condition = handleCapture(f, conditionN);
 			const bodyN = iff.childForFieldName('body');
-			const body = bodyN.namedChildren.map(v=>handleNode(f, v)).flat();
+			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
 			// add top half
-			expandCondition(f, conditionN, condition, ifL)
-				.forEach(v=>steps.push(v));
+			expandCondition(f, conditionN, condition, ifL).forEach((v) => steps.push(v));
 			// add bottom half
-			const bottomInsert = [
-				label(f, bodyN, ifL),
-				...body,
-				gotoLabel(f, bodyN, rendezvousL),
-			];
+			const bottomInsert = [label(f, bodyN, ifL), ...body, gotoLabel(f, bodyN, rendezvousL)];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		if (elzeN) {
 			steps.push(
-				...elzeN.lastChild.namedChildren.map(v=>handleNode(f, v)).flat(),
+				...elzeN.lastChild.namedChildren.map((v) => handleNode(f, v)).flat(),
 				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
@@ -630,8 +635,6 @@ const nodeFns = {
 		return newSequence(f, node, combined, 'if sequence');
 	},
 };
-
-module.exports = handleNode;
 
 // TODO: what is the difference between handleNode() and handleCapture() except that you have to flatten handleNode()?
 // Is it that you return complex thing vs primitive value?

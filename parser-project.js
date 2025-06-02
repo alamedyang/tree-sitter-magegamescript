@@ -1,16 +1,9 @@
-const { ansiTags: ansi } = require('./parser-dialogs.js');
-const {
-	makeMessagePrintable,
-	flattenGotos,
-	newComment,
-	reportMissingChildNodes,
-	reportErrorNodes,
-} = require('./parser-utilities.js');
-const { printScript } = require('./parser-to-json.js')
-const { makeFileState } = require('./parser-file.js')
-const handleNode = require('./parser-node.js');
+import { ansiTags as ansi } from './parser-dialogs.js';
+import { makeMessagePrintable, flattenGotos, newComment } from './parser-utilities.js';
+import { makeFileState } from './parser-file.js';
+import { handleNode } from './parser-node.js';
 
-const makeProjectState = (tsParser, fileMap, scenarioData) => {
+export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 	// project crawl state
 	const p = {
 		...(scenarioData || {}),
@@ -50,7 +43,7 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			data.rawNodes = data.actions;
 			// finalize actions
 			const finalizedActions = [];
-			data.rawNodes.forEach(node=>{
+			data.rawNodes.forEach((node) => {
 				if (!node.mathlang) {
 					finalizedActions.push(node);
 				} else if (node.mathlang === 'dialog_definition') {
@@ -60,7 +53,7 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					// (sometimes these are inside a script body)
 					p.addSerialDialog(node, fileName);
 				} else if (node.mathlang === 'sequence') {
-					node.steps.forEach(step=>finalizedActions.push(step));
+					node.steps.forEach((step) => finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {
 					finalizedActions.push(node);
 					// TODO: do this as a separate layer
@@ -68,7 +61,7 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					finalizedActions.push(node);
 				} else {
 					console.error(node);
-					throw new Error ("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE! " + node.mathlang)
+					throw new Error("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE! " + node.mathlang);
 				}
 			});
 			data.actions = flattenGotos(finalizedActions.flat());
@@ -79,29 +72,31 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			} else {
 				// if it's a duplicate, make an array for all the ones we find
 				if (!p.scripts[scriptName].duplicates) {
-					p.scripts[scriptName].duplicates = [ p.scripts[scriptName] ];
+					p.scripts[scriptName].duplicates = [p.scripts[scriptName]];
 				}
 				p.scripts[scriptName].duplicates.push(data);
 			}
 		},
-		addDialog: (data, fileName) => {
+		addDialog: (data) => {
 			const dialogName = data.dialogName;
 			if (!p.dialogs[dialogName]) {
 				p.dialogs[dialogName] = data;
 			} else {
 				if (!p.dialogs[dialogName].duplicates) {
-					p.dialogs[dialogName].duplicates = [ p.dialogs[dialogName] ];
+					p.dialogs[dialogName].duplicates = [p.dialogs[dialogName]];
 				}
 				p.dialogs[dialogName].duplicates.push(data);
 			}
 		},
-		addSerialDialog: (data, fileName) => {
+		addSerialDialog: (data) => {
 			const serialDialogName = data.serialDialogName;
 			if (!p.serialDialogs[serialDialogName]) {
 				p.serialDialogs[serialDialogName] = data;
 			} else {
 				if (!p.serialDialogs[serialDialogName].duplicates) {
-					p.serialDialogs[serialDialogName].duplicates = [ p.serialDialogs[serialDialogName] ];
+					p.serialDialogs[serialDialogName].duplicates = [
+						p.serialDialogs[serialDialogName],
+					];
 				}
 				p.serialDialogs[serialDialogName].duplicates.push(data);
 			}
@@ -109,14 +104,14 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 
 		// can only be done after all files in a project are parsed
 		detectDuplicates: () => {
-			[ 'scripts', 'dialogs', 'serialDialogs' ].forEach(category=>{
+			['scripts', 'dialogs', 'serialDialogs'].forEach((category) => {
 				const entries = Object.entries(p[category]);
-				entries.forEach(([name, entry])=>{
+				entries.forEach(([name, entry]) => {
 					if (entry.duplicates) {
 						// note: one error message, multiple locations
 						p.newError({
 							message: `multiple ${category} with name "${name}"`,
-							locations: entry.duplicates.map(dupe=>({
+							locations: entry.duplicates.map((dupe) => ({
 								fileName: dupe.fileName,
 								node: dupe.debug.firstNamedChild,
 							})),
@@ -128,17 +123,19 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		copyScriptOne: (scriptName) => {
 			const finalActions = [];
 			const scriptData = p.scripts[scriptName];
-			scriptData.actions.forEach(action=>{
+			scriptData.actions.forEach((action) => {
 				if (action.mathlang !== 'copy_script') {
 					finalActions.push(action);
 					return;
 				}
 				if (!p.scripts[action.script]) {
 					p.newError({
-						locations: [{
-							fileName: action.fileName,
-							node: action.debug.childForFieldName('script') || action.debug
-						}],
+						locations: [
+							{
+								fileName: action.fileName,
+								node: action.debug.childForFieldName('script') || action.debug,
+							},
+						],
 						message: 'no script found by this name',
 					});
 					return;
@@ -149,30 +146,32 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedInsert = p.scripts[action.script].actions;
 				finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
-				finalActions.push(...copiedInsert.map(insert=>{
-					if (insert.mathlang?.includes('label')) {
-						const newInsert = {};
-						Object.entries(insert).forEach(([k, v])=>{
-							newInsert[k] = v;
-						})
-						newInsert.label += labelSuffix;
-						return newInsert;
-					}
-					return insert;
-				}));
+				finalActions.push(
+					...copiedInsert.map((insert) => {
+						if (insert.mathlang?.includes('label')) {
+							const newInsert = {};
+							Object.entries(insert).forEach(([k, v]) => {
+								newInsert[k] = v;
+							});
+							newInsert.label += labelSuffix;
+							return newInsert;
+						}
+						return insert;
+					}),
+				);
 			});
 			p.scripts[scriptName].copyScriptResolved = true;
 			p.scripts[scriptName].actions = finalActions;
 		},
 		copyScriptAll: () => {
-			Object.keys(p.scripts).forEach(scriptName=>{
+			Object.keys(p.scripts).forEach((scriptName) => {
 				if (!p.scripts[scriptName].copyScriptDone) {
 					p.copyScriptOne(scriptName);
 				}
 			});
 		},
 		bakeLabels: () => {
-			Object.keys(p.scripts).forEach(scriptName=>{
+			Object.keys(p.scripts).forEach((scriptName) => {
 				const scriptData = p.scripts[scriptName];
 				const registry = {};
 				const actions = scriptData.actions;
@@ -180,9 +179,9 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				for (let i = 0; i < actions.length; i++) {
 					const currAction = actions[i];
 					if (
-						currAction.mathlang === 'comment'
-						|| currAction.mathlang === 'dialog_definition'
-						|| currAction.mathlang === 'serial_dialog_definition'
+						currAction.mathlang === 'comment' ||
+						currAction.mathlang === 'dialog_definition' ||
+						currAction.mathlang === 'serial_dialog_definition'
 					) {
 						continue;
 					} else if (currAction.mathlang === 'label_definition') {
@@ -192,9 +191,8 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					} else {
 						commentlessIndex += 1;
 					}
-					
 				}
-				actions.forEach(action=>{
+				actions.forEach((action) => {
 					if (action.mathlang?.includes('label')) {
 						const jump_index = registry[action.label];
 						let param = 'jump_index';
@@ -207,7 +205,7 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 						delete action.mathlang;
 						action[param] = jump_index;
 					}
-				})
+				});
 			});
 		},
 
@@ -218,37 +216,35 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			const warnCount = p.warningCount;
 			if (errCount) {
 				messages.push(
-					`${ansi.red}`
-					+ `${errCount} error`
-					+ `${errCount !== 1 ? 's' : ''}`
-					+ `${ansi.reset}`
-				)
+					`${ansi.red}` +
+						`${errCount} error` +
+						`${errCount !== 1 ? 's' : ''}` +
+						`${ansi.reset}`,
+				);
 			}
 			if (warnCount) {
 				messages.push(
-					`${ansi.yellow}`
-					+ `${warnCount} warning`
-					+ `${warnCount !== 1 ? 's' : ''}`
-					+ `${ansi.reset}`
+					`${ansi.yellow}` +
+						`${warnCount} warning` +
+						`${warnCount !== 1 ? 's' : ''}` +
+						`${ansi.reset}`,
 				);
 			}
 			if (messages.length === 0) {
-				console.log("No issues found!");
+				console.log('No issues found!');
 			} else {
-				console.log(`Issues found: ${messages.join(', ')}`)
+				console.log(`Issues found: ${messages.join(', ')}`);
 			}
-			p.warnings.forEach(message=>{
-				const str = ansi.yellow
-					+ makeMessagePrintable(p.fileMap, 'Warning', message)
-					+ ansi.reset;
+			p.warnings.forEach((message) => {
+				const str =
+					ansi.yellow + makeMessagePrintable(p.fileMap, 'Warning', message) + ansi.reset;
 				console.warn(str);
-			})
-			p.errors.forEach(message=>{
-				const str = ansi.red
-					+ makeMessagePrintable(p.fileMap, 'Error', message)
-					+ ansi.reset;
+			});
+			p.errors.forEach((message) => {
+				const str =
+					ansi.red + makeMessagePrintable(p.fileMap, 'Error', message) + ansi.reset;
 				console.error(str);
-			})
+			});
 		},
 
 		// the actual owl
@@ -264,28 +260,31 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			}
 			let catastrophicErrorReported = false;
 			const nodes = document.namedChildren
-				.map(node=>{
-					if (catastrophicErrorReported) { // Nuke the map()!
+				.map((node) => {
+					if (catastrophicErrorReported) {
+						// Nuke the map()!
 						return;
-					} else if (!node.isError) { // Normal
-						return handleNode(f, node)
+					} else if (!node.isError) {
+						// Normal
+						return handleNode(f, node);
 					} else if (!catastrophicErrorReported) {
 						// The first catastrophic error should be the last!
 						// Every node underneath is just wrecked. Nuke it all!
 						f.newError({
 							locations: [{ node }],
 							message: `catastrophic syntax error (naive guess: invalid script name)`,
-							footer: `Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n`
-							+ `   add { ... } // INVALID\n`
-							+ `   include { ... } // INVALID\n`
-							+ `   script add { ... } // fix with keyword\n`
-							+ `   "include" { ... } // fix with quotes\n`
+							footer:
+								`Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n` +
+								`   add { ... } // INVALID\n` +
+								`   include { ... } // INVALID\n` +
+								`   script add { ... } // fix with keyword\n` +
+								`   "include" { ... } // fix with quotes\n`,
 						});
 						catastrophicErrorReported = true;
 					}
 				})
 				.flat()
-				.filter(v=>v); // catastrophic errors are undefined nodes
+				.filter((v) => v); // catastrophic errors are undefined nodes
 			f.nodes = nodes;
 			// add parsed file to the pile
 			fileMap[fileName].parsed = f;
@@ -294,8 +293,4 @@ const makeProjectState = (tsParser, fileMap, scenarioData) => {
 	};
 
 	return p;
-};
-
-module.exports = {
-	makeProjectState,
 };

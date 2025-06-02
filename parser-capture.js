@@ -1,13 +1,11 @@
-const {
+import {
 	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
 	invert,
 	inverseOpMap,
-} = require('./parser-utilities.js');
-const {
-	getBoolFieldForAction,
-} = require('./parser-bytecode-info.js');
+} from './parser-utilities.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.js';
 
 const opIntoStringMap = {
 	'=': 'SET',
@@ -19,14 +17,14 @@ const opIntoStringMap = {
 	'?': 'RNG',
 };
 
-const handleCapture = (f, node) => {
+export const handleCapture = (f, node) => {
 	reportErrorNodes(f, node);
 	reportMissingChildNodes(f, node);
 	const grammarType = node.grammarType;
 	debugLog(`-->> Capturing: ${grammarType}`);
 	// expansions cannot be recursive, so this is fine
 	if (grammarType.endsWith('_expansion')) {
-		return node.namedChildren.map(v=>handleCapture(f, v));
+		return node.namedChildren.map((v) => handleCapture(f, v));
 	}
 	if (grammarType === 'CONSTANT') {
 		const lookup = f.constants[node.text];
@@ -39,7 +37,7 @@ const handleCapture = (f, node) => {
 		return lookup?.value || node.text;
 	}
 	const fn = captureFns[grammarType];
-	if (!fn) throw new Error (`No handler function found for token ${grammarType}`);
+	if (!fn) throw new Error(`No handler function found for token ${grammarType}`);
 	const ret = fn(f, node);
 	// todo: Maybe I don't need this? Errors are reported as they are discovered, not ascertained after the fact (bereft of context), right?
 	if (typeof ret === 'object') {
@@ -66,7 +64,7 @@ const captureFns = {
 	DURATION: (f, node) => {
 		const suffixNode = textForFieldName(f, node, 'suffix');
 		let n = parseInt(node.namedChild('NUMBER').text);
-		if (suffixNode === 's') n *= 1000; 
+		if (suffixNode === 's') n *= 1000;
 		return n;
 	},
 	DISTANCE: (f, node) => parseInt(node.text),
@@ -78,7 +76,7 @@ const captureFns = {
 		}
 		const suffixNode = textForFieldName(f, node, 'suffix');
 		let n = parseInt(node.namedChild('NUMBER').text);
-		if (suffixNode === 's') n *= 1000; 
+		if (suffixNode === 's') n *= 1000;
 		return n;
 	},
 	COLOR: (f, node) => {
@@ -103,14 +101,14 @@ const captureFns = {
 	CONSTANT: (f, node) => node.text,
 	op_equals: (f, node) => opIntoStringMap[node.text[0]],
 	plus_minus_equals: (f, node) => node.text,
-	forever: (f, node) => true,
-	entity_or_map_identifier: (f, node) => { // -> string
-		return textForFieldName(f, node, 'type') === 'map'
-			? '%MAP%'
-			: extractEntityName(f, node);
+	forever: () => true,
+	entity_or_map_identifier: (f, node) => {
+		// -> string
+		return textForFieldName(f, node, 'type') === 'map' ? '%MAP%' : extractEntityName(f, node);
 	},
 	entity_identifier: (f, node) => extractEntityName(f, node), // -> string
-	movable_identifier: (f, node) => { // -> {}
+	movable_identifier: (f, node) => {
+		// -> {}
 		const ret = { mathlang: 'movable_identifier' };
 		const type = textForFieldName(f, node, 'type');
 		if (type === 'camera') {
@@ -168,7 +166,7 @@ const captureFns = {
 			...ret,
 			type: 'entity',
 			value: extractEntityName(f, node),
-		}
+		};
 	},
 	bool_setable: (f, node) => {
 		const ret = { mathlang: 'bool_setable' };
@@ -194,7 +192,7 @@ const captureFns = {
 				// action: 'SET_LIGHTS_STATE',
 				value: captureForFieldName(f, node, 'light'),
 				type: 'light',
-			}
+			};
 		}
 		return { ...ret, type };
 	},
@@ -213,8 +211,8 @@ const captureFns = {
 					},
 					{ node: rhsNode },
 				],
-				message: `constant is not a number`
-			})
+				message: `constant is not a number`,
+			});
 			rhs = NaN;
 		}
 		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'number') {
@@ -226,18 +224,19 @@ const captureFns = {
 					},
 					{ node: lhsNode },
 				],
-				message: `constant is not a number`
-			})
+				message: `constant is not a number`,
+			});
 			lhs = NaN;
 		}
 		return {
 			mathlang: 'int_binary_expression',
 			lhs,
 			rhs,
-			op
+			op,
 		};
 	},
-	bool_binary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
+	bool_binary_expression: (f, node) => {
+		// PART OF BOOL EXPRESSIONS
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
 		const op = textForFieldName(f, node, 'operator');
@@ -252,8 +251,8 @@ const captureFns = {
 					},
 					{ node: rhsNode },
 				],
-				message: `constant is not a boolean`
-			})
+				message: `constant is not a boolean`,
+			});
 			rhs = null;
 		}
 		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'boolean') {
@@ -265,8 +264,8 @@ const captureFns = {
 					},
 					{ node: lhsNode },
 				],
-				message: `constant is not a boolean`
-			})
+				message: `constant is not a boolean`,
+			});
 			lhs = null;
 		}
 		return {
@@ -281,11 +280,12 @@ const captureFns = {
 		};
 	},
 	bool_grouping: (f, node) => captureForFieldName(f, node, 'inner'),
-	bool_unary_expression: (f, node) => { // PART OF BOOL EXPRESSIONS
+	bool_unary_expression: (f, node) => {
+		// PART OF BOOL EXPRESSIONS
 		const op = textForFieldName(f, node, 'operator');
-		if (op !== '!') throw new Error ("what kind of unary is '" + op + "'?");
+		if (op !== '!') throw new Error("what kind of unary is '" + op + "'?");
 		const capture = captureForFieldName(f, node, 'operand');
-		const toInvert = typeof capture === 'object'  ? {...capture} : capture;
+		const toInvert = typeof capture === 'object' ? { ...capture } : capture;
 		const inverted = invert(f, node, toInvert);
 		return inverted;
 	},
@@ -294,9 +294,10 @@ const captureFns = {
 			mathlang: 'int_getable',
 			field: textForFieldName(f, node, 'property'),
 			entity: captureForFieldName(f, node, 'entity_identifier'),
-		}
+		};
 	},
-	bool_getable: (f, node) => { // PART OF BOOL EXPRESSIONS
+	bool_getable: (f, node) => {
+		// PART OF BOOL EXPRESSIONS
 		const type = textForFieldName(f, node, 'type');
 		const ret = { mathlang: 'bool_getable' };
 		if (type === 'debug_mode') {
@@ -309,9 +310,7 @@ const captureFns = {
 			ret.entity = captureForFieldName(f, node, 'entity_identifier');
 			ret.geometry = captureForFieldName(f, node, 'geometry_identifier');
 		} else if (type === 'dialog' || type === 'serial_dialog') {
-			ret.action = type === 'dialog'
-				? 'CHECK_DIALOG_OPEN'
-				: 'CHECK_SERIAL_DIALOG_OPEN';
+			ret.action = type === 'dialog' ? 'CHECK_DIALOG_OPEN' : 'CHECK_SERIAL_DIALOG_OPEN';
 			const param = getBoolFieldForAction(ret.action);
 			const state = textForFieldName(f, node, 'value');
 			if (state === 'open') ret[param] = true;
@@ -387,7 +386,7 @@ const captureFns = {
 					stringLabel: 'string',
 				};
 			} else {
-				throw new Error (`this shouldn't happen`)
+				throw new Error(`this shouldn't happen`);
 			}
 		}
 	},
@@ -442,7 +441,7 @@ const captureFns = {
 			} else if (ret.property === 'strafe') {
 				f.newError({
 					location: [{ node: propertyNode }],
-					message: `This property is not supported in boolean expressions`
+					message: `This property is not supported in boolean expressions`,
 				});
 			}
 		}
@@ -474,7 +473,8 @@ const captureFns = {
 			};
 		}
 	},
-	bool_comparison: (f, node) => { // PART OF BOOL EXPRESSIONS
+	bool_comparison: (f, node) => {
+		// PART OF BOOL EXPRESSIONS
 		const lhsNode = node.childForFieldName('lhs');
 		const rhsNode = node.childForFieldName('rhs');
 		const op = textForFieldName(f, node, 'operator');
@@ -484,42 +484,42 @@ const captureFns = {
 				...ret,
 				...compareNSEW(f, lhsNode, rhsNode),
 				expected_bool: op === '==',
-			}
-		} 
+			};
+		}
 		if (rhsNode.grammarType === 'entity_direction') {
 			return {
 				...ret,
 				expected_bool: op === '==',
 				...compareNSEW(f, rhsNode, lhsNode),
-			}
+			};
 		}
 		if (lhsNode.grammarType === 'string_checkable') {
 			return {
 				...ret,
 				expected_bool: op === '==',
 				...compareString(f, lhsNode, rhsNode),
-			}
+			};
 		}
 		if (rhsNode.grammarType === 'string_checkable') {
 			return {
 				...ret,
 				expected_bool: op === '==',
 				...compareString(f, rhsNode, lhsNode),
-			}
+			};
 		}
 		if (lhsNode.grammarType === 'number_checkable_equality') {
 			return {
 				...ret,
 				expected_bool: op === '==',
 				...compareNumberCheckableEquality(f, lhsNode, rhsNode),
-			}
+			};
 		}
 		if (rhsNode.grammarType === 'number_checkable_equality') {
 			return {
 				...ret,
 				expected_bool: op === '==',
 				...compareNumberCheckableEquality(f, rhsNode, lhsNode),
-			}
+			};
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
@@ -548,8 +548,8 @@ const captureFns = {
 		return {
 			mathlang: 'int_getable',
 			field: textForFieldName(f, node, 'property'),
-			entity: captureForFieldName(f, node, 'entity_identifier')
-		}
+			entity: captureForFieldName(f, node, 'entity_identifier'),
+		};
 	},
 	int_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
 	bool_grouping: (f, node) => handleCapture(f, node.namedChildren[0]),
@@ -581,7 +581,7 @@ const captureFns = {
 
 // These are separated so that the LHS and RHS can be swapped easily
 const compareNSEW = (f, entityNode, nsewNode) => ({
-	action: "CHECK_ENTITY_DIRECTION",
+	action: 'CHECK_ENTITY_DIRECTION',
 	direction: nsewNode.text,
 	entity: captureForFieldName(f, entityNode, 'entity_identifier'),
 });
@@ -619,38 +619,28 @@ const checkVariable = (f, variable, value, comparison) => ({
 });
 const extractEntityName = (f, node) => {
 	const type = textForFieldName(f, node, 'type');
-	if (type === 'self') return '%SELF%'
-	if (type === 'player') return '%PLAYER%'
-	if (type !== 'entity') throw new Error ('Entity identifier not an entity?');
+	if (type === 'self') return '%SELF%';
+	if (type === 'player') return '%PLAYER%';
+	if (type !== 'entity') throw new Error('Entity identifier not an entity?');
 	return captureForFieldName(f, node, 'entity');
 };
 
 // Very common node handling behaviors
-const captureForFieldName = (f, node, fieldName) => {
+export const captureForFieldName = (f, node, fieldName) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return handleCapture(f, captureNode);
 };
-const capturesForFieldName = (f, node, fieldName) => {
-	return (node.childrenForFieldName(fieldName) || [])
-		.map(v=>handleCapture(f, v))
-		.flat();
+export const capturesForFieldName = (f, node, fieldName) => {
+	return (node.childrenForFieldName(fieldName) || []).map((v) => handleCapture(f, v)).flat();
 };
-const textForFieldName = (f, node, fieldName) => {
+export const textForFieldName = (f, node, fieldName) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return captureNode.text;
 };
-const grammarTypeForFieldName = (f, node, fieldName) => {
+export const grammarTypeForFieldName = (f, node, fieldName) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return captureNode.grammarType;
-};
-
-module.exports = {
-	handleCapture,
-	captureForFieldName,
-	capturesForFieldName,
-	textForFieldName,
-	grammarTypeForFieldName,
 };

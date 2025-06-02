@@ -1,6 +1,6 @@
-const { ansiTags: ansi } = require('./parser-dialogs.js');
+import { ansiTags as ansi } from './parser-dialogs.js';
 
-const makeFileState = (p, fileName) => {
+export const makeFileState = (p, fileName) => {
 	// file crawl state
 	const f = {
 		// project crawl state, because we need to reach in sometimes
@@ -31,7 +31,7 @@ const makeFileState = (p, fileName) => {
 		// local errors/warnings will add the filename here for sanity's sake (rather than needing to be added each time there's an error)
 		// errors made this way should only be concerned with the original file itself, and so the crawl state's filename should be correct in all cases
 		newError: (message) => {
-			message.locations.forEach(v=>{
+			message.locations.forEach((v) => {
 				// only put on a filename if one was not provided in the locations entry
 				// (should be able to override default filename if necessary)
 				if (!v.fileName) v.fileName = fileName;
@@ -40,7 +40,7 @@ const makeFileState = (p, fileName) => {
 			f.errorCount += 1;
 		},
 		newWarning: (message) => {
-			message.locations.forEach(v=>{
+			message.locations.forEach((v) => {
 				if (!v.fileName) v.fileName = fileName;
 			});
 			p.newWarning(message);
@@ -52,32 +52,36 @@ const makeFileState = (p, fileName) => {
 			// Push ifs up! Don't call this function unless you know the file is parsed already
 			const newFile = p.fileMap[newName].parsed;
 			// add their constants to us
-			Object.keys(newFile.constants).forEach(constantName=>{
+			Object.keys(newFile.constants).forEach((constantName) => {
 				if (f.constants[constantName]) {
 					f.newError({
 						message: `cannot redefine constant ${constantName} (via 'include')`,
-						locations: [{
-							fileName: newFile.fileName,
-							node: newFile.constants[constantName].node, 
-						}],
+						locations: [
+							{
+								fileName: newFile.fileName,
+								node: newFile.constants[constantName].node,
+							},
+						],
 					});
 				}
 				f.constants[constantName] = newFile.constants[constantName];
 			});
 			// add their actual node entries to us (might help debugging)
-			newFile.nodes.forEach(node=>{ f.nodes.push(node) });
+			newFile.nodes.forEach((node) => {
+				f.nodes.push(node);
+			});
 			// add (serial) dialog settings
-			['default', 'serial'].forEach(type=>{
-				Object.keys(newFile.settings[type]).forEach(param=>{
+			['default', 'serial'].forEach((type) => {
+				Object.keys(newFile.settings[type]).forEach((param) => {
 					f.settings[type][param] = newFile.settings[type][param];
 				});
 			});
 			// ...some of which are extra layered
-			['entity', 'label'].forEach(type=>{
-				Object.keys(newFile.settings[type]).forEach(target=>{
+			['entity', 'label'].forEach((type) => {
+				Object.keys(newFile.settings[type]).forEach((target) => {
 					const params = Object.keys(newFile.settings[type][target]);
 					f.settings[type][target] = f.settings[type][target] || {};
-					params.forEach(param=>{
+					params.forEach((param) => {
 						f.settings[type][target][param] = newFile.settings[type][target][param];
 						// (I apologize for this)
 					});
@@ -103,8 +107,4 @@ const makeFileState = (p, fileName) => {
 		},
 	};
 	return f;
-};
-
-module.exports = {
-	makeFileState,
 };
