@@ -1,9 +1,18 @@
+import { Node as TreeSitterNode } from 'web-tree-sitter';
+
 export type MGSDebug = {
-	node: Node;
+	node: TreeSitterNode;
 	data;
+	fileName?: string;
+	comment?: string;
 };
 export type NULL_ACTION = {
 	action: 'NULL_ACTION';
+	debug?: MGSDebug;
+};
+export type LABEL = {
+	action: 'LABEL';
+	value: string;
 	debug?: MGSDebug;
 };
 export type CHECK_ENTITY_NAME = {
@@ -204,6 +213,12 @@ export type CHECK_WARP_STATE = {
 export type RUN_SCRIPT = {
 	action: 'RUN_SCRIPT';
 	script: string;
+	debug?: MGSDebug;
+};
+export type COPY_SCRIPT = {
+	action: 'COPY_SCRIPT';
+	script?: string;
+	scriptName?: string; //FIX THIS
 	debug?: MGSDebug;
 };
 export type BLOCKING_DELAY = {
@@ -684,6 +699,7 @@ export type SET_SERIAL_DIALOG_COMMAND_VISIBILITY = {
 
 export type Action =
 	| NULL_ACTION
+	| LABEL
 	| CHECK_ENTITY_NAME
 	| CHECK_ENTITY_X
 	| CHECK_ENTITY_Y
@@ -705,6 +721,7 @@ export type Action =
 	| CHECK_FOR_BUTTON_STATE
 	| CHECK_WARP_STATE
 	| RUN_SCRIPT
+	| COPY_SCRIPT
 	| BLOCKING_DELAY
 	| NON_BLOCKING_DELAY
 	| SET_ENTITY_NAME
@@ -826,6 +843,7 @@ const actionFields = {
 	CHECK_FOR_BUTTON_STATE: ['JUMP_SPECIAL_FIELDS', 'button_id', 'expected_bool'],
 	CHECK_WARP_STATE: ['JUMP_SPECIAL_FIELDS', 'string', 'expected_bool'],
 	RUN_SCRIPT: ['script'],
+	COPY_SCRIPT: ['script'],
 	BLOCKING_DELAY: ['duration'],
 	NON_BLOCKING_DELAY: ['duration'],
 	SET_ENTITY_NAME: ['string', 'entity'],

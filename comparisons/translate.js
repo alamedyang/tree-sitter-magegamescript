@@ -1,5 +1,5 @@
 import { writeFileSync } from 'node:fs';
-import { printScript } from '../parser-to-json.js';
+import { printScript } from '../parser-to-json.ts';
 import { composites } from './exfiltrated_composites.js';
 
 const exfiltrate = {};
