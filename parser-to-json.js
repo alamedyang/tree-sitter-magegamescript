@@ -1,4 +1,4 @@
-import { getBoolFieldForAction } from './parser-bytecode-info.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 import { inverseOpMap } from './parser-utilities.js';
 const printAction = (data) => {
 	if (data.mathlang === 'comment') {

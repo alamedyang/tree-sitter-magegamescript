@@ -1,4 +1,4 @@
-import { getBoolFieldForAction } from './parser-bytecode-info.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 
 export let verbose = false;
 export const debugLog = (message) => {

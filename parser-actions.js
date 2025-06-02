@@ -16,7 +16,7 @@ import {
 	latestTemporary,
 	newComment,
 } from './parser-utilities.js';
-import { getBoolFieldForAction } from './parser-bytecode-info.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 
 // Cyclic dependency bodge
 let handleNode;

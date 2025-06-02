@@ -5,7 +5,7 @@ import {
 	invert,
 	inverseOpMap,
 } from './parser-utilities.js';
-import { getBoolFieldForAction } from './parser-bytecode-info.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 
 const opIntoStringMap = {
 	'=': 'SET',
