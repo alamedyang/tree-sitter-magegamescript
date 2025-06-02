@@ -1,3 +1,17 @@
+"bender-success-backstory" {
+   show dialog "ch1-bender.mgs-3:1";
+   copy!("undefined")
+   show dialog "ch1-bender.mgs-7:1";
+   end_of_script_83:
+}
+
+"bender-success-no-backstory" {
+   show dialog "ch1-bender.mgs-24:1";
+   copy!("undefined")
+   show dialog "ch1-bender.mgs-28:1";
+   end_of_script_84:
+}
+
 "on_load-bobsclub1" {
    // if sequence: if ("tuesdayd") { command "rtfm" = "command-rtfm"; }
    if "tuesdayd" then goto label if_true_115;
@@ -41,9 +55,9 @@
    wait 200ms;
    entity "Guardian Bob" direction = "south";
    show dialog "ch1-bobsclub.mgs-77:1";
-   copy!("begin-flail")
+   copy!("undefined")
    show dialog "ch1-bobsclub.mgs-82:1";
-   copy!("end-flail")
+   copy!("undefined")
    player_control = true;
    "bobsclub-entered" = true;
    if !"baker-backstory" then goto script "null_script";
@@ -54,12 +68,12 @@
 }
 
 "show_dialog-bobmoss-start" {
-   copy!("face-player")
+   copy!("undefined")
    // if sequence: if (self glitched) { copy!("show_dialog-bobmoss-deglitch"...
    if self glitched then goto label if_true_170;
    goto label rendezvous_169;
    if_true_170:
-   copy!("show_dialog-bobmoss-deglitch")
+   copy!("undefined")
    self on_interact = "show_dialog-bobmoss-start";
    rendezvous_169:
    if "storyflag-bobmoss" then goto script "show_dialog-bobmoss-start-s";
@@ -67,26 +81,59 @@
    entity "Bob Moss" on_tick = "spin_self_clockwise";
    show dialog "ch1-bobsclub.mgs-436:1";
    entity "Bob Moss" on_tick = "null_script";
-   copy!("face-player")
+   copy!("undefined")
    show dialog "ch1-bobsclub.mgs-442:1";
    player_control = false;
    camera fade out -> #000000 over 500ms;
    entity "Bob Moss" position = geometry "catwalk-hide";
    "storyflag-bobmoss" = true;
-   copy!("calculate-hint-tracking-series")
+   copy!("undefined")
    // if sequence: if ("hint-tracking-check" == 3) { // if the hint series i...
    if "hint-tracking-check" == 3 then goto label if_true_172;
    goto label rendezvous_171;
    if_true_172:
-   copy!("set-hint-none")
+   copy!("undefined")
    rendezvous_171:
    camera fade in -> #000000 over 500ms;
    player_control = true;
    end_of_script_168:
 }
 
+"earthquake-setpiece" {
+   camera = geometry "earthquake-setpiece-camera-spot";
+   entity "Verthandi" position = geometry "earthquake-setpiece-verthandi-spot";
+   entity "Marta" position = geometry "earthquake-setpiece-marta-spot";
+   camera fade in -> #000000 over 300ms;
+   entity "Cleo" on_tick = "loiter1";
+   entity "Verthandi" on_tick = "loiter2";
+   entity "Marta" on_tick = "loiter3";
+   entity "Cat" on_tick = "loiter4";
+   entity "Hamster" on_tick = "loiter5";
+   wait 1800ms;
+   entity "Cleo" on_tick = "null_script";
+   entity "Verthandi" on_tick = "null_script";
+   entity "Marta" on_tick = "null_script";
+   entity "Cat" on_tick = "null_script";
+   entity "Hamster" on_tick = "null_script";
+   entity "Marta" direction = "south";
+   entity "Cleo" direction = "south";
+   entity "Cat" direction = "south";
+   entity "Verthandi" direction = "south";
+   entity "Hamster" direction = "south";
+   copy!("undefined")
+   wait 500ms;
+   entity "Marta" on_tick = "marta-walk";
+   entity "Cleo" on_tick = "loiter1";
+   entity "Verthandi" on_tick = "loiter2";
+   entity "Cat" on_tick = "loiter4";
+   entity "Hamster" on_tick = "loiter5";
+   wait 500ms;
+   camera fade out -> #000000 over 300ms;
+   end_of_script_334:
+}
+
 "show_dialog-verthandi-start" {
-   copy!("face-player")
+   copy!("undefined")
    if self glitched then goto script "show_dialog-verthandi-glitched";
    // if sequence: if ("storyflag-verthandi") { show dialog { SELF "Thank yo...
    if "storyflag-verthandi" then goto label if_true_394;
@@ -152,7 +199,7 @@
    show dialog "ch1-goats.mgs-169:4";
    rendezvous_425:
    "verthandi-backstory" = true;
-   copy!("set-hint-glitch")
+   copy!("undefined")
    goto label rendezvous_393;
    if_true_415:
    // if sequence: if ("goats-both-unglitched") { if ("total_glitches" == 1)...
@@ -194,7 +241,7 @@
    // auto dialog: "Perhaps... somewhere in the library?..."
    show dialog "ch1-goats.mgs-147:5";
    rendezvous_416:
-   copy!("set-hint-glitch")
+   copy!("undefined")
    goto label rendezvous_393;
    if_true_410:
    // if sequence: if (!"verthandi-backstory") { show dialog { SELF "Oh! It ...
@@ -206,12 +253,12 @@
    // auto dialog: "Oh! It appears you've already restored e..."
    show dialog "ch1-goats.mgs-123:4";
    rendezvous_411:
-   copy!("calculate-hint-tracking-series")
+   copy!("undefined")
    // if sequence: if ("hint-tracking-check" == 11) { copy!("set-hint-none")...
    if "hint-tracking-check" == 11 then goto label if_true_414;
    goto label rendezvous_413;
    if_true_414:
-   copy!("set-hint-none")
+   copy!("undefined")
    rendezvous_413:
    "storyflag-verthandi" = true;
    "goats-both-unglitched" = true;
@@ -221,6 +268,145 @@
    rendezvous_393:
    goto "show_dialog-verthandi-wrapup";
    end_of_script_392:
+}
+
+"ch1-greenhouse-trekkie-backstory-cutscene" {
+   show dialog "ch1-greenhouse.mgs-120:1";
+   player_control = false;
+   wait 200ms;
+   self direction = entity "Modem";
+   wait 900ms;
+   self direction = geometry "Computer";
+   wait 900ms;
+   copy!("undefined")
+   wait 200ms;
+   show dialog "ch1-greenhouse.mgs-132:1";
+   wait 100ms;
+   self direction = entity "Modem";
+   wait 400ms;
+   show dialog "ch1-greenhouse.mgs-139:1";
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-144:1";
+   copy!("undefined")
+   "trekkie-backstory" = true;
+   copy!("undefined")
+   player_control = true;
+   end_of_script_476:
+}
+
+"ch1-greenhouse-trekkie-backstory-reminder" {
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-164:1";
+   copy!("undefined")
+   copy!("undefined")
+   end_of_script_477:
+}
+
+"ch1-greenhouse-modem-turning-on-cutscene" {
+   self direction = entity "Modem";
+   player direction = entity "Modem";
+   player_control = false;
+   wait 200ms;
+   camera -> entity "Modem" position over 1400ms;
+   wait 200ms;
+   self direction = geometry "Computer";
+   wait 1500ms;
+   self direction = entity "Modem";
+   wait 1200ms;
+   entity "Modem" current_animation = 1;
+   wait 1400ms;
+   show dialog "ch1-greenhouse.mgs-185:1";
+   wait 800ms;
+   copy!("undefined")
+   player direction = self;
+   wait 500ms;
+   player direction = entity "Modem";
+   self direction = entity "Modem";
+   wait 1500ms;
+   entity "Modem" current_animation = 2;
+   wait 1400ms;
+   entity "Modem" current_animation = 3;
+   wait 1700ms;
+   entity "Modem" current_animation = 4;
+   wait 900ms;
+   camera -> player position over 1400ms;
+   wait 400ms;
+   player direction = self;
+   wait 150ms;
+   self direction = geometry "Computer";
+   wait 750ms;
+   self direction = entity "Modem";
+   wait 600ms;
+   self direction = geometry "Computer";
+   wait 800ms;
+   copy!("undefined")
+   show dialog "ch1-greenhouse.mgs-212:1";
+   self direction = geometry "Computer";
+   "storyflag-trekkie" = true;
+   copy!("undefined")
+   player_control = true;
+   end_of_script_478:
+}
+
+"empty-lodge" {
+   copy!("undefined")
+   entity "Cleo" position = geometry "lodge-hidingplace";
+   entity "Shepherd" position = geometry "lodge-hidingplace";
+   entity "Beatrice" position = geometry "lodge-hidingplace";
+   entity "Baker" position = geometry "lodge-hidingplace";
+   entity "Trekkie" position = geometry "lodge-hidingplace";
+   entity "Marta" position = geometry "lodge-hidingplace";
+   entity "Max Swagger" position = geometry "lodge-hidingplace";
+   entity "Smith" position = geometry "lodge-hidingplace";
+   entity "Verthandi" position = geometry "lodge-hidingplace";
+   entity "Uncle Zappy" position = geometry "lodge-hidingplace";
+   entity "Aunt Zippy" position = geometry "lodge-hidingplace";
+   entity "Goose  " position = geometry "lodge-hidingplace";
+   entity "Goose " position = geometry "lodge-hidingplace";
+   end_of_script_510:
+}
+
+"empty-lodge-mini" {
+   entity "Bookcase" position = geometry "lodge-hidingplace";
+   copy!("undefined")
+   copy!("undefined")
+   entity "Jackob" position = geometry "lodge-hidingplace";
+   entity "Alfonso" position = geometry "lodge-hidingplace";
+   entity "Bert" position = geometry "lodge-hidingplace";
+   end_of_script_511:
+}
+
+"player-ringzero-from-landing-10" {
+   player position -> geometry "ringzero-landing-8" origin over 600ms;
+   copy!("undefined")
+   end_of_script_604:
+}
+
+"player-ringzero-from-landing-1" {
+   player position -> geometry "ringzero-landing-4" origin over 400ms;
+   copy!("undefined")
+   end_of_script_607:
+}
+
+"bypass-tuesday" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   hex_control = true;
+   copy!("undefined")
+   copy!("undefined")
+   entity "Marta" position = geometry "lodge-hidingplace";
+   end_of_script_628:
+}
+
+"skip-artifacts" {
+   copy!("undefined")
+   entity "Alfonso" position = geometry "elder-point";
+   entity "Marta" position = geometry "marta-broom-watch-spot";
+   entity "Broom" position = geometry "lodge-hidingplace";
+   entity "Bracelet" position = geometry "lodge-hidingplace";
+   entity "Marta" type = "marta_broom";
+   end_of_script_642:
 }
 
 "on_load-map-main" {
@@ -250,7 +436,7 @@
    if "storyflag-rake" then goto label if_true_712;
    goto label rendezvous_711;
    if_true_712:
-   copy!("rake-in-lake")
+   copy!("undefined")
    entity "Goose" on_interact = "honk-to-make-rake-float";
    rendezvous_711:
    // if sequence: if ("billy-unglitched") { entity "Billy" glitched = false...
@@ -281,13 +467,13 @@
    if "storyflag-shepherd" then goto label if_true_722;
    goto label rendezvous_721;
    if_true_722:
-   copy!("sheep-in-pen")
+   copy!("undefined")
    rendezvous_721:
    // if sequence: if ("storyflag-bender") { copy!("bender-happybutt") }
    if "storyflag-bender" then goto label if_true_724;
    goto label rendezvous_723;
    if_true_724:
-   copy!("bender-happybutt")
+   copy!("undefined")
    rendezvous_723:
    if !"walked-to-lodge" then goto script "walk-to-lodge";
    player_control = false;
@@ -359,11 +545,19 @@
    goto label rendezvous_725;
    if_true_726:
    player position -> geometry "enter_from-lodge" length over 400ms;
-   copy!("hintman-cutscene")
+   copy!("undefined")
    "hintman-explanation" = true;
    rendezvous_725:
    player_control = true;
    end_of_script_704:
+}
+
+"cat-and-cleo-convo-turn-player" {
+   copy!("undefined")
+   entity "Cleo" direction = player;
+   entity "Cat" direction = player;
+   copy!("undefined")
+   end_of_script_772:
 }
 
 "show_dialog-bea-part1" {
@@ -393,45 +587,45 @@
    // if sequence: if (entity "Delmar" type == "sheep "|| entity "Delmar" ty...
    if entity "Delmar" type == "sheep " then goto label if_true_871;
    if entity "Delmar" type == "helga" then goto label if_true_871;
-   copy!("clear-own-tick")
-   copy!("slow-stare-at-delmar")
+   copy!("undefined")
+   copy!("undefined")
    // auto dialog: "Oh, %Delmar%! You're... oh......."
    show dialog "ch1-oldcouplehouse.mgs-136:5";
-   copy!("face-player")
+   copy!("undefined")
    // auto dialog: "Oh, goodness. Well, this isn't my %Delma..."
    show dialog "ch1-oldcouplehouse.mgs-138:5";
    goto label rendezvous_870;
    if_true_871:
    // auto dialog: "Forty years ago, things were sure differ..."
    show dialog "ch1-oldcouplehouse.mgs-124:5";
-   copy!("clear-own-tick")
-   copy!("slow-stare-at-delmar")
+   copy!("undefined")
+   copy!("undefined")
    // auto dialog: "My husband was a real man! Not a farm an..."
    show dialog "ch1-oldcouplehouse.mgs-130:5";
-   copy!("slow-stare-at-player")
+   copy!("undefined")
    player_control = true;
    rendezvous_870:
    // auto dialog: "That ghastly hacker ruffian hacked him i..."
    show dialog "ch1-oldcouplehouse.mgs-143:4";
    "bea1-backstory" = true;
    rendezvous_868:
-   copy!("set_tick-watch-player")
-   copy!("set-hint-bea1")
+   copy!("undefined")
+   copy!("undefined")
    goto label rendezvous_862;
    if_true_865:
    player_control = false;
-   copy!("clear-own-tick")
-   copy!("slow-stare-at-delmar")
+   copy!("undefined")
+   copy!("undefined")
    player_control = true;
    // auto dialog: "Oh, %Delmar%, it's you! You're a man aga..."
    show dialog "ch1-oldcouplehouse.mgs-109:3";
    self direction = entity "Delmar";
-   copy!("calculate-hint-tracking-series")
+   copy!("undefined")
    // if sequence: if ("hint-tracking-check" == 4) { copy!("set-hint-none") ...
    if "hint-tracking-check" == 4 then goto label if_true_867;
    goto label rendezvous_866;
    if_true_867:
-   copy!("set-hint-none")
+   copy!("undefined")
    rendezvous_866:
    "bea1-backstory" = true;
    "storyflag-bea1" = true;
@@ -472,17 +666,17 @@
    if_true_887:
    // auto dialog: "......."
    show dialog "ch1-oldcouplehouse.mgs-208:5";
-   copy!("clear-own-tick")
-   copy!("slow-stare-at-delmar")
+   copy!("undefined")
+   copy!("undefined")
    // auto dialog: "......."
    show dialog "ch1-oldcouplehouse.mgs-211:5";
-   copy!("slow-stare-at-player")
+   copy!("undefined")
    // auto dialog: "But now I find myself longing for quiet...."
    show dialog "ch1-oldcouplehouse.mgs-213:5";
    rendezvous_884:
-   copy!("set_tick-watch-player")
+   copy!("undefined")
    "bea2-backstory" = true;
-   copy!("set-hint-bea2")
+   copy!("undefined")
    goto label rendezvous_876;
    if_true_879:
    // if sequence: if (!"bea2-backstory") { show dialog { SELF "Oh! And I wa...
@@ -495,18 +689,57 @@
    show dialog "ch1-oldcouplehouse.mgs-187:4";
    rendezvous_880:
    self direction = entity "Delmar";
-   copy!("calculate-hint-tracking-series")
+   copy!("undefined")
    // if sequence: if ("hint-tracking-check" == 9) { copy!("set-hint-none") ...
    if "hint-tracking-check" == 9 then goto label if_true_883;
    goto label rendezvous_882;
    if_true_883:
-   copy!("set-hint-none")
+   copy!("undefined")
    rendezvous_882:
    "bea2-backstory" = true;
    "storyflag-bea2" = true;
    rendezvous_876:
    entity "Beatrice" on_interact = "show_dialog-bea-start";
    end_of_script_875:
+}
+
+"show_dialog-shepherd-backstory" {
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-63:1";
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-68:1";
+   copy!("undefined")
+   show dialog "ch1-shepherd.mgs-72:1";
+   end_of_script_950:
+}
+
+"turn-right-and-left" {
+   copy!("undefined")
+   player_control = false;
+   wait 200ms;
+   self direction += 1;
+   wait 500ms;
+   self direction -= -2;
+   wait 500ms;
+   self direction += 1;
+   wait 200ms;
+   copy!("undefined")
+   player_control = true;
+   end_of_script_952:
+}
+
+"show_dialog-shepherd-ending" {
+   "storyflag-shepherd" = true;
+   "shepherd-backstory" = true;
+   copy!("undefined")
+   // if sequence: if ("hint-tracking-check" == 1) { // if the hint series i...
+   if "hint-tracking-check" == 1 then goto label if_true_955;
+   goto label rendezvous_954;
+   if_true_955:
+   copy!("undefined")
+   rendezvous_954:
+   entity "Shepherd" on_interact = "show_dialog-shepherd-start";
+   end_of_script_953:
 }
 
 "ch2-interact-mainframe" {
@@ -526,7 +759,7 @@
    // auto return label
    goto label rendezvous_999;
    if_true_1001:
-   copy!("ch2-install-wizard")
+   copy!("undefined")
    // auto return label
    goto label rendezvous_999;
    if_true_1000:
@@ -553,7 +786,7 @@
    // auto dialog: "(Now installing... the heat sink!)..."
    show dialog "ch2-admin.mgs-78:3";
    "temp" = true;
-   copy!("ch2-install-heatsink")
+   copy!("undefined")
    rendezvous_1008:
    // if sequence: if (!"ch2-installed-powersupply") { if ("ch2-carrying-pow...
    if !"ch2-installed-powersupply" then goto label if_true_1015;
@@ -565,7 +798,7 @@
    // auto dialog: "(Now installing... the power supply!)..."
    show dialog "ch2-admin.mgs-88:3";
    "temp" = true;
-   copy!("ch2-install-powersupply")
+   copy!("undefined")
    rendezvous_1014:
    // if sequence: if (!"ch2-installed-monitor") { if ("ch2-carrying-monitor...
    if !"ch2-installed-monitor" then goto label if_true_1021;
@@ -577,7 +810,7 @@
    // auto dialog: "(Now installing... the monitor!)..."
    show dialog "ch2-admin.mgs-98:3";
    "temp" = true;
-   copy!("ch2-install-monitor")
+   copy!("undefined")
    rendezvous_1020:
    // if sequence: if (!"ch2-installed-harddrive") { if ("ch2-carrying-hardd...
    if !"ch2-installed-harddrive" then goto label if_true_1027;
@@ -589,7 +822,7 @@
    // auto dialog: "(Now installing... the hard drive!)..."
    show dialog "ch2-admin.mgs-109:3";
    "temp" = true;
-   copy!("ch2-install-harddrive")
+   copy!("undefined")
    rendezvous_1026:
    // if sequence: if (!"ch2-installed-keyboard") { if ("ch2-carrying-keyboa...
    if !"ch2-installed-keyboard" then goto label if_true_1033;
@@ -601,7 +834,7 @@
    // auto dialog: "(Now installing... the keyboard!)..."
    show dialog "ch2-admin.mgs-119:3";
    "temp" = true;
-   copy!("ch2-install-keyboard")
+   copy!("undefined")
    rendezvous_1032:
    // if sequence: if (!"ch2-installed-mouse") { if ("ch2-carrying-mouse") {...
    if !"ch2-installed-mouse" then goto label if_true_1039;
@@ -613,7 +846,7 @@
    // auto dialog: "(Now installing... the mouse!)..."
    show dialog "ch2-admin.mgs-129:3";
    "temp" = true;
-   copy!("ch2-install-mouse")
+   copy!("undefined")
    rendezvous_1038:
    // if sequence: if (!"ch2-installed-ramchips") { if ("ch2-carrying-ramchi...
    if !"ch2-installed-ramchips" then goto label if_true_1045;
@@ -625,7 +858,7 @@
    // auto dialog: "(Now installing... the RAM chips!)..."
    show dialog "ch2-admin.mgs-140:3";
    "temp" = true;
-   copy!("ch2-install-ramchips")
+   copy!("undefined")
    rendezvous_1044:
    // if sequence: if (!"ch2-installed-clock") { if ("ch2-carrying-clock") {...
    if !"ch2-installed-clock" then goto label if_true_1051;
@@ -637,7 +870,7 @@
    // auto dialog: "(Now installing... the grandfather clock..."
    show dialog "ch2-admin.mgs-150:3";
    "temp" = true;
-   copy!("ch2-install-clock")
+   copy!("undefined")
    rendezvous_1050:
    // if sequence: if (!"ch2-installed-cpu") { if ("ch2-carrying-cpu") { sho...
    if !"ch2-installed-cpu" then goto label if_true_1057;
@@ -649,32 +882,50 @@
    // auto dialog: "(Now installing... the CPU!)..."
    show dialog "ch2-admin.mgs-160:3";
    "temp" = true;
-   copy!("ch2-install-cpu")
+   copy!("undefined")
    rendezvous_1056:
    // if sequence: if (!"temp") { // no components were installed show dialo...
    if !"temp" then goto label if_true_1061;
    "temp" = false;
    // auto dialog: "That's all for now...."
    show dialog "ch2-admin.mgs-175:2";
-   copy!("ch2-count-flags")
+   copy!("undefined")
    // if sequence: if ("ch2-storyflags-tally" == $goto_round_2) { copy!("ch2...
    if "ch2-storyflags-tally" == 3 then goto label if_true_1063;
    if "ch2-storyflags-tally" == 6 then goto label if_true_1064;
    if "ch2-storyflags-tally" == 9 then goto label if_true_1065;
    goto label rendezvous_1060;
    if_true_1065:
-   copy!("ch2-start-round-4")
+   copy!("undefined")
    goto label rendezvous_1060;
    if_true_1064:
-   copy!("ch2-start-round-3")
+   copy!("undefined")
    goto label rendezvous_1060;
    if_true_1063:
-   copy!("ch2-start-round-2")
+   copy!("undefined")
    if_true_1061:
    // auto dialog: "(You don't have any new components to in..."
    show dialog "ch2-admin.mgs-170:2";
    rendezvous_1060:
    end_of_script_998:
+}
+
+"ch2-start-round-2" {
+   player current_animation = 0;
+   copy!("undefined")
+   player_control = false;
+   wait 200ms;
+   show serial_dialog "spacer";
+   show serial_dialog "ch2-admin.mgs-195:1";
+   "ch2-lambda-paging" = true;
+   "ch2-cutseen-bert-secret" = true;
+   "ch2-storyflag-round" = 2;
+   wait 900ms;
+   show dialog "ch2-admin.mgs-200:1";
+   show serial_dialog "spacer";
+   show serial_dialog "ch2-admin.mgs-205:1";
+   player_control = true;
+   end_of_script_1066:
 }
 
 "ch2-serial-light-manager-mouse" {
@@ -711,7 +962,7 @@
    entity "Jackob" type = "lightning_boy";
    entity "Jackob" direction = "north";
    rendezvous_1124:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_1123:
 }
 
@@ -860,13 +1111,13 @@
    if_true_1162:
    camera = geometry "gasp-spot";
    rendezvous_1161:
-   copy!("ch2-map-init")
+   copy!("undefined")
    command "look" + "bob" = "look-ch2-bob";
    // if sequence: if (!"ch2-cutseen-bob-party") { copy!("ch2-cutscene-bob-p...
    if !"ch2-cutseen-bob-party" then goto label if_true_1164;
    goto label rendezvous_1163;
    if_true_1164:
-   copy!("ch2-cutscene-bob-party")
+   copy!("undefined")
    rendezvous_1163:
    end_of_script_1160:
 }
@@ -875,7 +1126,7 @@
    show serial_dialog "spacer";
    show serial_dialog "ch2-bobsclub.mgs-119:1";
    "ch2-rattle-count" = 0;
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "find" + "cc" = "find-cc"; comm...
    if debug_mode then goto label if_true_1236;
    goto label rendezvous_1235;
@@ -927,7 +1178,7 @@
    show dialog "ch2-bobsclub.mgs-166:3";
    "ch2-saw-emptybobroom" = true;
    rendezvous_1241:
-   copy!("player-look-down")
+   copy!("undefined")
    // if sequence: if ("ch2-want-cactuscooler") { // You KNOW you need CC if...
    if "ch2-want-cactuscooler" then goto label if_true_1244;
    // auto dialog: "Maybe I should take a look around...."
@@ -945,6 +1196,64 @@
    player_control = true;
    rendezvous_1237:
    end_of_script_1234:
+}
+
+"ch2-bobrattling" {
+   // if sequence: if (!"ch2-cutseen-bob-party") { player on_tick = "look-le...
+   if !"ch2-cutseen-bob-party" then goto label if_true_1292;
+   if_true_1292:
+   player on_tick = "look-left-and-right-fast";
+   // if sequence: if ("ch2-rattle-count" == 0) { show dialog { PLAYER "...J...
+   if "ch2-rattle-count" == 0 then goto label if_true_1294;
+   if "ch2-rattle-count" == 1 then goto label if_true_1295;
+   if "ch2-rattle-count" == 2 then goto label if_true_1296;
+   if "ch2-rattle-count" == 3 then goto label if_true_1297;
+   if "ch2-rattle-count" == 4 then goto label if_true_1298;
+   copy!("undefined")
+   // auto dialog: "...But enough distractions. I should use..."
+   show dialog "ch2-bobsclub.mgs-382:3";
+   goto label rendezvous_1293;
+   if_true_1298:
+   copy!("undefined")
+   // auto dialog: "...Ah, that's right, I remember now. I c..."
+   show dialog "ch2-bobsclub.mgs-376:3";
+   goto label rendezvous_1293;
+   if_true_1297:
+   // auto dialog: "...Okay, that music is starting to get o..."
+   show dialog "ch2-bobsclub.mgs-364:3";
+   copy!("undefined")
+   // auto dialog: "...Oh, that's right! The artifact can id..."
+   show dialog "ch2-bobsclub.mgs-368:3";
+   goto label rendezvous_1293;
+   if_true_1296:
+   // auto dialog: "...Wow, I think what I'm hearing is actu..."
+   show dialog "ch2-bobsclub.mgs-354:3";
+   copy!("undefined")
+   // auto dialog: "Is it under the floor or something? I ke..."
+   show dialog "ch2-bobsclub.mgs-358:3";
+   goto label rendezvous_1293;
+   if_true_1295:
+   // auto dialog: "...Okay, that thumping is DEFINITELY mus..."
+   show dialog "ch2-bobsclub.mgs-346:3";
+   // auto dialog: "It sounds like the speaker is nearby, li..."
+   show dialog "ch2-bobsclub.mgs-349:3";
+   goto label rendezvous_1293;
+   if_true_1294:
+   // auto dialog: "...Jeez, that weird thumping is actually..."
+   show dialog "ch2-bobsclub.mgs-336:3";
+   copy!("undefined")
+   // auto dialog: "Where the heck is it coming from? This i..."
+   show dialog "ch2-bobsclub.mgs-340:3";
+   rendezvous_1293:
+   copy!("undefined")
+   "ch2-rattle-count" += 1;
+   // if sequence: if (!"ch2-toot-done") { "ch2-rattle-count" %= 3; }
+   if !"ch2-toot-done" then goto label if_true_1300;
+   goto label rendezvous_1291;
+   if_true_1300:
+   "ch2-rattle-count" %= 3;
+   rendezvous_1291:
+   end_of_script_1282:
 }
 
 "on_load-ch2-castle-1-doorless" {
@@ -965,10 +1274,10 @@
    player position = geometry "walk_from-north";
    goto label rendezvous_1344;
    if_true_1345:
-   copy!("restore_player_state")
+   copy!("undefined")
    rendezvous_1344:
-   copy!("ch2-map-init")
-   copy!("ch2-player-spawn-click-protection")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_1343:
 }
 
@@ -1009,7 +1318,7 @@
    player position = geometry "walk_from-south";
    goto label rendezvous_1355;
    if_true_1356:
-   copy!("restore_player_state")
+   copy!("undefined")
    rendezvous_1355:
    // if sequence: if ("ch2-carrying-mainframeos") { entity "Wizard" current...
    if "ch2-carrying-mainframeos" then goto label if_true_1360;
@@ -1017,7 +1326,7 @@
    if_true_1360:
    entity "Wizard" current_animation = 3;
    rendezvous_1359:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "credits" = "debug-ch2-credits"...
    if debug_mode then goto label if_true_1362;
    goto label rendezvous_1361;
@@ -1045,7 +1354,7 @@
    // auto serial_dialog: " ..."
    show serial_dialog "ch2-castle-1.mgs-196:2";
    rendezvous_1361:
-   copy!("ch2-player-spawn-click-protection")
+   copy!("undefined")
    end_of_script_1348:
 }
 
@@ -1117,7 +1426,7 @@
    if player intersects geometry "south-hitbox" then goto label if_true_1374;
    goto label rendezvous_1373;
    if_true_1374:
-   copy!("on_exit-ch2-castle-1")
+   copy!("undefined")
    warp_state = "walk_from-north";
    load map "ch2-castle-outside";
    rendezvous_1373:
@@ -1125,9 +1434,9 @@
    if player intersects geometry "north-hitbox" then goto label if_true_1376;
    goto label rendezvous_1375;
    if_true_1376:
-   copy!("on_exit-ch2-castle-1")
+   copy!("undefined")
    warp_state = "walk_from-south";
-   copy!("ch2-load-castle-11-special")
+   copy!("undefined")
    rendezvous_1375:
    end_of_script_1372:
 }
@@ -1137,7 +1446,7 @@
    if player intersects geometry "south-hitbox" then goto label if_true_1379;
    goto label rendezvous_1378;
    if_true_1379:
-   copy!("on_exit-ch2-castle-1")
+   copy!("undefined")
    warp_state = "walk_from-north";
    load map "ch2-castle-outside";
    rendezvous_1378:
@@ -1177,9 +1486,22 @@
 }
 
 "on_tick-ch2-castle-1-hexwait1" {
-   copy!("on_tick-ch2-castle-1-hexwait-protec")
+   copy!("undefined")
    if button HAX pressed then goto script "on_tick-ch2-castle-1-hexwait2";
    end_of_script_1426:
+}
+
+"on_tick-ch2-castle-1-hexwait-protec" {
+   // if sequence: if (player intersects geometry "south-hitbox") { copy!("c...
+   if player intersects geometry "south-hitbox" then goto label if_true_1432;
+   goto label rendezvous_1431;
+   if_true_1432:
+   copy!("undefined")
+   player_control = false;
+   player position -> geometry "walk_from-south" origin over 200ms;
+   player_control = true;
+   rendezvous_1431:
+   end_of_script_1430:
 }
 
 "on_exit-ch2-castle-1" {
@@ -1191,9 +1513,9 @@
 "on_go-castle-1-north" {
    // if sequence: if (!"ch2-toot-done") { goto "on_go_ch2-notyet"; } else {...
    if !"ch2-toot-done" then goto label if_true_1437;
-   copy!("on_exit-ch2-castle-1")
-   copy!("warping-out-fade-out")
-   copy!("ch2-load-castle-11-special")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
    goto label rendezvous_1436;
    if_true_1437:
    goto "on_go_ch2-notyet";
@@ -1204,8 +1526,8 @@
 "on_go-castle-1-south" {
    // if sequence: if (!"ch2-toot-done") { goto "on_go_ch2-notyet"; } else {...
    if !"ch2-toot-done" then goto label if_true_1440;
-   copy!("on_exit-ch2-castle-1")
-   copy!("warping-out-fade-out")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-castle-outside";
    goto label rendezvous_1439;
    if_true_1440:
@@ -1223,10 +1545,10 @@
    if_true_1461:
    // auto dialog: "Bye...."
    show dialog "ch2-castle-1.mgs-525:3";
-   copy!("ch2-wizard-descend")
+   copy!("undefined")
    // auto return label
    if_true_1459:
-   copy!("ch2-wizard-ascend")
+   copy!("undefined")
    rendezvous_1458:
    // if sequence: if (!"ch2-toot-done") {// pre-toot version show dialog { ...
    if !"ch2-toot-done" then goto label if_true_1463;
@@ -1247,7 +1569,7 @@
    show dialog "ch2-castle-1.mgs-577:5";
    "interrupt3" = true;
    rendezvous_1471:
-   copy!("ch2-wizard-descend")
+   copy!("undefined")
    goto label rendezvous_1462;
    if_true_1470:
    // auto dialog: "So mysterious-voice-man wants to put tha..."
@@ -1258,7 +1580,7 @@
    "ch2-wizard-backstory" = true;
    "interrupt2" = true;
    if_true_1466:
-   copy!("ch2-install-wizard")
+   copy!("undefined")
    if_true_1465:
    // auto dialog: "Looks like whats-his-name is paging you...."
    show dialog "ch2-castle-1.mgs-546:2";
@@ -1279,7 +1601,7 @@
    player_control = false;
    show dialog "ch2-castle-1.mgs-617:1";
    entity "Wizard" on_tick = "null_script";
-   copy!("ch2-spin-wizard")
+   copy!("undefined")
    show dialog "ch2-castle-1.mgs-624:1";
    entity "Wizard" direction = entity "mainframe";
    show dialog "ch2-castle-1.mgs-631:1";
@@ -1317,7 +1639,7 @@
    show dialog "ch2-castle-1.mgs-680:1";
    entity "Wizard" direction = "east";
    player on_tick = "ch2-wait-for-boot";
-   copy!("ch2-bootup")
+   copy!("undefined")
    serial_control = false;
    player_control = false;
    wait 1200ms;
@@ -1336,7 +1658,7 @@
    if_true_1511:
    // auto dialog: "Ah, okay! Um, if you change your mind, s..."
    show dialog "ch2-castle-1.mgs-1397:2";
-   copy!("register-manual")
+   copy!("undefined")
    "can-interrupt-dialog" = true;
    serial_control = true;
    // auto dialog: "To finish our conversation, type \"MAN\"..."
@@ -1360,7 +1682,7 @@
    // auto dialog: "Excellent! You're all set!..."
    show dialog "ch2-castle-1.mgs-1541:2";
    if_true_1524:
-   copy!("register-manual")
+   copy!("undefined")
    "can-interrupt-dialog" = true;
    serial_control = true;
    // auto dialog: "Excellent! Let's continue our conversati..."
@@ -1396,7 +1718,7 @@
    if_true_1533:
    player position = geometry "walk_from-north";
    rendezvous_1532:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_1531:
 }
 
@@ -1418,14 +1740,14 @@
    if "ch2-carrying-monitor" then goto label if_true_1540;
    goto label rendezvous_1539;
    if_true_1540:
-   copy!("ch2-hide-monitor")
+   copy!("undefined")
    rendezvous_1539:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (!"ch2-cutseen-castle11") { copy!("ch2-cutscene-castle...
    if !"ch2-cutseen-castle11" then goto label if_true_1542;
    goto label rendezvous_1541;
    if_true_1542:
-   copy!("ch2-cutscene-castle11")
+   copy!("undefined")
    rendezvous_1541:
    end_of_script_1536:
 }
@@ -1448,7 +1770,7 @@
    if_true_2326:
    player position = geometry "walk_from-north";
    rendezvous_2325:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2324:
 }
 
@@ -1470,9 +1792,9 @@
    if "ch2-carrying-needle" then goto label if_true_2333;
    goto label rendezvous_2332;
    if_true_2333:
-   copy!("ch2-hide-needle")
+   copy!("undefined")
    rendezvous_2332:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (!"ch2-cutseen-castle12") { show dialog { Concierge "W...
    if !"ch2-cutseen-castle12" then goto label if_true_2335;
    goto label rendezvous_2334;
@@ -1499,7 +1821,7 @@
    if_true_2418:
    player position = geometry "walk_from-north";
    rendezvous_2417:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2416:
 }
 
@@ -1551,17 +1873,17 @@
    if_true_2429:
    entity "Aurelius" on_tick = "yeet";
    rendezvous_2428:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (warp_state == "Ch2 King Returns") { "ch2-cutseen-cast...
    if warp_state == "Ch2 King Returns" then goto label if_true_2431;
    // if sequence: if (!"ch2-cutseen-castle13") { copy!("ch2-cutscene-castle...
    if !"ch2-cutseen-castle13" then goto label if_true_2433;
    goto label rendezvous_2430;
    if_true_2433:
-   copy!("ch2-cutscene-castle12")
+   copy!("undefined")
    if_true_2431:
    "ch2-cutseen-castle13" = true;
-   copy!("ch2-cutscene-kingreturns")
+   copy!("undefined")
    rendezvous_2430:
    end_of_script_2420:
 }
@@ -1571,6 +1893,65 @@
    self position -> geometry "templeton2" origin over 400ms;
    if !"ch2-templeton-pace" then goto script "null_script";
    end_of_script_2435:
+}
+
+"ch2-cutscene-kingreturns" {
+   camera fade out -> #000000 over 1ms;
+   player_control = false;
+   player direction = entity "King Gibson";
+   entity "Templeton" direction = entity "King Gibson";
+   entity "Sebastian" direction = entity "King Gibson";
+   entity "King Gibson" on_tick = "walk-over-1500";
+   wait 200ms;
+   player on_tick = "walk-over-1500";
+   camera fade in -> #000000 over 600ms;
+   entity "Templeton" direction = entity "King Gibson";
+   show dialog "ch2-castle-13.mgs-301:1";
+   entity "Sebastian" direction = entity "King Gibson";
+   show dialog "ch2-castle-13.mgs-303:1";
+   show dialog "ch2-castle-13.mgs-304:1";
+   entity "King Gibson" direction = entity "Aurelius";
+   show dialog "ch2-castle-13.mgs-308:1";
+   entity "King Gibson" direction += 1;
+   show dialog "ch2-castle-13.mgs-313:1";
+   entity "King Gibson" direction = entity "Sebastian";
+   show dialog "ch2-castle-13.mgs-319:1";
+   entity "King Gibson" direction = entity "Aurelius";
+   show dialog "ch2-castle-13.mgs-325:1";
+   entity "King Gibson" direction = entity "Sebastian";
+   show dialog "ch2-castle-13.mgs-329:1";
+   entity "King Gibson" direction = "south";
+   show dialog "ch2-castle-13.mgs-333:1";
+   camera fade out -> #000000 over 600ms;
+   player position = geometry "end-player";
+   entity "King Gibson" position = geometry "end-king";
+   entity "Sebastian" position = geometry "end-sebastian";
+   entity "Templeton" position = geometry "end-templeton";
+   entity "Aurelius" position = geometry "end-fish";
+   player direction = entity "King Gibson";
+   camera = geometry "camera-spot3";
+   camera fade in -> #000000 over 600ms;
+   show dialog "ch2-castle-13.mgs-345:1";
+   entity "Sebastian" position -> geometry "end-sebastian2" origin over 400ms;
+   show dialog "ch2-castle-13.mgs-356:1";
+   show dialog "ch2-castle-13.mgs-360:1";
+   entity "Sebastian" position -> geometry "end-sebastian" origin over 400ms;
+   show dialog "ch2-castle-13.mgs-365:1";
+   entity "Templeton" position -> geometry "end-templeton1" origin over 200ms;
+   show dialog "ch2-castle-13.mgs-369:1";
+   entity "Templeton" on_tick = "templeton-catalog-search";
+   show dialog "ch2-castle-13.mgs-373:1";
+   entity "King Gibson" on_tick = "king-walk-to-debris";
+   show dialog "ch2-castle-13.mgs-377:1";
+   copy!("undefined")
+   entity "King Gibson" direction = player;
+   show dialog "ch2-castle-13.mgs-385:1";
+   copy!("undefined")
+   warp_state = "nothing lol";
+   "ch2-king-rescued" = true;
+   camera -> player position over 700ms;
+   player_control = true;
+   end_of_script_2448:
 }
 
 "on_load-ch2-castle-14" {
@@ -1592,7 +1973,7 @@
    if "ch2-carrying-clock" then goto label if_true_2533;
    goto label rendezvous_2532;
    if_true_2533:
-   copy!("ch2-hide-clock")
+   copy!("undefined")
    rendezvous_2532:
    // if sequence: if ( "ch2-storyflag-round" >= 5 || "ch2-king-rescued" ) {...
    if "ch2-storyflag-round" >= 5 then goto label if_true_2535;
@@ -1602,7 +1983,7 @@
    entity "King Gibson" on_tick = "yeet";
    entity "keypad" on_interact = "null_script";
    rendezvous_2534:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if ("ch2-storyflag-round" < 5) { // check if you do the c...
    if "ch2-storyflag-round" < 5 then goto label if_true_2539;
    if_true_2539:
@@ -1675,7 +2056,7 @@
    if_true_2589:
    player position = geometry "walk_from-north";
    rendezvous_2588:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2587:
 }
 
@@ -1698,9 +2079,9 @@
    if "ch2-carrying-abacus" then goto label if_true_2595;
    goto label rendezvous_2594;
    if_true_2595:
-   copy!("ch2-hide-abacus")
+   copy!("undefined")
    rendezvous_2594:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (!"ch2-cutseen-castle21") { player_control = off; wait...
    if !"ch2-cutseen-castle21" then goto label if_true_2597;
    goto label rendezvous_2596;
@@ -1755,7 +2136,7 @@
    if_true_2668:
    player position = geometry "walk_from-south";
    rendezvous_2667:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2666:
 }
 
@@ -1778,9 +2159,9 @@
    if "ch2-carrying-powersupply" then goto label if_true_2674;
    goto label rendezvous_2673;
    if_true_2674:
-   copy!("ch2-hide-powersupply")
+   copy!("undefined")
    rendezvous_2673:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2670:
 }
 
@@ -1794,7 +2175,7 @@
    if_true_2707:
    player position = geometry "walk_from-south";
    rendezvous_2706:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2705:
 }
 
@@ -1811,7 +2192,7 @@
    show serial_dialog "ch2-castle-23.mgs-56:2";
    "ch2-seen-room-23" = true;
    rendezvous_2709:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "get" + "thing" = "ch2-pickup-c...
    if debug_mode then goto label if_true_2712;
    goto label rendezvous_2711;
@@ -2111,7 +2492,7 @@
    if_true_2941:
    player position = geometry "walk_from-north";
    rendezvous_2940:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_2939:
 }
 
@@ -2133,11 +2514,11 @@
    if "ch2-carrying-keyboard" then goto label if_true_2947;
    goto label rendezvous_2946;
    if_true_2947:
-   copy!("ch2-hide-keyboard")
+   copy!("undefined")
    rendezvous_2946:
    "ch2-simon-heard-high" = false;
    "ch2-simon-heard-low" = false;
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "simon" = "debug-simon"; comman...
    if debug_mode then goto label if_true_2949;
    goto label rendezvous_2948;
@@ -2181,13 +2562,13 @@
    show dialog "ch2-castle-31.mgs-293:3";
    "ch2-simon-repeat-brunhilda-backstory" = true;
    rendezvous_2981:
-   copy!("simon-game-launcher")
+   copy!("undefined")
    goto label rendezvous_2973;
    if_true_2978:
    entity "Simon" current_animation = 12;
    // auto dialog: "Ah, man! I'm still sweatin' after that l..."
    show dialog "ch2-castle-31.mgs-257:2";
-   copy!("simon-game-launcher")
+   copy!("undefined")
    goto label rendezvous_2973;
    if_true_2975:
    // if sequence: if (!"ch2-simon-backstory") { show dialog { PLAYER "So, a...
@@ -2212,7 +2593,7 @@
    show dialog "ch2-castle-31.mgs-243:3";
    "ch2-simon-backstory" = true;
    rendezvous_2976:
-   copy!("simon-game-launcher")
+   copy!("undefined")
    goto label rendezvous_2973;
    if_true_2974:
    // auto dialog: "There's no audience! I can't play in the..."
@@ -2236,7 +2617,7 @@
    player position = geometry "walk_from-northeast";
    rendezvous_3008:
    command "look" + "vending machine" = "look-ch2-vendingmachine";
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3007:
 }
 
@@ -2259,7 +2640,7 @@
    if !"ch2-ramchips-dispensed" then goto label if_true_3015;
    goto label rendezvous_3014;
    if_true_3015:
-   copy!("ch2-hide-ramchips")
+   copy!("undefined")
    rendezvous_3014:
    // if sequence: if (warp_state == "walk_from-northeast") { player positio...
    if warp_state == "walk_from-northeast" then goto label if_true_3017;
@@ -2272,7 +2653,7 @@
    player position = geometry "walk_from-northeast";
    rendezvous_3016:
    command "look" + "vending machine" = "look-ch2-vendingmachine";
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "want" + "chips" = "debug-want-...
    if debug_mode then goto label if_true_3020;
    goto label rendezvous_3019;
@@ -2282,6 +2663,15 @@
    show serial_dialog "ch2-castle-32.mgs-126:2";
    rendezvous_3019:
    end_of_script_3011:
+}
+
+"interact-ch2-seamoss-cutscene" {
+   player_control = false;
+   show dialog "ch2-castle-32.mgs-427:1";
+   wait 100ms;
+   player on_tick = "ch2-walk-to-vend";
+   copy!("undefined")
+   end_of_script_3076:
 }
 
 "on_load-ch2-castle-33" {
@@ -2302,10 +2692,10 @@
    if "ch2-carrying-mouse" then goto label if_true_3092;
    goto label rendezvous_3091;
    if_true_3092:
-   copy!("ch2-hide-mouse")
+   copy!("undefined")
    rendezvous_3091:
    "ch2-mousegame" = false;
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "mousegame" = "ch2-debug-mouseg...
    if debug_mode then goto label if_true_3094;
    goto label rendezvous_3093;
@@ -2349,7 +2739,7 @@
    // if sequence: if ("ch2-mousegame") { player_control = off; player curre...
    if "ch2-mousegame" then goto label if_true_3107;
    warp_state = "walk_from-northwest";
-   copy!("ch2-load-castle-32-special")
+   copy!("undefined")
    goto label rendezvous_3104;
    if_true_3107:
    player_control = false;
@@ -2364,7 +2754,7 @@
 }
 
 "ch2-interact-gregory" {
-   copy!("face-player")
+   copy!("undefined")
    // if sequence: if ("ch2-mousegame") { if (!"interrupt") { show dialog { ...
    if "ch2-mousegame" then goto label if_true_3117;
    if_true_3117:
@@ -2411,7 +2801,7 @@
    // auto dialog: "It's loose in this room somewhere, but I..."
    show dialog "ch2-castle-33.mgs-251:3";
    entity "Gregory" on_tick = "face-player";
-   copy!("face-player")
+   copy!("undefined")
    // auto dialog: "It's hiding in one of the hydroponics bi..."
    show dialog "ch2-castle-33.mgs-256:3";
    // if sequence: if (!"ch2-bluetooth-mouse-rant") { show dialog { SELF "We...
@@ -2438,7 +2828,7 @@
    entity "Lights" on_tick = "screen-lights-flash-bits";
    // auto dialog: "Yes, these eight lights in a line, here ..."
    show dialog "ch2-castle-33.mgs-282:3";
-   copy!("ch2-map-init-hex")
+   copy!("undefined")
    entity "Lights" on_tick = "ch2-serial-light-manager";
    // auto dialog: "Well, let me know when you want to have ..."
    show dialog "ch2-castle-33.mgs-289:3";
@@ -2471,7 +2861,7 @@
    // auto dialog: "This wing was recently redone to install..."
    show dialog "ch2-castle-33.mgs-184:3";
    entity "Gregory" on_tick = "face-player";
-   copy!("face-player")
+   copy!("undefined")
    // auto dialog: "They did some structural reinforcement, ..."
    show dialog "ch2-castle-33.mgs-190:3";
    "ch2-gregory-backstory" = true;
@@ -2482,6 +2872,345 @@
    show dialog "ch2-gregory-cactus-help";
    rendezvous_3120:
    end_of_script_3113:
+}
+
+"start-hanoi" {
+   player_control = false;
+   copy!("undefined")
+   copy!("undefined")
+   map on_tick = "tick_hanoi";
+   end_of_script_3206:
+}
+
+"hanoi_move" {
+   // if sequence: if ("cursor_value" == 0) { if ("cursor_pos" == 1) { if ("...
+   if "cursor_value" == 0 then goto label if_true_3244;
+   copy!("undefined")
+   // if sequence: if ("can_drop") { if ("cursor_pos" == 1) { copy!("array1_...
+   if "can_drop" then goto label if_true_3256;
+   "hanoi_warning_size" = true;
+   if_true_3256:
+   // if sequence: if ("cursor_pos" == 1) { copy!("array1_push") } else if (...
+   if "cursor_pos" == 1 then goto label if_true_3258;
+   if "cursor_pos" == 2 then goto label if_true_3259;
+   if "cursor_pos" == 3 then goto label if_true_3260;
+   if_true_3260:
+   copy!("undefined")
+   if_true_3259:
+   copy!("undefined")
+   if_true_3258:
+   copy!("undefined")
+   if_true_3244:
+   // if sequence: if ("cursor_pos" == 1) { if ("array1_length" > 0) { copy!...
+   if "cursor_pos" == 1 then goto label if_true_3246;
+   if "cursor_pos" == 2 then goto label if_true_3249;
+   if "cursor_pos" == 3 then goto label if_true_3252;
+   if_true_3252:
+   // if sequence: if ("array3_length" > 0) { copy!("array3_pop") }
+   if "array3_length" > 0 then goto label if_true_3254;
+   if_true_3254:
+   copy!("undefined")
+   if_true_3249:
+   // if sequence: if ("array2_length" > 0) { copy!("array2_pop") }
+   if "array2_length" > 0 then goto label if_true_3251;
+   if_true_3251:
+   copy!("undefined")
+   if_true_3246:
+   // if sequence: if ("array1_length" > 0) { copy!("array1_pop") }
+   if "array1_length" > 0 then goto label if_true_3248;
+   goto label rendezvous_3243;
+   if_true_3248:
+   copy!("undefined")
+   rendezvous_3243:
+   // if sequence: if ("cursor_value" == $win_plate) { "hanoi_won" = true; }
+   if "cursor_value" == 6 then goto label if_true_3262;
+   goto label rendezvous_3261;
+   if_true_3262:
+   "hanoi_won" = true;
+   rendezvous_3261:
+   copy!("undefined")
+   end_of_script_3242:
+}
+
+"draw_tile" {
+   // if sequence: if ("curr_plate" != 0) { copy!("draw_curr_plate") } else ...
+   if "curr_plate" != 0 then goto label if_true_3311;
+   if "cursor_pos" == "column" then goto label if_true_3312;
+   show serial_dialog "hanoi_space";
+   if_true_3312:
+   // if sequence: if ("cursor_hinge_height" < "row") { concat serial_dialog...
+   if "cursor_hinge_height" < "row" then goto label if_true_3314;
+   if "cursor_hinge_height" == "row" then goto label if_true_3315;
+   if "cursor_grip_height" == "row" then goto label if_true_3316;
+   show serial_dialog "hanoi_space";
+   goto label rendezvous_3310;
+   if_true_3316:
+   copy!("undefined")
+   goto label rendezvous_3310;
+   if_true_3315:
+   show serial_dialog "hanoi_cursor_hinge";
+   goto label rendezvous_3310;
+   if_true_3314:
+   show serial_dialog "hanoi_cursor_arm";
+   if_true_3311:
+   copy!("undefined")
+   rendezvous_3310:
+   end_of_script_3309:
+}
+
+"draw_plate_row" {
+   "column" = 1;
+   // set int (ambiguous lhs): "curr_plate" = "plate1" *1
+   "curr_plate" = "plate1";
+   // This action was optimized out (setting 'curr_plate' to itself)
+   copy!("undefined")
+   "column" = 2;
+   // set int (ambiguous lhs): "curr_plate" = "plate2" *1
+   "curr_plate" = "plate2";
+   // This action was optimized out (setting 'curr_plate' to itself)
+   copy!("undefined")
+   "column" = 3;
+   // set int (ambiguous lhs): "curr_plate" = "plate3" *1
+   "curr_plate" = "plate3";
+   // This action was optimized out (setting 'curr_plate' to itself)
+   copy!("undefined")
+   show serial_dialog "newline";
+   end_of_script_3317:
+}
+
+"hanoi_init_game" {
+   // if sequence: if ( !"hanoi_init_done" || "hanoi_won" ) { copy!("hanoi_i...
+   if !"hanoi_init_done" then goto label if_true_3349;
+   if "hanoi_won" then goto label if_true_3349;
+   goto label rendezvous_3348;
+   if_true_3349:
+   copy!("undefined")
+   rendezvous_3348:
+   command "1" = "hanoi_move_1";
+   command "2" = "hanoi_move_2";
+   command "3" = "hanoi_move_3";
+   command "T" = "hanoi_help";
+   command "TIPS" = "hanoi_help";
+   command "R" = "hanoi_reset";
+   command "RESET" = "hanoi_reset";
+   command "Q" = "hanoi_quit_from_terminal";
+   command "QUIT" = "hanoi_quit_from_terminal";
+   // if sequence: if (debug_mode) { command "WIN" = "hanoi_win"; }
+   if debug_mode then goto label if_true_3351;
+   goto label rendezvous_3350;
+   if_true_3351:
+   command "WIN" = "hanoi_win";
+   rendezvous_3350:
+   light LED_USB = true;
+   entity "Lights" on_tick = "null_script";
+   end_of_script_3347:
+}
+
+"array1_print" {
+   show serial_dialog "array_print_left";
+   // for sequence: for ("i" = 1; "i" <= "array1_length"; "i" += 1) { if ("i...
+   "i" = 1;
+   for_condition_3378:
+   if "i" <= "array1_length" then goto label for_body_3378;
+   goto label for_rendezvous_3378;
+   for_body_3378:
+   // if sequence: if ("i" != 1) { concat serial_dialog {" "}; }
+   if "i" != 1 then goto label if_true_3380;
+   goto label rendezvous_3379;
+   if_true_3380:
+   // auto serial_dialog: " ..."
+   show serial_dialog "ch2-castle-34-hanoi.mgs-603:3";
+   rendezvous_3379:
+   // if sequence: if ("i" == 1) { "printme" = "array1_1" *1; } else if ("i"...
+   if "i" == 1 then goto label if_true_3382;
+   if "i" == 2 then goto label if_true_3383;
+   if "i" == 3 then goto label if_true_3384;
+   if "i" == 4 then goto label if_true_3385;
+   if "i" == 5 then goto label if_true_3386;
+   if "i" == 6 then goto label if_true_3387;
+   if "i" == 7 then goto label if_true_3388;
+   goto label rendezvous_3381;
+   if_true_3388:
+   // set int (ambiguous lhs): "printme" = "array1_7" *1
+   "printme" = "array1_7";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3387:
+   // set int (ambiguous lhs): "printme" = "array1_6" *1
+   "printme" = "array1_6";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3386:
+   // set int (ambiguous lhs): "printme" = "array1_5" *1
+   "printme" = "array1_5";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3385:
+   // set int (ambiguous lhs): "printme" = "array1_4" *1
+   "printme" = "array1_4";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3384:
+   // set int (ambiguous lhs): "printme" = "array1_3" *1
+   "printme" = "array1_3";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3383:
+   // set int (ambiguous lhs): "printme" = "array1_2" *1
+   "printme" = "array1_2";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3381;
+   if_true_3382:
+   // set int (ambiguous lhs): "printme" = "array1_1" *1
+   "printme" = "array1_1";
+   // This action was optimized out (setting 'printme' to itself)
+   rendezvous_3381:
+   copy!("undefined")
+   "printme" = 0;
+   for_continue_3378:
+   "i" += 1;
+   goto label for_condition_3378;
+   for_rendezvous_3378:
+   show serial_dialog "array_print_right";
+   end_of_script_3377:
+}
+
+"array2_print" {
+   show serial_dialog "array_print_left";
+   // for sequence: for ("i" = 1; "i" <= "array2_length"; "i" += 1) { if ("i...
+   "i" = 1;
+   for_condition_3422:
+   if "i" <= "array2_length" then goto label for_body_3422;
+   goto label for_rendezvous_3422;
+   for_body_3422:
+   // if sequence: if ("i" != 1) { concat serial_dialog {" "}; }
+   if "i" != 1 then goto label if_true_3424;
+   goto label rendezvous_3423;
+   if_true_3424:
+   // auto serial_dialog: " ..."
+   show serial_dialog "ch2-castle-34-hanoi.mgs-695:3";
+   rendezvous_3423:
+   // if sequence: if ("i" == 1) { "printme" = "array2_1" *1; } else if ("i"...
+   if "i" == 1 then goto label if_true_3426;
+   if "i" == 2 then goto label if_true_3427;
+   if "i" == 3 then goto label if_true_3428;
+   if "i" == 4 then goto label if_true_3429;
+   if "i" == 5 then goto label if_true_3430;
+   if "i" == 6 then goto label if_true_3431;
+   if "i" == 7 then goto label if_true_3432;
+   goto label rendezvous_3425;
+   if_true_3432:
+   // set int (ambiguous lhs): "printme" = "array2_7" *1
+   "printme" = "array2_7";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3431:
+   // set int (ambiguous lhs): "printme" = "array2_6" *1
+   "printme" = "array2_6";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3430:
+   // set int (ambiguous lhs): "printme" = "array2_5" *1
+   "printme" = "array2_5";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3429:
+   // set int (ambiguous lhs): "printme" = "array2_4" *1
+   "printme" = "array2_4";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3428:
+   // set int (ambiguous lhs): "printme" = "array2_3" *1
+   "printme" = "array2_3";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3427:
+   // set int (ambiguous lhs): "printme" = "array2_2" *1
+   "printme" = "array2_2";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3425;
+   if_true_3426:
+   // set int (ambiguous lhs): "printme" = "array2_1" *1
+   "printme" = "array2_1";
+   // This action was optimized out (setting 'printme' to itself)
+   rendezvous_3425:
+   copy!("undefined")
+   "printme" = 0;
+   for_continue_3422:
+   "i" += 1;
+   goto label for_condition_3422;
+   for_rendezvous_3422:
+   show serial_dialog "array_print_right";
+   end_of_script_3421:
+}
+
+"array3_print" {
+   show serial_dialog "array_print_left";
+   // for sequence: for ("i" = 1; "i" <= "array3_length"; "i" += 1) { if ("i...
+   "i" = 1;
+   for_condition_3457:
+   if "i" <= "array3_length" then goto label for_body_3457;
+   goto label for_rendezvous_3457;
+   for_body_3457:
+   // if sequence: if ("i" != 1) { concat serial_dialog {" "}; }
+   if "i" != 1 then goto label if_true_3459;
+   goto label rendezvous_3458;
+   if_true_3459:
+   // auto serial_dialog: " ..."
+   show serial_dialog "ch2-castle-34-hanoi.mgs-776:3";
+   rendezvous_3458:
+   // if sequence: if ("i" == 1) { "printme" = "array3_1" *1; } else if ("i"...
+   if "i" == 1 then goto label if_true_3461;
+   if "i" == 2 then goto label if_true_3462;
+   if "i" == 3 then goto label if_true_3463;
+   if "i" == 4 then goto label if_true_3464;
+   if "i" == 5 then goto label if_true_3465;
+   if "i" == 6 then goto label if_true_3466;
+   if "i" == 7 then goto label if_true_3467;
+   goto label rendezvous_3460;
+   if_true_3467:
+   // set int (ambiguous lhs): "printme" = "array3_7" *1
+   "printme" = "array3_7";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3466:
+   // set int (ambiguous lhs): "printme" = "array3_6" *1
+   "printme" = "array3_6";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3465:
+   // set int (ambiguous lhs): "printme" = "array3_5" *1
+   "printme" = "array3_5";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3464:
+   // set int (ambiguous lhs): "printme" = "array3_4" *1
+   "printme" = "array3_4";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3463:
+   // set int (ambiguous lhs): "printme" = "array3_3" *1
+   "printme" = "array3_3";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3462:
+   // set int (ambiguous lhs): "printme" = "array3_2" *1
+   "printme" = "array3_2";
+   // This action was optimized out (setting 'printme' to itself)
+   goto label rendezvous_3460;
+   if_true_3461:
+   // set int (ambiguous lhs): "printme" = "array3_1" *1
+   "printme" = "array3_1";
+   // This action was optimized out (setting 'printme' to itself)
+   rendezvous_3460:
+   copy!("undefined")
+   "printme" = 0;
+   for_continue_3457:
+   "i" += 1;
+   goto label for_condition_3457;
+   for_rendezvous_3457:
+   show serial_dialog "array_print_right";
+   end_of_script_3456:
 }
 
 "on_load-ch2-castle-34" {
@@ -2497,8 +3226,28 @@
    show serial_dialog "ch2-castle-34.mgs-62:2";
    "ch2-seen-room-34" = true;
    rendezvous_3475:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3474:
+}
+
+"won_hanoi_get_plate" {
+   copy!("undefined")
+   show dialog "ch2-castle-34.mgs-334:1";
+   // if sequence: if ("hanoi_move_count" == 33) { show dialog { Clara "Swee...
+   if "hanoi_move_count" == 33 then goto label if_true_3516;
+   if "hanoi_move_count" == 69 then goto label if_true_3517;
+   // auto dialog: "Sweet...."
+   show dialog "ch2-castle-34.mgs-346:2";
+   goto label rendezvous_3515;
+   if_true_3517:
+   // auto dialog: "Nice...."
+   show dialog "ch2-castle-34.mgs-342:2";
+   goto label rendezvous_3515;
+   if_true_3516:
+   // auto dialog: "Sweet. And it looks like you did it supe..."
+   show dialog "ch2-castle-34.mgs-338:2";
+   rendezvous_3515:
+   end_of_script_3514:
 }
 
 "on_load-ch2-castle-99" {
@@ -2525,9 +3274,9 @@
    if "ch2-carrying-minirake-99" then goto label if_true_3534;
    goto label rendezvous_3533;
    if_true_3534:
-   copy!("ch2-minirake-99-hide")
+   copy!("undefined")
    rendezvous_3533:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (!"ch2-cutseen-castle99") { if (debug_mode) { command ...
    if !"ch2-cutseen-castle99" then goto label if_true_3538;
    goto label rendezvous_3537;
@@ -2567,7 +3316,7 @@
    entity "Jackob" on_tick = "yeet";
    entity "Alfonso" on_tick = "yeet";
    rendezvous_3576:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (warp_state == "walk_from-north") { player position ->...
    if warp_state == "walk_from-north" then goto label if_true_3579;
    if warp_state == "walk_from-east" then goto label if_true_3580;
@@ -2587,6 +3336,78 @@
    end_of_script_3571:
 }
 
+"ch2-map-init-serial" {
+   // if sequence: if (!"ch2-has-artifact") { // no artifact at all serial_c...
+   if !"ch2-has-artifact" then goto label if_true_3612;
+   serial_control = true;
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   alias "h" = "help";
+   alias "l" = "look";
+   goto label rendezvous_3611;
+   if_true_3612:
+   serial_control = false;
+   rendezvous_3611:
+   // if sequence: if ("ch2-has-map") { copy!("register-map") }
+   if "ch2-has-map" then goto label if_true_3614;
+   goto label rendezvous_3613;
+   if_true_3614:
+   copy!("undefined")
+   rendezvous_3613:
+   // if sequence: if (debug_mode) { copy!("register-storyflag") copy!("regi...
+   if debug_mode then goto label if_true_3616;
+   if "ch2-warp-granted" then goto label if_true_3617;
+   goto label rendezvous_3615;
+   if_true_3617:
+   copy!("undefined")
+   goto label rendezvous_3615;
+   if_true_3616:
+   copy!("undefined")
+   copy!("undefined")
+   serial_control = true;
+   rendezvous_3615:
+   // if sequence: if ("ch2-storyflag-round" > 0) { if ("ch2-storyflag-round...
+   if "ch2-storyflag-round" > 0 then goto label if_true_3621;
+   if_true_3621:
+   // if sequence: if ("ch2-storyflag-round" < 5) { copy!("register-parts") ...
+   if "ch2-storyflag-round" < 5 then goto label if_true_3623;
+   goto label rendezvous_3620;
+   if_true_3623:
+   copy!("undefined")
+   rendezvous_3620:
+   end_of_script_3610:
+}
+
+"ch2-map-init-warp-in" {
+   // if sequence: if (warp_state == "warping") { copy!("warping-in-fade-in"...
+   if warp_state == "warping" then goto label if_true_3666;
+   goto label rendezvous_3665;
+   if_true_3666:
+   copy!("undefined")
+   rendezvous_3665:
+   player_control = true;
+   end_of_script_3664:
+}
+
+"ch2-map-init" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   // if sequence: if ("ch2-goosefacts") { command "stop" = "stop-goosefacts...
+   if "ch2-goosefacts" then goto label if_true_3669;
+   goto label rendezvous_3668;
+   if_true_3669:
+   command "stop" = "stop-goosefacts";
+   copy!("undefined")
+   rendezvous_3668:
+   end_of_script_3667:
+}
+
 "on_load-ch2-greenhouse" {
    command "look" + "ethernettles" = "look-ch2-ethernettles";
    show serial_dialog "spacer";
@@ -2600,7 +3421,7 @@
    "EtherNettle6" = entity "EtherNettle6" primary_id;
    "EtherNettle7" = entity "EtherNettle7" primary_id;
    "EtherNettle8" = entity "EtherNettle8" primary_id;
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3762:
 }
 
@@ -2620,7 +3441,7 @@
    entity "Jackob" on_tick = "yeet";
    entity "Alfonso" on_tick = "yeet";
    rendezvous_3799:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3796:
 }
 
@@ -2655,7 +3476,7 @@
    if "ch2-carrying-manual" then goto label if_true_3821;
    goto label rendezvous_3820;
    if_true_3821:
-   copy!("ch2-hide-manual")
+   copy!("undefined")
    rendezvous_3820:
    // if sequence: if (warp_state == "walk_from-north") { player_control = o...
    if warp_state == "walk_from-north" then goto label if_true_3823;
@@ -2664,7 +3485,7 @@
    player_control = false;
    player position = geometry "walk_from-north";
    rendezvous_3822:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3814:
 }
 
@@ -2689,7 +3510,7 @@
    entity "Aunt Zippy" position = geometry "alt-spot1";
    entity "Uncle Zappy" position = geometry "alt-spot3";
    rendezvous_3870:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3869:
 }
 
@@ -2710,7 +3531,7 @@
    if_true_3896:
    entity "Delmar" on_tick = "yeet";
    rendezvous_3895:
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_3894:
 }
 
@@ -2742,7 +3563,7 @@
 }
 
 "interact-ch2-delmar" {
-   copy!("face-player")
+   copy!("undefined")
    // if sequence: if ("interrupt") { if (entity "Delmar" type == "sheep "||...
    if "interrupt" then goto label if_true_3914;
    if entity "Delmar" type == "old_man" then goto label if_true_3917;
@@ -2766,10 +3587,67 @@
    end_of_script_3912:
 }
 
+"debug-set-flags-to-round1" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   end_of_script_3933:
+}
+
+"debug-set-flags-to-round2" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-bert-secret" = true;
+   "ch2-lambda-bert-backstory" = true;
+   "ch2-parts-round-2-backstory" = true;
+   copy!("undefined")
+   end_of_script_3934:
+}
+
+"debug-set-flags-to-round3" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-bert-message" = true;
+   "ch2-parts-round-3-backstory" = true;
+   copy!("undefined")
+   end_of_script_3935:
+}
+
+"debug-set-flags-to-round4" {
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   "ch2-cutseen-last-parts-done" = true;
+   "ch2-warp-granted" = true;
+   "ch2-parts-round-4-backstory" = true;
+   copy!("undefined")
+   end_of_script_3936:
+}
+
+"interact-ch2-solderzone-harddrive" {
+   show dialog "ch2-parts-admin.mgs-354:1";
+   copy!("undefined")
+   end_of_script_3989:
+}
+
+"interact-ch2-solderzone-cpu" {
+   show dialog "ch2-parts-admin.mgs-361:1";
+   copy!("undefined")
+   end_of_script_3990:
+}
+
 "on_load-ch2-smithfamily" {
    show serial_dialog "spacer";
    show serial_dialog "ch2-smithfamily.mgs-34:1";
-   copy!("ch2-map-init")
+   copy!("undefined")
    end_of_script_4358:
 }
 
@@ -2787,7 +3665,7 @@
    entity "Alfonso" on_tick = "yeet";
    goto label rendezvous_4374;
    if_true_4377:
-   copy!("ch2-setup-alfonso-verthandi")
+   copy!("undefined")
    rendezvous_4374:
    // if sequence: if ( "ch2-storyflag-round" == 1 || "ch2-storyflag-round" ...
    if "ch2-storyflag-round" == 1 then goto label if_true_4379;
@@ -2894,9 +3772,9 @@
    camera fade in -> #000000 over 800ms;
    goto label rendezvous_4389;
    if_true_4390:
-   copy!("restore_player_state")
+   copy!("undefined")
    rendezvous_4389:
-   copy!("ch2-map-init")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command "cutbug" = "cutbug"; command "c...
    if debug_mode then goto label if_true_4404;
    goto label rendezvous_4403;
@@ -2906,13 +3784,13 @@
    // auto serial_dialog: " ..."
    show serial_dialog "ch2-town.mgs-125:2";
    rendezvous_4403:
-   copy!("ch2-player-spawn-click-protection")
+   copy!("undefined")
    end_of_script_4371:
 }
 
 "interact-ch2-jackob-end" {
    if "ch2-storyflag-round" < 5 then goto script "null_script";
-   copy!("face-player")
+   copy!("undefined")
    show dialog "ch2-town.mgs-431:1";
    // if sequence: if (!"ch1_finished") { if (!"ch1_unfinished_backstory") {...
    if !"ch1_finished" then goto label if_true_4465;
@@ -2931,7 +3809,7 @@
 
 "interact-ch2-alfonso-end" {
    if "ch2-storyflag-round" < 5 then goto script "null_script";
-   copy!("face-player")
+   copy!("undefined")
    show dialog "ch2-town.mgs-458:1";
    end_of_script_4468:
 }
@@ -3253,13 +4131,24 @@
    end_of_script_4648:
 }
 
+"register-parts" {
+   command "man" + "parts" = "man-parts";
+   command "parts" = "command-parts";
+   command "parts" fail = "command-parts-fail";
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   copy!("undefined")
+   end_of_script_4832:
+}
+
 "command-parts-keyboard" {
    if "ch2-storyflag-round" < 2 then goto script "command-parts-ahead";
    show serial_dialog "spacer";
    // if sequence: if ("ch2-installed-keyboard") { show serial_dialog { "<m>...
    if "ch2-installed-keyboard" then goto label if_true_4927;
    if "ch2-carrying-keyboard" then goto label if_true_4928;
-   copy!("ch2-describe-keyboard")
+   copy!("undefined")
    goto label rendezvous_4926;
    if_true_4928:
    // auto serial_dialog: "[35mLAMBDA[0m: I've checked up on that..."
@@ -3280,7 +4169,7 @@
    // if sequence: if ("ch2-installed-mouse") { show serial_dialog { "<m>LAM...
    if "ch2-installed-mouse" then goto label if_true_4931;
    if "ch2-carrying-mouse" then goto label if_true_4932;
-   copy!("ch2-describe-mouse")
+   copy!("undefined")
    goto label rendezvous_4930;
    if_true_4932:
    // auto serial_dialog: "[35mLAMBDA[0m: Installing the mouse is..."
@@ -3301,7 +4190,7 @@
    // if sequence: if ("ch2-installed-harddrive") { show serial_dialog { "<m...
    if "ch2-installed-harddrive" then goto label if_true_4935;
    if "ch2-carrying-harddrive" then goto label if_true_4936;
-   copy!("ch2-describe-harddrive")
+   copy!("undefined")
    // auto serial_dialog: "    Use one of the solder stations in th..."
    show serial_dialog "command-parts.mgs-362:2";
    goto label rendezvous_4934;
@@ -3324,7 +4213,7 @@
    // if sequence: if ("ch2-installed-plate") { show serial_dialog { "<m>LAM...
    if "ch2-installed-plate" then goto label if_true_4939;
    if "ch2-carrying-plate" then goto label if_true_4940;
-   copy!("ch2-describe-plate")
+   copy!("undefined")
    if_true_4940:
    // if sequence: if (!"ch2-carrying-needle") { show serial_dialog { "<m>LA...
    if !"ch2-carrying-needle" then goto label if_true_4942;
@@ -3349,7 +4238,7 @@
    // if sequence: if ("ch2-installed-needle") { show serial_dialog { "<m>LA...
    if "ch2-installed-needle" then goto label if_true_4945;
    if "ch2-carrying-needle" then goto label if_true_4946;
-   copy!("ch2-describe-needle")
+   copy!("undefined")
    if_true_4946:
    // if sequence: if (!"ch2-carrying-plate") { show serial_dialog { "<m>LAM...
    if !"ch2-carrying-plate" then goto label if_true_4948;
@@ -3374,7 +4263,7 @@
    // if sequence: if ("ch2-installed-ramchips") { show serial_dialog { "<m>...
    if "ch2-installed-ramchips" then goto label if_true_4951;
    if "ch2-carrying-ramchips" then goto label if_true_4952;
-   copy!("ch2-describe-ramchips")
+   copy!("undefined")
    goto label rendezvous_4950;
    if_true_4952:
    // auto serial_dialog: "[35mLAMBDA[0m: To install RAM... \"chi..."
@@ -3395,7 +4284,7 @@
    // if sequence: if ("ch2-installed-clock") { show serial_dialog { "<m>LAM...
    if "ch2-installed-clock" then goto label if_true_4955;
    if "ch2-carrying-clock" then goto label if_true_4956;
-   copy!("ch2-describe-clock")
+   copy!("undefined")
    goto label rendezvous_4954;
    if_true_4956:
    // auto serial_dialog: "[35mLAMBDA[0m: So the system clock is ..."
@@ -3416,7 +4305,7 @@
    // if sequence: if ("ch2-installed-cpu") { show serial_dialog { "<m>LAMBD...
    if "ch2-installed-cpu" then goto label if_true_4959;
    if "ch2-carrying-cpu" then goto label if_true_4960;
-   copy!("ch2-describe-cpu")
+   copy!("undefined")
    goto label rendezvous_4958;
    if_true_4960:
    // auto serial_dialog: "[35mLAMBDA[0m: Line up the CPU with th..."
@@ -3437,7 +4326,7 @@
    // if sequence: if ("ch2-installed-goldfish") { show serial_dialog { "<m>...
    if "ch2-installed-goldfish" then goto label if_true_4963;
    if "ch2-carrying-goldfish" then goto label if_true_4964;
-   copy!("ch2-describe-goldfish")
+   copy!("undefined")
    if_true_4964:
    // if sequence: if (!"ch2-carrying-abacus") { show serial_dialog { "<m>LA...
    if !"ch2-carrying-abacus" then goto label if_true_4966;
@@ -3462,7 +4351,7 @@
    // if sequence: if ("ch2-installed-abacus") { show serial_dialog { "<m>LA...
    if "ch2-installed-abacus" then goto label if_true_4969;
    if "ch2-carrying-abacus" then goto label if_true_4970;
-   copy!("ch2-describe-abacus")
+   copy!("undefined")
    if_true_4970:
    // if sequence: if (!"ch2-carrying-goldfish") { show serial_dialog { "<m>...
    if !"ch2-carrying-goldfish" then goto label if_true_4972;
@@ -3494,90 +4383,90 @@
    rendezvous_5002:
    "ch2-in-room" = 0;
    "current-chapter" = 2;
-   copy!("warping-out-fade-out")
+   copy!("undefined")
    end_of_script_4999:
 }
 
 "warp-ch2-castle-exterior" {
-   copy!("warp-common")
+   copy!("undefined")
    load map "ch2-castle-outside";
    end_of_script_5006:
 }
 
 "warp-ch2-1" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-1-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5007:
 }
 
 "warp-ch2-11" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-11-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5008:
 }
 
 "warp-ch2-12" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-12-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5009:
 }
 
 "warp-ch2-13" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-13-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5010:
 }
 
 "warp-ch2-14" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-14-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5011:
 }
 
 "warp-ch2-21" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-21-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5012:
 }
 
 "warp-ch2-22" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-22-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5013:
 }
 
 "warp-ch2-23" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-23-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5014:
 }
 
 "warp-ch2-31" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-31-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5015:
 }
 
 "warp-ch2-32" {
-   copy!("warp-common")
-   copy!("ch2-load-castle-32-special")
+   copy!("undefined")
+   copy!("undefined")
    end_of_script_5016:
 }
 
 "warp-ch2-33" {
-   copy!("warp-common")
+   copy!("undefined")
    load map "ch2-castle-33";
    end_of_script_5017:
 }
 
 "warp-ch2-34" {
-   copy!("warp-common")
+   copy!("undefined")
    load map "ch2-castle-34";
    end_of_script_5018:
 }
 
 "warp-ch2-99" {
-   copy!("warp-common")
+   copy!("undefined")
    load map "ch2-castle-99";
    end_of_script_5019:
 }
@@ -3593,22 +4482,22 @@
 }
 
 "warp-ch2-town" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-town";
    end_of_script_5024:
 }
 
 "warp-ch2-bakery" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-bakery";
    end_of_script_5025:
 }
 
 "warp-ch2-greenhouse" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-greenhouse";
    end_of_script_5026:
 }
@@ -3620,65 +4509,81 @@
    goto "warp-fail";
    goto label rendezvous_5028;
    if_true_5029:
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "woprhouse";
    rendezvous_5028:
    end_of_script_5027:
 }
 
 "warp-ch2-library" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-lodge";
    end_of_script_5030:
 }
 
 "warp-ch2-rtfmroom" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-lodge-rtfm";
    end_of_script_5031:
 }
 
 "warp-ch2-magehouse" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-magehouse";
    end_of_script_5032:
 }
 
 "warp-ch2-bobsclub" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-bobsclub";
    end_of_script_5033:
 }
 
 "warp-ch2-bobsclub-basement" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-bobsclub-basement";
    end_of_script_5034:
 }
 
 "warp-ch2-oldcouplehouse" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-oldcouplehouse";
    end_of_script_5035:
 }
 
 "warp-ch2-smithfamily" {
-   copy!("warp-ch2-town-destination-check")
-   copy!("warp-common")
+   copy!("undefined")
+   copy!("undefined")
    load map "ch2-smithfamily";
    end_of_script_5036:
 }
 
+"interrupt-walk" {
+   "captured_animation" = self current_animation;
+   self current_animation = 0;
+   pause self on_tick;
+   copy!("undefined")
+   copy!("undefined")
+   end_of_script_5122:
+}
+
+"resume-walk" {
+   self current_animation = "captured_animation";
+   unpause self on_tick;
+   copy!("undefined")
+   end_of_script_5123:
+}
+
 "on_load-main_menu" {
    "current-chapter" = 0;
-   copy!("register-colors")
+   copy!("undefined")
    // if sequence: if (debug_mode) { command debug = "debug"; command hub = ...
    if debug_mode then goto label if_true_5138;
    goto label rendezvous_5137;
@@ -3700,21 +4605,21 @@
    command "skip" + "2" = "debug-jump-to-round2";
    command "skip" + "3" = "debug-jump-to-round3";
    command "skip" + "4" = "debug-jump-to-round4";
-   copy!("register-warp")
-   copy!("register-storyflag")
+   copy!("undefined")
+   copy!("undefined")
    rendezvous_5137:
    end_of_script_5136:
 }
 
 "debug-post" {
    "ch2-wizard-backstory" = true;
-   copy!("debug-set-flags-to-round4")
+   copy!("undefined")
    "ch2-seen-room-99" = true;
    "ch2-map-mainframeos" = false;
    "ch2-carrying-mainframeos" = true;
    "ch2-cutseen-castle99" = true;
    "ch2-carrying-mainframeos" = false;
-   copy!("ch2-install-mainframeos")
+   copy!("undefined")
    "ch2-ring-zero-enabled-in-castle" = true;
    "ch2-storyflag-round" = 5;
    "credits-from-menu" = false;
@@ -3728,9 +4633,9 @@
    "ch2-has-artifact" = true;
    hex_control = true;
    "current-chapter" = 2;
-   copy!("debug-finish-toot")
+   copy!("undefined")
    "ch2-storyflag-round" = 2;
-   copy!("warp-ch2-31")
+   copy!("undefined")
    end_of_script_5140:
 }
 
@@ -3878,8 +4783,8 @@
 }
 
 "menu-chapter_select-q" {
-   copy!("ch1-count-flags")
-   copy!("ch2-count-flags")
+   copy!("undefined")
+   copy!("undefined")
    show dialog "main-menu.mgs-418:1";
    end_of_script_5200:
 }

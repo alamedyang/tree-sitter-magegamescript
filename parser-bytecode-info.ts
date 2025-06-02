@@ -19,7 +19,7 @@ export type CHECK_ENTITY_NAME = {
 	action: 'CHECK_ENTITY_NAME';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	string: string;
 	expected_bool: boolean;
@@ -29,7 +29,7 @@ export type CHECK_ENTITY_X = {
 	action: 'CHECK_ENTITY_X';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
 	expected_bool: boolean;
@@ -39,7 +39,7 @@ export type CHECK_ENTITY_Y = {
 	action: 'CHECK_ENTITY_Y';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
 	expected_bool: boolean;
@@ -49,7 +49,7 @@ export type CHECK_ENTITY_INTERACT_SCRIPT = {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
 	expected_bool: boolean;
@@ -59,7 +59,7 @@ export type CHECK_ENTITY_TICK_SCRIPT = {
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
 	expected_bool: boolean;
@@ -69,7 +69,7 @@ export type CHECK_ENTITY_LOOK_SCRIPT = {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
 	expected_bool: boolean;
@@ -79,7 +79,7 @@ export type CHECK_ENTITY_TYPE = {
 	action: 'CHECK_ENTITY_TYPE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	entity_type: string;
 	expected_bool: boolean;
@@ -89,7 +89,7 @@ export type CHECK_ENTITY_PRIMARY_ID = {
 	action: 'CHECK_ENTITY_PRIMARY_ID';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
 	expected_bool: boolean;
@@ -99,7 +99,7 @@ export type CHECK_ENTITY_SECONDARY_ID = {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
 	expected_bool: boolean;
@@ -109,7 +109,7 @@ export type CHECK_ENTITY_PRIMARY_ID_TYPE = {
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
@@ -119,7 +119,7 @@ export type CHECK_ENTITY_CURRENT_ANIMATION = {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
@@ -129,7 +129,7 @@ export type CHECK_ENTITY_CURRENT_FRAME = {
 	action: 'CHECK_ENTITY_CURRENT_FRAME';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
@@ -139,9 +139,9 @@ export type CHECK_ENTITY_DIRECTION = {
 	action: 'CHECK_ENTITY_DIRECTION';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
-	direction: number;
+	direction: string; // north, south, east, west
 	expected_bool: boolean;
 	debug?: MGSDebug;
 };
@@ -149,7 +149,7 @@ export type CHECK_ENTITY_GLITCHED = {
 	action: 'CHECK_ENTITY_GLITCHED';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	entity: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -158,7 +158,7 @@ export type CHECK_ENTITY_PATH = {
 	action: 'CHECK_ENTITY_PATH';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	geometry: string;
 	entity: string;
 	expected_bool: boolean;
@@ -168,7 +168,7 @@ export type CHECK_SAVE_FLAG = {
 	action: 'CHECK_SAVE_FLAG';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	save_flag: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -177,17 +177,17 @@ export type CHECK_IF_ENTITY_IS_IN_GEOMETRY = {
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	geometry: string;
 	entity: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
 };
 export type CHECK_FOR_BUTTON_PRESS = {
-	action: 'CHECK_FOR_BUTTON_STATE';
+	action: 'CHECK_FOR_BUTTON_PRESS';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	button_id: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -196,7 +196,7 @@ export type CHECK_FOR_BUTTON_STATE = {
 	action: 'CHECK_FOR_BUTTON_STATE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	button_id: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -205,7 +205,7 @@ export type CHECK_WARP_STATE = {
 	action: 'CHECK_WARP_STATE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	string: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -219,6 +219,7 @@ export type COPY_SCRIPT = {
 	action: 'COPY_SCRIPT';
 	script?: string;
 	scriptName?: string; //FIX THIS
+	search_and_replace?: Record<string, string>;
 	debug?: MGSDebug;
 };
 export type BLOCKING_DELAY = {
@@ -244,7 +245,7 @@ export type SET_ENTITY_X = {
 	debug?: MGSDebug;
 };
 export type SET_ENTITY_Y = {
-	action: 'SET_ENTITY_X';
+	action: 'SET_ENTITY_Y';
 	entity: string;
 	u2_value: number;
 	debug?: MGSDebug;
@@ -504,7 +505,7 @@ export type CHECK_VARIABLE = {
 	action: 'CHECK_VARIABLE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	variable: string;
 	comparison: string;
 	value: number;
@@ -515,7 +516,7 @@ export type CHECK_VARIABLES = {
 	action: 'CHECK_VARIABLES';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	variable: string;
 	comparison: string;
 	source: string;
@@ -544,7 +545,7 @@ export type SET_CONNECT_SERIAL_DIALOG = {
 export type SHOW_SERIAL_DIALOG = {
 	action: 'SHOW_SERIAL_DIALOG';
 	serial_dialog: string;
-	disable_newline: boolean; // might be absent on old stuff
+	disable_newline?: boolean; // might be absent on old stuff
 	debug?: MGSDebug;
 };
 export type SET_MAP_LOOK_SCRIPT = {
@@ -567,7 +568,7 @@ export type CHECK_MAP = {
 	action: 'CHECK_MAP';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	map: string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -582,7 +583,7 @@ export type CHECK_BLE_FLAG = {
 	action: 'CHECK_BLE_FLAG';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	ble_flag: string | boolean; // idk what this is lol
 	expected_bool: boolean;
 	debug?: MGSDebug;
@@ -596,7 +597,7 @@ export type REGISTER_SERIAL_DIALOG_COMMAND = {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND';
 	command: string;
 	script: string;
-	is_fail: boolean;
+	is_fail?: boolean;
 	debug?: MGSDebug;
 };
 export type REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT = {
@@ -609,7 +610,7 @@ export type REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT = {
 export type UNREGISTER_SERIAL_DIALOG_COMMAND = {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND';
 	command: string;
-	is_fail: boolean;
+	is_fail?: boolean;
 	debug?: MGSDebug;
 };
 export type UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT = {
@@ -628,7 +629,7 @@ export type CHECK_DIALOG_OPEN = {
 	action: 'CHECK_DIALOG_OPEN';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
 };
@@ -636,7 +637,7 @@ export type CHECK_SERIAL_DIALOG_OPEN = {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
 };
@@ -644,7 +645,7 @@ export type CHECK_DEBUG_MODE = {
 	action: 'CHECK_DEBUG_MODE';
 	success_script?: string;
 	label?: string;
-	jump_index?: number;
+	jump_index?: number | string;
 	expected_bool: boolean;
 	debug?: MGSDebug;
 };
@@ -669,13 +670,13 @@ export type SET_LIGHTS_STATE = {
 };
 export type GOTO_ACTION_INDEX = {
 	action: 'GOTO_ACTION_INDEX';
-	action_index: number;
+	action_index: number | string;
 	debug?: MGSDebug;
 };
 export type SET_SCRIPT_PAUSE = {
 	action: 'SET_SCRIPT_PAUSE';
 	entity: string;
-	script_slot: number;
+	script_slot: string;
 	bool_value: boolean;
 	debug?: MGSDebug;
 };
@@ -908,7 +909,7 @@ const actionFields = {
 	REGISTER_SERIAL_DIALOG_COMMAND: ['command', 'script', 'is_fail'],
 	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: ['command', 'argument', 'script'],
 	UNREGISTER_SERIAL_DIALOG_COMMAND: ['command', 'is_fail'],
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: ['command', 'argument'],
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: ['command', 'argument', 'script'],
 	SET_ENTITY_MOVEMENT_RELATIVE: ['relative_direction', 'entity'],
 	CHECK_DIALOG_OPEN: ['JUMP_SPECIAL_FIELDS', 'expected_bool'],
 	CHECK_SERIAL_DIALOG_OPEN: ['JUMP_SPECIAL_FIELDS', 'expected_bool'],

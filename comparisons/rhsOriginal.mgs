@@ -1,3 +1,41 @@
+"bender-success-backstory" {
+	show dialog {
+		SELF "Hey, you did it! My ass is back!"
+	};
+	copy!("bite-my-shiny-metal-ass")
+	show dialog {
+		SELF emote 1 "Hee hee hee!"
+		"Hey, everyone! %Bender%'s ass is back!"
+		PLAYER "...."
+		SELF "...."
+		PLAYER "Well?"
+		SELF "Well, what?"
+		PLAYER "You said you'd give me a reward!"
+		SELF "I did! You got a front row seat to me, %Bender%, showing off my shiny metal ass!"
+		"That's the greatest reward there is!"
+		PLAYER "I don't know why I assumed you'd be friendly."
+		SELF "Well, you know what they say about assumptions."
+		SELF emote 1 "They make a shiny ass... and they give it to me, %Bender%."
+	};
+}
+
+"bender-success-no-backstory" {
+	show dialog {
+		SELF "Hey, my ass! It's back!"
+	};
+	copy!("bite-my-shiny-metal-ass")
+	show dialog {
+		SELF emote 1
+		"Hee hee hee!"
+		"Hey, everyone! %Bender%'s ass is back!"
+
+		SELF
+		"...."
+		"Don't look so smug, kid. It had nothing to do with you."
+		"I'm sure my ass came home on its own!"
+	};
+}
+
 "on_load-bobsclub1" {
 	if ("tuesdayd") {
 		command "rtfm" = "command-rtfm";
@@ -135,6 +173,38 @@
 	player_control = on;
 }
 
+"earthquake-setpiece" {
+	camera = geometry "earthquake-setpiece-camera-spot";
+	entity "Verthandi" position = geometry "earthquake-setpiece-verthandi-spot";
+	entity "Marta" position = geometry "earthquake-setpiece-marta-spot";
+	camera fade in -> #000000 over 300ms;
+	entity "Cleo" on_tick = "loiter1";
+	entity "Verthandi" on_tick = "loiter2";
+	entity "Marta" on_tick = "loiter3";
+	entity "Cat" on_tick = "loiter4";
+	entity "Hamster" on_tick = "loiter5";
+	wait 1800ms;
+	entity "Cleo" on_tick = "null_script";
+	entity "Verthandi" on_tick = "null_script";
+	entity "Marta" on_tick = "null_script";
+	entity "Cat" on_tick = "null_script";
+	entity "Hamster" on_tick = "null_script";
+	entity "Marta" direction = south;
+	entity "Cleo" direction = south;
+	entity "Cat" direction = south;
+	entity "Verthandi" direction = south;
+	entity "Hamster" direction = south;
+	copy!("earthquake")
+	wait 500ms;
+	entity "Marta" on_tick = "marta-walk";
+	entity "Cleo" on_tick = "loiter1";
+	entity "Verthandi" on_tick = "loiter2";
+	entity "Cat" on_tick = "loiter4";
+	entity "Hamster" on_tick = "loiter5";
+	wait 500ms;
+	camera fade out -> #000000 over 300ms;
+}
+
 "show_dialog-verthandi-start" {
 	copy!("face-player")
 	if (self glitched) {
@@ -220,6 +290,168 @@
 		}
 	}
 	goto "show_dialog-verthandi-wrapup";
+}
+
+"ch1-greenhouse-trekkie-backstory-cutscene" {
+	show dialog {
+		SELF "Me want to wish you a happy birthday, %PLAYER%."
+		PLAYER "Aww, gee, thanks, Farmer %Trekkie%!"
+	};
+	player_control = off;
+	wait 200ms;
+	self direction = entity "Modem";
+	wait 900ms;
+	self direction = geometry "Computer"
+	wait 900ms;
+	copy!("face-player")
+	wait 200ms;
+	show dialog {
+		SELF "Me sorry, %PLAYER%... but the internet still no working."
+		PLAYER "It's the Ether Nettles, again?"
+	};
+	wait 100ms;
+	self direction = entity "Modem";
+	wait 400ms;
+	show dialog {
+		SELF "It always the Ether Nettles. Modem need Ether Nettles. Ever since the big bad hack, the Ether Nettles line up wrong."
+		PLAYER "You can't move the flowers? Put them in the right order?"
+	};
+	copy!("face-player")
+	show dialog {
+		SELF "Can't just dig up Ether Nettles. Wired in super, super well."
+		"If you move flowers, you must move wires underneath or everything breaks. Very slow, very difficult work."
+		"Once in a while, me move one, take all week, but it no work."
+		PLAYER "Well, maybe I can help. What order are they supposed to be in?"
+		SELF "Ether Nettle spec on internet. But no Ether Nettle, no internet, me no can check!"
+		"Me remember orange stripey is first."
+		"But trial and error take so long, me want to give up."
+		PLAYER "Well, lemme have a go. I can change their colors instantly."
+		"Probably."
+		SELF "%PLAYER% has new magic zeroed ring. Maybe %PLAYER% can change flower colors!"
+	};
+	copy!("set-hint-trekkie")
+	"trekkie-backstory" = true;
+	copy!("set_tick-watch-player")
+	player_control = on;
+}
+
+"ch1-greenhouse-trekkie-backstory-reminder" {
+	copy!("face-player")
+	show dialog {
+		SELF "Me can't remember Ether Nettle color order. Me need internet to check!"
+		"But me do remember orange stripey is first!"
+	};
+	copy!("set-hint-trekkie")
+	copy!("set_tick-watch-player")
+}
+
+"ch1-greenhouse-modem-turning-on-cutscene" {
+	self direction = entity "Modem";
+	player direction = entity "Modem";
+	player_control = off;
+	wait 200ms;
+	camera -> entity "Modem" position over 1400ms;
+	wait 200ms;
+	self direction = geometry "Computer";
+	wait 1500ms;
+	self direction = entity "Modem";
+	wait 1200ms;
+	entity "Modem" current_animation = 1;
+	wait 1400ms;
+	show dialog {
+		SELF alignment TOP_LEFT "Oh! The lights!"
+	};
+	wait 800ms;
+	copy!("face-player")
+	player direction = self;
+	wait 500ms;
+	player direction = entity "Modem";
+	self direction = entity "Modem";
+	wait 1500ms;
+	entity "Modem" current_animation = 2;
+	wait 1400ms;
+	entity "Modem" current_animation = 3;
+	wait 1700ms;
+	entity "Modem" current_animation = 4;
+	wait 900ms;
+	camera -> player position over 1400ms;
+	wait 400ms;
+	player direction = self;
+	wait 150ms;
+	self direction = geometry "Computer";
+	wait 750ms;
+	self direction = entity "Modem";
+	wait 600ms;
+	self direction = geometry "Computer";
+	wait 800ms;
+	copy!("face-player")
+	show dialog {
+		SELF "%PLAYER% did it! Made Ether Nettle talk to outside world again!"
+		"Me can go on the internet! Can use so many free AOL hours!"
+		"Me has so, so many AOL CDs! Me excited!"
+		PLAYER "Sounds great, %Trekkie%."
+	};
+	self direction = geometry "Computer"
+	"storyflag-trekkie" = true;
+	copy!("calculate-hint-tracking-series")
+	player_control = on;
+}
+
+"empty-lodge" {
+	copy!("empty-lodge-mini")
+	// just in case I didn't catch all the 'empty-lodge' scripts and need the rest to happen, too
+	entity "Cleo" position = geometry "lodge-hidingplace";
+	entity "Shepherd" position = geometry "lodge-hidingplace";
+	entity "Beatrice" position = geometry "lodge-hidingplace";
+	entity "Baker" position = geometry "lodge-hidingplace";
+	entity "Trekkie" position = geometry "lodge-hidingplace";
+	entity "Marta" position = geometry "lodge-hidingplace";
+	entity "Max Swagger" position = geometry "lodge-hidingplace";
+	entity "Smith" position = geometry "lodge-hidingplace";
+	entity "Verthandi" position = geometry "lodge-hidingplace";
+	entity "Uncle Zappy" position = geometry "lodge-hidingplace";
+	entity "Aunt Zippy" position = geometry "lodge-hidingplace";
+	entity "Goose  " position = geometry "lodge-hidingplace";
+	entity "Goose " position = geometry "lodge-hidingplace";
+}
+
+"empty-lodge-mini" {
+	entity "Bookcase" position = geometry "lodge-hidingplace";
+	copy!("skip-artifacts")
+	copy!("deaden-artifacts")
+	entity "Jackob" position = geometry "lodge-hidingplace";
+	entity "Alfonso" position = geometry "lodge-hidingplace";
+	entity "Bert" position = geometry "lodge-hidingplace";
+}
+
+"player-ringzero-from-landing-10" {
+	player position -> geometry "ringzero-landing-8" origin over 600ms;
+	copy!("player-ringzero-from-landing-8")
+}
+
+"player-ringzero-from-landing-1" {
+	player position -> geometry "ringzero-landing-4" origin over 400ms;
+	copy!("player-ringzero-from-landing-4")
+}
+
+"bypass-tuesday" {
+	copy!("set-goodmorning-flags-true")
+	copy!("set-artifact-flags-true")
+	copy!("set-tuesday-flags-true")
+	hex_control = on;
+	copy!("deaden-artifacts")
+	copy!("empty-lodge")
+	entity "Marta" position = geometry "lodge-hidingplace";
+	// possibly you can't teleport an entity twice in one tick... though why then does this one work?
+}
+
+"skip-artifacts" {
+	copy!("set-artifact-flags-true")
+	entity "Alfonso" position = geometry "elder-point";
+	entity "Marta" position = geometry "marta-broom-watch-spot";
+	entity "Broom" position = geometry "lodge-hidingplace";
+	entity "Bracelet" position = geometry "lodge-hidingplace";
+	entity "Marta" type = "marta_broom";
 }
 
 "on_load-map-main" {
@@ -340,6 +572,13 @@
 		"demobonus-jackob-informed" = true;
 	}
 	player_control = on;
+}
+
+"cat-and-cleo-convo-turn-player" {
+	copy!("turn-padding-start")
+	entity "Cleo" direction = player;
+	entity "Cat" direction = player;
+	copy!("turn-padding-end")
 }
 
 "show_dialog-bea-part1" {
@@ -493,6 +732,54 @@
 	entity "Beatrice" on_interact = "show_dialog-bea-start";
 }
 
+"show_dialog-shepherd-backstory" {
+	copy!("face-player")
+	show dialog {
+		SELF "...."
+		"I messed up."
+	};
+	copy!("turn-right-and-left")
+	show dialog {
+		SELF "I was supposed to be watching the sheep, but I took a quick nap, and the next thing I know... they were all over the place."
+	};
+	copy!("turn-right-and-left")
+	show dialog {
+		PLAYER "How did they get out? The fence looks fine."
+		SELF "I don't even know. Maybe they were, you know, hacked out. By the Big Bad."
+		PLAYER "But the Big Bad hasn't been around for years. Just how long was this nap?"
+		SELF "It was the shortest nap. Super quick. It was a long blink, really."
+		"A super, tiny, microscopic nap."
+		"...."
+		"I really need this job, man. My last trip to Pigeon-Con, I spent all my rent money on merch."
+		"Can you just help me out? Get them back inside somehow?"
+	};
+}
+
+"turn-right-and-left" {
+	copy!("face-player")
+	player_control = off;
+	wait 200ms;
+	self direction += 1;
+	wait 500ms;
+	self direction -= 2;
+	wait 500ms;
+	self direction += 1;
+	wait 200ms;
+	copy!("face-player")
+	player_control = on;
+}
+
+"show_dialog-shepherd-ending" {
+	"storyflag-shepherd" = true;
+	"shepherd-backstory" = true;
+	copy!("calculate-hint-tracking-series")
+	if ("hint-tracking-check" == 1) {
+		// if the hint series is the same, reset hint
+		copy!("set-hint-none")
+	}
+	entity "Shepherd" on_interact = "show_dialog-shepherd-start";
+}
+
 "ch2-interact-mainframe" {
 	if ("ch2-wait-for-hat-touch") {
 		player direction = entity "Wizard";
@@ -632,6 +919,28 @@
 			copy!("ch2-start-round-4")
 		}
 	}
+}
+
+"ch2-start-round-2" {
+	player current_animation = 0;
+	copy!("ch2-cutscene-bert-secret")
+	player_control = off;
+	wait 200ms;
+	show serial_dialog "spacer";
+	show serial_dialog { " (DING)" };
+	"ch2-lambda-paging" = true;
+	"ch2-cutseen-bert-secret" = true;
+	"ch2-storyflag-round" = 2;
+	wait 900ms;
+	show dialog {
+		PLAYER "...? Did I just hear some kind of digital sound effect?"
+		Wizard "That was the bell on the terminal. Whats-his-face is paging you. Better talk to him."
+	};
+	show serial_dialog "spacer";
+	show serial_dialog {
+		"(Lambda wants to talk to you! Type <c>MAN</> to answer.)"
+	};
+	player_control = on;
 }
 
 "ch2-serial-light-manager-mouse" {
@@ -1019,6 +1328,71 @@
 	}
 }
 
+"ch2-bobrattling" { // Hint that there's more inside the building
+	if (!"ch2-cutseen-bob-party") {
+		player on_tick = "look-left-and-right-fast";
+		// naive only
+		if ("ch2-rattle-count" == 0) {
+			show dialog {
+				PLAYER "...Jeez, that weird thumping is actually rattling the shelves! Is that... music? Loud music?"
+			};
+			copy!("player-look-down")
+			show dialog {
+				PLAYER "Where the heck is it coming from? This is the only room in the building!"
+				"...Right?"
+			};
+		}
+		else if ("ch2-rattle-count" == 1) {
+			show dialog {
+				PLAYER "...Okay, that thumping is DEFINITELY music. I think the bass just dropped."
+			};
+			show dialog {
+				PLAYER "It sounds like the speaker is nearby, like just beyond a wall. But the only exit to this room is the main entrance."
+			};
+		}
+		else if ("ch2-rattle-count" == 2) {
+			show dialog {
+				PLAYER "...Wow, I think what I'm hearing is actually dubstep. It's muffled, but it's so loud it must be practically next door."
+			};
+			copy!("player-look-down")
+			show dialog {
+				PLAYER "Is it under the floor or something? I keeping looking but there aren't any stairs!"
+			};
+		}
+		// you have the artifact and can get more specific hints
+		else if ("ch2-rattle-count" == 3) {
+			show dialog {
+				PLAYER "...Okay, that music is starting to get on my nerves. But where..."
+			};
+			copy!("player-look-down")
+			show dialog {
+				PLAYER "...Oh, that's right! The artifact can identify the exits for each room!"
+				"I wonder if it could show me the way to a secret room."
+				"...With secret dubstep."
+			};
+		}
+		else if ("ch2-rattle-count" == 4) {
+			copy!("player-look-down")
+			show dialog {
+				PLAYER "...Ah, that's right, I remember now. I can use the artifact to LOOK around the room. Maybe I can find the source of the music that way."
+			};
+		}
+		else {
+			copy!("player-look-down")
+			show dialog {
+				PLAYER "...But enough distractions. I should use the LOOK command in the serial console to discover any secret doors."
+			};
+		}
+		copy!("player-look-down")
+
+		// advance the count
+		"ch2-rattle-count" += 1;
+		if (!"ch2-toot-done") {
+			"ch2-rattle-count" %= 3;
+		}
+	}
+}
+
 "on_load-ch2-castle-1-doorless" {
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 1;
@@ -1245,6 +1619,15 @@
 	copy!("on_tick-ch2-castle-1-hexwait-protec")
 	if (button HAX pressed) {
 		goto "on_tick-ch2-castle-1-hexwait2";
+	}
+}
+
+"on_tick-ch2-castle-1-hexwait-protec" {
+	if (player intersects geometry "south-hitbox") {
+		copy!("ch2-wait-for-hat-touch-message")
+		player_control = off;
+		player position -> geometry "walk_from-south" origin over 200ms;
+		player_control = on;
 	}
 }
 
@@ -1665,6 +2048,111 @@
 	if (!"ch2-templeton-pace") {
 		goto "null_script";
 	}
+}
+
+"ch2-cutscene-kingreturns" {
+	camera fade out -> black over 1ms;
+	player_control = off;
+	player direction = entity "King Gibson";
+	entity "Templeton" direction = entity "King Gibson";
+	entity "Sebastian" direction = entity "King Gibson";
+	entity "King Gibson" on_tick = "walk-over-1500";
+	wait 200ms;
+	player on_tick = "walk-over-1500";
+	camera fade in -> black over 600ms;
+	entity "Templeton" direction = entity "King Gibson";
+	show dialog { Templeton "Your majesty!" };
+	entity "Sebastian" direction = entity "King Gibson";
+	show dialog { Sebastian "!!" };
+	show dialog {
+		Aurelius "You are well!"
+	};
+	entity "King Gibson" direction = entity "Aurelius";
+	show dialog {
+		GIBSON "Of course. You see, the intercom and doorlocks were broken, and the door failed shut."
+		"I regret...."
+	};
+	entity "King Gibson" direction += 1;
+	show dialog {
+		GIBSON emote 3 "I regret the things I said yesterday. And... I regret I assumed you had locked me in there. I should have trusted you better."
+		Templeton "Oh, Your Majesty! I'm just glad you --"
+	};
+	entity "King Gibson" direction = entity "Sebastian";
+	// King perks up
+	show dialog {
+		Sebastian "Never mind any of that! This is an emergency!"
+		"Can we finally begin some damn rescue operations, or do we need to form a committee to draft a proposal and bring it to the populace to a vote?"
+		GIBSON "What have you tried so far?"
+	};
+	entity "King Gibson" direction = entity "Aurelius";
+	show dialog {
+		Aurelius "Neither Templeton nor I have the leverage to lift the debris. And Sebastian's telekinesis spell doesn't have enough power on its own."
+	};
+	entity "King Gibson" direction = entity "Sebastian";
+	show dialog {
+		Sebastian "I won't burn out my mana trying over and over again. It's obvious it won't work."
+	};
+	entity "King Gibson" direction = south;
+	show dialog {
+		GIBSON "Well, maybe I can shift it."
+	};
+	camera fade out -> black over $fadeTime; // cheaty :P
+	player position = geometry "end-player";
+	entity "King Gibson" position = geometry "end-king";
+	entity "Sebastian" position = geometry "end-sebastian";
+	entity "Templeton" position = geometry "end-templeton";
+	entity "Aurelius" position = geometry "end-fish";
+	player direction = entity "King Gibson";
+	camera = geometry "camera-spot3";
+	camera fade in -> black over $fadeTime;
+	show dialog {
+		GIBSON "I can bench press three hundred pounds. I might be able to move this."
+		Sebastian "At the speed my mana was draining, it's heavier than that. You'll wear yourself out for no reason."
+		"But at least we're focused on the real problem now. Finally!"
+		Templeton "This debris wasn't going anywhere, and the king might have been lying in a pool of his own blood, gasping for air, with his every bone broken!"
+		Aurelius "Fortunately, the king is all right, and what's done is done. Focus."
+		"Neither the king nor Sebastian can move the debris alone, but what about together?"
+		Templeton "Oh, yes! But what if you lighten the load with telekinesis, Sebastian?"
+		Sebastian "Perhaps, but...."
+	};
+	entity "Sebastian" position -> geometry "end-sebastian2" origin over 400ms;
+	show dialog {
+		Sebastian "You there, stranger. The rest of the castle is damaged?"
+		PLAYER "Yes. Most doors are crumpled exactly like this."
+	};
+	show dialog {
+		Sebastian "Then I must pace myself. The mana required is the square of the weight being manipulated.... Ah, but if I don't have to introduce lateral motion myself --"
+		Aurelius "Yes, a gravitation spell."
+	};
+	entity "Sebastian" position -> geometry "end-sebastian" origin over 400ms;
+	show dialog {
+		Sebastian "That's much cheaper. But... blast, I need to check a few numbers in my physics spellbook. Templeton, please tell me you've eaten a copy?"
+	};
+	entity "Templeton" position -> geometry "end-templeton1" origin over 200ms;
+	show dialog {
+		Templeton "I-I think so. Let me check. I've got it filed in here somewhere."
+	};
+	entity "Templeton" on_tick = "templeton-catalog-search";
+	show dialog {
+		GIBSON "Now we're getting somewhere."
+	};
+	entity "King Gibson" on_tick = "king-walk-to-debris";
+	show dialog {
+		GIBSON "I can at least see if there are any pieces of this I can extract on my own."
+		Aurelius "%PLAYER%, we're making sufficient progress here. Don't let us keep you."
+		"Once the mainframe is repaired, we will be much better equipped to clear all the debris at once."
+		PLAYER "Right, of course."
+	};
+	copy!("interrupt-king-walk")
+	entity "King Gibson" direction = player;
+	show dialog {
+		GIBSON "Good luck. And thank you. Truly."
+	};
+	copy!("resume-king-walk")
+	warp_state = "nothing lol";
+	"ch2-king-rescued" = true;
+	camera -> player position over 700ms;
+	player_control = on;
 }
 
 "on_load-ch2-castle-14" {
@@ -2341,6 +2829,26 @@
 	// END DEBUG
 }
 
+"interact-ch2-seamoss-cutscene" {
+	player_control = off;
+	show dialog {
+		SELF "Oh, sure. I remember all sorts of stuff about that."
+		PLAYER "Well, I need some RAM to build a computer, but Lambda can't think of anything around here that would work."
+		SELF "RAM, like RAM chips? You could try the vending machine over yonder."
+		PLAYER "...Because it dispenses chips?"
+		SELF "You gotta keep your mind open for this stuff, man. Feel like a computer. Breathe like one. Understand what a computer wants."
+		"It wants to contain the whole universe within itself, to build and share its stories with each and every one of us at a keyboard or network port."
+		"For a computer to live, it must remember itself and allow itself to exist from moment to moment."
+		PLAYER "Uh...."
+		SELF "And if you need RAM chips, the sky's the limit, my dude. Anything is possible. Chips is chips!"
+		PLAYER "I really don't think that's true."
+		SELF "It'll be fine. Come here, I'll show you."
+	};
+	wait 100ms;
+	player on_tick = "ch2-walk-to-vend";
+	copy!("ch2-seamoss-summon-chips")
+}
+
 "on_load-ch2-castle-33" {
 	// ch2 room state
 	"ch2-in-room" = 33;
@@ -2575,6 +3083,162 @@
 	}
 }
 
+"start-hanoi" {
+	player_control = off;
+	copy!("hanoi_init_game")
+	copy!("draw_hanoi")
+	map on_tick = "tick_hanoi";
+}
+
+"hanoi_move" {
+	if ("cursor_value" == 0) {
+		if ("cursor_pos" == 1) {
+			if ("array1_length" > 0) {
+				copy!("array1_pop")
+			}
+		} else if ("cursor_pos" == 2) {
+			if ("array2_length" > 0) {
+				copy!("array2_pop")
+			}
+		} else if ("cursor_pos" == 3) {
+			if ("array3_length" > 0) {
+				copy!("array3_pop")
+			}
+		}
+	} else {
+		copy!("check_cursor")
+		if ("can_drop") {
+			if ("cursor_pos" == 1) {
+				copy!("array1_push")
+			} else if ("cursor_pos" == 2) {
+				copy!("array2_push")
+			} else if ("cursor_pos" == 3) {
+				copy!("array3_push")
+			}
+		} else {
+			"hanoi_warning_size" = true;
+		}
+	}
+	if ("cursor_value" == $win_plate) {
+		"hanoi_won" = true;
+	}
+	copy!("draw_hanoi")
+}
+
+"draw_tile" {
+	// wants `curr_plate` and `column`
+	if ("curr_plate" != 0) {
+		copy!("draw_curr_plate")
+	} else if ("cursor_pos" == "column") {
+		if ("cursor_hinge_height" < "row") {
+			concat serial_dialog "hanoi_cursor_arm";
+		} else if ("cursor_hinge_height" == "row") {
+			concat serial_dialog "hanoi_cursor_hinge";
+		} else if ("cursor_grip_height" == "row") {
+			copy!("draw_cursor_grip")
+		} else {
+			concat serial_dialog "hanoi_space";
+		}
+	} else {
+		concat serial_dialog "hanoi_space";
+	}
+}
+
+"draw_plate_row" {
+	// wants `plate1`, `plate2`, `plate3`, and `row`
+	"column" = 1; // col 1
+	"curr_plate" = "plate1" *1;
+	copy!("draw_tile")
+	"column" = 2; // col 2
+	"curr_plate" = "plate2" *1;
+	copy!("draw_tile")
+	"column" = 3; // col 3
+	"curr_plate" = "plate3" *1;
+	copy!("draw_tile")
+	concat serial_dialog "newline";
+}
+
+"hanoi_init_game" {
+	if (
+		!"hanoi_init_done"
+		|| "hanoi_won"
+	) {
+		copy!("hanoi_init_variables")
+	}
+	command "1" = "hanoi_move_1";
+	command "2" = "hanoi_move_2";
+	command "3" = "hanoi_move_3";
+	command "T" = "hanoi_help";
+	command "TIPS" = "hanoi_help";
+	command "R" = "hanoi_reset";
+	command "RESET" = "hanoi_reset";
+	command "Q" = "hanoi_quit_from_terminal";
+	command "QUIT" = "hanoi_quit_from_terminal";
+	if (debug_mode) {
+		command "WIN" = "hanoi_win";
+	}
+	// debug!("hanoi_init_game")
+	light LED_USB = on;
+	entity "Lights" on_tick = "null_script";
+}
+
+"array1_print" {
+	concat serial_dialog "array_print_left";
+	for ("i" = 1; "i" <= "array1_length"; "i" += 1) {
+		if ("i" != 1) {
+			concat serial_dialog {" "};
+		}
+		if ("i" == 1) { "printme" = "array1_1" *1; }
+		else if ("i" == 2) { "printme" = "array1_2" *1; }
+		else if ("i" == 3) { "printme" = "array1_3" *1; }
+		else if ("i" == 4) { "printme" = "array1_4" *1; }
+		else if ("i" == 5) { "printme" = "array1_5" *1; }
+		else if ("i" == 6) { "printme" = "array1_6" *1; }
+		else if ("i" == 7) { "printme" = "array1_7" *1; }
+		copy!("printme")
+		"printme" = 0;
+	}
+	concat serial_dialog "array_print_right";
+}
+
+"array2_print" {
+	concat serial_dialog "array_print_left";
+	for ("i" = 1; "i" <= "array2_length"; "i" += 1) {
+		if ("i" != 1) {
+			concat serial_dialog {" "};
+		}
+		if ("i" == 1) { "printme" = "array2_1" *1; }
+		else if ("i" == 2) { "printme" = "array2_2" *1; }
+		else if ("i" == 3) { "printme" = "array2_3" *1; }
+		else if ("i" == 4) { "printme" = "array2_4" *1; }
+		else if ("i" == 5) { "printme" = "array2_5" *1; }
+		else if ("i" == 6) { "printme" = "array2_6" *1; }
+		else if ("i" == 7) { "printme" = "array2_7" *1; }
+		copy!("printme")
+		"printme" = 0;
+	}
+	concat serial_dialog "array_print_right";
+}
+
+"array3_print" {
+	concat serial_dialog "array_print_left";
+	for ("i" = 1; "i" <= "array3_length"; "i" += 1) {
+		if ("i" != 1) {
+			concat serial_dialog {" "};
+		}
+		if ("i" == 1) { "printme" = "array3_1" *1; }
+		else if ("i" == 2) { "printme" = "array3_2" *1; }
+		else if ("i" == 3) { "printme" = "array3_3" *1; }
+		else if ("i" == 4) { "printme" = "array3_4" *1; }
+		else if ("i" == 5) { "printme" = "array3_5" *1; }
+		else if ("i" == 6) { "printme" = "array3_6" *1; }
+		else if ("i" == 7) { "printme" = "array3_7" *1; }
+		copy!("printme")
+		"printme" = 0;
+	}
+	concat serial_dialog "array_print_right";
+}
+
 "on_load-ch2-castle-34" {
 	// ch2 room state
 	"ch2-in-room" = 34;
@@ -2591,6 +3255,26 @@
 	// room unique stuff
 	
 	copy!("ch2-map-init")
+}
+
+"won_hanoi_get_plate" {
+	copy!("ch2-pickup-plate")
+	show dialog {
+		PLAYER "Aha! I got plate #6!"
+	};
+	if ("hanoi_move_count" == 33) {
+		show dialog {
+			Clara "Sweet. And it looks like you did it super efficiently, too. Nice!"
+		};
+	} else if ("hanoi_move_count" == 69) {
+		show dialog {
+			Clara "Nice."
+		};
+	} else {
+		show dialog {
+			Clara "Sweet."
+		};
+	}
 }
 
 "on_load-ch2-castle-99" {
@@ -2668,6 +3352,56 @@
 		camera fade in -> #000000 over 400ms;
 	} else if (warp_state == "ch2-ending") {
 		goto "ch2-post-credits";
+	}
+}
+
+"ch2-map-init-serial" {
+	if (!"ch2-has-artifact") { // no artifact at all
+		serial_control = off;
+	} else { // you have the artifact
+		serial_control = on;
+		copy!("register-rtfm")
+		copy!("register-inventory")
+		copy!("register-manual")
+		copy!("register-eastereggs")
+		alias "h" = "help";
+		alias "l" = "look";
+	}
+	if ("ch2-has-map") {
+		copy!("register-map")
+	}
+	if (debug_mode) {
+		copy!("register-storyflag")
+		copy!("register-warp")
+		serial_control = on;
+	} else if ("ch2-warp-granted") {
+		copy!("register-warp")
+	}
+	if ("ch2-storyflag-round" > 0) {
+		if ("ch2-storyflag-round" < 5) {
+			copy!("register-parts")
+		}
+	}
+}
+
+"ch2-map-init-warp-in" {
+	if (warp_state == "warping") {
+		copy!("warping-in-fade-in")
+	}
+	player_control = on;
+}
+
+"ch2-map-init" {
+	copy!("ch2-map-init-registers")
+	copy!("ch2-map-init-hex")
+	copy!("ch2-map-init-serial")
+	copy!("ch2-map-init-inventory-look")
+	copy!("ch2-map-init-serial-debug-message")
+	copy!("ch2-map-init-warp-in")
+	// extra goose stuff
+	if ("ch2-goosefacts") {
+		command "stop" = "stop-goosefacts";
+		copy!("goosefacts")
 	}
 }
 
@@ -2829,6 +3563,63 @@
 	} else {
 		show dialog { SELF "...." };
 	}
+}
+
+"debug-set-flags-to-round1" {
+	copy!("debug-set-flags-to-round0")
+	copy!("debug-finish-toot")
+	copy!("debug-map-flags-for-round1")
+}
+
+"debug-set-flags-to-round2" {
+	copy!("debug-set-flags-to-round1")
+	copy!("debug-get-items-for-round1")
+	copy!("ch2-install-heatsink")
+	copy!("ch2-install-powersupply")
+	copy!("ch2-install-monitor")
+	"ch2-cutseen-bert-secret" = true;
+	"ch2-lambda-bert-backstory" = true;
+	"ch2-parts-round-2-backstory" = true;
+	copy!("debug-map-flags-for-round2")
+}
+
+"debug-set-flags-to-round3" {
+	copy!("debug-set-flags-to-round2")
+	copy!("debug-get-items-for-round2")
+	copy!("ch2-install-harddrive")
+	copy!("ch2-install-keyboard")
+	copy!("ch2-install-mouse")
+	"ch2-cutseen-bert-message" = true;
+	"ch2-parts-round-3-backstory" = true;
+	copy!("debug-map-flags-for-round3")
+}
+
+"debug-set-flags-to-round4" {
+	copy!("debug-set-flags-to-round3")
+	copy!("debug-get-items-for-round3")
+	copy!("ch2-install-ramchips")
+	copy!("ch2-install-clock")
+	copy!("ch2-install-cpu")
+	"ch2-cutseen-last-parts-done" = true;
+	"ch2-warp-granted" = true;
+	"ch2-parts-round-4-backstory" = true;
+	copy!("debug-map-flags-for-round4")
+}
+
+"interact-ch2-solderzone-harddrive" {
+	show dialog {
+		PLAYER "Got the plate and the needle. All right, let's solder!"
+		name "" "(You created a hard drive!)"
+	};
+	copy!("ch2-solder-harddrive")
+}
+
+"interact-ch2-solderzone-cpu" {
+	show dialog {
+		PLAYER "Got the goldfish and the abacus. All right, let's solder!"
+		name "" "(You created a cpu!)"
+	};
+	copy!("ch2-solder-cpu")
 }
 
 "on_load-ch2-smithfamily" {
@@ -3175,6 +3966,25 @@
 	// You're talking to Lambda over serial for the first time:
 	// (You need to finish the toot)
 	goto "ch2-toot-check";
+}
+
+"register-parts" {
+	command "man" + "parts" = "man-parts";
+	command "parts" = "command-parts";
+	command "parts" fail = "command-parts-fail";
+
+	// if ("ch2-storyflag-round" >= 1) {
+		copy!("register-parts1")
+	// }
+	// if ("ch2-storyflag-round" >= 2) {
+		copy!("register-parts2")
+	// }
+	// if ("ch2-storyflag-round" >= 3) {
+		copy!("register-parts3")
+	// }
+	// if ("ch2-storyflag-round" >= 4) {
+		copy!("register-parts4")
+	// }
 }
 
 "command-parts-keyboard" {
@@ -3525,6 +4335,20 @@
 	copy!("warp-ch2-town-destination-check")
 	copy!("warp-common")
 	load map "ch2-smithfamily";
+}
+
+"interrupt-walk" {
+	"captured_animation" = self current_animation;
+	self current_animation = 0;
+	pause self on_tick;
+	copy!("capture_self_direction")
+	copy!("face-player")
+}
+
+"resume-walk" {
+	self current_animation = "captured_animation";
+	unpause self on_tick;
+	copy!("restore_self_direction")
 }
 
 "on_load-main_menu" {

@@ -1,6 +1,6 @@
 import { Parser, Language } from 'web-tree-sitter';
 
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';
 
 import { fileURLToPath } from 'url';
@@ -12,12 +12,10 @@ import { debugLog } from './parser-utilities.js';
 import { printScript } from './parser-to-json.ts';
 import { makeProjectState } from './parser-project.js';
 import { ansiTags } from './parser-dialogs.js';
-import { composites } from './comparisons/exfiltrated_composites.js';
-import { idk } from './comparisons/exfiltrated_idk.js';
 
 // /*
 // stolen from the other place
-const makeMap = (path) => {
+export const makeMap = (path) => {
 	let map = {};
 	const files = readdirSync(path, { withFileTypes: true });
 	for (let i = 0; i < files.length; i++) {
@@ -119,250 +117,16 @@ export const parseProject = async (fileMap, scenarioData) => {
 	return p;
 };
 
-// /*
+/*
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const sanitizeActions = (action) => {
-	if (action.action === 'SHOW_DIALOG') {
-		action.dialog = action.dialog.replace(/(-|:)\d+:\d+$/, '-XX');
-	} else if (action.action === 'SHOW_SERIAL_DIALOG') {
-		action.serial_dialog = action.serial_dialog.replace(/(-|:)\d+:\d+$/, '-XX');
-	}
-	return action;
-};
-
-const compareNonGotoActions = (lhsText, rhsText) => {
-	const lhs = getNonGotoActions(lhsText);
-	const rhs = getNonGotoActions(rhsText);
-	const lhsEntries = Object.entries(lhs);
-	for (let i = 0; i < lhsEntries.length; i++) {
-		const [k, v] = lhsEntries[i];
-		if (rhs[k] !== v) {
-			return false;
-		}
-	}
-	const rhsEntries = Object.entries(rhs);
-	for (let i = 0; i < rhsEntries.length; i++) {
-		const [k, v] = rhsEntries[i];
-		if (lhs[k] !== v) {
-			return false;
-		}
-	}
-	return true;
-};
-const getNonGotoActions = (text) => {
-	const lines = text.split('\n');
-	const counts = {};
-	lines.forEach((line) => {
-		const match = line.match(/((.+) then goto) (index \d+|label .+);/);
-		let key = match ? match[1] : line;
-		if (/^\s*goto /.test(key)) {
-			return;
-		} else if (/^\s*.+:$/.test(key)) {
-			return;
-		} else if (/^\s*\/\//.test(key)) {
-			return;
-		}
-		key = key.replace(/(-|:)\d+:\d+";$/, '-XX";');
-		counts[key] = (counts[key] || 0) + 1;
-	});
-	return counts;
-};
-
-const chooseYourOwnAdventure = (text) => {
-	const registry = {};
-	const doneCrawlStates = [];
-	const lines = text
-		.split('\n')
-		.slice(1, -1)
-		.map((v) => v.trim());
-	const ifCount = lines.filter((v) => v.startsWith('if')).length;
-	const permutations = 2 ** ifCount;
-	lines.forEach((line, i) => {
-		const label = line.match(/^([-_a-zA-Z0-9 "]):$/);
-		if (label) {
-			registry[label[1]] = i;
-		}
-	});
-	let crawlStates = [{ pos: 0, seen: [] }];
-	let newCrawlStates = [];
-	while (crawlStates.length) {
-		if (crawlStates.length > 10_000) {
-			return null;
-		}
-		if (crawlStates.length > permutations) {
-			throw new Error("Don't do it");
-		}
-		for (let i = 0; i < crawlStates.length; i++) {
-			const cs = crawlStates[i];
-			if (cs.seen.length > 10000) {
-				cs.looping = true;
-				doneCrawlStates.push(cs);
-				break;
-			}
-			const line = lines[cs.pos];
-			if (!line) {
-				// we ran out of script: we're done
-				doneCrawlStates.push(cs);
-				break;
-			}
-			if (line.startsWith('//')) {
-				// skip comments
-				cs.pos += 1;
-				newCrawlStates.push(cs);
-				continue;
-			}
-			if (line.startsWith('load map')) {
-				// control action to leave everything: we're done
-				cs.seen.push(line);
-				doneCrawlStates.push(cs);
-				break;
-			}
-			const simpleGotoIndex = line.match(/^goto index (\d+);$/);
-			if (simpleGotoIndex) {
-				// goto index -- go there
-				cs.pos = Number(simpleGotoIndex[1]);
-				newCrawlStates.push(cs);
-				continue;
-			}
-			const simpleGotoLabel = line.match(/^goto label ([-_a-zA-Z0-9 "]);$/);
-			if (simpleGotoLabel) {
-				// goto label -- look it up and go there
-				cs.pos = Number(registry[line[1]]);
-				newCrawlStates.push(cs);
-				continue;
-			}
-			if (line.startsWith('if')) {
-				// branchu
-				const splits = line.split('goto');
-				cs.seen.push(splits[0] + 'goto');
-				// fall through case
-				newCrawlStates.push({
-					pos: (cs.pos += 1),
-					seen: JSON.parse(JSON.stringify(cs.seen)),
-				});
-				// jump case:
-				const indexJump = line.match(/index (\d+);$/);
-				if (indexJump) {
-					// ...index
-					newCrawlStates.push({
-						pos: Number(indexJump[1]),
-						seen: cs.seen,
-					});
-					continue;
-				}
-				const labelJump = line.match(/label ([-_a-zA-Z0-9 "]);$/);
-				if (labelJump) {
-					// ...label
-					newCrawlStates.push({
-						pos: Number(registry[line[1]]),
-						seen: cs.seen,
-					});
-					continue;
-				}
-				// script jumps are here; these count as ending
-				doneCrawlStates.push(cs);
-				break;
-			} else {
-				cs.seen.push(line);
-				newCrawlStates.push({
-					pos: (cs.pos += 1),
-					seen: cs.seen,
-				});
-			}
-		}
-		crawlStates = newCrawlStates;
-		newCrawlStates = [];
-	}
-	const flat = doneCrawlStates.map((v) => {
-		return v.seen.join('\n');
-	});
-	return flat;
-};
-
 parseProject(fileMap).then((p) => {
-	// console.log('PROJECT');
-	// console.log(p);
-	// const printAll = Object.values(p.scripts)
-	// 	.map(v=>v.print)
-	// 	.join('\n\n');
-	// console.log(printAll);
-	const prints = {};
-	let tally = 0;
-	let badTally = 0;
-	let trustTally = 0;
-	let funcionalTally = 0;
-	Object.entries(p.scripts).forEach(([k, v]) => {
-		let old = composites[k] || idk[k];
-		const oldVersionFiltered = old.map(sanitizeActions);
-		const newVersionFiltered = v.actions
-			.filter((vv) => {
-				return (
-					vv.mathlang !== 'comment' &&
-					vv.mathlang !== 'return_statement' &&
-					vv.mathlang !== 'dialog_definition' &&
-					vv.mathlang !== 'serial_dialog_definition'
-				);
-			})
-			.map((vv) => {
-				delete vv.comment;
-				return sanitizeActions(vv);
-			});
-		const oldVersion = printScript(k, oldVersionFiltered);
-		const newVersion = printScript(k, newVersionFiltered);
-		if (oldVersion === newVersion) {
-			tally += 1;
-			return;
-		}
-		if (compareNonGotoActions(oldVersion, newVersion)) {
-			trustTally += 1;
-			return;
-		}
-		const oldCYOA = chooseYourOwnAdventure(oldVersion);
-		if (oldCYOA) {
-			const newCYOA = chooseYourOwnAdventure(newVersion);
-			if (newCYOA) {
-				const oldJoin = oldCYOA.join('\n\n');
-				const newJoin = newCYOA.join('\n\n');
-				if (oldJoin === newJoin) {
-					funcionalTally += 1;
-					return;
-				}
-			}
-		}
-		const newVersionWithLabels = v.prePrint;
-		const nonGotoActions = compareNonGotoActions(oldVersion, newVersionWithLabels);
-		if (!nonGotoActions) {
-			prints[k] = {
-				mathlangPre: v.prePrint,
-				mathlang: newVersion,
-				natlang: oldVersion,
-				original: v.debug.text,
-			};
-			badTally += 1;
-		} else {
-			trustTally += 1;
-		}
-	});
-	const lhs = Object.values(prints)
-		.map((v) => v.natlang)
-		.join('\n\n');
-	const rhs = Object.values(prints)
-		.map((v) => v.mathlang)
-		.join('\n\n');
-	const rhsPre = Object.values(prints)
-		.map((v) => v.mathlangPre)
-		.join('\n\n');
-	const original = Object.values(prints)
-		.map((v) => v.original)
-		.join('\n\n');
-	console.log(
-		`${tally} scripts were identical, ${funcionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`,
-	);
-	writeFileSync(`./comparisons/lhs.mgs`, lhs);
-	writeFileSync(`./comparisons/rhs.mgs`, rhs);
-	writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);
-	writeFileSync(`./comparisons/rhsOriginal.mgs`, original);
+	console.log('PROJECT');
+	console.log(p);
+const printAll = Object.values(p.scripts)
+	.map(v=>v.print)
+	.join('\n\n');
+console.log(printAll);
 });
-// */
+*/
