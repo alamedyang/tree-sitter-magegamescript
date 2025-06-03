@@ -1,0 +1,62 @@
+0.  "if \"tuesdayd\" then goto index 2;",
+1.  "goto index 4;",
+2.  "command \"rtfm\" = \"command-rtfm\";",
+3.  "goto index 4;",
+4.  "if !\"storyflag-bobmoss\" then goto index 6;",
+5.  "goto index 11;",
+6.  "entity \"Bob Moss\" position = geometry \"bobsclub-hidingplace\";",
+7.  "entity \"Bob Moss\" name = \" \";",
+8.  "entity \"Bob Moss\" on_interact = \"null_script\";",
+9.  "entity \"Bob Moss\" type = \"exa\";",
+10. "goto index 11;",
+11. "if !\"bobsclub-entered\" then goto index 13;",
+12. "goto index 15;",
+13. "goto script \"show_dialog-bobsclub\";",
+14. "goto index 15;",
+
+Found:
+0 -> 2 ->(3)-> 4 ->(5)
+0 -> 2 ->(3)-> 4 -> 6
+0 ->(1)-> 4 ->(5)-> 11 -> 13
+0 ->(1)-> 4 ->(5)-> 11 -> 12 -> 15
+0 ->(1)-> 4 -> 6 -> 7 -> 8 -> 9 ->(10)-> 11 ->(12)
+0 ->(1)-> 4 -> 6 -> 7 -> 8 -> 9 ->(10)-> 11 -> 13
+
+0 -> 2 -> 4
+0 -> 2 -> 4 -> 6
+
+0 -> 4 -> 11 -> 13
+0 -> 4 -> 11 -> 12 ->15
+0 -> 4 -> 6 -> 7 -> 8 -> 9 -> 11
+0 -> 4 -> 6 -> 7 -> 8 -> 9 -> 11 -> 13
+
+Expected:
+0 -> 2 -> 4 -> 6 -> 7 -> 8 -> 9 -> 11
+0 -> 2 -> 4 -> 6 -> 7 -> 8 -> 9 -> 13
+0 -> 2 -> 4 -> 11
+0 -> 2 -> 4 -> 13
+0 -> 4 -> 11
+0 -> 4 -> 13
+0 -> 4 -> 6 -> 7 -> 8 -> 9 -> 11
+0 -> 4 -> 6 -> 7 -> 8 -> 9 -> 13
+
+
+0. "if \"tuesdayd\" then goto index 2;"
+1. "goto index 3;"
+2. "command \"rtfm\" = \"command-rtfm\";"
+3. "if !\"storyflag-bobmoss\" then goto index 5;"
+4. "goto index 9;"
+5. "entity \"Bob Moss\" position = geometry \"bobsclub-hidingplace\";"
+6. "entity \"Bob Moss\" name = " ";"
+7. "entity \"Bob Moss\" on_interact = \"null_script\";"
+8. "entity \"Bob Moss\" type = \"exa\";"
+9. "if !\"bobsclub-entered\" then goto script \"show_dialog-bobsclub\";"
+
+0 -> 1 -> 3 -> 4 -> 9 -> script
+0 -> 1 -> 3 -> 4 -> 9 -> 10
+0 -> 1 -> 3 -> 5 -> 6 -> 7 -> 8 -> 9 -> script
+0 -> 1 -> 3 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
+0 -> 2 -> 3 -> 4 -> 9 -> script
+0 -> 2 -> 3 -> 4 -> 9 -> 10
+0 -> 2 -> 3 -> 5 -> 6 -> 7 -> 8 -> 9 -> script
+0 -> 2 -> 3 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10

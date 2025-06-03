@@ -3,7 +3,7 @@ include "header.mgs";
 // REGISTER
 
 "register-inventory" {
-	command "man + inventory" = "man-inventory";
+	command "man" + "inventory" = "man-inventory";
 	command "inventory" = "command-inventory";
 	alias "i" = "inventory";
 	alias "examine" = "look";

@@ -112,11 +112,29 @@ const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>)
 	}
 	return true;
 };
+const compareCounted = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {
+	const lhsEntries = Object.entries(lhs);
+	for (let i = 0; i < lhsEntries.length; i++) {
+		const k = lhsEntries[i][0];
+		if (rhs[k] === undefined) {
+			return false;
+		}
+	}
+	const rhsEntries = Object.entries(rhs);
+	for (let i = 0; i < rhsEntries.length; i++) {
+		const k = rhsEntries[i][0];
+		if (lhs[k] === undefined) {
+			return false;
+		}
+	}
+	return true;
+};
 
 type AdventureCS = {
 	pos: number;
 	seen: string[];
 	from: number;
+	fromTos: string[];
 };
 
 const getLabelRegistery = (lines: string[]) => {
@@ -144,6 +162,7 @@ type LineAnalysisTypes =
 	| 'goto-index'
 	| 'comment'
 	| 'load-map'
+	| 'label'
 	| 'line';
 const analyzeLine = (line: string): LineAnalysis => {
 	// take off RHS comments
@@ -152,7 +171,7 @@ const analyzeLine = (line: string): LineAnalysis => {
 		return {
 			type: 'if-then-goto-script',
 			line: ifGotoScript[1],
-			value: ifGotoScript[3],
+			value: `goto script "${ifGotoScript[3]}";`,
 		};
 	}
 	const ifGotoLabel = line.match(/(if.+then) goto label (.+);$/);
@@ -179,7 +198,7 @@ const analyzeLine = (line: string): LineAnalysis => {
 			value: gotoScript[1],
 		};
 	}
-	const gotoLabel = line.match(/goto label (.+);$/);
+	const gotoLabel = line.match(/^goto label (.+);$/);
 	if (gotoLabel) {
 		return {
 			type: 'goto-label',
@@ -187,7 +206,7 @@ const analyzeLine = (line: string): LineAnalysis => {
 			value: gotoLabel[1],
 		};
 	}
-	const gotoIndex = line.match(/goto index (\d+);$/);
+	const gotoIndex = line.match(/^goto index (\d+);$/);
 	if (gotoIndex) {
 		return {
 			type: 'goto-index',
@@ -201,6 +220,14 @@ const analyzeLine = (line: string): LineAnalysis => {
 			type: 'comment',
 			line: line,
 			value: comment[1],
+		};
+	}
+	const label = line.match(/^(.+?):$/);
+	if (label) {
+		return {
+			type: 'label',
+			line: line,
+			value: label[1],
 		};
 	}
 	const load = line.match(/^load map (.+);$/);
@@ -224,148 +251,134 @@ const advanceAdventureCS = (cs: AdventureCS, n?: number) => {
 	cs.from = oldPos;
 	return oldPos + '->' + newPos;
 };
-const chooseYourOwnAdventure = (text: string) => {
-	const lines = splitSanitizeAndRecoverLabels(text).filter((s) => !/\/\/.+$/.test(s));
+const chooseYourOwnAdventure = (text: string): string[][] => {
+	let lines = splitSanitizeAndRecoverLabels(text)
+		.filter((s) => !/\/\/.+$/.test(s))
+		.slice(1, -1);
 	const labelRegistry: Record<string, number> = getLabelRegistery(lines);
-	const ifCount = lines.filter((v) => v.startsWith('if')).length;
+	if (text.includes('goto index')) {
+		lines = lines.filter((v) => !/^[_a-zA-Z0-9]+:$/.test(v));
+	}
+	const ifs = lines.filter((v) => v.startsWith('if '));
 
-	const permutations = 2 ** ifCount;
-	if (permutations > 100000) console.warn(`danger! ${permutations} permutations ahead!`);
+	const permutations = 2 ** ifs.length;
+	if (permutations > 100_000_000) {
+		console.warn(`danger! ${permutations} permutations ahead! Skipping for your safety`);
+		return [[String(Math.random())], [String(Math.random())]];
+	}
 
 	const doneQueue: AdventureCS[] = [];
-	let queue: AdventureCS[] = [
+	const queue: AdventureCS[] = [
 		{
 			pos: 0,
 			seen: [],
 			from: -1,
+			fromTos: [],
 		},
 	];
-	let nextQueue: AdventureCS[] = [];
-	const fromTos: Set<string> = new Set();
+	// const fromTos: Set<string> = new Set();
 	while (queue.length) {
-		queue.forEach((cs) => {
-			const line = lines[cs.pos];
-			// Ran out of bounds? We win!
-			// console.log('Ran out of lines. We win!');
-			if (!line) {
-				doneQueue.push(cs);
-				return;
+		const cs = queue.pop();
+		if (!cs) throw new Error('TS I swear');
+		const line = lines[cs.pos];
+		// Ran out of bounds? We win!
+		if (line === undefined) {
+			doneQueue.push(cs);
+			continue;
+		}
+		const analysis = analyzeLine(line);
+		// Just plain leaving the script
+		if (analysis.type === 'load-map' || analysis.type === 'goto-script') {
+			// we're done
+			if (analysis.type === 'load-map') {
+				cs.seen.push(analysis.line);
 			}
-			const analysis = analyzeLine(line);
+			doneQueue.push(cs);
+			continue;
+		}
+		// Normal line
+		if (
+			analysis.type === 'line' ||
+			analysis.type === 'if-then-goto-script' ||
+			analysis.type === 'comment' ||
+			analysis.type === 'label'
+		) {
+			// (the out-of-script jump is ignored; just fall through)
+			const fromTo = advanceAdventureCS(cs);
 			cs.seen.push(analysis.line);
-			// Just plain leaving the script
-			if (analysis.type === 'load-map' || analysis.type === 'goto-script') {
-				// console.log('Leaving the script. Going to script ' + analysis.value);
-				// we're done
+			// check for loop
+			if (cs.fromTos.includes(fromTo)) {
 				doneQueue.push(cs);
-				return;
+			} else {
+				cs.fromTos.push(fromTo);
+				queue.unshift(cs);
 			}
-			// Normal line
-			if (
-				analysis.type === 'line' ||
-				analysis.type === 'if-then-goto-script' ||
-				analysis.type === 'comment'
-			) {
-				if (analysis.type === 'line') {
-					// console.log('Saw line ' + analysis.line + '. Going down...');
-				} else if (analysis.type === 'if-then-goto-script') {
-					// console.log(
-					// 	`Saw script jump (to script ${analysis.value}) but ignoring. Saw line ` +
-					// 		analysis.line +
-					// 		'. Going down...',
-					// );
-				}
-				// (the out-of-script jump is ignored; just fall through)
-				const fromTo = advanceAdventureCS(cs);
-				// check for loop
-				if (fromTos.has(fromTo)) {
-					doneQueue.push(cs);
-				} else {
-					fromTos.add(fromTo);
-					nextQueue.push(cs);
-				}
-				if (analysis.type === 'comment') {
-					cs.seen.pop(); // don't track that you saw a comment
-				}
-				return;
+			if (analysis.type === 'comment' || analysis.type === 'label') {
+				cs.seen.pop(); // don't track that you saw a comment or a label
 			}
-			// Non-conditional jumping within the script
-			if (analysis.type === 'goto-label' || analysis.type === 'goto-index') {
-				const index =
-					analysis.type === 'goto-label' ? labelRegistry[analysis.value] : analysis.value;
-				if (typeof index !== 'number') throw new Error("TS you're smarter than this");
-				const fromTo = advanceAdventureCS(cs, index);
-				if (analysis.type === 'goto-label') {
-					// console.log(`Saw mandatory label jump to ${analysis.value}. Jumping!`);
-				} else if (analysis.type === 'goto-index') {
-					// console.log(`Saw mandatory index jump to ${analysis.value}. Jumping!`);
-				}
-				// check for loop
-				if (fromTos.has(fromTo)) {
-					doneQueue.push(cs);
-				} else {
-					fromTos.add(fromTo);
-					nextQueue.push(cs);
-				}
-				return;
+			// if (analysis.type === 'if-then-goto-script') {
+			// 	if (typeof analysis.value !== 'string') throw new Error('TS');
+			// 	cs.seen.push(analysis.value);
+			// }
+			continue;
+		}
+		// Non-conditional jumping within the script
+		if (analysis.type === 'goto-label' || analysis.type === 'goto-index') {
+			const index =
+				analysis.type === 'goto-label' ? labelRegistry[analysis.value] : analysis.value;
+			if (typeof index !== 'number') throw new Error("TS you're smarter than this");
+			const fromTo = advanceAdventureCS(cs, index);
+			// don't have "seen" these!
+			// check for loop
+			if (cs.fromTos.includes(fromTo)) {
+				doneQueue.push(cs);
+			} else {
+				cs.fromTos.push(fromTo);
+				queue.unshift(cs);
 			}
-			// Conditional jumping within the script
-			if (analysis.type === 'if-then-goto-label' || analysis.type === 'if-then-goto-index') {
-				if (analysis.type === 'if-then-goto-label') {
-					// console.log(
-					// 	`Saw conditional label jump to ${analysis.value}. Going down in one case and jumping in another.`,
-					// );
-				} else if (analysis.type === 'if-then-goto-index') {
-					// console.log(
-					// 	`Saw conditional index jump to ${analysis.value}. Going down in one case and jumping in another.`,
-					// );
-				}
-				// fall through half
-				const fallThroughCS = structuredClone(cs);
-				const fallThroughFromTo = advanceAdventureCS(fallThroughCS);
-				// check for loop
-				if (fromTos.has(fallThroughFromTo)) {
-					doneQueue.push(fallThroughCS);
-				} else {
-					fromTos.add(fallThroughFromTo);
-					nextQueue.push(fallThroughCS);
-				}
-				// jump half
-				const index =
-					analysis.type === 'if-then-goto-label'
-						? labelRegistry[analysis.value]
-						: analysis.value;
-				if (typeof index !== 'number') throw new Error("TS you're smarter than this");
-				const fromTo = advanceAdventureCS(cs, index);
-				// check for loop
-				if (fromTos.has(fromTo)) {
-					doneQueue.push(cs);
-				} else {
-					fromTos.add(fromTo);
-					nextQueue.push(cs);
-				}
-				return;
+			continue;
+		}
+		// Conditional jumping within the script
+		if (analysis.type === 'if-then-goto-label' || analysis.type === 'if-then-goto-index') {
+			cs.seen.push(analysis.line);
+			// fall through half
+			const fallThroughCS: AdventureCS = {
+				pos: cs.pos,
+				seen: cs.seen.slice(),
+				from: cs.from,
+				fromTos: cs.fromTos.slice(),
+			};
+			// const fallThroughCS: AdventureCS = JSON.stringify(JSON.parse(cs)) as AdventureCS;
+			const fallThroughFromTo = advanceAdventureCS(fallThroughCS);
+			// check for loop
+			if (cs.fromTos.includes(fallThroughFromTo)) {
+				doneQueue.push(fallThroughCS);
+			} else {
+				fallThroughCS.fromTos.push(fallThroughFromTo);
+				queue.unshift(fallThroughCS);
 			}
-		});
-		queue = nextQueue;
-		nextQueue = [];
+			// jump half
+			const index =
+				analysis.type === 'if-then-goto-label'
+					? labelRegistry[analysis.value]
+					: analysis.value;
+			if (typeof index !== 'number') throw new Error("TS you're smarter than this");
+			const fromTo = advanceAdventureCS(cs, index);
+			// check for loop
+			if (cs.fromTos.includes(fromTo)) {
+				doneQueue.push(cs);
+			} else {
+				cs.fromTos.push(fromTo);
+				queue.unshift(cs);
+			}
+			continue;
+		}
 	}
 	const flat = doneQueue.map((v) => {
-		return v.seen.join('\n');
+		return v.seen;
 	});
 	return flat;
 };
-
-/*
-
-Types of comparison:
-
-old JSON (baked indices and copy_script)
-new JSON (baked indices and copy_script)
-old JSON (pre-baking and pre-copy_script)
-new JSON (pre-baking and pre-copy_script)
-
-*/
 
 type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
@@ -386,10 +399,10 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	scriptNames.forEach((scriptName) => {
 		let oldBaked = oldPost[scriptName];
 		let newBaked = p.scripts[scriptName].print;
-		if (!oldBaked) {
-			oldBaked = oldPre[scriptName];
-			newBaked = p.scripts[scriptName].prePrint;
-		}
+		// if (!oldBaked) {
+		oldBaked = oldPre[scriptName];
+		newBaked = p.scripts[scriptName].prePrint;
+		// }
 		const oldPrint = printScript(scriptName, oldBaked);
 		const newPrint = newBaked;
 		const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
@@ -412,16 +425,12 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 			};
 			return;
 		}
-		badTally += 1;
-		bad[scriptName] = {
-			old: oldPrint,
-			new: newPrint,
-		};
 		const oldAdventure = chooseYourOwnAdventure(oldPrint);
 		const newAdventure = chooseYourOwnAdventure(newPrint);
-		const oldAdventureCounts = count(oldAdventure);
-		const newAdventureCounts = count(newAdventure);
-		const compareAdventures = compareCounts(oldAdventureCounts, newAdventureCounts);
+		const oldAdventureCounts = count(oldAdventure.map((s) => s.join('\n')));
+		const newAdventureCounts = count(newAdventure.map((s) => s.join('\n')));
+		// don't check counts, just check journeys
+		const compareAdventures = compareCounted(oldAdventureCounts, newAdventureCounts);
 		if (compareAdventures) {
 			functionalTally += 1;
 			functional[scriptName] = {
@@ -430,6 +439,11 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 			};
 			return;
 		}
+		badTally += 1;
+		bad[scriptName] = {
+			old: oldPrint,
+			new: newPrint,
+		};
 	});
 
 	const olds = Object.values(bad)
@@ -449,3 +463,6 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 
 // 1606 scripts were identical, 2 were functionally identical, and 126 are probably okay (79 were clearly different)
 // 1618 scripts were identical, 0 were functionally identical, and 125 are probably okay (68 were clearly different)
+// 1618 scripts were identical, 56 were functionally identical, and 125 are probably okay (68 were clearly different)
+// 1618 scripts were identical, 1 were functionally identical, and 125 are probably okay (67 were clearly different)
+// 1669 scripts were identical, 1 were functionally identical, and 116 are probably okay (25 were clearly different)

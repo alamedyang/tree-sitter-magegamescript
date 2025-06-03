@@ -5,11 +5,11 @@ include "header.mgs";
 "register-manual" {
 	// the default set
 	command "man" = "command-man";
-	command "man + man" = "man-man";
-	command "man + look" = "man-look";
-	command "man + go" = "man-go";
-	command "man + help" = "man-help";
-	command "man + rtfm" = "man-rtfm";
+	command "man" + "man" = "man-man";
+	command "man" + "look" = "man-look";
+	command "man" + "go" = "man-go";
+	command "man" + "help" = "man-help";
+	command "man" + "rtfm" = "man-rtfm";
 	command "man" fail = "man-fail";
 }
 

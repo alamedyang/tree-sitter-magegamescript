@@ -269,7 +269,7 @@ const printActionFns = {
 		`${v.bool_value ? '' : 'un'}pause ${printEntityIdentifier(v.entity)} ${v.script_slot};`,
 	GOTO_ACTION_INDEX: (v: TYPES.GOTO_ACTION_INDEX) => {
 		if (typeof v.action_index === 'string') {
-			return `goto label ${sanitizeLabel(v.action_index)}`;
+			return `goto label ${sanitizeLabel(v.action_index)};`;
 		}
 		return `goto index ${v.action_index};`;
 	},

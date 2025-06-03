@@ -4,8 +4,8 @@ include "header.mgs";
 
 "register-commentary" {
 	command "commentary" = "command-commentary-solo";
-	command "commentary + on" = "command-commentary-on";
-	command "commentary + off" = "command-commentary-off";
+	command "commentary" + "on" = "command-commentary-on";
+	command "commentary" + "off" = "command-commentary-off";
 }
 
 // COMMAND

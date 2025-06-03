@@ -49,7 +49,6 @@ include "header.mgs";
 	"ch2-map-mainframeos" = false;
 	"ch2-carrying-mainframeos" = true;
 	"ch2-cutseen-castle99" = true;
-	"ch2-carrying-mainframeos" = false;
 	copy!("ch2-install-mainframeos")
 	"ch2-ring-zero-enabled-in-castle" = true;
 	"ch2-storyflag-round" = 5;

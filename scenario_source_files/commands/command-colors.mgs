@@ -4,9 +4,9 @@ include "header.mgs";
 
 "register-colors" {
 	command "colors" = "command-colors";
-	command "colors + bg" = "command-colors-bg";
-	command "colors + bold" = "command-colors-bold";
-	command "colors + dim" = "command-colors-dim";
+	command "colors" + "bg" = "command-colors-bg";
+	command "colors" + "bold" = "command-colors-bold";
+	command "colors" + "dim" = "command-colors-dim";
 }
 
 // COMMAND
