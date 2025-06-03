@@ -7,24 +7,95 @@ import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
 import { makeMap, parseProject } from './parser.js';
-import * as TYPES from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 
-const sanitizeActions = (action: Record<string, unknown>): TYPES.Action => {
-	if (action.action === 'SHOW_DIALOG') {
-		if (typeof action.dialog !== 'string') throw new Error('ts');
-		action.dialog = action.dialog.replace(/(-|:)\d+:\d+$/, '-XX');
-	} else if (action.action === 'SHOW_SERIAL_DIALOG') {
-		if (typeof action.serial_dialog !== 'string') throw new Error('ts');
-		action.serial_dialog = action.serial_dialog.replace(/(-|:)\d+:\d+$/, '-XX');
-	}
-	return action as TYPES.Action;
+// Ignoring comments, labels, and other inline jumps, get a count of each action line for a script
+const count = (lines: string[]) => {
+	const counts = {};
+	lines.forEach((line) => {
+		counts[line] = (counts[line] || 0) + 1;
+	});
+	return counts;
+};
+const splitAndStripNonGotoActions = (text: string): string[] => {
+	const ret: string[] = [];
+	text.split('\n').forEach((origLine) => {
+		let line = origLine.trim();
+		// strip label/index goto definitions (keep script jumps)
+		const match = line.match(/((.+) then) goto (index \d+|label .+);/);
+		line = match ? match[1] : line;
+		// ignore bare label/index gotos
+		if (/^\s*goto (index \d+|label .+)/.test(line)) {
+			return;
+		}
+		// split script jumps in case they're separate some times and not others
+		// (this is actually happening)
+		// we're taking away the word script apparently
+		const gotoScriptSplit = line.match(/^(if (.+) then) (goto script (".+");)/);
+		if (gotoScriptSplit) {
+			ret.push(gotoScriptSplit[1]);
+			ret.push(gotoScriptSplit[3]);
+			return;
+		}
+		if (/^\s*\/\//.test(line)) {
+			// ignore comments
+			return;
+		}
+		if (/^\s*.+:$/.test(line)) {
+			// ignore labels
+			return;
+		}
+		// take off any RHS comments (idk if there are any tbh)
+		const comments = line.match(/(\s*[^\s]+\s*)\/\/.+$/);
+		line = comments ? comments[1].trim() : line;
+		// genericize dialog identifiers that squeaked through
+		if (line.includes('show')) {
+			line = line.replace(/(-|:)\d+:\d+";$/, '-XX";').replace(/-/g, '_');
+		}
+		ret.push(line);
+	});
+	return ret;
+};
+const splitSanitizeAndRecoverLabels = (text: string): string[] => {
+	const ret: string[] = [];
+	text.split('\n').forEach((origLine) => {
+		let line = origLine.trim();
+		// // split script jumps in case they're separate some times and not others
+		// // (this is actually happening)
+		// // we're taking away the word script apparently
+		// const gotoScriptSplit = line.match(/^(if (.+) then) (goto script (".+");)/);
+		// if (gotoScriptSplit) {
+		// 	ret.push(gotoScriptSplit[1]);
+		// 	ret.push(gotoScriptSplit[3]);
+		// 	return;
+		// }
+		const hiddenLabel = line.match(/^\/\/ '(.+)':/);
+		if (hiddenLabel) {
+			const label: string = (hiddenLabel[1] || '')
+				.replace(/ /g, '_')
+				.replace(/-/g, '_')
+				.replace(/#/g, '');
+			ret.push(`${label}:`);
+			return;
+		}
+		// genericize dialog identifiers that squeaked through
+		line = line.replace(/(-|:)\d+:\d+";$/, '-XX";');
+		ret.push(line);
+	});
+	return ret;
 };
 
-const compareNonGotoActions = (lhsText: string, rhsText: string) => {
-	const lhs = getNonGotoActions(lhsText);
-	const rhs = getNonGotoActions(rhsText);
+// // Takes two script strings and sees if their non-goto-line counts are the same.
+// // If-else logic aside, this means these scripts are the same and do not have syntax/translation nerrors.
+// const compareNonGotoActions = (lhsText: string, rhsText: string) => {
+// 	const lhs = count(lhsText);
+// 	const rhs = count(rhsText);
+// 	return compareCounts(lhs, rhs);
+// };
+
+// See if the keys and the counts from two count objects are the same.
+const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {
 	const lhsEntries = Object.entries(lhs);
 	for (let i = 0; i < lhsEntries.length; i++) {
 		const [k, v] = lhsEntries[i];
@@ -41,224 +112,340 @@ const compareNonGotoActions = (lhsText: string, rhsText: string) => {
 	}
 	return true;
 };
-const getNonGotoActions = (text: string) => {
-	const lines = text.split('\n');
-	const counts = {};
-	lines.forEach((line) => {
-		const match = line.match(/((.+) then goto) (index \d+|label .+);/);
-		let key = match ? match[1] : line;
-		if (/^\s*goto /.test(key)) {
-			return;
-		} else if (/^\s*.+:$/.test(key)) {
-			return;
-		} else if (/^\s*\/\//.test(key)) {
-			return;
-		}
-		key = key.replace(/(-|:)\d+:\d+";$/, '-XX";');
-		counts[key] = (counts[key] || 0) + 1;
-	});
-	return counts;
-};
 
 type AdventureCS = {
 	pos: number;
 	seen: string[];
-	looping?: boolean;
+	from: number;
 };
-const chooseYourOwnAdventure = (text: string) => {
-	const registry = {};
-	const doneCrawlStates: AdventureCS[] = [];
-	const lines = text
-		.split('\n')
-		.slice(1, -1)
-		.map((v) => v.trim());
-	const ifCount = lines.filter((v) => v.startsWith('if')).length;
-	const permutations = 2 ** ifCount;
+
+const getLabelRegistery = (lines: string[]) => {
+	const registry: Record<string, number> = {};
 	lines.forEach((line, i) => {
-		const label = line.match(/^([-_a-zA-Z0-9 "]):$/);
+		const label = line.trim().match(/^([^/]+):$/);
 		if (label) {
 			registry[label[1]] = i;
 		}
 	});
-	let crawlStates: AdventureCS[] = [{ pos: 0, seen: [] }];
-	let newCrawlStates: AdventureCS[] = [];
-	while (crawlStates.length) {
-		if (crawlStates.length > 10_000) {
-			return null;
-		}
-		if (crawlStates.length > permutations) {
-			throw new Error("Don't do it");
-		}
-		for (let i = 0; i < crawlStates.length; i++) {
-			const cs = crawlStates[i];
-			if (cs.seen.length > 10000) {
-				cs.looping = true;
-				doneCrawlStates.push(cs);
-				break;
-			}
-			const line = lines[cs.pos];
-			if (!line) {
-				// we ran out of script: we're done
-				doneCrawlStates.push(cs);
-				break;
-			}
-			if (line.startsWith('//')) {
-				// skip comments
-				cs.pos += 1;
-				newCrawlStates.push(cs);
-				continue;
-			}
-			if (line.startsWith('load map')) {
-				// control action to leave everything: we're done
-				cs.seen.push(line);
-				doneCrawlStates.push(cs);
-				break;
-			}
-			const simpleGotoIndex = line.match(/^goto index (\d+);$/);
-			if (simpleGotoIndex) {
-				// goto index -- go there
-				cs.pos = Number(simpleGotoIndex[1]);
-				newCrawlStates.push(cs);
-				continue;
-			}
-			const simpleGotoLabel = line.match(/^goto label ([-_a-zA-Z0-9 "]);$/);
-			if (simpleGotoLabel) {
-				// goto label -- look it up and go there
-				cs.pos = Number(registry[line[1]]);
-				newCrawlStates.push(cs);
-				continue;
-			}
-			if (line.startsWith('if')) {
-				// branchu
-				const splits = line.split('goto');
-				cs.seen.push(splits[0] + 'goto');
-				// fall through case
-				newCrawlStates.push({
-					pos: (cs.pos += 1),
-					seen: JSON.parse(JSON.stringify(cs.seen)),
-				});
-				// jump case:
-				const indexJump = line.match(/index (\d+);$/);
-				if (indexJump) {
-					// ...index
-					newCrawlStates.push({
-						pos: Number(indexJump[1]),
-						seen: cs.seen,
-					});
-					continue;
-				}
-				const labelJump = line.match(/label ([-_a-zA-Z0-9 "]);$/);
-				if (labelJump) {
-					// ...label
-					newCrawlStates.push({
-						pos: Number(registry[line[1]]),
-						seen: cs.seen,
-					});
-					continue;
-				}
-				// script jumps are here; these count as ending
-				doneCrawlStates.push(cs);
-				break;
-			} else {
-				cs.seen.push(line);
-				newCrawlStates.push({
-					pos: (cs.pos += 1),
-					seen: cs.seen,
-				});
-			}
-		}
-		crawlStates = newCrawlStates;
-		newCrawlStates = [];
+	return registry;
+};
+
+type LineAnalysis = {
+	type: LineAnalysisTypes;
+	line: string;
+	value: number | string;
+};
+type LineAnalysisTypes =
+	| 'if-then-goto-script'
+	| 'if-then-goto-label'
+	| 'if-then-goto-index'
+	| 'goto-script'
+	| 'goto-label'
+	| 'goto-index'
+	| 'comment'
+	| 'load-map'
+	| 'line';
+const analyzeLine = (line: string): LineAnalysis => {
+	// take off RHS comments
+	const ifGotoScript = line.match(/(if.+then) goto( script)? "(.+)";$/);
+	if (ifGotoScript) {
+		return {
+			type: 'if-then-goto-script',
+			line: ifGotoScript[1],
+			value: ifGotoScript[3],
+		};
 	}
-	const flat = doneCrawlStates.map((v) => {
+	const ifGotoLabel = line.match(/(if.+then) goto label (.+);$/);
+	if (ifGotoLabel) {
+		return {
+			type: 'if-then-goto-label',
+			line: ifGotoLabel[1],
+			value: ifGotoLabel[2],
+		};
+	}
+	const ifGotoIndex = line.match(/(if.+then) goto index (\d+);$/);
+	if (ifGotoIndex) {
+		return {
+			type: 'if-then-goto-index',
+			line: ifGotoIndex[1],
+			value: Number(ifGotoIndex[2]),
+		};
+	}
+	const gotoScript = line.match(/goto script "(.+)";$/);
+	if (gotoScript) {
+		return {
+			type: 'goto-script',
+			line: 'goto script',
+			value: gotoScript[1],
+		};
+	}
+	const gotoLabel = line.match(/goto label (.+);$/);
+	if (gotoLabel) {
+		return {
+			type: 'goto-label',
+			line: line,
+			value: gotoLabel[1],
+		};
+	}
+	const gotoIndex = line.match(/goto index (\d+);$/);
+	if (gotoIndex) {
+		return {
+			type: 'goto-index',
+			line: 'goto',
+			value: Number(gotoIndex[1]),
+		};
+	}
+	const comment = line.match(/^\/\/\s*(.+)$/);
+	if (comment) {
+		return {
+			type: 'comment',
+			line: line,
+			value: comment[1],
+		};
+	}
+	const load = line.match(/^load map (.+);$/);
+	if (load) {
+		return {
+			type: 'load-map',
+			line: line,
+			value: load[1],
+		};
+	}
+	return {
+		type: 'line',
+		line: line,
+		value: line,
+	};
+};
+const advanceAdventureCS = (cs: AdventureCS, n?: number) => {
+	const oldPos = cs.pos;
+	const newPos = n === undefined ? cs.pos + 1 : n;
+	cs.pos = newPos;
+	cs.from = oldPos;
+	return oldPos + '->' + newPos;
+};
+const chooseYourOwnAdventure = (text: string) => {
+	const lines = splitSanitizeAndRecoverLabels(text).filter((s) => !/\/\/.+$/.test(s));
+	const labelRegistry: Record<string, number> = getLabelRegistery(lines);
+	const ifCount = lines.filter((v) => v.startsWith('if')).length;
+
+	const permutations = 2 ** ifCount;
+	if (permutations > 100000) console.warn(`danger! ${permutations} permutations ahead!`);
+
+	const doneQueue: AdventureCS[] = [];
+	let queue: AdventureCS[] = [
+		{
+			pos: 0,
+			seen: [],
+			from: -1,
+		},
+	];
+	let nextQueue: AdventureCS[] = [];
+	const fromTos: Set<string> = new Set();
+	while (queue.length) {
+		queue.forEach((cs) => {
+			const line = lines[cs.pos];
+			// Ran out of bounds? We win!
+			// console.log('Ran out of lines. We win!');
+			if (!line) {
+				doneQueue.push(cs);
+				return;
+			}
+			const analysis = analyzeLine(line);
+			cs.seen.push(analysis.line);
+			// Just plain leaving the script
+			if (analysis.type === 'load-map' || analysis.type === 'goto-script') {
+				// console.log('Leaving the script. Going to script ' + analysis.value);
+				// we're done
+				doneQueue.push(cs);
+				return;
+			}
+			// Normal line
+			if (
+				analysis.type === 'line' ||
+				analysis.type === 'if-then-goto-script' ||
+				analysis.type === 'comment'
+			) {
+				if (analysis.type === 'line') {
+					// console.log('Saw line ' + analysis.line + '. Going down...');
+				} else if (analysis.type === 'if-then-goto-script') {
+					// console.log(
+					// 	`Saw script jump (to script ${analysis.value}) but ignoring. Saw line ` +
+					// 		analysis.line +
+					// 		'. Going down...',
+					// );
+				}
+				// (the out-of-script jump is ignored; just fall through)
+				const fromTo = advanceAdventureCS(cs);
+				// check for loop
+				if (fromTos.has(fromTo)) {
+					doneQueue.push(cs);
+				} else {
+					fromTos.add(fromTo);
+					nextQueue.push(cs);
+				}
+				if (analysis.type === 'comment') {
+					cs.seen.pop(); // don't track that you saw a comment
+				}
+				return;
+			}
+			// Non-conditional jumping within the script
+			if (analysis.type === 'goto-label' || analysis.type === 'goto-index') {
+				const index =
+					analysis.type === 'goto-label' ? labelRegistry[analysis.value] : analysis.value;
+				if (typeof index !== 'number') throw new Error("TS you're smarter than this");
+				const fromTo = advanceAdventureCS(cs, index);
+				if (analysis.type === 'goto-label') {
+					// console.log(`Saw mandatory label jump to ${analysis.value}. Jumping!`);
+				} else if (analysis.type === 'goto-index') {
+					// console.log(`Saw mandatory index jump to ${analysis.value}. Jumping!`);
+				}
+				// check for loop
+				if (fromTos.has(fromTo)) {
+					doneQueue.push(cs);
+				} else {
+					fromTos.add(fromTo);
+					nextQueue.push(cs);
+				}
+				return;
+			}
+			// Conditional jumping within the script
+			if (analysis.type === 'if-then-goto-label' || analysis.type === 'if-then-goto-index') {
+				if (analysis.type === 'if-then-goto-label') {
+					// console.log(
+					// 	`Saw conditional label jump to ${analysis.value}. Going down in one case and jumping in another.`,
+					// );
+				} else if (analysis.type === 'if-then-goto-index') {
+					// console.log(
+					// 	`Saw conditional index jump to ${analysis.value}. Going down in one case and jumping in another.`,
+					// );
+				}
+				// fall through half
+				const fallThroughCS = structuredClone(cs);
+				const fallThroughFromTo = advanceAdventureCS(fallThroughCS);
+				// check for loop
+				if (fromTos.has(fallThroughFromTo)) {
+					doneQueue.push(fallThroughCS);
+				} else {
+					fromTos.add(fallThroughFromTo);
+					nextQueue.push(fallThroughCS);
+				}
+				// jump half
+				const index =
+					analysis.type === 'if-then-goto-label'
+						? labelRegistry[analysis.value]
+						: analysis.value;
+				if (typeof index !== 'number') throw new Error("TS you're smarter than this");
+				const fromTo = advanceAdventureCS(cs, index);
+				// check for loop
+				if (fromTos.has(fromTo)) {
+					doneQueue.push(cs);
+				} else {
+					fromTos.add(fromTo);
+					nextQueue.push(cs);
+				}
+				return;
+			}
+		});
+		queue = nextQueue;
+		nextQueue = [];
+	}
+	const flat = doneQueue.map((v) => {
 		return v.seen.join('\n');
 	});
 	return flat;
 };
 
+/*
+
+Types of comparison:
+
+old JSON (baked indices and copy_script)
+new JSON (baked indices and copy_script)
+old JSON (pre-baking and pre-copy_script)
+new JSON (pre-baking and pre-copy_script)
+
+*/
+
+type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
+const identical: Record<string, PrintComparison> = {};
+const trusted: Record<string, PrintComparison> = {};
+const functional: Record<string, PrintComparison> = {};
+const bad: Record<string, PrintComparison> = {};
+
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	console.log('PROJECT');
 	console.log(p);
-	const printAll = Object.values(p.scripts)
-		.map((v) => v.print)
-		.join('\n\n');
-	console.log(printAll);
-	const prints: Record<string, Record<string, string>> = {};
+	const scriptNames = Object.keys(p.scripts);
 	let tally = 0;
-	let badTally = 0;
 	let trustTally = 0;
-	let funcionalTally = 0;
-	Object.entries(p.scripts).forEach(([k, v]) => {
-		const old = oldPost[k] || oldPre[k];
-		const oldVersionFiltered = old.map(sanitizeActions);
-		const newVersionFiltered = v.actions
-			.filter((vv) => {
-				return (
-					vv.mathlang !== 'comment' &&
-					vv.mathlang !== 'return_statement' &&
-					vv.mathlang !== 'dialog_definition' &&
-					vv.mathlang !== 'serial_dialog_definition'
-				);
-			})
-			.map((vv) => {
-				delete vv.comment;
-				return sanitizeActions(vv);
-			});
-		const oldVersion = printScript(k, oldVersionFiltered);
-		const newVersion = printScript(k, newVersionFiltered);
-		if (oldVersion === newVersion) {
+	let functionalTally = 0;
+	let badTally = 0;
+	scriptNames.forEach((scriptName) => {
+		let oldBaked = oldPost[scriptName];
+		let newBaked = p.scripts[scriptName].print;
+		if (!oldBaked) {
+			oldBaked = oldPre[scriptName];
+			newBaked = p.scripts[scriptName].prePrint;
+		}
+		const oldPrint = printScript(scriptName, oldBaked);
+		const newPrint = newBaked;
+		const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
+		const newPrintLines = splitAndStripNonGotoActions(newPrint);
+
+		if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
 			tally += 1;
-			return;
-		}
-		if (compareNonGotoActions(oldVersion, newVersion)) {
-			trustTally += 1;
-			return;
-		}
-		const oldCYOA = chooseYourOwnAdventure(oldVersion);
-		if (oldCYOA) {
-			const newCYOA = chooseYourOwnAdventure(newVersion);
-			if (newCYOA) {
-				const oldJoin = oldCYOA.join('\n\n');
-				const newJoin = newCYOA.join('\n\n');
-				if (oldJoin === newJoin) {
-					funcionalTally += 1;
-					return;
-				}
-			}
-		}
-		const newVersionWithLabels = v.prePrint;
-		const nonGotoActions = compareNonGotoActions(oldVersion, newVersionWithLabels);
-		if (!nonGotoActions) {
-			prints[k] = {
-				mathlangPre: v.prePrint,
-				mathlang: newVersion,
-				natlang: oldVersion,
-				original: v.debug.text,
+			identical[scriptName] = {
+				old: oldPrint,
+				new: newPrint,
 			};
-			badTally += 1;
-		} else {
+			return;
+		}
+		const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
+		if (countAndTrust) {
 			trustTally += 1;
+			trusted[scriptName] = {
+				old: oldPrint,
+				new: newPrint,
+			};
+			return;
+		}
+		badTally += 1;
+		bad[scriptName] = {
+			old: oldPrint,
+			new: newPrint,
+		};
+		const oldAdventure = chooseYourOwnAdventure(oldPrint);
+		const newAdventure = chooseYourOwnAdventure(newPrint);
+		const oldAdventureCounts = count(oldAdventure);
+		const newAdventureCounts = count(newAdventure);
+		const compareAdventures = compareCounts(oldAdventureCounts, newAdventureCounts);
+		if (compareAdventures) {
+			functionalTally += 1;
+			functional[scriptName] = {
+				old: oldPrint,
+				new: newPrint,
+			};
+			return;
 		}
 	});
-	const lhs = Object.values(prints)
-		.map((v) => v.natlang)
+
+	const olds = Object.values(bad)
+		.sort((a, b) => a.old.length - b.old.length)
+		.map((v: PrintComparison) => v.old)
 		.join('\n\n');
-	const rhs = Object.values(prints)
-		.map((v) => v.mathlang)
-		.join('\n\n');
-	const rhsPre = Object.values(prints)
-		.map((v) => v.mathlangPre)
-		.join('\n\n');
-	const original = Object.values(prints)
-		.map((v) => v.original)
+	const news = Object.values(bad)
+		.sort((a, b) => a.old.length - b.old.length)
+		.map((v: PrintComparison) => v.new)
 		.join('\n\n');
 	console.log(
-		`${tally} scripts were identical, ${funcionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`,
+		`${tally} scripts were identical, ${functionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`,
 	);
-	writeFileSync(`./comparisons/lhs.mgs`, lhs);
-	writeFileSync(`./comparisons/rhs.mgs`, rhs);
-	writeFileSync(`./comparisons/rhsPre.mgs`, rhsPre);
-	writeFileSync(`./comparisons/rhsOriginal.mgs`, original);
+	writeFileSync(`./comparisons/olds.mgs`, olds);
+	writeFileSync(`./comparisons/news.mgs`, news);
 });
+
+// 1606 scripts were identical, 2 were functionally identical, and 126 are probably okay (79 were clearly different)
+// 1618 scripts were identical, 0 were functionally identical, and 125 are probably okay (68 were clearly different)

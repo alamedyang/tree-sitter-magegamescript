@@ -3,7 +3,7 @@ import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.js';
 
 type AnyNode = TYPES.Action | MATHLANG.MathlangNode;
-const isNodeAction = (node: TYPES.Action | MATHLANG.MathlangNode): node is TYPES.Action => {
+export const isNodeAction = (node: TYPES.Action | MATHLANG.MathlangNode): node is TYPES.Action => {
 	return (node as TYPES.Action).action !== undefined;
 };
 
@@ -20,7 +20,7 @@ const printAction = (data: AnyNode) => {
 		const fn = printActionFns[data.action];
 		if (!fn) throw new Error('Fn needed for ' + data.action);
 		const print = fn(data);
-		const comment = data.comment ? ' // ' + data.comment : '';
+		const comment = data.debug?.comment ? ' // ' + data.debug?.comment : '';
 		return print + comment;
 	}
 	if (!isAction && data.mathlang) {
@@ -57,7 +57,7 @@ const mathlang = {
 		if (!data.label) throw new Error('cannot print label without label');
 		return `${sanitizeLabel(data.label)}:`;
 	},
-	copy_script: (data: MATHLANG.MathlangCopyMacro) => `copy!("${data.scriptName}")`,
+	copy_script: (data: MATHLANG.MathlangCopyMacro) => `copy!("${data.script}")`,
 };
 
 const printActionFns = {
@@ -273,7 +273,7 @@ const printActionFns = {
 		}
 		return `goto index ${v.action_index};`;
 	},
-	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto "${v.script}";`,
+	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto script "${v.script}";`,
 	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => `copy!("${v.script}")`,
 };
 

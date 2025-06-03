@@ -943,3 +943,16 @@ export const getBoolFieldForAction = (action: string): string | null => {
 	if (filtered.length === 0) return null;
 	throw new Error('multiple possible bool params: ' + filtered.join(', '));
 };
+
+// Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
+export const standardizeAction = (action: Record<string, unknown>): Action => {
+	const ret = {};
+	const actionName = action.action;
+	if (typeof actionName !== 'string') throw new Error('ts');
+	Object.keys(action).forEach((field: string) => {
+		if (isFieldForAction(field, actionName)) {
+			ret[field] = action[field];
+		}
+	});
+	return action as Action;
+};

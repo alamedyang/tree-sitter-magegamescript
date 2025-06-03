@@ -122,7 +122,7 @@ export type MathlangGotoLabel = {
 };
 export type MathlangCopyMacro = {
 	mathlang: 'copy_script';
-	scriptName: string;
+	script: string;
 	debug: TYPES.MGSDebug;
 };
 
