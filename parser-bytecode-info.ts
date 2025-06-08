@@ -945,8 +945,36 @@ export const getBoolFieldForAction = (action: string): string | null => {
 };
 
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
-export const standardizeAction = (action: Record<string, unknown>): Action => {
+export const standardizeAction = (action: Record<string, unknown>, OOB: number): Action => {
 	const ret = {};
+	if (action.mathlang === 'copy_script') {
+		const manual = {
+			action: 'COPY_SCRIPT',
+			script: action.script,
+		};
+		return manual as Action;
+	}
+	if (action.mathlang === 'label_definition') {
+		const copy = {
+			action: 'LABEL',
+			value: action.label,
+		};
+		return copy as Action;
+	}
+	if (action.mathlang === 'goto_label') {
+		const copy = {
+			action: 'GOTO_ACTION_INDEX',
+			action_index: action.label,
+		};
+		return copy as Action;
+	}
+	if (action.mathlang === 'return_statement') {
+		const copy = {
+			action: 'GOTO_ACTION_INDEX',
+			action_index: OOB,
+		};
+		return copy as Action;
+	}
 	const actionName = action.action;
 	if (typeof actionName !== 'string') throw new Error('ts');
 	Object.keys(action).forEach((field: string) => {

@@ -12,6 +12,7 @@ import { debugLog } from './parser-utilities.js';
 import { printScript } from './parser-to-json.ts';
 import { makeProjectState } from './parser-project.js';
 import { ansiTags } from './parser-dialogs.js';
+import { standardizeAction } from './parser-bytecode-info.ts';
 
 // /*
 // stolen from the other place
@@ -96,7 +97,16 @@ export const parseProject = async (fileMap, scenarioData) => {
 
 	// Make script plaintext readable (pre copy, labels)
 	Object.keys(p.scripts).forEach((scriptName) => {
-		p.scripts[scriptName].prePrint = printScript(scriptName, p.scripts[scriptName].actions);
+		const standardizedActions = p.scripts[scriptName].actions
+			.filter(
+				(v) =>
+					v.mathlang !== 'comment' &&
+					v.mathlang !== 'dialog_definition' &&
+					v.mathlang !== 'serial_dialog_definition',
+			)
+			.map((v, i, arr) => standardizeAction(v, arr.length));
+		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
+		p.scripts[scriptName].preActions = standardizedActions;
 	});
 
 	// copyscript - TODO: check for recursion?

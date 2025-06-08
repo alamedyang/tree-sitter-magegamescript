@@ -1,23 +1,16 @@
 "on_load-ch2-magehouse-birthday" {
    hex_control = true;
    player_control = false;
-   // if sequence: if (debug_mode) { serial_control = on; command "skip" = "...
    if debug_mode then goto index 5;
    serial_control = false;
    goto index 8;
-   // 'if true #1140':
    serial_control = true;
    command "skip" = "cutscene-ch2-birthday-exit";
-   // auto serial_dialog: " ..."
    show serial_dialog "ch2-birthday.mgs-12:2";
-   // 'rendezvous #1139':
-   // simple branch on: hex_editor = close
    if "close" then goto label if_1140;
    hex_editor = false;
    goto index 12;
-   // 'if #1140':
    hex_editor = true;
-   // 'rendezvous #1140':
    player current_animation = 0;
    camera fade out -> #000000 over 0ms;
    player direction = "east";
@@ -48,7 +41,6 @@
    camera fade out -> #000000 over 1200ms;
    wait 200ms;
    goto script "cutscene-ch2-birthday-exit";
-   // 'end of script 1138':
 }
 
 "interact-ch2-simon" {
@@ -135,8 +127,7 @@
    entity "Wizard" direction = entity "mainframe";
    show dialog "ch2-castle-1.mgs-631:1";
    player_control = false;
-   // if sequence: if (player intersects geometry "mainframe-watchbox") { //...
-   if player intersects geometry "mainframe-watchdonut" then goto label if_true_1477;
+   if player intersects geometry "mainframe-watchdonut" then goto index 21;
    player position -> geometry "mainframe-look-spot" origin over 500ms;
    if_true_1477:
    player position -> geometry "mainframe-look-spot" origin over 300ms;
@@ -408,143 +399,6 @@
    // 'end of script 1145':
 }
 
-"show_dialog-jackob-start" {
-   // if sequence: if (self glitched) { show dialog { SELF "Vg'f tbbq gung l...
-   if self glitched then goto index 77;
-   // Copying: face-player (-c5333)
-   self direction = player;
-   // 'end of script 5080c5333':
-   // auto dialog: "Did you have a question about something?..."
-   show dialog "ch1-elders.mgs-252:2";
-   // if sequence: if ("hint-tracking" == 10) { show dialog { PLAYER "How do...
-   if "hint-tracking" == 10 then goto index 75;
-   if "hint-tracking" == 11 then goto index 72;
-   if "hint-tracking" == 12 then goto index 72;
-   if "hint-tracking" == 20 then goto index 70;
-   if "hint-tracking" == 21 then goto index 68;
-   if "hint-tracking" == 30 then goto index 66;
-   if "hint-tracking" == 32 then goto index 64;
-   if "hint-tracking" == 40 then goto index 62;
-   if "hint-tracking" == 41 then goto index 60;
-   if "hint-tracking" == 50 then goto index 58;
-   if "hint-tracking" == 51 then goto index 56;
-   if "hint-tracking" == 60 then goto index 54;
-   if "hint-tracking" == 61 then goto index 52;
-   if "hint-tracking" == 62 then goto index 52;
-   if "hint-tracking" == 70 then goto index 50;
-   if "hint-tracking" == 71 then goto index 48;
-   if "hint-tracking" == 80 then goto index 46;
-   if "hint-tracking" == 81 then goto index 44;
-   if "hint-tracking" == 90 then goto index 42;
-   if "hint-tracking" == 91 then goto index 40;
-   if "hint-tracking" == 100 then goto index 38;
-   if "hint-tracking" == 101 then goto index 36;
-   if "hint-tracking" == 110 then goto index 34;
-   if "hint-tracking" == 111 then goto index 32;
-   if "hint-tracking" == 201 then goto index 30;
-   // auto dialog: "Not at the moment...."
-   show dialog "ch1-elders.mgs-431:3";
-   goto index 78;
-   // 'if true #314':
-   goto script "show_dialog-jackob-hint-hackbook ";
-   goto index 78;
-   // 'if true #313':
-   // auto dialog: "How do I unscramble someone's pixels?..."
-   show dialog "ch1-elders.mgs-422:3";
-   goto index 78;
-   // 'if true #312':
-   // auto dialog: "I'm looking for a goat-watching goddess...."
-   show dialog "ch1-elders.mgs-414:3";
-   goto index 78;
-   // 'if true #311':
-   // auto dialog: "I think the goose wants me to move the r..."
-   show dialog "ch1-elders.mgs-407:3";
-   goto index 78;
-   // 'if true #310':
-   // auto dialog: "Apparently the goose is mad...."
-   show dialog "ch1-elders.mgs-401:3";
-   goto index 78;
-   // 'if true #309':
-   // auto dialog: "Now Beatrice wants her husband to turn b..."
-   show dialog "ch1-elders.mgs-395:3";
-   goto index 78;
-   // 'if true #308':
-   // auto dialog: "Bert says I have to help Beatrice. But I..."
-   show dialog "ch1-elders.mgs-390:3";
-   goto index 78;
-   // 'if true #307':
-   // auto dialog: "This kid......."
-   show dialog "ch1-elders.mgs-368:3";
-   goto index 78;
-   // 'if true #306':
-   // auto dialog: "According to Bert, a small child needs h..."
-   show dialog "ch1-elders.mgs-360:3";
-   goto index 78;
-   // 'if true #305':
-   // auto dialog: "Trekkie needs me to change the color of ..."
-   show dialog "ch1-elders.mgs-352:3";
-   goto index 78;
-   // 'if true #304':
-   // auto dialog: "Does Trekkie need help with something?..."
-   show dialog "ch1-elders.mgs-346:3";
-   goto index 78;
-   // 'if true #303':
-   // auto dialog: "The cat crew needs their cat boss...."
-   show dialog "ch1-elders.mgs-340:3";
-   goto index 78;
-   // 'if true #302':
-   // auto dialog: "Bert says the \"purple man\" wants his h..."
-   show dialog "ch1-elders.mgs-333:3";
-   goto index 78;
-   // 'if true #301':
-   // auto dialog: "This robot named Bender wants his ass ba..."
-   show dialog "ch1-elders.mgs-324:3";
-   goto index 78;
-   // 'if true #300':
-   // auto dialog: "I gotta help this robot, apparently...."
-   show dialog "ch1-elders.mgs-317:3";
-   goto index 78;
-   // 'if true #299':
-   // auto dialog: "Beatrice wants her husband to become a m..."
-   show dialog "ch1-elders.mgs-311:3";
-   goto index 78;
-   // 'if true #298':
-   // auto dialog: "Is Beatrice sad about something?..."
-   show dialog "ch1-elders.mgs-305:3";
-   goto index 78;
-   // 'if true #297':
-   // auto dialog: "I heard there might be a second rockgole..."
-   show dialog "ch1-elders.mgs-299:3";
-   goto index 78;
-   // 'if true #296':
-   // auto dialog: "I heard that Bob Austin's cousin has got..."
-   show dialog "ch1-elders.mgs-293:3";
-   goto index 78;
-   // 'if true #295':
-   // auto dialog: "How do I get into the Bob's Club?..."
-   show dialog "ch1-elders.mgs-286:3";
-   goto index 78;
-   // 'if true #294':
-   // auto dialog: "The baker's having trouble with a custom..."
-   show dialog "ch1-elders.mgs-276:3";
-   goto index 78;
-   // 'if true #293':
-   // auto dialog: "I guess the shepherd wants me to put the..."
-   show dialog "ch1-elders.mgs-271:3";
-   show dialog "dialog-jackob-hint-shepherd2";
-   goto index 78;
-   // 'if true #292':
-   // auto dialog: "How do I put the sheep back inside their..."
-   show dialog "ch1-elders.mgs-256:3";
-   // auto dialog: "That seems simple enough. All you must d..."
-   show dialog "dialog-jackob-hint-shepherd2";
-   // 'if true #290':
-   // auto dialog: "Vg'f tbbq gung lbh'er cenpgvpvat, ohg cr..."
-   show dialog "ch1-elders.mgs-247:2";
-   // 'rendezvous #289':
-   // 'end of script 288':
-}
-
 "interact-ch2-xa" {
    // if sequence: if ("ch2-toot-done") { goto "ch2-terminal-setup-check"; }...
    if "ch2-toot-done" then goto index 77;
@@ -649,140 +503,6 @@
    goto script "ch2-terminal-setup-check";
    // 'rendezvous #1500':
    // 'end of script 1499':
-}
-
-"simon-player-listen" {
-   player direction = "south";
-   // if sequence: if ("ch2-simon-high") { if ("simon-pos-curr" != 4) { if (...
-   if "ch2-simon-high" then goto index 13;
-   // if sequence: if ("simon-pos-curr" != 0) { if (button $button0 pressed)...
-   if "simon-pos-curr" != 0 then goto index 3;
-   // 'if true #2814':
-   // if sequence: if (button $button0 pressed) { // show serial_dialog {"PR...
-   if button $button0 pressed then goto index 5;
-   goto index 8;
-   // 'if true #2816':
-   "simon-player-move" = 0;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2813':
-   // if sequence: if ("simon-pos-curr" != 1) { if (button $button1 pressed)...
-   if "simon-pos-curr" != 1 then goto index 9;
-   // 'if true #2820':
-   // if sequence: if (button $button1 pressed) { // show serial_dialog {"PR...
-   if button $button1 pressed then goto index 10;
-   // 'if true #2822':
-   "simon-player-move" = 1;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'if true #2798':
-   // if sequence: if ("simon-pos-curr" != 4) { if (button $button4 pressed)...
-   if "simon-pos-curr" != 4 then goto index 14;
-   // 'if true #2802':
-   // if sequence: if (button $button4 pressed) { // show serial_dialog {"PR...
-   if button $button4 pressed then goto index 16;
-   goto index 19;
-   // 'if true #2804':
-   "simon-player-move" = 4;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2801':
-   // if sequence: if ("simon-pos-curr" != 5) { if (button $button5 pressed)...
-   if "simon-pos-curr" != 5 then goto index 20;
-   // 'if true #2808':
-   // if sequence: if (button $button5 pressed) { // show serial_dialog {"PR...
-   if button $button5 pressed then goto index 22;
-   goto index 25;
-   // 'if true #2810':
-   "simon-player-move" = 5;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2797':
-   // if sequence: if ("simon-pos-curr" != 2) { if (button $button2 pressed)...
-   if "simon-pos-curr" != 2 then goto index 26;
-   // 'if true #2826':
-   // if sequence: if (button $button2 pressed) { // show serial_dialog {"PR...
-   if button $button2 pressed then goto index 28;
-   goto index 31;
-   // 'if true #2828':
-   "simon-player-move" = 2;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2825':
-   // if sequence: if ("simon-pos-curr" != 3) { if (button $button3 pressed)...
-   if "simon-pos-curr" != 3 then goto index 32;
-   // 'if true #2832':
-   // if sequence: if (button $button3 pressed) { // show serial_dialog {"PR...
-   if button $button3 pressed then goto index 34;
-   goto index 37;
-   // 'if true #2834':
-   "simon-player-move" = 3;
-   "ch2-simon-move-fail" = true;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2831':
-   // if sequence: if ("ch2-simon-high") { if ("simon-pos-curr" == 4) { if (...
-   if "ch2-simon-high" then goto index 47;
-   // if sequence: if ("simon-pos-curr" == 0) { if (button $button0 pressed)...
-   if "simon-pos-curr" == 0 then goto index 39;
-   // 'if true #2852':
-   // if sequence: if (button $button0 pressed) { "simon-player-move" = 0; g...
-   if button $button0 pressed then goto index 41;
-   goto index 43;
-   // 'if true #2854':
-   "simon-player-move" = 0;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2851':
-   // if sequence: if ("simon-pos-curr" == 1) { if (button $button1 pressed)...
-   if "simon-pos-curr" == 1 then goto index 44;
-   // 'if true #2858':
-   // if sequence: if (button $button1 pressed) { "simon-player-move" = 1; g...
-   if button $button1 pressed then goto index 45;
-   // 'if true #2860':
-   "simon-player-move" = 1;
-   goto script "simon-player-do-move";
-   // 'if true #2836':
-   // if sequence: if ("simon-pos-curr" == 4) { if (button $button4 pressed)...
-   if "simon-pos-curr" == 4 then goto index 48;
-   // 'if true #2840':
-   // if sequence: if (button $button4 pressed) { "simon-player-move" = 4; g...
-   if button $button4 pressed then goto index 50;
-   goto index 52;
-   // 'if true #2842':
-   "simon-player-move" = 4;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2839':
-   // if sequence: if ("simon-pos-curr" == 5) { if (button $button5 pressed)...
-   if "simon-pos-curr" == 5 then goto index 53;
-   // 'if true #2846':
-   // if sequence: if (button $button5 pressed) { "simon-player-move" = 5; g...
-   if button $button5 pressed then goto index 55;
-   goto index 57;
-   // 'if true #2848':
-   "simon-player-move" = 5;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2835':
-   // if sequence: if ("simon-pos-curr" == 2) { if (button $button2 pressed)...
-   if "simon-pos-curr" == 2 then goto index 58;
-   // 'if true #2864':
-   // if sequence: if (button $button2 pressed) { "simon-player-move" = 2; g...
-   if button $button2 pressed then goto index 60;
-   goto index 62;
-   // 'if true #2866':
-   "simon-player-move" = 2;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2863':
-   // if sequence: if ("simon-pos-curr" == 3) { if (button $button3 pressed)...
-   if "simon-pos-curr" == 3 then goto index 63;
-   // 'if true #2870':
-   // if sequence: if (button $button3 pressed) { "simon-player-move" = 3; g...
-   if button $button3 pressed then goto index 65;
-   goto index 67;
-   // 'if true #2872':
-   "simon-player-move" = 3;
-   goto script "simon-player-do-move";
-   // 'rendezvous #2869':
-   entity "Simon" on_tick = "simon-player-listen";
-   // 'end of script 2796':
 }
 
 "ch2-interact-gregory" {

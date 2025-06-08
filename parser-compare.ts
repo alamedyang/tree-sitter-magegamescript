@@ -102,7 +102,7 @@ const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>)
 		const [k, lhsCount] = lhsEntries[i];
 		const rhsCount = rhs[k] === undefined ? 0 : rhs[k];
 		if (lhsCount !== rhsCount) {
-			report.push(`Found ${Math.abs(rhsCount - lhsCount)} extra line(s): ${k} `);
+			report.push(`Found ${lhsCount} (vs ${rhsCount}) extra line(s): ${k} `);
 			// return false;
 			continue;
 		}
@@ -112,30 +112,14 @@ const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>)
 		const [k, rhsCount] = rhsEntries[i];
 		const lhsCount = lhs[k] === undefined ? 0 : lhs[k];
 		if (lhsCount !== rhsCount) {
-			report.push(`Found ${Math.abs(lhsCount - rhsCount)} extra line(s): ${k} `);
+			report.push(`Found ${lhsCount} (vs ${rhsCount}) extra line(s): ${k} `);
 			// return false;
 			continue;
 		}
 	}
 	if (report.length > 0) {
+		console.log(report.join('\n'));
 		return false;
-	}
-	return true;
-};
-const compareCounted = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {
-	const lhsEntries = Object.entries(lhs);
-	for (let i = 0; i < lhsEntries.length; i++) {
-		const k = lhsEntries[i][0];
-		if (rhs[k] === undefined) {
-			return false;
-		}
-	}
-	const rhsEntries = Object.entries(rhs);
-	for (let i = 0; i < rhsEntries.length; i++) {
-		const k = rhsEntries[i][0];
-		if (lhs[k] === undefined) {
-			return false;
-		}
 	}
 	return true;
 };
@@ -588,13 +572,15 @@ const fileMap = makeMap(inputPath);
 
 const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	let oldBaked = oldPost[scriptName];
-	let newBakedText = p.scripts[scriptName].print;
+	let newBaked = p.scripts[scriptName].actions;
+	// let newBaked = p.scripts[scriptName].print;
 	if (!oldBaked) {
 		oldBaked = oldPre[scriptName];
-		newBakedText = p.scripts[scriptName].prePrint;
+		newBaked = p.scripts[scriptName].preActions;
+		// newBaked = p.scripts[scriptName].prePrint;
 	}
 	const oldPrint = printScript(scriptName, oldBaked);
-	const newPrint = newBakedText;
+	const newPrint = printScript(scriptName, newBaked);
 	const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
 	const newPrintLines = splitAndStripNonGotoActions(newPrint);
 
@@ -635,7 +621,6 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	// const oldAdventureCounts = count(oldAdventure.map((s) => s.join('\n')));
 	// const newAdventureCounts = count(newAdventure.map((s) => s.join('\n')));
 	// // don't check counts, just check journeys
-	// const compareAdventures = compareCounted(oldAdventureCounts, newAdventureCounts);
 	if (compared) {
 		return {
 			type: 'functional',
@@ -719,3 +704,4 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 // 1618 scripts were identical, 1 were functionally identical, and 125 are probably okay (67 were clearly different)
 // 1669 scripts were identical, 1 were functionally identical, and 116 are probably okay (25 were clearly different)
 // 1629 scripts were identical, 6 were functionally identical, and 159 are probably okay (17 were clearly different)
+// 1636 scripts were identical, 0 were functionally identical, and 160 are probably okay (15 were clearly different)

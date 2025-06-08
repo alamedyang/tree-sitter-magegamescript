@@ -427,7 +427,7 @@ include "header.mgs";
 				"But aren't all bytes made up of bits? How is changing a single bit different from changing a whole byte?"
 			};
 		} else if ("hint-tracking" == 201) {
-			goto "show_dialog-jackob-hint-hackbook "// JUMP
+			goto "show_dialog-jackob-hint-hackbook" // JUMP
 		} else {
 			show dialog {
 				PLAYER "Not at the moment."

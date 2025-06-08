@@ -348,5 +348,6 @@ export const printScript = (scriptName, actions) => {
 		.map(printAction)
 		.filter((v) => v !== undefined)
 		.map((v) => `   ${v}`);
-	return [`"${scriptName}" {`, ...printedActions, '}'].join('\n');
+	const ret = [`"${scriptName}" {`, ...printedActions, '}'].join('\n');
+	return ret;
 };

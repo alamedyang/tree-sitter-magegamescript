@@ -316,7 +316,7 @@ const captureFns = {
 			if (state === 'open') ret[param] = true;
 			if (state === 'closed') ret[param] = false;
 		} else if (type === 'button') {
-			ret.value = textForFieldName(f, node, 'button');
+			ret.value = captureForFieldName(f, node, 'button');
 			const stateNode = node.childForFieldName('state');
 			if (stateNode.text === 'pressed') {
 				ret.action = 'CHECK_FOR_BUTTON_PRESS';
