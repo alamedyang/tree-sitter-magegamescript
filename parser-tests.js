@@ -2,7 +2,7 @@ import { parseProject } from './parser.js';
 import { ansiTags } from './parser-dialogs.js';
 
 const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
-	const ret = [`${scriptName} {`, ...actionArray.map((v) => '\t' + v)];
+	const ret = [`"${scriptName}" {`, ...actionArray.map((v) => '\t' + v)];
 	if (autoAddEOF) {
 		ret.push(`\tend_of_script_***:`);
 	}
@@ -12,12 +12,37 @@ const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
 
 // will do all tests if empty
 // if not empty, also won't do any file-level tests
-const onlyDoTheseActionTests = [];
+const onlyDoTheseActionTests = [
+	// 'mainframe_watchbox', 'if_single', 'bool_exp_branch_debug_mode'
+];
 
 const skipTheseTests = new Set(['set_int_exp_ok']);
 
 // --------------------------- ACTION TESTS ---------------------------
 const actionTests = {
+	mainframe_watchbox: {
+		input: [
+			`if (player intersects geometry "mainframe-watchbox") {`,
+			`	// :3 -- empty body!`,
+			`} else if (player intersects geometry "mainframe-watchdonut") {`,
+			`	player position -> geometry "mainframe-look-spot" origin over 300ms;`,
+			`} else {`,
+			`	player position -> geometry "mainframe-look-spot" origin over 500ms;`,
+			`}`,
+		],
+		expected: [
+			`if player intersects geometry "mainframe-watchbox" then goto label *A*;`,
+			`if player intersects geometry "mainframe-watchdonut" then goto label *B*;`,
+			`player position -> geometry "mainframe-look-spot" origin over 500ms;`,
+			`goto label *C*;`,
+			`*B*:`,
+			`player position -> geometry "mainframe-look-spot" origin over 300ms;`,
+			`goto label *C*;`,
+			`*A*:`,
+			`*C*:`,
+			``,
+		],
+	},
 	simple_copy: {
 		input: ['wait 1;', 'copy!(no_arg_actions)', 'wait 2;'],
 		expected: [
@@ -31,6 +56,7 @@ const actionTests = {
 	},
 	if_single: {
 		input: [
+			'asdf:',
 			'if debug_mode then goto script destinationScript;',
 			'if debug_mode then goto destinationScript;',
 			'if debug_mode then goto label asdf;',
@@ -56,6 +82,7 @@ const actionTests = {
 			'if !button HAX down then goto index 99;', // I'll allow it
 		],
 		expected: [
+			'asdf:',
 			'if debug_mode then goto script destinationScript;',
 			'if debug_mode then goto script destinationScript;',
 			'if debug_mode then goto label asdf;',
@@ -1226,140 +1253,145 @@ const actionTests = {
 };
 
 // --------------------------- FILE-LEVEL TESTS ---------------------------
-const fileMap = {
-	'header.mgs': {
-		fileText: `
-			$magicNumber = 76;
-		`,
-		expected: {
-			scripts: {},
-			constants: {
-				$magicNumber: { fileName: 'header.mgs', value: 76 },
-			},
-		},
-	},
-	'constants_include.mgs': {
-		fileText: `
-			include "header.mgs";
-			$trombones = $magicNumber;
-			$hamburgers = "steamed hams";
-			constants {
-				player x = $trombones;
-				warp_state = $hamburgers;
-			}
-		`,
-		expected: {
-			scripts: {
-				constants: `constants {
-					player x = 76;
-					warp_state = "steamed hams";
-					end_of_script_***:
-				}`,
-			},
-			constants: {
-				$magicNumber: { fileName: 'header.mgs', value: 76 },
-				$trombones: { fileName: 'constants_include.mgs', value: 76 },
-				$hamburgers: { fileName: 'constants_include.mgs', value: 'steamed hams' },
-			},
-		},
-	},
-	'basic_dialog.mgs': {
-		fileText: `dialog "bobIntro" {
-			Bob "Well, hi there!"
-			Jackob "Oh!"
-		}`,
-		expected: {
-			dialogs: {
-				bobIntro: {
-					dialogs: [
-						{
-							entity: 'Bob',
-							alignment: 'BOTTOM_LEFT',
-							messages: ['Well, hi there!'],
+const fileMap =
+	onlyDoTheseActionTests.length !== 0
+		? {}
+		: {
+				'header.mgs': {
+					fileText: `
+						$magicNumber = 76;
+					`,
+					expected: {
+						scripts: {},
+						constants: {
+							$magicNumber: { fileName: 'header.mgs', value: 76 },
 						},
-						{
-							alignment: 'BOTTOM_LEFT',
-							entity: 'Jackob',
-							messages: ['Oh!'],
-						},
-					],
+					},
 				},
-			},
-		},
-	},
-	// 'dialog_error_wrap.mgs': {
-	// 	fileText: `dialog "tooLong" {
-	// 		Bob wrap 20
-	// 		"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
-	// 	}`,
-	// 	expected: {
-	// 		warningCount: 1,
-	// 		dialogs: {
-	// 			tooLong: {
-	// 				dialogs: [
-	// 					{
-	// 						entity: "Bob",
-	// 						alignment: "BOTTOM_LEFT",
-	// 						messages: [
-	// 							'ACK!\n\nA goat! Oh, I guess\nI need to make sure\nthis thing wraps.\nLet\'s see. How many\nchars can this be?',
-	// 						],
-	// 					},
-	// 				],
-	// 			},
-	// 		},
-	// 	},
-	// },
-	'dialog_wrapping.mgs': {
-		fileText: `dialog "wrapBasics" {
-			Bob wrap 20
-			"12345678901234567890"
-			"123456789012\\%4567890"
-			"123456789012\\%45678901"
-			"123456789012\\% 567890"
-			"123456789012\\% 5678901"
-			"%12% a b c d e f g h"
-			"%1234% a b c d e f g h"
-			"%123456% a b c d e f g h"
-			"%12345678% a b c d e f g h"
-			"%1234567890% a b c d e f g h"
-			"$1$ a b c d e f g h"
-			"$123$ a b c d e f g h"
-			"$12345$ a b c d e f g h"
-			"$1234567$ a b c d e f g h"
-			"$123456789$ a b c d e f g h"
-		}`,
-		expected: {
-			dialogs: {
-				wrapBasics: {
-					dialogs: [
-						{
-							entity: 'Bob',
-							alignment: 'BOTTOM_LEFT',
-							messages: [
-								'12345678901234567890',
-								'123456789012\\%4567890',
-								'123456789012\\%45678901',
-								'123456789012\\% 567890',
-								'123456789012\\%\n5678901',
-								'%12% a b c d\ne f g h',
-								'%1234% a b c d\ne f g h',
-								'%123456% a b c d\ne f g h',
-								'%12345678% a b c d\ne f g h',
-								'%1234567890% a b c d\ne f g h',
-								'$1$ a b c d e f g\nh',
-								'$123$ a b c d e f g\nh',
-								'$12345$ a b c d e f g\nh',
-								'$1234567$ a b c d e f g\nh',
-								'$123456789$ a b c d e f g\nh',
-							],
+				'constants_include.mgs': {
+					fileText: `
+						include "header.mgs";
+						$trombones = $magicNumber;
+						$hamburgers = "steamed hams";
+						"constants" {
+							player x = $trombones;
+							warp_state = $hamburgers;
+						}
+					`,
+					expected: {
+						scripts: {
+							constants: `"constants" {
+								player x = 76;
+								warp_state = "steamed hams";
+							}`,
 						},
-					],
+						constants: {
+							$magicNumber: { fileName: 'header.mgs', value: 76 },
+							$trombones: { fileName: 'constants_include.mgs', value: 76 },
+							$hamburgers: {
+								fileName: 'constants_include.mgs',
+								value: 'steamed hams',
+							},
+						},
+					},
 				},
-			},
-		},
-	},
-};
-const fileTestNames = Object.keys(fileMap);
+				'basic_dialog.mgs': {
+					fileText: `dialog "bobIntro" {
+						Bob "Well, hi there!"
+						Jackob "Oh!"
+					}`,
+					expected: {
+						dialogs: {
+							bobIntro: {
+								dialogs: [
+									{
+										entity: 'Bob',
+										alignment: 'BOTTOM_LEFT',
+										messages: ['Well, hi there!'],
+									},
+									{
+										alignment: 'BOTTOM_LEFT',
+										entity: 'Jackob',
+										messages: ['Oh!'],
+									},
+								],
+							},
+						},
+					},
+				},
+				// 'dialog_error_wrap.mgs': {
+				// 	fileText: `dialog "tooLong" {
+				// 		Bob wrap 20
+				// 		"ACK!\n\nA goat! Oh, I guess I need to make sure this thing wraps. Let's see. How many chars can this be?"
+				// 	}`,
+				// 	expected: {
+				// 		warningCount: 1,
+				// 		dialogs: {
+				// 			tooLong: {
+				// 				dialogs: [
+				// 					{
+				// 						entity: "Bob",
+				// 						alignment: "BOTTOM_LEFT",
+				// 						messages: [
+				// 							'ACK!\n\nA goat! Oh, I guess\nI need to make sure\nthis thing wraps.\nLet\'s see. How many\nchars can this be?',
+				// 						],
+				// 					},
+				// 				],
+				// 			},
+				// 		},
+				// 	},
+				// },
+				'dialog_wrapping.mgs': {
+					fileText: `dialog "wrapBasics" {
+						Bob wrap 20
+						"12345678901234567890"
+						"123456789012\\%4567890"
+						"123456789012\\%45678901"
+						"123456789012\\% 567890"
+						"123456789012\\% 5678901"
+						"%12% a b c d e f g h"
+						"%1234% a b c d e f g h"
+						"%123456% a b c d e f g h"
+						"%12345678% a b c d e f g h"
+						"%1234567890% a b c d e f g h"
+						"$1$ a b c d e f g h"
+						"$123$ a b c d e f g h"
+						"$12345$ a b c d e f g h"
+						"$1234567$ a b c d e f g h"
+						"$123456789$ a b c d e f g h"
+					}`,
+					expected: {
+						dialogs: {
+							wrapBasics: {
+								dialogs: [
+									{
+										entity: 'Bob',
+										alignment: 'BOTTOM_LEFT',
+										messages: [
+											'12345678901234567890',
+											'123456789012\\%4567890',
+											'123456789012\\%45678901',
+											'123456789012\\% 567890',
+											'123456789012\\%\n5678901',
+											'%12% a b c d\ne f g h',
+											'%1234% a b c d\ne f g h',
+											'%123456% a b c d\ne f g h',
+											'%12345678% a b c d\ne f g h',
+											'%1234567890% a b c d\ne f g h',
+											'$1$ a b c d e f g\nh',
+											'$123$ a b c d e f g\nh',
+											'$12345$ a b c d e f g\nh',
+											'$1234567$ a b c d e f g\nh',
+											'$123456789$ a b c d e f g\nh',
+										],
+									},
+								],
+							},
+						},
+					},
+				},
+			};
+const fileTestNames = onlyDoTheseActionTests.length === 0 ? Object.keys(fileMap) : [];
 
 // --------------------------- Putting all the tests into a "project" ---------------------------
 
@@ -1379,7 +1411,8 @@ fileMap['actionTests.mgs'] = {
 		scripts: {},
 	},
 };
-Object.entries(actionTests).forEach(([testName, data]) => {
+actionTestNames.forEach((testName) => {
+	const data = actionTests[testName];
 	const expectedArr = data.expected ? data.expected : data.input;
 	const expectedPrint = actionArrayToScript(testName, expectedArr, true);
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
@@ -1676,7 +1709,7 @@ const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => 
 
 const doActionTest = (scriptName, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
-	const found = actionFound[scriptName].print;
+	const found = actionFound[scriptName].testPrint; // or prePrint?
 	const compared = compareTexts(found, expected, '', scriptName);
 	if (compared.status !== 'success') {
 		return compared;
@@ -1687,10 +1720,10 @@ const doActionTest = (scriptName, actionExpected, actionFound) => {
 const runTests = async () => {
 	parseProject(fileMap, {}).then((result) => {
 		// ACTION TESTS
-		const actionExpected = fileMap['actionTests.mgs'].expected.scripts;
-		const actionFound = result.scripts;
+		const actionsExpected = fileMap['actionTests.mgs'].expected.scripts;
+		const actionsFound = result.scripts;
 		const actionErrors = actionTestNames
-			.map((v) => doActionTest(v, actionExpected, actionFound))
+			.map((v) => doActionTest(v, actionsExpected, actionsFound))
 			.filter((v) => v !== null);
 		errors.push(...actionErrors);
 

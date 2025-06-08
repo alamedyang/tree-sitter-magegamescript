@@ -1,16 +1,23 @@
 "on_load-ch2-magehouse-birthday" {
    hex_control = true;
    player_control = false;
+   // if sequence: if (debug_mode) { serial_control = on; command "skip" = "...
    if debug_mode then goto index 5;
    serial_control = false;
    goto index 8;
+   // 'if true #1140':
    serial_control = true;
    command "skip" = "cutscene-ch2-birthday-exit";
+   // auto serial_dialog: " ..."
    show serial_dialog "ch2-birthday.mgs-12:2";
+   // 'rendezvous #1139':
+   // simple branch on: hex_editor = close
    if "close" then goto label if_1140;
    hex_editor = false;
    goto index 12;
+   // 'if #1140':
    hex_editor = true;
+   // 'rendezvous #1140':
    player current_animation = 0;
    camera fade out -> #000000 over 0ms;
    player direction = "east";
@@ -41,6 +48,7 @@
    camera fade out -> #000000 over 1200ms;
    wait 200ms;
    goto script "cutscene-ch2-birthday-exit";
+   // 'end of script 1138':
 }
 
 "interact-ch2-simon" {

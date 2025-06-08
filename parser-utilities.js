@@ -1,4 +1,5 @@
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
+import { printScript } from './parser-to-json.ts';
 
 export let verbose = false;
 export const debugLog = (message) => {
@@ -289,58 +290,55 @@ const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 	};
 };
 
+// THE PROBLEM IS HERE!!
 export const flattenGotos = (actions) => {
-	// replace labels of k with v; remove label definitions for k
-	const labelDefThenGotoLabel = {}; // Record<string, string>
-	// Index of label definition where there's a goto for that k immediately before
-	const gotoLabelThenLabelDef = {}; // Record<string, number>
+	const before = printScript('_', actions).split('\n');
+	// A goto label followed by the same label definition can be removed
+	for (let i = 0; i < actions.length; i++) {
+		const action = actions[i];
+		const next = actions[i + 1];
+		if (
+			action.mathlang === 'goto_label' &&
+			next?.mathlang === 'label_definition' &&
+			next?.label === action.label
+		) {
+			actions.splice(i, 1);
+			const uses = actions.filter(
+				(v) => v.mathlang?.endsWith('goto_label') && v.label === action.label,
+			);
+			if (uses.length === 0) {
+				// if there are no other uses, you can also cut out the goto label
+				actions.splice(i, 1);
+			}
+		}
+	}
+
+	// If a label definition is followed by a goto for a different label,
+	// then the previous label registration can be replaced with following goto value
+	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
 	actions.forEach((action, i) => {
 		if (action.mathlang === 'label_definition') {
 			const next = actions[i + 1];
 			if (next?.mathlang === 'goto_label') {
-				labelDefThenGotoLabel[action.label] = next.label;
-			}
-		} else if (action.mathlang === 'goto_label') {
-			const next = actions[i + 1];
-			if (next.mathlang === 'label_definition' && next.label === action.label) {
-				gotoLabelThenLabelDef[action.label] = i;
-			}
-		}
-	});
-	let queue = actions;
-	let processed = [];
-	Object.keys(gotoLabelThenLabelDef)
-		.reverse()
-		.forEach((k) => {
-			const uses = actions.filter((v) => v.mathlang === 'goto_label' && v.label === k);
-			if (uses.length === 1) {
-				const index = gotoLabelThenLabelDef[k];
-				const cut = queue.splice(index, 2);
-				debugLog('reduced goto: ', JSON.stringify(cut));
-			} else {
-				const index = gotoLabelThenLabelDef[k];
-				const cut = queue.splice(index, 1);
-				debugLog('reduced goto: ', JSON.stringify(cut));
-			}
-		});
-	Object.entries(labelDefThenGotoLabel).forEach(([k, v]) => {
-		for (let i = 0; i < queue.length; i++) {
-			const action = queue[i];
-			if (action.label === k) {
-				if (action.mathlang === 'label_definition') {
-					// do nothing (it dies)
-				} else if (action.mathlang === 'goto_label') {
-					action.label = v;
-					processed.push(action);
+				if (!next.label) {
+					throw new Error('NO LABEL');
 				}
-			} else if (action.label === v && action.mathlang === 'goto_label') {
-				// do nothing (it dies)
-			} else {
-				processed.push(action);
+				labelDefThenDifferentGotoLabel[action.label] = next.label;
 			}
 		}
-		queue = processed;
-		processed = [];
 	});
-	return queue;
+	actions.forEach((action) => {
+		if (action.mathlang?.includes('label')) {
+			if (!action.label) {
+				throw new Error('NO LABEL');
+			}
+			const alias = labelDefThenDifferentGotoLabel[action.label];
+			if (alias) {
+				action.label = alias;
+			}
+		}
+	});
+	const after = printScript('_', actions).split('\n');
+	// console.log(before, after);
+	return actions;
 };

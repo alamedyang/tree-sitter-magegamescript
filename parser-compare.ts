@@ -57,42 +57,6 @@ const splitAndStripNonGotoActions = (text: string): string[] => {
 	});
 	return ret;
 };
-const splitSanitizeAndRecoverLabels = (text: string): string[] => {
-	const ret: string[] = [];
-	text.split('\n').forEach((origLine) => {
-		let line = origLine.trim();
-		// // split script jumps in case they're separate some times and not others
-		// // (this is actually happening)
-		// // we're taking away the word script apparently
-		// const gotoScriptSplit = line.match(/^(if (.+) then) (goto script (".+");)/);
-		// if (gotoScriptSplit) {
-		// 	ret.push(gotoScriptSplit[1]);
-		// 	ret.push(gotoScriptSplit[3]);
-		// 	return;
-		// }
-		const hiddenLabel = line.match(/^\/\/ '(.+)':/);
-		if (hiddenLabel) {
-			const label: string = (hiddenLabel[1] || '')
-				.replace(/ /g, '_')
-				.replace(/-/g, '_')
-				.replace(/#/g, '');
-			ret.push(`${label}:`);
-			return;
-		}
-		// genericize dialog identifiers that squeaked through
-		line = line.replace(/(-|:)\d+:\d+";$/, '-XX";');
-		ret.push(line);
-	});
-	return ret;
-};
-
-// // Takes two script strings and sees if their non-goto-line counts are the same.
-// // If-else logic aside, this means these scripts are the same and do not have syntax/translation nerrors.
-// const compareNonGotoActions = (lhsText: string, rhsText: string) => {
-// 	const lhs = count(lhsText);
-// 	const rhs = count(rhsText);
-// 	return compareCounts(lhs, rhs);
-// };
 
 // See if the keys and the counts from two count objects are the same.
 const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {

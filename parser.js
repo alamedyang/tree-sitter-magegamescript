@@ -112,6 +112,11 @@ export const parseProject = async (fileMap, scenarioData) => {
 	// copyscript - TODO: check for recursion?
 	p.copyScriptAll();
 
+	// This is where unit tests want to pull from?
+	Object.keys(p.scripts).forEach((scriptName) => {
+		p.scripts[scriptName].testPrint = printScript(scriptName, p.scripts[scriptName].actions);
+	});
+
 	// bake all the labels into hard-coded action indices
 	p.bakeLabels();
 

@@ -295,7 +295,7 @@ const sanitizeLabel = (label) =>
 		: label;
 
 const printGotoSegment = (data) => {
-	if (data.jump_index) {
+	if (data.jump_index !== undefined) {
 		if (typeof data.jump_index === 'string') {
 			return `goto label ${sanitizeLabel(data.jump_index)}`;
 		}

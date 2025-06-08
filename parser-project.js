@@ -195,6 +195,9 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				actions.forEach((action) => {
 					if (action.mathlang?.includes('label')) {
 						const jump_index = registry[action.label];
+						if (jump_index === undefined) {
+							throw new Error('NOT REGISTERED?');
+						}
 						let param = 'jump_index';
 						if (action.mathlang === 'goto_label') {
 							action.action = 'GOTO_ACTION_INDEX';
