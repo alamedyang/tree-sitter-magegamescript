@@ -50,7 +50,7 @@ const splitAndStripNonGotoActions = (text: string): string[] => {
 		const comments = line.match(/(\s*[^\s]+\s*)\/\/.+$/);
 		line = comments ? comments[1].trim() : line;
 		// genericize dialog identifiers that squeaked through
-		if (line.includes('show')) {
+		if (line.startsWith('show')) {
 			line = line.replace(/(-|:)\d+:\d+";$/, '-XX";').replace(/-/g, '_');
 		}
 		ret.push(line);
@@ -96,19 +96,29 @@ const splitSanitizeAndRecoverLabels = (text: string): string[] => {
 
 // See if the keys and the counts from two count objects are the same.
 const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {
+	const report: string[] = [];
 	const lhsEntries = Object.entries(lhs);
 	for (let i = 0; i < lhsEntries.length; i++) {
-		const [k, v] = lhsEntries[i];
-		if (rhs[k] !== v) {
-			return false;
+		const [k, lhsCount] = lhsEntries[i];
+		const rhsCount = rhs[k] === undefined ? 0 : rhs[k];
+		if (lhsCount !== rhsCount) {
+			report.push(`Found ${Math.abs(rhsCount - lhsCount)} extra line(s): ${k} `);
+			// return false;
+			continue;
 		}
 	}
 	const rhsEntries = Object.entries(rhs);
 	for (let i = 0; i < rhsEntries.length; i++) {
-		const [k, v] = rhsEntries[i];
-		if (lhs[k] !== v) {
-			return false;
+		const [k, rhsCount] = rhsEntries[i];
+		const lhsCount = lhs[k] === undefined ? 0 : lhs[k];
+		if (lhsCount !== rhsCount) {
+			report.push(`Found ${Math.abs(lhsCount - rhsCount)} extra line(s): ${k} `);
+			// return false;
+			continue;
 		}
+	}
+	if (report.length > 0) {
+		return false;
 	}
 	return true;
 };
@@ -128,13 +138,6 @@ const compareCounted = (lhs: Record<string, number>, rhs: Record<string, number>
 		}
 	}
 	return true;
-};
-
-type AdventureCS = {
-	pos: number;
-	seen: string[];
-	from: number;
-	fromTos: string[];
 };
 
 const getLabelRegistery = (lines: string[]) => {
@@ -238,156 +241,419 @@ const analyzeLine = (line: string): LineAnalysis => {
 			value: load[1],
 		};
 	}
+	const sanitizedLine = line.startsWith('show') ? line.replace(/(-|:)\d+:\d+";/, '-XX";') : line;
 	return {
 		type: 'line',
 		line: line,
-		value: line,
+		value: sanitizedLine,
 	};
 };
-const advanceAdventureCS = (cs: AdventureCS, n?: number) => {
-	const oldPos = cs.pos;
-	const newPos = n === undefined ? cs.pos + 1 : n;
-	cs.pos = newPos;
-	cs.from = oldPos;
-	return oldPos + '->' + newPos;
+// const advanceAdventureCS = (cs: AdventureCS, n?: number) => {
+// 	// ユウキリンリン　ゲンキハツラツ :P
+// 	const oldPos = cs.pos;
+// 	const newPos = n === undefined ? cs.pos + 1 : n;
+// 	cs.pos = newPos;
+// 	cs.from = oldPos;
+// 	return oldPos + '->' + newPos;
+// };
+
+const calculateRejoins = (lines: string[]) => {
+	const rejoins: Set<number> = new Set();
+	const registry = getLabelRegistery(lines);
+	lines.forEach((line, i) => {
+		const analysis = analyzeLine(line);
+		if (analysis.type.endsWith('goto-index')) {
+			rejoins.add(Number(analysis.value));
+		} else if (analysis.type.endsWith('goto-label')) {
+			rejoins.add(Number(registry[analysis.value]));
+		} else if (analysis.type === 'label') {
+			rejoins.add(i);
+		}
+	});
+	return rejoins;
 };
-const chooseYourOwnAdventure = (text: string): string[][] => {
-	let lines = splitSanitizeAndRecoverLabels(text)
-		.filter((s) => !/\/\/.+$/.test(s))
-		.slice(1, -1);
-	const labelRegistry: Record<string, number> = getLabelRegistery(lines);
-	if (text.includes('goto index')) {
-		lines = lines.filter((v) => !/^[_a-zA-Z0-9]+:$/.test(v));
-	}
-	const ifs = lines.filter((v) => v.startsWith('if '));
 
-	const permutations = 2 ** ifs.length;
-	if (permutations > 100_000_000) {
-		console.warn(`danger! ${permutations} permutations ahead! Skipping for your safety`);
-		return [[String(Math.random())], [String(Math.random())]];
+const startAdventure = (_lines: string[]) => {
+	const lines = _lines.join('\n').includes('goto index')
+		? _lines.slice(1, -1).filter((v) => !/^\/\//.test(v))
+		: _lines.slice(1, -1);
+	const rejoins = calculateRejoins(lines);
+	const registry = getLabelRegistery(lines);
+	const cs: AdventureCrawlState = {
+		lines,
+		OOB: lines.length,
+		rejoins,
+		registry,
+		exploredBranchPoints: new Set(),
+		fromIndicies: {},
+		toIndicies: {},
+	};
+	chooseYourOwnAdventure(cs, 0);
+	const allFroms: Set<number> = new Set();
+	const allTos: Set<number> = new Set();
+	Object.values(cs.toIndicies).forEach((toIndexEntry) => {
+		toIndexEntry.forEach((toIndex) => {
+			allFroms.add(toIndex.from);
+			toIndex.jumpTos.forEach((jumpTo) => allTos.add(jumpTo));
+		});
+	});
+	return cs;
+};
+const compareAdventures = (
+	lhCS: AdventureCrawlState,
+	rhCS: AdventureCrawlState,
+	cachedLhIndices: Record<string, boolean> = {},
+	cachedRhIndices: Record<string, boolean> = {},
+	_lhPos: number = 0,
+	_rhPos: number = 0,
+	lhString: string[] = [],
+	rhString: string[] = [],
+): boolean => {
+	const lhPos = _lhPos;
+	const rhPos = _rhPos;
+	if (cachedLhIndices[lhPos] !== undefined && cachedRhIndices[rhPos] !== undefined) {
+		// We have a cache for both of them? We win! We've been here before. Pass back the result.
+		return cachedLhIndices[lhPos] && cachedRhIndices[rhPos];
 	}
-
-	const doneQueue: AdventureCS[] = [];
-	const queue: AdventureCS[] = [
-		{
-			pos: 0,
-			seen: [],
-			from: -1,
-			fromTos: [],
-		},
-	];
-	// const fromTos: Set<string> = new Set();
-	while (queue.length) {
-		const cs = queue.pop();
-		if (!cs) throw new Error('TS I swear');
-		const line = lines[cs.pos];
-		// Ran out of bounds? We win!
+	let lhEntry = lhCS.fromIndicies[lhPos];
+	let rhEntry = rhCS.fromIndicies[rhPos];
+	if (!rhEntry && !lhEntry) {
+		// End of the line for both sides? We win! Pass back the comparison result.
+		const lhTest = lhString
+			.flat()
+			.filter((v) => v !== undefined)
+			.join(' /* ----- */ ');
+		const rhTest = rhString
+			.flat()
+			.filter((v) => v !== undefined)
+			.join(' /* ----- */ ');
+		if (lhTest === rhTest) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	// For times the closing } didn't quite make it in one of them.
+	if (!rhEntry) {
+		rhEntry = {
+			from: rhCS.OOB,
+			jumpTos: [rhCS.OOB],
+			sequence: [],
+		};
+	}
+	if (!lhEntry) {
+		lhEntry = {
+			from: lhCS.OOB,
+			jumpTos: [lhCS.OOB],
+			sequence: [],
+		};
+	}
+	lhString.push(...lhEntry.sequence);
+	rhString.push(...rhEntry.sequence);
+	if (lhEntry.jumpTos.length === rhEntry.jumpTos.length) {
+		// Both paths are branching now.
+		const compares = lhEntry.jumpTos.map((lhTryPos, i) => {
+			const rhTryPos = rhEntry.jumpTos[i];
+			if (lhTryPos === lhEntry.from && rhTryPos === rhEntry.from) {
+				console.log('INFINITE LOOP!');
+				cachedLhIndices[lhEntry.from] = false;
+				cachedRhIndices[rhEntry.from] = false;
+				return false;
+			}
+			if (
+				cachedLhIndices[lhTryPos] !== undefined &&
+				cachedRhIndices[rhTryPos] !== undefined
+			) {
+				const allMatched = cachedLhIndices[lhTryPos] && cachedRhIndices[rhTryPos];
+				cachedLhIndices[lhEntry.from] = allMatched;
+				cachedRhIndices[rhEntry.from] = allMatched;
+				return allMatched;
+			}
+			// Do each of their splits separately
+			const manualMatch = compareAdventures(
+				lhCS,
+				rhCS,
+				cachedLhIndices,
+				cachedRhIndices,
+				lhTryPos,
+				rhTryPos,
+				lhString.slice(),
+				rhString.slice(),
+			);
+			cachedLhIndices[lhEntry.from] = manualMatch;
+			cachedRhIndices[rhEntry.from] = manualMatch;
+			return manualMatch;
+		});
+		// Check if every branch matched
+		const every = compares.every((v) => v);
+		cachedLhIndices[lhEntry.from] = every;
+		cachedRhIndices[rhEntry.from] = every;
+		return every;
+	}
+	// The jumpto lengths are different:
+	if (
+		lhEntry.jumpTos.length === 1 && // only one place to go (other side has a split tho)
+		lhEntry.sequence.length == 0 && // its sequence is empty
+		lhEntry.jumpTos[0] !== lhEntry.from // and it's not a deadend
+	) {
+		const deeperMatch = compareAdventures(
+			lhCS,
+			rhCS,
+			cachedLhIndices,
+			cachedRhIndices,
+			lhEntry.jumpTos[0],
+			rhEntry.from,
+			lhString.slice(),
+			rhString.slice(),
+		);
+		cachedLhIndices[lhEntry.from] = deeperMatch;
+		cachedRhIndices[rhEntry.from] = deeperMatch;
+		return deeperMatch;
+	} else if (
+		rhEntry.jumpTos.length === 1 && // only one place to go (other side has a split tho)
+		rhEntry.sequence.length == 0 && // its sequence is empty
+		rhEntry.jumpTos[0] !== rhEntry.from // and it's not a deadend
+	) {
+		const deeperMatch = compareAdventures(
+			lhCS,
+			rhCS,
+			cachedLhIndices,
+			cachedRhIndices,
+			lhEntry.from,
+			rhEntry.jumpTos[0],
+			lhString.slice(),
+			rhString.slice(),
+		);
+		cachedLhIndices[lhEntry.from] = deeperMatch;
+		cachedRhIndices[rhEntry.from] = deeperMatch;
+		return deeperMatch;
+	}
+	return false;
+	// console.log('Then what?');
+	// const lhTest = lhString
+	// 	.flat()
+	// 	.filter((v) => v !== undefined)
+	// 	.join(' /* ----- */ ');
+	// const rhTest = rhString
+	// 	.flat()
+	// 	.filter((v) => v !== undefined)
+	// 	.join(' /* ----- */ ');
+	// if (lhTest === rhTest) {
+	// 	return true;
+	// } else {
+	// 	return false;
+	// }
+};
+type AdventureCrawlState = {
+	// gotten in advance
+	lines: string[];
+	OOB: number;
+	rejoins: Set<number>;
+	registry: Record<string, number>;
+	// while crawling
+	exploredBranchPoints: Set<number>;
+	fromIndicies: Record<string, AdventureSequence>;
+	toIndicies: Record<string, AdventureSequence[]>;
+};
+const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
+	const { lines, exploredBranchPoints, fromIndicies, toIndicies } = cs;
+	let pos = _pos;
+	// chunks that
+	let jumpTos: number[] = [];
+	const sequence: string[] = [];
+	while (pos < cs.OOB + 1) {
+		const line = lines[pos];
 		if (line === undefined) {
-			doneQueue.push(cs);
-			continue;
+			console.log('NO MORE LINES!');
+			jumpTos = [cs.OOB];
+			break;
+		}
+		console.log(`Looking at line [${pos}]: ${line}`);
+		if (cs.rejoins.has(pos) && pos !== _pos) {
+			jumpTos = [pos];
+			break;
 		}
 		const analysis = analyzeLine(line);
-		// Just plain leaving the script
-		if (analysis.type === 'load-map' || analysis.type === 'goto-script') {
-			// we're done
-			if (analysis.type === 'load-map') {
-				cs.seen.push(analysis.line);
-			}
-			doneQueue.push(cs);
+		console.log(`   > TYPE: ${analysis.type}`);
+		if (analysis.type === 'line') {
+			console.log(`   > DO: push to seen lines`);
+			sequence.push(analysis.line);
+			pos += 1;
 			continue;
 		}
-		// Normal line
-		if (
-			analysis.type === 'line' ||
-			analysis.type === 'if-then-goto-script' ||
-			analysis.type === 'comment' ||
-			analysis.type === 'label'
-		) {
-			// (the out-of-script jump is ignored; just fall through)
-			const fromTo = advanceAdventureCS(cs);
-			cs.seen.push(analysis.line);
-			// check for loop
-			if (cs.fromTos.includes(fromTo)) {
-				doneQueue.push(cs);
-			} else {
-				cs.fromTos.push(fromTo);
-				queue.unshift(cs);
-			}
-			if (analysis.type === 'comment' || analysis.type === 'label') {
-				cs.seen.pop(); // don't track that you saw a comment or a label
-			}
-			// if (analysis.type === 'if-then-goto-script') {
-			// 	if (typeof analysis.value !== 'string') throw new Error('TS');
-			// 	cs.seen.push(analysis.value);
-			// }
+		if (analysis.type === 'comment') {
+			console.log(`   > DO: ignore`);
+			pos += 1;
 			continue;
 		}
-		// Non-conditional jumping within the script
-		if (analysis.type === 'goto-label' || analysis.type === 'goto-index') {
-			const index =
-				analysis.type === 'goto-label' ? labelRegistry[analysis.value] : analysis.value;
-			if (typeof index !== 'number') throw new Error("TS you're smarter than this");
-			const fromTo = advanceAdventureCS(cs, index);
-			// don't have "seen" these!
-			// check for loop
-			if (cs.fromTos.includes(fromTo)) {
-				doneQueue.push(cs);
-			} else {
-				cs.fromTos.push(fromTo);
-				queue.unshift(cs);
-			}
-			continue;
+		if (analysis.type === 'label') {
+			console.log(`   > DO: break the sequence`);
+			pos += 1;
+			jumpTos = [pos];
+			break;
 		}
-		// Conditional jumping within the script
-		if (analysis.type === 'if-then-goto-label' || analysis.type === 'if-then-goto-index') {
-			cs.seen.push(analysis.line);
-			// fall through half
-			const fallThroughCS: AdventureCS = {
-				pos: cs.pos,
-				seen: cs.seen.slice(),
-				from: cs.from,
-				fromTos: cs.fromTos.slice(),
-			};
-			// const fallThroughCS: AdventureCS = JSON.stringify(JSON.parse(cs)) as AdventureCS;
-			const fallThroughFromTo = advanceAdventureCS(fallThroughCS);
-			// check for loop
-			if (cs.fromTos.includes(fallThroughFromTo)) {
-				doneQueue.push(fallThroughCS);
-			} else {
-				fallThroughCS.fromTos.push(fallThroughFromTo);
-				queue.unshift(fallThroughCS);
-			}
-			// jump half
-			const index =
-				analysis.type === 'if-then-goto-label'
-					? labelRegistry[analysis.value]
-					: analysis.value;
-			if (typeof index !== 'number') throw new Error("TS you're smarter than this");
-			const fromTo = advanceAdventureCS(cs, index);
-			// check for loop
-			if (cs.fromTos.includes(fromTo)) {
-				doneQueue.push(cs);
-			} else {
-				cs.fromTos.push(fromTo);
-				queue.unshift(cs);
-			}
-			continue;
+		if (analysis.type === 'load-map') {
+			console.log(`   > DO: jump to OOB (${cs.OOB})`);
+			pos += 1;
+			sequence.push(analysis.line);
+			jumpTos = [cs.OOB];
+			break;
+		}
+		if (analysis.type === 'goto-script') {
+			console.log(`   > DO: jump to OOB (${cs.OOB})`);
+			sequence.push(`goto script "${analysis.value}"`);
+			jumpTos = [cs.OOB];
+			break;
+		}
+		if (analysis.type === 'goto-index') {
+			if (typeof analysis.value !== 'number') throw new Error('TS broke it');
+			pos = analysis.value;
+			console.log(`   > DO: jump to new pos (${pos})`);
+			jumpTos = [pos];
+			break;
+		}
+		if (analysis.type === 'goto-label') {
+			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
+			pos = cs.registry[analysis.value];
+			console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
+			if (pos === undefined) throw new Error('something else broke');
+			jumpTos = [pos];
+			break;
+		}
+		if (analysis.type === 'if-then-goto-script') {
+			// must do both cases separately, as sometimes the goto is split from the check
+			// Let's just get rid of the deadend early?
+			console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
+			const deadendFrom = cs.OOB + Math.random(); // oh dear
+			if (typeof analysis.value !== 'string') throw new Error('unreachable');
+			lines[deadendFrom] = analysis.value; // !! is this gonna work??
+			sequence.push(analysis.line);
+			pos += 1;
+			jumpTos = [pos, deadendFrom];
+			break;
+		}
+		if (analysis.type === 'if-then-goto-label') {
+			sequence.push(analysis.line);
+			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
+			pos += 1;
+			const jumpPos = cs.registry[analysis.value];
+			jumpTos = [pos, cs.registry[analysis.value]];
+			console.log(
+				`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
+			);
+			break;
+		}
+		if (analysis.type === 'if-then-goto-index') {
+			sequence.push(analysis.line);
+			if (typeof analysis.value !== 'number') throw new Error('TS broke it');
+			pos += 1;
+			const jumpPos = analysis.value;
+			jumpTos = [pos, jumpPos];
+			console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
+			break;
 		}
 	}
-	const flat = doneQueue.map((v) => {
-		return v.seen;
+	exploredBranchPoints.add(_pos);
+	const insert = {
+		from: _pos,
+		jumpTos,
+		sequence: sequence.slice(),
+	};
+	if (fromIndicies[insert.from]) {
+		throw new Error('already something starting from index ' + insert.from);
+	}
+	fromIndicies[insert.from] = insert;
+	jumpTos.forEach((to) => {
+		toIndicies[to] = toIndicies[to] || [];
+		toIndicies[to].push(insert);
+		return insert;
 	});
-	return flat;
+	jumpTos.forEach((to) => {
+		if (to !== cs.OOB && !exploredBranchPoints.has(to)) {
+			exploredBranchPoints.add(to);
+			chooseYourOwnAdventure(cs, to);
+		}
+	});
+	return cs;
+};
+type AdventureSequence = {
+	from: number;
+	jumpTos: number[];
+	sequence: string[];
 };
 
 type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
+
+const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
+	let oldBaked = oldPost[scriptName];
+	let newBakedText = p.scripts[scriptName].print;
+	if (!oldBaked) {
+		oldBaked = oldPre[scriptName];
+		newBakedText = p.scripts[scriptName].prePrint;
+	}
+	const oldPrint = printScript(scriptName, oldBaked);
+	const newPrint = newBakedText;
+	const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
+	const newPrintLines = splitAndStripNonGotoActions(newPrint);
+
+	if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
+		// Literal exact copies
+		return {
+			type: 'tally',
+			old: oldPrint,
+			new: newPrint,
+		};
+	}
+	const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
+	// Ignoring control logic, the count of each kind of line is equal
+	// (No typos; if-else logic not tested at all! Hence trust)
+	if (countAndTrust) {
+		return {
+			type: 'trust',
+			old: oldPrint,
+			new: newPrint,
+		};
+	}
+	const oldAdventureLines = oldPrint
+		.split('\n')
+		.map((v) => v.trim())
+		.slice(1, -1);
+	const newPostConstantsLines = printScript(scriptName, p.scripts[scriptName].actions);
+	let newAdventureLines = newPostConstantsLines.split('\n').map((v) => v.trim());
+	newAdventureLines = newAdventureLines.join('\n').includes('goto index')
+		? newAdventureLines.slice(1, -1).filter((v) => !/^\/\//.test(v))
+		: newAdventureLines.slice(1, -1);
+	const oldAdventure = startAdventure(oldAdventureLines);
+	const newAdventure = startAdventure(newAdventureLines);
+	const compared = compareAdventures(oldAdventure, newAdventure);
+	// NAIVE VERSION
+	// const counts: Record<string, AdventureSequence[]> = {};
+	// const oldAdventure = chooseYourOwnAdventure(oldPrint);
+	// const newAdventure = chooseYourOwnAdventure(newPrint);
+	// const oldAdventureCounts = count(oldAdventure.map((s) => s.join('\n')));
+	// const newAdventureCounts = count(newAdventure.map((s) => s.join('\n')));
+	// // don't check counts, just check journeys
+	// const compareAdventures = compareCounted(oldAdventureCounts, newAdventureCounts);
+	if (compared) {
+		return {
+			type: 'functional',
+			old: oldPrint,
+			new: newPrint,
+		};
+	}
+	return {
+		type: 'bad',
+		old: oldPrint,
+		new: newPrint,
+	};
+};
+
 const identical: Record<string, PrintComparison> = {};
 const trusted: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
-
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	console.log('PROJECT');
 	console.log(p);
@@ -397,53 +663,39 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	let functionalTally = 0;
 	let badTally = 0;
 	scriptNames.forEach((scriptName) => {
-		let oldBaked = oldPost[scriptName];
-		let newBaked = p.scripts[scriptName].print;
-		// if (!oldBaked) {
-		oldBaked = oldPre[scriptName];
-		newBaked = p.scripts[scriptName].prePrint;
-		// }
-		const oldPrint = printScript(scriptName, oldBaked);
-		const newPrint = newBaked;
-		const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
-		const newPrintLines = splitAndStripNonGotoActions(newPrint);
-
-		if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
+		const result = compareScripts(p, scriptName);
+		if (result.type === 'tally') {
 			tally += 1;
 			identical[scriptName] = {
-				old: oldPrint,
-				new: newPrint,
+				old: result.old,
+				new: result.new,
 			};
 			return;
 		}
-		const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
-		if (countAndTrust) {
+		if (result.type === 'trust') {
 			trustTally += 1;
 			trusted[scriptName] = {
-				old: oldPrint,
-				new: newPrint,
+				old: result.old,
+				new: result.new,
 			};
 			return;
 		}
-		const oldAdventure = chooseYourOwnAdventure(oldPrint);
-		const newAdventure = chooseYourOwnAdventure(newPrint);
-		const oldAdventureCounts = count(oldAdventure.map((s) => s.join('\n')));
-		const newAdventureCounts = count(newAdventure.map((s) => s.join('\n')));
-		// don't check counts, just check journeys
-		const compareAdventures = compareCounted(oldAdventureCounts, newAdventureCounts);
-		if (compareAdventures) {
+		if (result.type === 'functional') {
 			functionalTally += 1;
 			functional[scriptName] = {
-				old: oldPrint,
-				new: newPrint,
+				old: result.old,
+				new: result.new,
 			};
 			return;
 		}
-		badTally += 1;
-		bad[scriptName] = {
-			old: oldPrint,
-			new: newPrint,
-		};
+		if (result.type === 'bad') {
+			badTally += 1;
+			bad[scriptName] = {
+				old: result.old,
+				new: result.new,
+			};
+			return;
+		}
 	});
 
 	const olds = Object.values(bad)
@@ -466,3 +718,4 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 // 1618 scripts were identical, 56 were functionally identical, and 125 are probably okay (68 were clearly different)
 // 1618 scripts were identical, 1 were functionally identical, and 125 are probably okay (67 were clearly different)
 // 1669 scripts were identical, 1 were functionally identical, and 116 are probably okay (25 were clearly different)
+// 1629 scripts were identical, 6 were functionally identical, and 159 are probably okay (17 were clearly different)

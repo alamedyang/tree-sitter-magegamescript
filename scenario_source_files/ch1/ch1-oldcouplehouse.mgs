@@ -121,7 +121,7 @@ include "header.mgs";
 			"storyflag-bea1" = true;
 		} else { // win condition NOT met
 			if (!"bea1-backstory") { // you did NOT hear the backstory
-				if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") { // is sheep
+				if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") { // is sheep
 					show dialog {
 						SELF "Forty years ago, things were sure different."
 						"I was a lot younger then, and my husband, %Delmar%...."
@@ -164,7 +164,7 @@ include "header.mgs";
 	} else { // you DID beat part1
 		if (entity "Delmar" type == "old_man") {
 			show dialog { SELF "Thank you, %PLAYER%!" };
-		} else if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+		} else if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") {
 			show dialog {
 				SELF "Oh! That's a nasty trick, %PLAYER%!"
 				"How could you?"
@@ -183,7 +183,7 @@ include "header.mgs";
 
 "show_dialog-bea-part2" {
 	if (!"storyflag-bea2") { // !part2won
-		if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+		if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") {
 			if (!"bea2-backstory") {
 				show dialog {
 					SELF "Oh! And I was just thinking how I wanted him to become a sheep again!"
@@ -235,7 +235,7 @@ include "header.mgs";
 			copy!("set-hint-bea2")
 		}
 	} else { // part2won
-		if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+		if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") {
 			show dialog {
 				SELF "Peace at last!"
 			};

@@ -126,7 +126,7 @@ include "header.mgs";
 "interact-ch2-delmar" {
 	copy!("face-player")
 	if ("interrupt") {
-		if (entity "Delmar" type == "sheep "|| entity "Delmar" type == "helga") {
+		if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") {
 			show dialog { SELF "...." };
 		} else {
 			show dialog { SELF "I've got my eye on you, sonny...." };
