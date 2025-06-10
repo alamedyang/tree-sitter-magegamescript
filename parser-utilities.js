@@ -1,5 +1,5 @@
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
-import { printScript } from './parser-to-json.ts';
+// import { printScript } from './parser-to-json.ts';
 
 export let verbose = false;
 export const debugLog = (message) => {
@@ -290,9 +290,8 @@ const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 	};
 };
 
-// THE PROBLEM IS HERE!!
 export const flattenGotos = (actions) => {
-	const before = printScript('_', actions).split('\n');
+	// const before = printScript('_', actions).split('\n');
 	// A goto label followed by the same label definition can be removed
 	for (let i = 0; i < actions.length; i++) {
 		const action = actions[i];
@@ -303,13 +302,8 @@ export const flattenGotos = (actions) => {
 			next?.label === action.label
 		) {
 			actions.splice(i, 1);
-			const uses = actions.filter(
-				(v) => v.mathlang?.endsWith('goto_label') && v.label === action.label,
-			);
-			if (uses.length === 0) {
-				// if there are no other uses, you can also cut out the goto label
-				actions.splice(i, 1);
-			}
+			// You don't need to do remove the label, even for those with zero uses,
+			// because labels are going to be removed anyway
 		}
 	}
 
@@ -338,7 +332,7 @@ export const flattenGotos = (actions) => {
 			}
 		}
 	});
-	const after = printScript('_', actions).split('\n');
+	// const after = printScript('_', actions).split('\n');
 	// console.log(before, after);
 	return actions;
 };

@@ -1707,9 +1707,19 @@ const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => 
 
 // --------------------------- THE OWL ---------------------------
 
+/*
+variant   | labels | indices | copyscript | flattened gotos
+----------+--------+---------+------------+----------------
+prePrint  |  yes   |         |            |      yes
+testPrint |  yes   |         |    yes     |      yes
+print     |        |   yes   |    yes     |      yes
+
+Is there a better way?
+*/
+
 const doActionTest = (scriptName, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
-	const found = actionFound[scriptName].testPrint; // or prePrint?
+	const found = actionFound[scriptName].testPrint;
 	const compared = compareTexts(found, expected, '', scriptName);
 	if (compared.status !== 'success') {
 		return compared;

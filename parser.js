@@ -74,6 +74,8 @@ export const parseProject = async (fileMap, scenarioData) => {
 
 	// take scripts/dialogs from each file and make global for the project
 	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
+	// TODO: could they not be added to an object for that file rather than being left in sequence?
+	// That way we don't have to filter out those nodes anymore when script parsing
 	Object.keys(fileMap).forEach((fileName) => {
 		if (!fileName.endsWith('.mgs')) return;
 		const f = fileMap[fileName].parsed;
