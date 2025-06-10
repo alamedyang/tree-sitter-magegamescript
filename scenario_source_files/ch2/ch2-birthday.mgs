@@ -17,7 +17,7 @@ include "header.mgs";
 	} else {
 		serial_control = off;
 	}
-	hex_editor = close;
+	hex_editor = closed;
 	player current_animation = 0;
 	camera fade out -> #000000 over 0ms;
 	player direction = east;

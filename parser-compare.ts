@@ -670,3 +670,4 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 // 1629 scripts were identical, 6 were functionally identical, and 159 are probably okay (17 were clearly different)
 // 1636 scripts were identical, 0 were functionally identical, and 160 are probably okay (15 were clearly different)
 // 1639 scripts were identical, 0 were functionally identical, and 166 are probably okay (6 were clearly different)
+// 1640 scripts were identical, 0 were functionally identical, and 167 are probably okay (4 were clearly different)

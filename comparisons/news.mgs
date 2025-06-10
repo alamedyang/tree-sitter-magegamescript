@@ -1,163 +1,23 @@
-"on_load-ch2-magehouse-birthday" {
-   hex_control = true;
-   player_control = false;
-   // if sequence: if (debug_mode) { serial_control = on; command "skip" = "...
-   if debug_mode then goto index 5;
-   serial_control = false;
-   goto index 8;
-   // 'if true #1140':
-   serial_control = true;
-   command "skip" = "cutscene-ch2-birthday-exit";
-   // auto serial_dialog: " ..."
-   show serial_dialog "ch2-birthday.mgs-12:2";
-   // 'rendezvous #1139':
-   // simple branch on: hex_editor = close
-   if "close" then goto index 11;
-   hex_editor = false;
-   goto index 12;
-   // 'if #1141':
-   hex_editor = true;
-   // 'rendezvous #1141':
-   player current_animation = 0;
-   camera fade out -> #000000 over 0ms;
-   player direction = "east";
-   camera = geometry "cake-camera-1";
-   entity "Stunt Cake" current_animation = 1;
-   wait 1000ms;
-   camera fade in -> #000000 over 1000ms;
-   wait 500ms;
-   show dialog "ch2-birthday.mgs-28:1";
-   wait 200ms;
-   entity "Stunt Cake" animation -> 2 1x;
-   entity "Stunt Cake" current_animation = 3;
-   camera fade out -> #000000 over 0ms;
-   camera = geometry "cake-camera-2";
-   camera fade in -> #000000 over 500ms;
-   show dialog "ch2-birthday.mgs-40:1";
-   camera fade out -> #000000 over 500ms;
-   entity "Cake" current_animation = 4;
-   show dialog "ch2-birthday.mgs-51:1";
-   camera fade in -> #000000 over 1000ms;
-   show dialog "ch2-birthday.mgs-57:1";
-   wait 180ms;
-   player direction = "south";
-   wait 400ms;
-   show dialog "ch2-birthday.mgs-76:1";
-   player direction = "east";
-   show dialog "ch2-birthday.mgs-81:1";
-   camera fade out -> #000000 over 1200ms;
-   wait 200ms;
-   goto script "cutscene-ch2-birthday-exit";
-   // 'end of script 1138':
-}
-
-"menu-player-name-random" {
-   // rand macro: rand!( player name = [ "Chara", "Buster", "Tidus", "Frisk"...
-   "__TEMP_0" ?= 20;
-   if "__TEMP_0" == 0 then goto index 59;
-   if "__TEMP_0" == 1 then goto index 57;
-   if "__TEMP_0" == 2 then goto index 55;
-   if "__TEMP_0" == 3 then goto index 53;
-   if "__TEMP_0" == 4 then goto index 51;
-   if "__TEMP_0" == 5 then goto index 49;
-   if "__TEMP_0" == 6 then goto index 47;
-   if "__TEMP_0" == 7 then goto index 45;
-   if "__TEMP_0" == 8 then goto index 43;
-   if "__TEMP_0" == 9 then goto index 41;
-   if "__TEMP_0" == 10 then goto index 39;
-   if "__TEMP_0" == 11 then goto index 37;
-   if "__TEMP_0" == 12 then goto index 35;
-   if "__TEMP_0" == 13 then goto index 33;
-   if "__TEMP_0" == 14 then goto index 31;
-   if "__TEMP_0" == 15 then goto index 29;
-   if "__TEMP_0" == 16 then goto index 27;
-   if "__TEMP_0" == 17 then goto index 25;
-   if "__TEMP_0" == 18 then goto index 23;
-   if "__TEMP_0" == 19 then goto index 21;
-   // 'if RNG #5199':
-   player name = "Bub";
-   goto index 60;
-   // 'if RNG #5198':
-   player name = "XDDCC";
-   goto index 60;
-   // 'if RNG #5197':
-   player name = "VeeVee";
-   goto index 60;
-   // 'if RNG #5196':
-   player name = "Tom Honks";
-   goto index 60;
-   // 'if RNG #5195':
-   player name = "Spy";
-   goto index 60;
-   // 'if RNG #5194':
-   player name = "Steamed Hams";
-   goto index 60;
-   // 'if RNG #5193':
-   player name = "Roxas";
-   goto index 60;
-   // 'if RNG #5192':
-   player name = "Squall";
-   goto index 60;
-   // 'if RNG #5191':
-   player name = "Cecil";
-   goto index 60;
-   // 'if RNG #5190':
-   player name = "Zidane";
-   goto index 60;
-   // 'if RNG #5189':
-   player name = "Kremit";
-   goto index 60;
-   // 'if RNG #5188':
-   player name = "Terra";
-   goto index 60;
-   // 'if RNG #5187':
-   player name = "Crono";
-   goto index 60;
-   // 'if RNG #5186':
-   player name = "Ash";
-   goto index 60;
-   // 'if RNG #5185':
-   player name = "Cloud";
-   goto index 60;
-   // 'if RNG #5184':
-   player name = "Farnsworth";
-   goto index 60;
-   // 'if RNG #5183':
-   player name = "Frisk";
-   goto index 60;
-   // 'if RNG #5182':
-   player name = "Tidus";
-   goto index 60;
-   // 'if RNG #5181':
-   player name = "Buster";
-   goto index 60;
-   // 'if RNG #5180':
-   player name = "Chara";
-   // 'rendezvous #5179':
-   show dialog "main-menu.mgs-390:1";
-   // 'end of script 5179':
-}
-
 "ch2-escort-cutscene" {
    // if sequence: if (debug_mode) { serial_control = on; command "skip" = "...
    if debug_mode then goto index 3;
    serial_control = false;
    goto index 6;
-   // 'if true #1148':
+   // 'if true #1147':
    serial_control = true;
    command "skip" = "cutscene-ch2-escort-exit";
    // auto serial_dialog: " ..."
    show serial_dialog "ch2-birthday.mgs-137:2";
-   // 'rendezvous #1147':
+   // 'rendezvous #1146':
    camera fade out -> #000000 over 0ms;
    player_control = false;
    // simple branch on: hex_editor = close
    if "close" then goto index 11;
    hex_editor = false;
    goto index 12;
-   // 'if #1149':
+   // 'if #1148':
    hex_editor = true;
-   // 'rendezvous #1149':
+   // 'rendezvous #1148':
    entity "Alfonso" position = geometry "birthday-alfonso";
    entity "Bert" position = geometry "birthday-bert";
    entity "Jackob" position = geometry "birthday-jackob";
@@ -216,21 +76,21 @@
    wait 90ms;
    entity "Bert" on_tick = "birthday-march-on-own-path";
    player on_tick = "birthday-march-on-own-path-player";
-   // 'end of script 1146':
+   // 'end of script 1145':
 }
 
 "on_load-main_menu" {
    "current-chapter" = 0;
-   // Copying: register-colors (-c6220)
+   // Copying: register-colors (-c6219)
    command "colors" = "command-colors";
    command "colors" + "bg" = "command-colors-bg";
    command "colors" + "bold" = "command-colors-bold";
    command "colors" + "dim" = "command-colors-dim";
-   // 'end of script 4503c6220':
+   // 'end of script 4502c6219':
    // if sequence: if (debug_mode) { command debug = "debug"; command hub = ...
    if debug_mode then goto index 7;
    goto index 97;
-   // 'if true #5140':
+   // 'if true #5139':
    command "debug" = "debug";
    command "hub" = "debug-hub";
    command "honk" = "system_bell";
@@ -248,7 +108,7 @@
    command "skip" + "2" = "debug-jump-to-round2";
    command "skip" + "3" = "debug-jump-to-round3";
    command "skip" + "4" = "debug-jump-to-round4";
-   // Copying: register-warp (-c6221)
+   // Copying: register-warp (-c6220)
    command "warp" = "command-warp";
    command "warp" fail = "warp-fail";
    command "man" + "warp" = "man-warp";
@@ -315,8 +175,8 @@
    command "warp" + "smiths house" = "warp-ch2-smithfamily";
    command "warp" + "smith house" = "warp-ch2-smithfamily";
    command "warp" + "smith" = "warp-ch2-smithfamily";
-   // 'end of script 4995c6221':
-   // Copying: register-storyflag (-c6222)
+   // 'end of script 4994c6220':
+   // Copying: register-storyflag (-c6221)
    command "storyflag" = "ch2-debug-storyflag";
    command "storyflag" + "0" = "debug-map-flags-for-round0";
    command "storyflag" + "1" = "debug-map-flags-for-round1";
@@ -324,9 +184,9 @@
    command "storyflag" + "3" = "debug-map-flags-for-round3";
    command "storyflag" + "4" = "debug-map-flags-for-round4";
    command "storyflag" + "5" = "debug-map-flags-for-round5";
-   // 'end of script 1069c6222':
-   // 'rendezvous #5139':
-   // 'end of script 5138':
+   // 'end of script 1069c6221':
+   // 'rendezvous #5138':
+   // 'end of script 5137':
 }
 
 "command-inventory" {
@@ -334,244 +194,244 @@
    // if sequence: if (!"only-count-inventory") { show serial_dialog "spacer...
    if !"only-count-inventory" then goto index 3;
    goto index 5;
-   // 'if true #4527':
+   // 'if true #4526':
    show serial_dialog "spacer";
    // auto serial_dialog: "[36mINVENTORY:[0m..."
    show serial_dialog "command-inventory.mgs-36:2";
-   // 'rendezvous #4526':
+   // 'rendezvous #4525':
    // if sequence: if ("ch2-carrying-cactuscooler") { if (!"only-count-inven...
    if "ch2-carrying-cactuscooler" then goto index 7;
    goto index 11;
-   // 'if true #4531':
+   // 'if true #4530':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " can...
    if !"only-count-inventory" then goto index 9;
    goto index 10;
-   // 'if true #4533':
+   // 'if true #4532':
    // auto serial_dialog: "    can of Cactus Cooler..."
    show serial_dialog "command-inventory.mgs-43:3";
-   // 'rendezvous #4532':
+   // 'rendezvous #4531':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4530':
+   // 'rendezvous #4529':
    // if sequence: if ("ch2-carrying-heatsink") { if (!"only-count-inventory...
    if "ch2-carrying-heatsink" then goto index 13;
    goto index 17;
-   // 'if true #4537':
+   // 'if true #4536':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " hea...
    if !"only-count-inventory" then goto index 15;
    goto index 16;
-   // 'if true #4539':
+   // 'if true #4538':
    // auto serial_dialog: "    heat sink..."
    show serial_dialog "command-inventory.mgs-49:3";
-   // 'rendezvous #4538':
+   // 'rendezvous #4537':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4536':
+   // 'rendezvous #4535':
    // if sequence: if ("ch2-carrying-powersupply") { if (!"only-count-invent...
    if "ch2-carrying-powersupply" then goto index 19;
    goto index 23;
-   // 'if true #4543':
+   // 'if true #4542':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " pow...
    if !"only-count-inventory" then goto index 21;
    goto index 22;
-   // 'if true #4545':
+   // 'if true #4544':
    // auto serial_dialog: "    power supply..."
    show serial_dialog "command-inventory.mgs-55:3";
-   // 'rendezvous #4544':
+   // 'rendezvous #4543':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4542':
+   // 'rendezvous #4541':
    // if sequence: if ("ch2-carrying-monitor") { if (!"only-count-inventory"...
    if "ch2-carrying-monitor" then goto index 25;
    goto index 29;
-   // 'if true #4549':
+   // 'if true #4548':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " mon...
    if !"only-count-inventory" then goto index 27;
    goto index 28;
-   // 'if true #4551':
+   // 'if true #4550':
    // auto serial_dialog: "    monitor..."
    show serial_dialog "command-inventory.mgs-61:3";
-   // 'rendezvous #4550':
+   // 'rendezvous #4549':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4548':
+   // 'rendezvous #4547':
    // if sequence: if ("ch2-carrying-harddrive") { if (!"only-count-inventor...
    if "ch2-carrying-harddrive" then goto index 31;
    goto index 35;
-   // 'if true #4555':
+   // 'if true #4554':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " har...
    if !"only-count-inventory" then goto index 33;
    goto index 34;
-   // 'if true #4557':
+   // 'if true #4556':
    // auto serial_dialog: "    hard drive..."
    show serial_dialog "command-inventory.mgs-68:3";
-   // 'rendezvous #4556':
+   // 'rendezvous #4555':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4554':
+   // 'rendezvous #4553':
    // if sequence: if ("ch2-carrying-plate") { if (!"only-count-inventory") ...
    if "ch2-carrying-plate" then goto index 37;
    goto index 41;
-   // 'if true #4561':
+   // 'if true #4560':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " din...
    if !"only-count-inventory" then goto index 39;
    goto index 40;
-   // 'if true #4563':
+   // 'if true #4562':
    // auto serial_dialog: "    dinner plate..."
    show serial_dialog "command-inventory.mgs-74:3";
-   // 'rendezvous #4562':
+   // 'rendezvous #4561':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4560':
+   // 'rendezvous #4559':
    // if sequence: if ("ch2-carrying-needle") { if (!"only-count-inventory")...
    if "ch2-carrying-needle" then goto index 43;
    goto index 47;
-   // 'if true #4567':
+   // 'if true #4566':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " pho...
    if !"only-count-inventory" then goto index 45;
    goto index 46;
-   // 'if true #4569':
+   // 'if true #4568':
    // auto serial_dialog: "    phonograph needle..."
    show serial_dialog "command-inventory.mgs-80:3";
-   // 'rendezvous #4568':
+   // 'rendezvous #4567':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4566':
+   // 'rendezvous #4565':
    // if sequence: if ("ch2-carrying-keyboard") { if (!"only-count-inventory...
    if "ch2-carrying-keyboard" then goto index 49;
    goto index 53;
-   // 'if true #4573':
+   // 'if true #4572':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " key...
    if !"only-count-inventory" then goto index 51;
    goto index 52;
-   // 'if true #4575':
+   // 'if true #4574':
    // auto serial_dialog: "    keyboard..."
    show serial_dialog "command-inventory.mgs-86:3";
-   // 'rendezvous #4574':
+   // 'rendezvous #4573':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4572':
+   // 'rendezvous #4571':
    // if sequence: if ("ch2-carrying-mouse") { if (!"only-count-inventory") ...
    if "ch2-carrying-mouse" then goto index 55;
    goto index 59;
-   // 'if true #4579':
+   // 'if true #4578':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " mou...
    if !"only-count-inventory" then goto index 57;
    goto index 58;
-   // 'if true #4581':
+   // 'if true #4580':
    // auto serial_dialog: "    mouse..."
    show serial_dialog "command-inventory.mgs-92:3";
-   // 'rendezvous #4580':
+   // 'rendezvous #4579':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4578':
+   // 'rendezvous #4577':
    // if sequence: if ("ch2-carrying-ramchips") { if (!"only-count-inventory...
    if "ch2-carrying-ramchips" then goto index 61;
    goto index 65;
-   // 'if true #4585':
+   // 'if true #4584':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " ram...
    if !"only-count-inventory" then goto index 63;
    goto index 64;
-   // 'if true #4587':
+   // 'if true #4586':
    // auto serial_dialog: "    ramchips..."
    show serial_dialog "command-inventory.mgs-99:3";
-   // 'rendezvous #4586':
+   // 'rendezvous #4585':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4584':
+   // 'rendezvous #4583':
    // if sequence: if ("ch2-carrying-clock") { if (!"only-count-inventory") ...
    if "ch2-carrying-clock" then goto index 67;
    goto index 71;
-   // 'if true #4591':
+   // 'if true #4590':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " clo...
    if !"only-count-inventory" then goto index 69;
    goto index 70;
-   // 'if true #4593':
+   // 'if true #4592':
    // auto serial_dialog: "    clock..."
    show serial_dialog "command-inventory.mgs-105:3";
-   // 'rendezvous #4592':
+   // 'rendezvous #4591':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4590':
+   // 'rendezvous #4589':
    // if sequence: if ("ch2-carrying-cpu") { if (!"only-count-inventory") { ...
    if "ch2-carrying-cpu" then goto index 73;
    goto index 77;
-   // 'if true #4597':
+   // 'if true #4596':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " cpu...
    if !"only-count-inventory" then goto index 75;
    goto index 76;
-   // 'if true #4599':
+   // 'if true #4598':
    // auto serial_dialog: "    cpu..."
    show serial_dialog "command-inventory.mgs-111:3";
-   // 'rendezvous #4598':
+   // 'rendezvous #4597':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4596':
+   // 'rendezvous #4595':
    // if sequence: if ("ch2-carrying-goldfish") { if (!"only-count-inventory...
    if "ch2-carrying-goldfish" then goto index 79;
    goto index 83;
-   // 'if true #4603':
+   // 'if true #4602':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " gol...
    if !"only-count-inventory" then goto index 81;
    goto index 82;
-   // 'if true #4605':
+   // 'if true #4604':
    // auto serial_dialog: "    goldfish..."
    show serial_dialog "command-inventory.mgs-117:3";
-   // 'rendezvous #4604':
+   // 'rendezvous #4603':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4602':
+   // 'rendezvous #4601':
    // if sequence: if ("ch2-carrying-manual") { if (!"only-count-inventory")...
    if "ch2-carrying-manual" then goto index 85;
    goto index 89;
-   // 'if true #4609':
+   // 'if true #4608':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " cal...
    if !"only-count-inventory" then goto index 87;
    goto index 88;
-   // 'if true #4611':
+   // 'if true #4610':
    // auto serial_dialog: "    calculator manual..."
    show serial_dialog "command-inventory.mgs-123:3";
-   // 'rendezvous #4610':
+   // 'rendezvous #4609':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4608':
+   // 'rendezvous #4607':
    // if sequence: if ("ch2-carrying-abacus") { if (!"only-count-inventory")...
    if "ch2-carrying-abacus" then goto index 91;
    goto index 95;
-   // 'if true #4615':
+   // 'if true #4614':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " aba...
    if !"only-count-inventory" then goto index 93;
    goto index 94;
-   // 'if true #4617':
+   // 'if true #4616':
    // auto serial_dialog: "    abacus..."
    show serial_dialog "command-inventory.mgs-129:3";
-   // 'rendezvous #4616':
+   // 'rendezvous #4615':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4614':
+   // 'rendezvous #4613':
    // if sequence: if ("ch2-carrying-mainframeos") { if (!"only-count-invent...
    if "ch2-carrying-mainframeos" then goto index 97;
    goto index 101;
-   // 'if true #4621':
+   // 'if true #4620':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " mai...
    if !"only-count-inventory" then goto index 99;
    goto index 100;
-   // 'if true #4623':
+   // 'if true #4622':
    // auto serial_dialog: "    mainframe OS CD..."
    show serial_dialog "command-inventory.mgs-136:3";
-   // 'rendezvous #4622':
+   // 'rendezvous #4621':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4620':
+   // 'rendezvous #4619':
    // if sequence: if ("ch2-carrying-minirake-99") { if (!"only-count-invent...
    if "ch2-carrying-minirake-99" then goto index 103;
    goto index 107;
-   // 'if true #4627':
+   // 'if true #4626':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " min...
    if !"only-count-inventory" then goto index 105;
    goto index 106;
-   // 'if true #4629':
+   // 'if true #4628':
    // auto serial_dialog: "    mini rake..."
    show serial_dialog "command-inventory.mgs-143:3";
-   // 'rendezvous #4628':
+   // 'rendezvous #4627':
    "ch2-count-inventory" += 1;
-   // 'rendezvous #4626':
+   // 'rendezvous #4625':
    // if sequence: if ("ch2-count-inventory" == 0) { if (!"only-count-invent...
    if "ch2-count-inventory" == 0 then goto index 109;
    goto index 112;
-   // 'if true #4633':
+   // 'if true #4632':
    // if sequence: if (!"only-count-inventory") { show serial_dialog { " (no...
    if !"only-count-inventory" then goto index 111;
    goto index 112;
-   // 'if true #4635':
+   // 'if true #4634':
    // auto serial_dialog: "    (nothing)..."
    show serial_dialog "command-inventory.mgs-150:3";
-   // 'rendezvous #4634':
-   // 'rendezvous #4632':
+   // 'rendezvous #4633':
+   // 'rendezvous #4631':
    "only-count-inventory" = false;
    // set int (ambiguous lhs): "ch2-counted-inventory" = ch2-count-inventory
    "ch2-counted-inventory" = "ch2";
@@ -579,7 +439,7 @@
    "ch2-counted-inventory" -= "inventory";
    // This action was optimized out (setting 'ch2-counted-inventory' to itse...
    "ch2-count-inventory" = 0;
-   // 'end of script 4525':
+   // 'end of script 4524':
 }
 
 "command-parts-print" {
@@ -589,36 +449,36 @@
    if "ch2-storyflag-round" == 3 then goto index 10;
    if "ch2-storyflag-round" >= 4 then goto index 5;
    goto index 21;
-   // 'if true #4855':
+   // 'if true #4854':
    // if sequence: if (!"ch2-parts-round-4-backstory") { goto "label three";...
    if !"ch2-parts-round-4-backstory" then goto index 8;
    goto script "label four";
    goto index 21;
-   // 'if true #4857':
+   // 'if true #4856':
    goto script "label three";
-   // 'rendezvous #4847':
+   // 'rendezvous #4846':
    goto index 21;
-   // 'if true #4852':
+   // 'if true #4851':
    // if sequence: if (!"ch2-parts-round-3-backstory") { goto "label two"; }...
    if !"ch2-parts-round-3-backstory" then goto index 13;
    goto script "label three";
    goto index 21;
-   // 'if true #4854':
+   // 'if true #4853':
    goto script "label two";
-   // 'rendezvous #4847':
+   // 'rendezvous #4846':
    goto index 21;
-   // 'if true #4849':
+   // 'if true #4848':
    // if sequence: if (!"ch2-parts-round-2-backstory") { goto "label one"; }...
    if !"ch2-parts-round-2-backstory" then goto index 18;
    goto script "label two";
    goto index 21;
-   // 'if true #4851':
+   // 'if true #4850':
    goto script "label one";
-   // 'rendezvous #4847':
+   // 'rendezvous #4846':
    goto index 21;
-   // 'if true #4848':
+   // 'if true #4847':
    goto script "label one";
-   // 'rendezvous #4847':
+   // 'rendezvous #4846':
    // 'one':
    // if sequence: if ("ch2-installed-heatsink") { show serial_dialog { "- [...
    if "ch2-installed-heatsink" then goto index 27;
@@ -626,42 +486,42 @@
    // auto serial_dialog: "- [ ] heat sink..."
    show serial_dialog "command-parts.mgs-136:2";
    goto index 28;
-   // 'if true #4860':
+   // 'if true #4859':
    // auto serial_dialog: "- [~] heat sink..."
    show serial_dialog "command-parts.mgs-134:2";
    goto index 28;
-   // 'if true #4859':
+   // 'if true #4858':
    // auto serial_dialog: "- [x] heat sink..."
    show serial_dialog "command-parts.mgs-132:2";
-   // 'rendezvous #4858':
+   // 'rendezvous #4857':
    // if sequence: if ("ch2-installed-powersupply") { show serial_dialog { "...
    if "ch2-installed-powersupply" then goto index 34;
    if "ch2-carrying-powersupply" then goto index 32;
    // auto serial_dialog: "- [ ] power supply..."
    show serial_dialog "command-parts.mgs-144:2";
    goto index 35;
-   // 'if true #4863':
+   // 'if true #4862':
    // auto serial_dialog: "- [~] power supply..."
    show serial_dialog "command-parts.mgs-142:2";
    goto index 35;
-   // 'if true #4862':
+   // 'if true #4861':
    // auto serial_dialog: "- [x] power supply..."
    show serial_dialog "command-parts.mgs-140:2";
-   // 'rendezvous #4861':
+   // 'rendezvous #4860':
    // if sequence: if ("ch2-installed-monitor") { show serial_dialog { "- [x...
    if "ch2-installed-monitor" then goto index 41;
    if "ch2-carrying-monitor" then goto index 39;
    // auto serial_dialog: "- [ ] monitor..."
    show serial_dialog "command-parts.mgs-152:2";
    goto index 42;
-   // 'if true #4866':
+   // 'if true #4865':
    // auto serial_dialog: "- [~] monitor..."
    show serial_dialog "command-parts.mgs-150:2";
    goto index 42;
-   // 'if true #4865':
+   // 'if true #4864':
    // auto serial_dialog: "- [x] monitor..."
    show serial_dialog "command-parts.mgs-148:2";
-   // 'rendezvous #4864':
+   // 'rendezvous #4863':
    goto script "label wrapup";
    // 'two':
    // if sequence: if ("ch2-installed-harddrive") { show serial_dialog { "- ...
@@ -670,70 +530,70 @@
    // auto serial_dialog: "- [ ] hard drive..."
    show serial_dialog "command-parts.mgs-161:2";
    goto index 50;
-   // 'if true #4869':
+   // 'if true #4868':
    // auto serial_dialog: "- [~] hard drive..."
    show serial_dialog "command-parts.mgs-159:2";
    goto index 50;
-   // 'if true #4868':
+   // 'if true #4867':
    // auto serial_dialog: "- [x] hard drive..."
    show serial_dialog "command-parts.mgs-157:2";
-   // 'rendezvous #4867':
+   // 'rendezvous #4866':
    // if sequence: if ("ch2-installed-plate") { show serial_dialog { "\t- [x...
    if "ch2-installed-plate" then goto index 56;
    if "ch2-carrying-plate" then goto index 54;
    // auto serial_dialog: "    - [ ] dinner plate..."
    show serial_dialog "command-parts.mgs-168:2";
    goto index 57;
-   // 'if true #4872':
+   // 'if true #4871':
    // auto serial_dialog: "    - [~] dinner plate..."
    show serial_dialog "command-parts.mgs-166:2";
    goto index 57;
-   // 'if true #4871':
+   // 'if true #4870':
    // auto serial_dialog: "    - [x] dinner plate..."
    show serial_dialog "command-parts.mgs-164:2";
-   // 'rendezvous #4870':
+   // 'rendezvous #4869':
    // if sequence: if ("ch2-installed-needle") { show serial_dialog { "\t- [...
    if "ch2-installed-needle" then goto index 63;
    if "ch2-carrying-needle" then goto index 61;
    // auto serial_dialog: "    - [ ] phonograph needle..."
    show serial_dialog "command-parts.mgs-175:2";
    goto index 64;
-   // 'if true #4875':
+   // 'if true #4874':
    // auto serial_dialog: "    - [~] phonograph needle..."
    show serial_dialog "command-parts.mgs-173:2";
    goto index 64;
-   // 'if true #4874':
+   // 'if true #4873':
    // auto serial_dialog: "    - [x] phonograph needle..."
    show serial_dialog "command-parts.mgs-171:2";
-   // 'rendezvous #4873':
+   // 'rendezvous #4872':
    // if sequence: if ("ch2-installed-keyboard") { show serial_dialog { "- [...
    if "ch2-installed-keyboard" then goto index 70;
    if "ch2-carrying-keyboard" then goto index 68;
    // auto serial_dialog: "- [ ] keyboard..."
    show serial_dialog "command-parts.mgs-183:2";
    goto index 71;
-   // 'if true #4878':
+   // 'if true #4877':
    // auto serial_dialog: "- [~] keyboard..."
    show serial_dialog "command-parts.mgs-181:2";
    goto index 71;
-   // 'if true #4877':
+   // 'if true #4876':
    // auto serial_dialog: "- [x] keyboard..."
    show serial_dialog "command-parts.mgs-179:2";
-   // 'rendezvous #4876':
+   // 'rendezvous #4875':
    // if sequence: if ("ch2-installed-mouse") { show serial_dialog { "- [x] ...
    if "ch2-installed-mouse" then goto index 77;
    if "ch2-carrying-mouse" then goto index 75;
    // auto serial_dialog: "- [ ] mouse..."
    show serial_dialog "command-parts.mgs-191:2";
    goto index 78;
-   // 'if true #4881':
+   // 'if true #4880':
    // auto serial_dialog: "- [~] mouse..."
    show serial_dialog "command-parts.mgs-189:2";
    goto index 78;
-   // 'if true #4880':
+   // 'if true #4879':
    // auto serial_dialog: "- [x] mouse..."
    show serial_dialog "command-parts.mgs-187:2";
-   // 'rendezvous #4879':
+   // 'rendezvous #4878':
    goto script "label wrapup";
    // 'three':
    // if sequence: if ("ch2-installed-ramchips") { show serial_dialog { "- [...
@@ -742,70 +602,70 @@
    // auto serial_dialog: "- [ ] RAM chips..."
    show serial_dialog "command-parts.mgs-200:2";
    goto index 86;
-   // 'if true #4884':
+   // 'if true #4883':
    // auto serial_dialog: "- [~] RAM chips..."
    show serial_dialog "command-parts.mgs-198:2";
    goto index 86;
-   // 'if true #4883':
+   // 'if true #4882':
    // auto serial_dialog: "- [x] RAM chips..."
    show serial_dialog "command-parts.mgs-196:2";
-   // 'rendezvous #4882':
+   // 'rendezvous #4881':
    // if sequence: if ("ch2-installed-clock") { show serial_dialog { "- [x] ...
    if "ch2-installed-clock" then goto index 92;
    if "ch2-carrying-clock" then goto index 90;
    // auto serial_dialog: "- [ ] clock..."
    show serial_dialog "command-parts.mgs-208:2";
    goto index 93;
-   // 'if true #4887':
+   // 'if true #4886':
    // auto serial_dialog: "- [~] clock..."
    show serial_dialog "command-parts.mgs-206:2";
    goto index 93;
-   // 'if true #4886':
+   // 'if true #4885':
    // auto serial_dialog: "- [x] clock..."
    show serial_dialog "command-parts.mgs-204:2";
-   // 'rendezvous #4885':
+   // 'rendezvous #4884':
    // if sequence: if ("ch2-installed-cpu") { show serial_dialog { "- [x] cp...
    if "ch2-installed-cpu" then goto index 99;
    if "ch2-carrying-cpu" then goto index 97;
    // auto serial_dialog: "- [ ] cpu..."
    show serial_dialog "command-parts.mgs-216:2";
    goto index 100;
-   // 'if true #4890':
+   // 'if true #4889':
    // auto serial_dialog: "- [~] cpu..."
    show serial_dialog "command-parts.mgs-214:2";
    goto index 100;
-   // 'if true #4889':
+   // 'if true #4888':
    // auto serial_dialog: "- [x] cpu..."
    show serial_dialog "command-parts.mgs-212:2";
-   // 'rendezvous #4888':
+   // 'rendezvous #4887':
    // if sequence: if ("ch2-installed-goldfish") { show serial_dialog { "\t-...
    if "ch2-installed-goldfish" then goto index 106;
    if "ch2-carrying-goldfish" then goto index 104;
    // auto serial_dialog: "    - [ ] goldfish..."
    show serial_dialog "command-parts.mgs-223:2";
    goto index 107;
-   // 'if true #4893':
+   // 'if true #4892':
    // auto serial_dialog: "    - [~] goldfish..."
    show serial_dialog "command-parts.mgs-221:2";
    goto index 107;
-   // 'if true #4892':
+   // 'if true #4891':
    // auto serial_dialog: "    - [x] goldfish..."
    show serial_dialog "command-parts.mgs-219:2";
-   // 'rendezvous #4891':
+   // 'rendezvous #4890':
    // if sequence: if ("ch2-installed-abacus") { show serial_dialog { "\t- [...
    if "ch2-installed-abacus" then goto index 113;
    if "ch2-carrying-abacus" then goto index 111;
    // auto serial_dialog: "    - [ ] abacus..."
    show serial_dialog "command-parts.mgs-230:2";
    goto index 114;
-   // 'if true #4896':
+   // 'if true #4895':
    // auto serial_dialog: "    - [~] abacus..."
    show serial_dialog "command-parts.mgs-228:2";
    goto index 114;
-   // 'if true #4895':
+   // 'if true #4894':
    // auto serial_dialog: "    - [x] abacus..."
    show serial_dialog "command-parts.mgs-226:2";
-   // 'rendezvous #4894':
+   // 'rendezvous #4893':
    goto script "label wrapup";
    // 'four':
    // if sequence: if ("ch2-installed-mainframeos") { show serial_dialog { "...
@@ -814,15 +674,15 @@
    // auto serial_dialog: "    - [ ] mainframe os..."
    show serial_dialog "command-parts.mgs-239:2";
    goto index 122;
-   // 'if true #4899':
+   // 'if true #4898':
    // auto serial_dialog: "    - [~] mainframe os..."
    show serial_dialog "command-parts.mgs-237:2";
    goto index 122;
-   // 'if true #4898':
+   // 'if true #4897':
    // auto serial_dialog: "    - [x] mainframe os..."
    show serial_dialog "command-parts.mgs-235:2";
-   // 'rendezvous #4897':
+   // 'rendezvous #4896':
    // 'wrapup':
    show serial_dialog "command-parts.mgs-242:1";
-   // 'end of script 4846':
+   // 'end of script 4845':
 }

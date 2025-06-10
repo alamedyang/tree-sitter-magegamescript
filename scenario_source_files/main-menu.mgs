@@ -364,30 +364,72 @@ include "header.mgs";
 // Random
 
 "menu-player-name-random" {
-	rand!(
-		player name = [
-			"Chara",
-			"Buster",
-			"Tidus",
-			"Frisk",
-			"Farnsworth",
-			"Cloud",
-			"Ash",
-			"Crono",
-			"Terra",
-			"Kremit",
-			"Zidane",
-			"Cecil",
-			"Squall",
-			"Roxas",
-			"Steamed Hams",
-			"Spy",
-			"Tom Honks",
-			"VeeVee",
-			"XDDCC",
-			"Bub"
-		];
-	)
+	"random-name-count" ?= 20;
+	if ("random-name-count" == 1) {
+		entity "%PLAYER%" name = "Chara";
+	} else if ("random-name-count" == 2) {
+		entity "%PLAYER%" name = "Buster";
+	} else if ("random-name-count" == 3) {
+		entity "%PLAYER%" name = "Tidus";
+	} else if ("random-name-count" == 4) {
+		entity "%PLAYER%" name = "Frisk";
+	} else if ("random-name-count" == 5) {
+		entity "%PLAYER%" name = "Farnsworth";
+	} else if ("random-name-count" == 6) {
+		entity "%PLAYER%" name = "Cloud";
+	} else if ("random-name-count" == 7) {
+		entity "%PLAYER%" name = "Ash";
+	} else if ("random-name-count" == 8) {
+		entity "%PLAYER%" name = "Crono";
+	} else if ("random-name-count" == 9) {
+		entity "%PLAYER%" name = "Terra";
+	} else if ("random-name-count" == 10) {
+		entity "%PLAYER%" name = "Kremit";
+	} else if ("random-name-count" == 11) {
+		entity "%PLAYER%" name = "Zidane";
+	} else if ("random-name-count" == 12) {
+		entity "%PLAYER%" name = "Cecil";
+	} else if ("random-name-count" == 13) {
+		entity "%PLAYER%" name = "Squall";
+	} else if ("random-name-count" == 14) {
+		entity "%PLAYER%" name = "Roxas";
+	} else if ("random-name-count" == 15) {
+		entity "%PLAYER%" name = "Steamed Hams";
+	} else if ("random-name-count" == 16) {
+		entity "%PLAYER%" name = "Spy";
+	} else if ("random-name-count" == 17) {
+		entity "%PLAYER%" name = "Tom Honks";
+	} else if ("random-name-count" == 18) {
+		entity "%PLAYER%" name = "VeeVee";
+	} else if ("random-name-count" == 19) {
+		entity "%PLAYER%" name = "XDDCC";
+	} else { // if it's 0 or any other value (the default):
+		entity "%PLAYER%" name = "Bub";
+	}
+	// rand!(
+	// 	player name = [
+	// 		"Chara",
+	// 		"Buster",
+	// 		"Tidus",
+	// 		"Frisk",
+	// 		"Farnsworth",
+	// 		"Cloud",
+	// 		"Ash",
+	// 		"Crono",
+	// 		"Terra",
+	// 		"Kremit",
+	// 		"Zidane",
+	// 		"Cecil",
+	// 		"Squall",
+	// 		"Roxas",
+	// 		"Steamed Hams",
+	// 		"Spy",
+	// 		"Tom Honks",
+	// 		"VeeVee",
+	// 		"XDDCC",
+	// 		"Bub"
+	// 	];
+	// )
 	show dialog {
 		name " "
 		border_tileset menu
