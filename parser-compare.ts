@@ -9,6 +9,7 @@ import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 import { makeMap, parseProject } from './parser.js';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
+import * as TYPES from './parser-bytecode-info.ts';
 
 // Ignoring comments, labels, and other inline jumps, get a count of each action line for a script
 const count = (lines: string[]) => {
@@ -221,13 +222,18 @@ const calculateRejoins = (lines: string[]) => {
 	return rejoins;
 };
 
-const startAdventure = (_lines: string[]) => {
-	const lines = _lines.join('\n').includes('goto index')
-		? _lines.slice(1, -1).filter((v) => !/^\/\//.test(v))
-		: _lines.slice(1, -1);
+const startAdventure = (_lines: string[], actions: TYPES.Action[]) => {
+	let lines = _lines[_lines.length - 1] === '}' ? _lines.slice(1, -1) : _lines.slice();
+	lines.forEach((line, i, arr) => {
+		if (line.startsWith('show')) {
+			arr[i] = line.replace(/(-|:)\d+:\d+";$/, '-XX";').replace(/-/g, '_');
+		}
+	});
+	lines = lines.join('\n').includes('goto index') ? lines.filter((v) => !/^\/\//.test(v)) : lines;
 	const rejoins = calculateRejoins(lines);
 	const registry = getLabelRegistery(lines);
 	const cs: AdventureCrawlState = {
+		actions,
 		lines,
 		OOB: lines.length,
 		rejoins,
@@ -393,6 +399,7 @@ const compareAdventures = (
 	// }
 };
 type AdventureCrawlState = {
+	actions: TYPES.Action[];
 	// gotten in advance
 	lines: string[];
 	OOB: number;
@@ -412,43 +419,43 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 	while (pos < cs.OOB + 1) {
 		const line = lines[pos];
 		if (line === undefined) {
-			console.log('NO MORE LINES!');
+			// console.log('NO MORE LINES!');
 			jumpTos = [cs.OOB];
 			break;
 		}
-		console.log(`Looking at line [${pos}]: ${line}`);
+		// console.log(`Looking at line [${pos}]: ${line}`);
 		if (cs.rejoins.has(pos) && pos !== _pos) {
 			jumpTos = [pos];
 			break;
 		}
 		const analysis = analyzeLine(line);
-		console.log(`   > TYPE: ${analysis.type}`);
+		// console.log(`   > TYPE: ${analysis.type}`);
 		if (analysis.type === 'line') {
-			console.log(`   > DO: push to seen lines`);
+			// console.log(`   > DO: push to seen lines`);
 			sequence.push(analysis.line);
 			pos += 1;
 			continue;
 		}
 		if (analysis.type === 'comment') {
-			console.log(`   > DO: ignore`);
+			// console.log(`   > DO: ignore`);
 			pos += 1;
 			continue;
 		}
 		if (analysis.type === 'label') {
-			console.log(`   > DO: break the sequence`);
+			// console.log(`   > DO: break the sequence`);
 			pos += 1;
 			jumpTos = [pos];
 			break;
 		}
 		if (analysis.type === 'load-map') {
-			console.log(`   > DO: jump to OOB (${cs.OOB})`);
+			// console.log(`   > DO: jump to OOB (${cs.OOB})`);
 			pos += 1;
 			sequence.push(analysis.line);
 			jumpTos = [cs.OOB];
 			break;
 		}
 		if (analysis.type === 'goto-script') {
-			console.log(`   > DO: jump to OOB (${cs.OOB})`);
+			// console.log(`   > DO: jump to OOB (${cs.OOB})`);
 			sequence.push(`goto script "${analysis.value}"`);
 			jumpTos = [cs.OOB];
 			break;
@@ -456,22 +463,23 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 		if (analysis.type === 'goto-index') {
 			if (typeof analysis.value !== 'number') throw new Error('TS broke it');
 			pos = analysis.value;
-			console.log(`   > DO: jump to new pos (${pos})`);
+			// console.log(`   > DO: jump to new pos (${pos})`);
 			jumpTos = [pos];
 			break;
 		}
 		if (analysis.type === 'goto-label') {
 			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
 			pos = cs.registry[analysis.value];
-			console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
-			if (pos === undefined) throw new Error('something else broke');
+			// console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
+			if (pos === undefined)
+				throw new Error('No registered index for label ' + analysis.value);
 			jumpTos = [pos];
 			break;
 		}
 		if (analysis.type === 'if-then-goto-script') {
 			// must do both cases separately, as sometimes the goto is split from the check
 			// Let's just get rid of the deadend early?
-			console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
+			// console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
 			const deadendFrom = cs.OOB + Math.random(); // oh dear
 			if (typeof analysis.value !== 'string') throw new Error('unreachable');
 			lines[deadendFrom] = analysis.value; // !! is this gonna work??
@@ -485,10 +493,10 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
 			pos += 1;
 			const jumpPos = cs.registry[analysis.value];
-			jumpTos = [pos, cs.registry[analysis.value]];
-			console.log(
-				`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
-			);
+			jumpTos = [pos, jumpPos];
+			// console.log(
+			// 	`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
+			// );
 			break;
 		}
 		if (analysis.type === 'if-then-goto-index') {
@@ -497,7 +505,7 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 			pos += 1;
 			const jumpPos = analysis.value;
 			jumpTos = [pos, jumpPos];
-			console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
+			// console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
 			break;
 		}
 	}
@@ -556,16 +564,16 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 			new: newPrint,
 		};
 	}
-	const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
-	// Ignoring control logic, the count of each kind of line is equal
-	// (No typos; if-else logic not tested at all! Hence trust)
-	if (countAndTrust) {
-		return {
-			type: 'trust',
-			old: oldPrint,
-			new: newPrint,
-		};
-	}
+	// const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
+	// // Ignoring control logic, the count of each kind of line is equal
+	// // (No typos; if-else logic not tested at all! Hence trust)
+	// if (countAndTrust) {
+	// 	return {
+	// 		type: 'trust',
+	// 		old: oldPrint,
+	// 		new: newPrint,
+	// 	};
+	// }
 	const oldAdventureLines = oldPrint
 		.split('\n')
 		.map((v) => v.trim())
@@ -575,8 +583,8 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	newAdventureLines = newAdventureLines.join('\n').includes('goto index')
 		? newAdventureLines.slice(1, -1).filter((v) => !/^\/\//.test(v))
 		: newAdventureLines.slice(1, -1);
-	const oldAdventure = startAdventure(oldAdventureLines);
-	const newAdventure = startAdventure(newAdventureLines);
+	const oldAdventure = startAdventure(oldAdventureLines, oldBaked);
+	const newAdventure = startAdventure(newAdventureLines, newBaked);
 	const compared = compareAdventures(oldAdventure, newAdventure);
 	// NAIVE VERSION
 	// const counts: Record<string, AdventureSequence[]> = {};
@@ -675,3 +683,7 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 // 1642 scripts were identical, 0 were functionally identical, and 167 are probably okay (2 were clearly different)
 // 1643 scripts were identical, 0 were functionally identical, and 167 are probably okay (1 were clearly different)
 // 1643 scripts were identical, 0 were functionally identical, and 168 are probably okay (0 were clearly different)
+
+// -- BEING STRICTER NOW, no more 'probably okay'
+// 1643 scripts were identical, 46 were functionally identical, and 0 are probably okay (122 were clearly different)
+// 1643 scripts were identical, 131 were functionally identical, and 0 are probably okay (37 were clearly different)
