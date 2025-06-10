@@ -108,24 +108,24 @@ include "header.mgs";
 }
 "command-parts-print" {
 	if ("ch2-storyflag-round" == 1) {
-		goto "label one";
+		goto label one;
 	} else if ("ch2-storyflag-round" == 2) {
 		if (!"ch2-parts-round-2-backstory") {
-			goto "label one";
+			goto label one;
 		} else {
-			goto "label two";
+			goto label two;
 		}
 	} else if ("ch2-storyflag-round" == 3) {
 		if (!"ch2-parts-round-3-backstory") {
-			goto "label two";
+			goto label two;
 		} else {
-			goto "label three";
+			goto label three;
 		}
 	} else if ("ch2-storyflag-round" >= 4) {
 		if (!"ch2-parts-round-4-backstory") {
-			goto "label three";
+			goto label three;
 		} else {
-			goto "label four";
+			goto label four;
 		}
 	}
 	one:
@@ -152,7 +152,7 @@ include "header.mgs";
 	} else {
 		show serial_dialog { "- [ ] monitor" };
 	}
-	goto "label wrapup";
+	goto label wrapup;
 	two:
 	if ("ch2-installed-harddrive") {
 		show serial_dialog { "- [x] hard drive" };
@@ -191,7 +191,7 @@ include "header.mgs";
 	} else {
 		show serial_dialog { "- [ ] mouse" };
 	}
-	goto "label wrapup";
+	goto label wrapup;
 	three:
 	if ("ch2-installed-ramchips") {
 		show serial_dialog { "- [x] RAM chips" };
@@ -230,7 +230,7 @@ include "header.mgs";
 	} else {
 		show serial_dialog { "\t- [ ] abacus" };
 	}
-	goto "label wrapup";
+	goto label wrapup;
 	four:
 	if ("ch2-installed-mainframeos") {
 		show serial_dialog { "\t- [x] mainframe os" };

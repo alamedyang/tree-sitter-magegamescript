@@ -152,6 +152,6 @@ include "header.mgs";
 		}
 	}
 	"only-count-inventory" = false;
-	"ch2-counted-inventory" = ch2-count-inventory;
+	"ch2-counted-inventory" = "ch2-count-inventory"*1;
 	"ch2-count-inventory" = 0;
 }
