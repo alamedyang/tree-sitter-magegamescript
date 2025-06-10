@@ -193,7 +193,13 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					}
 				}
 				actions.forEach((action) => {
-					if (action.mathlang?.includes('label')) {
+					if (
+						action.mathlang?.includes('label') ||
+						action.mathlang === 'bool_getable' ||
+						action.mathlang === 'bool_comparison' ||
+						action.mathlang === 'string_checkable' ||
+						action.mathlang === 'number_checkable_equality'
+					) {
 						const jump_index = registry[action.label];
 						if (jump_index === undefined) {
 							throw new Error('NOT REGISTERED?');

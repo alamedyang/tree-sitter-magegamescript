@@ -179,7 +179,7 @@ export const expandCondition = (f, node, condition, ifLabel) => {
 export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
 	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
 	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
-	const gotoLabel = f.p.getGotoSuffix();
+	const gotoLabel = f.p.advanceGotoSuffix();
 	const ifLabel = `if #${gotoLabel}`;
 	const rendezvousLabel = `rendezvous #${gotoLabel}`;
 	const branchAction = {

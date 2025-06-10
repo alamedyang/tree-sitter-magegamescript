@@ -14,6 +14,7 @@ const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
 // if not empty, also won't do any file-level tests
 const onlyDoTheseActionTests = [
 	// 'mainframe_watchbox', 'if_single', 'bool_exp_branch_debug_mode'
+	'branch_on_string_equality_direction',
 ];
 
 const skipTheseTests = new Set(['set_int_exp_ok']);
@@ -1719,7 +1720,7 @@ Is there a better way?
 
 const doActionTest = (scriptName, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
-	const found = actionFound[scriptName].testPrint;
+	const found = actionFound[scriptName].print;
 	const compared = compareTexts(found, expected, '', scriptName);
 	if (compared.status !== 'success') {
 		return compared;
