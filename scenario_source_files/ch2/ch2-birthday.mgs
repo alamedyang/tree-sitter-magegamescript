@@ -144,7 +144,7 @@ include "header.mgs";
 	}
 	camera fade out -> #000000 over 0ms;
 	player_control = off;
-	hex_editor = close;
+	hex_editor = closed;
 	entity "Alfonso" position = geometry "birthday-alfonso";
 	entity "Bert" position = geometry "birthday-bert";
 	entity "Jackob" position = geometry "birthday-jackob";
