@@ -79,16 +79,27 @@ const nodeFns = {
 	},
 	script_definition: (f, node) => {
 		const name = captureForFieldName(f, node, 'script_name');
-		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
-		const actions = node.lastChild.namedChildren // error nodes are caught above
+		const rawActions = node.lastChild.namedChildren // error nodes are caught above
 			.map((v) => handleNode(f, v))
-			.flat()
-			.map((v) =>
-				v.mathlang === 'return_statement' ? gotoLabel(f, v.debug, returnLabel) : v,
-			);
+			.flat();
+		const actions = [];
+		// flatten sequences
+		rawActions.forEach((raw) => {
+			if (raw.mathlang === 'sequence') {
+				raw.steps.forEach((step) => actions.push(step));
+			} else {
+				actions.push(raw);
+			}
+		});
+		// add auto return destination
+		// (this should be done prior to copy!(), but after flattening sequences)
+		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		actions.push(label(f, node.lastChild, returnLabel));
-		if (actions.some((v) => v.mathlang === 'return_statement'))
-			throw new Error('why is this still here?');
+		actions.forEach((action, i) => {
+			if (action.mathlang === 'return_statement') {
+				actions[i] = gotoLabel(f, action.debug, returnLabel);
+			}
+		});
 		return [
 			{
 				mathlang: 'script_definition',

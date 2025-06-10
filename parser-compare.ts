@@ -266,7 +266,7 @@ const compareAdventures = (
 	const lhPos = _lhPos;
 	const rhPos = _rhPos;
 	if (cachedLhIndices[lhPos] !== undefined && cachedRhIndices[rhPos] !== undefined) {
-		// We have a cache for both of them? We win! We've been here before. Pass back the result.
+		// We have a cache for both of their match results? We win! We've been here before. Pass back the combo of the cached values.
 		return cachedLhIndices[lhPos] && cachedRhIndices[rhPos];
 	}
 	let lhEntry = lhCS.fromIndicies[lhPos];
@@ -287,7 +287,8 @@ const compareAdventures = (
 			return false;
 		}
 	}
-	// For times the closing } didn't quite make it in one of them.
+	// For times the closing } didn't quite make it in one of them,
+	// make a dummy entry so the other can catch up.
 	if (!rhEntry) {
 		rhEntry = {
 			from: rhCS.OOB,
@@ -302,18 +303,27 @@ const compareAdventures = (
 			sequence: [],
 		};
 	}
-	lhString.push(...lhEntry.sequence);
-	rhString.push(...rhEntry.sequence);
+	// sometimes no jumpTo?
+	if (lhEntry.jumpTos.length === 0) {
+		lhEntry.jumpTos = [lhEntry.from];
+	}
+	if (rhEntry.jumpTos.length === 0) {
+		rhEntry.jumpTos = [rhEntry.from];
+	}
+	// Branches have the same count. Compare all sets of paired branches.
 	if (lhEntry.jumpTos.length === rhEntry.jumpTos.length) {
-		// Both paths are branching now.
+		lhString.push(...lhEntry.sequence);
+		rhString.push(...rhEntry.sequence);
 		const compares = lhEntry.jumpTos.map((lhTryPos, i) => {
 			const rhTryPos = rhEntry.jumpTos[i];
 			if (lhTryPos === lhEntry.from && rhTryPos === rhEntry.from) {
+				// They're both looping? That's a match.
 				console.log('INFINITE LOOP!');
-				cachedLhIndices[lhEntry.from] = false;
-				cachedRhIndices[rhEntry.from] = false;
-				return false;
+				cachedLhIndices[lhEntry.from] = true;
+				cachedRhIndices[rhEntry.from] = true;
+				return true;
 			}
+			// We have caches for these particular matches? Hand that back.
 			if (
 				cachedLhIndices[lhTryPos] !== undefined &&
 				cachedRhIndices[rhTryPos] !== undefined
@@ -323,7 +333,7 @@ const compareAdventures = (
 				cachedRhIndices[rhEntry.from] = allMatched;
 				return allMatched;
 			}
-			// Do each of their splits separately
+			// We're here? Guess we need to try it for real:
 			const manualMatch = compareAdventures(
 				lhCS,
 				rhCS,
@@ -334,18 +344,22 @@ const compareAdventures = (
 				lhString.slice(),
 				rhString.slice(),
 			);
+			// Add result to cache, then hand it to the list of results.
 			cachedLhIndices[lhEntry.from] = manualMatch;
 			cachedRhIndices[rhEntry.from] = manualMatch;
 			return manualMatch;
 		});
-		// Check if every branch matched
+		// Check if every branch pair matched
 		const every = compares.every((v) => v);
 		cachedLhIndices[lhEntry.from] = every;
 		cachedRhIndices[rhEntry.from] = every;
 		return every;
 	}
-	// The jumpto lengths are different:
+	// If the jumpto lengths are different:
+	// Skip ahead on the one with nothing in it
+	// (but don't push the sequence to the chain yet or it'll double up)
 	if (
+		// LH is boring version
 		lhEntry.jumpTos.length === 1 && // only one place to go (other side has a split tho)
 		lhEntry.sequence.length == 0 && // its sequence is empty
 		lhEntry.jumpTos[0] !== lhEntry.from // and it's not a deadend
@@ -364,6 +378,7 @@ const compareAdventures = (
 		cachedRhIndices[rhEntry.from] = deeperMatch;
 		return deeperMatch;
 	} else if (
+		// RH is boring version
 		rhEntry.jumpTos.length === 1 && // only one place to go (other side has a split tho)
 		rhEntry.sequence.length == 0 && // its sequence is empty
 		rhEntry.jumpTos[0] !== rhEntry.from // and it's not a deadend
@@ -383,20 +398,6 @@ const compareAdventures = (
 		return deeperMatch;
 	}
 	return false;
-	// console.log('Then what?');
-	// const lhTest = lhString
-	// 	.flat()
-	// 	.filter((v) => v !== undefined)
-	// 	.join(' /* ----- */ ');
-	// const rhTest = rhString
-	// 	.flat()
-	// 	.filter((v) => v !== undefined)
-	// 	.join(' /* ----- */ ');
-	// if (lhTest === rhTest) {
-	// 	return true;
-	// } else {
-	// 	return false;
-	// }
 };
 type AdventureCrawlState = {
 	actions: TYPES.Action[];
@@ -687,3 +688,5 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 // -- BEING STRICTER NOW, no more 'probably okay'
 // 1643 scripts were identical, 46 were functionally identical, and 0 are probably okay (122 were clearly different)
 // 1643 scripts were identical, 131 were functionally identical, and 0 are probably okay (37 were clearly different)
+// 1643 scripts were identical, 144 were functionally identical, and 0 are probably okay (24 were clearly different)
+// 1643 scripts were identical, 151 were functionally identical, and 0 are probably okay (17 were clearly different)

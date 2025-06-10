@@ -52,12 +52,12 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				} else if (node.mathlang === 'serial_dialog_definition') {
 					// (sometimes these are inside a script body)
 					p.addSerialDialog(node, fileName);
-				} else if (node.mathlang === 'sequence') {
-					node.steps.forEach((step) => finalizedActions.push(step));
 				} else if (node.mathlang === 'copy_script') {
 					finalizedActions.push(node);
 					// TODO: do this as a separate layer
 				} else if (node.mathlang.includes('label')) {
+					finalizedActions.push(node);
+				} else if (node.mathlang === 'comment') {
 					finalizedActions.push(node);
 				} else {
 					console.error(node);
