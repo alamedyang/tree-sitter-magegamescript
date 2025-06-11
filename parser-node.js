@@ -47,7 +47,8 @@ export const handleNode = (f, node) => {
 	}
 
 	// Do it
-	return nodeFn(f, node);
+	const ret = nodeFn(f, node);
+	return ret;
 };
 
 // Cyclic dependency bodge!
@@ -80,7 +81,10 @@ const nodeFns = {
 	script_definition: (f, node) => {
 		const name = captureForFieldName(f, node, 'script_name');
 		const rawActions = node.lastChild.namedChildren // error nodes are caught above
-			.map((v) => handleNode(f, v))
+			.map((v) => {
+				const ret = handleNode(f, v);
+				return ret;
+			})
 			.flat();
 		const actions = [];
 		// flatten sequences
@@ -194,9 +198,9 @@ const nodeFns = {
 			},
 		];
 		let bottomSteps = [];
-		const rendezvousL = `rendezvous #${f.p.gotoSuffixValue}`;
+		const rendezvousL = `rand rendezvous #${f.p.getGotoSuffix()}`;
 		vertical.forEach((body, i) => {
-			const ifL = `if RNG #${f.p.advanceGotoSuffix()}`;
+			const ifL = `rand if RNG #${f.p.advanceGotoSuffix()}`;
 			// add top half
 			const condition = {
 				mathlang: 'bool_comparison',
@@ -622,7 +626,7 @@ const nodeFns = {
 		}
 		const rendezvousL = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const steps = [];
-		let bottomSteps = [label(f, node, rendezvousL)];
+		let bottomSteps = [];
 		ifs.forEach((iff) => {
 			const ifL = `if true #${f.p.advanceGotoSuffix()}`;
 			const conditionN = iff.childForFieldName('condition');
@@ -643,6 +647,7 @@ const nodeFns = {
 		}
 		steps.push(gotoLabel(f, node, rendezvousL));
 		const combined = steps.concat(bottomSteps);
+		combined.push(label(f, node, rendezvousL));
 		return newSequence(f, node, combined, 'if sequence');
 	},
 };

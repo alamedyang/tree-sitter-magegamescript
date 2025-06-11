@@ -51,7 +51,7 @@ const splitAndStripNonGotoActions = (text: string): string[] => {
 		const comments = line.match(/(\s*[^\s]+\s*)\/\/.+$/);
 		line = comments ? comments[1].trim() : line;
 		// genericize dialog identifiers that squeaked through
-		if (line.startsWith('show')) {
+		if (line.startsWith('show') || line.startsWith('concat')) {
 			line = line.replace(/(-|:)\d+:\d+";$/, '-XX";').replace(/-/g, '_');
 		}
 		ret.push(line);
@@ -92,9 +92,13 @@ const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>)
 const getLabelRegistery = (lines: string[]) => {
 	const registry: Record<string, number> = {};
 	lines.forEach((line, i) => {
-		const label = line.trim().match(/^([^/]+):$/);
-		if (label) {
-			registry[label[1]] = i;
+		const labelMatch = line.trim().match(/^([^/]+):$/);
+		if (labelMatch) {
+			const label = labelMatch[1];
+			if (registry[label] !== undefined) {
+				throw new Error('label already registered: ' + label);
+			}
+			registry[label] = i;
 		}
 	});
 	return registry;
@@ -190,7 +194,7 @@ const analyzeLine = (line: string): LineAnalysis => {
 			value: load[1],
 		};
 	}
-	const sanitizedLine = line.startsWith('show') ? line.replace(/(-|:)\d+:\d+";/, '-XX";') : line;
+	const sanitizedLine = line.replace(/(-|:)\d+:\d+";/, '-XX";');
 	return {
 		type: 'line',
 		line: line,
@@ -206,9 +210,8 @@ const analyzeLine = (line: string): LineAnalysis => {
 // 	return oldPos + '->' + newPos;
 // };
 
-const calculateRejoins = (lines: string[]) => {
+const calculateRejoins = (lines: string[], registry: Record<string, number>) => {
 	const rejoins: Set<number> = new Set();
-	const registry = getLabelRegistery(lines);
 	lines.forEach((line, i) => {
 		const analysis = analyzeLine(line);
 		if (analysis.type.endsWith('goto-index')) {
@@ -224,14 +227,15 @@ const calculateRejoins = (lines: string[]) => {
 
 const startAdventure = (_lines: string[], actions: TYPES.Action[]) => {
 	let lines = _lines[_lines.length - 1] === '}' ? _lines.slice(1, -1) : _lines.slice();
-	lines.forEach((line, i, arr) => {
-		if (line.startsWith('show')) {
-			arr[i] = line.replace(/(-|:)\d+:\d+";$/, '-XX";').replace(/-/g, '_');
-		}
-	});
+	lines = lines.map((v) =>
+		v
+			.trim()
+			.replace(/(-|:)\d+:\d+";$/, '-XX";')
+			.replace(/-/g, '_'),
+	);
 	lines = lines.join('\n').includes('goto index') ? lines.filter((v) => !/^\/\//.test(v)) : lines;
-	const rejoins = calculateRejoins(lines);
 	const registry = getLabelRegistery(lines);
+	const rejoins = calculateRejoins(lines, registry);
 	const cs: AdventureCrawlState = {
 		actions,
 		lines,
@@ -411,126 +415,142 @@ type AdventureCrawlState = {
 	fromIndicies: Record<string, AdventureSequence>;
 	toIndicies: Record<string, AdventureSequence[]>;
 };
+let deepness = 0;
 const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
+	deepness += 1;
+	if (deepness > 1_000) {
+		throw new Error('Call stack size limit is like 2k or something?');
+	}
 	const { lines, exploredBranchPoints, fromIndicies, toIndicies } = cs;
+	let topPos = _pos;
 	let pos = _pos;
 	// chunks that
 	let jumpTos: number[] = [];
 	const sequence: string[] = [];
-	while (pos < cs.OOB + 1) {
-		const line = lines[pos];
-		if (line === undefined) {
-			// console.log('NO MORE LINES!');
-			jumpTos = [cs.OOB];
+	while (!exploredBranchPoints.has(pos)) {
+		while (pos < cs.OOB + 1) {
+			const line = lines[pos];
+			if (line === undefined) {
+				// console.log('NO MORE LINES!');
+				jumpTos = [cs.OOB];
+				break;
+			}
+			// console.log(`Looking at line [${pos}]: ${line}`);
+			if (cs.rejoins.has(pos) && pos !== topPos) {
+				jumpTos = [pos];
+				break;
+			}
+			const analysis = analyzeLine(line);
+			// console.log(`   > TYPE: ${analysis.type}`);
+			if (analysis.type === 'line') {
+				// console.log(`   > DO: push to seen lines`);
+				sequence.push(analysis.line);
+				pos += 1;
+				continue;
+			}
+			if (analysis.type === 'comment') {
+				// console.log(`   > DO: ignore`);
+				pos += 1;
+				continue;
+			}
+			if (analysis.type === 'label') {
+				// console.log(`   > DO: break the sequence`);
+				pos += 1;
+				jumpTos = [pos];
+				break;
+			}
+			if (analysis.type === 'load-map') {
+				// console.log(`   > DO: jump to OOB (${cs.OOB})`);
+				pos += 1;
+				sequence.push(analysis.line);
+				jumpTos = [cs.OOB];
+				break;
+			}
+			if (analysis.type === 'goto-script') {
+				// console.log(`   > DO: jump to OOB (${cs.OOB})`);
+				sequence.push(`goto script "${analysis.value}"`);
+				jumpTos = [cs.OOB];
+				break;
+			}
+			if (analysis.type === 'goto-index') {
+				if (typeof analysis.value !== 'number') throw new Error('TS broke it');
+				pos = analysis.value;
+				// console.log(`   > DO: jump to new pos (${pos})`);
+				jumpTos = [pos];
+				break;
+			}
+			if (analysis.type === 'goto-label') {
+				if (typeof analysis.value !== 'string') throw new Error('TS broke it');
+				pos = cs.registry[analysis.value];
+				// console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
+				if (pos === undefined)
+					throw new Error('No registered index for label ' + analysis.value);
+				jumpTos = [pos];
+				break;
+			}
+			if (analysis.type === 'if-then-goto-script') {
+				// must do both cases separately, as sometimes the goto is split from the check
+				// Let's just get rid of the deadend early?
+				// console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
+				const deadendFrom = cs.OOB + Math.random(); // oh dear
+				if (typeof analysis.value !== 'string') throw new Error('unreachable');
+				lines[deadendFrom] = analysis.value; // !! is this gonna work??
+				sequence.push(analysis.line);
+				pos += 1;
+				jumpTos = [pos, deadendFrom];
+				break;
+			}
+			if (analysis.type === 'if-then-goto-label') {
+				sequence.push(analysis.line);
+				if (typeof analysis.value !== 'string') throw new Error('TS broke it');
+				pos += 1;
+				const jumpPos = cs.registry[analysis.value];
+				jumpTos = [pos, jumpPos];
+				// console.log(
+				// 	`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
+				// );
+				break;
+			}
+			if (analysis.type === 'if-then-goto-index') {
+				sequence.push(analysis.line);
+				if (typeof analysis.value !== 'number') throw new Error('TS broke it');
+				pos += 1;
+				const jumpPos = analysis.value;
+				jumpTos = [pos, jumpPos];
+				// console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
+				break;
+			}
+		}
+		exploredBranchPoints.add(topPos);
+		const insert = {
+			from: topPos,
+			jumpTos,
+			sequence: sequence.slice(),
+		};
+		if (fromIndicies[insert.from]) {
+			throw new Error('already something starting from index ' + insert.from);
+		}
+		fromIndicies[insert.from] = insert;
+		jumpTos.forEach((to) => {
+			toIndicies[to] = toIndicies[to] || [];
+			toIndicies[to].push(insert);
+			return insert;
+		});
+		if (jumpTos.length > 1) {
+			jumpTos.forEach((to) => {
+				if (to !== cs.OOB && !exploredBranchPoints.has(to)) {
+					exploredBranchPoints.add(to);
+					chooseYourOwnAdventure(cs, to);
+				}
+			});
 			break;
 		}
-		// console.log(`Looking at line [${pos}]: ${line}`);
-		if (cs.rejoins.has(pos) && pos !== _pos) {
-			jumpTos = [pos];
-			break;
-		}
-		const analysis = analyzeLine(line);
-		// console.log(`   > TYPE: ${analysis.type}`);
-		if (analysis.type === 'line') {
-			// console.log(`   > DO: push to seen lines`);
-			sequence.push(analysis.line);
-			pos += 1;
-			continue;
-		}
-		if (analysis.type === 'comment') {
-			// console.log(`   > DO: ignore`);
-			pos += 1;
-			continue;
-		}
-		if (analysis.type === 'label') {
-			// console.log(`   > DO: break the sequence`);
-			pos += 1;
-			jumpTos = [pos];
-			break;
-		}
-		if (analysis.type === 'load-map') {
-			// console.log(`   > DO: jump to OOB (${cs.OOB})`);
-			pos += 1;
-			sequence.push(analysis.line);
-			jumpTos = [cs.OOB];
-			break;
-		}
-		if (analysis.type === 'goto-script') {
-			// console.log(`   > DO: jump to OOB (${cs.OOB})`);
-			sequence.push(`goto script "${analysis.value}"`);
-			jumpTos = [cs.OOB];
-			break;
-		}
-		if (analysis.type === 'goto-index') {
-			if (typeof analysis.value !== 'number') throw new Error('TS broke it');
-			pos = analysis.value;
-			// console.log(`   > DO: jump to new pos (${pos})`);
-			jumpTos = [pos];
-			break;
-		}
-		if (analysis.type === 'goto-label') {
-			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
-			pos = cs.registry[analysis.value];
-			// console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
-			if (pos === undefined)
-				throw new Error('No registered index for label ' + analysis.value);
-			jumpTos = [pos];
-			break;
-		}
-		if (analysis.type === 'if-then-goto-script') {
-			// must do both cases separately, as sometimes the goto is split from the check
-			// Let's just get rid of the deadend early?
-			// console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
-			const deadendFrom = cs.OOB + Math.random(); // oh dear
-			if (typeof analysis.value !== 'string') throw new Error('unreachable');
-			lines[deadendFrom] = analysis.value; // !! is this gonna work??
-			sequence.push(analysis.line);
-			pos += 1;
-			jumpTos = [pos, deadendFrom];
-			break;
-		}
-		if (analysis.type === 'if-then-goto-label') {
-			sequence.push(analysis.line);
-			if (typeof analysis.value !== 'string') throw new Error('TS broke it');
-			pos += 1;
-			const jumpPos = cs.registry[analysis.value];
-			jumpTos = [pos, jumpPos];
-			// console.log(
-			// 	`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
-			// );
-			break;
-		}
-		if (analysis.type === 'if-then-goto-index') {
-			sequence.push(analysis.line);
-			if (typeof analysis.value !== 'number') throw new Error('TS broke it');
-			pos += 1;
-			const jumpPos = analysis.value;
-			jumpTos = [pos, jumpPos];
-			// console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
-			break;
+		if (jumpTos.length === 1) {
+			pos = jumpTos[0];
+			topPos = pos;
 		}
 	}
-	exploredBranchPoints.add(_pos);
-	const insert = {
-		from: _pos,
-		jumpTos,
-		sequence: sequence.slice(),
-	};
-	if (fromIndicies[insert.from]) {
-		throw new Error('already something starting from index ' + insert.from);
-	}
-	fromIndicies[insert.from] = insert;
-	jumpTos.forEach((to) => {
-		toIndicies[to] = toIndicies[to] || [];
-		toIndicies[to].push(insert);
-		return insert;
-	});
-	jumpTos.forEach((to) => {
-		if (to !== cs.OOB && !exploredBranchPoints.has(to)) {
-			exploredBranchPoints.add(to);
-			chooseYourOwnAdventure(cs, to);
-		}
-	});
+	deepness -= 1;
 	return cs;
 };
 type AdventureSequence = {
@@ -544,16 +564,15 @@ const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
 const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
-	let oldBaked = oldPost[scriptName];
-	let newBaked = p.scripts[scriptName].actions;
-	// let newBaked = p.scripts[scriptName].print;
-	if (!oldBaked) {
-		oldBaked = oldPre[scriptName];
-		newBaked = p.scripts[scriptName].preActions;
-		// newBaked = p.scripts[scriptName].prePrint;
+	let oldActions = oldPost[scriptName];
+	let newActions = p.scripts[scriptName].actions;
+	if (!oldActions) {
+		oldActions = oldPre[scriptName];
+		newActions = p.scripts[scriptName].preActions;
 	}
-	const oldPrint = printScript(scriptName, oldBaked);
-	const newPrint = printScript(scriptName, newBaked);
+	newActions = newActions.filter((v) => v.mathlang !== 'comment');
+	const oldPrint = printScript(scriptName, oldActions);
+	const newPrint = printScript(scriptName, newActions);
 	const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
 	const newPrintLines = splitAndStripNonGotoActions(newPrint);
 
@@ -575,25 +594,18 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	// 		new: newPrint,
 	// 	};
 	// }
-	const oldAdventureLines = oldPrint
-		.split('\n')
-		.map((v) => v.trim())
-		.slice(1, -1);
-	const newPostConstantsLines = printScript(scriptName, p.scripts[scriptName].actions);
-	let newAdventureLines = newPostConstantsLines.split('\n').map((v) => v.trim());
-	newAdventureLines = newAdventureLines.join('\n').includes('goto index')
-		? newAdventureLines.slice(1, -1).filter((v) => !/^\/\//.test(v))
-		: newAdventureLines.slice(1, -1);
-	const oldAdventure = startAdventure(oldAdventureLines, oldBaked);
-	const newAdventure = startAdventure(newAdventureLines, newBaked);
+	// const oldAdventureLines = oldPrint
+	// 	.split('\n')
+	// 	.map((v) => v.trim())
+	// 	.slice(1, -1);
+	// const newPostConstantsLines = printScript(scriptName, p.scripts[scriptName].actions);
+	// let newAdventureLines = newPostConstantsLines.split('\n').map((v) => v.trim());
+	// newAdventureLines = newAdventureLines.join('\n').includes('goto index')
+	// 	? newAdventureLines.slice(1, -1).filter((v) => !/^\/\//.test(v))
+	// 	: newAdventureLines.slice(1, -1);
+	const oldAdventure = startAdventure(oldPrint.split('\n').slice(1, -1), oldActions);
+	const newAdventure = startAdventure(newPrint.split('\n').slice(1, -1), newActions);
 	const compared = compareAdventures(oldAdventure, newAdventure);
-	// NAIVE VERSION
-	// const counts: Record<string, AdventureSequence[]> = {};
-	// const oldAdventure = chooseYourOwnAdventure(oldPrint);
-	// const newAdventure = chooseYourOwnAdventure(newPrint);
-	// const oldAdventureCounts = count(oldAdventure.map((s) => s.join('\n')));
-	// const newAdventureCounts = count(newAdventure.map((s) => s.join('\n')));
-	// // don't check counts, just check journeys
 	if (compared) {
 		return {
 			type: 'functional',
@@ -665,28 +677,18 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		.map((v: PrintComparison) => v.new)
 		.join('\n\n');
 	console.log(
-		`${tally} scripts were identical, ${functionalTally} were functionally identical, and ${trustTally} are probably okay (${badTally} were clearly different)`,
+		`${tally} scripts were identical, ${functionalTally} were functionally identical, and ${badTally} were clearly different`,
 	);
 	writeFileSync(`./comparisons/olds.mgs`, olds);
 	writeFileSync(`./comparisons/news.mgs`, news);
 });
 
-// 1606 scripts were identical, 2 were functionally identical, and 126 are probably okay (79 were clearly different)
-// 1618 scripts were identical, 0 were functionally identical, and 125 are probably okay (68 were clearly different)
-// 1618 scripts were identical, 56 were functionally identical, and 125 are probably okay (68 were clearly different)
-// 1618 scripts were identical, 1 were functionally identical, and 125 are probably okay (67 were clearly different)
-// 1669 scripts were identical, 1 were functionally identical, and 116 are probably okay (25 were clearly different)
-// 1629 scripts were identical, 6 were functionally identical, and 159 are probably okay (17 were clearly different)
-// 1636 scripts were identical, 0 were functionally identical, and 160 are probably okay (15 were clearly different)
-// 1639 scripts were identical, 0 were functionally identical, and 166 are probably okay (6 were clearly different)
-// 1640 scripts were identical, 0 were functionally identical, and 167 are probably okay (4 were clearly different)
-// 1641 scripts were identical, 0 were functionally identical, and 167 are probably okay (3 were clearly different)
-// 1642 scripts were identical, 0 were functionally identical, and 167 are probably okay (2 were clearly different)
-// 1643 scripts were identical, 0 were functionally identical, and 167 are probably okay (1 were clearly different)
-// 1643 scripts were identical, 0 were functionally identical, and 168 are probably okay (0 were clearly different)
-
 // -- BEING STRICTER NOW, no more 'probably okay'
-// 1643 scripts were identical, 46 were functionally identical, and 0 are probably okay (122 were clearly different)
-// 1643 scripts were identical, 131 were functionally identical, and 0 are probably okay (37 were clearly different)
-// 1643 scripts were identical, 144 were functionally identical, and 0 are probably okay (24 were clearly different)
-// 1643 scripts were identical, 151 were functionally identical, and 0 are probably okay (17 were clearly different)
+// 1643 scripts were identical, 46 were functionally identical, and 122 were clearly different
+// 1643 scripts were identical, 131 were functionally identical, and 37 were clearly different
+// 1643 scripts were identical, 144 were functionally identical, and 24 were clearly different
+// 1643 scripts were identical, 151 were functionally identical, and 17 were clearly different
+// 1643 scripts were identical, 148 were functionally identical, and 20 were clearly different
+// 1643 scripts were identical, 36 were functionally identical, and 132 were clearly different
+// 1643 scripts were identical, 139 were functionally identical, and 29 were clearly different
+// 1643 scripts were identical, 168 were functionally identical, and 0 were clearly different

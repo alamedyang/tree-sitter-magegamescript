@@ -108,7 +108,7 @@ export const parseProject = async (fileMap, scenarioData) => {
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
 		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
-		p.scripts[scriptName].preActions = standardizedActions;
+		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
 	});
 
 	// copyscript - TODO: check for recursion?

@@ -261,7 +261,10 @@ const printActionFns = {
 	NON_BLOCKING_DELAY: (v: TYPES.NON_BLOCKING_DELAY) => `wait ${printDuration(v.duration)};`,
 	SHOW_DIALOG: (v: TYPES.SHOW_DIALOG) => `show dialog "${v.dialog}";`,
 	CLOSE_DIALOG: () => `close dialog;`,
-	SHOW_SERIAL_DIALOG: (v: TYPES.SHOW_SERIAL_DIALOG) => `show serial_dialog "${v.serial_dialog}";`,
+	SHOW_SERIAL_DIALOG: (v: TYPES.SHOW_SERIAL_DIALOG) => {
+		const verb = v.disable_newline ? 'concat' : 'show';
+		return `${verb} serial_dialog "${v.serial_dialog}";`;
+	},
 	CLOSE_SERIAL_DIALOG: () => `close serial_dialog;`,
 	SET_CONNECT_SERIAL_DIALOG: (v: TYPES.SET_CONNECT_SERIAL_DIALOG) =>
 		`serial_connect = "${v.serial_dialog}";`,
@@ -348,6 +351,6 @@ export const printScript = (scriptName, actions) => {
 		.map(printAction)
 		.filter((v) => v !== undefined)
 		.map((v) => `   ${v}`);
-	const ret = [`"${scriptName}" {`, ...printedActions, '}'].join('\n');
-	return ret;
+	const ret = [`"${scriptName}" {`, ...printedActions, '}'];
+	return ret.join('\n');
 };

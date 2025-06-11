@@ -135,8 +135,9 @@ export const expandCondition = (f, node, condition, ifLabel) => {
 		// have a separate if-else insert?
 		// if first one is false goto a rendezvous at the end of the insert
 		// if the second one is false, ditto
-		const innerIfTrueLabel = `if true #${f.p.advanceGotoSuffix()}`;
-		const innerRendezvousLabel = `rendezvous #${f.p.getGotoSuffix()}`;
+		const suffix = f.p.advanceGotoSuffix();
+		const innerIfTrueLabel = `inner if true #${suffix}`;
+		const innerRendezvousLabel = `inner rendezvous #${suffix}`;
 		const inner = [
 			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
 			gotoLabel(f, node, innerRendezvousLabel),
@@ -180,8 +181,8 @@ export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) =>
 	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
 	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.advanceGotoSuffix();
-	const ifLabel = `if #${gotoLabel}`;
-	const rendezvousLabel = `rendezvous #${gotoLabel}`;
+	const ifLabel = `simple if #${gotoLabel}`;
+	const rendezvousLabel = `simple rendezvous #${gotoLabel}`;
 	const branchAction = {
 		..._branchAction,
 		label: ifLabel,
@@ -272,7 +273,7 @@ export const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
 });
 export const showSerialDialog = (f, node, name, isConcat) => ({
 	action: 'SHOW_SERIAL_DIALOG',
-	disable_newline: !isConcat,
+	disable_newline: isConcat,
 	serial_dialog: name,
 	debug: node,
 	fileName: f.fileName,
@@ -302,6 +303,7 @@ export const flattenGotos = (actions) => {
 			next?.label === action.label
 		) {
 			actions.splice(i, 1);
+			// can jump over the next one (no need to i--) because it's not being handled now
 			// You don't need to do remove the label, even for those with zero uses,
 			// because labels are going to be removed anyway
 		}
@@ -322,7 +324,7 @@ export const flattenGotos = (actions) => {
 		}
 	});
 	actions.forEach((action) => {
-		if (action.mathlang?.includes('label')) {
+		if (action.mathlang?.includes('label') && action.mathlang !== 'label_definition') {
 			if (!action.label) {
 				throw new Error('NO LABEL');
 			}

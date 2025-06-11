@@ -119,8 +119,8 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 		typeof lhs === 'string' ? setFlag(lhs, true) : { ...lhs, [lhsParam]: true };
 	const setLhsIfFalse =
 		typeof lhs === 'string' ? setFlag(lhs, false) : { ...lhs, [lhsParam]: false };
-	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
-	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+	const ifLabel = `set if true #${f.p.advanceGotoSuffix()}`;
+	const rendezvousLabel = `set rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps = [
 		...expandCondition(f, rhsRaw.debug, rhsRaw, ifLabel),
 		setLhsIfFalse,
