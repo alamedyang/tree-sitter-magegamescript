@@ -173,7 +173,7 @@ const spreadValues = (f, commonFields, fieldsToSpread) => {
 // Takes an action node (from the TS parser) and gets associated "dictionary" data
 // - Processes listed captures by field name
 // - Spreads them if any of the captures are "expansions" (e.g. [a, b])
-// - Once spread, the detective identifies the JSON action for each spread item (since they might be different from each toehr)
+// - Once spread, the handler identifies the JSON action for each spread item (since they might be different from each toehr)
 // - Adds the final JSON properties required by the encoder
 // - If the result is more than one "step" (for sequences not directly supported by the engine)
 // it will add the action as a "sequence", which will need to be expanded later
@@ -228,40 +228,16 @@ export const handleAction = (f, node) => {
 	});
 	const spreads = spreadValues(f, action, fieldsToSpread);
 	// Different param combinations will result in different actions,
-	// so let the detective sort them out after the spreads are spread
-	// const handleFn = data.handle;
-	// if (handleFn) {
-	// 	const handled = spreads.map((action, i) => {
-	// 		handleFn(action, f, node, i);
-	// 	});
-	// 	return handled;
-	// }
-	if (data.detective) {
-		spreads.forEach((action, actionIndex) => {
-			// Try the action detective
-			for (let i = 0; i < data.detective.length; i++) {
-				const currClueData = data.detective[i];
-				const solved = currClueData.isMatch(action, f, node);
-				if (solved) {
-					// todo: reorder the arguments in .values()?
-					const values = currClueData.finalizeValues(action, f, node, actionIndex);
-					Object.entries(values).forEach(([k, v]) => {
-						action[k] = v;
-					});
-					return;
-				}
-			}
-			// If we got here, nothing matched
-			action.error = true;
-			const errorFn = data.detectError;
-			if (errorFn) {
-				f.newError(errorFn(action));
-			} else {
-				f.newError({
-					locations: [{ node }],
-					message: `syntax error in action '${node.grammarType}'`,
-				});
-				// console.warn(`No custom error handler found for action '${node.grammarType}' node`);
+	// so let the handler sort them out after the spreads are spread
+	const handleFn = data.handle;
+	if (handleFn) {
+		spreads.forEach((actionInsideSpread, i) => {
+			const handled = handleFn(actionInsideSpread, f, node, i);
+			if (handled) {
+				spreads[i] = handled;
+				// any reason to keep the intermediate values? no? tests still pass? well then
+				// spreads[i] = { ...action, ...handled };
+				return;
 			}
 		});
 	}
@@ -297,7 +273,6 @@ const actionFns = {
 	},
 };
 
-// TODO: why use an action detective? Why not put it all the logic and process values stuff in the same function?
 const actionData = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
@@ -437,297 +412,221 @@ const actionData = {
 	action_set_ambiguous: {
 		values: {},
 		captures: ['lhs', 'rhs'],
-		detective: [
-			{
-				isMatch: (v, f, node) => {
-					const type = grammarTypeForFieldName(f, node, 'rhs');
-					return (
-						type === 'ambiguous_identifier_expansion' ||
-						type === 'BAREWORD' ||
-						type === 'QUOTED_STRING'
-					);
-				},
-				finalizeValues: (v, f, node, i) => {
-					const ident = v.rhs;
-					// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
-					// `i` is from the caller, who knows which one of the set we're looking at now.
-					// Basically, the whole spread might not be ambiguous, so we need to report
-					// only once the action is identified (with isMatch()), not all the time.
-					const lhsNode =
-						node.childForFieldName('lhs').namedChildren?.[i] ||
-						node.childForFieldName('lhs');
-					const rhsNode =
-						node.childForFieldName('rhs').namedChildren?.[i] ||
-						node.childForFieldName('rhs');
-					// These are the nodes that will get squigglies
-					const printNodes = [lhsNode, rhsNode];
-					const suggestion = v.rhs.includes(' ') ? '"' + ident + '"' : ident;
-					f.newWarning({
-						locations: printNodes.map((v) => ({ node: v })),
-						message: 'these identifiers could be ints or bools',
-						footer:
-							`Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:` +
-							`\n    !!${suggestion}` +
-							`\nTo silence this warning, turn the RHS into a passthrough int expression (which will produce the same output), e.g.:` +
-							`\n    ${suggestion} + 0` +
-							`\n    ${suggestion} * 1`,
-					});
-					return setVarToVar(v.lhs, v.rhs);
-				},
-			},
-			{
-				// We know the RHS is a number
-				// ... but it's a simple case, so use a simple action for this
-				isMatch: (v) => typeof v.rhs === 'number',
-				finalizeValues: (v) => setVarToValue(v.lhs, v.rhs),
-			},
-			{
-				// We know the RHS is a number
-				// ... but it's a simple "getable" so use a simple action for this
-				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs') === 'int_getable',
-				finalizeValues: (v) => copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs),
-			},
-			{
-				// We know the RHS is a int expression
-				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs').includes('int'),
-				finalizeValues: (v, f, node) => {
-					// Make a temporary variable to store the value of the expression
-					newTemporary(v.lhs);
-					// Play out the expression
-					const steps = flattenIntBinaryExpression(v.rhs, []);
-					// Clean up the temporary (but retain the variable name)
-					const temporary = dropTemporary();
-					// do `LHS = temporary`
-					steps.push(setVarToVar(v.lhs, temporary));
-					return newSequence(f, node, steps, 'set int (ambiguous lhs)');
-				},
-			},
-			{
-				// We know the RHS is a boolean
-				// ... but it's a simple case, so use a simple action for this
-				isMatch: (v) => typeof v.rhs === 'boolean',
-				finalizeValues: (v) => setFlag(v.lhs, v.rhs),
-			},
-			{
-				// We know the RHS is a boolean
-				// ... and RHS is a simple bool getable
-				isMatch: (v) => v.rhs.mathlang === 'bool_getable',
-				finalizeValues: (v, f, node) => {
-					const param = getBoolFieldForAction(v.rhs.action);
-					return setFlagToFlag(f, node, v.lhs, v.rhs.value, !v.rhs[param]);
-				},
-			},
-			{
-				// We know the RHS is a bool expression
-				// ... it's complicated.
-				isMatch: (v, f, node) => grammarTypeForFieldName(f, node, 'rhs').includes('bool'),
-				finalizeValues: (v, f, node) => {
-					// TODO: review this fn
-					const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
-					const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
-					ret.steps.push(...setFlagSteps.steps);
-					return ret;
-				},
-			},
-		],
+		handle: (v, f, node, i) => {
+			const grammarType = grammarTypeForFieldName(f, node, 'rhs');
+			if (
+				grammarType === 'ambiguous_identifier_expansion' ||
+				grammarType === 'BAREWORD' ||
+				grammarType === 'QUOTED_STRING'
+			) {
+				const ident = v.rhs;
+				// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
+				// `i` is from the caller, who knows which one of the set we're looking at now.
+				// Basically, the whole spread might not be ambiguous, so we need to report
+				// only once the action is identified in an individual spread, not all the time.
+				const lhsNode =
+					node.childForFieldName('lhs').namedChildren?.[i] ||
+					node.childForFieldName('lhs');
+				const rhsNode =
+					node.childForFieldName('rhs').namedChildren?.[i] ||
+					node.childForFieldName('rhs');
+				// These are the nodes that will get squigglies
+				const printNodes = [lhsNode, rhsNode];
+				const suggestion = v.rhs.includes(' ') ? '"' + ident + '"' : ident;
+				f.newWarning({
+					locations: printNodes.map((v) => ({ node: v })),
+					message: 'these identifiers could be ints or bools',
+					footer:
+						`Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:` +
+						`\n    !!${suggestion}` +
+						`\nTo silence this warning, turn the RHS into a passthrough int expression (which will produce the same output), e.g.:` +
+						`\n    ${suggestion} + 0` +
+						`\n    ${suggestion} * 1`,
+				});
+				return setVarToVar(v.lhs, v.rhs);
+			}
+
+			// We know the RHS is a number
+			// ... but it's a simple case, so use a simple action for this
+			if (typeof v.rhs === 'number') {
+				return setVarToValue(v.lhs, v.rhs);
+			}
+			// ... but it's a simple "getable" so use a simple action for this
+			if (grammarType === 'int_getable') {
+				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs);
+			}
+
+			// We know the RHS is a int expression
+			if (grammarType.includes('int')) {
+				// Make a temporary variable to store the value of the expression
+				newTemporary(v.lhs);
+				// Play out the expression
+				const steps = flattenIntBinaryExpression(v.rhs, []);
+				// Clean up the temporary (but retain the variable name)
+				const temporary = dropTemporary();
+				// do `LHS = temporary`
+				steps.push(setVarToVar(v.lhs, temporary));
+				return newSequence(f, node, steps, 'set int (ambiguous lhs)');
+			}
+
+			// We know the RHS is a boolean
+			// ... but it's a simple case, so use a simple action for this
+			if (typeof v.rhs === 'boolean') {
+				return setFlag(v.lhs, v.rhs);
+			}
+			// ... and RHS is a simple bool getable
+			if (v.rhs.mathlang === 'bool_getable') {
+				const param = getBoolFieldForAction(v.rhs.action);
+				return setFlagToFlag(f, node, v.lhs, v.rhs.value, !v.rhs[param]);
+			}
+
+			// We know the RHS is a bool expression
+			// ... it's complicated.
+			if (grammarType.includes('bool')) {
+				// TODO: review this fn
+				const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
+				const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
+				ret.steps.push(...setFlagSteps.steps);
+				return ret;
+			}
+		},
 	},
 	action_set_int: {
 		// If we've matched this, we know the LHS is not a variable name. Only other option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		detective: [
-			{
-				// RHS is number, simple case
-				// Different LHSs need different actions, though
-				isMatch: (v) => typeof v.rhs === 'number',
-				finalizeValues: (v) => {
-					const ret = { entity: v.lhs.entity };
-					if (v.lhs.field === 'x') {
-						ret.action = 'SET_ENTITY_X';
-						ret.u2_value = v.rhs;
-					} else if (v.lhs.field === 'y') {
-						ret.action = 'SET_ENTITY_Y';
-						ret.u2_value = v.rhs;
-					} else if (v.lhs.field === 'primary_id') {
-						ret.action = 'SET_ENTITY_PRIMARY_ID';
-						ret.u2_value = v.rhs;
-					} else if (v.lhs.field === 'secondary_id') {
-						ret.action = 'SET_ENTITY_SECONDARY_ID';
-						ret.u2_value = v.rhs;
-					} else if (v.lhs.field === 'primary_id_type') {
-						ret.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
-						ret.byte_value = v.rhs;
-					} else if (v.lhs.field === 'current_animation') {
-						ret.action = 'SET_ENTITY_CURRENT_ANIMATION';
-						ret.byte_value = v.rhs;
-					} else if (v.lhs.field === 'animation_frame') {
-						ret.action = 'SET_ENTITY_CURRENT_FRAME';
-						ret.byte_value = v.rhs;
-					} else if (v.lhs.field === 'strafe') {
-						ret.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
-						ret.relative_direction = v.rhs;
-					} else if (v.lhs.field === 'relative_direction') {
-						ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
-						ret.relative_direction = v.rhs;
-					}
-					return ret;
-				},
-			},
-			{
-				// RHS is variable name, simple case
-				// The field is part of the JSON action
-				isMatch: (v) => typeof v.rhs === 'string',
-				finalizeValues: (v) => copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field),
-			},
-			{
-				// RHS is something more complex (everything else)
-				// Do the expression thing, like above, but the final step is different
-				// (It's going into an entity field, not a variable)
-				isMatch: () => true,
-				finalizeValues: (v, f, node) => {
-					newTemporary();
-					const steps = flattenIntBinaryExpression(v.rhs, []);
-					const temporary = dropTemporary();
-					steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-					return newSequence(f, node, steps, 'set int');
-				},
-			},
-		],
+		handle: (v) => {
+			// RHS is number, simple case
+			// Different LHSs need different actions, though
+			if (typeof v.rhs === 'number') {
+				const ret = { entity: v.lhs.entity };
+				if (v.lhs.field === 'x') {
+					ret.action = 'SET_ENTITY_X';
+					ret.u2_value = v.rhs;
+				} else if (v.lhs.field === 'y') {
+					ret.action = 'SET_ENTITY_Y';
+					ret.u2_value = v.rhs;
+				} else if (v.lhs.field === 'primary_id') {
+					ret.action = 'SET_ENTITY_PRIMARY_ID';
+					ret.u2_value = v.rhs;
+				} else if (v.lhs.field === 'secondary_id') {
+					ret.action = 'SET_ENTITY_SECONDARY_ID';
+					ret.u2_value = v.rhs;
+				} else if (v.lhs.field === 'primary_id_type') {
+					ret.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
+					ret.byte_value = v.rhs;
+				} else if (v.lhs.field === 'current_animation') {
+					ret.action = 'SET_ENTITY_CURRENT_ANIMATION';
+					ret.byte_value = v.rhs;
+				} else if (v.lhs.field === 'animation_frame') {
+					ret.action = 'SET_ENTITY_CURRENT_FRAME';
+					ret.byte_value = v.rhs;
+				} else if (v.lhs.field === 'strafe') {
+					ret.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
+					ret.relative_direction = v.rhs;
+				} else if (v.lhs.field === 'relative_direction') {
+					ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
+					ret.relative_direction = v.rhs;
+				} else {
+					f.newError({
+						locations: [{ node: v.debug }],
+						message: `syntax error setting int to number`,
+					});
+				}
+				return ret;
+			}
+			// RHS is variable name, simple case
+			// The field is part of the JSON action
+			if (typeof v.rhs === 'string') {
+				return copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field);
+			}
+			// RHS is something more complex (everything else)
+			// Do the expression thing, like above, but the final step is different
+			// (It's going into an entity field, not a variable)
+			newTemporary();
+			const steps = flattenIntBinaryExpression(v.rhs, []);
+			const temporary = dropTemporary();
+			steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
+			return newSequence(f, node, steps, 'set int');
+		},
 	},
 	action_set_bool: {
 		// If we've matched this, we know the LHS is not a variable name.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		detective: [
-			{
-				isMatch: (v) => v.lhs.type === 'entity',
-				finalizeValues: (v, f, node) => {
-					const lhsAction = {
-						action: 'SET_ENTITY_GLITCHED',
-						entity: v.lhs.value,
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction, node);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'light',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_LIGHTS_STATE',
-						lights: v.lhs.value,
-						enabled: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'player_control',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_PLAYER_CONTROL',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'lights_control',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_LIGHTS_CONTROL',
-						enabled: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'hex_editor',
-				finalizeValues: (v, f, node) => {
-					const lhsAction = {
-						action: 'SET_HEX_EDITOR_STATE',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction, node);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'hex_dialog_mode',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_HEX_EDITOR_DIALOG_MODE',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'hex_control',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_HEX_EDITOR_CONTROL',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'hex_clipboard',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-			{
-				isMatch: (v) => v.lhs.type === 'serial_control',
-				finalizeValues: (v, f) => {
-					const lhsAction = {
-						action: 'SET_SERIAL_DIALOG_CONTROL',
-						bool_value: true,
-					};
-					return actionSetBoolMaker(f, v.rhs, lhsAction);
-				},
-			},
-		],
+		// TODO: can the capture side put the action in?
+		handle: (v, f, node) => {
+			let lhsAction = {
+				bool_value: true,
+			};
+			if (v.lhs.type === 'entity') {
+				lhsAction = {
+					action: 'SET_ENTITY_GLITCHED',
+					entity: v.lhs.value,
+				};
+			}
+			if (v.lhs.type === 'light') {
+				lhsAction = {
+					action: 'SET_LIGHTS_STATE',
+					lights: v.lhs.value,
+					enabled: true,
+				};
+				delete lhsAction.bool_value;
+			}
+			if (v.lhs.type === 'player_control') {
+				lhsAction = { action: 'SET_PLAYER_CONTROL' };
+			}
+			if (v.lhs.type === 'lights_control') {
+				lhsAction = {
+					action: 'SET_LIGHTS_CONTROL',
+					enabled: true,
+				};
+				delete lhsAction.bool_value;
+			}
+			if (v.lhs.type === 'hex_editor') {
+				lhsAction = { action: 'SET_HEX_EDITOR_STATE' };
+			}
+			if (v.lhs.type === 'hex_dialog_mode') {
+				lhsAction = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+			}
+			if (v.lhs.type === 'hex_control') {
+				lhsAction = { action: 'SET_HEX_EDITOR_CONTROL' };
+			}
+			if (v.lhs.type === 'hex_clipboard') {
+				lhsAction = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+			}
+			if (v.lhs.type === 'serial_control') {
+				lhsAction = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+			}
+			return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+		},
 	},
 	action_set_position: {
 		values: {},
 		captures: ['movable', 'coordinate'],
-		detective: [
-			{
-				isMatch: (v) =>
-					v.movable.type === 'camera' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType !== 'length',
-				finalizeValues: (v) => ({
-					action: 'TELEPORT_CAMERA_TO_GEOMETRY',
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) => v.movable.type === 'camera' && v.coordinate.type === 'entity',
-				finalizeValues: (v) => ({
-					action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
-					entity: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'entity' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType !== 'length',
-				finalizeValues: (v) => ({
-					action: 'TELEPORT_ENTITY_TO_GEOMETRY',
-					entity: v.movable.value,
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) => v.movable.type === 'entity' && v.coordinate.type === 'entity',
-				finalizeValues: (v, f, node) => {
+		handle: (v, f, node) => {
+			if (v.movable.type === 'camera') {
+				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
+					return {
+						action: 'TELEPORT_CAMERA_TO_GEOMETRY',
+						geometry: v.coordinate.value,
+					};
+				}
+				if (v.coordinate.type === 'entity') {
+					return {
+						action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
+						entity: v.coordinate.value,
+					};
+				}
+			} else if (v.movable.type === 'entity') {
+				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
+					return {
+						action: 'TELEPORT_ENTITY_TO_GEOMETRY',
+						entity: v.movable.value,
+						geometry: v.coordinate.value,
+					};
+				}
+				if (v.coordinate.type === 'entity') {
 					const variable = quickTemporary();
 					const copyFrom = v.coordinate.value;
 					const copyTo = v.movable.value;
@@ -738,200 +637,153 @@ const actionData = {
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
 					return newSequence(f, node, steps, 'set position');
-				},
-			},
-		],
-		detectError: (v) => ({
-			locations: [{ node: v.debug }],
-			message: `incompatible movable identifier and position identifier`,
-		}),
+				}
+			}
+			f.newError({
+				locations: [{ node: v.debug }],
+				message: `incompatible movable identifier and position identifier`,
+			});
+		},
 	},
 	action_move_over_time: {
 		values: {},
 		captures: ['movable', 'coordinate', 'duration', 'forever'],
 		optionalCaptures: ['forever'],
-		detective: [
-			{
-				isMatch: (v) =>
-					v.movable.type === 'camera' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'origin' &&
-					!v.forever,
-				finalizeValues: (v) => ({
-					action: 'PAN_CAMERA_TO_GEOMETRY',
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'camera' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'length' &&
-					!v.forever,
-				finalizeValues: (v) => ({
-					action: 'PAN_CAMERA_ALONG_GEOMETRY',
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'camera' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'length' &&
-					!!v.forever,
-				finalizeValues: (v) => ({
-					action: 'LOOP_CAMERA_ALONG_GEOMETRY',
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'camera' && v.coordinate.type === 'entity' && !v.forever,
-				finalizeValues: (v) => ({
-					action: 'PAN_CAMERA_TO_ENTITY',
-					entity: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'entity' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'origin' &&
-					!v.forever,
-				finalizeValues: (v) => ({
-					action: 'WALK_ENTITY_TO_GEOMETRY',
-					entity: v.movable.value,
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'entity' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'length' &&
-					!v.forever,
-				finalizeValues: (v) => ({
-					action: 'WALK_ENTITY_ALONG_GEOMETRY',
-					entity: v.movable.value,
-					geometry: v.coordinate.value,
-				}),
-			},
-			{
-				isMatch: (v) =>
-					v.movable.type === 'entity' &&
-					v.coordinate.type === 'geometry' &&
-					v.coordinate.polygonType === 'length' &&
-					!!v.forever,
-				finalizeValues: (v) => ({
-					action: 'LOOP_ENTITY_ALONG_GEOMETRY',
-					entity: v.movable.value,
-					geometry: v.coordinate.value,
-				}),
-			},
-		],
-		detectError: (v) => {
-			let message = `incompatible movable identifier and position identifier`;
-			let node = v.debug;
-			if (v.coordinate.type === 'entity') {
-				if (v.movable.type === 'entity') {
-					message = `cannot move an entity to another entity's position over time`;
-					node = v.coordinate.debug;
-				} else if (v.movable.type === 'camera') {
-					message = `cannot move camera to an entity's position forever`;
-					node = v.coordinate.debug;
+		handle: (v, f) => {
+			const ret = { duration: v.duration };
+			let error = { locations: [{ node: v.debug }] };
+			if (v.movable.type === 'camera') {
+				// Moving the camera
+				if (v.coordinate.type === 'entity') {
+					// ... to an entity
+					ret.entity = v.coordinate.value;
+					if (v.forever) {
+						// ... forever (ILLEGAL)
+						error.message = `cannot move camera to an entity's position forever`;
+					} else {
+						// ... not forever
+						ret.action = 'PAN_CAMERA_TO_ENTITY';
+					}
 				}
-			} else if (!!v.forever) {
-				message = `'forever' can only be used with geometry lengths, not single points`;
-				node = v.coordinate.debug;
+				if (v.coordinate.type === 'geometry') {
+					// ... to a geometry
+					ret.geometry = v.coordinate.value;
+					if (v.coordinate.polygonType === 'length') {
+						// ... length
+						if (v.forever) {
+							// ... forever
+							ret.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
+						} else {
+							// ... not forever
+							ret.action = 'PAN_CAMERA_ALONG_GEOMETRY';
+						}
+					} else if (v.coordinate.polygonType === 'origin') {
+						// ... origin (single point)
+						if (v.forever) {
+							// ... forever (ILLEGAL)
+							error.message = `'forever' can only be used with geometry lengths, not single points`;
+						} else {
+							// ... not forever
+							ret.action = 'PAN_CAMERA_TO_GEOMETRY';
+						}
+					}
+				}
 			}
-			return {
-				message,
-				locations: [{ node }],
-			};
+
+			if (v.movable.type === 'entity') {
+				// Moving an entity
+				ret.entity = v.movable.value;
+				if (v.coordinate.type === 'entity') {
+					// ... to another entity (ILLEGAL)
+					error.message = `cannot move an entity to another entity's position over time`;
+				}
+				if (v.coordinate.type === 'geometry') {
+					// ... to a geometry
+					ret.geometry = v.coordinate.value;
+					if (v.coordinate.polygonType === 'length') {
+						// ... length
+						if (v.forever) {
+							// ... forever
+							ret.action = 'LOOP_ENTITY_ALONG_GEOMETRY';
+						} else {
+							// ... not forever
+							ret.action = 'WALK_ENTITY_ALONG_GEOMETRY';
+						}
+					}
+					if (v.coordinate.polygonType === 'origin') {
+						// ... origin (single point)
+						if (v.forever) {
+							// ... forever (ILLEGAL)
+							error.message = `'forever' can only be used with geometry lengths, not single points`;
+						} else {
+							// ... not forever
+							ret.action = 'WALK_ENTITY_TO_GEOMETRY';
+						}
+					}
+				}
+			}
+			// generic error now
+			if (error.message) {
+				f.newError(error);
+			} else {
+				return ret;
+			}
 		},
 	},
 	action_set_direction: {
 		values: {},
 		captures: ['entity', 'target'],
-		detective: [
-			{
-				isMatch: () => true,
-				finalizeValues: (v) => {
-					return {
-						...v.target,
-						entity: v.entity,
-					};
-				},
-			},
-		],
+		handle: (v) => ({
+			...v.target,
+			entity: v.entity,
+		}),
 	},
 	action_set_script: {
 		values: {},
 		captures: ['entity', 'script_slot', 'script'],
-		detective: [
-			{
-				isMatch: (v) => v.entity === '%MAP%' && v.script_slot === 'on_tick',
-				finalizeValues: (v) => {
+		handle: (v, f) => {
+			if (v.entity === '%MAP%') {
+				if (v.script_slot === 'on_tick') {
 					return {
 						action: 'SET_MAP_TICK_SCRIPT',
 						script: v.script,
 					};
-				},
-			},
-			{
-				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_tick',
-				finalizeValues: (v) => {
-					return {
-						action: 'SET_ENTITY_TICK_SCRIPT',
-						entity: v.entity,
-						script: v.script,
-					};
-				},
-			},
-			{
-				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_interact',
-				finalizeValues: (v) => {
-					return {
-						action: 'SET_ENTITY_INTERACT_SCRIPT',
-						entity: v.entity,
-						script: v.script,
-					};
-				},
-			},
-			{
-				isMatch: (v) => v.entity !== '%MAP%' && v.script_slot === 'on_look',
-				finalizeValues: (v) => {
-					return {
-						action: 'SET_ENTITY_LOOK_SCRIPT',
-						entity: v.entity,
-						script: v.script,
-					};
-				},
-			},
-		],
-		detectError: (v) => {
-			if (v.entity === '%MAP%') {
-				return {
+				}
+				f.newError({
 					message: `invalid map script slot`,
 					locations: [{ node: v.debug.childForFieldName('script_slot') }],
 					footer: `You can only set a map's 'on_tick' slot`,
-				};
-			} else if (
-				v.script_slot !== 'on_tick' ||
-				v.script_slot !== 'on_interact' ||
-				v.script_slot !== 'on_look'
-			) {
+				});
+				return;
+			}
+			// not a map; must be an entity
+			const ret = {
+				entity: v.entity,
+				script: v.script,
+			};
+			if (v.script_slot === 'on_tick') {
 				return {
-					message: `invalid entity script slot`,
-					locations: [{ node: v.debug.childForFieldName('script_slot') }],
-					footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
-				};
-			} else {
-				return {
-					message: `set script slot syntax error`,
-					locations: [{ node: v.debug }],
+					...ret,
+					action: 'SET_ENTITY_TICK_SCRIPT',
 				};
 			}
+			if (v.script_slot === 'on_interact') {
+				return {
+					...ret,
+					action: 'SET_ENTITY_INTERACT_SCRIPT',
+				};
+			}
+			if (v.script_slot === 'on_look') {
+				return {
+					...ret,
+					action: 'SET_ENTITY_LOOK_SCRIPT',
+				};
+			}
+			f.newError({
+				message: `invalid entity script slot`,
+				locations: [{ node: v.debug.childForFieldName('script_slot') }],
+				footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
+			});
 		},
 	},
 	action_set_entity_string: {
@@ -948,47 +800,58 @@ const actionData = {
 			} else if (v.field === 'path') {
 				ret.action = 'SET_ENTITY_PATH';
 				ret.geometry = v.value;
+			} else {
+				f.newError({
+					locations: [{ node: v.debug }],
+					message: `syntax error setting entity property to string`,
+				});
 			}
 			return ret;
 		},
-		detective: [
-			{
-				isMatch: (v) => v.field === 'name',
-				finalizeValues: (v) => ({
-					action: 'SET_ENTITY_NAME',
-					entity: v.entity,
-					string: v.value,
-				}),
-			},
-			{
-				isMatch: (v) => v.field === 'type',
-				finalizeValues: (v) => ({
-					action: 'SET_ENTITY_TYPE',
-					entity: v.entity,
-					entity_type: v.value,
-				}),
-			},
-			{
-				isMatch: (v) => v.field === 'path',
-				finalizeValues: (v) => ({
-					action: 'SET_ENTITY_PATH',
-					entity: v.entity,
-					geometry: v.value,
-				}),
-			},
-		],
 	},
 	action_op_equals: {
 		values: {},
 		captures: ['lhs', 'operator', 'rhs'],
-		detective: [
-			{
-				isMatch: (v) => typeof v.rhs === 'number' && typeof v.lhs === 'string',
-				finalizeValues: (v) => changeVarByValue(v.lhs, v.rhs, v.operator),
-			},
-			{
-				isMatch: (v) => typeof v.rhs === 'number' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f) => {
+		handle: (v, f, node) => {
+			// LHS is a string, meaning we're doing a thing to an integer variable
+			if (typeof v.lhs === 'string') {
+				// e.g. varName += 1
+				if (typeof v.rhs === 'number') {
+					return changeVarByValue(v.lhs, v.rhs, v.operator);
+				}
+				// e.g. varName += var2
+				if (typeof v.rhs === 'string') {
+					return changeVarByVar(v.lhs, v.rhs, v.operator);
+				}
+				// e.g. varName += player x
+				if (v.rhs.mathlang === 'int_getable') {
+					const temp = quickTemporary();
+					const steps = [
+						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
+						changeVarByVar(v.identifier, temp, v.operator),
+					];
+					return newSequence(f, node, steps, 'set op-equals with int getable');
+				}
+				// e.g. varName += (var2 * 7)
+				if (v.rhs.mathlang === 'int_binary_expression') {
+					const temporary = newTemporary();
+					const steps = flattenIntBinaryExpression(v.rhs, []);
+					dropTemporary();
+					steps.push(changeVarByVar(v.lhs, temporary, v.operator));
+					return newSequence(f, node, steps, 'set op-equals with int binary expression');
+				}
+				f.newError({
+					locations: [{ node: v.debug }],
+					message: `syntax error setting integer variable value`,
+				});
+			}
+
+			// LHS is an int getable, like `player y`
+			// Can only set these to set values; cannot do math to them.
+			// First put the value into a temporary, then do the math to that, then set it back.
+			if (v.lhs.mathlang === 'int_getable') {
+				// e.g. player x = 1;
+				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
@@ -997,15 +860,9 @@ const actionData = {
 					];
 					dropTemporary();
 					return newSequence(f, v.debug, steps, 'set op-equals with number');
-				},
-			},
-			{
-				isMatch: (v) => typeof v.rhs === 'string' && typeof v.lhs === 'string',
-				finalizeValues: (v) => changeVarByVar(v.lhs, v.rhs, v.operator),
-			},
-			{
-				isMatch: (v) => typeof v.rhs === 'string' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f) => {
+				}
+				// e.g. player x = varName;
+				if (typeof v.rhs === 'string') {
 					const temporary = newTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
@@ -1014,23 +871,9 @@ const actionData = {
 					];
 					dropTemporary();
 					return newSequence(f, v.debug, steps, 'set op-equals with string (identifier)');
-				},
-			},
-			{
-				isMatch: (v) =>
-					v.rhs.mathlang === 'int_binary_expression' && typeof v.lhs === 'string',
-				finalizeValues: (v, f, node) => {
-					const temporary = newTemporary();
-					const steps = flattenIntBinaryExpression(v.rhs, []);
-					dropTemporary();
-					steps.push(changeVarByVar(v.lhs, temporary, v.operator));
-					return newSequence(f, node, steps, 'set op-equals with int binary expression');
-				},
-			},
-			{
-				isMatch: (v) =>
-					v.rhs.mathlang === 'int_binary_expression' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f, node) => {
+				}
+				// e.g. player x = (varName * 7);
+				if (v.rhs.mathlang === 'int_binary_expression') {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
@@ -1042,23 +885,9 @@ const actionData = {
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
-				},
-			},
-			{
-				isMatch: (v) => v.rhs.mathlang === 'int_getable' && typeof v.lhs === 'string',
-				finalizeValues: (v, f, node) => {
-					const temp = quickTemporary();
-					const steps = [
-						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
-						changeVarByVar(v.identifier, temp, v.operator),
-					];
-					return newSequence(f, node, steps, 'set op-equals with int getable');
-				},
-			},
-			{
-				isMatch: (v) =>
-					v.rhs.mathlang === 'int_getable' && v.lhs.mathlang === 'int_getable',
-				finalizeValues: (v, f, node) => {
+				}
+				// e.g. player x = self y;
+				if (v.rhs.mathlang === 'int_getable') {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
@@ -1070,32 +899,25 @@ const actionData = {
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int getable');
-				},
-			},
-			{
-				isMatch: () => true,
-				finalizeValues: () => {
-					console.log('WHAT WAS THIS AGAIN');
-				},
-			},
-		],
+				}
+				f.newError({
+					locations: [{ node: v.debug }],
+					message: `syntax error setting int property value`,
+				});
+			}
+		},
 	},
 	action_plus_minus_equals_ables: {
 		values: {},
 		captures: ['entity', 'operator', 'value'],
-		detective: [
-			{
-				isMatch: () => true,
-				finalizeValues: (v) => {
-					const sign = v.operator === '-=' ? -1 : 1;
-					return {
-						action: 'SET_ENTITY_DIRECTION_RELATIVE',
-						entity: v.entity,
-						relative_direction: sign * v.value,
-					};
-				},
-			},
-		],
+		handle: (v) => {
+			const sign = v.operator === '-=' ? -1 : 1;
+			return {
+				action: 'SET_ENTITY_DIRECTION_RELATIVE',
+				entity: v.entity,
+				relative_direction: sign * v.value,
+			};
+		},
 	},
 };
 
