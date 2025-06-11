@@ -14,10 +14,12 @@ const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
 // if not empty, also won't do any file-level tests
 const onlyDoTheseActionTests = [
 	// 'mainframe_watchbox', 'if_single', 'bool_exp_branch_debug_mode'
-	'branch_on_string_equality_direction',
 ];
 
-const skipTheseTests = new Set(['set_int_exp_ok']);
+const skipTheseTests = new Set([
+	// currently to skip tests that generate warnings
+	'set_int_exp_ok',
+]);
 
 // --------------------------- ACTION TESTS ---------------------------
 const actionTests = {
@@ -1219,14 +1221,14 @@ const actionTests = {
 		],
 		expected: [
 			'"__TEMP_0" ?= 2;',
-			'if "__TEMP_0" == 0 then goto label if_RNG_*A*;',
-			'if "__TEMP_0" == 1 then goto label if_RNG_*B*;',
-			'if_RNG_*B*:',
+			'if "__TEMP_0" == 0 then goto label if_*A*;',
+			'if "__TEMP_0" == 1 then goto label if_*B*;',
+			'if_*B*:',
 			'wait 2ms;',
 			'close dialog',
 			'self y = intName;',
 			'goto label rendezvous_*C*;',
-			'if_RNG_*A*:',
+			'if_*A*:',
 			'wait 1ms;',
 			'close dialog',
 			'player x = 10;',
@@ -1720,7 +1722,7 @@ Is there a better way?
 
 const doActionTest = (scriptName, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
-	const found = actionFound[scriptName].print;
+	const found = actionFound[scriptName].testPrint;
 	const compared = compareTexts(found, expected, '', scriptName);
 	if (compared.status !== 'success') {
 		return compared;

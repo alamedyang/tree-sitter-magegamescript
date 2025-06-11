@@ -55,13 +55,8 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				} else if (node.mathlang === 'copy_script') {
 					finalizedActions.push(node);
 					// done as a separate layer
-				} else if (node.mathlang.includes('label')) {
-					finalizedActions.push(node);
-				} else if (node.mathlang === 'comment') {
-					finalizedActions.push(node);
 				} else {
-					console.error(node);
-					throw new Error("HANDLE THIS 'MATHLANG' ACTION NODE PLEASE! " + node.mathlang);
+					finalizedActions.push(node);
 				}
 			});
 			data.actions = flattenGotos(finalizedActions.flat());

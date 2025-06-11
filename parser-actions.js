@@ -119,8 +119,8 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 		typeof lhs === 'string' ? setFlag(lhs, true) : { ...lhs, [lhsParam]: true };
 	const setLhsIfFalse =
 		typeof lhs === 'string' ? setFlag(lhs, false) : { ...lhs, [lhsParam]: false };
-	const ifLabel = `set if true #${f.p.advanceGotoSuffix()}`;
-	const rendezvousLabel = `set rendezvous #${f.p.advanceGotoSuffix()}`;
+	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
+	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps = [
 		...expandCondition(f, rhsRaw.debug, rhsRaw, ifLabel),
 		setLhsIfFalse,
@@ -229,6 +229,13 @@ export const handleAction = (f, node) => {
 	const spreads = spreadValues(f, action, fieldsToSpread);
 	// Different param combinations will result in different actions,
 	// so let the detective sort them out after the spreads are spread
+	// const handleFn = data.handle;
+	// if (handleFn) {
+	// 	const handled = spreads.map((action, i) => {
+	// 		handleFn(action, f, node, i);
+	// 	});
+	// 	return handled;
+	// }
 	if (data.detective) {
 		spreads.forEach((action, actionIndex) => {
 			// Try the action detective
@@ -930,6 +937,20 @@ const actionData = {
 	action_set_entity_string: {
 		values: {},
 		captures: ['entity', 'field', 'value'],
+		handle: (v) => {
+			const ret = { entity: v.entity };
+			if (v.field === 'name') {
+				ret.action = 'SET_ENTITY_NAME';
+				ret.string = v.value;
+			} else if (v.field === 'type') {
+				ret.action = 'SET_ENTITY_TYPE';
+				ret.entity_type = v.value;
+			} else if (v.field === 'path') {
+				ret.action = 'SET_ENTITY_PATH';
+				ret.geometry = v.value;
+			}
+			return ret;
+		},
 		detective: [
 			{
 				isMatch: (v) => v.field === 'name',

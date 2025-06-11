@@ -198,9 +198,9 @@ const nodeFns = {
 			},
 		];
 		let bottomSteps = [];
-		const rendezvousL = `rand rendezvous #${f.p.getGotoSuffix()}`;
+		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
 		vertical.forEach((body, i) => {
-			const ifL = `rand if RNG #${f.p.advanceGotoSuffix()}`;
+			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
 			const condition = {
 				mathlang: 'bool_comparison',

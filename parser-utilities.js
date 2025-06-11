@@ -136,8 +136,8 @@ export const expandCondition = (f, node, condition, ifLabel) => {
 		// if first one is false goto a rendezvous at the end of the insert
 		// if the second one is false, ditto
 		const suffix = f.p.advanceGotoSuffix();
-		const innerIfTrueLabel = `inner if true #${suffix}`;
-		const innerRendezvousLabel = `inner rendezvous #${suffix}`;
+		const innerIfTrueLabel = `if true #${suffix}`;
+		const innerRendezvousLabel = `rendezvous #${suffix}`;
 		const inner = [
 			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
 			gotoLabel(f, node, innerRendezvousLabel),
@@ -181,8 +181,8 @@ export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) =>
 	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
 	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.advanceGotoSuffix();
-	const ifLabel = `simple if #${gotoLabel}`;
-	const rendezvousLabel = `simple rendezvous #${gotoLabel}`;
+	const ifLabel = `if #${gotoLabel}`;
+	const rendezvousLabel = `rendezvous #${gotoLabel}`;
 	const branchAction = {
 		..._branchAction,
 		label: ifLabel,
