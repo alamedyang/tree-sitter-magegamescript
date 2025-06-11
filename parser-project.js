@@ -54,7 +54,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					p.addSerialDialog(node, fileName);
 				} else if (node.mathlang === 'copy_script') {
 					finalizedActions.push(node);
-					// TODO: do this as a separate layer
+					// done as a separate layer
 				} else if (node.mathlang.includes('label')) {
 					finalizedActions.push(node);
 				} else if (node.mathlang === 'comment') {

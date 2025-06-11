@@ -1,3 +1,5 @@
+// A basic tour of syntax structures and action phrases.
+
 include "header.mgs";
 add dialog settings {
 	default { alignment BL }

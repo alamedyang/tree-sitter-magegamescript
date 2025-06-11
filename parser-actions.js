@@ -1,4 +1,5 @@
 import { handleCapture, captureForFieldName, grammarTypeForFieldName } from './parser-capture.js';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 import {
 	autoIdentifierName,
 	expandCondition,
@@ -16,7 +17,6 @@ import {
 	latestTemporary,
 	newComment,
 } from './parser-utilities.js';
-import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 
 // Cyclic dependency bodge
 let handleNode;

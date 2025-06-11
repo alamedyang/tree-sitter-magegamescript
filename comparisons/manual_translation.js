@@ -1,5 +1,20 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
+/*
+
+This file changes old-style .mgs files (natlang) into new-style .mgs files (mathlang).
+Output is not entirely perfect, but it's a good first pass.
+
+While you could take the JSON output of the original files and "print" them using the
+new mathlang syntax, you lose all comments, the original nested ifs, and all other
+grammar subtleties. This file will translate natlang while leaving those structures
+intact, at the risk of syntax edge cases not making it through correctly (particularly
+when semicolons were skipped and/or when a line has a comment at the end).
+
+Very likely this file isn't needed at all anymore.
+
+*/
+
 const currentFileName = `ch1/ch1-goats`;
 
 const readFrom = `mgs/${currentFileName}-v1.mgs`;

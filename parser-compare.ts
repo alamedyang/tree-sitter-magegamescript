@@ -1,9 +1,15 @@
-// Compares old JSON output with new JSON output after being translated to mathlang via regex
+// Compares old JSON output with new JSON output after being translated to mathlang via regex.
+// Capable of following branches of if-else structures even when their output's line ordering is different.
 
 import { writeFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';
 
+// The original JSON output as intercepted manually from the original encoder.
+// Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
+
+// The original JSON output at an earlier stage, also intercepted manually from the original encoder.
+// Has scripts the other lacks.
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
 import { makeMap, parseProject } from './parser.js';
@@ -11,14 +17,6 @@ import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import * as TYPES from './parser-bytecode-info.ts';
 
-// Ignoring comments, labels, and other inline jumps, get a count of each action line for a script
-const count = (lines: string[]) => {
-	const counts = {};
-	lines.forEach((line) => {
-		counts[line] = (counts[line] || 0) + 1;
-	});
-	return counts;
-};
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
 	text.split('\n').forEach((origLine) => {
@@ -57,36 +55,6 @@ const splitAndStripNonGotoActions = (text: string): string[] => {
 		ret.push(line);
 	});
 	return ret;
-};
-
-// See if the keys and the counts from two count objects are the same.
-const compareCounts = (lhs: Record<string, number>, rhs: Record<string, number>): boolean => {
-	const report: string[] = [];
-	const lhsEntries = Object.entries(lhs);
-	for (let i = 0; i < lhsEntries.length; i++) {
-		const [k, lhsCount] = lhsEntries[i];
-		const rhsCount = rhs[k] === undefined ? 0 : rhs[k];
-		if (lhsCount !== rhsCount) {
-			report.push(`Found ${lhsCount} (vs ${rhsCount}) extra line(s): ${k} `);
-			// return false;
-			continue;
-		}
-	}
-	const rhsEntries = Object.entries(rhs);
-	for (let i = 0; i < rhsEntries.length; i++) {
-		const [k, rhsCount] = rhsEntries[i];
-		const lhsCount = lhs[k] === undefined ? 0 : lhs[k];
-		if (lhsCount !== rhsCount) {
-			report.push(`Found ${lhsCount} (vs ${rhsCount}) extra line(s): ${k} `);
-			// return false;
-			continue;
-		}
-	}
-	if (report.length > 0) {
-		console.log(report.join('\n'));
-		return false;
-	}
-	return true;
 };
 
 const getLabelRegistery = (lines: string[]) => {
@@ -571,7 +539,6 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 		oldActions = oldPre[scriptName];
 		newActions = p.scripts[scriptName].preActions;
 	}
-	// newActions = newActions.filter((v) => v.mathlang !== 'comment');
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
 	if (
@@ -581,7 +548,7 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 		const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
 		const newPrintLines = splitAndStripNonGotoActions(newPrint);
 		if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
-			// Literal exact copies
+			// Literal exact copies.
 			return {
 				type: 'tally',
 				old: oldPrint,
@@ -589,35 +556,19 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 			};
 		}
 	}
-	// const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
-	// // Ignoring control logic, the count of each kind of line is equal
-	// // (No typos; if-else logic not tested at all! Hence trust)
-	// if (countAndTrust) {
-	// 	return {
-	// 		type: 'trust',
-	// 		old: oldPrint,
-	// 		new: newPrint,
-	// 	};
-	// }
-	// const oldAdventureLines = oldPrint
-	// 	.split('\n')
-	// 	.map((v) => v.trim())
-	// 	.slice(1, -1);
-	// const newPostConstantsLines = printScript(scriptName, p.scripts[scriptName].actions);
-	// let newAdventureLines = newPostConstantsLines.split('\n').map((v) => v.trim());
-	// newAdventureLines = newAdventureLines.join('\n').includes('goto index')
-	// 	? newAdventureLines.slice(1, -1).filter((v) => !/^\/\//.test(v))
-	// 	: newAdventureLines.slice(1, -1);
 	const oldAdventure = startAdventure(oldPrint.split('\n').slice(1, -1), oldActions);
 	const newAdventure = startAdventure(newPrint.split('\n').slice(1, -1), newActions);
 	const compared = compareAdventures(oldAdventure, newAdventure);
 	if (compared) {
+		// Exact copies when you follow their if-else branches.
+		// (Line ordering might be different.)
 		return {
 			type: 'functional',
 			old: oldPrint,
 			new: newPrint,
 		};
 	}
+	// They did not match.
 	return {
 		type: 'bad',
 		old: oldPrint,
@@ -626,7 +577,6 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 };
 
 const identical: Record<string, PrintComparison> = {};
-const trusted: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
@@ -634,7 +584,6 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	console.log(p);
 	const scriptNames = Object.keys(p.scripts);
 	let tally = 0;
-	let trustTally = 0;
 	let functionalTally = 0;
 	let badTally = 0;
 	scriptNames.forEach((scriptName) => {
@@ -642,14 +591,6 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		if (result.type === 'tally') {
 			tally += 1;
 			identical[scriptName] = {
-				old: result.old,
-				new: result.new,
-			};
-			return;
-		}
-		if (result.type === 'trust') {
-			trustTally += 1;
-			trusted[scriptName] = {
 				old: result.old,
 				new: result.new,
 			};
