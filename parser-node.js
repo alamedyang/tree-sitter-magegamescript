@@ -13,7 +13,7 @@ import {
 	dropTemporary,
 } from './parser-utilities.js';
 
-import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.js';
+import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
 
 import {
 	handleCapture,

@@ -25,23 +25,18 @@ const printAction = (data: AnyNode) => {
 	}
 	if (!isAction && data.mathlang) {
 		if (data.mathlang === 'dialog_definition') {
-			const sample = data.dialogs[0].messages[0].replaceAll('\n', ' ').slice(0, 40) + '...';
+			const sample = data.dialogs[0].messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto dialog: "${sample}"`;
 		}
 		if (data.mathlang === 'serial_dialog_definition') {
 			const sample =
-				data.serialDialog.serialDialog.messages[0].replaceAll('\n', ' ').slice(0, 40) +
-				'...';
+				data.serialDialog.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto serial_dialog: "${sample}"`;
 		}
 		if (!isAction && data.mathlang === 'return_statement') return '// auto return label';
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error('Fn needed for ' + data.mathlang);
 		const print = fn(data);
-		if (isAction) {
-			const comment = data.comment ? ' // ' + data.comment : '';
-			return print + comment;
-		}
 		return print;
 	}
 	// if (data.error) {

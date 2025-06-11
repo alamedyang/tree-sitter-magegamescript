@@ -1,5 +1,9 @@
-import { ansiTags as ansi } from './parser-dialogs.js';
-import { makeMessagePrintable, flattenGotos, newComment } from './parser-utilities.js';
+import {
+	makeMessagePrintable,
+	flattenGotos,
+	newComment,
+	ansiTags as ansi,
+} from './parser-utilities.js';
 import { makeFileState } from './parser-file.js';
 import { handleNode } from './parser-node.js';
 

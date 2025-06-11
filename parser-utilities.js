@@ -5,6 +5,49 @@ export let verbose = false;
 export const debugLog = (message) => {
 	if (verbose) console.log(message);
 };
+export const ansiTags = {
+	// styles
+	bold: '\u001B[1m', // aka bright
+	dim: '\u001B[2m', // aka dim
+	'/': '\u001B[0m',
+	reset: '\u001B[0m', // reset all styles
+	// fg colors
+	k: '\u001B[30m',
+	black: '\u001B[30m',
+	r: '\u001B[31m',
+	red: '\u001B[31m',
+	g: '\u001B[32m',
+	green: '\u001B[32m',
+	y: '\u001B[33m',
+	yellow: '\u001B[33m',
+	b: '\u001B[34m',
+	blue: '\u001B[34m',
+	m: '\u001B[35m',
+	magenta: '\u001B[35m',
+	c: '\u001B[36m',
+	cyan: '\u001B[36m',
+	w: '\u001B[37m',
+	white: '\u001B[37m',
+	// bg colors
+	'bg-k': '\u001B[40m',
+	'bg-black': '\u001B[40m',
+	'bg-r': '\u001B[41m',
+	'bg-red': '\u001B[41m',
+	'bg-g': '\u001B[42m',
+	'bg-green': '\u001B[42m',
+	'bg-y': '\u001B[43m',
+	'bg-yellow': '\u001B[43m',
+	'bg-b': '\u001B[44m',
+	'bg-blue': '\u001B[44m',
+	'bg-m': '\u001B[45m',
+	'bg-magenta': '\u001B[45m',
+	'bg-c': '\u001B[46m',
+	'bg-cyan': '\u001B[46m',
+	'bg-w': '\u001B[47m',
+	'bg-white': '\u001B[47m',
+	// non-color-related
+	bell: '',
+};
 
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
 

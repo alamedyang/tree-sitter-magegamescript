@@ -1,59 +1,22 @@
-// Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
-export const ansiTags = {
-	// styles
-	bold: '\u001B[1m', // aka bright
-	dim: '\u001B[2m', // aka dim
-	'/': '\u001B[0m',
-	reset: '\u001B[0m', // reset all styles
-	// fg colors
-	k: '\u001B[30m',
-	black: '\u001B[30m',
-	r: '\u001B[31m',
-	red: '\u001B[31m',
-	g: '\u001B[32m',
-	green: '\u001B[32m',
-	y: '\u001B[33m',
-	yellow: '\u001B[33m',
-	b: '\u001B[34m',
-	blue: '\u001B[34m',
-	m: '\u001B[35m',
-	magenta: '\u001B[35m',
-	c: '\u001B[36m',
-	cyan: '\u001B[36m',
-	w: '\u001B[37m',
-	white: '\u001B[37m',
-	// bg colors
-	'bg-k': '\u001B[40m',
-	'bg-black': '\u001B[40m',
-	'bg-r': '\u001B[41m',
-	'bg-red': '\u001B[41m',
-	'bg-g': '\u001B[42m',
-	'bg-green': '\u001B[42m',
-	'bg-y': '\u001B[43m',
-	'bg-yellow': '\u001B[43m',
-	'bg-b': '\u001B[44m',
-	'bg-blue': '\u001B[44m',
-	'bg-m': '\u001B[45m',
-	'bg-magenta': '\u001B[45m',
-	'bg-c': '\u001B[46m',
-	'bg-cyan': '\u001B[46m',
-	'bg-w': '\u001B[47m',
-	'bg-white': '\u001B[47m',
-	// non-color-related
-	bell: '',
-};
+import { Node as TreeSitterNode } from 'web-tree-sitter';
+import * as TYPES from './parser-types.ts';
+import * as UTILS from './parser-utilities.js';
+const ansi = UTILS.ansiTags;
 
-const tagsToAnsiEscapes = (str) => {
+// Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
+
+const tagsToAnsiEscapes = (str: string) => {
 	let ret = str;
-	Object.entries(ansiTags).forEach(([k, v]) => {
+	Object.entries(ansi).forEach(([k, v]) => {
 		// TODO: what if you want to actually print <r>?
 		// Do this again but ignoring escaped chars
-		ret = ret.replaceAll(`<${k}>`, v);
+		const reg = new RegExp(`<${k}>`, 'g');
+		ret = ret.replace(reg, v);
 	});
 	return ret;
 };
 
-const countCharLength = (str) => {
+const countCharLength = (str: string) => {
 	let length = 0;
 	let remainder = str;
 	while (remainder.length) {
@@ -88,9 +51,9 @@ const countCharLength = (str) => {
 	return length;
 };
 
-const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
+const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = false) => {
 	// todo: hyphenated words?
-	let str = origStr
+	const str = origStr
 		.replace(/\\n/g, '\n')
 		.replace(/\\t/g, '\t')
 		.replace(/[“”]/g, '"')
@@ -99,14 +62,17 @@ const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
 		.replace(/\t/g, '    ')
 		.replace(/—/g, '--') // emdash
 		.replace(/–/g, '-'); // endash
-	const result = [];
+	const result: string[] = [];
 	str.split('\n').forEach((line) => {
 		const chunkRegExp = new RegExp(/(?<spaces>[ ]*|^)(?<word>[^ ]+|$)/g);
 		let insert = '';
 		let insertLength = 0;
 		let chunk = chunkRegExp.exec(line);
-		while (chunk[0] !== '') {
-			const { spaces, word } = chunk.groups;
+		while (chunk?.[0] !== '') {
+			if (!chunk) break;
+			const spaces = chunk.groups?.spaces;
+			const word = chunk.groups?.word;
+			if (spaces === undefined || word === undefined) throw new Error('TS FR');
 			const spacesLength = spaces.length;
 			const wordLength = countCharLength(word);
 			const potentialLength = insertLength + wordLength + spacesLength;
@@ -127,10 +93,10 @@ const wrapText = (origStr, wrap, doAnsiWrapBodge) => {
 };
 
 // This is for the web build, which does not carry over ansi styles when things are wrapped
-const ansiWrapBodge = (arr) => {
+const ansiWrapBodge = (arr: string[]) => {
 	let wrappedTags = new Set();
 	const bodged = arr.map((line) => {
-		let prevTags = wrappedTags.size ? [...wrappedTags].join('') : '';
+		const prevTags = wrappedTags.size ? [...wrappedTags].join('') : '';
 		let pos = 0;
 		while (pos < line.length) {
 			if (line[pos] !== '\u001B') {
@@ -152,24 +118,29 @@ const ansiWrapBodge = (arr) => {
 	return bodged;
 };
 
-export const buildSerialDialogFromInfo = (f, info) => {
-	const serialDialog = {
+export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.SerialDialogInfo) => {
+	const serialDialogSettings: TYPES.SerialDialogSettings = {
 		wrap: 80,
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
+	const serialDialog: TYPES.SerialDialog = {
+		mathlang: 'serial_dialog',
+		info,
+		messages: [],
+	};
 	serialDialog.messages = info.messages
 		.map(tagsToAnsiEscapes)
-		.map((message) => wrapText(message, serialDialog.wrap, true));
+		.map((message: string) => wrapText(message, serialDialogSettings.wrap as number, true));
 	if (info.options.length > 0) {
 		const firstOptionType = info.options[0].optionType;
 		serialDialog[firstOptionType] = info.options;
-		const warnNodes = [];
+		const warnNodes: TYPES.MGSLocation[] = [];
 		info.options.forEach((option) => {
 			if (option.optionType !== firstOptionType) {
-				warnNodes.push({
-					node: option.debug.firstChild,
-				});
+				const node = option.debug.firstChild;
+				if (!node) throw new Error('TS');
+				warnNodes.push({ node });
 			}
 		});
 		if (warnNodes.length > 0) {
@@ -182,28 +153,43 @@ export const buildSerialDialogFromInfo = (f, info) => {
 	return serialDialog;
 };
 
-export const buildDialogFromInfo = (f, info, messageNodes) => {
+export const buildDialogFromInfo = (
+	f: TYPES.FileState,
+	info: TYPES.DialogInfo,
+	messageNodes: TreeSitterNode[],
+) => {
 	const ident = info.identifier;
-	let specificSettings = {};
 	let found = false;
+	let specificSettings: TYPES.DialogSettings = {};
 	if (ident.type === 'label') {
 		specificSettings = f.settings.label[ident.value] || {};
+		specificSettings.entity = ident.value;
+		found = true;
 	}
 	if (!found || ident.type === 'entity') {
 		specificSettings = f.settings.entity[ident.value] || {};
-		if (!specificSettings.entity) {
-			specificSettings.entity = ident.value;
-		}
+		specificSettings.entity = ident.value;
 	}
-	const dialog = {
+	const dialogSettings = {
 		wrap: 42,
 		alignment: 'BOTTOM_LEFT',
 		...f.settings.default, // global default settings
 		...specificSettings, // global specific settings
 		...info.settings, // local specific settings
 	};
+	const dialog: TYPES.Dialog = {
+		...dialogSettings,
+		mathlang: 'dialog',
+		messages: [],
+		info,
+	};
+	if (dialogSettings.name) {
+		dialog.name = dialogSettings.name;
+	}
 	// this needs to be outside to get the actual wrap value btw:
-	dialog.messages = info.messages.map((message) => wrapText(message, dialog.wrap));
+	dialog.messages = info.messages.map((message: string) =>
+		wrapText(message, dialogSettings.wrap),
+	);
 	if (info.options.length > 0) {
 		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
 		dialog.options = info.options;
@@ -211,7 +197,7 @@ export const buildDialogFromInfo = (f, info, messageNodes) => {
 	const lastIndex = dialog.messages.length - 1;
 	dialog.messages.forEach((message, i) => {
 		const targetSize = lastIndex === i && dialog.options ? 1 : 5;
-		const splitMessage = message.split('\n');
+		const splitMessage: string[] = message.split('\n');
 		if (splitMessage.length > targetSize) {
 			let warningMessage = `dialog messages longer than 5 lines will wrap off the bottom`;
 			if (lastIndex === i && dialog.options) {
@@ -224,13 +210,13 @@ export const buildDialogFromInfo = (f, info, messageNodes) => {
 					`When wrapped:\n` +
 					splitMessage
 						.map((v, i, arr) => {
-							let row = i + 1;
+							let row: number | string = i + 1;
 							if (arr.length > 9) {
 								row = row < 10 ? '0' + row : row;
 							}
 							let ret = `${row}> ${v}`;
 							if (i >= targetSize) {
-								ret = ansiTags.r + `(x) ` + ret + ansiTags.reset;
+								ret = ansi.r + `(x) ` + ret + ansi.reset;
 							} else {
 								ret = `    ` + ret;
 							}

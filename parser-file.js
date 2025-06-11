@@ -1,4 +1,4 @@
-import { ansiTags as ansi } from './parser-dialogs.js';
+import { ansiTags as ansi } from './parser-utilities.js';
 
 export const makeFileState = (p, fileName) => {
 	// file crawl state

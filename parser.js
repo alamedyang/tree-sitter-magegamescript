@@ -8,10 +8,9 @@ import { dirname } from 'path';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
-import { debugLog } from './parser-utilities.js';
+import { debugLog, ansiTags } from './parser-utilities.js';
 import { printScript } from './parser-to-json.ts';
 import { makeProjectState } from './parser-project.js';
-import { ansiTags } from './parser-dialogs.js';
 import { standardizeAction } from './parser-bytecode-info.ts';
 
 // /*

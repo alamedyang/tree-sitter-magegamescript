@@ -27,12 +27,62 @@ export type MathlangDialogDefinition = {
 	dialogs: Dialog[];
 	debug: TYPES.MGSDebug;
 };
-export type Dialog = {
+export type Dialog = DialogSettings & {
 	mathlang: 'dialog';
-	info: DialogInfo;
-	debug: TYPES.MGSDebug;
-	wrap: number;
-	// TODO
+	info: DialogInfo; // for debugging
+	messages: string[];
+	response_type?: 'SELECT_FROM_SHORT_LIST';
+	options?: DialogOption[];
+};
+export type DialogInfo = {
+	identifier: DialogIdentifier;
+	settings: DialogSettings;
+	messages: string[];
+	options: DialogOption[];
+};
+export type DialogSettings = {
+	wrap?: number;
+	emote?: number;
+	entity?: string;
+	name?: string;
+	portrait?: string;
+	alignment?: string;
+	border_tileset?: string;
+};
+export type DialogIdentifier = {
+	mathlang: 'dialog_identifier';
+	type: 'label' | 'entity' | 'name';
+	value: string;
+};
+export type DialogOption = {
+	mathlang: 'dialog_option';
+	label: 'string';
+	script: 'string';
+	debug: TreeSitterNode;
+	fileName: string;
+};
+export type SerialDialog = {
+	// TODO fix all of these
+	mathlang: 'serial_dialog';
+	info: SerialDialogInfo; // for debugging
+	messages: string[];
+	options?: SerialDialogOption[];
+};
+export type SerialDialogInfo = {
+	settings: SerialDialogSettings;
+	messages: string[];
+	options: SerialDialogOption[];
+};
+export type SerialDialogSettings = {
+	wrap?: number;
+};
+export type SerialDialogOption = {
+	mathlang: 'serial_dialog_option';
+	optionType: 'text_options' | 'options';
+	label: 'string';
+	script: 'string';
+	debug: TreeSitterNode;
+	fileName: string;
 };
 export type MathlangSerialDialogDefinition = {
 	mathlang: 'serial_dialog_definition';
@@ -135,12 +185,12 @@ export type FileState = {
 	fileName: File;
 	constants: Record<string, Constant>;
 	settings: {
-		default: Record<string, any>;
-		entity: Record<string, any>;
-		label: Record<string, any>;
-		serial: Record<string, any>;
+		default: DialogSettings;
+		entity: DialogSettings;
+		label: DialogSettings;
+		serial: SerialDialogSettings;
 	};
-	nodes: Record<string, any>[];
+	nodes: Record<string, MathlangNode | TYPES.Action>[];
 	errorCount: number;
 	warningCount: number;
 	newError: (message: MGSMessage) => void;
@@ -159,25 +209,60 @@ export type MGSMessage = {
 	message: string;
 	footer?: string;
 };
+export type Script = {
+	actions: TYPES.Action[];
+	preActions: TYPES.Action[];
+	duplicates?: Script[];
+};
 
+type MathlangOrActionNode = TYPES.Action | MathlangNode;
+type FileMapEntry = {
+	arrayBuffer: Promise<unknown>;
+	fileText: () => string;
+	name: string;
+	text: Promise<unknown>;
+	type: string;
+};
+type addScriptArgs = {
+	mathlang: 'script_definition';
+	scriptName: string;
+	rawNodes: MathlangOrActionNode[];
+	actions: MathlangOrActionNode[];
+	debug: TreeSitterNode;
+	fileName: string;
+};
+type addDialogArgs = {
+	mathlang: 'dialog_definition';
+	debug: TreeSitterNode;
+	dialogName: string;
+	dialogs: Dialog[];
+	fileName: string;
+};
+type addSerialDialogArgs = {
+	mathlang: 'serial_dialog_definition';
+	debug: TreeSitterNode;
+	serialDialogName: string;
+	serialDialogs: SerialDialog;
+	fileName: string;
+};
 export type ProjectState = {
 	parser: Parser;
-	fileMap: Record<string, any>;
+	fileMap: Record<string, FileMapEntry>;
 	gotoSuffixValue: number;
-	scripts: Record<string, any>;
-	dialogs: Record<string, any>;
-	serialDialogs: Record<string, any>;
-	errors: Record<string, any>;
-	warnings: Record<string, any>;
+	scripts: Record<string, Script>;
+	dialogs: Record<string, Dialog>;
+	serialDialogs: Record<string, SerialDialog>;
+	errors: MGSMessage[];
+	warnings: MGSMessage[];
 	errorCount: number;
 	warningCount: number;
 	advanceGotoSuffix: () => number;
 	getGotoSuffix: () => number;
 	newError: (error: MGSMessage) => void;
 	newWarning: (warning: MGSMessage) => void;
-	addScript: (args: any, fileName: number) => void;
-	addDialog: (args: any) => void;
-	addSerialDialog: (args: any) => void;
+	addScript: (args: addScriptArgs, fileName: number) => void;
+	addDialog: (args: addDialogArgs) => void;
+	addSerialDialog: (args: addSerialDialogArgs) => void;
 	detectDuplicates: () => void;
 	copyScriptOne: (fileName: string) => void;
 	copyScriptAll: () => void;

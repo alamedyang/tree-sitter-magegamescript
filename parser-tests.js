@@ -1,5 +1,5 @@
 import { parseProject } from './parser.js';
-import { ansiTags } from './parser-dialogs.js';
+import { ansiTags } from './parser-utilities.js';
 
 const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
 	const ret = [`"${scriptName}" {`, ...actionArray.map((v) => '\t' + v)];
