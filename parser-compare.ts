@@ -323,9 +323,10 @@ const compareAdventures = (
 			if (lhTryPos === lhEntry.from && rhTryPos === rhEntry.from) {
 				// They're both looping? That's a match.
 				console.log('INFINITE LOOP!');
-				cachedLhIndices[lhEntry.from] = true;
-				cachedRhIndices[rhEntry.from] = true;
-				return true;
+				const loopResult = false;
+				cachedLhIndices[lhEntry.from] = loopResult;
+				cachedRhIndices[rhEntry.from] = loopResult;
+				return loopResult;
 			}
 			// We have caches for these particular matches? Hand that back.
 			if (
@@ -570,19 +571,23 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 		oldActions = oldPre[scriptName];
 		newActions = p.scripts[scriptName].preActions;
 	}
-	newActions = newActions.filter((v) => v.mathlang !== 'comment');
+	// newActions = newActions.filter((v) => v.mathlang !== 'comment');
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
-	const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
-	const newPrintLines = splitAndStripNonGotoActions(newPrint);
-
-	if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
-		// Literal exact copies
-		return {
-			type: 'tally',
-			old: oldPrint,
-			new: newPrint,
-		};
+	if (
+		(!oldPrint.includes('goto label') || !oldPrint.includes('goto index')) &&
+		(!newPrint.includes('goto label') || !newPrint.includes('goto index'))
+	) {
+		const oldPrintLines = splitAndStripNonGotoActions(oldPrint);
+		const newPrintLines = splitAndStripNonGotoActions(newPrint);
+		if (oldPrintLines.join('\n') === newPrintLines.join('\n')) {
+			// Literal exact copies
+			return {
+				type: 'tally',
+				old: oldPrint,
+				new: newPrint,
+			};
+		}
 	}
 	// const countAndTrust = compareCounts(count(oldPrintLines), count(newPrintLines));
 	// // Ignoring control logic, the count of each kind of line is equal
