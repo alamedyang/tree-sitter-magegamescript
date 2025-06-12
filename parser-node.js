@@ -20,7 +20,7 @@ import {
 	captureForFieldName,
 	textForFieldName,
 	capturesForFieldName,
-} from './parser-capture.js';
+} from './parser-capture.ts';
 import { handleAction, handleActionsInit } from './parser-actions.js';
 
 export const handleNode = (f, node) => {
@@ -109,8 +109,10 @@ const nodeFns = {
 				mathlang: 'script_definition',
 				scriptName: name,
 				actions,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -126,16 +128,20 @@ const nodeFns = {
 		}
 		f.constants[label] = {
 			value,
-			debug: node,
-			fileName: f.fileName,
+			debug: {
+				node,
+				fileName: f.fileName,
+			},
 		};
 		return [
 			{
 				mathlang: 'constant_assignment',
 				label,
 				value,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -157,8 +163,10 @@ const nodeFns = {
 			{
 				mathlang: 'include_macro',
 				value: fileName,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -210,8 +218,10 @@ const nodeFns = {
 				comparison: '==',
 				expected_bool: true,
 				label: ifL,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			};
 			steps.push(condition);
 			// add bottom half
@@ -232,8 +242,10 @@ const nodeFns = {
 			{
 				mathlang: 'add_dialog_settings',
 				targets,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -243,8 +255,10 @@ const nodeFns = {
 		const ret = {
 			mathlang: 'add_dialog_settings_target',
 			type,
-			debug: node,
-			fileName: f.fileName,
+			debug: {
+				node,
+				fileName: f.fileName,
+			},
 		};
 		// figure out which settings we're adding to (the "target")
 		if (type === 'default') {
@@ -281,8 +295,10 @@ const nodeFns = {
 			{
 				mathlang: 'add_serial_dialog_settings',
 				parameters,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -298,8 +314,10 @@ const nodeFns = {
 				optionType,
 				label: captureForFieldName(f, node, 'label'),
 				script: captureForFieldName(f, node, 'script'),
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -309,8 +327,10 @@ const nodeFns = {
 				mathlang: 'dialog_option',
 				label: captureForFieldName(f, node, 'label'),
 				script: captureForFieldName(f, node, 'script'),
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -329,8 +349,10 @@ const nodeFns = {
 				mathlang: 'dialog_definition',
 				dialogName,
 				dialogs,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -355,8 +377,10 @@ const nodeFns = {
 			{
 				mathlang: 'serial_dialog',
 				serialDialog,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -382,8 +406,10 @@ const nodeFns = {
 			{
 				mathlang: 'dialog',
 				info,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 				...dialogs,
 			},
 		];
@@ -405,8 +431,10 @@ const nodeFns = {
 			{
 				mathlang: 'json_literal',
 				json: parsed,
-				debug: node,
-				fileName: f.fileName,
+				debug: {
+					node,
+					fileName: f.fileName,
+				},
 			},
 		];
 	},
@@ -414,8 +442,10 @@ const nodeFns = {
 		{
 			mathlang: 'copy_script',
 			script: captureForFieldName(f, node, 'script'),
-			debug: node,
-			fileName: f.fileName,
+			debug: {
+				node,
+				fileName: f.fileName,
+			},
 		},
 	],
 	debug_macro: (f, node) => {

@@ -1267,7 +1267,10 @@ const fileMap =
 					expected: {
 						scripts: {},
 						constants: {
-							$magicNumber: { fileName: 'header.mgs', value: 76 },
+							$magicNumber: {
+								debug: { fileName: 'header.mgs' },
+								value: 76,
+							},
 						},
 					},
 				},
@@ -1289,10 +1292,16 @@ const fileMap =
 							}`,
 						},
 						constants: {
-							$magicNumber: { fileName: 'header.mgs', value: 76 },
-							$trombones: { fileName: 'constants_include.mgs', value: 76 },
+							$magicNumber: {
+								debug: { fileName: 'header.mgs' },
+								value: 76,
+							},
+							$trombones: {
+								debug: { fileName: 'constants_include.mgs' },
+								value: 76,
+							},
 							$hamburgers: {
-								fileName: 'constants_include.mgs',
+								debug: { fileName: 'constants_include.mgs' },
 								value: 'steamed hams',
 							},
 						},

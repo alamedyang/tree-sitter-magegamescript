@@ -125,8 +125,12 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "NUMBER"
+            "type": "FIELD",
+            "name": "NUMBER",
+            "content": {
+              "type": "SYMBOL",
+              "name": "NUMBER"
+            }
           },
           {
             "type": "CHOICE",
@@ -161,8 +165,12 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "NUMBER"
+            "type": "FIELD",
+            "name": "NUMBER",
+            "content": {
+              "type": "SYMBOL",
+              "name": "NUMBER"
+            }
           },
           {
             "type": "CHOICE",
@@ -224,8 +232,12 @@
             "type": "SEQ",
             "members": [
               {
-                "type": "SYMBOL",
-                "name": "NUMBER"
+                "type": "FIELD",
+                "name": "NUMBER",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "NUMBER"
+                }
               },
               {
                 "type": "CHOICE",

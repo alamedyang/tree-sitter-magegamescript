@@ -112,7 +112,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 							message: `multiple ${category} with name "${name}"`,
 							locations: entry.duplicates.map((dupe) => ({
 								fileName: dupe.fileName,
-								node: dupe.debug.firstNamedChild,
+								node: dupe.debug.node.firstNamedChild,
 							})),
 						});
 					}
@@ -132,7 +132,9 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 						locations: [
 							{
 								fileName: action.fileName,
-								node: action.debug.childForFieldName('script') || action.debug,
+								node:
+									action.debug.node.childForFieldName('script') ||
+									action.debug.node,
 							},
 						],
 						message: 'no script found by this name',

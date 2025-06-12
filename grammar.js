@@ -64,14 +64,22 @@ export default grammar({
 		STRING: ($) => choice($.QUOTED_STRING, $.BAREWORD),
 		NUMBER: () => token(/-?[0-9]+/),
 		duration_suffix: () => token.immediate(/m?s/),
-		DURATION: ($) => prec.right(seq($.NUMBER, optional(field('suffix', $.duration_suffix)))),
+		DURATION: ($) =>
+			prec.right(
+				seq(field('NUMBER', $.NUMBER), optional(field('suffix', $.duration_suffix))),
+			),
 		distance_suffix: () => token.immediate(/pix|px/),
-		DISTANCE: ($) => prec.right(seq($.NUMBER, optional(field('suffix', $.distance_suffix)))),
+		DISTANCE: ($) =>
+			prec.right(
+				seq(field('NUMBER', $.NUMBER), optional(field('suffix', $.distance_suffix))),
+			),
 		quantity_suffix: () => token.immediate(/x/),
 		QUANTITY: ($) =>
 			choice(
 				token(prec(1, choice('once', 'twice', 'thrice'))),
-				prec.right(seq($.NUMBER, optional(field('suffix', $.quantity_suffix)))),
+				prec.right(
+					seq(field('NUMBER', $.NUMBER), optional(field('suffix', $.quantity_suffix))),
+				),
 			),
 		COLOR: () =>
 			token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}/)),

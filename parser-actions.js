@@ -1,4 +1,4 @@
-import { handleCapture, captureForFieldName, grammarTypeForFieldName } from './parser-capture.js';
+import { handleCapture, captureForFieldName, grammarTypeForFieldName } from './parser-capture.ts';
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 import {
 	autoIdentifierName,
@@ -108,7 +108,7 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 		};
 		return simpleBranchMaker(
 			f,
-			rhsRaw.debug || backupNode,
+			rhsRaw.debug?.node || backupNode,
 			baseAction,
 			{ ...lhs, [lhsParam]: true },
 			{ ...lhs, [lhsParam]: false },
@@ -122,14 +122,14 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps = [
-		...expandCondition(f, rhsRaw.debug, rhsRaw, ifLabel),
+		...expandCondition(f, rhsRaw.debug.node, rhsRaw, ifLabel),
 		setLhsIfFalse,
-		gotoLabel(f, rhsRaw.debug, rendezvousLabel),
-		label(f, rhsRaw.debug, ifLabel),
+		gotoLabel(f, rhsRaw.debug.node, rendezvousLabel),
+		label(f, rhsRaw.debug.node, ifLabel),
 		setLhsIfTrue,
-		label(f, rhsRaw.debug, rendezvousLabel),
+		label(f, rhsRaw.debug.node, rendezvousLabel),
 	];
-	return newSequence(f, rhsRaw.debug, steps, 'set bool on');
+	return newSequence(f, rhsRaw.debug.node, steps, 'set bool on');
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
@@ -198,8 +198,10 @@ export const handleAction = (f, node) => {
 		return customFn(f, node);
 	}
 	let action = {
-		debug: node,
-		fileName: f.fileName,
+		debug: {
+			node,
+			fileName: f.fileName,
+		},
 		...data.values,
 	};
 	// Action params
@@ -529,7 +531,7 @@ const actionData = {
 					ret.relative_direction = v.rhs;
 				} else {
 					f.newError({
-						locations: [{ node: v.debug }],
+						locations: [{ node: v.debug.node }],
 						message: `syntax error setting int to number`,
 					});
 				}
@@ -640,7 +642,7 @@ const actionData = {
 				}
 			}
 			f.newError({
-				locations: [{ node: v.debug }],
+				locations: [{ node: v.debug.node }],
 				message: `incompatible movable identifier and position identifier`,
 			});
 		},
@@ -651,7 +653,7 @@ const actionData = {
 		optionalCaptures: ['forever'],
 		handle: (v, f) => {
 			const ret = { duration: v.duration };
-			let error = { locations: [{ node: v.debug }] };
+			let error = { locations: [{ node: v.debug.node }] };
 			if (v.movable.type === 'camera') {
 				// Moving the camera
 				if (v.coordinate.type === 'entity') {
@@ -751,7 +753,7 @@ const actionData = {
 				}
 				f.newError({
 					message: `invalid map script slot`,
-					locations: [{ node: v.debug.childForFieldName('script_slot') }],
+					locations: [{ node: v.debug.node.childForFieldName('script_slot') }],
 					footer: `You can only set a map's 'on_tick' slot`,
 				});
 				return;
@@ -781,7 +783,7 @@ const actionData = {
 			}
 			f.newError({
 				message: `invalid entity script slot`,
-				locations: [{ node: v.debug.childForFieldName('script_slot') }],
+				locations: [{ node: v.debug.node.childForFieldName('script_slot') }],
 				footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
 			});
 		},
@@ -802,7 +804,7 @@ const actionData = {
 				ret.geometry = v.value;
 			} else {
 				f.newError({
-					locations: [{ node: v.debug }],
+					locations: [{ node: v.debug.node }],
 					message: `syntax error setting entity property to string`,
 				});
 			}
@@ -841,7 +843,7 @@ const actionData = {
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				}
 				f.newError({
-					locations: [{ node: v.debug }],
+					locations: [{ node: v.debug.node }],
 					message: `syntax error setting integer variable value`,
 				});
 			}
@@ -859,7 +861,7 @@ const actionData = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, v.debug, steps, 'set op-equals with number');
+					return newSequence(f, v.debug.node, steps, 'set op-equals with number');
 				}
 				// e.g. player x = varName;
 				if (typeof v.rhs === 'string') {
@@ -870,7 +872,12 @@ const actionData = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, v.debug, steps, 'set op-equals with string (identifier)');
+					return newSequence(
+						f,
+						v.debug.node,
+						steps,
+						'set op-equals with string (identifier)',
+					);
 				}
 				// e.g. player x = (varName * 7);
 				if (v.rhs.mathlang === 'int_binary_expression') {
@@ -901,7 +908,7 @@ const actionData = {
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				}
 				f.newError({
-					locations: [{ node: v.debug }],
+					locations: [{ node: v.debug.node }],
 					message: `syntax error setting int property value`,
 				});
 			}
