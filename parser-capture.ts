@@ -116,7 +116,7 @@ const captureFns = {
 	entity_identifier: (f: TYPES.FileState, node: TreeSitterNode) => extractEntityName(f, node), // -> string
 	movable_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
 		// -> {}
-		const ret = {
+		const ret: TYPES.MovableIdentifier = {
 			mathlang: 'movable_identifier',
 			type: '',
 			value: '',
@@ -164,7 +164,12 @@ const captureFns = {
 	},
 	coordinate_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
 		const type = textForFieldName(f, node, 'type');
-		const ret = { mathlang: 'coordinate_identifier' };
+		const ret: TYPES.CoordinateIdentifier = {
+			mathlang: 'coordinate_identifier',
+			type: '',
+			value: '',
+			polygonType: '',
+		};
 		if (type === 'geometry') {
 			return {
 				...ret,

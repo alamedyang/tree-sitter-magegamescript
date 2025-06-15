@@ -197,21 +197,27 @@ export const expandCondition = (f, node, condition, ifLabel) => {
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs = {
 		mathlang: 'bool_binary_expression',
-		debug: condition.node,
-		fileName: f.fileName,
+		debug: {
+			node: condition.node,
+			fileName: f.fileName,
+		},
 		op: '||',
 		lhs: {
 			mathlang: 'bool_binary_expression',
-			debug: condition.node,
-			fileName: f.fileName,
+			debug: {
+				node: condition.node,
+				fileName: f.fileName,
+			},
 			op: '&&',
 			lhs,
 			rhs,
 		},
 		rhs: {
 			mathlang: 'bool_binary_expression',
-			debug: condition.node,
-			fileName: f.fileName,
+			debug: {
+				node: condition.node,
+				fileName: f.fileName,
+			},
 			op: '&&',
 			lhs: invert(lhs),
 			rhs: invert(rhs),
@@ -262,14 +268,18 @@ export const invert = (f, node, boolExp) => {
 export const label = (f, node, label) => ({
 	mathlang: 'label_definition',
 	label,
-	// debug: node,
-	// fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 export const gotoLabel = (f, node, label) => ({
 	mathlang: 'goto_label',
 	label,
-	// debug: node,
-	// fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 export const newComment = (comment) => ({ mathlang: 'comment', comment });
 export const newSequence = (f, node, steps, _type) => {
@@ -290,36 +300,46 @@ export const newSequence = (f, node, steps, _type) => {
 		mathlang: 'sequence',
 		type,
 		steps: flatSteps,
-		debug: node,
-		fileName: f.fileName,
+		debug: {
+			node,
+			fileName: f.fileName,
+		},
 	};
 };
 export const newDialog = (f, node, dialogName, dialogs) => ({
 	mathlang: 'dialog_definition',
 	dialogName,
 	dialogs,
-	debug: node,
-	fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 export const showDialog = (f, node, name) => ({
 	action: 'SHOW_DIALOG',
 	dialog: name,
-	debug: node,
-	fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 export const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
 	mathlang: 'serial_dialog_definition',
 	serialDialogName,
 	serialDialog,
-	debug: node,
-	fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 export const showSerialDialog = (f, node, name, isConcat) => ({
 	action: 'SHOW_SERIAL_DIALOG',
 	disable_newline: isConcat,
 	serial_dialog: name,
-	debug: node,
-	fileName: f.fileName,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
 });
 const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 	return {
@@ -329,8 +349,10 @@ const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 		value: save_flag,
 		expected_bool: expected_bool !== undefined ? expected_bool : true,
 		label: gotoLabel || 'UNDEFINED LABEL',
-		fileName: f.fileName,
-		debug: node,
+		debug: {
+			node,
+			fileName: f.fileName,
+		},
 	};
 };
 

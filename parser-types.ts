@@ -175,6 +175,31 @@ export type MathlangCopyMacro = {
 	script: string;
 	debug: TYPES.MGSDebug;
 };
+export type MovableIdentifier = {
+	mathlang: 'movable_identifier';
+	type: string;
+	value: string;
+};
+export type CoordinateIdentifier = {
+	mathlang: 'coordinate_identifier';
+	type: string;
+	value: string;
+	polygonType: string;
+};
+export type IntGetable = {
+	mathlang: 'int_getable';
+	field: string;
+	entity: string;
+};
+export const isIntGetable = (data: Record<string, unknown>): data is IntGetable => {
+	return (data as IntGetable).mathlang === 'int_getable';
+};
+export type IntBinaryExpression = {
+	mathlang: 'int_binary_expression';
+	lhs: unknown;
+	rhs: unknown;
+	op: string;
+};
 
 export type Constant = {
 	value: MGSValue;
@@ -182,7 +207,7 @@ export type Constant = {
 };
 export type FileState = {
 	p: ProjectState;
-	fileName: File;
+	fileName: string;
 	constants: Record<string, Constant>;
 	settings: {
 		default: DialogSettings;

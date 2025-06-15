@@ -1,5 +1,10 @@
-import { handleCapture, captureForFieldName, grammarTypeForFieldName } from './parser-capture.ts';
-import { getBoolFieldForAction } from './parser-bytecode-info.ts';
+import { Node as TreeSitterNode } from 'web-tree-sitter';
+import { handleCapture, grammarTypeForFieldName } from './parser-capture.ts';
+import * as BYTES from './parser-bytecode-info.ts';
+type Action = BYTES.Action;
+type MGSDebug = BYTES.MGSDebug;
+const getBoolFieldForAction = BYTES.getBoolFieldForAction;
+import * as TYPES from './parser-types.ts';
 import {
 	autoIdentifierName,
 	expandCondition,
@@ -17,12 +22,7 @@ import {
 	latestTemporary,
 	newComment,
 } from './parser-utilities.js';
-
-// Cyclic dependency bodge
-let handleNode;
-export const handleActionsInit = (handleNodeFn) => {
-	handleNode = handleNodeFn;
-};
+import { handleNode } from './parser-node.js';
 
 const opIntoStringMap = {
 	'=': 'SET',
@@ -83,10 +83,11 @@ const flattenIntBinaryExpression = (exp, steps) => {
 
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
-const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
+const actionSetBoolMaker = (f: TYPES.FileState, _rhsRaw, _lhs, backupNode?: TreeSitterNode) => {
 	// get the action JSON for the LHS
 	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
+	if (!lhsParam) throw new Error('shoudl have been a string');
 	if (typeof _rhsRaw === 'boolean') {
 		lhs[lhsParam] = _rhsRaw;
 		return lhs;
@@ -100,6 +101,7 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 		rhsRaw.mathlang === 'number_checkable_equality'
 	) {
 		const rhsParam = getBoolFieldForAction(rhsRaw.action);
+		if (!rhsParam) throw new Error('shoudl have been a string');
 		const existingValue = rhsRaw[rhsParam];
 		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsRaw.action);
 		const baseAction = {
@@ -136,17 +138,21 @@ const actionSetBoolMaker = (f, _rhsRaw, _lhs, backupNode) => {
 
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
-const spreadValues = (f, commonFields, fieldsToSpread) => {
+const spreadValues = (
+	f: TYPES.FileState,
+	commonFields: GenericActionish,
+	fieldsToSpread: Record<string, FieldToSpread>,
+): GenericActionish[] => {
 	// ->[]
 	// count spreads
 	let spreadSize = -Infinity;
-	Object.values(fieldsToSpread).forEach((fieldName) => {
-		const len = fieldName.captures.length;
+	Object.values(fieldsToSpread).forEach((spreadField) => {
+		const len = spreadField.captures.length;
 		// spreadSize won't be 1 btw, because 1s go to commonFields
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
 			f.newError({
-				locations: [{ node: fieldName.node }],
+				locations: [{ node: spreadField.node }],
 				message: `spreads must have the same count of items within a given action`,
 			});
 			spreadSize = Math.max(spreadSize, len);
@@ -157,7 +163,7 @@ const spreadValues = (f, commonFields, fieldsToSpread) => {
 		return [commonFields];
 	}
 	// but spread action into multiple variants
-	let ret = [];
+	const ret: Record<string, number | boolean | string | MGSDebug>[] = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = { ...commonFields };
 		Object.keys(fieldsToSpread).forEach((fieldName) => {
@@ -179,7 +185,13 @@ const spreadValues = (f, commonFields, fieldsToSpread) => {
 // it will add the action as a "sequence", which will need to be expanded later
 // (for a few reasons, the result must be a single "unit" at this stage)
 // TODO: why then return an array?
-export const handleAction = (f, node) => {
+type FieldToSpread = {
+	node: TreeSitterNode;
+	captures: boolean[] | string[] | number[];
+};
+type GenericActionish = Record<string, boolean | number | string | MGSDebug>;
+export const handleAction = (f: TYPES.FileState, node: TreeSitterNode) => {
+	if (!node) throw new Error('Missing node');
 	// ->[]
 	// Cyclic dependency bodge
 	if (!handleNode) {
@@ -197,19 +209,20 @@ export const handleAction = (f, node) => {
 			);
 		return customFn(f, node);
 	}
-	let action = {
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
+	const debug: MGSDebug = {
+		node,
+		fileName: f.fileName,
+	};
+	const action = {
+		debug,
 		...data.values,
 	};
 	// Action params
-	const captures = data.captures || [];
-	const fieldsToSpread = {};
+	const captures: string[] = data.captures || [];
+	const fieldsToSpread: Record<string, FieldToSpread> = {};
 	captures.forEach((fieldName) => {
-		const capture = captureForFieldName(f, node, fieldName);
-		if (capture === undefined) {
+		const captureNode = node.childForFieldName(fieldName);
+		if (captureNode === null) {
 			if (data.optionalCaptures?.includes(fieldName)) {
 				action[fieldName] = null;
 			} else {
@@ -219,22 +232,23 @@ export const handleAction = (f, node) => {
 			}
 			return;
 		}
+		const capture = handleCapture(f, captureNode);
 		if (!Array.isArray(capture)) {
 			action[fieldName] = capture;
 		} else {
 			fieldsToSpread[fieldName] = {
-				node: capture,
+				node: captureNode,
 				captures: capture,
 			};
 		}
 	});
-	const spreads = spreadValues(f, action, fieldsToSpread);
+	const spreads: GenericActionish[] = spreadValues(f, action, fieldsToSpread);
 	// Different param combinations will result in different actions,
 	// so let the handler sort them out after the spreads are spread
 	const handleFn = data.handle;
 	if (handleFn) {
 		spreads.forEach((actionInsideSpread, i) => {
-			const handled = handleFn(actionInsideSpread, f, node, i);
+			const handled = handleFn(actionInsideSpread, f, node, i) as GenericActionish;
 			if (handled) {
 				spreads[i] = handled;
 				// any reason to keep the intermediate values? no? tests still pass? well then
@@ -248,34 +262,57 @@ export const handleAction = (f, node) => {
 
 // Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
 const actionFns = {
-	action_show_dialog: (f, node) => {
+	action_show_dialog: (f: TYPES.FileState, node: TreeSitterNode) => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
 			.map((child) => handleNode(f, child))
 			.flat();
-		const ret = [showDialog(f, node, name)];
+		const shownDialog = showDialog(f, node, name);
 		if (dialogs.length) {
-			ret.unshift(newDialog(f, node, name, dialogs));
+			const dialogDefinition = newDialog(
+				f,
+				node,
+				name,
+				dialogs,
+			) as TYPES.MathlangDialogDefinition;
+			return [dialogDefinition, shownDialog];
 		}
-		return ret;
+		return [shownDialog];
 	},
-	action_concat_serial_dialog: (f, node) => actionFns.action_show_serial_dialog(f, node, true),
-	action_show_serial_dialog: (f, node, isConcat) => {
+	action_concat_serial_dialog: (f: TYPES.FileState, node: TreeSitterNode) =>
+		actionFns.action_show_serial_dialog(f, node, true),
+	action_show_serial_dialog: (
+		f: TYPES.FileState,
+		node: TreeSitterNode,
+		isConcat: boolean = false,
+	) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
 			.map((child) => handleNode(f, child))
 			.flat();
-		const ret = [showSerialDialog(f, node, name, isConcat || false)];
+		const shownSerialDialog = showSerialDialog(f, node, name, isConcat || false);
 		if (serialDialogs.length) {
-			ret.unshift(newSerialDialog(f, node, name, serialDialogs[0]));
+			const serialDialoDefinition = newSerialDialog(f, node, name, serialDialogs[0]);
+			return [serialDialoDefinition, shownSerialDialog];
 		}
-		return ret;
+		return [shownSerialDialog];
 	},
 };
 
-const actionData = {
+type actionDataEntry = {
+	values?: Record<string, unknown>;
+	captures?: string[];
+	optionalCaptures?: string[];
+	handle?: (
+		v: Record<string, boolean | string | number | Record<string, unknown>>,
+		f: TYPES.FileState,
+		node: TreeSitterNode,
+		i?: number,
+	) => unknown;
+};
+const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
 		// Ditto some other actions, too
@@ -416,25 +453,28 @@ const actionData = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i) => {
 			const grammarType = grammarTypeForFieldName(f, node, 'rhs');
+			if (typeof v.lhs !== 'string') throw new Error('TS');
 			if (
 				grammarType === 'ambiguous_identifier_expansion' ||
 				grammarType === 'BAREWORD' ||
 				grammarType === 'QUOTED_STRING'
 			) {
-				const ident = v.rhs;
+				if (i === undefined) throw new Error('TS');
+				if (typeof v.rhs !== 'string') throw new Error('TS');
 				// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
 				// `i` is from the caller, who knows which one of the set we're looking at now.
 				// Basically, the whole spread might not be ambiguous, so we need to report
 				// only once the action is identified in an individual spread, not all the time.
 				const lhsNode =
-					node.childForFieldName('lhs').namedChildren?.[i] ||
+					node.childForFieldName('lhs')?.namedChildren?.[i] ||
 					node.childForFieldName('lhs');
 				const rhsNode =
-					node.childForFieldName('rhs').namedChildren?.[i] ||
+					node.childForFieldName('rhs')?.namedChildren?.[i] ||
 					node.childForFieldName('rhs');
 				// These are the nodes that will get squigglies
+				if (!lhsNode || !rhsNode) throw new Error('ts!!');
 				const printNodes = [lhsNode, rhsNode];
-				const suggestion = v.rhs.includes(' ') ? '"' + ident + '"' : ident;
+				const suggestion = v.rhs.includes(' ') ? '"' + v.rhs + '"' : v.rhs;
 				f.newWarning({
 					locations: printNodes.map((v) => ({ node: v })),
 					message: 'these identifiers could be ints or bools',
@@ -455,6 +495,12 @@ const actionData = {
 			}
 			// ... but it's a simple "getable" so use a simple action for this
 			if (grammarType === 'int_getable') {
+				if (
+					typeof v.rhs !== 'object' ||
+					typeof v.rhs.entity !== 'string' ||
+					typeof v.rhs.field !== 'string'
+				)
+					throw new Error('ts');
 				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs);
 			}
 
@@ -477,8 +523,11 @@ const actionData = {
 				return setFlag(v.lhs, v.rhs);
 			}
 			// ... and RHS is a simple bool getable
-			if (v.rhs.mathlang === 'bool_getable') {
+			if (typeof v.rhs === 'object' && v.rhs.mathlang === 'bool_getable') {
+				if (typeof v.rhs.action !== 'string') throw new Error('ts wants a string lol');
+				if (typeof v.rhs.value !== 'string') throw new Error('ts wants a string lol');
 				const param = getBoolFieldForAction(v.rhs.action);
+				if (typeof param !== 'string') throw new Error('ts wants a string lol');
 				return setFlagToFlag(f, node, v.lhs, v.rhs.value, !v.rhs[param]);
 			}
 
@@ -486,6 +535,7 @@ const actionData = {
 			// ... it's complicated.
 			if (grammarType.includes('bool')) {
 				// TODO: review this fn
+				if (typeof v.lhs !== 'string') throw new Error('should be string: ' + v.lhs);
 				const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
 				const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
 				ret.steps.push(...setFlagSteps.steps);
@@ -497,48 +547,88 @@ const actionData = {
 		// If we've matched this, we know the LHS is not a variable name. Only other option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v) => {
+		handle: (v, f, node): Action | TYPES.MathlangNode | undefined => {
 			// RHS is number, simple case
 			// Different LHSs need different actions, though
 			if (typeof v.rhs === 'number') {
-				const ret = { entity: v.lhs.entity };
+				if (typeof v.lhs !== 'object') throw new Error('TS SRSLY');
+				const entity = v.lhs.entity;
+				if (typeof entity !== 'string') throw new Error('TS SRSLY AGAIN');
 				if (v.lhs.field === 'x') {
-					ret.action = 'SET_ENTITY_X';
-					ret.u2_value = v.rhs;
-				} else if (v.lhs.field === 'y') {
-					ret.action = 'SET_ENTITY_Y';
-					ret.u2_value = v.rhs;
-				} else if (v.lhs.field === 'primary_id') {
-					ret.action = 'SET_ENTITY_PRIMARY_ID';
-					ret.u2_value = v.rhs;
-				} else if (v.lhs.field === 'secondary_id') {
-					ret.action = 'SET_ENTITY_SECONDARY_ID';
-					ret.u2_value = v.rhs;
-				} else if (v.lhs.field === 'primary_id_type') {
-					ret.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
-					ret.byte_value = v.rhs;
-				} else if (v.lhs.field === 'current_animation') {
-					ret.action = 'SET_ENTITY_CURRENT_ANIMATION';
-					ret.byte_value = v.rhs;
-				} else if (v.lhs.field === 'animation_frame') {
-					ret.action = 'SET_ENTITY_CURRENT_FRAME';
-					ret.byte_value = v.rhs;
-				} else if (v.lhs.field === 'strafe') {
-					ret.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
-					ret.relative_direction = v.rhs;
-				} else if (v.lhs.field === 'relative_direction') {
-					ret.action = 'SET_ENTITY_DIRECTION_RELATIVE';
-					ret.relative_direction = v.rhs;
-				} else {
-					f.newError({
-						locations: [{ node: v.debug.node }],
-						message: `syntax error setting int to number`,
-					});
+					return {
+						entity,
+						action: 'SET_ENTITY_X',
+						u2_value: v.rhs,
+					};
 				}
-				return ret;
+				if (v.lhs.field === 'y') {
+					return {
+						entity,
+						action: 'SET_ENTITY_Y',
+						u2_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'primary_id') {
+					return {
+						entity,
+						action: 'SET_ENTITY_PRIMARY_ID',
+						u2_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'secondary_id') {
+					return {
+						entity,
+						action: 'SET_ENTITY_SECONDARY_ID',
+						u2_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'primary_id_type') {
+					return {
+						entity,
+						action: 'SET_ENTITY_PRIMARY_ID_TYPE',
+						byte_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'current_animation') {
+					return {
+						entity,
+						action: 'SET_ENTITY_CURRENT_ANIMATION',
+						byte_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'animation_frame') {
+					return {
+						entity,
+						action: 'SET_ENTITY_CURRENT_FRAME',
+						byte_value: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'strafe') {
+					return {
+						entity,
+						action: 'SET_ENTITY_MOVEMENT_RELATIVE',
+						relative_direction: v.rhs,
+					};
+				}
+				if (v.lhs.field === 'relative_direction') {
+					return {
+						entity,
+						action: 'SET_ENTITY_DIRECTION_RELATIVE',
+						relative_direction: v.rhs,
+					};
+				}
+				if (!v.debug && typeof v.debug !== 'object') throw new Error('TSTSTS');
+				f.newError({
+					locations: [{ node }],
+					message: `syntax error setting int to number`,
+				});
 			}
 			// RHS is variable name, simple case
 			// The field is part of the JSON action
+			if (typeof v.lhs !== 'object') throw new Error('LHS not an object');
+			if (typeof v.lhs.entity !== 'string') throw new Error('LHS entity field not a string');
+			if (typeof v.lhs.field !== 'string')
+				throw new Error('LHS entity field "field" not a string');
 			if (typeof v.rhs === 'string') {
 				return copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field);
 			}
@@ -549,7 +639,7 @@ const actionData = {
 			const steps = flattenIntBinaryExpression(v.rhs, []);
 			const temporary = dropTemporary();
 			steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-			return newSequence(f, node, steps, 'set int');
+			return newSequence(f, node, steps, 'set int') as TYPES.MathlangNode;
 		},
 	},
 	action_set_bool: {
@@ -558,80 +648,87 @@ const actionData = {
 		captures: ['lhs', 'rhs'],
 		// TODO: can the capture side put the action in?
 		handle: (v, f, node) => {
-			let lhsAction = {
-				bool_value: true,
-			};
+			if (typeof v.lhs !== 'object') throw new Error('not making a type for this');
 			if (v.lhs.type === 'entity') {
-				lhsAction = {
+				const lhsAction = {
 					action: 'SET_ENTITY_GLITCHED',
+					bool_value: true,
 					entity: v.lhs.value,
 				};
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'light') {
-				lhsAction = {
+				const lhsAction = {
 					action: 'SET_LIGHTS_STATE',
 					lights: v.lhs.value,
 					enabled: true,
 				};
-				delete lhsAction.bool_value;
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'player_control') {
-				lhsAction = { action: 'SET_PLAYER_CONTROL' };
+				const lhsAction = { action: 'SET_PLAYER_CONTROL' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'lights_control') {
-				lhsAction = {
+				const lhsAction = {
 					action: 'SET_LIGHTS_CONTROL',
 					enabled: true,
 				};
-				delete lhsAction.bool_value;
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'hex_editor') {
-				lhsAction = { action: 'SET_HEX_EDITOR_STATE' };
+				const lhsAction = { action: 'SET_HEX_EDITOR_STATE' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'hex_dialog_mode') {
-				lhsAction = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+				const lhsAction = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'hex_control') {
-				lhsAction = { action: 'SET_HEX_EDITOR_CONTROL' };
+				const lhsAction = { action: 'SET_HEX_EDITOR_CONTROL' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'hex_clipboard') {
-				lhsAction = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+				const lhsAction = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
 			if (v.lhs.type === 'serial_control') {
-				lhsAction = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+				const lhsAction = { action: 'SET_SERIAL_DIALOG_CONTROL' };
+				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
-			return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 		},
 	},
 	action_set_position: {
 		values: {},
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node) => {
-			if (v.movable.type === 'camera') {
-				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
+			const movable = v.movable as TYPES.MovableIdentifier;
+			const coordinate = v.coordinate as TYPES.CoordinateIdentifier;
+			if (movable.type === 'camera') {
+				if (coordinate.type === 'geometry' && coordinate.polygonType !== 'length') {
 					return {
 						action: 'TELEPORT_CAMERA_TO_GEOMETRY',
-						geometry: v.coordinate.value,
+						geometry: coordinate.value,
 					};
 				}
-				if (v.coordinate.type === 'entity') {
+				if (coordinate.type === 'entity') {
 					return {
 						action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
-						entity: v.coordinate.value,
+						entity: coordinate.value,
 					};
 				}
-			} else if (v.movable.type === 'entity') {
-				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
+			} else if (movable.type === 'entity') {
+				if (coordinate.type === 'geometry' && coordinate.polygonType !== 'length') {
 					return {
 						action: 'TELEPORT_ENTITY_TO_GEOMETRY',
-						entity: v.movable.value,
-						geometry: v.coordinate.value,
+						entity: movable.value,
+						geometry: coordinate.value,
 					};
 				}
-				if (v.coordinate.type === 'entity') {
+				if (coordinate.type === 'entity') {
 					const variable = quickTemporary();
-					const copyFrom = v.coordinate.value;
-					const copyTo = v.movable.value;
+					const copyFrom = coordinate.value;
+					const copyTo = movable.value;
 					const steps = [
 						copyVarIntoEntityField(variable, copyFrom, 'x'),
 						copyEntityFieldIntoVar(copyTo, 'x', variable),
@@ -641,8 +738,9 @@ const actionData = {
 					return newSequence(f, node, steps, 'set position');
 				}
 			}
+			const debug = v.debug as MGSDebug;
 			f.newError({
-				locations: [{ node: v.debug.node }],
+				locations: [{ node: debug.node }],
 				message: `incompatible movable identifier and position identifier`,
 			});
 		},
@@ -651,99 +749,140 @@ const actionData = {
 		values: {},
 		captures: ['movable', 'coordinate', 'duration', 'forever'],
 		optionalCaptures: ['forever'],
-		handle: (v, f) => {
-			const ret = { duration: v.duration };
-			let error = { locations: [{ node: v.debug.node }] };
-			if (v.movable.type === 'camera') {
+		handle: (v, f): Action | undefined => {
+			const movable = v.movable as TYPES.MovableIdentifier;
+			const coordinate = v.coordinate as TYPES.CoordinateIdentifier;
+			const debug = v.debug as MGSDebug;
+			const duration = v.duration;
+			if (typeof duration !== 'number') throw new Error('freak out');
+			const error: TYPES.MGSMessage = {
+				locations: [{ node: debug.node }],
+				message: '',
+			};
+			if (movable.type === 'camera') {
 				// Moving the camera
-				if (v.coordinate.type === 'entity') {
+				if (coordinate.type === 'entity') {
 					// ... to an entity
-					ret.entity = v.coordinate.value;
 					if (v.forever) {
 						// ... forever (ILLEGAL)
 						error.message = `cannot move camera to an entity's position forever`;
+						f.newError(error);
+						return;
 					} else {
 						// ... not forever
-						ret.action = 'PAN_CAMERA_TO_ENTITY';
+						return {
+							action: 'PAN_CAMERA_TO_ENTITY',
+							duration: duration,
+							entity: coordinate.value,
+						};
 					}
 				}
-				if (v.coordinate.type === 'geometry') {
+				if (coordinate.type === 'geometry') {
 					// ... to a geometry
-					ret.geometry = v.coordinate.value;
-					if (v.coordinate.polygonType === 'length') {
+					if (coordinate.polygonType === 'length') {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							ret.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
+							return {
+								action: 'LOOP_CAMERA_ALONG_GEOMETRY',
+								entity: coordinate.value,
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						} else {
 							// ... not forever
-							ret.action = 'PAN_CAMERA_ALONG_GEOMETRY';
+							return {
+								action: 'PAN_CAMERA_ALONG_GEOMETRY',
+								entity: coordinate.value,
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						}
-					} else if (v.coordinate.polygonType === 'origin') {
+					} else if (coordinate.polygonType === 'origin') {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
 							error.message = `'forever' can only be used with geometry lengths, not single points`;
+							f.newError(error);
+							return;
 						} else {
 							// ... not forever
-							ret.action = 'PAN_CAMERA_TO_GEOMETRY';
+							return {
+								action: 'PAN_CAMERA_TO_GEOMETRY',
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						}
 					}
 				}
 			}
 
-			if (v.movable.type === 'entity') {
+			if (movable.type === 'entity') {
 				// Moving an entity
-				ret.entity = v.movable.value;
-				if (v.coordinate.type === 'entity') {
+				if (coordinate.type === 'entity') {
 					// ... to another entity (ILLEGAL)
 					error.message = `cannot move an entity to another entity's position over time`;
+					f.newError(error);
+					return;
 				}
-				if (v.coordinate.type === 'geometry') {
+				if (coordinate.type === 'geometry') {
 					// ... to a geometry
-					ret.geometry = v.coordinate.value;
-					if (v.coordinate.polygonType === 'length') {
+					if (coordinate.polygonType === 'length') {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							ret.action = 'LOOP_ENTITY_ALONG_GEOMETRY';
+							return {
+								action: 'LOOP_ENTITY_ALONG_GEOMETRY',
+								entity: movable.value,
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						} else {
 							// ... not forever
-							ret.action = 'WALK_ENTITY_ALONG_GEOMETRY';
+							return {
+								action: 'WALK_ENTITY_ALONG_GEOMETRY',
+								entity: movable.value,
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						}
 					}
-					if (v.coordinate.polygonType === 'origin') {
+					if (coordinate.polygonType === 'origin') {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
 							error.message = `'forever' can only be used with geometry lengths, not single points`;
+							f.newError(error);
+							return;
 						} else {
 							// ... not forever
-							ret.action = 'WALK_ENTITY_TO_GEOMETRY';
+							return {
+								action: 'WALK_ENTITY_TO_GEOMETRY',
+								entity: movable.value,
+								duration: duration,
+								geometry: coordinate.value,
+							};
 						}
 					}
 				}
-			}
-			// generic error now
-			if (error.message) {
-				f.newError(error);
-			} else {
-				return ret;
 			}
 		},
 	},
 	action_set_direction: {
 		values: {},
 		captures: ['entity', 'target'],
-		handle: (v) => ({
-			...v.target,
-			entity: v.entity,
-		}),
+		handle: (v) => {
+			if (typeof v.target !== 'object') throw new Error('trust me');
+			return {
+				...v.target,
+				entity: v.entity,
+			};
+		},
 	},
 	action_set_script: {
 		values: {},
 		captures: ['entity', 'script_slot', 'script'],
-		handle: (v, f) => {
+		handle: (v, f, node) => {
 			if (v.entity === '%MAP%') {
 				if (v.script_slot === 'on_tick') {
 					return {
@@ -751,9 +890,11 @@ const actionData = {
 						script: v.script,
 					};
 				}
+				const errorNodes = node.childForFieldName('script_slot');
+				if (!errorNodes) throw new Error('LOLOL');
 				f.newError({
 					message: `invalid map script slot`,
-					locations: [{ node: v.debug.node.childForFieldName('script_slot') }],
+					locations: [{ node: errorNodes }],
 					footer: `You can only set a map's 'on_tick' slot`,
 				});
 				return;
@@ -781,9 +922,11 @@ const actionData = {
 					action: 'SET_ENTITY_LOOK_SCRIPT',
 				};
 			}
+			const errorNodes = node.childForFieldName('script_slot');
+			if (!errorNodes) throw new Error('LOLOL');
 			f.newError({
 				message: `invalid entity script slot`,
-				locations: [{ node: v.debug.node.childForFieldName('script_slot') }],
+				locations: [{ node: errorNodes }],
 				footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
 			});
 		},
@@ -791,24 +934,37 @@ const actionData = {
 	action_set_entity_string: {
 		values: {},
 		captures: ['entity', 'field', 'value'],
-		handle: (v) => {
-			const ret = { entity: v.entity };
+		handle: (v, f, node): Action | undefined => {
 			if (v.field === 'name') {
-				ret.action = 'SET_ENTITY_NAME';
-				ret.string = v.value;
+				if (typeof v.value !== 'string') throw new Error('TS');
+				if (typeof v.entity !== 'string') throw new Error('TS');
+				return {
+					action: 'SET_ENTITY_NAME',
+					string: v.value,
+					entity: v.entity,
+				};
 			} else if (v.field === 'type') {
-				ret.action = 'SET_ENTITY_TYPE';
-				ret.entity_type = v.value;
+				if (typeof v.value !== 'string') throw new Error('TS');
+				if (typeof v.entity !== 'string') throw new Error('TS');
+				return {
+					action: 'SET_ENTITY_TYPE',
+					entity_type: v.value,
+					entity: v.entity,
+				};
 			} else if (v.field === 'path') {
-				ret.action = 'SET_ENTITY_PATH';
-				ret.geometry = v.value;
+				if (typeof v.value !== 'string') throw new Error('TS');
+				if (typeof v.entity !== 'string') throw new Error('TS');
+				return {
+					action: 'SET_ENTITY_PATH',
+					entity: v.entity,
+					geometry: v.value,
+				};
 			} else {
 				f.newError({
-					locations: [{ node: v.debug.node }],
+					locations: [{ node }],
 					message: `syntax error setting entity property to string`,
 				});
 			}
-			return ret;
 		},
 	},
 	action_op_equals: {
@@ -816,21 +972,24 @@ const actionData = {
 		captures: ['lhs', 'operator', 'rhs'],
 		handle: (v, f, node) => {
 			// LHS is a string, meaning we're doing a thing to an integer variable
+			const op = v.operator;
+			if (typeof op !== 'string') throw new Error(`Operator is not a string (${op})`);
 			if (typeof v.lhs === 'string') {
 				// e.g. varName += 1
 				if (typeof v.rhs === 'number') {
-					return changeVarByValue(v.lhs, v.rhs, v.operator);
+					return changeVarByValue(v.lhs, v.rhs, op);
 				}
 				// e.g. varName += var2
 				if (typeof v.rhs === 'string') {
-					return changeVarByVar(v.lhs, v.rhs, v.operator);
+					return changeVarByVar(v.lhs, v.rhs, op);
 				}
 				// e.g. varName += player x
-				if (v.rhs.mathlang === 'int_getable') {
+				if (typeof v.rhs !== 'object') throw new Error('come on');
+				if (TYPES.isIntGetable(v.rhs)) {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
-						changeVarByVar(v.identifier, temp, v.operator),
+						changeVarByVar(v.lhs, temp, op),
 					];
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				}
@@ -839,11 +998,11 @@ const actionData = {
 					const temporary = newTemporary();
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
-					steps.push(changeVarByVar(v.lhs, temporary, v.operator));
+					steps.push(changeVarByVar(v.lhs, temporary, op));
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				}
 				f.newError({
-					locations: [{ node: v.debug.node }],
+					locations: [{ node }],
 					message: `syntax error setting integer variable value`,
 				});
 			}
@@ -851,64 +1010,63 @@ const actionData = {
 			// LHS is an int getable, like `player y`
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
-			if (v.lhs.mathlang === 'int_getable') {
+			if (typeof v.lhs !== 'object') throw new Error('TS');
+			if (TYPES.isIntGetable(v.lhs)) {
 				// e.g. player x = 1;
+				const lhs = v.lhs as TYPES.IntGetable;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
-						changeVarByValue(temporary, v.rhs, v.operator),
-						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary),
+						changeVarByValue(temporary, v.rhs, op),
+						copyVarIntoEntityField(temporary, lhs.entity, lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, v.debug.node, steps, 'set op-equals with number');
+					return newSequence(f, node, steps, 'set op-equals with number');
 				}
 				// e.g. player x = varName;
 				if (typeof v.rhs === 'string') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
-						changeVarByVar(temporary, v.rhs, v.operator),
-						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary),
+						changeVarByVar(temporary, v.rhs, op),
+						copyVarIntoEntityField(temporary, lhs.entity, lhs.field),
 					];
 					dropTemporary();
-					return newSequence(
-						f,
-						v.debug.node,
-						steps,
-						'set op-equals with string (identifier)',
-					);
+					return newSequence(f, node, steps, 'set op-equals with string (identifier)');
 				}
 				// e.g. player x = (varName * 7);
+				if (typeof v.rhs !== 'object') throw new Error('not a bool');
 				if (v.rhs.mathlang === 'int_binary_expression') {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
+						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary1),
 						...flattenIntBinaryExpression(v.rhs, []),
-						changeVarByVar(temporary1, temporary2, v.operator),
-						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+						changeVarByVar(temporary1, temporary2, op),
+						copyVarIntoEntityField(temporary1, lhs.entity, lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				}
 				// e.g. player x = self y;
-				if (v.rhs.mathlang === 'int_getable') {
+				if (typeof v.rhs === 'boolean') throw new Error('TS seriously trust me');
+				if (TYPES.isIntGetable(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
+						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary1),
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temporary2),
-						changeVarByVar(temporary1, temporary2, v.operator),
-						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+						changeVarByVar(temporary1, temporary2, op),
+						copyVarIntoEntityField(temporary1, lhs.entity, lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				}
 				f.newError({
-					locations: [{ node: v.debug.node }],
+					locations: [{ node }],
 					message: `syntax error setting int property value`,
 				});
 			}
@@ -919,6 +1077,7 @@ const actionData = {
 		captures: ['entity', 'operator', 'value'],
 		handle: (v) => {
 			const sign = v.operator === '-=' ? -1 : 1;
+			if (typeof v.value !== 'number') throw new Error(`Not a number: ${v.value}`);
 			return {
 				action: 'SET_ENTITY_DIRECTION_RELATIVE',
 				entity: v.entity,
@@ -930,13 +1089,13 @@ const actionData = {
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-const setVarToValue = (variable, value) => ({
+const setVarToValue = (variable: string, value: number) => ({
 	action: 'MUTATE_VARIABLE',
 	operation: 'SET',
 	value,
 	variable,
 });
-const setVarToVar = (variable, source) => {
+const setVarToVar = (variable: string, source: string) => {
 	if (variable === source)
 		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
 	return {
@@ -946,11 +1105,23 @@ const setVarToVar = (variable, source) => {
 		variable,
 	};
 };
-const changeVarByValue = (variable, value, op) => {
-	if (op === '+' && value === 0) return newComment('This action was optimized out (+ 0)');
-	if (op === '*' && value === 1) return newComment('This action was optimized out (* 1)');
-	if (op === '/' && value === 1) return newComment('This action was optimized out (/ 1)');
-	if (op === '-' && value === 0) return newComment('This action was optimized out (- 0)');
+const changeVarByValue = (
+	variable: string,
+	value: number,
+	op: string,
+): Action | TYPES.MathlangNode => {
+	if (op === '+' && value === 0) {
+		return newComment('This action was optimized out (+ 0)') as TYPES.MathlangNode;
+	}
+	if (op === '*' && value === 1) {
+		return newComment('This action was optimized out (* 1)') as TYPES.MathlangNode;
+	}
+	if (op === '/' && value === 1) {
+		return newComment('This action was optimized out (/ 1)') as TYPES.MathlangNode;
+	}
+	if (op === '-' && value === 0) {
+		return newComment('This action was optimized out (- 0)') as TYPES.MathlangNode;
+	}
 	return {
 		action: 'MUTATE_VARIABLE',
 		operation: opIntoStringMap[op] || op,
@@ -958,41 +1129,45 @@ const changeVarByValue = (variable, value, op) => {
 		variable,
 	};
 };
-const changeVarByVar = (variable, source, op) => ({
+const changeVarByVar = (variable: string, source: string, op: string): Action => ({
 	action: 'MUTATE_VARIABLES',
 	operation: opIntoStringMap[op] || op,
 	source,
 	variable,
 });
-const copyVarIntoEntityField = (variable, entity, field) => ({
+const copyVarIntoEntityField = (variable: string, entity: string, field: string): Action => ({
 	action: 'COPY_VARIABLE',
 	entity,
 	field,
 	inbound: false,
 	variable,
 });
-const copyEntityFieldIntoVar = (entity, field, variable) => ({
+const copyEntityFieldIntoVar = (entity: string, field: string, variable: string): Action => ({
 	action: 'COPY_VARIABLE',
 	entity,
 	field,
 	inbound: true,
 	variable,
 });
-const setFlag = (save_flag, bool_value) => {
-	return {
-		action: 'SET_SAVE_FLAG',
-		bool_value,
-		save_flag,
-	};
-};
-const checkFlag = (save_flag, expected_bool) => ({
+const setFlag = (save_flag: string, bool_value: boolean): Action => ({
+	action: 'SET_SAVE_FLAG',
+	bool_value,
+	save_flag,
+});
+const checkFlag = (save_flag: string, expected_bool: boolean) => ({
 	mathlang: 'bool_getable',
 	action: 'CHECK_SAVE_FLAG',
 	expected_bool,
 	save_flag,
 });
-const setFlagToFlag = (f, node, save_flag, source, invert) => {
-	const action = setFlag(save_flag, null);
+const setFlagToFlag = (
+	f: TYPES.FileState,
+	node: TreeSitterNode,
+	save_flag: string,
+	source: string,
+	invert?: boolean,
+) => {
+	const action = setFlag(save_flag, true);
 	return simpleBranchMaker(
 		f,
 		node,

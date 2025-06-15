@@ -2,7 +2,7 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 
 export type MGSDebug = {
 	node: TreeSitterNode;
-	data;
+	data?: Record<string, unknown>;
 	fileName?: string;
 	comment?: string;
 };

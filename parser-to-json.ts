@@ -29,8 +29,7 @@ const printAction = (data: AnyNode) => {
 			return `// auto dialog: "${sample}"`;
 		}
 		if (data.mathlang === 'serial_dialog_definition') {
-			const sample =
-				data.serialDialog.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
+			const sample = data.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto serial_dialog: "${sample}"`;
 		}
 		if (!isAction && data.mathlang === 'return_statement') return '// auto return label';

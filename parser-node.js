@@ -21,7 +21,7 @@ import {
 	textForFieldName,
 	capturesForFieldName,
 } from './parser-capture.ts';
-import { handleAction, handleActionsInit } from './parser-actions.js';
+import { handleAction } from './parser-actions.ts';
 
 export const handleNode = (f, node) => {
 	// ->[]
@@ -51,8 +51,8 @@ export const handleNode = (f, node) => {
 	return ret;
 };
 
-// Cyclic dependency bodge!
-handleActionsInit(handleNode);
+// // Cyclic dependency bodge!
+// handleActionsInit(handleNode);
 
 // These must return an array, because they might produce multiple things (or zero things)
 // NOTICE: The caller should flat() what it receives!
