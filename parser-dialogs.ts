@@ -1,7 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-types.ts';
-import * as UTILS from './parser-utilities.js';
-const ansi = UTILS.ansiTags;
+import { ansiTags as ansi } from './parser-utilities.js';
 
 // Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
 

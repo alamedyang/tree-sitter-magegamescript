@@ -7,9 +7,16 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Program",
+			"name": "Tests",
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${workspaceFolder}/parser-tests.js"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Compare",
+			"skipFiles": ["<node_internals>/**"],
+			"program": "${workspaceFolder}/parser-compare.ts"
 		}
 	]
 }

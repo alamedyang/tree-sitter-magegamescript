@@ -1,5 +1,4 @@
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
-// import { printScript } from './parser-to-json.ts';
 
 export let verbose = false;
 export const debugLog = (message) => {

@@ -1,6 +1,10 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
-import * as TYPES from './parser-types.ts';
+import {
+	type FileState,
+	type CoordinateIdentifier,
+	type MovableIdentifier,
+} from './parser-types.ts';
 import {
 	debugLog,
 	reportMissingChildNodes,
@@ -19,7 +23,7 @@ const opIntoStringMap: Record<string, string> = {
 	'?': 'RNG',
 };
 
-export const handleCapture = (f: TYPES.FileState, node: TreeSitterNode | null) => {
+export const handleCapture = (f: FileState, node: TreeSitterNode | null) => {
 	if (!node) throw new Error('TS FRFR');
 	reportErrorNodes(f, node);
 	reportMissingChildNodes(f, node);
@@ -52,7 +56,7 @@ export const handleCapture = (f: TYPES.FileState, node: TreeSitterNode | null) =
 	return ret;
 };
 const captureFns = {
-	BOOL: (f: TYPES.FileState, node: TreeSitterNode) => {
+	BOOL: (f: FileState, node: TreeSitterNode) => {
 		const text = node.text;
 		if (text === 'true') return true;
 		if (text === 'false') return false;
@@ -63,18 +67,18 @@ const captureFns = {
 		if (text === 'down') return true;
 		if (text === 'up') return false;
 	},
-	BAREWORD: (f: TYPES.FileState, node: TreeSitterNode) => node.text,
-	QUOTED_STRING: (f: TYPES.FileState, node: TreeSitterNode) => node.text.slice(1, -1),
-	NUMBER: (f: TYPES.FileState, node: TreeSitterNode) => Number(node.text),
-	DURATION: (f: TYPES.FileState, node: TreeSitterNode) => {
+	BAREWORD: (f: FileState, node: TreeSitterNode) => node.text,
+	QUOTED_STRING: (f: FileState, node: TreeSitterNode) => node.text.slice(1, -1),
+	NUMBER: (f: FileState, node: TreeSitterNode) => Number(node.text),
+	DURATION: (f: FileState, node: TreeSitterNode) => {
 		const suffix = textForFieldName(f, node, 'suffix');
 		const int = textForFieldName(f, node, 'NUMBER');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
 	},
-	DISTANCE: (f: TYPES.FileState, node: TreeSitterNode) => parseInt(node.text),
-	QUANTITY: (f: TYPES.FileState, node: TreeSitterNode) => {
+	DISTANCE: (f: FileState, node: TreeSitterNode) => parseInt(node.text),
+	QUANTITY: (f: FileState, node: TreeSitterNode) => {
 		if (node.childCount === 0) {
 			if (node.text === 'once') return 1;
 			if (node.text === 'twice') return 2;
@@ -86,7 +90,7 @@ const captureFns = {
 		if (suffix === 's') n *= 1000;
 		return n;
 	},
-	COLOR: (f: TYPES.FileState, node: TreeSitterNode) => {
+	COLOR: (f: FileState, node: TreeSitterNode) => {
 		if (node.childCount === 0) {
 			if (node.text === 'white') return '#FFFFFF';
 			if (node.text === 'black') return '#000000';
@@ -105,18 +109,18 @@ const captureFns = {
 		}
 		return node.text;
 	},
-	CONSTANT: (f: TYPES.FileState, node: TreeSitterNode) => node.text,
-	op_equals: (f: TYPES.FileState, node: TreeSitterNode) => opIntoStringMap[node.text[0]],
-	plus_minus_equals: (f: TYPES.FileState, node: TreeSitterNode) => node.text,
+	CONSTANT: (f: FileState, node: TreeSitterNode) => node.text,
+	op_equals: (f: FileState, node: TreeSitterNode) => opIntoStringMap[node.text[0]],
+	plus_minus_equals: (f: FileState, node: TreeSitterNode) => node.text,
 	forever: () => true,
-	entity_or_map_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
+	entity_or_map_identifier: (f: FileState, node: TreeSitterNode) => {
 		// -> string
 		return textForFieldName(f, node, 'type') === 'map' ? '%MAP%' : extractEntityName(f, node);
 	},
-	entity_identifier: (f: TYPES.FileState, node: TreeSitterNode) => extractEntityName(f, node), // -> string
-	movable_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
+	entity_identifier: (f: FileState, node: TreeSitterNode) => extractEntityName(f, node), // -> string
+	movable_identifier: (f: FileState, node: TreeSitterNode) => {
 		// -> {}
-		const ret: TYPES.MovableIdentifier = {
+		const ret: MovableIdentifier = {
 			mathlang: 'movable_identifier',
 			type: '',
 			value: '',
@@ -132,7 +136,7 @@ const captureFns = {
 		}
 		return ret;
 	},
-	dialog_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
+	dialog_identifier: (f: FileState, node: TreeSitterNode) => {
 		const label = textForFieldName(f, node, 'label');
 		const ret = { mathlang: 'dialog_identifier' };
 		if (label) {
@@ -148,23 +152,23 @@ const captureFns = {
 			value: captureForFieldName(f, node, 'value'),
 		};
 	},
-	dialog_parameter: (f: TYPES.FileState, node: TreeSitterNode) => {
+	dialog_parameter: (f: FileState, node: TreeSitterNode) => {
 		return {
 			mathlang: 'dialog_parameter',
 			property: textForFieldName(f, node, 'property'),
 			value: captureForFieldName(f, node, 'value'),
 		};
 	},
-	serial_dialog_parameter: (f: TYPES.FileState, node: TreeSitterNode) => {
+	serial_dialog_parameter: (f: FileState, node: TreeSitterNode) => {
 		return {
 			mathlang: 'serial_dialog_parameter',
 			property: textForFieldName(f, node, 'property'),
 			value: captureForFieldName(f, node, 'value'),
 		};
 	},
-	coordinate_identifier: (f: TYPES.FileState, node: TreeSitterNode) => {
+	coordinate_identifier: (f: FileState, node: TreeSitterNode) => {
 		const type = textForFieldName(f, node, 'type');
-		const ret: TYPES.CoordinateIdentifier = {
+		const ret: CoordinateIdentifier = {
 			mathlang: 'coordinate_identifier',
 			type: '',
 			value: '',
@@ -184,7 +188,7 @@ const captureFns = {
 			value: extractEntityName(f, node),
 		};
 	},
-	bool_setable: (f: TYPES.FileState, node: TreeSitterNode) => {
+	bool_setable: (f: FileState, node: TreeSitterNode) => {
 		const ret = { mathlang: 'bool_setable' };
 		const type = textForFieldName(f, node, 'type');
 		if (!type) {
@@ -212,7 +216,7 @@ const captureFns = {
 		}
 		return { ...ret, type };
 	},
-	int_binary_expression: (f: TYPES.FileState, node: TreeSitterNode) => {
+	int_binary_expression: (f: FileState, node: TreeSitterNode) => {
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
@@ -253,7 +257,7 @@ const captureFns = {
 			op,
 		};
 	},
-	bool_binary_expression: (f: TYPES.FileState, node: TreeSitterNode) => {
+	bool_binary_expression: (f: FileState, node: TreeSitterNode) => {
 		// PART OF BOOL EXPRESSIONS
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
@@ -301,9 +305,8 @@ const captureFns = {
 			op,
 		};
 	},
-	bool_grouping: (f: TYPES.FileState, node: TreeSitterNode) =>
-		captureForFieldName(f, node, 'inner'),
-	bool_unary_expression: (f: TYPES.FileState, node: TreeSitterNode) => {
+	bool_grouping: (f: FileState, node: TreeSitterNode) => captureForFieldName(f, node, 'inner'),
+	bool_unary_expression: (f: FileState, node: TreeSitterNode) => {
 		// PART OF BOOL EXPRESSIONS
 		const op = textForFieldName(f, node, 'operator');
 		if (op !== '!') throw new Error("what kind of unary is '" + op + "'?");
@@ -312,14 +315,14 @@ const captureFns = {
 		const inverted = invert(f, node, toInvert);
 		return inverted;
 	},
-	int_getable: (f: TYPES.FileState, node: TreeSitterNode) => {
+	int_getable: (f: FileState, node: TreeSitterNode) => {
 		return {
 			mathlang: 'int_getable',
 			field: textForFieldName(f, node, 'property'),
 			entity: captureForFieldName(f, node, 'entity_identifier'),
 		};
 	},
-	bool_getable: (f: TYPES.FileState, node: TreeSitterNode) => {
+	bool_getable: (f: FileState, node: TreeSitterNode) => {
 		// PART OF BOOL EXPRESSIONS
 		const type = textForFieldName(f, node, 'type');
 		const ret = {
@@ -373,7 +376,7 @@ const captureFns = {
 		ret[param] = ret[param] === undefined ? true : ret[param];
 		return ret;
 	},
-	string_checkable: (f: TYPES.FileState, node: TreeSitterNode) => {
+	string_checkable: (f: FileState, node: TreeSitterNode) => {
 		const ret = {
 			mathlang: 'string_checkable',
 			entity: '',
@@ -433,7 +436,7 @@ const captureFns = {
 			}
 		}
 	},
-	number_checkable_equality: (f: TYPES.FileState, node: TreeSitterNode) => {
+	number_checkable_equality: (f: FileState, node: TreeSitterNode) => {
 		const ret = {
 			mathlang: 'number_checkable_equality',
 			entity: '',
@@ -496,12 +499,12 @@ const captureFns = {
 		}
 		return ret;
 	},
-	geometry_identifier: (f: TYPES.FileState, node: TreeSitterNode) =>
+	geometry_identifier: (f: FileState, node: TreeSitterNode) =>
 		captureForFieldName(f, node, 'geometry'),
-	nsew: (f: TYPES.FileState, node: TreeSitterNode) => node.text, // not used but maybe good for error'd nodes?
-	entity_direction: (f: TYPES.FileState, node: TreeSitterNode) =>
+	nsew: (f: FileState, node: TreeSitterNode) => node.text, // not used but maybe good for error'd nodes?
+	entity_direction: (f: FileState, node: TreeSitterNode) =>
 		captureForFieldName(f, node, 'entity_identifier'),
-	towards: (f: TYPES.FileState, node: TreeSitterNode) => {
+	towards: (f: FileState, node: TreeSitterNode) => {
 		const direction = textForFieldName(f, node, 'nsew');
 		if (direction) {
 			return {
@@ -524,7 +527,7 @@ const captureFns = {
 			};
 		}
 	},
-	bool_comparison: (f: TYPES.FileState, node: TreeSitterNode) => {
+	bool_comparison: (f: FileState, node: TreeSitterNode) => {
 		// PART OF BOOL EXPRESSIONS
 		const lhsNode = node.childForFieldName('lhs');
 		const rhsNode = node.childForFieldName('rhs');
@@ -603,16 +606,15 @@ const captureFns = {
 			}
 		}
 	},
-	int_setable: (f: TYPES.FileState, node: TreeSitterNode) => {
+	int_setable: (f: FileState, node: TreeSitterNode) => {
 		return {
 			mathlang: 'int_getable',
 			field: textForFieldName(f, node, 'property'),
 			entity: captureForFieldName(f, node, 'entity_identifier'),
 		};
 	},
-	int_grouping: (f: TYPES.FileState, node: TreeSitterNode) =>
-		handleCapture(f, node.namedChildren[0]),
-	direction_target: (f: TYPES.FileState, node: TreeSitterNode) => {
+	int_grouping: (f: FileState, node: TreeSitterNode) => handleCapture(f, node.namedChildren[0]),
+	direction_target: (f: FileState, node: TreeSitterNode) => {
 		const direction = textForFieldName(f, node, 'nsew');
 		if (direction) {
 			return {
@@ -635,7 +637,7 @@ const captureFns = {
 			};
 		}
 	},
-	set_entity_string_field: (f: TYPES.FileState, node: TreeSitterNode) => node.text,
+	set_entity_string_field: (f: FileState, node: TreeSitterNode) => node.text,
 };
 
 // These are separated so that the LHS and RHS can be swapped easily

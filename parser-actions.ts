@@ -1,10 +1,16 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { handleCapture, grammarTypeForFieldName } from './parser-capture.ts';
-import * as BYTES from './parser-bytecode-info.ts';
-type Action = BYTES.Action;
-type MGSDebug = BYTES.MGSDebug;
-const getBoolFieldForAction = BYTES.getBoolFieldForAction;
-import * as TYPES from './parser-types.ts';
+import { type Action, type MGSDebug, getBoolFieldForAction } from './parser-bytecode-info.ts';
+import {
+	type FileState,
+	type MathlangDialogDefinition,
+	type MathlangNode,
+	type MovableIdentifier,
+	type CoordinateIdentifier,
+	type MGSMessage,
+	type IntGetable,
+	isIntGetable,
+} from './parser-types.ts';
 import {
 	autoIdentifierName,
 	expandCondition,
@@ -83,7 +89,7 @@ const flattenIntBinaryExpression = (exp, steps) => {
 
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
-const actionSetBoolMaker = (f: TYPES.FileState, _rhsRaw, _lhs, backupNode?: TreeSitterNode) => {
+const actionSetBoolMaker = (f: FileState, _rhsRaw, _lhs, backupNode?: TreeSitterNode) => {
 	// get the action JSON for the LHS
 	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
@@ -139,7 +145,7 @@ const actionSetBoolMaker = (f: TYPES.FileState, _rhsRaw, _lhs, backupNode?: Tree
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
 const spreadValues = (
-	f: TYPES.FileState,
+	f: FileState,
 	commonFields: GenericActionish,
 	fieldsToSpread: Record<string, FieldToSpread>,
 ): GenericActionish[] => {
@@ -190,7 +196,7 @@ type FieldToSpread = {
 	captures: boolean[] | string[] | number[];
 };
 type GenericActionish = Record<string, boolean | number | string | MGSDebug>;
-export const handleAction = (f: TYPES.FileState, node: TreeSitterNode) => {
+export const handleAction = (f: FileState, node: TreeSitterNode) => {
 	if (!node) throw new Error('Missing node');
 	// ->[]
 	// Cyclic dependency bodge
@@ -262,7 +268,7 @@ export const handleAction = (f: TYPES.FileState, node: TreeSitterNode) => {
 
 // Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
 const actionFns = {
-	action_show_dialog: (f: TYPES.FileState, node: TreeSitterNode) => {
+	action_show_dialog: (f: FileState, node: TreeSitterNode) => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
@@ -270,23 +276,14 @@ const actionFns = {
 			.flat();
 		const shownDialog = showDialog(f, node, name);
 		if (dialogs.length) {
-			const dialogDefinition = newDialog(
-				f,
-				node,
-				name,
-				dialogs,
-			) as TYPES.MathlangDialogDefinition;
+			const dialogDefinition = newDialog(f, node, name, dialogs) as MathlangDialogDefinition;
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
 	},
-	action_concat_serial_dialog: (f: TYPES.FileState, node: TreeSitterNode) =>
+	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode) =>
 		actionFns.action_show_serial_dialog(f, node, true),
-	action_show_serial_dialog: (
-		f: TYPES.FileState,
-		node: TreeSitterNode,
-		isConcat: boolean = false,
-	) => {
+	action_show_serial_dialog: (f: FileState, node: TreeSitterNode, isConcat: boolean = false) => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
@@ -307,7 +304,7 @@ type actionDataEntry = {
 	optionalCaptures?: string[];
 	handle?: (
 		v: Record<string, boolean | string | number | Record<string, unknown>>,
-		f: TYPES.FileState,
+		f: FileState,
 		node: TreeSitterNode,
 		i?: number,
 	) => unknown;
@@ -547,7 +544,7 @@ const actionData: Record<string, actionDataEntry> = {
 		// If we've matched this, we know the LHS is not a variable name. Only other option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node): Action | TYPES.MathlangNode | undefined => {
+		handle: (v, f, node): Action | MathlangNode | undefined => {
 			// RHS is number, simple case
 			// Different LHSs need different actions, though
 			if (typeof v.rhs === 'number') {
@@ -639,7 +636,7 @@ const actionData: Record<string, actionDataEntry> = {
 			const steps = flattenIntBinaryExpression(v.rhs, []);
 			const temporary = dropTemporary();
 			steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-			return newSequence(f, node, steps, 'set int') as TYPES.MathlangNode;
+			return newSequence(f, node, steps, 'set int') as MathlangNode;
 		},
 	},
 	action_set_bool: {
@@ -702,8 +699,8 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node) => {
-			const movable = v.movable as TYPES.MovableIdentifier;
-			const coordinate = v.coordinate as TYPES.CoordinateIdentifier;
+			const movable = v.movable as MovableIdentifier;
+			const coordinate = v.coordinate as CoordinateIdentifier;
 			if (movable.type === 'camera') {
 				if (coordinate.type === 'geometry' && coordinate.polygonType !== 'length') {
 					return {
@@ -750,12 +747,12 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['movable', 'coordinate', 'duration', 'forever'],
 		optionalCaptures: ['forever'],
 		handle: (v, f): Action | undefined => {
-			const movable = v.movable as TYPES.MovableIdentifier;
-			const coordinate = v.coordinate as TYPES.CoordinateIdentifier;
+			const movable = v.movable as MovableIdentifier;
+			const coordinate = v.coordinate as CoordinateIdentifier;
 			const debug = v.debug as MGSDebug;
 			const duration = v.duration;
 			if (typeof duration !== 'number') throw new Error('freak out');
-			const error: TYPES.MGSMessage = {
+			const error: MGSMessage = {
 				locations: [{ node: debug.node }],
 				message: '',
 			};
@@ -985,7 +982,7 @@ const actionData: Record<string, actionDataEntry> = {
 				}
 				// e.g. varName += player x
 				if (typeof v.rhs !== 'object') throw new Error('come on');
-				if (TYPES.isIntGetable(v.rhs)) {
+				if (isIntGetable(v.rhs)) {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
@@ -1011,9 +1008,9 @@ const actionData: Record<string, actionDataEntry> = {
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
 			if (typeof v.lhs !== 'object') throw new Error('TS');
-			if (TYPES.isIntGetable(v.lhs)) {
+			if (isIntGetable(v.lhs)) {
 				// e.g. player x = 1;
-				const lhs = v.lhs as TYPES.IntGetable;
+				const lhs = v.lhs as IntGetable;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
@@ -1052,7 +1049,7 @@ const actionData: Record<string, actionDataEntry> = {
 				}
 				// e.g. player x = self y;
 				if (typeof v.rhs === 'boolean') throw new Error('TS seriously trust me');
-				if (TYPES.isIntGetable(v.rhs)) {
+				if (isIntGetable(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
@@ -1105,22 +1102,18 @@ const setVarToVar = (variable: string, source: string) => {
 		variable,
 	};
 };
-const changeVarByValue = (
-	variable: string,
-	value: number,
-	op: string,
-): Action | TYPES.MathlangNode => {
+const changeVarByValue = (variable: string, value: number, op: string): Action | MathlangNode => {
 	if (op === '+' && value === 0) {
-		return newComment('This action was optimized out (+ 0)') as TYPES.MathlangNode;
+		return newComment('This action was optimized out (+ 0)') as MathlangNode;
 	}
 	if (op === '*' && value === 1) {
-		return newComment('This action was optimized out (* 1)') as TYPES.MathlangNode;
+		return newComment('This action was optimized out (* 1)') as MathlangNode;
 	}
 	if (op === '/' && value === 1) {
-		return newComment('This action was optimized out (/ 1)') as TYPES.MathlangNode;
+		return newComment('This action was optimized out (/ 1)') as MathlangNode;
 	}
 	if (op === '-' && value === 0) {
-		return newComment('This action was optimized out (- 0)') as TYPES.MathlangNode;
+		return newComment('This action was optimized out (- 0)') as MathlangNode;
 	}
 	return {
 		action: 'MUTATE_VARIABLE',
@@ -1161,7 +1154,7 @@ const checkFlag = (save_flag: string, expected_bool: boolean) => ({
 	save_flag,
 });
 const setFlagToFlag = (
-	f: TYPES.FileState,
+	f: FileState,
 	node: TreeSitterNode,
 	save_flag: string,
 	source: string,
