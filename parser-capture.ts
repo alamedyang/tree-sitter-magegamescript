@@ -146,24 +146,30 @@ const captureFns = {
 				value: label,
 			};
 		}
+		const type = textForFieldName(f, node, 'type');
+		const value = captureForFieldName(f, node, 'value');
 		return {
 			...ret,
-			type: textForFieldName(f, node, 'type'),
-			value: captureForFieldName(f, node, 'value'),
+			type,
+			value,
 		};
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode) => {
+		const property = textForFieldName(f, node, 'property');
+		const value = captureForFieldName(f, node, 'value');
 		return {
 			mathlang: 'dialog_parameter',
-			property: textForFieldName(f, node, 'property'),
-			value: captureForFieldName(f, node, 'value'),
+			property,
+			value,
 		};
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode) => {
+		const property = textForFieldName(f, node, 'property');
+		const value = captureForFieldName(f, node, 'value');
 		return {
 			mathlang: 'serial_dialog_parameter',
-			property: textForFieldName(f, node, 'property'),
-			value: captureForFieldName(f, node, 'value'),
+			property,
+			value,
 		};
 	},
 	coordinate_identifier: (f: FileState, node: TreeSitterNode) => {

@@ -361,3 +361,7 @@ include "header.mgs";
 	show dialog { SELF "Never mind."};
 	self on_interact = "debug-everything-q";
 }
+
+dialog "dialog-goodmorning-wake" { // lol what is this?
+	PLAYER "Ahh, what a good night's sleep!"
+}

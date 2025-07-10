@@ -1058,3 +1058,10 @@ include "header.mgs";
 	copy!("skip-artifacts")
 	goto "debug-touch-artifacts-end";
 }
+
+dialog "dialog-artifacts-touch" { // not used (anymore)?
+	SELF "All artifacts touched."
+}
+dialog "dialog-debug-touch-artifacts" { // not used (anymore)?
+	SELF "Artifacts touched."
+}

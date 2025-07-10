@@ -52,15 +52,20 @@ const countCharLength = (str: string) => {
 
 const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = false) => {
 	// todo: hyphenated words?
-	const str = origStr
+	let str = origStr
 		.replace(/\\n/g, '\n')
 		.replace(/\\t/g, '\t')
+		.replace(/\\"/g, '\"')
 		.replace(/[“”]/g, '"')
 		.replace(/[‘’]/g, "'")
 		.replace(/…/g, '...')
-		.replace(/\t/g, '    ')
 		.replace(/—/g, '--') // emdash
 		.replace(/–/g, '-'); // endash
+	if (wrap === 0) {
+		return str;
+	} else {
+		str = str.replace(/\t/g, '    ');
+	}
 	const result: string[] = [];
 	str.split('\n').forEach((line) => {
 		const chunkRegExp = new RegExp(/(?<spaces>[ ]*|^)(?<word>[^ ]+|$)/g);
@@ -152,6 +157,13 @@ export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.Serial
 	return serialDialog;
 };
 
+const longerAlignments = {
+	BL: 'BOTTOM_LEFT',
+	TL: 'TOP_LEFT',
+	BR: 'BOTTOM_RIGHT',
+	TR: 'TOP_RIGHT',
+};
+
 export const buildDialogFromInfo = (
 	f: TYPES.FileState,
 	info: TYPES.DialogInfo,
@@ -161,8 +173,17 @@ export const buildDialogFromInfo = (
 	let found = false;
 	let specificSettings: TYPES.DialogSettings = {};
 	if (ident.type === 'label') {
-		specificSettings = f.settings.label[ident.value] || {};
-		specificSettings.entity = ident.value;
+		const settingsLookup = f.settings.label[ident.value];
+		if (settingsLookup) {
+			specificSettings = settingsLookup;
+		} else {
+			specificSettings = {
+				entity: ident.value,
+			};
+		}
+		found = true;
+	} else if (ident.type === 'name') {
+		specificSettings.name = ident.value;
 		found = true;
 	}
 	if (!found || ident.type === 'entity') {
@@ -176,15 +197,16 @@ export const buildDialogFromInfo = (
 		...specificSettings, // global specific settings
 		...info.settings, // local specific settings
 	};
+	const expandedAbbreviation = longerAlignments[dialogSettings.alignment];
+	if (expandedAbbreviation) {
+		dialogSettings.alignment = expandedAbbreviation;
+	}
 	const dialog: TYPES.Dialog = {
 		...dialogSettings,
 		mathlang: 'dialog',
 		messages: [],
 		info,
 	};
-	if (dialogSettings.name) {
-		dialog.name = dialogSettings.name;
-	}
 	// this needs to be outside to get the actual wrap value btw:
 	dialog.messages = info.messages.map((message: string) =>
 		wrapText(message, dialogSettings.wrap),

@@ -16,11 +16,16 @@ export type EncoderDialog = {
 	}[];
 };
 
-export const compareDialogs = (expected: EncoderDialog, found: Dialog) => {
+export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[] => {
 	const problems: string[] = [];
 	['alignment', 'entity', 'border_tileset', 'portrait', 'name', 'emote'].forEach((prop) => {
 		if (expected[prop] !== found[prop]) {
-			problems.push(`Expected ${prop} ${expected[prop]}, found ${found[prop]}`);
+			if (!expected[prop] && !found[prop]) {
+				// it's okay, they're both falsy
+				// (meant for dialog identifiers with a name of blank)
+			} else {
+				problems.push(`Expected ${prop} "${expected[prop]}", found "${found[prop]}"`);
+			}
 		}
 	});
 	expected.messages.forEach((expectedMessage, i) => {

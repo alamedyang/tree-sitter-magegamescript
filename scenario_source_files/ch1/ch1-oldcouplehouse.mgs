@@ -306,3 +306,7 @@ include "header.mgs";
 	show dialog { SELF "Nothing changed." };
 	self on_interact = "debug-bea-sequel-q";
 }
+
+dialog "dialog-bea-mandud-s" { //where was this supposed to go? lol
+	SELF "Oh, %Delmar%! We'll make you your normal self soon!"
+}

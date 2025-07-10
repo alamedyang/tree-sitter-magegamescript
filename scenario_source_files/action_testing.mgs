@@ -1,7 +1,11 @@
 add dialog settings {
+	default {
+		alignment BL
+		wrap 0
+	}
 	label SELF {
-		alignment BOTTOM_LEFT
 		entity "%SELF%"
+		wrap 0 // to make sure the auto wrapping doesn't intorudce differences
 	}
 }
 
@@ -1701,7 +1705,8 @@ dialog "dialog-mage04_1" {
 }
 
 dialog "dialog-mage19" {
-	SELF "You are in a desert.\nYou approached by a mysterious goat.\nIt is a good goat."
+	SELF border_tileset codec
+	"You are in a desert.\nYou approached by a mysterious goat.\nIt is a good goat."
 }
 "mage19-interact" {
 	json[
@@ -1795,7 +1800,7 @@ dialog "dialog-mage19" {
 		"HONK HONK!"
 		"HONK HONK HONK HONK!"
 		
-		name "????"
+		name ""
 		alignment BOTTOM_LEFT
 		border_tileset "codec"
 		"GAME OVER"

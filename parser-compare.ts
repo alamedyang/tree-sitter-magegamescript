@@ -7,7 +7,11 @@ import { resolve as _resolve } from 'node:path';
 // The original JSON output as intercepted manually from the original encoder.
 // Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
-import { type EncoderDialog, dialogs as origDialogs } from './comparisons/exfiltrated_dialogs.ts';
+import {
+	compareDialogs,
+	type EncoderDialog,
+	dialogs as origDialogs,
+} from './comparisons/exfiltrated_dialogs.ts';
 
 // The original JSON output at an earlier stage, also intercepted manually from the original encoder.
 // Has scripts the other lacks.
@@ -616,26 +620,41 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	]);
 	dialogFileNames.delete('NAMED');
 
-	const countDiffs: string[] = [];
-
+	// Comparing named dialogs
+	const namedDialogDiffs: string[] = [];
 	[...dialogNames].forEach((name) => {
-		const found = foundDialogsSorted[name];
-		const expected = expectedDialogsSorted[name];
+		const found = foundDialogsSorted.NAMED[name];
+		const expected = expectedDialogsSorted.NAMED[name];
 		if (!found) {
-			countDiffs.push(`Did not find expected dialog "${name}"`);
+			namedDialogDiffs.push(`Did not find expected dialog named "${name}"`);
 			return;
 		}
 		if (!expected) {
-			countDiffs.push(`Found unexpected dialog "${name}"`);
+			namedDialogDiffs.push(`Found unexpected dialog named "${name}"`);
 			return;
 		}
-		if (found.length !== expected.length) {
-			countDiffs.push(
-				`"${name}": found ${found.length} dialogs, expected ${expected.length}`,
+		if (found.dialogs.length !== expected.length) {
+			namedDialogDiffs.push(
+				`"${name}": found ${found.dialogs.length} dialogs, expected ${expected.length}`,
 			);
+			return;
 		}
+		found.dialogs.forEach((foundItem, i) => {
+			const expectedItem = expected[i];
+			const diffs = compareDialogs(expectedItem, foundItem);
+			if (diffs.length) {
+				namedDialogDiffs.push(`Named dialog "${name}" has the following issue(s):`);
+				namedDialogDiffs.push(...diffs.map((v) => '\t' + v));
+			}
+		});
 		// TODO: compare the dialog contents
 	});
+	if (namedDialogDiffs.length) {
+		console.error(`Named dialogs: found ${namedDialogDiffs.length} differences`);
+		console.error(namedDialogDiffs.join('\n'));
+	} else {
+		console.log(`Named dialogs: all ${dialogNames.size} are identical!`);
+	}
 
 	// const expectedCounts = {};
 	// Object.entries(expectedDialogsSorted).forEach(([name, data]) => {
