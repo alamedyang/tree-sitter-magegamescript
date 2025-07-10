@@ -28,13 +28,19 @@ export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[]
 			}
 		}
 	});
-	expected.messages.forEach((expectedMessage, i) => {
-		const foundMessage = found.messages[i];
-		if (foundMessage !== expectedMessage) {
-			const diff = colorDifferentStrings(expectedMessage, foundMessage);
-			problems.push(`Message diff [${i}]: ${diff}`);
-		}
-	});
+	if (expected.messages.length !== found.messages.length) {
+		problems.push(
+			`Found ${found.messages.length} messages, expected ${expected.messages.length}`,
+		);
+	} else {
+		expected.messages.forEach((expectedMessage, i) => {
+			const foundMessage = found.messages[i];
+			if (foundMessage !== expectedMessage) {
+				const diff = colorDifferentStrings(expectedMessage, foundMessage);
+				problems.push(`Message diff [${i}]: ${diff}`);
+			}
+		});
+	}
 	// no options? done early:
 	if (!expected.response_type || !found.response_type) {
 		return problems;

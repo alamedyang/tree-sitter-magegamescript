@@ -643,13 +643,11 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 			const expectedItem = expected[i];
 			const diffs = compareDialogs(expectedItem, foundItem);
 			if (diffs.length) {
-				namedDialogDiffs.push(`Named dialog "${name}" has the following issue(s):\n`);
 				namedDialogDiffs.push(
 					...diffs.map((v, i) => {
 						const message = '\t' + v;
-						return i === 0
-							? `Named dialog "${name}" has the following issue(s):\n` + message
-							: message;
+						const header = `Named dialog "${name}" has the following issue(s):\n`;
+						return i === 0 ? header + message : message;
 					}),
 				);
 			}
@@ -662,36 +660,58 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		console.log(`Named dialogs: all ${dialogNames.size} are identical!`);
 	}
 
-	// const expectedCounts = {};
-	// Object.entries(expectedDialogsSorted).forEach(([name, data]) => {
-	// 	if (!Array.isArray(data)) return;
-	// 	expectedCounts[name] = data.length;
-	// });
-	// const foundCounts = {};
-	// Object.entries(foundDialogsSorted).forEach(([name, data]) => {
-	// 	if (!Array.isArray(data)) return;
-	// 	foundCounts[name] = data.length;
-	// });
-	// Object.entries(expectedCounts).forEach(([name, expectedCount]) => {
-	// 	const foundCount = foundCounts[name];
-	// 	if (foundCount !== expectedCount) {
-	// 		countDiffs.push(`${name}: found ${foundCount} dialogs, expected ${expectedCount}`);
-	// 	}
-	// });
-	// const foundSolos = Object.keys(foundDialogsSorted.NAMED);
-	// const expectedSolos = Object.keys(expectedDialogsSorted.NAMED);
-	// foundSolos.forEach((foundSolo) => {
-	// 	if (!expectedSolos.includes(foundSolo)) {
-	// 		countDiffs.push(`Found "${foundSolo}" and was not expecting it`);
-	// 	}
-	// });
-	// expectedSolos.forEach((expectedSolo) => {
-	// 	if (!foundSolos.includes(expectedSolo)) {
-	// 		countDiffs.push(`Did not find expected "${expectedSolo}"`);
-	// 	}
-	// });
+	const anonymousDialogDiffs: string[] = [];
+	// Comparing anonymous dialogs
+	[...dialogFileNames].forEach((name) => {
+		const found = foundDialogsSorted[name];
+		const expected = expectedDialogsSorted[name];
+		if (!found) {
+			anonymousDialogDiffs.push(`Did not find file named "${name}" for dialog comparison`);
+			return;
+		}
+		if (!expected) {
+			anonymousDialogDiffs.push(
+				`Found unexpected file named "${name}" for dialog comparison`,
+			);
+			return;
+		}
+		if (found.length !== expected.length) {
+			anonymousDialogDiffs.push(
+				`"${name}": found ${found.dialogs.length} anonymous dialogs, expected ${expected.length}`,
+			);
+			return;
+		}
+		expected.forEach((expectedAnonymousDialog, i) => {
+			const foundAnonymousDialog = found[i].dialogs;
+			if (foundAnonymousDialog.length !== expectedAnonymousDialog.length) {
+				anonymousDialogDiffs.push(
+					`"${name}" [dialog ${i}]: found ${foundAnonymousDialog.length} dialogs, expected ${expectedAnonymousDialog.length}`,
+				);
+				return;
+			}
+			foundAnonymousDialog.forEach((foundItem, i) => {
+				const expectedItem = expectedAnonymousDialog[i];
+				const diffs = compareDialogs(expectedItem, foundItem);
+				if (diffs.length) {
+					namedDialogDiffs.push(
+						...diffs.map((v, i) => {
+							const message = '\t' + v;
+							const header = `Dialog [${i}] from file "${name}" has the following issue(s):\n`;
+							return i === 0 ? header + message : message;
+						}),
+					);
+				}
+			});
+		});
+	});
+	if (anonymousDialogDiffs.length) {
+		console.error(`Anonymous dialogs: found ${anonymousDialogDiffs.length} differences`);
+		console.error(anonymousDialogDiffs.join('\n'));
+	} else {
+		console.log(`Anonymous dialogs: dialogs from all ${dialogNames.size} are identical!`);
+	}
 
-	// Comparing scripts
+	// COMPARING SCRIPTS
 	const scriptNames = Object.keys(p.scripts);
 	let tally = 0;
 	let functionalTally = 0;
