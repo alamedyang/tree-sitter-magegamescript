@@ -604,7 +604,7 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	console.log('PROJECT');
 	console.log(p);
 
-	// Comparing dialogs
+	// COMPARING DIALOGS
 	const foundDialogs = p.dialogs;
 	const expectedDialogs: Record<string, EncoderDialog[]> = origDialogs;
 	const expectedDialogsSorted = sortDialogs(expectedDialogs);
@@ -643,11 +643,17 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 			const expectedItem = expected[i];
 			const diffs = compareDialogs(expectedItem, foundItem);
 			if (diffs.length) {
-				namedDialogDiffs.push(`Named dialog "${name}" has the following issue(s):`);
-				namedDialogDiffs.push(...diffs.map((v) => '\t' + v));
+				namedDialogDiffs.push(`Named dialog "${name}" has the following issue(s):\n`);
+				namedDialogDiffs.push(
+					...diffs.map((v, i) => {
+						const message = '\t' + v;
+						return i === 0
+							? `Named dialog "${name}" has the following issue(s):\n` + message
+							: message;
+					}),
+				);
 			}
 		});
-		// TODO: compare the dialog contents
 	});
 	if (namedDialogDiffs.length) {
 		console.error(`Named dialogs: found ${namedDialogDiffs.length} differences`);

@@ -1,11 +1,10 @@
 add dialog settings {
 	default {
 		alignment BL
-		wrap 0
+		wrap 0 // this will prevent the auto-wrap from wrapping
 	}
 	label SELF {
 		entity "%SELF%"
-		wrap 0 // to make sure the auto wrapping doesn't intorudce differences
 	}
 }
 
