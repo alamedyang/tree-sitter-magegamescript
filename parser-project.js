@@ -122,15 +122,16 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		copyScriptOne: (scriptName) => {
 			const finalActions = [];
 			const scriptData = p.scripts[scriptName];
+			// one node might produce multiple nodes, so this needs to be .forEach() and not .map()
 			scriptData.actions.forEach((action) => {
-				if (
-					(action.action === 'COPY_SCRIPT' && action.search_and_replace) ||
-					(action.mathlang !== 'copy_script' && action.action !== 'COPY_SCRIPT')
-				) {
+				// not copy script
+				if (action.mathlang !== 'copy_script' && action.action !== 'COPY_SCRIPT') {
 					finalActions.push(action);
 					return;
 				}
+				// copy script now:
 				if (!p.scripts[action.script]) {
+					// named script not found; error
 					p.newError({
 						locations: [
 							{
@@ -144,26 +145,58 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					});
 					return;
 				}
+				// if the target script hasn't had its own copyscript pass done yet, do that pass first
 				if (!p.scripts[action.script].copyScriptResolved) {
 					p.copyScriptOne(action.script);
 				}
-				// If find_and_replace, leave as JSON actually
+				// no label? just hand it up, it's fine
+				// otherwise alter the copied labels so they don't collide with other copies
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
-				const copiedInsert = p.scripts[action.script].actions;
-				finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
-				finalActions.push(
-					...copiedInsert.map((insert) => {
-						if (insert.mathlang?.includes('label')) {
-							const newInsert = {};
-							Object.entries(insert).forEach(([k, v]) => {
-								newInsert[k] = v;
-							});
-							newInsert.label += labelSuffix;
-							return newInsert;
+				const copiedActions = p.scripts[action.script].actions.map((copiedAction) => {
+					return !copiedAction.mathlang?.includes('label')
+						? copiedAction
+						: {
+								...copiedAction,
+								label: copiedAction.label + labelSuffix,
+							};
+				});
+				// simple copies are mathlang's copy_script and the JSON copy_script without search_and_replace
+				if (!action.action === 'COPY_SCRIPT' || !action.search_and_replace) {
+					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
+					finalActions.push(...copiedActions);
+				} else {
+					// search_and_replace does naive JSON stringifying and straight find-and-replace
+					// But thanks to the TreeSitter node stuff, you can't stringify the whole thing
+					// Gotta extract the "debug" nodes first so it doesn't try to print recursive things
+
+					// Exctract the debugs for later re-insertion
+					const extractedDebugProps = copiedActions.map((copiedAction) => {
+						const debug = copiedAction.debug;
+						if (copiedAction.debug) {
+							delete copiedAction.debug;
 						}
-						return insert;
-					}),
-				);
+						return debug;
+					});
+					// Do the search-and-replace
+					let stringActions = JSON.stringify(copiedActions);
+					Object.entries(action.search_and_replace).forEach(([k, v]) => {
+						stringActions = stringActions.replaceAll(k, v);
+					});
+					const objectActions = JSON.parse(stringActions);
+					// Put the debugs back
+					objectActions.forEach((v, i) => {
+						const debug = extractedDebugProps[i];
+						if (debug) {
+							v.debug = debug;
+						}
+					});
+					finalActions.push(
+						newComment(
+							`Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`,
+						),
+					);
+					finalActions.push(...objectActions);
+				}
 			});
 			p.scripts[scriptName].copyScriptResolved = true;
 			p.scripts[scriptName].actions = finalActions;
