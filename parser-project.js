@@ -123,7 +123,10 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			const finalActions = [];
 			const scriptData = p.scripts[scriptName];
 			scriptData.actions.forEach((action) => {
-				if (action.mathlang !== 'copy_script') {
+				if (
+					(action.action === 'COPY_SCRIPT' && action.search_and_replace) ||
+					(action.mathlang !== 'copy_script' && action.action !== 'COPY_SCRIPT')
+				) {
 					finalActions.push(action);
 					return;
 				}
@@ -144,6 +147,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				if (!p.scripts[action.script].copyScriptResolved) {
 					p.copyScriptOne(action.script);
 				}
+				// If find_and_replace, leave as JSON actually
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedInsert = p.scripts[action.script].actions;
 				finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));

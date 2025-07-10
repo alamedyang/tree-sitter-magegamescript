@@ -1430,7 +1430,7 @@ actionTestNames.forEach((testName) => {
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
-const colorDifferentStrings = (expected, found) => {
+export const colorDifferentStrings = (expected, found) => {
 	const diff = [];
 	const foundChars = found.split('');
 	let colored = false;

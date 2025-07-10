@@ -7,6 +7,7 @@ import { resolve as _resolve } from 'node:path';
 // The original JSON output as intercepted manually from the original encoder.
 // Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
+import { type EncoderDialog, dialogs as origDialogs } from './comparisons/exfiltrated_dialogs.ts';
 
 // The original JSON output at an earlier stage, also intercepted manually from the original encoder.
 // Has scripts the other lacks.
@@ -290,7 +291,6 @@ const compareAdventures = (
 			const rhTryPos = rhEntry.jumpTos[i];
 			if (lhTryPos === lhEntry.from && rhTryPos === rhEntry.from) {
 				// They're both looping? That's a match.
-				console.log('INFINITE LOOP!');
 				const loopResult = false;
 				cachedLhIndices[lhEntry.from] = loopResult;
 				cachedRhIndices[rhEntry.from] = loopResult;
@@ -576,12 +576,97 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	};
 };
 
+const sortDialogs = (dialogs: Record<string, (EncoderDialog | MATHLANG.Dialog)[]>) => {
+	const ret = {
+		NAMED: {},
+	};
+	Object.entries(dialogs).forEach(([name, values]) => {
+		const splits = name.split('.mgs');
+		if (splits.length === 1) {
+			ret.NAMED[name] = values;
+		} else {
+			const useName = splits[0];
+			ret[useName] = ret[useName] || [];
+			ret[useName].push(values);
+		}
+	});
+	return ret;
+};
+
 const identical: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	console.log('PROJECT');
 	console.log(p);
+
+	// Comparing dialogs
+	const foundDialogs = p.dialogs;
+	const expectedDialogs: Record<string, EncoderDialog[]> = origDialogs;
+	const expectedDialogsSorted = sortDialogs(expectedDialogs);
+	const foundDialogsSorted = sortDialogs(foundDialogs);
+
+	const dialogNames = new Set([
+		...Object.keys(expectedDialogsSorted.NAMED),
+		...Object.keys(foundDialogsSorted.NAMED),
+	]);
+	const dialogFileNames = new Set([
+		...Object.keys(expectedDialogsSorted),
+		...Object.keys(foundDialogsSorted),
+	]);
+	dialogFileNames.delete('NAMED');
+
+	const countDiffs: string[] = [];
+
+	[...dialogNames].forEach((name) => {
+		const found = foundDialogsSorted[name];
+		const expected = expectedDialogsSorted[name];
+		if (!found) {
+			countDiffs.push(`Did not find expected dialog "${name}"`);
+			return;
+		}
+		if (!expected) {
+			countDiffs.push(`Found unexpected dialog "${name}"`);
+			return;
+		}
+		if (found.length !== expected.length) {
+			countDiffs.push(
+				`"${name}": found ${found.length} dialogs, expected ${expected.length}`,
+			);
+		}
+		// TODO: compare the dialog contents
+	});
+
+	// const expectedCounts = {};
+	// Object.entries(expectedDialogsSorted).forEach(([name, data]) => {
+	// 	if (!Array.isArray(data)) return;
+	// 	expectedCounts[name] = data.length;
+	// });
+	// const foundCounts = {};
+	// Object.entries(foundDialogsSorted).forEach(([name, data]) => {
+	// 	if (!Array.isArray(data)) return;
+	// 	foundCounts[name] = data.length;
+	// });
+	// Object.entries(expectedCounts).forEach(([name, expectedCount]) => {
+	// 	const foundCount = foundCounts[name];
+	// 	if (foundCount !== expectedCount) {
+	// 		countDiffs.push(`${name}: found ${foundCount} dialogs, expected ${expectedCount}`);
+	// 	}
+	// });
+	// const foundSolos = Object.keys(foundDialogsSorted.NAMED);
+	// const expectedSolos = Object.keys(expectedDialogsSorted.NAMED);
+	// foundSolos.forEach((foundSolo) => {
+	// 	if (!expectedSolos.includes(foundSolo)) {
+	// 		countDiffs.push(`Found "${foundSolo}" and was not expecting it`);
+	// 	}
+	// });
+	// expectedSolos.forEach((expectedSolo) => {
+	// 	if (!foundSolos.includes(expectedSolo)) {
+	// 		countDiffs.push(`Did not find expected "${expectedSolo}"`);
+	// 	}
+	// });
+
+	// Comparing scripts
 	const scriptNames = Object.keys(p.scripts);
 	let tally = 0;
 	let functionalTally = 0;
@@ -628,13 +713,3 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	writeFileSync(`./comparisons/olds.mgs`, olds);
 	writeFileSync(`./comparisons/news.mgs`, news);
 });
-
-// -- BEING STRICTER NOW, no more 'probably okay'
-// 1643 scripts were identical, 46 were functionally identical, and 122 were clearly different
-// 1643 scripts were identical, 131 were functionally identical, and 37 were clearly different
-// 1643 scripts were identical, 144 were functionally identical, and 24 were clearly different
-// 1643 scripts were identical, 151 were functionally identical, and 17 were clearly different
-// 1643 scripts were identical, 148 were functionally identical, and 20 were clearly different
-// 1643 scripts were identical, 36 were functionally identical, and 132 were clearly different
-// 1643 scripts were identical, 139 were functionally identical, and 29 were clearly different
-// 1643 scripts were identical, 168 were functionally identical, and 0 were clearly different

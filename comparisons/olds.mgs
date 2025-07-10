@@ -1,0 +1,41 @@
+"concat_response-cat" {
+	serial_control = false;
+	concat serial_dialog "concat-start";
+	concat serial_dialog "concat-cat";
+	show serial_dialog "concat-end";
+	serial_control = true;
+}
+
+"concat_response-bird" {
+	serial_control = false;
+	concat serial_dialog "concat-start";
+	concat serial_dialog "concat-bird";
+	show serial_dialog "concat-end";
+	serial_control = true;
+}
+
+"concat_response-platypus" {
+	serial_control = false;
+	concat serial_dialog "concat-start";
+	concat serial_dialog "concat-platypus";
+	show serial_dialog "concat-end";
+	serial_control = true;
+}
+
+"concat_response-peregrine_falcon" {
+	serial_control = false;
+	concat serial_dialog "concat-start";
+	concat serial_dialog "concat-peregrine_falcon";
+	show serial_dialog "concat-end";
+	serial_control = true;
+}
+
+"mage25-interact" {
+	self direction = player;
+	show dialog "dialog-mage19";
+	self type = "baby_goat";
+	show dialog "dialog-mage19";
+	self type = "bert";
+	show dialog "dialog-mage19";
+	self type = "strong_bad";
+}

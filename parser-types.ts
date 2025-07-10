@@ -275,7 +275,7 @@ export type ProjectState = {
 	fileMap: Record<string, FileMapEntry>;
 	gotoSuffixValue: number;
 	scripts: Record<string, Script>;
-	dialogs: Record<string, Dialog>;
+	dialogs: Record<string, Dialog[]>;
 	serialDialogs: Record<string, SerialDialog>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];

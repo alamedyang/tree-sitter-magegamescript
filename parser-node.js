@@ -91,6 +91,8 @@ const nodeFns = {
 		rawActions.forEach((raw) => {
 			if (raw.mathlang === 'sequence') {
 				raw.steps.forEach((step) => actions.push(step));
+			} else if (raw.mathlang === 'json_literal') {
+				raw.json.forEach((obj) => actions.push(obj));
 			} else {
 				actions.push(raw);
 			}
@@ -425,6 +427,7 @@ const nodeFns = {
 			f.newError({
 				locations: [{ node }],
 				message: `JSON syntax error`,
+				footer: `Generic error. Check trailing commas!`,
 			});
 		}
 		return [

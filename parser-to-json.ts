@@ -18,7 +18,12 @@ const printAction = (data: AnyNode) => {
 	}
 	if (isAction && data.action) {
 		const fn = printActionFns[data.action];
-		if (!fn) throw new Error('Fn needed for ' + data.action);
+		if (!fn) {
+			// print a generic one
+			const action = { ...data };
+			if (action.debug) delete action.debug; // prevent terrible JSON breakage
+			return `json[${JSON.stringify(action, null, '\t')}]`;
+		}
 		const print = fn(data);
 		const comment = data.debug?.comment ? ' // ' + data.debug?.comment : '';
 		return print + comment;
@@ -271,7 +276,18 @@ const printActionFns = {
 		return `goto index ${v.action_index};`;
 	},
 	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto script "${v.script}";`,
-	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => `copy!("${v.script}")`,
+	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => {
+		if (!v.search_and_replace) {
+			return `copy!("${v.script}")`;
+		}
+		const action = {
+			action: v.action,
+			script: v.script,
+			search_and_replace: v.search_and_replace,
+		};
+		const strung = JSON.stringify(action, null, '\t');
+		return `json[${strung}]`;
+	},
 };
 
 const stringIntoOpMap = {
@@ -344,7 +360,12 @@ export const printScript = (scriptName, actions) => {
 	const printedActions = actions
 		.map(printAction)
 		.filter((v) => v !== undefined)
-		.map((v) => `   ${v}`);
+		.map((v) => {
+			return v
+				.split('\n')
+				.map((v) => `\t${v}`)
+				.join('\n');
+		});
 	const ret = [`"${scriptName}" {`, ...printedActions, '}'];
 	return ret.join('\n');
 };
