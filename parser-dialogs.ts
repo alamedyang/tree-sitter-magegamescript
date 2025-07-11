@@ -50,7 +50,7 @@ const countCharLength = (str: string) => {
 	return length;
 };
 
-const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = false) => {
+const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = false): string => {
 	// todo: hyphenated words?
 	let str = origStr
 		.replace(/\\n/g, '\n')
@@ -178,6 +178,7 @@ export const buildDialogFromInfo = (
 			specificSettings = settingsLookup;
 		} else {
 			specificSettings = {
+				...f.settings.entity[ident.value],
 				entity: ident.value,
 			};
 		}
@@ -214,6 +215,11 @@ export const buildDialogFromInfo = (
 	if (info.options.length > 0) {
 		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
 		dialog.options = info.options;
+		dialog.options.forEach((option, i) => {
+			if (dialog.options?.[i]) {
+				dialog.options[i].label = wrapText(option.label, 0);
+			}
+		});
 	}
 	const lastIndex = dialog.messages.length - 1;
 	dialog.messages.forEach((message, i) => {

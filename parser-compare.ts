@@ -8,7 +8,8 @@ import { resolve as _resolve } from 'node:path';
 // Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
 import {
-	compareDialogs,
+	compareBigDialog,
+	compareSeriesOfBigDialogs,
 	type EncoderDialog,
 	dialogs as origDialogs,
 } from './comparisons/exfiltrated_dialogs.ts';
@@ -623,92 +624,31 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	// Comparing named dialogs
 	const namedDialogDiffs: string[] = [];
 	[...dialogNames].forEach((name) => {
-		const found = foundDialogsSorted.NAMED[name];
-		const expected = expectedDialogsSorted.NAMED[name];
-		if (!found) {
-			namedDialogDiffs.push(`Did not find expected dialog named "${name}"`);
-			return;
-		}
-		if (!expected) {
-			namedDialogDiffs.push(`Found unexpected dialog named "${name}"`);
-			return;
-		}
-		if (found.dialogs.length !== expected.length) {
-			namedDialogDiffs.push(
-				`"${name}": found ${found.dialogs.length} dialogs, expected ${expected.length}`,
-			);
-			return;
-		}
-		found.dialogs.forEach((foundItem, i) => {
-			const expectedItem = expected[i];
-			const diffs = compareDialogs(expectedItem, foundItem);
-			if (diffs.length) {
-				namedDialogDiffs.push(
-					...diffs.map((v, i) => {
-						const message = '\t' + v;
-						const header = `Named dialog "${name}" has the following issue(s):\n`;
-						return i === 0 ? header + message : message;
-					}),
-				);
-			}
-		});
+		const found: MATHLANG.MathlangDialogDefinition = foundDialogsSorted.NAMED[name];
+		const expected: EncoderDialog[] = expectedDialogsSorted.NAMED[name];
+		const diffs = compareBigDialog(expected, found.dialogs, 'dialogName', name);
+		namedDialogDiffs.push(...diffs);
 	});
 	if (namedDialogDiffs.length) {
 		console.error(`Named dialogs: found ${namedDialogDiffs.length} differences`);
 		console.error(namedDialogDiffs.join('\n'));
 	} else {
-		console.log(`Named dialogs: all ${dialogNames.size} are identical!`);
+		console.log(`All ${dialogNames.size} named dialogs are identical!`);
 	}
 
 	const anonymousDialogDiffs: string[] = [];
 	// Comparing anonymous dialogs
 	[...dialogFileNames].forEach((name) => {
-		const found = foundDialogsSorted[name];
-		const expected = expectedDialogsSorted[name];
-		if (!found) {
-			anonymousDialogDiffs.push(`Did not find file named "${name}" for dialog comparison`);
-			return;
-		}
-		if (!expected) {
-			anonymousDialogDiffs.push(
-				`Found unexpected file named "${name}" for dialog comparison`,
-			);
-			return;
-		}
-		if (found.length !== expected.length) {
-			anonymousDialogDiffs.push(
-				`"${name}": found ${found.dialogs.length} anonymous dialogs, expected ${expected.length}`,
-			);
-			return;
-		}
-		expected.forEach((expectedAnonymousDialog, i) => {
-			const foundAnonymousDialog = found[i].dialogs;
-			if (foundAnonymousDialog.length !== expectedAnonymousDialog.length) {
-				anonymousDialogDiffs.push(
-					`"${name}" [dialog ${i}]: found ${foundAnonymousDialog.length} dialogs, expected ${expectedAnonymousDialog.length}`,
-				);
-				return;
-			}
-			foundAnonymousDialog.forEach((foundItem, i) => {
-				const expectedItem = expectedAnonymousDialog[i];
-				const diffs = compareDialogs(expectedItem, foundItem);
-				if (diffs.length) {
-					namedDialogDiffs.push(
-						...diffs.map((v, i) => {
-							const message = '\t' + v;
-							const header = `Dialog [${i}] from file "${name}" has the following issue(s):\n`;
-							return i === 0 ? header + message : message;
-						}),
-					);
-				}
-			});
-		});
+		const expected: EncoderDialog[][] = expectedDialogsSorted[name];
+		const found: MATHLANG.MathlangDialogDefinition[] = foundDialogsSorted[name];
+		const diffs = compareSeriesOfBigDialogs(expected, found, name);
+		anonymousDialogDiffs.push(...diffs);
 	});
 	if (anonymousDialogDiffs.length) {
 		console.error(`Anonymous dialogs: found ${anonymousDialogDiffs.length} differences`);
 		console.error(anonymousDialogDiffs.join('\n'));
 	} else {
-		console.log(`Anonymous dialogs: dialogs from all ${dialogNames.size} are identical!`);
+		console.log(`All anonymous dialogs from all ${dialogFileNames.size} files are identical!`);
 	}
 
 	// COMPARING SCRIPTS

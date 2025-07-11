@@ -24,7 +24,7 @@ add dialog settings {
 		SELF alignment BL
 		"..."
 		"Ah, I see that you are seeking only\nmy strongest wisdom."
-		"When you see a variable \"prefixed\" with an\nampersand, think:\n\"that is the `And`ress (address)\"\nof the data in question."
+		"When you see a variable prefixed with an\nampersand, think:\n\"that is the `And`ress (address)\"\nof the data in question."
 
 		PLAYER alignment TL
 		":: happy goat noises ::"

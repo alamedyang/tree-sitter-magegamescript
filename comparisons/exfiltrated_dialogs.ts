@@ -1,5 +1,5 @@
 import { colorDifferentStrings } from '../parser-tests.js';
-import { type Dialog } from '../parser-types.ts';
+import { type Dialog, type MathlangDialogDefinition } from '../parser-types.ts';
 
 export type EncoderDialog = {
 	alignment: string;
@@ -16,28 +16,45 @@ export type EncoderDialog = {
 	}[];
 };
 
+export const firstMessage = (dialog: EncoderDialog | Dialog): string => {
+	return dialog.messages[0].split(' ')[0];
+};
+export const messagesSummary = (dialogs: EncoderDialog[] | Dialog[]): string => {
+	const summary = dialogs.map((dialog: EncoderDialog | Dialog) => {
+		const length = dialog.messages.length;
+		const words = dialog.messages.map((v) => v.split(' ').slice(0, 3).join(' '));
+		return `${length}("${words}")`;
+	});
+	return summary.join(',');
+};
+
 export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[] => {
 	const problems: string[] = [];
 	['alignment', 'entity', 'border_tileset', 'portrait', 'name', 'emote'].forEach((prop) => {
 		if (expected[prop] !== found[prop]) {
 			if (!expected[prop] && !found[prop]) {
 				// it's okay, they're both falsy
-				// (meant for dialog identifiers with a name of blank)
+				// (meant for dialog identifiers with a blank name)
 			} else {
 				problems.push(`Expected ${prop} "${expected[prop]}", found "${found[prop]}"`);
 			}
 		}
 	});
-	if (expected.messages.length !== found.messages.length) {
+	const expectedLength = expected.messages.length;
+	const foundLength = found.messages.length;
+	if (expectedLength !== foundLength) {
 		problems.push(
-			`Found ${found.messages.length} messages, expected ${expected.messages.length}`,
+			`Found ${foundLength} messages (${firstMessage(found)}), ` +
+				`expected ${expectedLength} (${firstMessage(expected)})`,
 		);
 	} else {
 		expected.messages.forEach((expectedMessage, i) => {
 			const foundMessage = found.messages[i];
 			if (foundMessage !== expectedMessage) {
 				const diff = colorDifferentStrings(expectedMessage, foundMessage);
-				problems.push(`Message diff [${i}]: ${diff}`);
+				const pp = ' '.repeat(String(i).length);
+				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
+				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}}`);
 			}
 		});
 	}
@@ -73,10 +90,167 @@ export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[]
 		const foundFusion = `"${foundOption.label}" = "${foundOption.script}"`;
 		if (expectedFusion !== foundFusion) {
 			const diff = colorDifferentStrings(expectedFusion, foundFusion);
-			problems.push(`Option diff [${i}]: ${diff}`);
+			const pp = ' '.repeat(String(i).length);
+			problems.push(`Option diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
+			problems.push(`${pp}      Expected: ${expectedFusion.replace(/\n/g, '\\n')}`);
 		}
 	});
 	return problems;
+};
+
+export const compareBigDialog = (
+	expected: EncoderDialog[],
+	found: Dialog[],
+	nameType: 'dialogName' | 'fileName',
+	name: string,
+	id?: number | string,
+): string[] => {
+	if (!found) {
+		const errorMessage =
+			nameType === 'dialogName'
+				? `Did not find expected dialog named "${name}"`
+				: `Did not find "${name}" [${id}] dialog`;
+		return [errorMessage];
+	}
+	if (!expected) {
+		const errorMessage =
+			nameType === 'dialogName'
+				? `Found unexpected dialog named "${name}"`
+				: `Unexpected dialog "${name}" [${id !== undefined ? id : '??'}]`;
+		return [errorMessage];
+	}
+	if (found.length !== expected.length) {
+		const errorMessage =
+			nameType === 'dialogName'
+				? `"${name}": found ${found.length} dialogs, expected ${expected.length}`
+				: `"${name}" [${id !== undefined ? id : '??'}]: found ${found.length} dialogs, expected ${expected.length}`;
+		return [errorMessage];
+	}
+	const errors: string[] = [];
+	found.forEach((foundItem, i) => {
+		const expectedItem = expected[i];
+		const diffs = compareDialogs(expectedItem, foundItem);
+		if (diffs.length) {
+			errors.push(
+				...diffs.map((v) => {
+					return '\t' + v;
+				}),
+			);
+		}
+	});
+	if (errors.length) {
+		const header =
+			nameType === 'dialogName'
+				? `Named dialog "${name}" has the following issue(s):\n`
+				: `Anonymous dialog "${name}" [${id !== undefined ? id : '??'}] has the following issue(s):`;
+
+		errors[0] = header + '\n' + errors[0];
+	}
+	return errors;
+};
+
+export const compareSeriesOfBigDialogs = (
+	expected: EncoderDialog[][],
+	found: MathlangDialogDefinition[],
+	fileName: string,
+): string[] => {
+	if (!found) {
+		return [`Did not find file "${fileName}" for anonymous dialog comparison`];
+	}
+	if (!expected) {
+		return [`Found unexpected file "${fileName}" for anonymous dialog comparison`];
+	}
+	const errors: string[] = [];
+	const homelessFound: Record<string, Dialog[][]> = {};
+	const homelessExpected: Record<string, EncoderDialog[][]> = {};
+	expected.forEach((expectedDialog, i) => {
+		const foundDialog = found[i].dialogs;
+		// get quick summary for quick comparison
+		const foundSummary = messagesSummary(foundDialog);
+		const expectedSummary = messagesSummary(expectedDialog);
+		if (foundSummary !== expectedSummary) {
+			// might be an overall ordering mismatch; set aside for now
+			homelessFound[foundSummary] = homelessFound[foundSummary] || [];
+			homelessExpected[expectedSummary] = homelessExpected[expectedSummary] || [];
+			homelessFound[foundSummary].push(foundDialog);
+			homelessExpected[expectedSummary].push(expectedDialog);
+			return;
+		}
+		const localErrors: string[] = [];
+		foundDialog.forEach((foundSingle, i) => {
+			const expectedSingle = expectedDialog[i];
+			const diffs = compareDialogs(expectedSingle, foundSingle);
+			localErrors.push(
+				...diffs.map((v, i) => {
+					const message = '\t' + v;
+					const header = `Dialog [${i}] from file "${fileName}" has the following issue(s):\n`;
+					return i === 0 ? header + message : message;
+				}),
+			);
+		});
+		if (localErrors.length) {
+			// STILL might be an overall ordering mismatch; set aside
+			homelessFound[foundSummary] = homelessFound[foundSummary] || [];
+			homelessExpected[expectedSummary] = homelessExpected[expectedSummary] || [];
+			homelessFound[foundSummary].push(foundDialog);
+			homelessExpected[expectedSummary].push(expectedDialog);
+			return;
+		}
+	});
+	// THE REST OF THE OWL
+	const summaryIDs = new Set([...Object.keys(homelessFound), ...Object.keys(homelessExpected)]);
+	[...summaryIDs].forEach((summaryID) => {
+		const founds: Dialog[][] = homelessFound[summaryID];
+		const expecteds: EncoderDialog[][] = homelessExpected[summaryID];
+		if (founds.length !== expecteds.length) {
+			errors.push(
+				`"${fileName}" ${summaryID}: found ${founds.length} dialogs, expected ${expecteds.length}`,
+			);
+			return;
+		}
+		if (founds.length === 1) {
+			const diffs = compareBigDialog(
+				expecteds[0],
+				founds[0],
+				'fileName',
+				fileName,
+				summaryID,
+			);
+			errors.push(...diffs);
+			return;
+		}
+		const workingFounds = [...founds];
+		const workingExpecteds = [...expecteds];
+		const nonMatchedFounds: Dialog[][] = [];
+		while (workingFounds.length) {
+			const found = workingFounds.shift();
+			if (found === undefined) throw new Error('TS seriously');
+			let matched = false;
+			for (let i = 0; i < workingExpecteds.length; i++) {
+				const expected = workingExpecteds[i];
+				const diffs = compareBigDialog(expected, found, 'fileName', fileName, summaryID);
+				if (!diffs.length) {
+					matched = true;
+					workingExpecteds.splice(i, 1);
+				}
+			}
+			if (!matched) {
+				nonMatchedFounds.push(found);
+			}
+		}
+		nonMatchedFounds.forEach((nonMatchedFound, i) => {
+			const remainingExpected = workingExpecteds[i];
+			const diffs = compareBigDialog(
+				remainingExpected,
+				nonMatchedFound,
+				'fileName',
+				fileName,
+				summaryID,
+			);
+			errors.push(...diffs);
+		});
+	});
+	return errors;
 };
 
 export const dialogs: Record<string, EncoderDialog[]> = {

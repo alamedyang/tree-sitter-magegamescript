@@ -41,7 +41,7 @@ export const handleCapture = (f: FileState, node: TreeSitterNode | null) => {
 				message: `Constant ${node.text} is undefined`,
 			});
 		}
-		return lookup?.value || node.text;
+		return lookup?.value !== undefined ? lookup?.value : node.text;
 	}
 	const fn = captureFns[grammarType];
 	if (!fn) throw new Error(`No handler function found for token ${grammarType}`);

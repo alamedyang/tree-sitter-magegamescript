@@ -56,8 +56,8 @@ export type DialogIdentifier = {
 };
 export type DialogOption = {
 	mathlang: 'dialog_option';
-	label: 'string';
-	script: 'string';
+	label: string;
+	script: string;
 	debug: TreeSitterNode;
 	fileName: string;
 };
