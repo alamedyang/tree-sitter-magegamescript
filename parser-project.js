@@ -278,7 +278,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				);
 			}
 			if (messages.length === 0) {
-				console.log('No issues found!');
+				console.log(`All your project's MGS files parsed with no issues!`);
 			} else {
 				console.log(`Issues found: ${messages.join(', ')}`);
 			}
@@ -315,19 +315,27 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 						// Normal
 						return handleNode(f, node);
 					} else if (!catastrophicErrorReported) {
-						// The first catastrophic error should be the last!
-						// Every node underneath is just wrecked. Nuke it all!
-						f.newError({
-							locations: [{ node }],
-							message: `catastrophic syntax error (naive guess: invalid script name)`,
-							footer:
-								`Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n` +
-								`   add { ... } // INVALID\n` +
-								`   include { ... } // INVALID\n` +
-								`   script add { ... } // fix with keyword\n` +
-								`   "include" { ... } // fix with quotes\n`,
-						});
-						catastrophicErrorReported = true;
+						if (node.text === ';') {
+							// semicolons after script definitions or such
+							f.newError({
+								locations: [{ node }],
+								message: `unexpected semicolon`,
+							});
+						} else {
+							// The first catastrophic error should be the last!
+							// Every node underneath is just wrecked. Nuke it all!
+							f.newError({
+								locations: [{ node }],
+								message: `catastrophic syntax error (naive guess: invalid script name)`,
+								footer:
+									`Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n` +
+									`   add { ... } // INVALID\n` +
+									`   include { ... } // INVALID\n` +
+									`   script add { ... } // fix with keyword\n` +
+									`   "include" { ... } // fix with quotes\n`,
+							});
+							catastrophicErrorReported = true;
+						}
 					}
 				})
 				.flat()

@@ -1820,9 +1820,9 @@ const runTests = async () => {
 
 		// DONE
 		if (errors.length === 0) {
-			console.log(`All (${actionTestNames.length}) tests good, chief!`);
+			console.log(`All ${actionTestNames.length} unit tests good, chief!`);
 		}
-		console.log('BREAKPOINT HERE');
+		// console.log('BREAKPOINT HERE');
 	});
 };
 

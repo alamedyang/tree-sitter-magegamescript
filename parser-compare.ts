@@ -602,8 +602,8 @@ const identical: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
-	console.log('PROJECT');
-	console.log(p);
+	// console.log('PROJECT');
+	// console.log(p);
 
 	// COMPARING DIALOGS
 	const foundDialogs = p.dialogs;
@@ -636,8 +636,8 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		console.log(`All ${dialogNames.size} named dialogs are identical!`);
 	}
 
-	const anonymousDialogDiffs: string[] = [];
 	// Comparing anonymous dialogs
+	const anonymousDialogDiffs: string[] = [];
 	[...dialogFileNames].forEach((name) => {
 		const expected: EncoderDialog[][] = expectedDialogsSorted[name];
 		const found: MATHLANG.MathlangDialogDefinition[] = foundDialogsSorted[name];
