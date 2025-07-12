@@ -276,7 +276,7 @@ export type ProjectState = {
 	gotoSuffixValue: number;
 	scripts: Record<string, Script>;
 	dialogs: Record<string, Dialog[]>;
-	serialDialogs: Record<string, SerialDialog>;
+	serialDialogs: Record<string, MathlangSerialDialogDefinition>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];
 	errorCount: number;

@@ -1,4 +1,7 @@
-type EncoderSerialDialog = {
+import { colorDifferentStrings } from '../parser-tests.js';
+import { type SerialDialog } from '../parser-types.ts';
+
+export type EncoderSerialDialog = {
 	messages: string[];
 	name: string;
 	text_options?: Record<string, string>;
@@ -6,6 +9,96 @@ type EncoderSerialDialog = {
 		label: string;
 		script: string;
 	}[];
+};
+
+export const firstMessage = (dialog: EncoderSerialDialog | SerialDialog): string => {
+	return dialog.messages[0].split(' ')[0];
+};
+export const messagesSummary = (dialogs: EncoderSerialDialog[] | SerialDialog[]): string => {
+	const summary = dialogs.map((dialog: EncoderSerialDialog | SerialDialog) => {
+		const length = dialog.messages.length;
+		const words = dialog.messages.map((v) => v.split(' ').slice(0, 3).join(' '));
+		return `${length}("${words}")`;
+	});
+	return summary.join(',');
+};
+
+export const compareSerialDialogs = (
+	expected: EncoderSerialDialog,
+	found: SerialDialog,
+	nameType: 'serialDialogName' | 'fileName',
+	name: string,
+	id?: number | string,
+): string[] => {
+	if (!found) {
+		const errorMessage =
+			nameType === 'serialDialogName'
+				? `Did not find expected serial dialog named "${name}"`
+				: `Did not find "${name}" [${id}] serial dialog`;
+		return [errorMessage];
+	}
+	if (!expected) {
+		const errorMessage =
+			nameType === 'serialDialogName'
+				? `Found unexpected serial dialog named "${name}"`
+				: `Unexpected serial dialog "${name}" [${id !== undefined ? id : '??'}]`;
+		return [errorMessage];
+	}
+	const problems: string[] = [];
+	const expectedLength = expected.messages.length;
+	const foundLength = found.messages.length;
+	if (expectedLength !== foundLength) {
+		problems.push(
+			`Found ${foundLength} messages (${firstMessage(found)}), ` +
+				`expected ${expectedLength} (${firstMessage(expected)})`,
+		);
+	} else {
+		expected.messages.forEach((expectedMessage, i) => {
+			const foundMessage = found.messages[i];
+			if (foundMessage !== expectedMessage) {
+				const diff = colorDifferentStrings(expectedMessage, foundMessage);
+				const pp = ' '.repeat(String(i).length);
+				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}`);
+				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}`);
+			}
+		});
+	}
+
+	const expectedOptions = expected.text_options || expected.options;
+	const foundOptions = found.options;
+	// no options? done early:
+	if (!expectedOptions && !foundOptions) {
+		return problems;
+	}
+	// todo check option types?
+	if (!expectedOptions || expectedOptions.length === 0) {
+		problems.push(`Expected serial dialog lacks options`);
+		return problems;
+	}
+	if (!foundOptions || foundOptions.length === 0) {
+		problems.push(`Found serial dialog (${name}) lacks options`);
+		return problems;
+	}
+	// if you're here, both serial dialogs have options, so let's compare them
+	if (foundOptions.length !== expectedOptions.length) {
+		problems.push(`Serial dialog option lengths do not match`);
+		return problems;
+	}
+	foundOptions.forEach((foundOption, i) => {
+		if (expectedOptions === undefined) {
+			throw new Error('TS really');
+		}
+		const expectedOption = expectedOptions[i];
+		const expectedFusion = `"${expectedOption.label}" = "${expectedOption.script}"`;
+		const foundFusion = `"${foundOption.label}" = "${foundOption.script}"`;
+		if (expectedFusion !== foundFusion) {
+			const diff = colorDifferentStrings(expectedFusion, foundFusion);
+			const pp = ' '.repeat(String(i).length);
+			problems.push(`Option diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
+			problems.push(`${pp}      Expected: ${expectedFusion.replace(/\n/g, '\\n')}`);
+		}
+	});
+	return problems;
 };
 
 export const serialDialogs: Record<string, EncoderSerialDialog> = {

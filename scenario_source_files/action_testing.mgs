@@ -1,11 +1,14 @@
 add dialog settings {
 	default {
 		alignment BL
-		wrap 0 // this will prevent the auto-wrap from wrapping
+		wrap 0 // this will prevent the auto-wrap from wrapping (for the purposes of parser tests)
 	}
 	label SELF {
 		entity "%SELF%"
 	}
+}
+add serial_dialog settings {
+	wrap 0 // ditto
 }
 
 "map-action_testing-go_register" {

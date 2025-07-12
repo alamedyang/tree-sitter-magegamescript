@@ -8,6 +8,11 @@ import { resolve as _resolve } from 'node:path';
 // Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
 import {
+	compareSerialDialogs,
+	type EncoderSerialDialog,
+	serialDialogs as origSerialDialogs,
+} from './comparisons/exfiltrated_serialdialogs.ts';
+import {
 	compareBigDialog,
 	compareSeriesOfBigDialogs,
 	type EncoderDialog,
@@ -581,6 +586,23 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 	};
 };
 
+const sortSerialDialogs = (
+	dialogs: Record<string, EncoderSerialDialog | MATHLANG.SerialDialog>,
+) => {
+	const ret = {
+		NAMED: {},
+	};
+	Object.entries(dialogs).forEach(([name, values]) => {
+		const splits = name.split('.mgs');
+		if (splits.length === 1) {
+			ret.NAMED[name] = values;
+		} else {
+			const useName = splits[0];
+			ret[useName] = values;
+		}
+	});
+	return ret;
+};
 const sortDialogs = (dialogs: Record<string, (EncoderDialog | MATHLANG.Dialog)[]>) => {
 	const ret = {
 		NAMED: {},
@@ -604,6 +626,57 @@ const bad: Record<string, PrintComparison> = {};
 parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	// console.log('PROJECT');
 	// console.log(p);
+
+	// COMPARING SERIAL DIALOGS
+	const foundSerialDialogs = {};
+	Object.entries(p.serialDialogs).map(([k, v]) => {
+		foundSerialDialogs[k] = v.serialDialog;
+	});
+	const expectedSerialDialogs: Record<string, EncoderSerialDialog> = origSerialDialogs;
+	const expectedSerialDialogsSorted = sortSerialDialogs(expectedSerialDialogs);
+	const foundSerialDialogsSorted = sortSerialDialogs(foundSerialDialogs);
+
+	const serialDialogNames = new Set([
+		...Object.keys(expectedSerialDialogsSorted.NAMED),
+		...Object.keys(foundSerialDialogsSorted.NAMED),
+	]);
+	const serialDialogFileNames = new Set([
+		...Object.keys(expectedSerialDialogsSorted),
+		...Object.keys(foundSerialDialogsSorted),
+	]);
+	serialDialogFileNames.delete('NAMED');
+
+	// Comparing named serial dialogs
+	const namedSerialDialogDiffs: string[] = [];
+	[...serialDialogNames].forEach((name) => {
+		const found: MATHLANG.SerialDialog = foundSerialDialogsSorted.NAMED[name];
+		const expected: EncoderSerialDialog = expectedSerialDialogsSorted.NAMED[name];
+		const diffs = compareSerialDialogs(expected, found, 'serialDialogName', name);
+		namedSerialDialogDiffs.push(...diffs);
+	});
+	if (namedSerialDialogDiffs.length) {
+		console.error(`Named serial dialogs: found ${namedSerialDialogDiffs.length} differences`);
+		console.error(namedSerialDialogDiffs.join('\n'));
+	} else {
+		console.log(`All ${serialDialogNames.size} named serial dialogs are identical!`);
+	}
+
+	// Comparing anonymous serial dialogs
+	const anonymousSerialDialogDiffs: string[] = [];
+	[...serialDialogFileNames].forEach((name) => {
+		const expected: EncoderSerialDialog = expectedSerialDialogsSorted[name];
+		const found: MATHLANG.SerialDialog = foundSerialDialogsSorted[name];
+		const diffs = compareSerialDialogs(expected, found, 'fileName', name);
+		anonymousSerialDialogDiffs.push(...diffs);
+	});
+	if (anonymousSerialDialogDiffs.length) {
+		console.error(`Anonymous dialogs: found ${anonymousSerialDialogDiffs.length} differences`);
+		console.error(anonymousSerialDialogDiffs.join('\n'));
+	} else {
+		console.log(
+			`All anonymous dialogs from all ${serialDialogFileNames.size} files are identical!`,
+		);
+	}
 
 	// COMPARING DIALOGS
 	const foundDialogs = p.dialogs;

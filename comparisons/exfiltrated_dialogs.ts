@@ -53,13 +53,13 @@ export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[]
 			if (foundMessage !== expectedMessage) {
 				const diff = colorDifferentStrings(expectedMessage, foundMessage);
 				const pp = ' '.repeat(String(i).length);
-				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
-				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}}`);
+				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}`);
+				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}`);
 			}
 		});
 	}
 	// no options? done early:
-	if (!expected.response_type || !found.response_type) {
+	if (!expected.response_type && !found.response_type) {
 		return problems;
 	}
 	if (!expected.response_type) {

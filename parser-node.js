@@ -375,16 +375,7 @@ const nodeFns = {
 			options,
 		};
 		const serialDialog = buildSerialDialogFromInfo(f, info, node);
-		return [
-			{
-				mathlang: 'serial_dialog',
-				serialDialog,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
-			},
-		];
+		return [serialDialog];
 	},
 	dialog: (f, node) => {
 		const settings = {};
