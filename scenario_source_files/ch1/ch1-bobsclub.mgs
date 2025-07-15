@@ -251,10 +251,7 @@ include "header.mgs";
 "show_dialog-bobwall" {
 	show dialog {
 		PLAYER "Wall of Bobs: famous Bobs."
-		"Robert Parr, superhero.
-Bob Kelso, physician.
-SpongeBob, fry cook.
-Sideshow Bob, entertainer."
+		"Robert Parr, superhero.\nBob Kelso, physician.\nSpongeBob, fry cook.\nSideshow Bob, entertainer."
 		"There sure are a lot of Bobs in the world."
 	};
 }
@@ -296,13 +293,10 @@ Sideshow Bob, entertainer."
 			SELF "Don't know nobody. All I know is, gotta keep everyone out."
 			"You know, unless their name is Bob."
 			PLAYER "Bob?"
-			SELF "Bob. Camel case.
-Nice and plain.
-Traditional."
+			SELF "Bob. Camel case.\nNice and plain.\nTraditional."
 			"'Cause this club is Bobs-only. You know, the Bobs-Only Club."
 			PLAYER "Why is it Bobs only?"
-			SELF "Why?
-Why is it Bobs only?"
+			SELF "Why?\nWhy is it Bobs only?"
 			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
 		};
 		if ("baker-backstory") { // optional dialog

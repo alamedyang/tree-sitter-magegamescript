@@ -51,7 +51,7 @@ export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[]
 		expected.messages.forEach((expectedMessage, i) => {
 			const foundMessage = found.messages[i];
 			if (foundMessage !== expectedMessage) {
-				const diff = colorDifferentStrings(expectedMessage, foundMessage);
+				const diff = colorDifferentStrings(expectedMessage, foundMessage).diff;
 				const pp = ' '.repeat(String(i).length);
 				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}`);
 				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}`);
@@ -89,7 +89,7 @@ export const compareDialogs = (expected: EncoderDialog, found: Dialog): string[]
 		const expectedFusion = `"${expectedOption.label}" = "${expectedOption.script}"`;
 		const foundFusion = `"${foundOption.label}" = "${foundOption.script}"`;
 		if (expectedFusion !== foundFusion) {
-			const diff = colorDifferentStrings(expectedFusion, foundFusion);
+			const diff = colorDifferentStrings(expectedFusion, foundFusion).diff;
 			const pp = ' '.repeat(String(i).length);
 			problems.push(`Option diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
 			problems.push(`${pp}      Expected: ${expectedFusion.replace(/\n/g, '\\n')}`);

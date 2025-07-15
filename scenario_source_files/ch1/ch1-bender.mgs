@@ -154,27 +154,33 @@ include "header.mgs";
 }
 
 "handler-bender-timer" {
-	wait 2800ms; /**/ entity "Bender" animation -> 2 once;
-	wait 3900ms; /**/ entity "Bender" animation -> 2 once;
+	wait 2800ms;
+	entity "Bender" animation -> 2 once;
+	wait 3900ms;
+	entity "Bender" animation -> 2 once;
 }
 
 /* ---- Bender choreography --- */
 
 "bite-my-shiny-metal-ass" {
 	player_control = off;
-	wait 300ms; /**/ self animation -> 3 once;
+	wait 300ms;
+	self animation -> 3 once;
 	player_control = on;
 }
 
 "bite-my-shiny-metal-ass-sad" {
 	player_control = off;
-	wait 300ms; /**/ self animation -> 3 once;
+	wait 300ms;
+	self animation -> 3 once;
 	player_control = on;
 }
 
 "on_tick-bender-loiter" {
 	self direction = south;
-	wait 1200ms; /**/ self direction = east;
-	wait 1400ms; /**/ self direction = north;
+	wait 1200ms;
+	self direction = east;
+	wait 1400ms;
+	self direction = north;
 	wait 2000ms;
 }

@@ -228,7 +228,7 @@ include "header.mgs";
 		"<bold><r>RTFM #D - RED LETTERS</>"
 		" "
 		"<bold>Meeting minutes</>: Smarch 16th, year 1337"
-		"<bold>Subject</>: a rubbing taken from a dilapidated granite plaque found deep in the Fortran Forest: <r>\"RED LETTERS MARK THE <r>HACKER.\"</>"
+		"<bold>Subject</>: a rubbing taken from a dilapidated granite plaque found deep in the Fortran Forest: <r>\"RED LETTERS MARK THE HACKER.\"</>"
 		"\t<m>Alfonso</>: Obviously this is a reference to a calendar. Perhaps the power to hack is granted to mages on specific days -- 'red-letter' days!"
 		"\t<m>Jackob</>: You mean mages can only become hackers on national holidays? Certainly not!"
 		"\t<m>Alfonso</>: What else might it mean by 'red letters,' then? Perhaps... when a mage becomes a hacker, it IS a red-letter day!"

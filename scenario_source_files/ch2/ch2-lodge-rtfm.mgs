@@ -37,7 +37,10 @@ include "header.mgs";
 
 "look-ch2-hexediting" {
 	show serial_dialog "spacer";
-	show serial_dialog "books-extra" {};
+	show serial_dialog "books-extra" { // referred to elsewhere
+		"You looked at the book called \"<m>%SELF%</>.\""
+		"\tThis tome resembles the hand-made \"Entities\" books, but this one was more neatly constructed and is less worn. It's one of a set of two."
+	};
 }
 
 "look-ch2-hexediting2" {
@@ -47,7 +50,11 @@ include "header.mgs";
 
 "look-ch2-redletters" {
 	show serial_dialog "spacer";
-	show serial_dialog "red-letter-pamphlet" {};
+	show serial_dialog "red-letter-pamphlet" { // referred to elsewhere
+		"You looked at the book called \"<m>%SELF%</>.\""
+		"\tThis sheet -- and its nearby counterpart -- are ripped on the left side, as if torn from a bound book. The paper is yellowed, particularly on the edges, and the ink is smeared in places."
+		"\tSome words are written in an ominous red."
+	};
 }
 
 "look-ch2-bookorigins" {

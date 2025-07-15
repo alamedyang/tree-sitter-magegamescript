@@ -14,13 +14,62 @@ export type EncoderSerialDialog = {
 export const firstMessage = (dialog: EncoderSerialDialog | SerialDialog): string => {
 	return dialog.messages[0].split(' ')[0];
 };
-export const messagesSummary = (dialogs: EncoderSerialDialog[] | SerialDialog[]): string => {
-	const summary = dialogs.map((dialog: EncoderSerialDialog | SerialDialog) => {
-		const length = dialog.messages.length;
-		const words = dialog.messages.map((v) => v.split(' ').slice(0, 3).join(' '));
-		return `${length}("${words}")`;
+export const messagesSummary = (serialDialog: EncoderSerialDialog | SerialDialog): string => {
+	return serialDialog.messages
+		.map((v) => '"' + v.split(' ').slice(0, 3).join(' ') + '"')
+		.join(',')
+		.replace(/\n/g, '\\n');
+};
+
+const compareSerialOptions = (expected: EncoderSerialDialog, found: SerialDialog) => {
+	const expectedTextOptions = Object.entries(expected.text_options || {});
+	const expectedPlainOptions = (expected.options || []).map((option) => [
+		option.label,
+		option.script,
+	]);
+
+	const expectedOptions =
+		expectedPlainOptions.length > 0 ? expectedPlainOptions : expectedTextOptions;
+	const foundOptions = (found.options || []).map((option) => [option.label, option.script]);
+
+	// neither have options? You're done
+	if (foundOptions.length === 0 && expectedOptions.length === 0) {
+		return [];
+	}
+
+	// compare found options
+	if (foundOptions.length) {
+		if (expectedOptions.length === 0) {
+			return [`found options in serial dialog, expected none`];
+		}
+	}
+	if (expectedOptions.length) {
+		if (foundOptions.length === 0) {
+			return [`expected options in serial dialog, found none`];
+		}
+	}
+	// todo: check options type
+
+	if (foundOptions.length !== expectedOptions.length) {
+		return [`found ${foundOptions.length} options, expected ${expectedOptions.length}`];
+	}
+
+	const errors: string[] = [];
+	foundOptions.forEach((foundOption, i) => {
+		const expectedOption = expectedOptions[i];
+		if (foundOption[0] !== expectedOption[0]) {
+			errors.push(
+				`found label "${foundOption[0]}" in option [${i}], expected "${expectedOption[0]}"`,
+			);
+		}
+		if (foundOption[1] !== expectedOption[1]) {
+			errors.push(
+				`found script "${foundOption[1]}" in option [${i}], expected "${expectedOption[1]}"`,
+			);
+		}
 	});
-	return summary.join(',');
+
+	return errors;
 };
 
 export const compareSerialDialogs = (
@@ -44,6 +93,9 @@ export const compareSerialDialogs = (
 				: `Unexpected serial dialog "${name}" [${id !== undefined ? id : '??'}]`;
 		return [errorMessage];
 	}
+	// get quick summary for quick comparison
+	// const foundSummary = messagesSummary(found);
+	// const expectedSummary = messagesSummary(expected);
 	const problems: string[] = [];
 	const expectedLength = expected.messages.length;
 	const foundLength = found.messages.length;
@@ -53,51 +105,51 @@ export const compareSerialDialogs = (
 				`expected ${expectedLength} (${firstMessage(expected)})`,
 		);
 	} else {
+		const localProblems: string[] = [];
 		expected.messages.forEach((expectedMessage, i) => {
 			const foundMessage = found.messages[i];
 			if (foundMessage !== expectedMessage) {
-				const diff = colorDifferentStrings(expectedMessage, foundMessage);
-				const pp = ' '.repeat(String(i).length);
-				problems.push(`Message diff [${i}]: ${diff.replace(/\n/g, '\\n')}`);
-				problems.push(`${pp}       Expected: ${expectedMessage.replace(/\n/g, '\\n')}`);
+				const diffColorReport = colorDifferentStrings(
+					expectedMessage.replace(/\n/g, '\\n').replace(/\u001B\[/g, '\\u001B['),
+					foundMessage.replace(/\n/g, '\\n').replace(/\u001B\[/g, '\\u001B['),
+				);
+				let diffFound = diffColorReport.diff;
+				let diffExpected = expectedMessage
+					.replace(/\n/g, '\\n')
+					.replace(/\u001B\[/g, '\\u001B[');
+				let diffPre = diffColorReport.pre;
+				if (diffPre.length > 60) {
+					const cutTo = diffPre.length - 40;
+					diffFound = '...' + diffFound.slice(cutTo);
+					diffExpected = '...' + diffExpected.slice(cutTo);
+					diffPre = '...' + diffPre.slice(cutTo);
+				}
+
+				const diffFoundHeader = `Message diff [${i}]: `;
+				const diffExpectedHeaderPre = `Expected: `;
+				const diffExpectedHeader =
+					' '.repeat(diffFoundHeader.length - diffExpectedHeaderPre.length) +
+					diffExpectedHeaderPre;
+				const diffPreHeader = '~'.repeat(diffFoundHeader.length);
+
+				const squiggle = '~'.repeat(diffPre.length - 1) + 'v';
+
+				localProblems.push(diffPreHeader + squiggle);
+				localProblems.push(diffFoundHeader + diffFound);
+				localProblems.push(diffExpectedHeader + diffExpected);
 			}
 		});
+		if (localProblems.length) {
+			problems.push(...localProblems);
+		}
 	}
 
-	const expectedOptions = expected.text_options || expected.options;
-	const foundOptions = found.options;
-	// no options? done early:
-	if (!expectedOptions && !foundOptions) {
-		return problems;
+	// REDO ALL OF THIS
+	const optionDiffs = compareSerialOptions(expected, found);
+	if (optionDiffs.length) {
+		problems.push(`Problems in serial dialog "${name}"`);
+		problems.push(...optionDiffs);
 	}
-	// todo check option types?
-	if (!expectedOptions || expectedOptions.length === 0) {
-		problems.push(`Expected serial dialog lacks options`);
-		return problems;
-	}
-	if (!foundOptions || foundOptions.length === 0) {
-		problems.push(`Found serial dialog (${name}) lacks options`);
-		return problems;
-	}
-	// if you're here, both serial dialogs have options, so let's compare them
-	if (foundOptions.length !== expectedOptions.length) {
-		problems.push(`Serial dialog option lengths do not match`);
-		return problems;
-	}
-	foundOptions.forEach((foundOption, i) => {
-		if (expectedOptions === undefined) {
-			throw new Error('TS really');
-		}
-		const expectedOption = expectedOptions[i];
-		const expectedFusion = `"${expectedOption.label}" = "${expectedOption.script}"`;
-		const foundFusion = `"${foundOption.label}" = "${foundOption.script}"`;
-		if (expectedFusion !== foundFusion) {
-			const diff = colorDifferentStrings(expectedFusion, foundFusion);
-			const pp = ' '.repeat(String(i).length);
-			problems.push(`Option diff [${i}]: ${diff.replace(/\n/g, '\\n')}}`);
-			problems.push(`${pp}      Expected: ${expectedFusion.replace(/\n/g, '\\n')}`);
-		}
-	});
 	return problems;
 };
 

@@ -1434,15 +1434,22 @@ export const colorDifferentStrings = (expected, found) => {
 	const diff = [];
 	const foundChars = found.split('');
 	let colored = false;
+	let pre = '';
 	for (let i = 0; i < foundChars.length; i++) {
 		const c = foundChars[i];
+		if (!colored) {
+			pre += c;
+		}
 		if (c !== expected[i] && !colored) {
 			diff.push(ansiTags.yellow);
 			colored = true;
 		}
 		diff.push(c);
 	}
-	return diff.join('') + ansiTags.reset;
+	return {
+		diff: diff.join('') + ansiTags.reset,
+		pre,
+	};
 };
 const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
 const makeTextUniform = (text) =>
@@ -1538,7 +1545,7 @@ const compareTexts = (_found, _expected, fileName, thingName) => {
 			return;
 		}
 		// or they really are different
-		const diff = colorDifferentStrings(expected, found);
+		const diff = colorDifferentStrings(expected, found).diff;
 		lines.push({
 			expected,
 			found,
@@ -1584,7 +1591,8 @@ const simplifyValues = (lh, rh) => {
 };
 const simplifyLiteral = (lh, rh) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
-	const diff = lh === rh ? rh : red + ` (expected ${colorDifferentStrings(rh || '', lh || '')})`;
+	const diff =
+		lh === rh ? rh : red + ` (expected ${colorDifferentStrings(rh || '', lh || '').diff})`;
 	return { lh, rh, diff };
 };
 const simplifyArrays = (origLH = [], origRH = []) => {

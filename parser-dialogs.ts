@@ -37,6 +37,12 @@ const countCharLength = (str: string) => {
 			remainder = remainder.slice(2);
 			continue;
 		}
+		const ansi = remainder.match(/^\u001B\[\d+m/);
+		if (ansi) {
+			length += 0;
+			remainder = remainder.slice(ansi[0].length);
+			continue;
+		}
 		// TODO: maybe don't do this part; probably slow
 		const canPrint = remainder.match(/^[-!"#$%&'()*+,./0-9:;<>=?@A-Z\[\]\\^_`a-z{}|~]+/);
 		if (canPrint) {
@@ -56,6 +62,7 @@ const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = fals
 		.replace(/\\n/g, '\n')
 		.replace(/\\t/g, '\t')
 		.replace(/\\"/g, '\"')
+		.replace(/\\\\/g, '\\')
 		.replace(/[“”]/g, '"')
 		.replace(/[‘’]/g, "'")
 		.replace(/…/g, '...')
