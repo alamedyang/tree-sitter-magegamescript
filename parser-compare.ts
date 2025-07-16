@@ -657,6 +657,7 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 
 	// Comparing anonymous serial dialogs
 	const anonymousSerialDialogDiffs: string[] = [];
+	const anonymousSerialDialogWarnings: string[] = [];
 	[...serialDialogFileNames].forEach((name) => {
 		const expected: EncoderSerialDialog[] = expectedSerialDialogsSorted[name];
 		const found: MATHLANG.SerialDialog[] = foundSerialDialogsSorted[name];
@@ -667,15 +668,28 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 			return;
 		}
 		const diffs = compareFileSerialDialogs(expected, found, name);
-		anonymousSerialDialogDiffs.push(...diffs);
+		anonymousSerialDialogDiffs.push(...diffs.errors);
+		anonymousSerialDialogWarnings.push(...diffs.warnings);
 	});
 	if (anonymousSerialDialogDiffs.length) {
 		console.error(`Anonymous dialogs: found ${anonymousSerialDialogDiffs.length} differences`);
+		if (anonymousSerialDialogWarnings.length) {
+			console.log(
+				`${anonymousSerialDialogWarnings.length} anonymous dialogs were near matches (text wrap issues)!`,
+			);
+		}
 		console.error(anonymousSerialDialogDiffs.join('\n'));
 	} else {
-		console.log(
-			`All anonymous dialogs from all ${serialDialogFileNames.size} files are identical!`,
-		);
+		if (anonymousSerialDialogWarnings.length) {
+			console.log(
+				`Most anonymous dialogs from all ${serialDialogFileNames.size} files are identical!\n` +
+					`${anonymousSerialDialogWarnings.length} anonymous dialogs were near matches (text wrap issues)!`,
+			);
+		} else {
+			console.log(
+				`All anonymous dialogs from all ${serialDialogFileNames.size} files are identical!`,
+			);
+		}
 	}
 
 	// COMPARING DIALOGS

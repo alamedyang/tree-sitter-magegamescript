@@ -112,6 +112,14 @@ export const compareSerialDialogs = (
 		expected.messages.forEach((expectedMessage, i) => {
 			const foundMessage = found.messages[i];
 			if (foundMessage !== expectedMessage) {
+				// text wrap issue? (old version had bug)
+				const foundMessageApprox = foundMessage.replace(/\n/g, ' ');
+				const expectedMessageApprox = expectedMessage.replace(/\n/g, ' ');
+				if (foundMessageApprox === expectedMessageApprox) {
+					localProblems.push(`WARNING: Text wrap diff, otherwise fine`);
+					return;
+				}
+				// nope, actually different
 				const diffColorReport = colorDifferentStrings(
 					expectedMessage.replace(/\n/g, '\\n').replace(/\u001B\[/g, '\\u001B['),
 					foundMessage.replace(/\n/g, '\\n').replace(/\u001B\[/g, '\\u001B['),
@@ -159,14 +167,21 @@ export const compareFileSerialDialogs = (
 	expected: EncoderSerialDialog[],
 	found: SerialDialog[],
 	fileName: string,
-) => {
+): { errors: string[]; warnings: string[] } => {
 	if (!found) {
-		return [`Did not find file "${fileName}" for anonymous dialog comparison`];
+		return {
+			warnings: [],
+			errors: [`Did not find file "${fileName}" for anonymous dialog comparison`],
+		};
 	}
 	if (!expected) {
-		return [`Found unexpected file "${fileName}" for anonymous dialog comparison`];
+		return {
+			warnings: [],
+			errors: [`Found unexpected file "${fileName}" for anonymous dialog comparison`],
+		};
 	}
 	const errors: string[] = [];
+	const warnings: string[] = [];
 	const homelessExpected: Record<string, EncoderSerialDialog[]> = {};
 	const homelessFound: Record<string, SerialDialog[]> = {};
 	expected.forEach((expectedSerialDialog, i) => {
@@ -216,7 +231,10 @@ export const compareFileSerialDialogs = (
 				fileName,
 				summaryID,
 			);
-			errors.push(...diffs);
+			const errorDiffs = diffs.filter((v) => !v.startsWith('WARN'));
+			const warnDiffs = diffs.filter((v) => v.startsWith('WARN'));
+			errors.push(...errorDiffs);
+			warnings.push(...warnDiffs);
 			return;
 		}
 		const workingFounds = [...founds];
@@ -235,7 +253,8 @@ export const compareFileSerialDialogs = (
 					fileName,
 					summaryID,
 				);
-				if (!diffs.length) {
+				const errorDiffs = diffs.filter((v) => !v.startsWith('WARN'));
+				if (!errorDiffs.length) {
 					matched = true;
 					workingExpecteds.splice(i, 1);
 				}
@@ -253,10 +272,16 @@ export const compareFileSerialDialogs = (
 				fileName,
 				summaryID,
 			);
-			errors.push(...diffs);
+			const errorDiffs = diffs.filter((v) => !v.startsWith('WARN'));
+			const warnDiffs = diffs.filter((v) => v.startsWith('WARN'));
+			errors.push(...errorDiffs);
+			warnings.push(...warnDiffs);
 		});
 	});
-	return errors;
+	return {
+		errors,
+		warnings,
+	};
 };
 
 export const serialDialogs: Record<string, EncoderSerialDialog> = {
@@ -5331,7 +5356,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 	},
 	'ch2-goosefacts.mgs:75:13': {
 		messages: [
-			'Did you know? \u001b[1mGoslings bond with the first living thing \u001b[1mthey\nsee!\u001b[0m Newly hatched geese (called goslings) assume the first\nliving thing they see is their mother. This is known as\n"imprinting".',
+			'Did you know? \u001b[1mGoslings bond with the first living thing they\n\u001b[1msee!\u001b[0m Newly hatched geese (called goslings) assume the first\nliving thing they see is their mother. This is known as\n"imprinting".',
 		],
 		name: 'ch2-goosefacts.mgs:75:13',
 	},
