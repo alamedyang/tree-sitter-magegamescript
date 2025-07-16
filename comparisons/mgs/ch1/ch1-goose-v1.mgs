@@ -90,7 +90,7 @@ rescue-goose {
 /* --------------- dialog --------------- */
 
 show_dialog-goose-generic {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Honk!" }
 }
 
@@ -105,18 +105,18 @@ show_dialog-goose-mad {
 
 /* --------------- debug --------------- */
 
-debug-win-rake-q {
-	copy face-player;
+debug_win_rake_q {
+	copy face_player;
 	show dialog {
 		SELF "Position rake in lake?"
-		> "Yes" : debug-win-rake-yes
-		> "No" : debug-win-rake-no
+		> "Yes" : debug_win_rake_yes
+		> "No" : debug_win_rake_no
 	}
 }
-debug-win-rake-yes {
+debug_win_rake_yes {
 	teleport entity Rake to geometry rake-lake-point;
-	set entity "%SELF%" on_interact to debug-win-rake-q;
+	set entity "%SELF%" on_interact to debug_win_rake_q;
 }
-debug-win-rake-no {
-	set entity "%SELF%" on_interact to debug-win-rake-q;
+debug_win_rake_no {
+	set entity "%SELF%" on_interact to debug_win_rake_q;
 }

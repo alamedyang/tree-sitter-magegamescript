@@ -59,7 +59,7 @@ include "header.mgs";
 		show dialog { SELF "...." "Bczv um jiks." };
 		return;
 	}
-	copy!("face-player")
+	copy!(face_player)
 	show dialog { SELF "Who needs help?" };
 	copy!("calculate-hint-tracking-series") // sets `hint-tracking-check`
 	if (!"storyflag-shepherd") {
@@ -249,7 +249,7 @@ include "header.mgs";
 			SELF "Vg'f tbbq gung lbh'er cenpgvpvat, ohg creuncf lbh fubhyq sbphf ba erfgbevat gur gbja?"
 		};
 	} else {
-		copy!("face-player")
+		copy!(face_player)
 		show dialog {
 			SELF "Did you have a question about something?"
 		};

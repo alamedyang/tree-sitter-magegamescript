@@ -75,11 +75,7 @@ $calc = #5AB5F7;
 	}
 	// EXTERNAL
 	show serial_dialog { "On the outside is:" };
-	if (
-		"ch2_installed_monitor"
-		|| "ch2_installed_keyboard"
-		|| "ch2_installed_mouse"
-	) {
+	if (ch2_installed_monitor || ch2_installed_keyboard || ch2_installed_mouse) {
 		if ("ch2_installed_monitor") {
 			show serial_dialog { "\t- a monitor" };
 		}
@@ -98,7 +94,7 @@ $calc = #5AB5F7;
 
 "look_ch2_wizard" {
 	show serial_dialog spacer;
-	if (entity "Wizard" current_animation == 0) { // WIZARD IS DOWN
+	if (entity Wizard current_animation == 0) { // WIZARD IS DOWN
 		show serial_dialog spacer;
 		show serial_dialog {
 			"You looked at the <m>%SELF%</>."
@@ -117,13 +113,13 @@ $calc = #5AB5F7;
 
 "on_load_ch2_castle_1_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2_in_room" = 1;
+	ch2_in_room = 1;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE ENTRANCE</>..." };
 
-	entity "Wizard" on_interact = "interact_ch2_wizard_mainframedone";
-	entity "Wizard" current_animation = 3; // head poking up
+	entity Wizard on_interact = "interact_ch2_wizard_mainframedone";
+	entity Wizard current_animation = 3; // head poking up
 	if (warp_state == "raw_game_load-ch2") {
 		copy!(restore_player_state)
 	} else if (warp_state == "walk_from-north") {
@@ -140,7 +136,7 @@ $calc = #5AB5F7;
 		goto "ch2-castle-1-ending";
 	}
 	// ch2 room state
-	"ch2_in_room" = 1;
+	ch2_in_room = 1;
 	ch2_seen_room_1 = true;
 
 	// entrance text
@@ -149,16 +145,16 @@ $calc = #5AB5F7;
 
 	// room unique stuff
 	if ("ch2_cutseen_bert_secret") {
-		entity "Bert" on_tick = yeet;
+		entity Bert on_tick = yeet;
 		// so his name is blank for when Ring Zero is back
 	}
 
-	if ("ch2-ring-zero-enabled-in-castle") {
-		entity "Wizard" on_interact = "interact_ch2_wizard_mainframedone";
-		entity "Wizard" current_animation = 3; // head poking up
+	if ("ch2_ring_zero_enabled_in_castle") {
+		entity Wizard on_interact = "interact_ch2_wizard_mainframedone";
+		entity Wizard current_animation = 3; // head poking up
 	}
 	if ("ch2-has-artifact") {
-		entity "Artifact" on_tick = yeet;
+		entity Artifact on_tick = yeet;
 	}
 	if (warp_state == "raw_game_load-ch2") {
 		copy!(restore_player_state)
@@ -168,32 +164,32 @@ $calc = #5AB5F7;
 		player position = geometry "mainframe-look-spot";
 	}
 	if ("ch2_carrying_mainframeos") {
-		entity "Wizard" current_animation = 3;
+		entity Wizard current_animation = 3;
 	}
 	copy!(ch2_map_init)
 
 	// DEBUG
 	if (debug_mode) {
-		command "credits" = "debug-ch2-credits";
-		command "toot" = "debug-finish-toot";
-		command "walk" = "debug-walk";
-		command "get" + "monitor" = "ch2_pickup_monitor";
-		command "get" + "heatsink" = "ch2_pickup_heatsink";
-		command "get" + "cactuscooler" = "ch2_pickup_cactuscooler";
-		command "get" + "powersupply" = "ch2_pickup_powersupply";
-		command "get" + "keyboard" = "ch2_pickup_keyboard";
-		command "get" + "mouse" = "ch2_pickup_mouse";
-		command "get" + "harddrive" = "ch2-solder-harddrive";
-		command "get" + "plate" = "ch2_pickup_plate";
-		command "get" + "needle" = "ch2_pickup_needle";
-		command "get" + "ramchips" = "ch2_pickup_ramchips";
-		command "get" + "clock" = "ch2_pickup_clock";
-		command "get" + "goldfish" = "ch2_pickup_goldfish";
-		command "get" + "abacus" = "ch2_pickup_abacus";
-		command "get" + "cpu" = "ch2-solder-cpu";
-		command "round" + "1" = "debug-get-items-for-round1";
-		command "round" + "2" = "debug-get-items-for-round2";
-		command "round" + "3" = "debug-get-items-for-round3";
+		command credits = "debug-ch2-credits";
+		command toot = "debug_finish_toot";
+		command walk = "debug-walk";
+		command get + monitor = "ch2_pickup_monitor";
+		command get + heatsink = "ch2_pickup_heatsink";
+		command get + cactuscooler = "ch2_pickup_cactuscooler";
+		command get + powersupply = "ch2_pickup_powersupply";
+		command get + keyboard = "ch2_pickup_keyboard";
+		command get + mouse = "ch2_pickup_mouse";
+		command get + harddrive = "ch2-solder-harddrive";
+		command get + plate = "ch2_pickup_plate";
+		command get + needle = "ch2_pickup_needle";
+		command get + ramchips = "ch2_pickup_ramchips";
+		command get + clock = "ch2_pickup_clock";
+		command get + goldfish = "ch2_pickup_goldfish";
+		command get + abacus = "ch2_pickup_abacus";
+		command get + cpu = "ch2-solder-cpu";
+		command round + "1" = "debug_get_items_for_round1";
+		command round + "2" = "debug_get_items_for_round2";
+		command round + "3" = "debug_get_items_for_round3";
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> this room only"
@@ -207,7 +203,7 @@ $calc = #5AB5F7;
 	// END DEBUG
 	copy!("ch2-player-spawn-click-protection")
 }
-"debug-finish-toot" {
+"debug_finish_toot" {
 	"ch2_storyflag_round" = 1;
 	"ch2-has-map" = true;
 	"ch2-has-artifact" = true;
@@ -221,14 +217,14 @@ $calc = #5AB5F7;
 }
 
 "debug-walk" {
-	entity "Artifact" position = geometry "artifact-look";
-	entity "Artifact" type = "artifact";
-	entity "Artifact" current_animation = 0;
-	entity "XA" on_interact = "ch2-artifact-walk";
+	entity Artifact position = geometry "artifact-look";
+	entity Artifact type = artifact;
+	entity Artifact current_animation = 0;
+	entity XA on_interact = "ch2-artifact-walk";
 }
 "tick-artifact-open" {
-	entity "Artifact" animation -> 2 once;
-	entity "Artifact" current_animation = 3;
+	entity Artifact animation -> 2 once;
+	entity Artifact current_animation = 3;
 	goto null_script;
 }
 "ch2-camera-to-artifact" {
@@ -238,10 +234,10 @@ $calc = #5AB5F7;
 "ch2-artifact-walk" {
 	player_control = off; // temp (take out of final)
 	wait 70ms;
-	entity "XA" on_tick = "ch2-camera-to-artifact";
+	entity XA on_tick = "ch2-camera-to-artifact";
 	wait 500ms;
 	// a dumbwaiter-esque thing opens
-	entity "Artifact" on_tick = "tick-artifact-open";
+	entity Artifact on_tick = "tick-artifact-open";
 	wait 400ms;
 	player direction = geometry "artifact-look";
 	wait 1700ms;
@@ -260,8 +256,8 @@ $calc = #5AB5F7;
 	player direction = north;
 	wait 1000ms;
 	// bling
-	entity "Artifact" animation -> 1 once;
-	entity "Artifact" current_animation = 3;
+	entity Artifact animation -> 1 once;
+	entity Artifact current_animation = 3;
 	wait 550ms;
 	player position -> geometry "artifact-approach" length over 350ms;
 	wait 170ms;
@@ -272,10 +268,10 @@ $calc = #5AB5F7;
 	// walks up to it
 	player position -> geometry "artifact-get" origin over 200ms;
 	wait 600ms;
-	entity "Artifact" on_tick = yeet;
+	entity Artifact on_tick = yeet;
 	// remove artifact
 	wait 100ms;
-	entity "XA" on_tick = "ch2-camera-from-artifact";
+	entity XA on_tick = "ch2-camera-from-artifact";
 	wait 200ms;
 	player position -> geometry "artifact-approach" origin over 600ms;
 	wait 300ms;
@@ -338,7 +334,7 @@ $calc = #5AB5F7;
 	if (dialog closed) {
 		// check for hax button press
 		// (Not going to do shenanigans like this for other rooms because if you've left room 1 then you've seen the tutorial already)
-		if (!"ch2-ring-zero-enabled-in-castle") {
+		if (!"ch2_ring_zero_enabled_in_castle") {
 			if (button HAX pressed) { // You're attempting to use Ring Zero and...
 				// ...you've been told Ring Zero won't work
 				if ("ch2-toot-done") {
@@ -399,7 +395,7 @@ $calc = #5AB5F7;
 	if ("ch2-wait-for-hat-touch") {
 		goto "ch2-wait-for-hat-touch-message";
 	}
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 }
 
 // SERIAL: go
@@ -487,32 +483,32 @@ $calc = #5AB5F7;
 
 "ch2-wizard-ascend" {
 	player_control = off;
-	entity "Wizard" animation -> 5 once;
-	entity "Wizard" current_animation = 3;
+	entity Wizard animation -> 5 once;
+	entity Wizard current_animation = 3;
 	player_control = on;
 }
 "tick-ch2-wizard-ascend-and-watch-with-check" {
-	if (entity "Wizard" current_animation == 0) { // WIZARD IS DOWN
+	if (entity Wizard current_animation == 0) { // WIZARD IS DOWN
 		// show serial_dialog {"DEBUG: Wizard is down! Switching on_tick to to 'tick-ch2-wizard-ascend-and-watch'"};
 		goto "tick-ch2-wizard-ascend-and-watch";
 	} else {
 		// show serial_dialog {"DEBUG: Wizard is not <bold>strictly</> down..."};
-		entity "Wizard" current_animation = 3;
+		entity Wizard current_animation = 3;
 	}
-	entity "Wizard" on_tick = "face-player";
+	entity Wizard on_tick = face_player;
 }
 "tick-ch2-wizard-ascend-and-watch" {
-	// show serial_dialog {"\t'entity "Wizard" animation -> 5 once'"};
-	entity "Wizard" animation -> 5 once;
-	// show serial_dialog {"\t'entity "Wizard" current_animation = 3'"};
-	entity "Wizard" current_animation = 3;
-	// show serial_dialog {"\t'entity "Wizard" on_tick = "face-player'"}";
-	entity "Wizard" on_tick = "face-player";
+	// show serial_dialog {"\t'entity Wizard animation -> 5 once'"};
+	entity Wizard animation -> 5 once;
+	// show serial_dialog {"\t'entity Wizard current_animation = 3'"};
+	entity Wizard current_animation = 3;
+	// show serial_dialog {"\t'entity Wizard on_tick = "face_player'"}";
+	entity Wizard on_tick = face_player;
 }
 "ch2-wizard-descend" {
 	player_control = off;
-	entity "Wizard" animation -> 4 once;
-	entity "Wizard" current_animation = 0;
+	entity Wizard animation -> 4 once;
+	entity Wizard current_animation = 0;
 	player_control = on;
 }
 
@@ -533,8 +529,8 @@ $calc = #5AB5F7;
 		show dialog { SELF "Hi." };
 	}
 	else if ("ch2-wait-for-hat-touch") {
-		player direction = entity "Wizard";
-		entity "Wizard" direction = player;
+		player direction = entity Wizard;
+		entity Wizard direction = player;
 		show dialog {
 			PLAYER "Um, how do I get the hex editor to come up again?"
 			Wizard "Don't look at me. I don't use touch screens."
@@ -601,13 +597,13 @@ $calc = #5AB5F7;
 "ch2-spin-wizard" {
 	player_control = off;
 	wait 100ms;
-	entity "Wizard" direction += 1;
+	entity Wizard direction += 1;
 	wait 100ms;
-	entity "Wizard" direction += 1;
+	entity Wizard direction += 1;
 	wait 100ms;
-	entity "Wizard" direction += 1;
+	entity Wizard direction += 1;
 	wait 100ms;
-	entity "Wizard" direction += 1;
+	entity Wizard direction += 1;
 	wait 100ms;
 	player_control = on;
 }
@@ -620,7 +616,7 @@ $calc = #5AB5F7;
 		"Can I help install it? Please?"
 		PLAYER "I wouldn't have it any other way."
 	};
-	entity "Wizard" on_tick = null_script;
+	entity Wizard on_tick = null_script;
 	copy!("ch2-spin-wizard")
 	show dialog {
 		Wizard "Awesome!"
@@ -628,7 +624,7 @@ $calc = #5AB5F7;
 		PLAYER "Well, it's like a flat disk thing, all rainbowy on one side...."
 		Wizard "A CD or DVD or something? Cool, cool."
 	};
-	entity "Wizard" direction = entity "mainframe";
+	entity Wizard direction = entity mainframe;
 	show dialog {
 		Wizard "Press the button on that slot there and the disc tray will open. Then set the disc on the tray, rainbow side down, and press the button again to close it."
 	};
@@ -642,12 +638,12 @@ $calc = #5AB5F7;
 	}
 	player direction = north;
 	wait 900ms;
-	player direction = entity "Wizard";
+	player direction = entity Wizard;
 	show dialog {
 		PLAYER "Okay, now what?"
 		Wizard "Hit the power button."
 	};
-	player direction = entity "mainframe";
+	player direction = entity mainframe;
 	show dialog {
 		Wizard "The machine will try to boot from the hard drive first. If there's nothing there, it should try the optical drive next."
 		"Not sure if that disc will give us a full installer with a bunch of settings, or if it'll just start up on its own."
@@ -662,26 +658,26 @@ $calc = #5AB5F7;
 	show dialog {
 		PLAYER "!!"
 	};
-	player direction = entity "Wizard";
+	player direction = entity Wizard;
 	show dialog {
 		PLAYER "Look! It's working!"
 	};
-	player direction = entity "mainframe";
-	entity "Wizard" direction = west;
+	player direction = entity mainframe;
+	entity Wizard direction = west;
 	wait 200ms;
-	entity "Wizard" direction = east;
+	entity Wizard direction = east;
 	wait 200ms;
-	entity "Wizard" direction = west;
+	entity Wizard direction = west;
 	wait 200ms;
-	entity "Wizard" direction = east;
+	entity Wizard direction = east;
 	show dialog {
 		Wizard "Aw, come on! Straight to boot? No startup settings at least?"
 	};
-	entity "Wizard" direction = south;
+	entity Wizard direction = south;
 	show dialog {
 		Wizard "Oh well. Guess that's how things are gonna play out. Not much fun for me though. Guess I still helped, technically."
 	};
-	entity "Wizard" direction = east;
+	entity Wizard direction = east;
 	player on_tick = "ch2-wait-for-boot";
 	copy!("ch2-bootup")
 	serial_control = off;
@@ -694,7 +690,7 @@ $calc = #5AB5F7;
 	goto "ch2-install-wizard-resume2";
 }
 "ch2-install-wizard2" {
-	entity "Wizard" on_tick = "face-player";
+	entity Wizard on_tick = face_player;
 	wait 300ms;
 	camera fade out -> #FFDD00 over 600ms;
 	wait 100ms;
@@ -707,8 +703,8 @@ $calc = #5AB5F7;
 		"Oh! It's warm! I wonder if it'll work now?"
 		PLAYER "What was it again? \"Touch the hat on the PCB\" -- right?"
 	};
-	"ch2-ring-zero-enabled-in-castle" = true;
-	// show serial_dialog {""ch2-ring-zero-enabled-in-castle" = true;"};
+	"ch2_ring_zero_enabled_in_castle" = true;
+	// show serial_dialog {""ch2_ring_zero_enabled_in_castle" = true;"};
 	player_control = on;
 	// show serial_dialog {"player_control = on;"};
 	if (!debug_mode) {
@@ -744,12 +740,12 @@ $calc = #5AB5F7;
 	copy!("ch2-ending-fadeout")
 	load map "ch2-castle-21";
 }
-"ch2-castle-21-ending" {
+"ch2_castle_21_ending" {
 	player_control = off;
 	serial_control = off;
 	camera = geometry "warp-spot";
 	player position = geometry "hiding-spot";
-	entity "abacus" on_tick = yeet;
+	entity abacus on_tick = yeet;
 	entity "Jean-Paul" direction = south;
 	copy!("ch2-ending-fadein")
 	wait 800ms;
@@ -757,13 +753,13 @@ $calc = #5AB5F7;
 		Frankie alignment TL "...Oh!"
 		"I'm in! I've got full access again! Let's gooo!"
 	};
-	entity "Jean-Paul" direction = entity "Frankie";
+	entity "Jean-Paul" direction = entity Frankie;
 	wait 400ms;
 	entity "Jean-Paul" direction = south;
 	copy!("ch2-ending-fadeout")
 	load map "ch2-castle-22";
 }
-"ch2-castle-22-ending" {
+"ch2_castle_22_ending" {
 	player_control = off;
 	serial_control = off;
 	camera = geometry "warp-spot";
@@ -778,7 +774,7 @@ $calc = #5AB5F7;
 	load map "ch2-castle-13";
 }
 "sebastian-to-three" {
-	entity "Sebastian" position -> geometry "end-sebastian3" origin over 800ms;
+	entity Sebastian position -> geometry "end-sebastian3" origin over 800ms;
 }
 "ch2-castle-13-ending" {
 	player_control = off;
@@ -791,7 +787,7 @@ $calc = #5AB5F7;
 		Sebastian "Ah, yessss! The mana boosters have spun up!"
 		"Step aside, Your Majesty. I'll handle this."
 	};
-	entity "Sebastian" on_tick = "sebastian-to-three";
+	entity Sebastian on_tick = "sebastian-to-three";
 	wait 200ms;
 	copy!("ch2-ending-fadeout")
 	copy!(ch2_load_castle_1_special)
@@ -806,7 +802,7 @@ $calc = #5AB5F7;
 	camera = player position;
 	player position = geometry "mainframe-look-spot";
 	player direction = south;
-	entity "Wizard" current_animation = 3;
+	entity Wizard current_animation = 3;
 	copy!("ch2-ending-fadein")
 	wait 300ms;
 	// goto "ch2-castle-1-ending2";
@@ -819,7 +815,7 @@ $calc = #5AB5F7;
 	};
 	"ch2_storyflag_round" = 5;
 	player_control = off;
-	entity "XA" on_tick = "ch2-player-exit";
+	entity XA on_tick = "ch2-player-exit";
 	warp_state = "ch2-ending";
 	camera fade out -> #000000 over 1500ms;
 	"credits-from-menu" = false;

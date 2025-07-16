@@ -273,7 +273,7 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "interact_ch2_trekkie" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "Oh, %PLAYER%! Me heard you were going to the serial castle in the mountain!"

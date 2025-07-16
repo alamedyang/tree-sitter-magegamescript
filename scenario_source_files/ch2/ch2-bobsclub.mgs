@@ -88,8 +88,8 @@ $fridge = 3;
 // DEBUG
 "find-cc" { "ch1-found-cactuscooler" = true; }
 "unfind-cc" { "ch1-found-cactuscooler" = false; }
-"want-cc" { "ch2-want-cactuscooler" = true; }
-"unwant-cc" { "ch2-want-cactuscooler" = false; }
+"want-cc" { "ch2_want_cactuscooler" = true; }
+"unwant-cc" { "ch2_want_cactuscooler" = false; }
 "basement" { ch2_cutseen_bob_party = true; }
 "unbasement" { ch2_cutseen_bob_party = false; }
 "toot" {
@@ -102,7 +102,7 @@ $fridge = 3;
 }
 "reset" {
 	ch2_carrying_cactuscooler = false;
-	"ch2-want-cactuscooler" = false;
+	"ch2_want_cactuscooler" = false;
 	"ch1-found-cactuscooler" = false;
 	ch2_cutseen_bob_party = false;
 	"ch2-toot-done" = false;
@@ -163,7 +163,7 @@ $fridge = 3;
 		wait 220ms;
 		// Intro words
 		if (!"ch2-saw-emptybobroom") {
-			player on_tick = "look-left-and-right-fast";
+			player on_tick = "look_left_and_right_fast";
 			show dialog {
 				PLAYER "Huh? That's weird. Where did everyone go?"
 				"And what's that muffled thumping noise?"
@@ -176,7 +176,7 @@ $fridge = 3;
 		}
 		copy!("player-look-down")
 		// CC followup
-		if ("ch2-want-cactuscooler") { // You KNOW you need CC
+		if ("ch2_want_cactuscooler") { // You KNOW you need CC
 			if ("ch1-found-cactuscooler") {
 				show dialog {
 					PLAYER "At least I can grab some Cactus Cooler while I'm here. I know I saw some in the fridge yesterday."
@@ -196,10 +196,10 @@ $fridge = 3;
 		player_control = on;
 	}
 	else { // You HAVE been in the basement
-		if ("ch2-want-cactuscooler") { // If you know you need CC
+		if ("ch2_want_cactuscooler") { // If you know you need CC
 			if ( // You've already collected the CC
 				"ch2_carrying_cactuscooler"
-				|| "ch2-cactuscooler-delivered"
+				|| "ch2_cactuscooler_delivered"
 			) {
 				// DO NOTHING
 			}
@@ -305,7 +305,7 @@ $fridge = 3;
 "interact_ch2_bobfridge" {
 	if ( // You've already collected the CC
 		"ch2_carrying_cactuscooler"
-		|| "ch2-cactuscooler-delivered"
+		|| "ch2_cactuscooler_delivered"
 	) {
 		show dialog { PLAYER "Nothing in here." };
 	}
@@ -331,7 +331,7 @@ $fridge = 3;
 
 "ch2-bobrattling" { // Hint that there's more inside the building
 	if (!ch2_cutseen_bob_party) {
-		player on_tick = "look-left-and-right-fast";
+		player on_tick = "look_left_and_right_fast";
 		// naive only
 		if ("ch2-rattle-count" == 0) {
 			show dialog {

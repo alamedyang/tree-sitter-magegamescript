@@ -6,7 +6,7 @@ watch-bert {
 	turn entity "%SELF%" toward entity Bert;
 }
 
-ch2-cutscene-bert-secret {
+ch2_cutscene_bert_secret {
 	turn player control off;
 	wait 800ms;
 	teleport entity Bert to geometry bert-spot;

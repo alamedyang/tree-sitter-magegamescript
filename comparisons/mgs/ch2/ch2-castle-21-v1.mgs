@@ -93,7 +93,7 @@ on_load_ch2_castle_21_postgame {
 	copy ch2_map_init;
 }
 on_load_ch2_castle_21 {
-	if warp state is "ch2 ending" then goto ch2-castle-21-ending;
+	if warp state is "ch2 ending" then goto ch2_castle_21_ending;
 	// ch2 room state
 	mutate ch2_in_room = 21;
 
@@ -193,15 +193,15 @@ on_go_castle_21_east {
 
 /* ---------- ABACUS (ADMIN) ---------- */
 
-ch2-touch-abacus {
+ch2_touch_abacus {
 	if (variable ch2_storyflag_round is < 3) {
 		turn entity Frankie toward entity "%PLAYER%";
-		if (flag ch2-abacus-firstlook is false) {
+		if (flag ch2_abacus_firstlook is false) {
 			show dialog {
 				PLAYER alignment TR "What's this? One of those kids toys from a dentist office?"
 				Frankie "It's an old counting device called an abacus."
 			}
-			set flag ch2-abacus-firstlook to true;
+			set flag ch2_abacus_firstlook to true;
 		}
 		show dialog {
 			PLAYER alignment TR "It looks fun to clack those beads up and down."
@@ -210,11 +210,11 @@ ch2-touch-abacus {
 		turn entity Frankie south;
 		return;
 	}
-	if (flag ch2-abacus-permission is true) {
+	if (flag ch2_abacus_permission is true) {
 		show dialog {
 			name "" "(Pick up the abacus?)"
-			> "Yes" : ch2-touch-abacus-yes
-			> "No" : ch2-touch-abacus-no
+			> "Yes" : ch2_touch_abacus_yes
+			> "No" : ch2_touch_abacus_no
 		}
 		// auto end due to branching dialog
 	}
@@ -237,8 +237,8 @@ ch2-touch-abacus {
 			Frankie "If you would. It's black with a blue stripe on the top. Thanks."
 		}
 		set flag ch2_abacus_backstory to true;
-		set flag ch2-want-manual to true;
-		copy ch2-handoff-abacus-to-manual;
+		set flag ch2_want_manual to true;
+		copy ch2_handoff_abacus_to_manual;
 		turn entity Frankie south;
 	} else {
 		show dialog {
@@ -252,7 +252,7 @@ ch2_hide_abacus {
 	set entity "abacus" name to " ";
 }
 
-ch2-touch-abacus-yes {
+ch2_touch_abacus_yes {
 	show dialog {
 		name "" "(You pick up the abacus!)"
 	}
@@ -260,11 +260,11 @@ ch2-touch-abacus-yes {
 	copy script ch2_pickup_abacus;
 	set entity "%SELF%" on_interact to null_script;
 }
-ch2-touch-abacus-no {
+ch2_touch_abacus_no {
 	show dialog {
 		PLAYER "Maybe later, then."
 	}
-	set entity "%SELF%" on_interact to ch2-touch-abacus;  // reset after script jump
+	set entity "%SELF%" on_interact to ch2_touch_abacus;  // reset after script jump
 }
 
 /* ---------- ENTITIES ---------- */
@@ -289,7 +289,7 @@ interact_ch2_figurines {
 }
 
 interact_ch2_jeanpaul {
-	copy face-player;
+	copy face_player;
 	if (variable ch2_storyflag_round is < 3) {
 		show dialog {
 			JEANPAUL "The rubble is too much for us to move on our own, so instead we've been doing damage assessment for the castle's digital systems."
@@ -301,7 +301,7 @@ interact_ch2_jeanpaul {
 		show dialog {
 			JEANPAUL "Good luck building your computer."
 		}
-	} else if (flag ch2-want-ramchips is false) {
+	} else if (flag ch2_want_ramchips is false) {
 		mutate CALLBACK = 1;
 		goto interact_ch2_room21_split;
 	} else if (flag interrupt is true) {
@@ -311,13 +311,13 @@ interact_ch2_jeanpaul {
 			JEANPAUL "Erm, no, he's a stone golem, but let's just say he's a creative character."
 		}
 	} else {
-		copy interact_ch2_room21_split-s;
+		copy interact_ch2_room21_split_s;
 	}
 	turn entity "%SELF%" south;
 }
 
 interact_ch2_frankie {
-	copy face-player;
+	copy face_player;
 	if (variable ch2_storyflag_round is < 3) {
 		show dialog {
 			Frankie "If we can get the intercom system working, we can coordinate with people trapped in other rooms."
@@ -337,12 +337,12 @@ interact_ch2_frankie {
 		}
 		set flag ch2_carrying_manual to false;
 		set flag ch2_installed_manual to true;
-		set flag ch2-abacus-permission to true;
+		set flag ch2_abacus_permission to true;
 		turn entity Frankie south;
 		return;
 	}
 	if (flag ch2_abacus_backstory is true) {
-		if (flag ch2-abacus-permission is false) {
+		if (flag ch2_abacus_permission is false) {
 			turn entity Frankie toward entity "%PLAYER%";
 			show dialog {
 				PLAYER alignment TR "Where did you say the manual was again?"
@@ -364,7 +364,7 @@ interact_ch2_frankie {
 		turn entity Frankie south;
 		return;
 	}
-	if (flag ch2-want-ramchips is false) {
+	if (flag ch2_want_ramchips is false) {
 		mutate CALLBACK = 2;
 		goto interact_ch2_room21_split;
 	} else if (flag interrupt is true) {
@@ -373,7 +373,7 @@ interact_ch2_frankie {
 			"Because... you know."
 		}
 	} else {
-		copy interact_ch2_room21_split-s;
+		copy interact_ch2_room21_split_s;
 	}
 	turn entity Frankie south; // also added to all "early returns" O.o
 }
@@ -389,7 +389,7 @@ interact_ch2_room21_split {
 		JEANPAUL "Lambda? Who's that?"
 		PLAYER "He's someone helping me."
 	}
-	if (flag ch2-lambda-deletion-backstory is false) {
+	if (flag ch2_lambda_deletion_backstory is false) {
 		show dialog {
 			PLAYER "Though... I thought you might know him. He seems like a pretty important person around here."
 			JEANPAUL "What does he look like?"
@@ -469,8 +469,8 @@ interact_ch2_room21_split {
 	show dialog {
 		JEANPAUL "Good luck, kid."
 	}
-	set flag ch2-want-ramchips to true;
-	copy ch2-handoff-ramchips-to-seamoss;
+	set flag ch2_want_ramchips to true;
+	copy ch2_handoff_ramchips_to_seamoss;
 	set flag interrupt to true;
 	turn entity Jean-Paul south;
 	turn entity Frankie south;
@@ -489,7 +489,7 @@ interact_ch2_room21_split {
 	}
 }
 
-interact_ch2_room21_split-s {
+interact_ch2_room21_split_s {
 	turn entity Jean-Paul toward entity "%PLAYER%";
 	turn entity Frankie toward entity "%PLAYER%";
 	show dialog {
@@ -507,22 +507,22 @@ interact_ch2_room21_split-s {
 }
 
 interact_ch2_frankie_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Wow, it's so much easier to fix everything with the castle connected. I was tearing my hair out!" }
 	turn entity "%SELF%" south;
 }
 interact_ch2_jeanpaul_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Almost done patching things up. Then it's off to see the band!" }
 	turn entity "%SELF%" south;
 }
 interact_ch2_goose {
-	if (flag ch2_installed_minirake-99 is true) {
+	if (flag ch2_installed_minirake_99 is true) {
 		show dialog {
 			PLAYER "I guess the goose likes me."
 			Goose "Honk!"
 		}
-	} else if (flag ch2_carrying_minirake-99 is false) {
+	} else if (flag ch2_carrying_minirake_99 is false) {
 	    show dialog {
 			name "" "(An image of the goose honking atop a mountain of rakes floods your mind.)"
 			PLAYER "Did the goose just..."
@@ -537,7 +537,7 @@ interact_ch2_goose {
 			name "" "(The goose seems to fluff its feathers and almost glow with an RGB shimmer. Somehow it seems stronger, and it honks with a mischievious smile in eyes.)"
 			PLAYER "We seem to be an... accomplice? Or perhaps this is a new partnership?"
 		}
-		set flag ch2_carrying_minirake-99 to false;
-		set flag ch2_installed_minirake-99 to true;
+		set flag ch2_carrying_minirake_99 to false;
+		set flag ch2_installed_minirake_99 to true;
     }
 }

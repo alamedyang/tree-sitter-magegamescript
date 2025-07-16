@@ -415,7 +415,7 @@ ALL DONE! (Probably)
 
 For each item: (Copy existing pattern wherever these are found)
 
-1. Put entity on a map (`ENTITY`) and set `on_interact` = `ch2-touch-ITEM`
+1. Put entity on a map (`ENTITY`) and set `on_interact` = `ch2_touch_ITEM`
 2. In file `ch2/ch2-admin.mgs`:
     1. Script `command-inventory` — Add serial dialog `\tITEM` display check (using flag `ch2-carrying-ITEM`)
     2. Script `ch2-count-flags` — Add tally logic check (using flag `ch2-installed-ITEM`)
@@ -425,7 +425,7 @@ For each item: (Copy existing pattern wherever these are found)
     2. Make script `ch2-hide-ITEM`
         - `teleport entity ENTITY to geometry hiding-spot`
         - `set entity ENTITY name to " "`
-    3. Make script `ch2-touch-ITEM`
+    3. Make script `ch2_touch_ITEM`
         - (Copy existing pattern)
     4. Make script `ch2-install-ITEM`
         - `set flag ch2-carrying-ITEM to false`

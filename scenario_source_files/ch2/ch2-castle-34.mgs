@@ -55,7 +55,7 @@ include "header.mgs";
 
 "on_load_ch2_castle_34" {
 	// ch2 room state
-	"ch2_in_room" = 34;
+	ch2_in_room = 34;
 
 	// entrance text
 	show serial_dialog spacer;
@@ -96,7 +96,7 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_exit_ch2_castle_34" { // sanitize ch2 room state
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 }
 
 // SERIAL: go
@@ -120,9 +120,9 @@ include "header.mgs";
 
 "interact_ch2_pantryfridge" {
 	if (
-		!"ch2-want-cactuscooler"
+		!"ch2_want_cactuscooler"
 		|| "ch2_carrying_cactuscooler"
-		|| "ch2-cactuscooler-delivered"
+		|| "ch2_cactuscooler_delivered"
 	) {
 		show dialog {
 			PLAYER "Meats and fruits and vegetables... oh my."
@@ -135,9 +135,9 @@ include "header.mgs";
 }
 "interact_ch2_pantryshelf" {
 	if (
-		!"ch2-want-cactuscooler"
+		!"ch2_want_cactuscooler"
 		|| "ch2_carrying_cactuscooler"
-		|| "ch2-cactuscooler-delivered"
+		|| "ch2_cactuscooler_delivered"
 	) {
 		show dialog {
 		PLAYER "Looks like a lot of dry and canned goods."
@@ -162,7 +162,7 @@ include "header.mgs";
 	show dialog {
 		PLAYER "Yeah."
 	};
-	if ("ch2-plate-firstlook") {
+	if ("ch2_plate_firstlook") {
 		show dialog {
 			Clara "Well, the plates are in there."
 			PLAYER "The PlateMover 9000?"
@@ -171,7 +171,7 @@ include "header.mgs";
 		show dialog {
 			Clara "Well, that thing is a PlateMover 9000. The plates are in there."
 		};
-		"ch2-plate-firstlook" = true;
+		"ch2_plate_firstlook" = true;
 	}
 	player direction = entity "Clara";
 	show dialog {
@@ -226,7 +226,7 @@ Cactus Cooler    .     X        .     X
 
 "interact_ch2_clara" {
 	if ("ch2_storyflag_round" < 2) {
-		copy!("interrupt-walk")
+		copy!(interrupt_walk)
 		if (!"ch2_clara_backstory") {
 			show dialog {
 				SELF "Holy crap -- a new person!"
@@ -234,9 +234,9 @@ Cactus Cooler    .     X        .     X
 			};
 		}
 		if (
-			!"ch2-want-cactuscooler"
+			!"ch2_want_cactuscooler"
 			|| "ch2_carrying_cactuscooler"
-			|| "ch2-cactuscooler-delivered"
+			|| "ch2_cactuscooler_delivered"
 		) {
 			if (!"ch2_clara_backstory") {
 				// just so it doesn't take this branch the first time:
@@ -251,7 +251,7 @@ Cactus Cooler    .     X        .     X
 				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
 			};
 		}
-		copy!("resume-walk")
+		copy!("resume_walk")
 	} else if ("ch2_jukebox_backstory") {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
@@ -267,9 +267,9 @@ Cactus Cooler    .     X        .     X
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
 
-"ch2-touch-plate" {
+"ch2_touch_plate" {
 	if ("ch2_storyflag_round" < 2) {
-		if (!"ch2-plate-firstlook") {
+		if (!"ch2_plate_firstlook") {
 			show dialog {
 				PLAYER "This thing is a PlateMover 90?"
 				Clara "Oh, it's actually a PlateMover 9000. It's so old, the last few numbers have worn off."
@@ -277,7 +277,7 @@ Cactus Cooler    .     X        .     X
 				PLAYER "It looks like a jukebox."
 				Clara "It acts like a jukebox."
 			};
-			"ch2-plate-firstlook" = true;
+			"ch2_plate_firstlook" = true;
 		}
 	} else if (!"ch2_jukebox_backstory") {
 		show dialog {

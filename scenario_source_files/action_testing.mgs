@@ -29,19 +29,19 @@ add serial_dialog settings {
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "go",
 			"argument": "west",
-			"script": "debug-go-space"
+			"script": "debug_go_space"
 		},
 		{
 			"is_fail": false,
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "look",
-			"script": "debug-look-override"
+			"script": "debug_look_override"
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "look",
 			"argument": "Mage 01",
-			"script": "debug-look-mage01-override"
+			"script": "debug_look_mage01-override"
 		}
 	]
 	show serial_dialog "serial_dialog-go_override" {
@@ -54,19 +54,19 @@ add serial_dialog settings {
 			"action": "UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "go",
 			"argument": "west",
-			"script": "debug-go-space"
+			"script": "debug_go_space"
 		},
 		{
 			"is_fail": false,
 			"action": "UNREGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "look",
-			"script": "debug-look-override"
+			"script": "debug_look_override"
 		},
 		{
 			"action": "UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "look",
 			"argument": "keyboard",
-			"script": "debug-look-mage01-override"
+			"script": "debug_look_mage01-override"
 		}
 	]
 	show serial_dialog "serial_dialog-go_un-override" {
@@ -2627,18 +2627,18 @@ serial_dialog "honk_point" { "HONK!" }
 		}
 	]
 }
-"debug-go-space" {
-	show serial_dialog "dialog-debug-go-space" {
+"debug_go_space" {
+	show serial_dialog "dialog-debug_go_space" {
 		"HONK! The goose has stolen the door!"
 	};
 }
-"debug-look-override" {
-	show serial_dialog "dialog-debug-look-override" {
+"debug_look_override" {
+	show serial_dialog "dialog-debug_look_override" {
 		"HONK! The goose tells you an awesome story about the rise and fall of his enemies, and prevents you from looking about the room!"
 	};
 }
-"debug-look-mage01-override" {
-	show serial_dialog "dialog-debug-look-mage01-override" {
+"debug_look_mage01-override" {
+	show serial_dialog "dialog-debug_look_mage01-override" {
 		"HONK! The goose attacks when you try to look at the 'Mage 01'!"
 	};
 }

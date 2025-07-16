@@ -47,7 +47,7 @@ show_dialog-bender-start {
 	} else { // unglitched Bender
 		// normal dialog; turn off bender's handler and make him face the player
 		copy set-bender-handler-off;
-		copy face-player;
+		copy face_player;
 		/* ----- puzzle was solved(?) ----- */
 		if (flag storyflag-bender is true) { // SOLVED
 			if (entity Bender type is bender) { // and he's still bender
@@ -145,7 +145,7 @@ set-bender-handler-off {
 	set entity Bender on_tick to null_script;
 }
 set-bender-handler-on {
-	set entity Bender on_tick to face-player;
+	set entity Bender on_tick to face_player;
 	set entity "Bob Austin" on_tick to handler-bender-timer;
 }
 set-bender-handler-none {

@@ -34,62 +34,62 @@ const! (
 	$rocking = 12
 )
 
-simon-game-launcher {
+simon_game_launcher {
 	// turn hex control off
-	set entity Simon on_tick to simon-game-start-q;
+	set entity Simon on_tick to simon_game_start_q;
 }
 
-simon-game-start-q {
+simon_game_start_q {
 	set entity Simon current_animation to 12;
-	if (flag ch2-simon-high is true) {
+	if (flag ch2_simon_high is true) {
 		show dialog {
 			Simon emote 1 "How about it? Want a high battle?"
-			> "Absolutely. A high battle it is!" : simon-game-start
-			> "No, let's do a low battle" : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Absolutely. A high battle it is!" : simon_game_start
+			> "No, let's do a low battle" : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 		}
 	} else {
 		show dialog {
 			Simon emote 1 "How about it? Want a low battle?"
-			> "Definitely. Low battle all the way!" : simon-game-start
-			> "No, let's do a high battle." : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Definitely. Low battle all the way!" : simon_game_start
+			> "No, let's do a high battle." : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 		}
 	}
 }
-simon-game-start-q-swap {
-	if (flag ch2-simon-high is true) {
-		set flag ch2-simon-high to false;
+simon_game_start_q_swap {
+	if (flag ch2_simon_high is true) {
+		set flag ch2_simon_high to false;
 		show dialog {
 			Simon emote 1 "Oho, so you'd like a low battle?"
-			> "Definitely. Low battle all the way!" : simon-game-start
-			> "No, let's do a high battle." : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Definitely. Low battle all the way!" : simon_game_start
+			> "No, let's do a high battle." : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 
 		}
 	} else {
-		set flag ch2-simon-high to true;
+		set flag ch2_simon_high to true;
 		show dialog {
 			Simon emote 1 "I see, so you'd like a high battle?"
-			> "Absolutely. A high battle it is!" : simon-game-start
-			> "No, let's do a low battle." : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Absolutely. A high battle it is!" : simon_game_start
+			> "No, let's do a low battle." : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 		}
 	}
 }
 
-simon-game-start-difference {
+simon_game_start_difference {
 	turn lights control on;
 	turn light ALL off;
 	set entity Simon current_animation to 0;
 	show dialog {
 		Simon "A HIGH battle is all about a full, square sound. Easier on the eyes but harder on the thumbs, if you get my meaning."
 	}
-	set entity Lights on_tick to screen-lights-flash-battle-high;
+	set entity Lights on_tick to screen_lights_flash_battle_high;
 	show dialog {
 		Simon "I'm talkin' about these lights up here, of course!"
 	}
@@ -98,17 +98,17 @@ simon-game-start-difference {
 	show dialog {
 		Simon "A LOW battle is more about quick fingers. It's better for those who prefer to hold their destiny in their own two hands."
 	}
-	set entity Lights on_tick to screen-lights-flash-battle-low;
+	set entity Lights on_tick to screen_lights_flash_battle_low;
 	show dialog {
 		Simon "That means these lights down here, naturally!"
 	}
 	set entity Lights on_tick to $lightsdefault;
 	copy ch2_map_init_hex;
-	goto simon-game-start-q;
+	goto simon_game_start_q;
 }
 
-simon-game-start-nevermind {
-	if (flag ch2-simon-won-before is false) {
+simon_game_start_nevermind {
+	if (flag ch2_simon_won_before is false) {
 		set entity Simon current_animation to 0;
 		show dialog {
 			Simon "Humph. Well, then I'm not trusting you with Rosetta! Come back when you can prove you deserve to have a keytar as gorgeous as this!"
@@ -120,10 +120,10 @@ simon-game-start-nevermind {
 		}
 	}
 	set entity Simon current_animation to 0;
-	goto simon-game-start-q-wrapup;
+	goto simon_game_start_q_wrapup;
 }
 
-simon-game-start-q-wrapup {
+simon_game_start_q_wrapup {
 	set entity Simon current_animation to 0;
 	set entity Simon on_interact to interact_ch2_simon;
 	goto null_script;
@@ -147,26 +147,26 @@ Simon animations:
 13: pissed
 */
 
-simon-game-start {
+simon_game_start {
 	turn player control off;
 	turn hex control off;
-	mutate simon-pos1 ? 4;
-	mutate simon-pos2 ? 4;
-	mutate simon-pos3 ? 4;
-	mutate simon-pos4 ? 4;
-	mutate simon-pos5 ? 4;
-	mutate simon-pos6 ? 4;
-	mutate simon-pos7 ? 4;
-	if (flag ch2-simon-high is true) {
-		mutate simon-pos1 + 2;
-		mutate simon-pos2 + 2;
-		mutate simon-pos3 + 2;
-		mutate simon-pos4 + 2;
-		mutate simon-pos5 + 2;
-		mutate simon-pos6 + 2;
-		mutate simon-pos7 + 2;
+	mutate simon_pos1 ? 4;
+	mutate simon_pos2 ? 4;
+	mutate simon_pos3 ? 4;
+	mutate simon_pos4 ? 4;
+	mutate simon_pos5 ? 4;
+	mutate simon_pos6 ? 4;
+	mutate simon_pos7 ? 4;
+	if (flag ch2_simon_high is true) {
+		mutate simon_pos1 + 2;
+		mutate simon_pos2 + 2;
+		mutate simon_pos3 + 2;
+		mutate simon_pos4 + 2;
+		mutate simon_pos5 + 2;
+		mutate simon_pos6 + 2;
+		mutate simon_pos7 + 2;
 	}
-	mutate simon-round = 1;
+	mutate simon_round = 1;
 	turn lights control on;
 	turn light ALL off;
 	wait 100ms;
@@ -179,29 +179,29 @@ simon-game-start {
 	turn entity "%PLAYER%" south;
 	turn entity Simon south;
 	fade in camera from black over 400ms;
-	if (flag ch2-simon-high is true) {
-		set entity Lights on_tick to screen-lights-flash-battle-high;
-		if (flag ch2-simon-heard-high is false) {
+	if (flag ch2_simon_high is true) {
+		set entity Lights on_tick to screen_lights_flash_battle_high;
+		if (flag ch2_simon_heard_high is false) {
 			show dialog {
 				Simon emote 1 "Here we go! Keep your eyes up top!"
 				"Pay attention to those four corners around the screen!"
 				"Follow my lead! LET'S GOOOO!"
 			}
-			set flag ch2-simon-heard-high to true;
+			set flag ch2_simon_heard_high to true;
 		} else {
 			show dialog {
 				Simon emote 1 "Keep your eyes up top and copy my moves! LET'S GOOOO!"
 			}
 		}
 	} else {
-		set entity Lights on_tick to screen-lights-flash-battle-low;
-		if (flag ch2-simon-heard-low is false) {
+		set entity Lights on_tick to screen_lights_flash_battle_low;
+		if (flag ch2_simon_heard_low is false) {
 			show dialog {
 				Simon emote 1 "Here we go! Keep your eyes down low!"
 				"It's the bottom of the screen that counts now! Keep your thumbs frisky!"
 				"Follow my lead! LET'S GOOOO!"
 			}
-			set flag ch2-simon-heard-low to true;
+			set flag ch2_simon_heard_low to true;
 		} else {
 			show dialog {
 				Simon emote 1 "Keep your eyes down low and copy my moves! LET'S GOOOO!"
@@ -210,44 +210,44 @@ simon-game-start {
 	}
 	set entity Lights on_tick to $lightsdefault;
 	turn light ALL off;
-	goto simon-enemy-turn-start;
+	goto simon_enemy_turn_start;
 }
 
-simon-enemy-turn-start {
-	set flag ch2-simon-move-fail to false;
+simon_enemy_turn_start {
+	set flag ch2_simon_move_fail to false;
 	wait 800ms;
-	for (mutate i = 0; variable i is < simon-round; mutate i + 1) {
-		if (variable i is == 0) { mutate simon-pos-curr = simon-pos1; }
-		else if (variable i is == 1) { mutate simon-pos-curr = simon-pos2; }
-		else if (variable i is == 2) { mutate simon-pos-curr = simon-pos3; }
-		else if (variable i is == 3) { mutate simon-pos-curr = simon-pos4; }
-		else if (variable i is == 4) { mutate simon-pos-curr = simon-pos5; }
-		else if (variable i is == 5) { mutate simon-pos-curr = simon-pos6; }
-		else if (variable i is == 6) { mutate simon-pos-curr = simon-pos7; }
+	for (mutate i = 0; variable i is < simon_round; mutate i + 1) {
+		if (variable i is == 0) { mutate simon_pos_curr = simon_pos1; }
+		else if (variable i is == 1) { mutate simon_pos_curr = simon_pos2; }
+		else if (variable i is == 2) { mutate simon_pos_curr = simon_pos3; }
+		else if (variable i is == 3) { mutate simon_pos_curr = simon_pos4; }
+		else if (variable i is == 4) { mutate simon_pos_curr = simon_pos5; }
+		else if (variable i is == 5) { mutate simon_pos_curr = simon_pos6; }
+		else if (variable i is == 6) { mutate simon_pos_curr = simon_pos7; }
 		// see $roundcount
 
 		// loopy
-		if (variable simon-pos-curr is == 0) {
+		if (variable simon_pos_curr is == 0) {
 			turn light $light0 on;
 			set entity Simon current_animation to 11;
 		}
-		else if (variable simon-pos-curr is == 1) {
+		else if (variable simon_pos_curr is == 1) {
 			turn light $light1 on;
 			set entity Simon current_animation to 8;
 		}
-		else if (variable simon-pos-curr is == 2) {
+		else if (variable simon_pos_curr is == 2) {
 			turn light $light2 on;
 			set entity Simon current_animation to 10;
 		}
-		else if (variable simon-pos-curr is == 3) {
+		else if (variable simon_pos_curr is == 3) {
 			turn light $light3 on;
 			set entity Simon current_animation to 7;
 		}
-		else if (variable simon-pos-curr is == 4) {
+		else if (variable simon_pos_curr is == 4) {
 			turn light $light4 on;
 			set entity Simon current_animation to 9;
 		}
-		else if (variable simon-pos-curr is == 5) {
+		else if (variable simon_pos_curr is == 5) {
 			turn light $light5 on;
 			set entity Simon current_animation to 6;
 		}
@@ -257,90 +257,90 @@ simon-enemy-turn-start {
 		wait 150ms;
 		
 	}
-	goto simon-player-turn-start;
+	goto simon_player_turn_start;
 }
 
-simon-player-turn-start {
+simon_player_turn_start {
 	wait 10ms;
 	mutate i = 0;
 	// turn player control on;
-	goto simon-player-turn-loop-start;
+	goto simon_player_turn_loop_start;
 }
 
-simon-player-turn-loop-start {
-	if (variable i is >= simon-round) {
-		goto simon-player-turn-end;
+simon_player_turn_loop_start {
+	if (variable i is >= simon_round) {
+		goto simon_player_turn_end;
 	}
-	if (variable i is == 0) { mutate simon-pos-curr = simon-pos1; }
-	else if (variable i is == 1) { mutate simon-pos-curr = simon-pos2; }
-	else if (variable i is == 2) { mutate simon-pos-curr = simon-pos3; }
-	else if (variable i is == 3) { mutate simon-pos-curr = simon-pos4; }
-	else if (variable i is == 4) { mutate simon-pos-curr = simon-pos5; }
-	else if (variable i is == 5) { mutate simon-pos-curr = simon-pos6; }
-	else if (variable i is == 6) { mutate simon-pos-curr = simon-pos7; }
+	if (variable i is == 0) { mutate simon_pos_curr = simon_pos1; }
+	else if (variable i is == 1) { mutate simon_pos_curr = simon_pos2; }
+	else if (variable i is == 2) { mutate simon_pos_curr = simon_pos3; }
+	else if (variable i is == 3) { mutate simon_pos_curr = simon_pos4; }
+	else if (variable i is == 4) { mutate simon_pos_curr = simon_pos5; }
+	else if (variable i is == 5) { mutate simon_pos_curr = simon_pos6; }
+	else if (variable i is == 6) { mutate simon_pos_curr = simon_pos7; }
 	// see $roundcount
 
 	// loopy
-	goto simon-player-listen;
+	goto simon_player_listen;
 }
 
-simon-player-listen {
+simon_player_listen {
 	turn entity "%PLAYER%" south;
 	// CHECK FAILS FIRST
 
 	// high-only positions
-	if (flag ch2-simon-high is true) {
-		if (variable simon-pos-curr is not == 4) {
+	if (flag ch2_simon_high is true) {
+		if (variable simon_pos_curr is not == 4) {
 			if (button $button4) {
-				// show serial dialog {"PRESSED BUTTON 4 (listening for $simon-pos-curr$)"}
-				mutate simon-player-move = 4;
-				set flag ch2-simon-move-fail to true;
-				goto simon-player-do-move;
+				// show serial dialog {"PRESSED BUTTON 4 (listening for $simon_pos_curr$)"}
+				mutate simon_player_move = 4;
+				set flag ch2_simon_move_fail to true;
+				goto simon_player_do_move;
 			}
 		}
-		if (variable simon-pos-curr is not == 5) {
+		if (variable simon_pos_curr is not == 5) {
 			if (button $button5) {
-				// show serial dialog {"PRESSED BUTTON 5 (listening for $simon-pos-curr$)"}
-				mutate simon-player-move = 5;
-				set flag ch2-simon-move-fail to true;
-				goto simon-player-do-move;
+				// show serial dialog {"PRESSED BUTTON 5 (listening for $simon_pos_curr$)"}
+				mutate simon_player_move = 5;
+				set flag ch2_simon_move_fail to true;
+				goto simon_player_do_move;
 			}
 		}
 	}
 	// low-only positions
 	else {
-		if (variable simon-pos-curr is not == 0) {
+		if (variable simon_pos_curr is not == 0) {
 			if (button $button0) {
-				// show serial dialog {"PRESSED BUTTON 0 (listening for $simon-pos-curr$)"}
-				mutate simon-player-move = 0;
-				set flag ch2-simon-move-fail to true;
-				goto simon-player-do-move;
+				// show serial dialog {"PRESSED BUTTON 0 (listening for $simon_pos_curr$)"}
+				mutate simon_player_move = 0;
+				set flag ch2_simon_move_fail to true;
+				goto simon_player_do_move;
 			}
 		}
-		if (variable simon-pos-curr is not == 1) {
+		if (variable simon_pos_curr is not == 1) {
 			if (button $button1) {
-				// show serial dialog {"PRESSED BUTTON 1 (listening for $simon-pos-curr$)"}
-				mutate simon-player-move = 1;
-				set flag ch2-simon-move-fail to true;
-				goto simon-player-do-move;
+				// show serial dialog {"PRESSED BUTTON 1 (listening for $simon_pos_curr$)"}
+				mutate simon_player_move = 1;
+				set flag ch2_simon_move_fail to true;
+				goto simon_player_do_move;
 			}
 		}
 	}
 	// positions for both low and high
-	if (variable simon-pos-curr is not == 2) {
+	if (variable simon_pos_curr is not == 2) {
 		if (button $button2) {
-			// show serial dialog {"PRESSED BUTTON 2 (listening for $simon-pos-curr$)"}
-			mutate simon-player-move = 2;
-			set flag ch2-simon-move-fail to true;
-			goto simon-player-do-move;
+			// show serial dialog {"PRESSED BUTTON 2 (listening for $simon_pos_curr$)"}
+			mutate simon_player_move = 2;
+			set flag ch2_simon_move_fail to true;
+			goto simon_player_do_move;
 		}
 	}
-	if (variable simon-pos-curr is not == 3) {
+	if (variable simon_pos_curr is not == 3) {
 		if (button $button3) {
-			// show serial dialog {"PRESSED BUTTON 3 (listening for $simon-pos-curr$)"}
-			mutate simon-player-move = 3;
-			set flag ch2-simon-move-fail to true;
-			goto simon-player-do-move;
+			// show serial dialog {"PRESSED BUTTON 3 (listening for $simon_pos_curr$)"}
+			mutate simon_player_move = 3;
+			set flag ch2_simon_move_fail to true;
+			goto simon_player_do_move;
 		}
 	}
 	// (We don't want buttons not involved to trigger a fail)
@@ -348,216 +348,216 @@ simon-player-listen {
 	// CHECK SUCCESSES
 
 	// high-only positions
-	if (flag ch2-simon-high is true) {
-		if (variable simon-pos-curr is == 4) {
+	if (flag ch2_simon_high is true) {
+		if (variable simon_pos_curr is == 4) {
 			if (button $button4) {
-				mutate simon-player-move = 4;
-				goto simon-player-do-move;
+				mutate simon_player_move = 4;
+				goto simon_player_do_move;
 			}
 		}
-		if (variable simon-pos-curr is == 5) {
+		if (variable simon_pos_curr is == 5) {
 			if (button $button5) {
-				mutate simon-player-move = 5;
-				goto simon-player-do-move;
+				mutate simon_player_move = 5;
+				goto simon_player_do_move;
 			}
 		}
 	}
 	// low-only positions
 	else {
-		if (variable simon-pos-curr is == 0) {
+		if (variable simon_pos_curr is == 0) {
 			if (button $button0) {
-				mutate simon-player-move = 0;
-				goto simon-player-do-move;
+				mutate simon_player_move = 0;
+				goto simon_player_do_move;
 			}
 		}
-		if (variable simon-pos-curr is == 1) {
+		if (variable simon_pos_curr is == 1) {
 			if (button $button1) {
-				mutate simon-player-move = 1;
-				goto simon-player-do-move;
+				mutate simon_player_move = 1;
+				goto simon_player_do_move;
 			}
 		}
 	}
 	// positions for both low and high
-	if (variable simon-pos-curr is == 2) {
+	if (variable simon_pos_curr is == 2) {
 		if (button $button2) {
-			mutate simon-player-move = 2;
-			goto simon-player-do-move;
+			mutate simon_player_move = 2;
+			goto simon_player_do_move;
 		}
 	}
-	if (variable simon-pos-curr is == 3) {
+	if (variable simon_pos_curr is == 3) {
 		if (button $button3) {
-			mutate simon-player-move = 3;
-			goto simon-player-do-move;
+			mutate simon_player_move = 3;
+			goto simon_player_do_move;
 		}
 	}
-	set entity Simon on_tick to simon-player-listen; // reset this loop (on next game tick?)
+	set entity Simon on_tick to simon_player_listen; // reset this loop (on next game tick?)
 }
 
-simon-player-animation-pose_bottom_left {
+simon_player_animation_pose_bottom_left {
 	// set entity "%PLAYER%" current_animation to $pose_pre_left;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_bottom_left;
-	goto simon-player-animation-pose_bottom_left-wait;
+	goto simon_player_animation_pose_bottom_left_wait;
 }
-simon-player-animation-pose_bottom_right {
+simon_player_animation_pose_bottom_right {
 	// set entity "%PLAYER%" current_animation to $pose_pre_right;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_bottom_right;
-	goto simon-player-animation-pose_bottom_right-wait;
+	goto simon_player_animation_pose_bottom_right_wait;
 }
-simon-player-animation-pose_left {
+simon_player_animation_pose_left {
 	// set entity "%PLAYER%" current_animation to $pose_pre_left;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_left;
-	goto simon-player-animation-pose_left-wait;
+	goto simon_player_animation_pose_left_wait;
 }
-simon-player-animation-pose_right {
+simon_player_animation_pose_right {
 	// set entity "%PLAYER%" current_animation to $pose_pre_right;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_right;
-	goto simon-player-animation-pose_right-wait;
+	goto simon_player_animation_pose_right_wait;
 }
-simon-player-animation-pose_top_left {
+simon_player_animation_pose_top_left {
 	// set entity "%PLAYER%" current_animation to $pose_pre_left;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_top_left;
-	goto simon-player-animation-pose_top_left-wait;
+	goto simon_player_animation_pose_top_left_wait;
 }
-simon-player-animation-pose_top_right {
+simon_player_animation_pose_top_right {
 	// set entity "%PLAYER%" current_animation to $pose_pre_right;
 	// wait $animation_padding1;
 	set entity "%PLAYER%" current_animation to $pose_top_right;
-	goto simon-player-animation-pose_top_right-wait;
+	goto simon_player_animation_pose_top_right_wait;
 }
 
-simon-player-animation-pose_bottom_left-wait {
+simon_player_animation_pose_bottom_left_wait {
 	if (button $button0 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
-simon-player-animation-pose_bottom_right-wait {
+simon_player_animation_pose_bottom_right_wait {
 	if (button $button1 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
-simon-player-animation-pose_left-wait {
+simon_player_animation_pose_left_wait {
 	if (button $button2 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
-simon-player-animation-pose_right-wait {
+simon_player_animation_pose_right_wait {
 	if (button $button3 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
-simon-player-animation-pose_top_left-wait {
+simon_player_animation_pose_top_left_wait {
 	if (button $button4 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
-simon-player-animation-pose_top_right-wait {
+simon_player_animation_pose_top_right_wait {
 	if (button $button5 is not currently pressed) {
-		set flag simon-player-wait-finished to true;
+		set flag simon_player_wait_finished to true;
 		goto null_script;
 	}
 }
 
-simon-player-do-move {
+simon_player_do_move {
 	// loopy
-	if (variable simon-player-move is == 0) {
+	if (variable simon_player_move is == 0) {
 		turn light $light0 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_bottom_left;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_bottom_left;
 	}
-	else if (variable simon-player-move is == 1) {
+	else if (variable simon_player_move is == 1) {
 		turn light $light1 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_bottom_right;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_bottom_right;
 	}
-	else if (variable simon-player-move is == 2) {
+	else if (variable simon_player_move is == 2) {
 		turn light $light2 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_left;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_left;
 	}
-	else if (variable simon-player-move is == 3) {
+	else if (variable simon_player_move is == 3) {
 		turn light $light3 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_right;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_right;
 	}
-	else if (variable simon-player-move is == 4) {
+	else if (variable simon_player_move is == 4) {
 		turn light $light4 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_top_left;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_top_left;
 	}
-	else if (variable simon-player-move is == 5) {
+	else if (variable simon_player_move is == 5) {
 		turn light $light5 on;
-		set entity "%PLAYER%" on_tick to simon-player-animation-pose_top_right;
+		set entity "%PLAYER%" on_tick to simon_player_animation_pose_top_right;
 	}
-	goto simon-player-wait;
+	goto simon_player_wait;
 }
 	
-simon-player-wait {
-	if (flag simon-player-wait-finished is true) {
-		goto simon-player-wait-finished;
+simon_player_wait {
+	if (flag simon_player_wait_finished is true) {
+		goto simon_player_wait_finished;
 	}
 }
 
-simon-player-wait-finished {
-	set flag simon-player-wait-finished to false;
+simon_player_wait_finished {
+	set flag simon_player_wait_finished to false;
 	set entity "%PLAYER%" current_animation to $guitar_idle;
 	turn light ALL off;
 	mutate i + 1;
 	// show serial dialog {
-	// 	"YOUR MOVE WAS $simon-player-move$"
+	// 	"YOUR MOVE WAS $simon_player_move$"
 	// }
-	if (flag ch2-simon-move-fail is true) {
-		goto simon-game-lose;
+	if (flag ch2_simon_move_fail is true) {
+		goto simon_game_lose;
 	}
-	goto simon-player-turn-loop-start;
+	goto simon_player_turn_loop_start;
 }
 
-simon-player-turn-end {
-	mutate simon-round + 1;
-	if (variable simon-round is > $roundcount) {
-		goto simon-game-win;
+simon_player_turn_end {
+	mutate simon_round + 1;
+	if (variable simon_round is > $roundcount) {
+		goto simon_game_win;
 	}
-	goto simon-enemy-turn-start;
+	goto simon_enemy_turn_start;
 }
 
-simon-game-lose {
+simon_game_lose {
 	turn player control off;
 	turn lights control on;
-	set entity Keyboard on_tick to simon-rock;
+	set entity Keyboard on_tick to simon_rock;
 	if (
-		flag ch2-ring-zero-enabled-in-castle is true
+		flag ch2_ring_zero_enabled_in_castle is true
 		|| debug mode is on
 	) {
 		turn hex control on;
 	}
 	wait 100ms;
-	set entity Lights on_tick to screen-lights-lose;
-	set entity "%PLAYER%" on_tick to player-lose;
+	set entity Lights on_tick to screen_lights_lose;
+	set entity "%PLAYER%" on_tick to player_lose;
 	show dialog { Simon emote 3 "Too bad! Better luck next time!" }
 	set entity Lights on_tick to $lightsdefault;
 	copy ch2_map_init_hex;
 	turn player control on;
 	set entity Keyboard on_tick to null_script;
 	set entity Simon current_animation to 5;
-	goto simon-game-go-again;
+	goto simon_game_go_again;
 }
 
-simon-game-win {
+simon_game_win {
 	turn player control off;
 	turn lights control on;
 	if (
-		flag ch2-ring-zero-enabled-in-castle is true
+		flag ch2_ring_zero_enabled_in_castle is true
 		|| debug mode is on
 	) {
 		turn hex control on;
 	}
-	set entity Lights on_tick to screen-lights-win;
-	set entity "%PLAYER%" on_tick to player-win;
-	if (flag ch2-simon-won-before is false) {
+	set entity Lights on_tick to screen_lights_win;
+	set entity "%PLAYER%" on_tick to player_win;
+	if (flag ch2_simon_won_before is false) {
 		set entity Simon current_animation to 3;
 		wait 500ms;
 	}
@@ -567,8 +567,8 @@ simon-game-win {
 	set entity Lights on_tick to $lightsdefault;
 	copy ch2_map_init_hex;
 	turn player control on;
-	if (flag ch2-simon-won-before is false) {
-		copy simon-game-restore-positions;
+	if (flag ch2_simon_won_before is false) {
+		copy simon_game_restore_positions;
 		set entity Simon current_animation to 12;
 		show dialog {
 			Simon emote 1 "HAHAH! That was a blast!"
@@ -598,14 +598,14 @@ simon-game-win {
 		set entity Simon current_animation to 12;
 		set flag interrupt to true;
 		copy script ch2_pickup_keyboard;
-		set flag ch2-simon-won-before to true;
+		set flag ch2_simon_won_before to true;
 		goto null_script;
 	} else {
-		goto simon-game-go-again;
+		goto simon_game_go_again;
 	}
 }
 
-simon-game-restore-positions {
+simon_game_restore_positions {
 	fade out camera to black over 400ms;
 	make camera follow entity "%PLAYER%";
 	set entity Simon current_animation to 0;
@@ -616,37 +616,37 @@ simon-game-restore-positions {
 	fade in camera from black over 400ms;
 }
 
-simon-game-go-again {
-	copy simon-game-restore-positions;
+simon_game_go_again {
+	copy simon_game_restore_positions;
 	set entity Simon current_animation to 12;
 	show dialog {
 		Simon emote 1 "Well? Wanna have another go?"
-		> "Sure." : simon-game-go-again-yes
-		> "No, thanks." : simon-game-start-q-wrapup
+		> "Sure." : simon_game_go_again_yes
+		> "No, thanks." : simon_game_start_q_wrapup
 	}
 }
 
-simon-game-go-again-yes {
-	goto simon-game-start-q-reprise;
+simon_game_go_again_yes {
+	goto simon_game_start_q_reprise;
 }
 
-simon-game-start-q-reprise {
-	if (flag ch2-simon-high is true) {
+simon_game_start_q_reprise {
+	if (flag ch2_simon_high is true) {
 		show dialog {
 			Simon emote 1 "Want another high battle?"
-			> "Absolutely!" : simon-game-start
-			> "No, let's do a low battle." : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Absolutely!" : simon_game_start
+			> "No, let's do a low battle." : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 
 		}
 	} else {
 		show dialog {
 			Simon emote 1 "Want another low battle?"
-			> "Definitely!" : simon-game-start
-			> "No, let's do a high battle." : simon-game-start-q-swap
-			> "What's the difference?" : simon-game-start-difference
-			> "Actually, never mind." : simon-game-start-nevermind
+			> "Definitely!" : simon_game_start
+			> "No, let's do a high battle." : simon_game_start_q_swap
+			> "What's the difference?" : simon_game_start_difference
+			> "Actually, never mind." : simon_game_start_nevermind
 		}
 	}
 }
@@ -656,7 +656,7 @@ const! (
 	$time_q = 125ms
 )
 
-player-win {
+player_win {
 	set entity "%PLAYER%" current_animation to $guitar_idle;
 	turn entity "%PLAYER%" east;
 	wait $time_q;
@@ -669,7 +669,7 @@ player-win {
 	set entity "%PLAYER%" current_animation to $rocking;
 	goto null_script;
 }
-player-lose {
+player_lose {
 	set entity "%PLAYER%" current_animation to $guitar_idle;
 	turn entity "%PLAYER%" west;
 	wait $time_q;
@@ -683,14 +683,14 @@ player-lose {
 	goto null_script;
 }
 
-simon-rock {
+simon_rock {
 	turn entity Simon west;
 	play entity Simon animation 1 twice;
 	turn entity Simon east;
 	play entity Simon animation 1 twice;
 }
 
-screen-lights-bits {
+screen_lights_bits {
 	turn light LED_BIT1 on;
 	turn light LED_BIT2 on;
 	turn light LED_BIT4 on;
@@ -701,7 +701,7 @@ screen-lights-bits {
 	turn light LED_BIT128 on;
 }
 
-screen-lights-flash-battle-low {
+screen_lights_flash_battle_low {
 	turn light LED_BIT1 on;
 	turn light LED_BIT128 on;
 	turn light LED_PAGE on;
@@ -710,7 +710,7 @@ screen-lights-flash-battle-low {
 	turn light ALL off;
 	wait $time;
 }
-screen-lights-flash-battle-high {
+screen_lights_flash_battle_high {
 	turn light LED_MEM0 on;
 	turn light LED_MEM3 on;
 	turn light LED_XOR on;
@@ -720,7 +720,7 @@ screen-lights-flash-battle-high {
 	wait $time;
 }
 
-screen-lights-lose {
+screen_lights_lose {
 	turn light ALL off;
 	turn light LED_XOR on;
 	turn light LED_MEM0 on;
@@ -744,13 +744,13 @@ screen-lights-lose {
 	turn light ALL off;
 	wait $time_q;
 
-	copy screen-lights-bits;
+	copy screen_lights_bits;
 	wait $time_q;
 	
 	turn light ALL off;
 	wait $time_q;
 
-	copy screen-lights-bits;
+	copy screen_lights_bits;
 	wait $time;
 	wait $time;
 
@@ -759,7 +759,7 @@ screen-lights-lose {
 	goto null_script;
 }
 
-screen-lights-win {
+screen_lights_win {
 	turn light ALL off;
 	turn light LED_XOR on;
 	turn light LED_PAGE on;

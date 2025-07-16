@@ -145,20 +145,20 @@ timmy_now_unglitched {
 /*------------------------------*/
 
 lodge-watch-player-gradually {
-	set entity Beatrice on_tick to face-player;
-	set entity Cleo on_tick to face-player;
-	set entity Trekkie on_tick to face-player;
+	set entity Beatrice on_tick to face_player;
+	set entity Cleo on_tick to face_player;
+	set entity Trekkie on_tick to face_player;
 	wait 200ms;
-	set entity "Max Swagger" on_tick to face-player;
-	set entity Verthandi on_tick to face-player;
-	set entity Marta on_tick to face-player;
+	set entity "Max Swagger" on_tick to face_player;
+	set entity Verthandi on_tick to face_player;
+	set entity Marta on_tick to face_player;
 	wait 200ms;
-	set entity Baker on_tick to face-player;
-	set entity Smith on_tick to face-player;
-	set entity "Uncle Zappy" on_tick to face-player;
+	set entity Baker on_tick to face_player;
+	set entity Smith on_tick to face_player;
+	set entity "Uncle Zappy" on_tick to face_player;
 	wait 200ms;
-	set entity "Aunt Zippy" on_tick to face-player;
-	set entity Shepherd on_tick to face-player;
+	set entity "Aunt Zippy" on_tick to face_player;
+	set entity Shepherd on_tick to face_player;
 }
 alfonso-left-right {
 	wait 200ms; /**/ turn entity Alfonso west;
@@ -372,7 +372,7 @@ cutscene-tuesday {
 // Villagers' dialog:
 
 show_dialog-zippy-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "We always knew you were destined for great things!" }
 	} else {
@@ -380,7 +380,7 @@ show_dialog-zippy-prechoose {
 	}
 }
 show_dialog-zappy-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "We're both so proud of you!" }
 	} else {
@@ -388,7 +388,7 @@ show_dialog-zappy-prechoose {
 	}
 }
 show_dialog-verthandi-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Oh, how exciting!" }
 	} else {
@@ -398,7 +398,7 @@ show_dialog-verthandi-prechoose {
 	// accident? or just unimaginative Belldandy?
 }
 show_dialog-smith-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Sounds like that ring is a big deal." "Neat." }
 	} else {
@@ -406,7 +406,7 @@ show_dialog-smith-prechoose {
 	}
 }
 show_dialog-max-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Hmm. That ring looks a bit too plain to be the real Ring Zero, doesn't it?" }
 	} else {
@@ -414,7 +414,7 @@ show_dialog-max-prechoose {
 	}
 }
 show_dialog-marta-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Wow. Never seen a TUESDAY like this before!" }
 	} else if (flag artifact-broom-touched is true) {
@@ -424,7 +424,7 @@ show_dialog-marta-prechoose {
 	}
 }
 show_dialog-trekkie-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Amazing!" }
 	} else {
@@ -432,7 +432,7 @@ show_dialog-trekkie-prechoose {
 	}
 }
 show_dialog-shepherd-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Neat!" }
 	} else {
@@ -440,7 +440,7 @@ show_dialog-shepherd-prechoose {
 	}
 }
 show_dialog-cleo-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "It looks so shiny!" }
 	} else {
@@ -448,7 +448,7 @@ show_dialog-cleo-prechoose {
 	}
 }
 show_dialog-beatrice-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Oh! I never thought I'd see this day! Oh, my Delmar...!" }
 	} else {
@@ -456,7 +456,7 @@ show_dialog-beatrice-prechoose {
 	}
 }
 show_dialog-baker-prechoose {
-	copy face-player;
+	copy face_player;
 	if (flag ring-acquired is true) {
 		show dialog { SELF "Congratulations, %PLAYER%!" }
 	} else {
@@ -464,19 +464,19 @@ show_dialog-baker-prechoose {
 	}
 }
 show_dialog-jackob-prechoose {
-	copy face-player;
-	set entity Jackob on_tick to look-left-and-right-fast;
+	copy face_player;
+	set entity Jackob on_tick to look_left_and_right_fast;
 	show dialog { SELF "(Wait, was this everything?)" }
 	set entity Jackob on_tick to null_script;
 	turn entity "%SELF%" south;
 }
 show_dialog-alfonso-prechoose {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "*ahem*" "The mage must present themselves to the artifacts until one shows interest." }
 	turn entity "%SELF%" south;
 }
 show_dialog-bert-prechoose {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Touch each item, please." }
 	turn entity "%SELF%" south;
 }
@@ -537,7 +537,7 @@ examine-broom {
 	set entity Marta type to marta_broom;
 	wait 300ms;
 	walk entity Marta to geometry marta-broom-watch-spot over 700ms;
-	set entity Marta on_tick to face-player;
+	set entity Marta on_tick to face_player;
 	wait 300ms;
 	set flag artifact-broom-touched to true;
 	set entity "%PLAYER%" on_tick to null_script;
@@ -584,7 +584,7 @@ artifacts-eval {
 			PLAYER "Maybe a different artifact?"
 			"Wait. Was that the last one?"
 		}
-		set entity "%PLAYER%" on_tick to look-left-and-right-fast;
+		set entity "%PLAYER%" on_tick to look_left_and_right_fast;
 		turn player control off;
 		wait 900ms;
 		set entity "%PLAYER%" on_tick to null_script;
@@ -673,7 +673,7 @@ player-ringzero-from-landing-1 {
 /*------------------------*/
 
 cutscene-artifacts-eval-good { // TUESDAY PART 2
-	set entity "%PLAYER%" on_tick to look-left-and-right;
+	set entity "%PLAYER%" on_tick to look_left_and_right;
 	wait 300ms;
 	show dialog {
 		Marta alignment TR
@@ -748,7 +748,7 @@ cutscene-artifacts-eval-good { // TUESDAY PART 2
 		Bert "No one has been chosen by this ring before."
 		Alfonso "Oh, but... but perhaps...."
 	}
-	set entity Alfonso on_tick to look-left-and-right-fast;
+	set entity Alfonso on_tick to look_left_and_right_fast;
 	show dialog {
 		Alfonso "Oh, but this is good news, isn't it?"
 		"This means we can finally fix things!"
@@ -819,7 +819,7 @@ cutscene-artifacts-eval-good { // TUESDAY PART 2
 /*-------------------*/
 
 show_dialog-lodge_cat {
-	copy face-player;
+	copy face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "////////" }
 		if (flag lodge_cat-unglitched is false) {
@@ -850,7 +850,7 @@ show_dialog-lodge_cat {
 /*------------------------------*/
 
 show_dialog-timmy-start {
-	copy face-player;
+	copy face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF alignment TL "Ner ubg qbtf n fnaqjvpu?" }
 		turn entity "%SELF%" west;
@@ -905,7 +905,7 @@ show_dialog-sportsbook {
 /*     DEBUG     */
 /*---------------*/
 
-debug-cat-prep { // used as an on_interact for an exa?
+debug_cat_prep { // used as an on_interact for an exa?
 	make entity Cat unglitched;
 	copy set-hint-max-from-cleo;
 }
@@ -919,20 +919,20 @@ bypass-tuesday {
 	teleport entity Marta to geometry lodge-hidingplace;
 	// possibly you can't teleport an entity twice in one tick... though why then does this one work?
 }
-debug-disable-tuesday-q {
+debug_disable_tuesday_q {
 	show dialog {
 		SELF "Disable TUESDAY?"
-		> "Completely" : debug-disable-tuesday-complete
-		> "Partially" : debug-disable-tuesday-walkup
-		> "Un-disable" : debug-undisable-tuesday
-		> "Never mind" : debug-disable-tuesday-no
+		> "Completely" : debug_disable_tuesday_complete
+		> "Partially" : debug_disable_tuesday_walkup
+		> "Un-disable" : debug_undisable_tuesday
+		> "Never mind" : debug_disable_tuesday_no
 	}
 }
-debug-disable-tuesday-no {
+debug_disable_tuesday_no {
 	show dialog { SELF "Nothing changed." }
-	set entity "%SELF%" on_interact to debug-disable-tuesday-q;
+	set entity "%SELF%" on_interact to debug_disable_tuesday_q;
 }
-debug-disable-tuesday-walkup {
+debug_disable_tuesday_walkup {
 	copy set-goodmorning-flags-true;
 	// so you don't accidentally trigger walk-to-lodge
 	// if you set all flags to false before engaging the lodge
@@ -943,17 +943,17 @@ debug-disable-tuesday-walkup {
 	// so you can voluntarily start the cutscene and it'll look okay
 	turn hex control on;
 	show dialog { SELF "TUESDAY partially disabled." }
-	set entity "%SELF%" on_interact to debug-disable-tuesday-q;
+	set entity "%SELF%" on_interact to debug_disable_tuesday_q;
 }
-debug-disable-tuesday-complete {
+debug_disable_tuesday_complete {
 	copy set-goodmorning-flags-true;
 	copy set-artifact-flags-true;
 	copy set-tuesday-flags-true;
 	turn hex control on;
 	show dialog { SELF "TUESDAY completely disabled." }
-	set entity "%SELF%" on_interact to debug-disable-tuesday-q;
+	set entity "%SELF%" on_interact to debug_disable_tuesday_q;
 }
-debug-undisable-tuesday {
+debug_undisable_tuesday {
 	copy set-goodmorning-flags-true;
 	// so you don't accidentally trigger walk-to-lodge
 	// if you set all flags to false before engaging the lodge
@@ -963,57 +963,57 @@ debug-undisable-tuesday {
 	show dialog {
 		SELF "TUESDAY re-enabled."
 	}
-	set entity "%SELF%" on_interact to debug-disable-tuesday-q;
+	set entity "%SELF%" on_interact to debug_disable_tuesday_q;
 }
-debug-bypass-tuesday-q {
-	copy face-player;
+debug_bypass_tuesday_q {
+	copy face_player;
 	show dialog {
 		SELF "Bypass TUESDAY?"
-		> "Yes" : goto "debug-bypass-tuesday"
-		> "Yes (but enable hintman cutscene)" : goto "debug-bypass-tuesday-but-enable-hintman"
-		> "No" : goto "debug-bypass-tuesday-no"
+		> "Yes" : goto "debug_bypass_tuesday"
+		> "Yes (but enable hintman cutscene)" : goto "debug_bypass_tuesday_but_enable_hintman"
+		> "No" : goto "debug_bypass_tuesday_no"
 	}
 }
-debug-bypass-tuesday {
+debug_bypass_tuesday {
 	copy bypass-tuesday;
 	copy set-tuesday-flags-true;
 	show dialog { SELF "Tuesday bypassed." }
-	set entity "%SELF%" on_interact to debug-bypass-tuesday-q;
+	set entity "%SELF%" on_interact to debug_bypass_tuesday_q;
 }
-debug-bypass-tuesday-but-enable-hintman {
+debug_bypass_tuesday_but_enable_hintman {
 	copy bypass-tuesday;
 	copy set-tuesday-flags-true;
 	set flag hintman-explanation to false;
 	// set to true in above copied script
 	show dialog { SELF "Tuesday bypassed. Prepare for hintman cutscene." }
-	set entity "%SELF%" on_interact to debug-bypass-tuesday-q;
+	set entity "%SELF%" on_interact to debug_bypass_tuesday_q;
 }
-debug-bypass-tuesday-no {
-	set entity "%SELF%" on_interact to debug-bypass-tuesday-q;
+debug_bypass_tuesday_no {
+	set entity "%SELF%" on_interact to debug_bypass_tuesday_q;
 }
-debug-cutscene-tuesday-q {
-	copy face-player;
+debug_cutscene_tuesday_q {
+	copy face_player;
 	show dialog {
 		SELF "Begin TUESDAY cutscene?"
-		> "Yes" : goto "debug-cutscene-tuesday"
-		> "No" : goto "debug-cutscene-tuesday-no"
+		> "Yes" : goto "debug_cutscene_tuesday"
+		> "No" : goto "debug_cutscene_tuesday_no"
 	}
 }
-debug-cutscene-tuesday {
+debug_cutscene_tuesday {
 	copy cutscene-tuesday;
-	set entity "%SELF%" on_interact to debug-bypass-tuesday-q;
+	set entity "%SELF%" on_interact to debug_bypass_tuesday_q;
 }
-debug-cutscene-tuesday-no {
-	set entity "%SELF%" on_interact to debug-bypass-tuesday-q;
+debug_cutscene_tuesday_no {
+	set entity "%SELF%" on_interact to debug_bypass_tuesday_q;
 }
-debug-touch-artifacts-q {
-	copy face-player;
+debug_touch_artifacts_q {
+	copy face_player;
 	show dialog {
 		SELF "Do what to artifacts?"
-		> "Touch all artifacts" : goto "debug-touch-artifacts"
-		> "Finish lecture and lower bookcase" : goto "debug-touch-artifacts-and-aftermath"
+		> "Touch all artifacts" : goto "debug_touch_artifacts"
+		> "Finish lecture and lower bookcase" : goto "debug_touch_artifacts_and_aftermath"
 		> "Teleport to secret room (with cutscene)" : goto "enter-secretroom-with-guaranteed-cutscene"
-		> "No" : goto "debug-touch-artifacts-no"
+		> "No" : goto "debug_touch_artifacts_no"
 	}
 }
 skip-artifacts {
@@ -1024,13 +1024,13 @@ skip-artifacts {
 	teleport entity Bracelet to geometry lodge-hidingplace;
 	set entity Marta type to marta_broom;
 }
-debug-touch-artifacts-end {
-	set entity "%SELF%" on_interact to debug-touch-artifacts-q;
+debug_touch_artifacts_end {
+	set entity "%SELF%" on_interact to debug_touch_artifacts_q;
 }
-debug-touch-artifacts-no {
-	set entity "%SELF%" on_interact to debug-touch-artifacts-q;
+debug_touch_artifacts_no {
+	set entity "%SELF%" on_interact to debug_touch_artifacts_q;
 }
-debug-touch-artifacts-and-aftermath {
+debug_touch_artifacts_and_aftermath {
 	copy skip-artifacts;
 	teleport entity Bookcase to geometry lodge-hidingplace;
 	set flag ring-acquired to true;
@@ -1038,9 +1038,9 @@ debug-touch-artifacts-and-aftermath {
 	teleport entity Alfonso to geometry lodge-hidingplace;
 	teleport entity Bert to geometry lodge-hidingplace;
 	teleport entity Jackob to geometry lodge-hidingplace;
-	goto debug-touch-artifacts-end;
+	goto debug_touch_artifacts_end;
 }
-debug-touch-artifacts {
+debug_touch_artifacts {
 	copy skip-artifacts;
-	goto debug-touch-artifacts-end;
+	goto debug_touch_artifacts_end;
 }

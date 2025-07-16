@@ -44,12 +44,12 @@ include "header.mgs";
 			"can-interrupt-dialog" = false;
 		}
 	}
-	if ("ch2_in_room" == 99) {
+	if (ch2_in_room == 99) {
 		show dialog {
 			name Lambda portrait lambda "Sorry, it's a little awkward to text chat with you when you're looking over my shoulder."
 		};
 	} else if (
-		"ch2-ring-zero-enabled-in-castle" // the artifact is full power
+		"ch2_ring_zero_enabled_in_castle" // the artifact is full power
 		|| "ch2_in_room" != 0 // OR you're in the castle
 	) {
 		// `man` works normally
@@ -1081,7 +1081,7 @@ include "header.mgs";
 			"<m>LAMBDA</>: You know... um... it's kind of complicated. In a manner of speaking, I'm inside the castle. Let's just say I'm nearby but not close."
 		};
 	} else {
-		if ("ch2_in_room" == 99) {
+		if (ch2_in_room == 99) {
 			show serial_dialog {
 				"<c>YOU</>: Where are you? I mean, where are WE? There aren't any doors here."
 			};
@@ -1185,7 +1185,7 @@ include "header.mgs";
 		"<m>LAMBDA</>: There are gaps in my mind. I... I think they might have appeared when I deleted my name. Hard to tell."
 		"	It's a lot harder to remember people, for a start. My skills seem to be intact, but I feel... disconnected. It's like everything I <bold>can</> remember is stripped of context."
 	};
-	"ch2-lambda-deletion-backstory" = true;
+	"ch2_lambda_deletion_backstory" = true;
 	goto "ch2-lambda-person-lambda-name-followup";
 }
 "ch2-lambda-person-lambda-name-followup-bigbad" {

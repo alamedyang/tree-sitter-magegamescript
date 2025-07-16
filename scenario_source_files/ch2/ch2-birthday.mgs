@@ -166,7 +166,7 @@ include "header.mgs";
 		PLAYER "Yeah. I mean, no. I mean...."
 	};
 	wait 150ms;
-	player on_tick = "look-left-and-right-fast";
+	player on_tick = "look_left_and_right_fast";
 	wait 300ms;
 	show dialog {
 		PLAYER "Wait, weren't you supposed to bring me a book this morning? A book about the cereal castle?"
@@ -189,7 +189,7 @@ include "header.mgs";
 		Alfonso "You have demonstrated incredible competence with what you've already done with Ring Zero, so we are confident you can work your way through the castle on your own."
 	};
 	wait 100ms;
-	player on_tick = "look-left-and-right-fast";
+	player on_tick = "look_left_and_right_fast";
 	wait 200ms;
 	show dialog {
 		PLAYER "On my own? You aren't coming inside with me?"

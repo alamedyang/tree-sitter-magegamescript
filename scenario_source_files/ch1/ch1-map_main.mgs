@@ -417,7 +417,7 @@ add dialog settings {
 }
 
 "show_dialog-hamster-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		show dialog {
 			SELF "Mxqj'i jxyi? Q mehbtmytu iybysed ixehjqwu?!"

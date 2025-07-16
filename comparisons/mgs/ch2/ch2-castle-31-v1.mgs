@@ -95,17 +95,17 @@ on_load_ch2_castle_31 {
 		copy script ch2_hide_keyboard;
 	}
 
-	set flag ch2-simon-heard-high to false;
-	set flag ch2-simon-heard-low to false;
+	set flag ch2_simon_heard_high to false;
+	set flag ch2_simon_heard_low to false;
 
 	copy ch2_map_init;
 	//DEBUG STUFF
 	if (debug mode is true) {
-		register simon -> debug-simon;
-		register simon + high -> debug-simon-high;
-		register simon + low -> debug-simon-low;
-		register simon + win -> debug-simon-win;
-		register simon + lose -> debug-simon-lose;
+		register simon -> debug_simon;
+		register simon + high -> debug_simon_high;
+		register simon + low -> debug_simon_low;
+		register simon + win -> debug_simon_win;
+		register simon + lose -> debug_simon_lose;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> Play Simon Says!"
@@ -118,22 +118,22 @@ on_load_ch2_castle_31 {
 	}
 }
 
-debug-simon {
-	goto simon-game-launcher;
+debug_simon {
+	goto simon_game_launcher;
 }
-debug-simon-low {
-	set flag ch2-simon-high to false;
-	goto simon-game-launcher;
+debug_simon_low {
+	set flag ch2_simon_high to false;
+	goto simon_game_launcher;
 }
-debug-simon-high {
-	set flag ch2-simon-high to true;
-	goto simon-game-launcher;
+debug_simon_high {
+	set flag ch2_simon_high to true;
+	goto simon_game_launcher;
 }
-debug-simon-win {
-	goto simon-game-win;
+debug_simon_win {
+	goto simon_game_win;
 }
-debug-simon-lose {
-	goto simon-game-lose;
+debug_simon_lose {
+	goto simon_game_lose;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -174,7 +174,7 @@ on_go_castle_31_west {
 /* ---------- ENTITIES ---------- */
 
 interact_ch2_theodore {
-	if (flag ch2-simon-won-before is false || flag interrupt is false) {
+	if (flag ch2_simon_won_before is false || flag interrupt is false) {
 		show dialog {
 			SELF portrait theodore "Bored bored bored BORED BORED!"
 			"Come on! How long is it gonna be before we can play?"
@@ -186,7 +186,7 @@ interact_ch2_theodore {
 	}
 }
 interact_ch2_alvin {
-	if (flag ch2-simon-won-before is false || flag interrupt is false) {
+	if (flag ch2_simon_won_before is false || flag interrupt is false) {
 		show dialog {
 			SELF portrait alvin "We've been stuck in here, like, forever."
 			"I guess our would-be audience is stuck wherever they are, too."
@@ -223,14 +223,14 @@ interact_ch2_simon {
 			Simon "There's no audience! I can't play in these conditions! COME ON! What's the holdup? Where is everybody?"
 		}
 	}
-	else if (flag ch2-simon-won-before is false) {
+	else if (flag ch2_simon_won_before is false) {
 		if (flag ch2_simon_backstory is false) {
 			show dialog {
 				PLAYER "So, about your keyboard -- erm, \"keytar?\""
 				"I sort of need one for --"
 			}
 			set entity Simon current_animation to 13;
-			set entity Alvin on_tick to camera-angry-shake;
+			set entity Alvin on_tick to camera_angry_shake;
 			show dialog {
 				Simon emote 2 "WHOA WHOA WHOA hey, hands off! I'm not just going to give you my precious Rosetta!"
 				PLAYER "(Rosetta?)"
@@ -251,7 +251,7 @@ interact_ch2_simon {
 				Simon emote 1 "Change your mind about a keytar battle? I'll let you keep the keyboard if you win. Come on, I'm bored to tears!"
 			}
 		}
-		copy simon-game-launcher;
+		copy simon_game_launcher;
 	}
 	else if (flag interrupt is true) {
 		set entity Simon current_animation to 12;
@@ -259,17 +259,17 @@ interact_ch2_simon {
 			Simon emote 1 "Ah, man! I'm still sweatin' after that last one!"
 			"But I'm not out for the count yet! Want another go?"
 		}
-		copy simon-game-launcher;
+		copy simon_game_launcher;
 	}
 	else {
 		set entity Simon current_animation to 12;
-		if (flag ch2-simon-repeat-backstory is false) {
+		if (flag ch2_simon_repeat_backstory is false) {
 			show dialog {
 				Simon emote 1 "Hey hey hey, look who it is! It's the keytar wizard!"
 				"Aw, man! I haven't had that much fun in ages! I'm all pumped up, just thinking about it!"
 				"I'm dying for another keytar battle!"
 			}
-			set flag ch2-simon-repeat-backstory to true;
+			set flag ch2_simon_repeat_backstory to true;
 		} else {
 			show dialog {
 				Simon emote 1 "Hey, keytar wizard! My soul is thirsting for another keytar battle!"
@@ -277,7 +277,7 @@ interact_ch2_simon {
 		}
 		if (
 			flag ch2_carrying_keyboard is true
-			|| flag ch2-simon-repeat-brunhilda-backstory is true
+			|| flag ch2_simon_repeat_brunhilda_backstory is true
 		) {
 			/* Do nothing extra... */
 		} else {
@@ -294,9 +294,9 @@ interact_ch2_simon {
 			show dialog {
 				Simon "Only my favorite four or five."
 			}
-			set flag ch2-simon-repeat-brunhilda-backstory to true;
+			set flag ch2_simon_repeat_brunhilda_backstory to true;
 		}
-		copy simon-game-launcher;
+		copy simon_game_launcher;
 	}
 }
 interact_ch2_theodore_end {
@@ -312,7 +312,7 @@ interact_ch2_kuro_end {
 	show dialog { SELF "I've been following this group since they were \"64 Bits\"! I hope they play \"Scary Pointer Math\" tonight! Or maybe \"The Off-By-One Blues\"!" }
 }
 interact_ch2_gloria_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "I'm not sure if this is the same band that was on the flyer. Oh, well. I'll give them a shot." }
 	turn entity "%SELF%" north;
 }
@@ -323,7 +323,7 @@ interact_ch2_samson_end {
 	}
 }
 interact_ch2_tracy_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Guess the refreshments are self serve this time. That's a bit on the cheap side...." }
 	turn entity "%SELF%" south;
 }
@@ -339,13 +339,13 @@ ch2_hide_keyboard {
 	set entity "Keyboard" name to " ";
 }
 
-ch2-touch-keyboard {
-	if (flag ch2-keyboard-firstlook is false) {
+ch2_touch_keyboard {
+	if (flag ch2_keyboard_firstlook is false) {
 		show dialog {
 			PLAYER "It's a keyboard, but in the shape of a guitar."
 			"A... \"keytar,\" perhaps?"
 		}
-		set flag ch2-keyboard-firstlook to true;
+		set flag ch2_keyboard_firstlook to true;
 	}
 	show dialog {
 		PLAYER "It's like the spork of band instruments."
@@ -362,7 +362,7 @@ ch2-touch-keyboard {
 	}
 }
 
-camera-angry-shake {
+camera_angry_shake {
 	shake camera 100ms 4px for 500ms;
 	goto null_script;
 }

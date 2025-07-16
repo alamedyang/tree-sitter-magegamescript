@@ -12,7 +12,7 @@ add dialog settings {
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look_ch2_castle_13" {
+look_ch2_castle_13 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE THRONE ROOM</>."
@@ -21,7 +21,7 @@ add dialog settings {
 	};
 }
 
-"look_ch2_sebastian" {
+look_ch2_sebastian {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -30,7 +30,7 @@ add dialog settings {
 	};
 }
 
-"look_ch2_templeton" {
+look_ch2_templeton {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -40,9 +40,9 @@ add dialog settings {
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load_ch2_castle_13_postgame" {
+on_load_ch2_castle_13_postgame {
 	// abbreviated copy-pasta of the below
-	"ch2_in_room" = 13;
+	ch2_in_room = 13;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE THRONE ROOM</>..." };
@@ -53,16 +53,16 @@ add dialog settings {
 	}
 	copy!(ch2_map_init)
 }
-"on_load_ch2_castle_13" {
+on_load_ch2_castle_13 {
 	if (warp_state == "ch2 ending") {
-		entity "door" on_tick = yeet;
+		entity door on_tick = yeet;
 		entity "King Gibson" position = geometry "king-examine1";
-		entity "Sebastian" position = geometry "end-sebastian";
-		entity "Templeton" position = geometry "end-templeton1";
+		entity Sebastian position = geometry "end-sebastian";
+		entity Templeton position = geometry "end-templeton1";
 		goto "ch2-castle-13-ending";
 	}
 	// ch2 room state
-	"ch2_in_room" = 13;
+	ch2_in_room = 13;
 
 	// entrance text
 	show serial_dialog spacer;
@@ -76,25 +76,22 @@ add dialog settings {
 	// room unique stuff
 
 	if (warp_state == "Ch2 King Returns") {
-		entity "door" on_tick = yeet;
+		entity door on_tick = yeet;
 		camera = geometry "camera-spot2";
-	} else if ("ch2-king-rescued") {
-		entity "door" on_tick = yeet;
+	} else if (ch2_king_rescued) {
+		entity door on_tick = yeet;
 		entity "King Gibson" position = geometry "king-examine1";
-		entity "Sebastian" position = geometry "end-sebastian";
-		entity "Templeton" position = geometry "end-templeton1";
-		entity "Aurelius" position = geometry "end-fish";
-		entity "Templeton" on_tick = "templeton-catalog-search";
-		entity "King Gibson" on_tick = "king-debris-ponder";
+		entity Sebastian position = geometry "end-sebastian";
+		entity Templeton position = geometry "end-templeton1";
+		entity Aurelius position = geometry "end-fish";
+		entity Templeton on_tick = templeton_catalog_search;
+		entity "King Gibson" on_tick = king_debris_ponder;
 	} else {
 		entity "King Gibson" on_tick = yeet;
 	}
 
-	if (
-		"ch2_installed_goldfish"
-		|| "ch2_carrying_goldfish"
-	) {
-		entity "Aurelius" on_tick = yeet;
+	if (ch2_installed_goldfish || ch2_carrying_goldfish) {
+		entity Aurelius on_tick = yeet;
 	}
 
 	copy!(ch2_map_init)
@@ -102,57 +99,57 @@ add dialog settings {
 	// check if you do the cutscene or not
 	if (warp_state == "Ch2 King Returns") {
 		ch2_cutseen_castle13 = true; // in case you didn't see the whole prev cutscene, set this flag so the reunion cutscene will play out correctly
-		copy!("ch2-cutscene-kingreturns")
+		copy!(ch2_cutscene_kingreturns)
 	} else {
 		if (!ch2_cutseen_castle13) {
-			copy!("ch2-cutscene-castle12")
+			copy!(ch2_cutscene_castle12)
 		}
 	}
 }
 
-"ch2-skip-13" {
+ch2_skip_13 {
 	ch2_cutseen_castle13 = true;
 	load map "ch2-castle-13";
 }
 
-"ch2-templeton-pace" {
-	self position -> geometry "templeton1" origin over 400ms;
-	self position -> geometry "templeton2" origin over 400ms;
-	if (!"ch2-templeton-pace") {
+ch2_templeton_pace {
+	self position -> geometry templeton1 origin over 400ms;
+	self position -> geometry templeton2 origin over 400ms;
+	if (!ch2_templeton_pace) {
 		goto null_script;
 	}
 }
-"ch2-sebastian-paceonce" {
-	self position -> geometry "lizard1" origin over 600ms;
-	self position -> geometry "lizard2" origin over 600ms;
+ch2_sebastian_paceonce {
+	self position -> geometry lizard1 origin over 600ms;
+	self position -> geometry lizard2 origin over 600ms;
 	goto null_script;
 }
-"ch2-sebastian-stomp" {
-	entity "Sebastian" animation -> 2 once; // magical slam on the ground
+ch2_sebastian_stomp {
+	entity Sebastian animation -> 2 once; // magical slam on the ground
 	goto null_script;
 }
-"ch2-lizard-lurch" {
+ch2_lizard_lurch {
 	self position -> geometry "lizard-lurch" origin over 300ms;
 	goto null_script;
 }
-"ch2-sebastian-approach" {
+ch2_sebastian_approach {
 	wait 800;
-	entity "Sebastian" position -> geometry "lizard-walk" origin over 800ms;
-	entity "Sebastian" position -> geometry "lizard-walk" length over 600ms;
+	entity Sebastian position -> geometry "lizard-walk" origin over 800ms;
+	entity Sebastian position -> geometry "lizard-walk" length over 600ms;
 	goto null_script;
 }
-"ch2-mage-approach" {
+ch2_mage_approach {
 	player position -> geometry "mage-walk" length over 2500ms;
 	goto null_script;
 }
-"ch2-lizard-withdraw" {
-	entity "Sebastian" position -> geometry "lizard-walk" origin over 800ms;
+ch2_lizard_withdraw {
+	entity Sebastian position -> geometry "lizard-walk" origin over 800ms;
 	goto null_script;
 }
 $fadeTime = 600ms;
-"ch2-cutscene-castle12" {
+ch2_cutscene_castle12 {
 	if (debug_mode) {
-		command "skip" = "ch2-skip-13";
+		command skip = ch2_skip_13;
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -172,48 +169,48 @@ $fadeTime = 600ms;
 	camera = geometry "camera-spot";
 	player position = geometry "mage-walk";
 	camera fade in -> black over $fadeTime;
-	entity "Templeton" on_tick = spin_self_clockwise;
+	entity Templeton on_tick = spin_self_clockwise;
 	show dialog {
 		Templeton "Oh... oh dear."
 	};
-	entity "Sebastian" on_tick = "ch2-sebastian-paceonce";
+	entity Sebastian on_tick = ch2_sebastian_paceonce;
 	show dialog {
 		Sebastian "How many hours has it been? It's clear to me he's not coming back."
 		"As usual, he's left us to clean up his messes for him."
 		Templeton "But what if he's injured? He could be stuck in there, bleeding out. Maybe he can't reach the intercom. Maybe he's waiting for us to --"
 		Sebastian "He won't be \"bleeding out\" after a tiny shake like that."
 	};
-	"ch2-templeton-pace" = true;
-	entity "Templeton" on_tick = "ch2-templeton-pace";
+	ch2_templeton_pace = true;
+	entity Templeton on_tick = ch2_templeton_pace;
 	show dialog {
 		Templeton "But what if a piece of debris hit him on the head, and --"
 		Sebastian "He has the constitution of an ox!"
 	};
-	"ch2-templeton-pace" = false;
-	entity "Templeton" direction = east;
+	ch2_templeton_pace = false;
+	entity Templeton direction = east;
 	show dialog {
 		Templeton "Actually, he's a gnu."
 	};
-	entity "Sebastian" on_tick = "ch2-sebastian-stomp";
+	entity Sebastian on_tick = ch2_sebastian_stomp;
 	wait 200ms;
 	show dialog {
 		Sebastian "Enough!"
 		"In either case, we must take action before anything worse happens."
 	};
-	entity "Sebastian" position -> geometry "lizard1" origin over 400ms;
+	entity Sebastian position -> geometry lizard1 origin over 400ms;
 	show dialog {
 		Sebastian "We must take administrative control of the castle. We must --"
 		Aurelius "Sebastian, wait. Someone is here."
 	};
-	entity "Templeton" direction = south;
+	entity Templeton direction = south;
 	show dialog {
 		Templeton "!!"
 	};
 	camera fade out -> black over $fadeTime;
 	camera = player position;
-	player on_tick = "ch2-mage-approach";
+	player on_tick = ch2_mage_approach;
 	camera fade in -> black over $fadeTime;
-	entity "Sebastian" on_tick = "ch2-sebastian-approach";
+	entity Sebastian on_tick = ch2_sebastian_approach;
 	wait 2600ms;
 	show dialog {
 		PLAYER "Sorry. I didn't mean to interrupt anything."
@@ -221,7 +218,7 @@ $fadeTime = 600ms;
 		Templeton "Oh! How did you get in? Does this mean the door's been unblocked?"
 		PLAYER "No, the doors are still broken. But I have this portable terminal, and --"
 	};
-	entity "Sebastian" on_tick = "ch2-lizard-lurch";
+	entity Sebastian on_tick = ch2_lizard_lurch;
 	wait 150ms;
 	player strafe = 2;
 	player position -> geometry "mage-backup" origin over 200ms;
@@ -236,7 +233,7 @@ $fadeTime = 600ms;
 	show dialog {
 		Templeton "It's up to the king who gets to wield it!"
 	};
-	entity "Sebastian" on_tick = "ch2-lizard-withdraw";
+	entity Sebastian on_tick = ch2_lizard_withdraw;
 	player direction = east;
 	show dialog {
 		Sebastian "But the king isn't here, is he? It's up to US --"
@@ -284,28 +281,28 @@ $fadeTime = 600ms;
 	player_control = on;
 }
 
-"walk-over-1500" {
+walk_over_1500 {
 	self position -> geometry "%ENTITY_PATH%" length over 1500ms;
 	goto null_script;
 }
-"ch2-cutscene-kingreturns" {
+ch2_cutscene_kingreturns {
 	camera fade out -> black over 1ms;
 	player_control = off;
 	player direction = entity "King Gibson";
-	entity "Templeton" direction = entity "King Gibson";
-	entity "Sebastian" direction = entity "King Gibson";
-	entity "King Gibson" on_tick = "walk-over-1500";
+	entity Templeton direction = entity "King Gibson";
+	entity Sebastian direction = entity "King Gibson";
+	entity "King Gibson" on_tick = walk_over_1500;
 	wait 200ms;
-	player on_tick = "walk-over-1500";
+	player on_tick = walk_over_1500;
 	camera fade in -> black over 600ms;
-	entity "Templeton" direction = entity "King Gibson";
+	entity Templeton direction = entity "King Gibson";
 	show dialog { Templeton "Your majesty!" };
-	entity "Sebastian" direction = entity "King Gibson";
+	entity Sebastian direction = entity "King Gibson";
 	show dialog { Sebastian "!!" };
 	show dialog {
 		Aurelius "You are well!"
 	};
-	entity "King Gibson" direction = entity "Aurelius";
+	entity "King Gibson" direction = entity Aurelius;
 	show dialog {
 		GIBSON "Of course. You see, the intercom and doorlocks were broken, and the door failed shut."
 		"I regret...."
@@ -315,18 +312,18 @@ $fadeTime = 600ms;
 		GIBSON emote 3 "I regret the things I said yesterday. And... I regret I assumed you had locked me in there. I should have trusted you better."
 		Templeton "Oh, Your Majesty! I'm just glad you --"
 	};
-	entity "King Gibson" direction = entity "Sebastian";
+	entity "King Gibson" direction = entity Sebastian;
 	// King perks up
 	show dialog {
 		Sebastian "Never mind any of that! This is an emergency!"
 		"Can we finally begin some damn rescue operations, or do we need to form a committee to draft a proposal and bring it to the populace to a vote?"
 		GIBSON "What have you tried so far?"
 	};
-	entity "King Gibson" direction = entity "Aurelius";
+	entity "King Gibson" direction = entity Aurelius;
 	show dialog {
 		Aurelius "Neither Templeton nor I have the leverage to lift the debris. And Sebastian's telekinesis spell doesn't have enough power on its own."
 	};
-	entity "King Gibson" direction = entity "Sebastian";
+	entity "King Gibson" direction = entity Sebastian;
 	show dialog {
 		Sebastian "I won't burn out my mana trying over and over again. It's obvious it won't work."
 	};
@@ -337,9 +334,9 @@ $fadeTime = 600ms;
 	camera fade out -> black over $fadeTime; // cheaty :P
 	player position = geometry "end-player";
 	entity "King Gibson" position = geometry "end-king";
-	entity "Sebastian" position = geometry "end-sebastian";
-	entity "Templeton" position = geometry "end-templeton";
-	entity "Aurelius" position = geometry "end-fish";
+	entity Sebastian position = geometry "end-sebastian";
+	entity Templeton position = geometry "end-templeton";
+	entity Aurelius position = geometry "end-fish";
 	player direction = entity "King Gibson";
 	camera = geometry "camera-spot3";
 	camera fade in -> black over $fadeTime;
@@ -353,7 +350,7 @@ $fadeTime = 600ms;
 		Templeton "Oh, yes! But what if you lighten the load with telekinesis, Sebastian?"
 		Sebastian "Perhaps, but...."
 	};
-	entity "Sebastian" position -> geometry "end-sebastian2" origin over 400ms;
+	entity Sebastian position -> geometry "end-sebastian2" origin over 400ms;
 	show dialog {
 		Sebastian "You there, stranger. The rest of the castle is damaged?"
 		PLAYER "Yes. Most doors are crumpled exactly like this."
@@ -362,44 +359,44 @@ $fadeTime = 600ms;
 		Sebastian "Then I must pace myself. The mana required is the square of the weight being manipulated.... Ah, but if I don't have to introduce lateral motion myself --"
 		Aurelius "Yes, a gravitation spell."
 	};
-	entity "Sebastian" position -> geometry "end-sebastian" origin over 400ms;
+	entity Sebastian position -> geometry "end-sebastian" origin over 400ms;
 	show dialog {
 		Sebastian "That's much cheaper. But... blast, I need to check a few numbers in my physics spellbook. Templeton, please tell me you've eaten a copy?"
 	};
-	entity "Templeton" position -> geometry "end-templeton1" origin over 200ms;
+	entity Templeton position -> geometry "end-templeton1" origin over 200ms;
 	show dialog {
 		Templeton "I-I think so. Let me check. I've got it filed in here somewhere."
 	};
-	entity "Templeton" on_tick = "templeton-catalog-search";
+	entity Templeton on_tick = templeton_catalog_search;
 	show dialog {
 		GIBSON "Now we're getting somewhere."
 	};
-	entity "King Gibson" on_tick = "king-walk-to-debris";
+	entity "King Gibson" on_tick = king_walk_to_debris;
 	show dialog {
 		GIBSON "I can at least see if there are any pieces of this I can extract on my own."
 		Aurelius "%PLAYER%, we're making sufficient progress here. Don't let us keep you."
 		"Once the mainframe is repaired, we will be much better equipped to clear all the debris at once."
 		PLAYER "Right, of course."
 	};
-	copy!("interrupt-king-walk")
+	copy!(interrupt_king_walk)
 	entity "King Gibson" direction = player;
 	show dialog {
 		GIBSON "Good luck. And thank you. Truly."
 	};
-	copy!("resume-king-walk")
+	copy!(resume_king_walk)
 	warp_state = "nothing lol";
-	"ch2-king-rescued" = true;
+	ch2_king_rescued = true;
 	camera -> player position over 700ms;
 	player_control = on;
 }
-"king-walk-to-debris" {
+king_walk_to_debris {
 	self position -> geometry "king-examine1" origin over 1200ms;
-	goto "king-debris-ponder";
+	goto king_debris_ponder;
 }
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick_ch2_castle_13_postgame" {
+on_tick_ch2_castle_13_postgame {
 	if (player intersects geometry "south-hitbox") {
 		copy!(on_exit_ch2_castle_13)
 		warp_state = "walk_from-north";
@@ -410,8 +407,8 @@ $fadeTime = 600ms;
 		copy!(ch2_load_castle_14_special)
 	}
 }
-"on_tick_ch2_castle_13" {
-	if ("ch2-king-rescued") {
+on_tick_ch2_castle_13 {
+	if (ch2_king_rescued) {
 		if (player intersects geometry "north-hitbox") {
 			warp_state = "walk_from-south";
 			copy!(ch2_load_castle_14_special)
@@ -421,18 +418,18 @@ $fadeTime = 600ms;
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit_ch2_castle_13" { // sanitize ch2 room state
-	"ch2_in_room" = 0;
+on_exit_ch2_castle_13 { // sanitize ch2 room state
+	ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-"on_go_castle_13_north" {
+on_go_castle_13_north {
 	copy!(on_exit_ch2_castle_13)
 	copy!(warping_out_fade_out)
 	copy!(ch2_load_castle_14_special)
 }
-"on_go_castle_13_south" {
+on_go_castle_13_south {
 	copy!(on_exit_ch2_castle_13)
 	copy!(warping_out_fade_out)
 	copy!(ch2_load_castle_12_special)
@@ -441,32 +438,32 @@ $fadeTime = 600ms;
 /* ---------- GOLDFISH (ADMIN) ---------- */
 
 
-"ch2-touch-goldfish" {
+ch2_touch_goldfish {
 	if (!ch2_cutseen_castle14) {
 		show dialog { // don't use "self"; "Aurelius" is a label!
 			Aurelius "Do please check on King Gibson, would you? He's in his bedroom, just to the north of us."
 		};
-	} else if (!"ch2-king-rescued") {
-		copy!("ch2-king-unharmed")
-		if ("ch2-king-report") {
+	} else if (!ch2_king_rescued) {
+		copy!(ch2_king_unharmed)
+		if (ch2_king_report) {
 			show dialog {
 				Aurelius "Godspeed."
 			};
 		}
-		"ch2-king-report" = true;
+		ch2_king_report = true;
 	} else {
 		show dialog {
 			Aurelius "Once the mainframe is repaired, we will be much better equipped to clear all the debris at once. Don't let us keep you."
 		};
-		if ("ch2_storyflag_round" >= 3) {
+		if (ch2_storyflag_round >= 3) {
 			show dialog {
 				PLAYER "Actually, I could use your help to fix it."
 				Aurelius "Of course. Anything."
 				PLAYER "I sort of need to borrow... you."
 				"We're short a CPU. And I need a volunteer to act as the \"thinking\" part --"
 			};
-			copy!("interrupt-king-walk")
-			copy!("interrupt-templeton-walk")
+			copy!(interrupt_king_walk)
+			copy!(interrupt_templeton_walk)
 			entity "King Gibson" current_animation = 2;
 			show dialog {
 				GIBSON emote 1 "What's this? What are you talking about?"
@@ -488,31 +485,31 @@ $fadeTime = 600ms;
 				Aurelius "It will empower the rest of you."
 				GIBSON "Very well. We'll continue to do our best here."
 			};
-			entity "Aurelius" position = geometry "hiding-spot"; // doing yeet now aborts the script early!
+			entity Aurelius position = geometry "hiding-spot"; // doing yeet now aborts the script early!
 			copy!(ch2_pickup_goldfish)
 			show dialog {
 				name "" "(You acquired a goldfish!)"
 				GIBSON "I'm counting on you both. Good luck."
 			};
-			copy!("resume-king-walk")
-			copy!("resume-templeton-walk")
-			entity "Aurelius" on_tick = yeet;
+			copy!(resume_king_walk)
+			copy!(resume_templeton_walk)
+			entity Aurelius on_tick = yeet;
 		}
 	}
 }
 
 /* ---------- ENTITIES ---------- */
 
-"ch2-king-unharmed" {
-	if (!"ch2-king-report") {
+ch2_king_unharmed {
+	if (!ch2_king_report) {
 		show dialog {
 			PLAYER "The king is okay, but he's trapped in there. Both the intercom and the keypad lock to his door seem to be broken."
 		};
-		player direction = entity "Templeton";
+		player direction = entity Templeton
 		show dialog {
 			Templeton "Oh, thank goodness! He's all right!"
 		};
-		player direction = entity "Aurelius";
+		player direction = entity Aurelius
 		show dialog {
 			Aurelius "I see. Thank you."
 		};
@@ -522,145 +519,145 @@ $fadeTime = 600ms;
 	};
 }
 
-"interact_ch2_sebastian" {
-	copy!("face-player")
+interact_ch2_sebastian {
+	copy!(face_player)
 	if (!ch2_cutseen_castle14) {
 		show dialog {
 			SELF "Mark my words: he's ignoring us. He's all but abdicated."
 		};
-	} else if (!"ch2-king-rescued") {
-		copy!("ch2-king-unharmed")
-		if ("ch2-king-report") {
+	} else if (!ch2_king_rescued) {
+		copy!(ch2_king_unharmed)
+		if (ch2_king_report) {
 			show dialog {
 				SELF "Forget the king. He's on his own."
 			};
 		}
-		"ch2-king-report" = true;
+		ch2_king_report = true;
 	} else {
 		show dialog {
 			SELF "%Templeton%, I promise not to yell at you for eating my spellbooks again if you can produce the right page in the next five minutes."
 		};
-		entity "Templeton" on_tick = null_script;
-		entity "Templeton" direction = entity "Sebastian";
+		entity Templeton on_tick = null_script;
+		entity Templeton direction = entity Sebastian
 		// pauses fussing
 		show dialog {
 			Templeton "Darn it, you made me forget the filing number! Now I'll have to go through the card catalog all over again!"
 		};
-		entity "Templeton" on_tick = "templeton-catalog-search";
+		entity Templeton on_tick = templeton_catalog_search
 	}
 }
 
-"interact_ch2_templeton" {
-	copy!("face-player")
+interact_ch2_templeton {
+	copy!(face_player)
 	if (!ch2_cutseen_castle14) {
 		show dialog {
 			SELF "I know King Gibson doesn't always get along with us, but this silence is unlike him. I'm worried."
 		};
-	} else if (!"ch2-king-rescued") {
-		copy!("ch2-king-unharmed")
-		if ("ch2-king-report") {
+	} else if (!ch2_king_rescued) {
+		copy!(ch2_king_unharmed)
+		if (ch2_king_report) {
 			show dialog {
 				SELF "Oh, goodness! Thank you, thank you!"
 			};
 		}
-		"ch2-king-report" = true;
+		ch2_king_report = true;
 	} else {
-		copy!("interrupt-walk")
+		copy!(interrupt_walk)
 		show dialog {
 			SELF "Thank you for rescuing the king. We were all very worried about him."
 			Sebastian "%Templeton%, please don't forget that you're trying to find my physics spellbook. The gravitation spell, please?"
 		};
-		copy!("resume-walk")
+		copy!(resume_walk)
 		show dialog {
 			SELF "Yes, yes, of course."
 		};
 	}
 }
 
-"interrupt-king-walk" {
+interrupt_king_walk {
 	// todo: functions plz :/
-	"captured_animation2" = entity "King Gibson" current_animation;
+	captured_animation2 = entity "King Gibson" current_animation;
 	entity "King Gibson" current_animation = 0;
 	pause entity "King Gibson" on_tick;
 	if (entity "King Gibson" direction == north) {
-		"tempvar2" = 0;
+		tempvar2 = 0;
 	} else if (entity "King Gibson" direction == east) {
-		"tempvar2" = 1;
+		tempvar2 = 1;
 	} else if (entity "King Gibson" direction == south) {
-		"tempvar2" = 2;
+		tempvar2 = 2;
 	} else if (entity "King Gibson" direction == west) {
-		"tempvar2" = 3;
+		tempvar2 = 3;
 	}
 	entity "King Gibson" direction = player;
 }
-"resume-king-walk" {
-	entity "King Gibson" current_animation = "captured_animation2";
+resume_king_walk {
+	entity "King Gibson" current_animation = captured_animation2;
 	unpause entity "King Gibson" on_tick;
-	if ("tempvar2" == 0) {
+	if (tempvar2 == 0) {
 		entity "King Gibson" direction = north;
-	} else if ("tempvar2" == 1) {
+	} else if (tempvar2 == 1) {
 		entity "King Gibson" direction = east;
-	} else if ("tempvar2" == 2) {
+	} else if (tempvar2 == 2) {
 		entity "King Gibson" direction = south;
-	} else if ("tempvar2" == 3) {
+	} else if (tempvar2 == 3) {
 		entity "King Gibson" direction = west;
 	}
 }
-"interrupt-templeton-walk" {
+interrupt_templeton_walk {
 	// todo: functions plz :/
-	"captured_animation3" = entity "Templeton" current_animation;
-	entity "Templeton" current_animation = 0;
+	captured_animation3 = entity Templeton current_animation;
+	entity Templeton current_animation = 0;
 	pause entity Templeton on_tick;
-	if (entity "Templeton" direction == north) {
-		"tempvar3" = 0;
-	} else if (entity "Templeton" direction == east) {
-		"tempvar3" = 1;
-	} else if (entity "Templeton" direction == south) {
-		"tempvar3" = 2;
-	} else if (entity "Templeton" direction == west) {
-		"tempvar3" = 3;
+	if (entity Templeton direction == north) {
+		tempvar3 = 0;
+	} else if (entity Templeton direction == east) {
+		tempvar3 = 1;
+	} else if (entity Templeton direction == south) {
+		tempvar3 = 2;
+	} else if (entity Templeton direction == west) {
+		tempvar3 = 3;
 	}
-	entity "Templeton" direction = player;
+	entity Templeton direction = player;
 }
-"resume-templeton-walk" {
-	entity "Templeton" current_animation = "captured_animation3";
+resume_templeton_walk {
+	entity Templeton current_animation = captured_animation3;
 	unpause entity Templeton on_tick;
-	if ("tempvar3" == 0) {
-		entity "Templeton" direction = north;
-	} else if ("tempvar3" == 1) {
-		entity "Templeton" direction = east;
-	} else if ("tempvar3" == 2) {
-		entity "Templeton" direction = south;
-	} else if ("tempvar3" == 3) {
-		entity "Templeton" direction = west;
+	if (tempvar3 == 0) {
+		entity Templeton direction = north;
+	} else if (tempvar3 == 1) {
+		entity Templeton direction = east;
+	} else if (tempvar3 == 2) {
+		entity Templeton direction = south;
+	} else if (tempvar3 == 3) {
+		entity Templeton direction = west;
 	}
 }
-"templeton-catalog-search" {
-	copy!("tick-rand-mini") // from bob's club basement
-	entity "Templeton" position -> geometry "end-templeton2" origin over 200ms;
-	copy!("tick-rand-mini") // from bob's club basement
-	entity "Templeton" position -> geometry "end-templeton1" origin over 200ms;
-	copy!("tick-rand-mini") // from bob's club basement
+templeton_catalog_search {
+	copy!(tick_rand_mini) // from bob's club basement
+	entity Templeton position -> geometry "end-templeton2" origin over 200ms;
+	copy!(tick_rand_mini) // from bob's club basement
+	entity Templeton position -> geometry "end-templeton1" origin over 200ms;
+	copy!(tick_rand_mini) // from bob's club basement
 }
-"king-debris-ponder" {
-	copy!("tick-rand-mini") // from bob's club basement
+king_debris_ponder {
+	copy!(tick_rand_mini) // from bob's club basement
 	self position -> geometry "king-examine2" origin over 700ms;
 	self direction = south;
-	copy!("tick-rand-broad") // from bob's club basement
+	copy!(tick_rand_broad) // from bob's club basement
 	wait 400ms;
 	self position -> geometry "king-examine1" origin over 700ms;
 	self direction = south;
-	copy!("tick-rand-broad") // from bob's club basement
+	copy!(tick_rand_broad) // from bob's club basement
 }
 
-"interact_ch2_gibson_throneroom" {
-	copy!("interrupt-walk")
-	if ("ch2_storyflag_round" < 3) {
+interact_ch2_gibson_throneroom {
+	copy!(interrupt_walk)
+	if (ch2_storyflag_round < 3) {
 		show dialog {
 			GIBSON "My staff and I are reunited, thanks to you."
 			"I am in your debt."
 		};
-	} else if (!"ch2-clock-permission") {
+	} else if (!ch2_clock_permission) {
 		show dialog {
 			PLAYER "So, Your Majesty, about the clock in your bedroom...."
 			GIBSON "What? What's this about my heirloom grandfather clock?"
@@ -672,12 +669,9 @@ $fadeTime = 600ms;
 			"Take it, if you feel you can make good use of it."
 			PLAYER "Thank you very much!"
 		};
-		"ch2-clock-permission" = true;
+		ch2_clock_permission = true;
 	} else {
-		if (
-			"ch2_installed_goldfish"
-			|| "ch2_carrying_goldfish"
-		) {
+		if (ch2_installed_goldfish || ch2_carrying_goldfish) {
 			show dialog {
 				GIBSON "Take good care of Aurelius for me."
 				PLAYER "I will."
@@ -688,24 +682,24 @@ $fadeTime = 600ms;
 			};
 		}
 	}
-	copy!("resume-walk")
+	copy!(resume_walk)
 }
 
-"interact_ch2_sebastian_end" {
+interact_ch2_sebastian_end {
 	show dialog { SELF "*whew* All the doors are cleared now, so time for a break." };
 }
-"interact_ch2_templeton_end" {
+interact_ch2_templeton_end {
 	show dialog { SELF "Jeez Louise. I hope nothing else goes wrong today." };
 }
-"interact_ch2_gibson_throneroom-end" {
-	copy!("face-player")
+interact_ch2_gibson_throneroom_end {
+	copy!(face_player)
 	show dialog {
 		SELF "Do let me know when we can get Aurelius back."
 		PLAYER "Of course."
 };
 	self direction = south;
 }
-"interact_ch2_statue" {
+interact_ch2_statue {
 	show dialog {
 		PLAYER "Neat detail work in the beard. I wonder what kind of stone this is."
 	};

@@ -69,7 +69,7 @@ show_dialog-bea-start {
 		show dialog { SELF "Ydy D ymjk ht bgvnnzn? Ocz rjmgy'n bjiz v wdo apuut." }
 	} else {
 		copy script clear-own-tick;
-		copy script face-player;
+		copy script face_player;
 		if (flag bea-sequel-branch is false) {
 			goto show_dialog-bea-part1;
 		} else {
@@ -134,7 +134,7 @@ show_dialog-bea-part1 {
 					copy script clear-own-tick;
 					copy script slow-stare-at-delmar;
 					show dialog { SELF "Oh, %Delmar%! You're... oh...." }
-					copy script face-player;
+					copy script face_player;
 					show dialog {
 						SELF "Oh, goodness. Well, this isn't my %Delmar%, but I suppose it's nice he's not a sheep anymore, at least."
 						"He's been a sheep for so long... well, I suppose it's been forty years."
@@ -270,16 +270,16 @@ on_tick-delmar-blab-man-watch {
 
 /* --------------- debug --------------- */
 
-debug-bea-sequel-q {
-	copy script face-player;
+debug_bea_sequel_q {
+	copy script face_player;
 	show dialog {
 		SELF "Set sequel branch?"
-		> "Yes (plus man)" : debug-bea-sequel-man
-		> "Yes" : debug-bea-sequel-noman
-		> "No" : debug-bea-sequel-no
+		> "Yes (plus man)" : debug_bea_sequel_man
+		> "Yes" : debug_bea_sequel_noman
+		> "No" : debug_bea_sequel_no
 	}
 }
-debug-bea-sequel-man {
+debug_bea_sequel_man {
 	set flag bea-sequel-branch to true;
 	set flag storyflag-bea1 to true;
 	set flag bea1-backstory to true;
@@ -287,17 +287,17 @@ debug-bea-sequel-man {
 	copy script set-hint-none;
 	copy script delmar-blab;
 	show dialog { SELF "Sequel branch activated, and Delmar is a man." }
-	set entity "%SELF%" on_interact to debug-bea-sequel-q;
+	set entity "%SELF%" on_interact to debug_bea_sequel_q;
 }
-debug-bea-sequel-noman {
+debug_bea_sequel_noman {
 	set flag bea-sequel-branch to true;
 	set flag storyflag-bea1 to true;
 	set flag bea1-backstory to true;
 	copy script set-hint-none;
 	show dialog { SELF "Sequel branch activated, and Delmar left alone." }
-	set entity "%SELF%" on_interact to debug-bea-sequel-q;
+	set entity "%SELF%" on_interact to debug_bea_sequel_q;
 }
-debug-bea-sequel-no {
+debug_bea_sequel_no {
 	show dialog { SELF "Nothing changed." }
-	set entity "%SELF%" on_interact to debug-bea-sequel-q;
+	set entity "%SELF%" on_interact to debug_bea_sequel_q;
 }

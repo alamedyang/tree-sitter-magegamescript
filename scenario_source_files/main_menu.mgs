@@ -24,7 +24,7 @@ include "header.mgs";
 		command bob = "debug-bob";
 		command bob2 = "debug-bob2";
 		command bob3 = "debug-bob3";
-		command simon = "debug-menu-simon";
+		command simon = "debug_menu_simon";
 		command king = "debug-king";
 		command ch2 = "menu-chapter_select-2";
 		command rtfm = "command-rtfm";
@@ -32,10 +32,10 @@ include "header.mgs";
 		command boot = "ch2-bootup";
 		command post = "debug-post";
 		// command cutbug = ch2-toot-step3-end2;
-		command skip + "1" = "debug-jump-to-round1";
-		command skip + "2" = "debug-jump-to-round2";
-		command skip + "3" = "debug-jump-to-round3";
-		command skip + "4" = "debug-jump-to-round4";
+		command skip + "1" = "debug_jump_to_round1";
+		command skip + "2" = "debug_jump_to_round2";
+		command skip + "3" = "debug_jump_to_round3";
+		command skip + "4" = "debug_jump_to_round4";
 		copy!("register-warp")
 		copy!("register-storyflag")
 		show serial_dialog {
@@ -65,25 +65,25 @@ include "header.mgs";
 /* DEBUGSSSS */
 "debug-post" {
 	"ch2_wizard_backstory" = true;
-	copy!("debug-set-flags-to-round4")
+	copy!("debug_set_flags_to_round4")
 	ch2_seen_room_99 = true;
 	"ch2-map-mainframeos" = false;
 	ch2_carrying_mainframeos = true;
 	ch2_cutseen_castle99 = true;
 	copy!("ch2-install-mainframeos")
-	"ch2-ring-zero-enabled-in-castle" = true;
+	"ch2_ring_zero_enabled_in_castle" = true;
 	"ch2_storyflag_round" = 5;
 	"credits-from-menu" = false;
 	warp_state = "ch2-ending";
 	load map "ch2-castle-outside";
 }
 
-"debug-menu-simon" {
+"debug_menu_simon" {
 	serial_control = true;
 	"ch2-has-artifact" = true;
 	hex_control = true;
 	"current-chapter" = 2;
-	copy!("debug-finish-toot")
+	copy!("debug_finish_toot")
 	"ch2_storyflag_round" = 2;
 	copy!("warp-ch2-31") // this has a load_map in it
 }
@@ -120,16 +120,16 @@ include "header.mgs";
 }
 
 "debug-king" {
-	copy!("debug-set-flags-to-round3")
+	copy!("debug_set_flags_to_round3")
 	ch2_cutseen_castle13 = true;
 	ch2_cutseen_castle14 = true;
-	"ch2-king-rescued" = true;
+	"ch2_king_rescued" = true;
 	warp_state = "Ch2 King Returns";
 	load map "ch2-castle-13";
 }
 
 "debug" {
-	copy!("debug-set-flags-to-round0")
+	copy!("debug_set_flags_to_round0")
 	copy!(ch2_load_castle_1_special)
 }
 

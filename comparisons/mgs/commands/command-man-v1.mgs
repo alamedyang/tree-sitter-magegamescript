@@ -49,7 +49,7 @@ command-man {
 			name Lambda portrait lambda "Sorry, it's a little awkward to text chat with you when you're looking over my shoulder."
 		}
 	} else if (
-		flag ch2-ring-zero-enabled-in-castle is true // the artifact is full power
+		flag ch2_ring_zero_enabled_in_castle is true // the artifact is full power
 		|| variable ch2_in_room is not 0 // OR you're in the castle
 	) {
 		// `man` works normally
@@ -1185,7 +1185,7 @@ ch2-lambda-person-lambda-name-followup-severed {
 		"<m>LAMBDA</>: There are gaps in my mind. I... I think they might have appeared when I deleted my name. Hard to tell."
 		"\tIt's a lot harder to remember people, for a start. My skills seem to be intact, but I feel... disconnected. It's like everything I <bold>can</> remember is stripped of context."
 	}
-	set flag ch2-lambda-deletion-backstory to true;
+	set flag ch2_lambda_deletion_backstory to true;
 	goto ch2-lambda-person-lambda-name-followup;
 }
 ch2-lambda-person-lambda-name-followup-bigbad {

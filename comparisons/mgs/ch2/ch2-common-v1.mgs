@@ -23,7 +23,7 @@ ch2_map_init_registers {
 ch2_map_init_hex {
 	if (
 		// if you've fixed the mainframe to the point you can use Ring Zero normally inside the castle
-		flag ch2-ring-zero-enabled-in-castle is true
+		flag ch2_ring_zero_enabled_in_castle is true
 		// OR you're not in the castle at all
 		|| variable ch2_in_room is 0
 		// OR debug mode is on
@@ -122,23 +122,23 @@ ch2_map_init_inventory_look {
 }
 ch2_map_init_serial_debug_message {
 	if (debug mode is on) {
-		if (flag debug-curr-state is false) {
+		if (flag debug_curr_state is false) {
 			show serial dialog {
 				"<y>+-------------------------+</>"
 				"<y>|  DEBUG MODE IS NOW ON!  |</>"
 				"<y>+-------------------------+</>"
 			}
 		}
-		set flag debug-curr-state to true;
+		set flag debug_curr_state to true;
 	} else {
-		if (flag debug-curr-state is true) {
+		if (flag debug_curr_state is true) {
 			show serial dialog {
 				"<y>+--------------------------+</>"
 				"<y>|  DEBUG MODE IS NOW OFF!  |</>"
 				"<y>+--------------------------+</>"
 			}
 		}
-		set flag debug-curr-state to false;
+		set flag debug_curr_state to false;
 	}
 }
 

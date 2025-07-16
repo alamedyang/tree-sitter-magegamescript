@@ -33,7 +33,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2_in_room" == 99) {
+	if (ch2_in_room == 99) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_99) {
@@ -78,7 +78,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2_in_room" == 14) {
+	if (ch2_in_room == 14) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_14) {
@@ -163,7 +163,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2_in_room" == 13) {
+	if (ch2_in_room == 13) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_13) {
@@ -192,7 +192,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2_in_room" == 33) {
+	if (ch2_in_room == 33) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_33) {
@@ -206,7 +206,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2_in_room" == 34) {
+	if (ch2_in_room == 34) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_34) {
@@ -239,7 +239,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2_in_room" == 23) {
+	if (ch2_in_room == 23) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_23) {
@@ -335,7 +335,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2_in_room" == 32) {
+	if (ch2_in_room == 32) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_32) {
@@ -395,7 +395,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2_in_room" == 22) {
+	if (ch2_in_room == 22) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_22) {
@@ -424,7 +424,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2_in_room" == 12) {
+	if (ch2_in_room == 12) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_12) {
@@ -452,7 +452,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2_in_room" == 31) {
+	if (ch2_in_room == 31) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_31) {
@@ -535,7 +535,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"    "};
 	}
-	if ("ch2_in_room" == 21) {
+	if (ch2_in_room == 21) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_21) {
@@ -573,7 +573,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2_in_room" == 11) {
+	if (ch2_in_room == 11) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_11) {
@@ -620,7 +620,7 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 14
 	concat serial_dialog {"|          |..."};
-	if ("ch2_in_room" == 1) {
+	if (ch2_in_room == 1) {
 		concat serial_dialog "player";
 	} else {
 		if (ch2_seen_room_1) {

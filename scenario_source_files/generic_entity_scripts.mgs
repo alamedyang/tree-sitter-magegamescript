@@ -1,9 +1,9 @@
-"face-player" {
+"face_player" {
 	self direction = player;
 }
 
 "set_tick-watch-player" {
-	self on_tick = "face-player";
+	self on_tick = "face_player";
 }
 
 "clear-own-tick" {
@@ -207,14 +207,14 @@
 	}
 }
 
-"interrupt-walk" {
+"interrupt_walk" {
 	"captured_animation" = self current_animation;
 	self current_animation = 0;
 	pause self on_tick;
 	copy!(capture_self_direction)
-	copy!("face-player")
+	copy!(face_player)
 }
-"resume-walk" {
+"resume_walk" {
 	self current_animation = "captured_animation";
 	unpause self on_tick;
 	copy!(restore_self_direction)

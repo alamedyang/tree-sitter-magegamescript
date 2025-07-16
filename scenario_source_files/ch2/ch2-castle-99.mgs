@@ -102,7 +102,7 @@ $opaque_lowered_almost = 5;
 
 "on_load_ch2_castle_99" {
 	// ch2 room state
-	"ch2_in_room" = 99;
+	ch2_in_room = 99;
 	
 	// entrance text
 	show serial_dialog spacer;
@@ -122,7 +122,7 @@ $opaque_lowered_almost = 5;
 	}
 
 	// Check if rake has been obtained
-	if ("ch2_carrying_minirake-99") {
+	if ("ch2_carrying_minirake_99") {
 		copy!("ch2-minirake-99-hide")
 	}
 	
@@ -138,7 +138,7 @@ $opaque_lowered_almost = 5;
 				"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
 			};
 		}
-		goto "ch2-cutscene-castle99"; // NOTE: branching means `goto`! Deadend things here!
+		goto "ch2_cutscene_castle99"; // NOTE: branching means `goto`! Deadend things here!
 	}
 }
 
@@ -181,7 +181,7 @@ $opaque_lowered_almost = 5;
 	entity "Lambda" current_animation = $opaque;
 	goto null_script;
 }
-"ch2-cutscene-castle99" {
+"ch2_cutscene_castle99" {
 	player_control = off;
 	wait 1500ms;
 	player direction = east;
@@ -273,12 +273,12 @@ $opaque_lowered_almost = 5;
 	show dialog {
 		Lambda emote $transparent_serious "It's better to be connected to people. However dangerous things might become, it's better to face those dangers together."
 		"Don't you think?"
-		> "Yeah, better to face danger together." = "ch2-cutscene-castle99-dangeryes"
-		> "I don't know...." = "ch2-cutscene-castle99-dangeridk"
+		> "Yeah, better to face danger together." = "ch2_cutscene_castle99_dangeryes"
+		> "I don't know...." = "ch2_cutscene_castle99_dangeridk"
 	};
 }
 
-"ch2-cutscene-castle99-dangeryes" {
+"ch2_cutscene_castle99_dangeryes" {
 	show dialog {
 		PLAYER "Yeah, better to face danger together."
 		Lambda emote $transparent_grin "Yeah!"
@@ -287,9 +287,9 @@ $opaque_lowered_almost = 5;
 	show dialog {
 		Lambda emote $opaque_lowered_almost "So, um, to that end -- here, take this."
 	};
-	goto "ch2-cutscene-castle99-continue";
+	goto "ch2_cutscene_castle99_continue";
 }
-"ch2-cutscene-castle99-dangeridk" {
+"ch2_cutscene_castle99_dangeridk" {
 	show dialog {
 		PLAYER "I don't know."
 	};
@@ -298,17 +298,17 @@ $opaque_lowered_almost = 5;
 		Lambda "Yeah, I guess things are pretty complicated, aren't they?"
 		Lambda "So, um, anyway -- here, take this."
 	};
-	goto "ch2-cutscene-castle99-continue";
+	goto "ch2_cutscene_castle99_continue";
 }
 
-"ch2-cutscene-castle99-os-pickup" {
+"ch2_cutscene_castle99_os_pickup" {
 	wait 350ms;
 	player current_animation = 1;
 	player position -> geometry "pickup-spot" origin over 300ms;
 	player current_animation = 0;
 	goto null_script;
 }
-"ch2-cutscene-castle99-os-pickup-return" {
+"ch2_cutscene_castle99_os_pickup_return" {
 	wait 150ms;
 	player strafe = 2;
 	player current_animation = 1;
@@ -318,8 +318,8 @@ $opaque_lowered_almost = 5;
 	player direction = north;
 	goto null_script;
 }
-"ch2-cutscene-castle99-continue" {
-	player on_tick = "ch2-cutscene-castle99-os-pickup";
+"ch2_cutscene_castle99_continue" {
+	player on_tick = "ch2_cutscene_castle99_os_pickup";
 	entity "Lambda" position -> geometry "lambda-walk-line3" origin over 400ms;
 	entity "Lambda" current_animation = $opaque;
 	wait 700ms;
@@ -327,7 +327,7 @@ $opaque_lowered_almost = 5;
 		name "" "(You received the mainframe OS!)"
 	};
 	wait 200ms;
-	player on_tick = "ch2-cutscene-castle99-os-pickup-return";
+	player on_tick = "ch2_cutscene_castle99_os_pickup_return";
 	entity "Lambda" strafe = 2;
 	entity "Lambda" position -> geometry "lambda-walk-line2" origin over 400ms;
 	entity "Lambda" current_animation = $opaque;
@@ -376,7 +376,7 @@ $opaque_lowered_almost = 5;
 /* ---------- EXIT STUFF ---------- */
 
 "on_exit_ch2_castle_99" { // sanitize ch2 room state
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 }
 
 /* ---------- ENTITY THINGS ---------- */
@@ -427,7 +427,7 @@ $opaque_lowered_almost = 5;
 // }
 
 "interact_ch2_lambda_lab" {
-	copy!("face-player")
+	copy!(face_player)
 	entity "Lambda" current_animation = $opaque;
 	if ("ch2_storyflag_round" < 5) {
 		show dialog {
@@ -449,7 +449,7 @@ $opaque_lowered_almost = 5;
 		"(I hope he doesn't mind me borrowing it.)"
 	};
 	copy!("ch2-minirake-99-hide")
-	"ch2_carrying_minirake-99" = true;
+	"ch2_carrying_minirake_99" = true;
 	show dialog {
 		name "" alignment TL "(You picked up the mini rake!)"
 	};

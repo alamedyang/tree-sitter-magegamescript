@@ -1,7 +1,7 @@
 include "header.mgs";
 
 "show_dialog-shepherd-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) { // if he's glitched
 		show dialog { SELF "Jubn, jung'f tbvat ba?!" };
 	} else if ("storyflag-shepherd") { // if you've solved the puzzle already
@@ -20,7 +20,7 @@ include "header.mgs";
 				|| entity "Helga" intersects geometry "sheep-pen"
 			) { // ...and if at least one IS in the pen
 				// give a "cheer"
-				copy!("face-player")
+				copy!(face_player)
 				show dialog { SELF "Awesome! Don't stop, now!" };
 				copy!("set-hint-shepherd-partial")
 			} else { // ...and they're ALL still outside
@@ -60,7 +60,7 @@ include "header.mgs";
 }
 
 "show_dialog-shepherd-backstory" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "...."
 		"I messed up."
@@ -87,7 +87,7 @@ include "header.mgs";
 }
 
 "turn-right-and-left" {
-	copy!("face-player")
+	copy!(face_player)
 	player_control = off;
 	wait 200ms;
 	self direction += 1;
@@ -96,7 +96,7 @@ include "header.mgs";
 	wait 500ms;
 	self direction += 1;
 	wait 200ms;
-	copy!("face-player")
+	copy!(face_player)
 	player_control = on;
 }
 
@@ -145,28 +145,28 @@ include "header.mgs";
 	wait 800ms;
 }
 
-"debug-sheep-q" {
-	copy!("face-player")
+"debug_sheep_q" {
+	copy!(face_player)
 	show dialog {
 		SELF "Return sheep to pen?"
-		> "Yes (all)" = "debug-sheep-all"
-		> "Yes (three out of four)" = "debug-sheep-most"
-		> "No" = "debug-sheep-no"
+		> "Yes (all)" = "debug_sheep_all"
+		> "Yes (three out of four)" = "debug_sheep_most"
+		> "No" = "debug_sheep_no"
 	};
 }
-"debug-sheep-all" {
+"debug_sheep_all" {
 	copy!("sheep-in-pen")
 	show dialog { SELF "All sheep returned." };
-	self on_interact = "debug-sheep-q";
+	self on_interact = "debug_sheep_q";
 }
-"debug-sheep-most" {
+"debug_sheep_most" {
 	entity "Baa" position = geometry "baa_point";
 	entity "Ram" position = geometry "ram_point";
 	entity "Ewe" position = geometry "ewe_point";
 	show dialog { SELF "Helga remains." };
-	self on_interact = "debug-sheep-q";
+	self on_interact = "debug_sheep_q";
 }
-"debug-sheep-no" {
+"debug_sheep_no" {
 	show dialog { SELF "Nothing changed." };
-	self on_interact = "debug-sheep-q";
+	self on_interact = "debug_sheep_q";
 }

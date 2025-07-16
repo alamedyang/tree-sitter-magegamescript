@@ -70,7 +70,7 @@ include "header.mgs";
 		show dialog { SELF "Ydy D ymjk ht bgvnnzn? Ocz rjmgy'n bjiz v wdo apuut." };
 	} else {
 		copy!("clear-own-tick")
-		copy!("face-player")
+		copy!(face_player)
 		if (!"bea-sequel-branch") {
 			goto "show_dialog-bea-part1";
 		} else {
@@ -135,7 +135,7 @@ include "header.mgs";
 					copy!("clear-own-tick")
 					copy!("slow-stare-at-delmar")
 					show dialog { SELF "Oh, %Delmar%! You're... oh...." };
-					copy!("face-player")
+					copy!(face_player)
 					show dialog {
 						SELF "Oh, goodness. Well, this isn't my %Delmar%, but I suppose it's nice he's not a sheep anymore, at least."
 						"He's been a sheep for so long... well, I suppose it's been forty years."
@@ -275,16 +275,16 @@ include "header.mgs";
 
 /* --------------- debug --------------- */
 
-"debug-bea-sequel-q" {
-	copy!("face-player")
+"debug_bea_sequel_q" {
+	copy!(face_player)
 	show dialog {
 		SELF "Set sequel branch?"
-		> "Yes (plus man)" = "debug-bea-sequel-man"
-		> "Yes" = "debug-bea-sequel-noman"
-		> "No" = "debug-bea-sequel-no"
+		> "Yes (plus man)" = "debug_bea_sequel_man"
+		> "Yes" = "debug_bea_sequel_noman"
+		> "No" = "debug_bea_sequel_no"
 	};
 }
-"debug-bea-sequel-man" {
+"debug_bea_sequel_man" {
 	"bea-sequel-branch" = true;
 	"storyflag-bea1" = true;
 	"bea1-backstory" = true;
@@ -292,19 +292,19 @@ include "header.mgs";
 	copy!("set-hint-none")
 	copy!("delmar-blab")
 	show dialog { SELF "Sequel branch activated, and Delmar is a man." };
-	self on_interact = "debug-bea-sequel-q";
+	self on_interact = "debug_bea_sequel_q";
 }
-"debug-bea-sequel-noman" {
+"debug_bea_sequel_noman" {
 	"bea-sequel-branch" = true;
 	"storyflag-bea1" = true;
 	"bea1-backstory" = true;
 	copy!("set-hint-none")
 	show dialog { SELF "Sequel branch activated, and Delmar left alone." };
-	self on_interact = "debug-bea-sequel-q";
+	self on_interact = "debug_bea_sequel_q";
 }
-"debug-bea-sequel-no" {
+"debug_bea_sequel_no" {
 	show dialog { SELF "Nothing changed." };
-	self on_interact = "debug-bea-sequel-q";
+	self on_interact = "debug_bea_sequel_q";
 }
 
 dialog "dialog-bea-mandud-s" { //where was this supposed to go? lol

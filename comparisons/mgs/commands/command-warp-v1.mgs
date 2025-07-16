@@ -158,7 +158,7 @@ warp-common {
 	}
 	// all warps will fail before the computer is ok
 	// if you're PHYSICALLY OUTSIDE the castle
-	if (flag ch2-ring-zero-enabled-in-castle is false) {
+	if (flag ch2_ring_zero_enabled_in_castle is false) {
 		if (debug mode is off) {
 			if (variable ch2_in_room is 0) {
 				goto warp-ch2-town-check-fail-message;
@@ -232,7 +232,7 @@ warp-ch2-99 {
 warp-ch2-town-destination-check {
 	// all warps will fail before the computer is ok
 	// if your DESTINATION is outside the castle
-	if (flag ch2-ring-zero-enabled-in-castle is false) {
+	if (flag ch2_ring_zero_enabled_in_castle is false) {
 		if (debug mode is off) {
 			goto warp-ch2-town-check-fail-message;
 		}

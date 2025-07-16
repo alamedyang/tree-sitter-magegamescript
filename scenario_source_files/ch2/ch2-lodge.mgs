@@ -130,7 +130,7 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "interact_ch2_manual" {
-	if (!"ch2-want-manual") {
+	if (!"ch2_want_manual") {
 		show dialog {
 			PLAYER "Looks like a book about a calculator."
 		};
@@ -149,7 +149,7 @@ include "header.mgs";
 }
 
 "interact_ch2_timmy" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "I love the library! There's so many books here it would take a hundred years to read them all!"
@@ -215,7 +215,7 @@ $bookcount = 4;
 			SELF "Oh, look at that. \"Rendezvous with Rama,\" but what a stunning cover! I don't recognize this edition. Who publizhed this one? Gollancz?"
 		};
 	}
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "Yes, yes, I'm getting work done! What does it look like I'm doing?"
 	};

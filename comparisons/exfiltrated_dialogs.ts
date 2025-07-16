@@ -1717,19 +1717,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Skip Bob Austin conversation',
-					script: 'debug-bob-skipconvo',
+					script: 'debug_bob_skipconvo',
 				},
 				{
 					label: 'Above + set name Bob',
-					script: 'debug-bob-also-setnamebob',
+					script: 'debug_bob_also_setnamebob',
 				},
 				{
 					label: 'Skip cutscene and teleport',
-					script: 'debug-bob-teleport',
+					script: 'debug_bob_teleport',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-bob-no',
+					script: 'debug_bob_no',
 				},
 			],
 		},
@@ -1765,11 +1765,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'debug-hub-go',
+					script: 'debug_hub_go',
 				},
 				{
 					label: 'No',
-					script: 'debug-hub-no',
+					script: 'debug_hub_no',
 				},
 			],
 		},
@@ -1784,19 +1784,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Set story flags true + ch1_finished true',
-					script: 'debug-demobonus-pre-flags-true',
+					script: 'debug_demobonus_pre_flags_true',
 				},
 				{
 					label: 'Set story flags true + ch1_finished false',
-					script: 'debug-demobonus-pre-flags-false',
+					script: 'debug_demobonus_pre_flags_false',
 				},
 				{
 					label: 'Set demo bonus event flags false',
-					script: 'debug-demobonus-event-flags-false',
+					script: 'debug_demobonus_event_flags_false',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-demobonus-no',
+					script: 'debug_demobonus_no',
 				},
 			],
 		},
@@ -1810,19 +1810,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Story flags and misc flags',
-					script: 'debug-set-story-and-misc-flags-false',
+					script: 'debug_set_story_and_misc_flags_false',
 				},
 				{
 					label: 'Backstory flags',
-					script: 'debug-set-backstory-false',
+					script: 'debug_set_backstory_false',
 				},
 				{
 					label: 'Unglitch flags',
-					script: 'debug-set-glitch-flags-false',
+					script: 'debug_set_glitch_flags_false',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-set-flags-false-no',
+					script: 'debug_set_flags_false_no',
 				},
 			],
 		},
@@ -1836,19 +1836,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Everything (except winning)',
-					script: 'debug-set-all-true',
+					script: 'debug_set_all_true',
 				},
 				{
 					label: 'Backstory flags',
-					script: 'debug-set-backstory-true',
+					script: 'debug_set_backstory_true',
 				},
 				{
 					label: 'Unglitch flags',
-					script: 'debug-set-glitch-flags-true',
+					script: 'debug_set_glitch_flags_true',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-set-flags-true-no',
+					script: 'debug_set_flags_true_no',
 				},
 			],
 		},
@@ -2916,7 +2916,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 				},
 				{
 					label: 'No',
-					script: 'debug-roll-credits-no',
+					script: 'debug_roll_credits_no',
 				},
 			],
 		},
@@ -3170,11 +3170,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'debug-win-rake-yes',
+					script: 'debug_win_rake_yes',
 				},
 				{
 					label: 'No',
-					script: 'debug-win-rake-no',
+					script: 'debug_win_rake_no',
 				},
 			],
 		},
@@ -3371,7 +3371,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 				},
 				{
 					label: 'No',
-					script: 'ch1-debug-ethernettle-no',
+					script: 'ch1-debug_ethernettle_no',
 				},
 			],
 		},
@@ -4104,19 +4104,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Completely',
-					script: 'debug-disable-tuesday-complete',
+					script: 'debug_disable_tuesday_complete',
 				},
 				{
 					label: 'Partially',
-					script: 'debug-disable-tuesday-walkup',
+					script: 'debug_disable_tuesday_walkup',
 				},
 				{
 					label: 'Un-disable',
-					script: 'debug-undisable-tuesday',
+					script: 'debug_undisable_tuesday',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-disable-tuesday-no',
+					script: 'debug_disable_tuesday_no',
 				},
 			],
 		},
@@ -4158,15 +4158,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'debug-bypass-tuesday',
+					script: 'debug_bypass_tuesday',
 				},
 				{
 					label: 'Yes (but enable hintman cutscene)',
-					script: 'debug-bypass-tuesday-but-enable-hintman',
+					script: 'debug_bypass_tuesday_but_enable_hintman',
 				},
 				{
 					label: 'No',
-					script: 'debug-bypass-tuesday-no',
+					script: 'debug_bypass_tuesday_no',
 				},
 			],
 		},
@@ -4194,11 +4194,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'debug-cutscene-tuesday',
+					script: 'debug_cutscene_tuesday',
 				},
 				{
 					label: 'No',
-					script: 'debug-cutscene-tuesday-no',
+					script: 'debug_cutscene_tuesday_no',
 				},
 			],
 		},
@@ -4212,11 +4212,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Touch all artifacts',
-					script: 'debug-touch-artifacts',
+					script: 'debug_touch_artifacts',
 				},
 				{
 					label: 'Finish lecture and lower bookcase',
-					script: 'debug-touch-artifacts-and-aftermath',
+					script: 'debug_touch_artifacts_and_aftermath',
 				},
 				{
 					label: 'Teleport to secret room (with cutscene)',
@@ -4224,7 +4224,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 				},
 				{
 					label: 'No',
-					script: 'debug-touch-artifacts-no',
+					script: 'debug_touch_artifacts_no',
 				},
 			],
 		},
@@ -4236,7 +4236,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['All artifacts touched.'],
 		},
 	],
-	'dialog-debug-touch-artifacts': [
+	'dialog-debug_touch_artifacts': [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -4469,11 +4469,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'debug-walk-to-lodge',
+					script: 'debug_walk_to_lodge',
 				},
 				{
 					label: 'No',
-					script: 'debug-walk-to-lodge-no',
+					script: 'debug_walk_to_lodge_no',
 				},
 			],
 		},
@@ -4491,11 +4491,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 				},
 				{
 					label: 'Yes (also the lodge stuff)',
-					script: 'debug-goodmorning-plus',
+					script: 'debug_goodmorning_plus',
 				},
 				{
 					label: 'No',
-					script: 'debug-goodmorning-no',
+					script: 'debug_goodmorning_no',
 				},
 			],
 		},
@@ -4516,15 +4516,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Turn debug mode on',
-					script: 'debug-everything-on',
+					script: 'debug_everything_on',
 				},
 				{
 					label: 'Go to debug map hub',
-					script: 'debug-hub-go',
+					script: 'debug_hub_go',
 				},
 				{
 					label: 'Never mind',
-					script: 'debug-everything-off',
+					script: 'debug_everything_off',
 				},
 			],
 		},
@@ -5338,15 +5338,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes (plus man)',
-					script: 'debug-bea-sequel-man',
+					script: 'debug_bea_sequel_man',
 				},
 				{
 					label: 'Yes',
-					script: 'debug-bea-sequel-noman',
+					script: 'debug_bea_sequel_noman',
 				},
 				{
 					label: 'No',
-					script: 'debug-bea-sequel-no',
+					script: 'debug_bea_sequel_no',
 				},
 			],
 		},
@@ -5873,15 +5873,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes (all)',
-					script: 'debug-sheep-all',
+					script: 'debug_sheep_all',
 				},
 				{
 					label: 'Yes (three out of four)',
-					script: 'debug-sheep-most',
+					script: 'debug_sheep_most',
 				},
 				{
 					label: 'No',
-					script: 'debug-sheep-no',
+					script: 'debug_sheep_no',
 				},
 			],
 		},
@@ -8332,11 +8332,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-monitor-yes',
+					script: 'ch2_touch_monitor_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-monitor-no',
+					script: 'ch2_touch_monitor_no',
 				},
 			],
 		},
@@ -9693,11 +9693,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-clock-yes',
+					script: 'ch2_touch_clock_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-clock-no',
+					script: 'ch2_touch_clock_no',
 				},
 			],
 		},
@@ -9921,11 +9921,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-abacus-yes',
+					script: 'ch2_touch_abacus_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-abacus-no',
+					script: 'ch2_touch_abacus_no',
 				},
 			],
 		},
@@ -10571,11 +10571,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-powersupply-yes',
+					script: 'ch2_touch_powersupply_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-powersupply-no',
+					script: 'ch2_touch_powersupply_no',
 				},
 			],
 		},
@@ -10911,19 +10911,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Definitely. Low battle all the way!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a high battle.",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -10938,19 +10938,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Absolutely. A high battle it is!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a low battle",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -10965,19 +10965,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Absolutely. A high battle it is!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a low battle.",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -10992,19 +10992,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Definitely. Low battle all the way!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a high battle.",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -11189,11 +11189,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Sure.',
-					script: 'simon-game-go-again-yes',
+					script: 'simon_game_go_again_yes',
 				},
 				{
 					label: 'No, thanks.',
-					script: 'simon-game-start-q-wrapup',
+					script: 'simon_game_start_q_wrapup',
 				},
 			],
 		},
@@ -11208,19 +11208,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Definitely!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a high battle.",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -11235,19 +11235,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Absolutely!',
-					script: 'simon-game-start',
+					script: 'simon_game_start',
 				},
 				{
 					label: "No, let's do a low battle.",
-					script: 'simon-game-start-q-swap',
+					script: 'simon_game_start_q_swap',
 				},
 				{
 					label: "What's the difference?",
-					script: 'simon-game-start-difference',
+					script: 'simon_game_start_difference',
 				},
 				{
 					label: 'Actually, never mind.',
-					script: 'simon-game-start-nevermind',
+					script: 'simon_game_start_nevermind',
 				},
 			],
 		},
@@ -11928,11 +11928,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-ramchips-yes',
+					script: 'ch2_touch_ramchips_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-ramchips-no',
+					script: 'ch2_touch_ramchips_no',
 				},
 			],
 		},
@@ -12985,11 +12985,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yeah, better to face danger together.',
-					script: 'ch2-cutscene-castle99-dangeryes',
+					script: 'ch2_cutscene_castle99_dangeryes',
 				},
 				{
 					label: "I don't know....",
-					script: 'ch2-cutscene-castle99-dangeridk',
+					script: 'ch2_cutscene_castle99_dangeridk',
 				},
 			],
 		},

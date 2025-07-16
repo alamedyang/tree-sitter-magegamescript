@@ -124,7 +124,7 @@ on_load_ch2_castle_99 {
 	}
 
 	// Check if rake has been obtained
-	if (flag ch2_carrying_minirake-99 is true) {
+	if (flag ch2_carrying_minirake_99 is true) {
 		copy ch2-minirake-99-hide;
 	}
 	
@@ -140,7 +140,7 @@ on_load_ch2_castle_99 {
 				"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
 			}
 		}
-		goto ch2-cutscene-castle99; // NOTE: branching means `goto`! Deadend things here!
+		goto ch2_cutscene_castle99; // NOTE: branching means `goto`! Deadend things here!
 	}
 }
 
@@ -183,7 +183,7 @@ ch2-lambda-walkup {
 	set entity Lambda current_animation to $opaque;
 	goto null_script;
 }
-ch2-cutscene-castle99 {
+ch2_cutscene_castle99 {
 	turn player control off;
 	wait 1500ms;
 	turn entity "%PLAYER%" east;
@@ -275,12 +275,12 @@ ch2-cutscene-castle99 {
 	show dialog {
 		Lambda emote $transparent_serious "It's better to be connected to people. However dangerous things might become, it's better to face those dangers together."
 		"Don't you think?"
-		> "Yeah, better to face danger together." : ch2-cutscene-castle99-dangeryes
-		> "I don't know...." : ch2-cutscene-castle99-dangeridk
+		> "Yeah, better to face danger together." : ch2_cutscene_castle99_dangeryes
+		> "I don't know...." : ch2_cutscene_castle99_dangeridk
 	}
 }
 
-ch2-cutscene-castle99-dangeryes {
+ch2_cutscene_castle99_dangeryes {
 	show dialog {
 		PLAYER "Yeah, better to face danger together."
 		Lambda emote $transparent_grin "Yeah!"
@@ -289,9 +289,9 @@ ch2-cutscene-castle99-dangeryes {
 	show dialog {
 		Lambda emote $opaque_lowered_almost "So, um, to that end -- here, take this."
 	}
-	goto ch2-cutscene-castle99-continue;
+	goto ch2_cutscene_castle99_continue;
 }
-ch2-cutscene-castle99-dangeridk {
+ch2_cutscene_castle99_dangeridk {
 	show dialog {
 		PLAYER "I don't know."
 	}
@@ -300,17 +300,17 @@ ch2-cutscene-castle99-dangeridk {
 		Lambda "Yeah, I guess things are pretty complicated, aren't they?"
 		Lambda "So, um, anyway -- here, take this."
 	}
-	goto ch2-cutscene-castle99-continue;
+	goto ch2_cutscene_castle99_continue;
 }
 
-ch2-cutscene-castle99-os-pickup {
+ch2_cutscene_castle99_os_pickup {
 	wait 350ms;
 	set entity "%PLAYER%" current_animation to 1;
 	walk entity "%PLAYER%" to geometry pickup-spot over 300ms;
 	set entity "%PLAYER%" current_animation to 0;
 	goto null_script;
 }
-ch2-cutscene-castle99-os-pickup-return {
+ch2_cutscene_castle99_os_pickup_return {
 	wait 150ms;
 	set entity "%PLAYER%" relative_direction to 2;
 	set entity "%PLAYER%" current_animation to 1;
@@ -320,8 +320,8 @@ ch2-cutscene-castle99-os-pickup-return {
 	turn entity "%PLAYER%" north;
 	goto null_script;
 }
-ch2-cutscene-castle99-continue {
-	set entity "%PLAYER%" on_tick to ch2-cutscene-castle99-os-pickup;
+ch2_cutscene_castle99_continue {
+	set entity "%PLAYER%" on_tick to ch2_cutscene_castle99_os_pickup;
 	walk entity Lambda to geometry lambda-walk-line3 over 400ms;
 	set entity Lambda current_animation to $opaque;
 	wait 700ms;
@@ -329,7 +329,7 @@ ch2-cutscene-castle99-continue {
 		name "" "(You received the mainframe OS!)"
 	}
 	wait 200ms;
-	set entity "%PLAYER%" on_tick to ch2-cutscene-castle99-os-pickup-return;
+	set entity "%PLAYER%" on_tick to ch2_cutscene_castle99_os_pickup_return;
 	set entity Lambda relative_direction to 2;
 	walk entity Lambda to geometry lambda-walk-line2 over 400ms;
 	set entity Lambda current_animation to $opaque;
@@ -429,7 +429,7 @@ interact_ch2_lambda_books {
 // }
 
 interact_ch2_lambda_lab {
-	copy face-player;
+	copy face_player;
 	set entity Lambda current_animation to $opaque;
 	if (variable ch2_storyflag_round is < 5) {
 		show dialog {
@@ -451,7 +451,7 @@ interact_ch2_minirake_99 {
 		"(I hope he doesn't mind me borrowing it.)"
 	}
 	copy ch2-minirake-99-hide;
-	set flag ch2_carrying_minirake-99 to true;
+	set flag ch2_carrying_minirake_99 to true;
 	show dialog {
 		name "" alignment TL "(You picked up the mini rake!)"
 	}

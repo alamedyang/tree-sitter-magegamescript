@@ -38,8 +38,8 @@ on_load-ch2-oldcouplehouse {
 		set entity Delmar on_tick to yeet;
 	} else {
 		if (flag ch2-delmar-is-man is false) {
-			set entity Beatrice on_tick to face-player;
-			set entity Delmar on_tick to face-player;
+			set entity Beatrice on_tick to face_player;
+			set entity Delmar on_tick to face_player;
 		} else {
 			turn entity Beatrice toward entity Delmar;
 			turn entity Delmar toward entity Beatrice;
@@ -59,7 +59,7 @@ on_tick-ch2-oldcouplehouse {
 	if (flag ch2_cutseen_delmar is true) {
 		// and just leave him watching...
 		if (entity Delmar type is not old_man) {
-			set entity Delmar on_tick to face-player;
+			set entity Delmar on_tick to face_player;
 			set flag interrupt to true;
 		}
 		// He'll watch Bea until he's changed into anyting else,
@@ -74,11 +74,11 @@ ch2-check-if-sheep {
 	if (entity Delmar type is old_man) {
 		set flag ch2-delmar-is-man to true;
 		if (flag ch2_cutseen_delmar is false) {
-			goto ch2-cutscene-delmar-reconnect;
+			goto ch2_cutscene_delmar_reconnect;
 		}
 	}
 }
-ch2-cutscene-delmar-reconnect {
+ch2_cutscene_delmar_reconnect {
 	// Why did I put the fade in/out here? To make sure their positions weren't changed before they talk to each other in a cinematic cutscene? todo: figure it out
 	turn player control off;
 	fade out camera to #000000 over 300ms;
@@ -124,7 +124,7 @@ on_walk-ch2-oldcouplehouse-south {
 /* ---------- ENTITIES ---------- */
 
 interact_ch2_delmar {
-	copy script face-player;
+	copy script face_player;
 	if (flag interrupt is true) {
 		if (entity Delmar type is sheep || entity Delmar type is helga) {
 			show dialog { SELF "...." }
@@ -139,7 +139,7 @@ interact_ch2_delmar {
 	}
 }
 interact_ch2_beatrice {
-	copy face-player;
+	copy face_player;
 	if (variable ch2_storyflag_round is < 3) {
 		if (flag ch2_beatrice_backstory1 is false) {
 			show dialog {
@@ -225,8 +225,8 @@ interact_ch2_beatrice {
 		show dialog ch2-beatrice-plea { // referenced below
 			SELF "%PLAYER%, would you be so kind as to return Delmar to his original state?"
 		}
-		set entity Beatrice on_tick to face-player;
-		set entity Delmar on_tick to face-player;
+		set entity Beatrice on_tick to face_player;
+		set entity Delmar on_tick to face_player;
 		set flag ch2_beatrice_backstory2 to true;
 		turn player control on;
 	} else {

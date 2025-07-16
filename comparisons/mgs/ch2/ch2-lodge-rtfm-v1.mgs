@@ -106,7 +106,7 @@ interact_ch2_alfonso_rtfm {
 	// divert people trying to hack their way to see this convo early
 	if variable ch2_storyflag_round is not 3
 		then goto null_script;
-	copy face-player;
+	copy face_player;
 	show dialog {
 		SELF
 		"Bert said he was going to check something, but whatever he's doing, he's sure taking his time."
@@ -118,7 +118,7 @@ interact_ch2_jackob_rtfm {
 	// divert people trying to hack their way to see this convo early
 	if variable ch2_storyflag_round is not 3
 		then goto null_script;
-	copy face-player;
+	copy face_player;
 	show dialog {
 		SELF
 		"We're doing just fine here, %PLAYER%, but don't you dawdle too long. Time is slipping away from us."
@@ -131,7 +131,7 @@ interact_ch2_bert_rtfm {
 	// divert people trying to hack their way to see this convo early
 	if variable ch2_storyflag_round is not 1
 		then goto null_script;
-	copy face-player;
+	copy face_player;
 	show dialog {
 		SELF
 		"This morning we could not find the book you need, but I want to find it still."

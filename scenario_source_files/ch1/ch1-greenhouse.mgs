@@ -87,7 +87,7 @@ include "header.mgs";
 
 "show_dialog-trekkie-start" {
 	copy!("clear-own-tick")
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" };
 	} else if ("storyflag-trekkie") {
@@ -128,7 +128,7 @@ include "header.mgs";
 	wait 900ms;
 	self direction = geometry "Computer"
 	wait 900ms;
-	copy!("face-player")
+	copy!(face_player)
 	wait 200ms;
 	show dialog {
 		SELF "Me sorry, %PLAYER%... but the internet still no working."
@@ -141,7 +141,7 @@ include "header.mgs";
 		SELF "It always the Ether Nettles. Modem need Ether Nettles. Ever since the big bad hack, the Ether Nettles line up wrong."
 		PLAYER "You can't move the flowers? Put them in the right order?"
 	};
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "Can't just dig up Ether Nettles. Wired in super, super well."
 		"If you move flowers, you must move wires underneath or everything breaks. Very slow, very difficult work."
@@ -161,7 +161,7 @@ include "header.mgs";
 }
 
 "ch1-greenhouse-trekkie-backstory-reminder" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "Me can't remember Ether Nettle color order. Me need internet to check!"
 		"But me do remember orange stripey is first!"
@@ -187,7 +187,7 @@ include "header.mgs";
 		SELF alignment TOP_LEFT "Oh! The lights!"
 	};
 	wait 800ms;
-	copy!("face-player")
+	copy!(face_player)
 	player direction = self;
 	wait 500ms;
 	player direction = entity "Modem";
@@ -209,7 +209,7 @@ include "header.mgs";
 	wait 600ms;
 	self direction = geometry "Computer";
 	wait 800ms;
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "%PLAYER% did it! Made Ether Nettle talk to outside world again!"
 		"Me can go on the internet! Can use so many free AOL hours!"
@@ -234,25 +234,25 @@ include "header.mgs";
 	self direction = geometry "Computer";
 }
 
-"debug-ethernet-puzzle-q" {
-	copy!("face-player")
+"debug_ethernet_puzzle_q" {
+	copy!(face_player)
 	show dialog {
 		SELF
 		"Restore Ether Nettle?"
 		> "Yes" = "ch1-debug-ethernettle"
-		> "No" = "ch1-debug-ethernettle-no"
+		> "No" = "ch1-debug_ethernettle_no"
 	};
 }
-"ch1-debug-ethernettle-no" {
+"ch1-debug_ethernettle_no" {
 	show dialog { SELF "Wanna do it the hard way, huh? Suit yourself." };
-	self on_interact = "debug-ethernet-puzzle-q";
+	self on_interact = "debug_ethernet_puzzle_q";
 }
 "ch1-debug-ethernettle" {
 	copy!("ch1-ethernettle-restore")
 	entity "Modem" current_animation = 0; // the modem still won't until you speak to Trekkie
-	copy!("face-player")
+	copy!(face_player)
 	show dialog { SELF "Ether Nettle restored." };
-	self on_interact = "debug-ethernet-puzzle-q";
+	self on_interact = "debug_ethernet_puzzle_q";
 }
 
 "show_dialog-ethernettle-start" {

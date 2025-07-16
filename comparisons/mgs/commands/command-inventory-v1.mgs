@@ -139,7 +139,7 @@ command-inventory {
 		mutate ch2-count-inventory + 1;
 	}
 	// mini-rake quest
-	if (flag ch2_carrying_minirake-99 is true) {
+	if (flag ch2_carrying_minirake_99 is true) {
 		if (flag only-count-inventory is false) {
 			show serial dialog { "\tmini rake" }
 		}

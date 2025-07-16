@@ -59,7 +59,7 @@ show_dialog-bert-start {
 		show dialog { SELF "...." "Bczv um jiks." }
 		return;
 	}
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "Who needs help?" }
 	copy calculate-hint-tracking-series; // sets \`hint-tracking-check\`
 	if (flag storyflag-shepherd is false) {
@@ -249,7 +249,7 @@ show_dialog-jackob-start {
 			SELF "Vg'f tbbq gung lbh'er cenpgvpvat, ohg creuncf lbh fubhyq sbphf ba erfgbevat gur gbja?"
 		}
 	} else {
-		copy face-player;
+		copy face_player;
 		show dialog {
 			SELF "Did you have a question about something?"
 		}

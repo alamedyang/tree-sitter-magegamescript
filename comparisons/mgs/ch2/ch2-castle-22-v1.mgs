@@ -43,7 +43,7 @@ on_load_ch2_castle_22_postgame {
 	copy ch2_map_init;
 }
 on_load_ch2_castle_22 {
-	if warp state is "ch2 ending" then goto ch2-castle-22-ending;
+	if warp state is "ch2 ending" then goto ch2_castle_22_ending;
 	// ch2 room state
 	mutate ch2_in_room = 22;
 
@@ -105,7 +105,7 @@ on_go_castle_22_south {
 
 interact_ch2_scuzzy {
 	turn player control off;
-	copy interrupt-walk;
+	copy interrupt_walk;
 	if (flag ch2_scuzzy_backstory is false) {
 		show dialog {
 			SELF "The quake caused a lot of infrastructure damage around here. We're trying to reroute things and compensate with software."
@@ -117,18 +117,18 @@ interact_ch2_scuzzy {
 			"Each room has its specialized function, and resources and information may flow between rooms when they are connected."
 			"In isolation each room -- and each of us -- are capable of little. But when we can connect people to each other, we can collaborate and build amazing things."
 		}
-		copy resume-walk;
+		copy resume_walk;
 		wait 500ms;
-		copy interrupt-walk;
+		copy interrupt_walk;
 		show dialog {
 			SELF "I mean, the castle is also a computer in a LITERAL sense, too...."
 		}
 	}
-	copy resume-walk;
+	copy resume_walk;
 	turn player control on;
 }
 interact_ch2_ckwatt {
-	copy face-player;
+	copy face_player;
 	if (flag ch2_ckwatt_backstory is false) {
 		show dialog {
 			SELF "Huh? You need a power supply?"
@@ -139,7 +139,7 @@ interact_ch2_ckwatt {
 			SELF "No prob."
 		}
 		set flag ch2_ckwatt_backstory to true;
-		set flag ch2-powersupply-permission to true;
+		set flag ch2_powersupply_permission to true;
 	} else {
 		show dialog {
 			SELF "When you upgrade computers regularly, you tend to accumulate extra stuff. After a while, it can start to take up a lot of space."
@@ -149,12 +149,12 @@ interact_ch2_ckwatt {
 	turn entity "%SELF%" south;
 }
 interact_ch2_ckwatt_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "I wanna get down to the great hall, but we're not quite done yet. Don't wanna be sloppy."}
 	turn entity "%SELF%" south;
 }
 interact_ch2_scuzzy_end {
-	copy face-player;
+	copy face_player;
 	show dialog { SELF "I'm glad the king and his staff were able to clear the debris blocking the doors. Not that we can leave yet -- still more to do."}
 	turn entity "%SELF%" south;
 }
@@ -166,8 +166,8 @@ ch2_hide_powersupply {
 	set entity "Power Supply" name to " ";
 }
 
-ch2-touch-powersupply {
-	if (flag ch2-powersupply-permission is false) {
+ch2_touch_powersupply {
+	if (flag ch2_powersupply_permission is false) {
 		show dialog {
 			PLAYER "This has a power cable coming out of it, so it must be the power supply."
 			"But it probably belongs to someone. I better ask permission before taking it."
@@ -180,16 +180,16 @@ ch2-touch-powersupply {
 		}
 		set flag interrupt to true;
 	}
-	if (flag ch2-powersupply-permission is true) {
+	if (flag ch2_powersupply_permission is true) {
 		show dialog {
 			name "" "(Pick up the power supply?)"
-			> "Yes" : ch2-touch-powersupply-yes
-			> "No" : ch2-touch-powersupply-no
+			> "Yes" : ch2_touch_powersupply_yes
+			> "No" : ch2_touch_powersupply_no
 		}
 	}
 }
 
-ch2-touch-powersupply-yes {
+ch2_touch_powersupply_yes {
 	show dialog {
 		name "" "(You pick up the power supply!)"
 	}
@@ -197,9 +197,9 @@ ch2-touch-powersupply-yes {
 	copy script ch2_pickup_powersupply;
 	set entity "%SELF%" on_interact to null_script;
 }
-ch2-touch-powersupply-no {
+ch2_touch_powersupply_no {
 	show dialog {
 		PLAYER "Maybe later, then."
 	}
-	set entity "%SELF%" on_interact to ch2-touch-powersupply;  // reset after script jump
+	set entity "%SELF%" on_interact to ch2_touch_powersupply;  // reset after script jump
 }

@@ -38,8 +38,8 @@ include "header.mgs";
 		entity "Delmar" on_tick = yeet;
 	} else {
 		if (!"ch2-delmar-is-man") {
-			entity "Beatrice" on_tick = "face-player";
-			entity "Delmar" on_tick = "face-player";
+			entity "Beatrice" on_tick = "face_player";
+			entity "Delmar" on_tick = "face_player";
 		} else {
 			entity "Beatrice" direction = entity "Delmar";
 			entity "Delmar" direction = entity "Beatrice";
@@ -59,7 +59,7 @@ include "header.mgs";
 	if ("ch2_cutseen_delmar") {
 		// and just leave him watching...
 		if (entity "Delmar" type != "old_man") {
-			entity "Delmar" on_tick = "face-player";
+			entity "Delmar" on_tick = "face_player";
 			interrupt = true;
 		}
 		// He'll watch Bea until he's changed into anyting else,
@@ -74,11 +74,11 @@ include "header.mgs";
 	if (entity "Delmar" type == "old_man") {
 		"ch2-delmar-is-man" = true;
 		if (!ch2_cutseen_delmar) {
-			goto "ch2-cutscene-delmar-reconnect";
+			goto "ch2_cutscene_delmar_reconnect";
 		}
 	}
 }
-"ch2-cutscene-delmar-reconnect" {
+"ch2_cutscene_delmar_reconnect" {
 	// Why did I put the fade in/out here? To make sure their positions weren't changed before they talk to each other in a cinematic cutscene? todo: figure it out
 	player_control = off;
 	camera fade out -> #000000 over 300ms;
@@ -124,7 +124,7 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "interact_ch2_delmar" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("interrupt") {
 		if (entity "Delmar" type == "sheep" || entity "Delmar" type == "helga") {
 			show dialog { SELF "...." };
@@ -139,7 +139,7 @@ include "header.mgs";
 	}
 }
 "interact_ch2_beatrice" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ch2_storyflag_round" < 3) {
 		if (!"ch2_beatrice_backstory1") {
 			show dialog {
@@ -225,8 +225,8 @@ include "header.mgs";
 		show dialog "ch2-beatrice-plea" { // referenced below
 			SELF "%PLAYER%, would you be so kind as to return Delmar to his original state?"
 		};
-		entity "Beatrice" on_tick = "face-player";
-		entity "Delmar" on_tick = "face-player";
+		entity "Beatrice" on_tick = "face_player";
+		entity "Delmar" on_tick = "face_player";
 		"ch2_beatrice_backstory2" = true;
 		player_control = on;
 	} else {

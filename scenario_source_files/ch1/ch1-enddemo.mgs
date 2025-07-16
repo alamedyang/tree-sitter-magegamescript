@@ -154,7 +154,7 @@ include "header.mgs";
 		Alfonso "Oh, dear.... Oh, dear!"
 	};
 	entity "Alfonso" direction = player;
-	player on_tick = "look-left-and-right-fast";
+	player on_tick = "look_left_and_right_fast";
 	show dialog {
 		PLAYER "But I can't fight the Big Bad! What am I supposed to do?"
 	};
@@ -190,7 +190,7 @@ include "header.mgs";
 		PLAYER "Buh?"
 		Jackob "As a reward for completing the demo, I'll tell you how to unlock debug mode."
 	};
-	entity "Jackob" on_tick = "look-left-and-right";
+	entity "Jackob" on_tick = "look_left_and_right";
 	show dialog {
 		Jackob "Press XOR and MEM0 at the same time -- that's the top button on each side of the screen -- and...."
 	};
@@ -260,12 +260,12 @@ include "header.mgs";
 	load map "main";
 }
 
-"debug-roll-credits-q" {
+"debug_roll_credits_q" {
 	show dialog {
 		SELF alignment BL portrait goldfish
 		"Show credits?"
 		> "Yes" = "roll-credits"
-		> "No" = "debug-roll-credits-no"
+		> "No" = "debug_roll_credits_no"
 	};
 }
 
@@ -274,8 +274,8 @@ include "header.mgs";
 	load map "credits";
 }
 
-"debug-roll-credits-no" {
-	self on_interact = "debug-roll-credits-q";
+"debug_roll_credits_no" {
+	self on_interact = "debug_roll_credits_q";
 }
 
 "goose-loiter-honk" {

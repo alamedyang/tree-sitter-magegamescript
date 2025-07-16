@@ -83,7 +83,7 @@ include "header.mgs";
 	copy!(ch2_map_init)
 	command "look" + "bob" = "look_ch2_bob";
 	if (!ch2_cutseen_bob_party) {
-		copy!("ch2-cutscene-bob-party")
+		copy!("ch2_cutscene_bob_party")
 	}
 }
 
@@ -93,8 +93,8 @@ include "header.mgs";
 	goto null_script;
 }
 
-"tick-linger-1" {
-	copy!("tick-rand-mini")
+"tick_linger_1" {
+	copy!("tick_rand_mini")
 	self position -> geometry "linger-spot-1b" origin over 500ms;
 	self direction = east;
 	wait 15s;
@@ -103,7 +103,7 @@ include "header.mgs";
 	wait 4s;
 }
 
-"on_tick-turn-right-and-down-kinda" {
+"on_tick_turn_right_and_down_kinda" {
 	wait 4500ms;
 	self direction = south;
 	wait 2400ms;
@@ -111,7 +111,7 @@ include "header.mgs";
 	wait 800ms;
 }
 
-"tick-rand-mini" {
+"tick_rand_mini" {
 	"rand" ?= 3;
 	if ("rand" == 2) {
 		wait 2s;
@@ -121,7 +121,7 @@ include "header.mgs";
 		wait 4s;
 	}
 }
-"tick-rand-broad" {
+"tick_rand_broad" {
 	"rand" ?= 3;
 	if ("rand" == 2) {
 		wait 3s;
@@ -132,8 +132,8 @@ include "header.mgs";
 	}
 }
 
-"tick-linger-2" {
-	copy!("tick-rand-broad")
+tick_linger_2 {
+	copy!(tick_rand_broad)
 	wait 3s;
 	self position -> geometry "linger-spot-2b" origin over 1s;
 	self direction = south;
@@ -146,8 +146,8 @@ include "header.mgs";
 	self direction = south;
 	wait 20s;
 }
-"tick-linger-3" {
-	copy!("tick-rand-mini")
+tick_linger_3 {
+	copy!(tick_rand_mini)
 	wait 5s;
 	self position -> geometry "linger-spot-3b" origin over 750ms;
 	self direction = east;
@@ -156,8 +156,8 @@ include "header.mgs";
 	self direction = east;
 	wait 4s;
 }
-"tick-linger-4" {
-	copy!("tick-rand-broad")
+tick_linger_4 {
+	copy!(tick_rand_broad)
 	self position -> geometry "linger-spot-4b" origin over 1s;
 	self direction = north;
 	wait 15s;
@@ -167,28 +167,28 @@ include "header.mgs";
 	self direction = north;
 	wait 12s;
 }
-"on_tick-turn-right-and-down-kinda2" {
+on_tick_turn_right_and_down_kinda2 {
 	wait 3300ms;
 	self direction = south;
 	wait 3820ms;
 	self direction = east;
 	wait 3800ms;
 }
-"on_tick-turn-left-and-down-kinda" {
+on_tick_turn_left_and_down_kinda {
 	wait 2200ms;
 	self direction = south;
 	wait 3200ms;
 	self direction = west;
 	wait 2800ms;
 }
-"on_tick-turn-left-and-down-kinda2" {
+on_tick_turn_left_and_down_kinda2{
 	wait 1310ms;
 	self direction = south;
 	wait 2700ms;
 	self direction = west;
 	wait 4900ms;
 }
-"on_tick-turn-right-and-up-kinda" {
+on_tick_turn_right_and_up_kinda {
 	wait 400ms;
 	self direction = east;
 	wait 3100ms;
@@ -206,12 +206,12 @@ include "header.mgs";
 
 /* ---------- CUTSCENE ---------- */
 
-"ch2-cutscene-bob-party" {
+"ch2_cutscene_bob_party" {
 	// Fade in.
 	// serial_control = off;
 	player_control = off;
 	wait 1500ms;
-	player on_tick = "look-left-and-right-fast";
+	player on_tick = "look_left_and_right_fast";
 	wait 700ms;
 	show dialog {
 		PLAYER "Huh. Well, I found the source of the noise...."
@@ -308,7 +308,7 @@ include "header.mgs";
 		GBob "Anyway, I'll keep watch here."
 		"Help yourself to the food. There's plenty."
 	};
-	if ("ch2-want-cactuscooler") {
+	if ("ch2_want_cactuscooler") {
 		show dialog {
 			PLAYER "Oh, do you have any Cactus Cooler?"
 		};
@@ -345,7 +345,7 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "interact_ch2_guardianbob" {
-	copy!("interrupt-walk")
+	copy!(interrupt_walk)
 	show dialog {
 		PLAYER "So why is the party in the basement? I thought it was going to be upstairs. There were decorations half set up and everything."
 		SELF "Well, we WERE going to have the party upstairs, but someone broke in and pretended to be named Bob. After that we upped our security."
@@ -355,11 +355,11 @@ include "header.mgs";
 		SELF "I've been manually teleporting Bobs down here ever since, just to be sure. My teleport program is very strict. It won't let non-Bobs through at all."
 		PLAYER "Good to know."
 	};
-	copy!("resume-walk")
+	copy!("resume_walk")
 }
 
 "interact_ch2_bobaustin" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "I'm the MC for Bob Jeopardy this year."
 		"Of course, I'm the MC for Bob Jeopardy every year."
@@ -371,7 +371,7 @@ include "header.mgs";
 }
 
 "interact_ch2_bobmoss" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "Hey there, friend. Have a drink, on the house."
 		"Plenty of Cactus Cooler to go around."
@@ -379,14 +379,14 @@ include "header.mgs";
 	self direction = south;
 }
 "interact_ch2_party_cups" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		PLAYER "It's always red plastic cups, isn't it?"
 	};
 	self direction = south;
 }
 "interact_ch2_pizza" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		PLAYER "Mmmm, fresh pizza!"
 
@@ -396,7 +396,7 @@ include "header.mgs";
 
 "interact_ch2_marathonbob" {
 	// capture original facing direction
-	copy!("interrupt-walk")
+	copy!(interrupt_walk)
 	// normal behavior
 	"bobtalkrand" ?= 10;
 	// https://www.youtube.com/watch?v=7dpxLPbamnA for BoB quotes
@@ -422,7 +422,7 @@ include "header.mgs";
 		show dialog { SELF "Frog blast the vent core!" "That's the name of my favorite drink." };
 	}
 	// turn back to the original facing direction
-	copy!("resume-walk")
+	copy!("resume_walk")
 	"bobtalkrand" = 0; // courtesy reset
 }
 
@@ -430,7 +430,7 @@ include "header.mgs";
 	if ("ch2_carrying_cactuscooler") {
 		if (
 			!"interrupt" // you didn't just pick it up
-			|| !"ch2-want-cactuscooler" // OR you don't know you need it
+			|| !"ch2_want_cactuscooler" // OR you don't know you need it
 		) {
 			show dialog {
 				PLAYER "I won't need more Cactus Cooler than this. I'll leave the rest for everyone else."
@@ -441,13 +441,13 @@ include "header.mgs";
 				PLAYER "Got my can of Cactus Cooler. Time to bring it to Rocco at the castle power plant."
 			};
 		}
-	} else if ("ch2-cactuscooler-delivered") {
+	} else if ("ch2_cactuscooler_delivered") {
 		// you've already turned the soda in
 		show dialog {
 			PLAYER "Rocco already has his Cactus Cooler. I'll leave the rest of these cans for everyone else at the party."
 		};
 	} else { // You get to pick up a Cactus Cooler!
-		if (!"ch2-want-cactuscooler") {
+		if (!"ch2_want_cactuscooler") {
 			show dialog { PLAYER "This really is a lot of Cactus Cooler. Guess I'll grab a can for the road." };
 		} else {
 			show dialog { PLAYER "Bingo! Cactus Cooler!" };

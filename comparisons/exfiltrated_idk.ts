@@ -17,19 +17,19 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'go',
 			argument: 'west',
-			script: 'debug-go-space',
+			script: 'debug_go_space',
 		},
 		{
 			is_fail: false,
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
 			command: 'look',
-			script: 'debug-look-override',
+			script: 'debug_look_override',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'look',
 			argument: 'Mage 01',
-			script: 'debug-look-mage01-override',
+			script: 'debug_look_mage01-override',
 		},
 		{
 			action: 'SHOW_SERIAL_DIALOG',
@@ -2238,22 +2238,22 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: false,
 		},
 	],
-	'debug-go-space': [
+	debug_go_space: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
-			serial_dialog: 'dialog-debug-go-space',
+			serial_dialog: 'dialog-debug_go_space',
 		},
 	],
-	'debug-look-override': [
+	debug_look_override: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
-			serial_dialog: 'dialog-debug-look-override',
+			serial_dialog: 'dialog-debug_look_override',
 		},
 	],
-	'debug-look-mage01-override': [
+	'debug_look_mage01-override': [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
-			serial_dialog: 'dialog-debug-look-mage01-override',
+			serial_dialog: 'dialog-debug_look_mage01-override',
 		},
 	],
 	'set_entity_movement_relative-0': [
@@ -3534,7 +3534,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -3884,7 +3884,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Bender',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
@@ -4717,7 +4717,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-bobrock-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -4911,7 +4911,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -5000,7 +5000,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-bobsclub-bob': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -5041,7 +5041,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Guardian Bob',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -5099,7 +5099,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -5160,7 +5160,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-bobmoss-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -5239,7 +5239,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -5309,7 +5309,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-bobmoss-start-s': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -5390,7 +5390,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			direction: 'south',
 		},
 	],
-	'debug-begin-flail': [
+	debug_begin_flail: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'begin-flail',
@@ -5398,10 +5398,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-end-flail',
+			script: 'debug_end_flail',
 		},
 	],
-	'debug-end-flail': [
+	debug_end_flail: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'end-flail',
@@ -5409,20 +5409,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-begin-flail',
+			script: 'debug_begin_flail',
 		},
 	],
-	'debug-bob-q': [
+	debug_bob_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-bobsclub.mgs:490:2',
 		},
 	],
-	'debug-bob-skipconvo': [
+	debug_bob_skipconvo: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'bobrock-backstory',
@@ -5435,10 +5435,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bob-q',
+			script: 'debug_bob_q',
 		},
 	],
-	'debug-bob-also-setnamebob': [
+	debug_bob_also_setnamebob: [
 		{
 			action: 'SET_ENTITY_NAME',
 			entity: '%PLAYER%',
@@ -5456,10 +5456,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bob-q',
+			script: 'debug_bob_q',
 		},
 	],
-	'debug-bob-teleport': [
+	debug_bob_teleport: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'bobsclub-entered',
@@ -5474,33 +5474,33 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'bobsclub',
 		},
 	],
-	'debug-bob-no': [
+	debug_bob_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bob-q',
+			script: 'debug_bob_q',
 		},
 	],
-	'debug-hub-q': [
+	debug_hub_q: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-debug.mgs:2:2',
 		},
 	],
-	'debug-hub-go': [
+	debug_hub_go: [
 		{
 			action: 'RUN_SCRIPT',
 			script: 'load_map-warp_zone',
 		},
 	],
-	'debug-hub-no': [
+	debug_hub_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-hub-q',
+			script: 'debug_hub_q',
 		},
 	],
-	'debug-demobonus-q': [
+	debug_demobonus_q: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -5511,7 +5511,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch1-debug.mgs:20:2',
 		},
 	],
-	'debug-demobonus-pre-flags-true': [
+	debug_demobonus_pre_flags_true: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-story-flags-true',
@@ -5528,10 +5528,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-demobonus-q',
+			script: 'debug_demobonus_q',
 		},
 	],
-	'debug-demobonus-pre-flags-false': [
+	debug_demobonus_pre_flags_false: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-story-flags-false',
@@ -5544,10 +5544,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-demobonus-q',
+			script: 'debug_demobonus_q',
 		},
 	],
-	'debug-demobonus-event-flags-false': [
+	debug_demobonus_event_flags_false: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'demobonus',
@@ -5571,17 +5571,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-demobonus-q',
+			script: 'debug_demobonus_q',
 		},
 	],
-	'debug-demobonus-no': [
+	debug_demobonus_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-demobonus-q',
+			script: 'debug_demobonus_q',
 		},
 	],
-	'debug-set-flags-false-q': [
+	debug_set_flags_false_q: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -5592,7 +5592,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch1-debug.mgs:57:2',
 		},
 	],
-	'debug-set-flags-true-q': [
+	debug_set_flags_true_q: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -5603,7 +5603,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch1-debug.mgs:68:2',
 		},
 	],
-	'debug-set-story-and-misc-flags-false': [
+	debug_set_story_and_misc_flags_false: [
 		{
 			action: 'MUTATE_VARIABLE',
 			variable: 'hint-tracking',
@@ -5629,10 +5629,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-false-q',
+			script: 'debug_set_flags_false_q',
 		},
 	],
-	'debug-set-backstory-false': [
+	debug_set_backstory_false: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-backstory-flags-false',
@@ -5644,10 +5644,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-false-q',
+			script: 'debug_set_flags_false_q',
 		},
 	],
-	'debug-set-backstory-true': [
+	debug_set_backstory_true: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-backstory-flags-true',
@@ -5659,10 +5659,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-true-q',
+			script: 'debug_set_flags_true_q',
 		},
 	],
-	'debug-set-glitch-flags-true': [
+	debug_set_glitch_flags_true: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-glitch-flags-true',
@@ -5690,10 +5690,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-true-q',
+			script: 'debug_set_flags_true_q',
 		},
 	],
-	'debug-set-glitch-flags-false': [
+	debug_set_glitch_flags_false: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-glitch-flags-false',
@@ -5721,10 +5721,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-false-q',
+			script: 'debug_set_flags_false_q',
 		},
 	],
-	'debug-set-all-true': [
+	debug_set_all_true: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-story-flags-true',
@@ -5760,10 +5760,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-true-q',
+			script: 'debug_set_flags_true_q',
 		},
 	],
-	'debug-set-flags-false-no': [
+	debug_set_flags_false_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-debug.mgs:137:2',
@@ -5771,10 +5771,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-false-q',
+			script: 'debug_set_flags_false_q',
 		},
 	],
-	'debug-set-flags-true-no': [
+	debug_set_flags_true_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-debug.mgs:144:2',
@@ -5782,7 +5782,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-set-flags-true-q',
+			script: 'debug_set_flags_true_q',
 		},
 	],
 	'load_map-warp_zone': [
@@ -6559,7 +6559,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -7295,7 +7295,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -8707,7 +8707,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -8768,7 +8768,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Jackob',
-			script: 'look-left-and-right',
+			script: 'look_left_and_right',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -9076,7 +9076,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'main',
 		},
 	],
-	'debug-roll-credits-q': [
+	debug_roll_credits_q: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-enddemo.mgs:262:2',
@@ -9093,11 +9093,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'credits',
 		},
 	],
-	'debug-roll-credits-no': [
+	debug_roll_credits_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-roll-credits-q',
+			script: 'debug_roll_credits_q',
 		},
 	],
 	'goose-loiter-honk': [
@@ -9631,7 +9631,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-verthandi-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -10613,7 +10613,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-goose-generic': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -10657,17 +10657,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'show_dialog-goose-mad',
 		},
 	],
-	'debug-win-rake-q': [
+	debug_win_rake_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-goose.mgs:108:2',
 		},
 	],
-	'debug-win-rake-yes': [
+	debug_win_rake_yes: [
 		{
 			action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 			entity: 'Rake',
@@ -10676,14 +10676,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-win-rake-q',
+			script: 'debug_win_rake_q',
 		},
 	],
-	'debug-win-rake-no': [
+	debug_win_rake_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-win-rake-q',
+			script: 'debug_win_rake_q',
 		},
 	],
 	'on_load-greenhouse': [
@@ -10951,7 +10951,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -11162,7 +11162,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -11191,7 +11191,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -11218,7 +11218,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'ch1-greenhouse-trekkie-backstory-reminder': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -11298,7 +11298,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
@@ -11397,7 +11397,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -11438,17 +11438,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 			target_geometry: 'Computer',
 		},
 	],
-	'debug-ethernet-puzzle-q': [
+	debug_ethernet_puzzle_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-greenhouse.mgs:219:2',
 		},
 	],
-	'ch1-debug-ethernettle-no': [
+	'ch1-debug_ethernettle_no': [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-greenhouse.mgs:227:2',
@@ -11456,7 +11456,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-ethernet-puzzle-q',
+			script: 'debug_ethernet_puzzle_q',
 		},
 	],
 	'ch1-debug-ethernettle': [
@@ -11471,7 +11471,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -11480,7 +11480,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-ethernet-puzzle-q',
+			script: 'debug_ethernet_puzzle_q',
 		},
 	],
 	'show_dialog-ethernettle-start': [
@@ -12155,17 +12155,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Beatrice',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Cleo',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Trekkie',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -12174,17 +12174,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Max Swagger',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Verthandi',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Marta',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -12193,17 +12193,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Baker',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Smith',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Uncle Zappy',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -12212,12 +12212,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Aunt Zippy',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Shepherd',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
 	'alfonso-left-right': [
@@ -13005,7 +13005,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-zippy-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13041,7 +13041,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-zappy-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13077,7 +13077,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-verthandi-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13113,7 +13113,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-smith-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13149,7 +13149,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-max-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13185,7 +13185,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-marta-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13239,7 +13239,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-trekkie-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13275,7 +13275,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-shepherd-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13311,7 +13311,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-cleo-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13347,7 +13347,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-beatrice-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13383,7 +13383,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-baker-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -13419,12 +13419,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-jackob-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Jackob',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -13444,7 +13444,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-alfonso-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -13459,7 +13459,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-bert-prechoose': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -13621,7 +13621,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Marta',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -13743,7 +13743,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -14262,7 +14262,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right',
+			script: 'look_left_and_right',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -14447,7 +14447,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Alfonso',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -14616,7 +14616,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-lodge_cat': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -14736,7 +14736,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-timmy-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -14913,7 +14913,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f30419',
 		},
 	],
-	'debug-cat-prep': [
+	debug_cat_prep: [
 		{
 			bool_value: false,
 			action: 'SET_ENTITY_GLITCHED',
@@ -14955,13 +14955,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 			geometry: 'lodge-hidingplace',
 		},
 	],
-	'debug-disable-tuesday-q': [
+	debug_disable_tuesday_q: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-lodge.mgs:922:2',
 		},
 	],
-	'debug-disable-tuesday-no': [
+	debug_disable_tuesday_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-lodge.mgs:931:2',
@@ -14969,10 +14969,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-disable-tuesday-q',
+			script: 'debug_disable_tuesday_q',
 		},
 	],
-	'debug-disable-tuesday-walkup': [
+	debug_disable_tuesday_walkup: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-goodmorning-flags-true',
@@ -14997,10 +14997,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-disable-tuesday-q',
+			script: 'debug_disable_tuesday_q',
 		},
 	],
-	'debug-disable-tuesday-complete': [
+	debug_disable_tuesday_complete: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-goodmorning-flags-true',
@@ -15024,10 +15024,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-disable-tuesday-q',
+			script: 'debug_disable_tuesday_q',
 		},
 	],
-	'debug-undisable-tuesday': [
+	debug_undisable_tuesday: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'set-goodmorning-flags-true',
@@ -15051,20 +15051,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-disable-tuesday-q',
+			script: 'debug_disable_tuesday_q',
 		},
 	],
-	'debug-bypass-tuesday-q': [
+	debug_bypass_tuesday_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-lodge.mgs:969:2',
 		},
 	],
-	'debug-bypass-tuesday': [
+	debug_bypass_tuesday: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'bypass-tuesday',
@@ -15080,10 +15080,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bypass-tuesday-q',
+			script: 'debug_bypass_tuesday_q',
 		},
 	],
-	'debug-bypass-tuesday-but-enable-hintman': [
+	debug_bypass_tuesday_but_enable_hintman: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'bypass-tuesday',
@@ -15104,27 +15104,27 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bypass-tuesday-q',
+			script: 'debug_bypass_tuesday_q',
 		},
 	],
-	'debug-bypass-tuesday-no': [
+	debug_bypass_tuesday_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bypass-tuesday-q',
+			script: 'debug_bypass_tuesday_q',
 		},
 	],
-	'debug-cutscene-tuesday-q': [
+	debug_cutscene_tuesday_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-lodge.mgs:995:2',
 		},
 	],
-	'debug-cutscene-tuesday': [
+	debug_cutscene_tuesday: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'cutscene-tuesday',
@@ -15132,20 +15132,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bypass-tuesday-q',
+			script: 'debug_bypass_tuesday_q',
 		},
 	],
-	'debug-cutscene-tuesday-no': [
+	debug_cutscene_tuesday_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bypass-tuesday-q',
+			script: 'debug_bypass_tuesday_q',
 		},
 	],
-	'debug-touch-artifacts-q': [
+	debug_touch_artifacts_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -15183,21 +15183,21 @@ export const idk: Record<string, TYPES.Action[]> = {
 			entity_type: 'marta_broom',
 		},
 	],
-	'debug-touch-artifacts-end': [
+	debug_touch_artifacts_end: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-touch-artifacts-q',
+			script: 'debug_touch_artifacts_q',
 		},
 	],
-	'debug-touch-artifacts-no': [
+	debug_touch_artifacts_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-touch-artifacts-q',
+			script: 'debug_touch_artifacts_q',
 		},
 	],
-	'debug-touch-artifacts-and-aftermath': [
+	debug_touch_artifacts_and_aftermath: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'skip-artifacts',
@@ -15234,17 +15234,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-touch-artifacts-end',
+			script: 'debug_touch_artifacts_end',
 		},
 	],
-	'debug-touch-artifacts': [
+	debug_touch_artifacts: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'skip-artifacts',
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-touch-artifacts-end',
+			script: 'debug_touch_artifacts_end',
 		},
 	],
 	'on_load-magehouse': [
@@ -15916,7 +15916,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -15952,7 +15952,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -16105,7 +16105,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch1-magehouse.mgs:268:2',
 		},
 	],
-	'debug-walk-to-lodge-q': [
+	debug_walk_to_lodge_q: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -16116,20 +16116,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch1-magehouse.mgs:277:2',
 		},
 	],
-	'debug-walk-to-lodge': [
+	debug_walk_to_lodge: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'walk-to-lodge',
 		},
 	],
-	'debug-walk-to-lodge-no': [
+	debug_walk_to_lodge_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-walk-to-lodge-q',
+			script: 'debug_walk_to_lodge_q',
 		},
 	],
-	'debug-goodmorning-q': [
+	debug_goodmorning_q: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -16158,7 +16158,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'on_tick-magehouse',
 		},
 	],
-	'debug-goodmorning-plus': [
+	debug_goodmorning_plus: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'dialog-debug-goodmorning',
@@ -16201,20 +16201,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'on_tick-magehouse',
 		},
 	],
-	'debug-goodmorning-no': [
+	debug_goodmorning_no: [
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-goodmorning-q',
+			script: 'debug_goodmorning_q',
 		},
 	],
-	'debug-everything-q': [
+	debug_everything_q: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-magehouse.mgs:328:2',
 		},
 	],
-	'debug-everything-on': [
+	debug_everything_on: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'debug-mode',
@@ -16245,7 +16245,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 			entity: 'Debug Exa',
-			geometry: 'debug-exa-spot',
+			geometry: 'debug_exa_spot',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -16254,10 +16254,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-everything-q',
+			script: 'debug_everything_q',
 		},
 	],
-	'debug-everything-off': [
+	debug_everything_off: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-magehouse.mgs:351:2',
@@ -16265,7 +16265,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-everything-q',
+			script: 'debug_everything_q',
 		},
 	],
 	'rake-in-lake': [
@@ -17678,7 +17678,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-hamster-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -18084,22 +18084,22 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Felix',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Maru',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'B. Murray',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Deuteronomy',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -18575,7 +18575,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -18608,7 +18608,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -18667,7 +18667,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -18712,7 +18712,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -18728,7 +18728,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -18753,7 +18753,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -19018,7 +19018,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -19247,7 +19247,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -19740,17 +19740,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 			success_script: 'delmar-blab',
 		},
 	],
-	'debug-bea-sequel-q': [
+	debug_bea_sequel_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-oldcouplehouse.mgs:273:2',
 		},
 	],
-	'debug-bea-sequel-man': [
+	debug_bea_sequel_man: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'bea-sequel-branch',
@@ -19786,10 +19786,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bea-sequel-q',
+			script: 'debug_bea_sequel_q',
 		},
 	],
-	'debug-bea-sequel-noman': [
+	debug_bea_sequel_noman: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'bea-sequel-branch',
@@ -19816,10 +19816,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bea-sequel-q',
+			script: 'debug_bea_sequel_q',
 		},
 	],
-	'debug-bea-sequel-no': [
+	debug_bea_sequel_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-oldcouplehouse.mgs:299:2',
@@ -19827,7 +19827,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-bea-sequel-q',
+			script: 'debug_bea_sequel_q',
 		},
 	],
 	'on_tick-secretroom': [
@@ -20097,7 +20097,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Jackob',
-			script: 'look-left-and-right',
+			script: 'look_left_and_right',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -20298,7 +20298,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'look-left-and-right': [
+	look_left_and_right: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: '%SELF%',
@@ -20338,7 +20338,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 500,
 		},
 	],
-	'look-left-and-right-fast': [
+	look_left_and_right_fast: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: '%SELF%',
@@ -20570,7 +20570,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-shepherd-start': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -20784,7 +20784,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -20827,7 +20827,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-shepherd-backstory': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -20859,7 +20859,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'turn-right-and-left': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -20898,7 +20898,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -21130,17 +21130,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 800,
 		},
 	],
-	'debug-sheep-q': [
+	debug_sheep_q: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-shepherd.mgs:144:2',
 		},
 	],
-	'debug-sheep-all': [
+	debug_sheep_all: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'sheep-in-pen',
@@ -21152,10 +21152,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-sheep-q',
+			script: 'debug_sheep_q',
 		},
 	],
-	'debug-sheep-most': [
+	debug_sheep_most: [
 		{
 			action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 			entity: 'Baa',
@@ -21178,10 +21178,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-sheep-q',
+			script: 'debug_sheep_q',
 		},
 	],
-	'debug-sheep-no': [
+	debug_sheep_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch1-shepherd.mgs:164:2',
@@ -21189,7 +21189,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'debug-sheep-q',
+			script: 'debug_sheep_q',
 		},
 	],
 	'debug-buffertest': [
@@ -21199,7 +21199,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			serial_dialog: 'buffer-test.mgs:2:2',
 		},
 	],
-	'debug-buffertest-daisy': [
+	debug_buffertest_daisy: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21207,10 +21207,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-buffertest-daisy2',
+			script: 'debug_buffertest_daisy2',
 		},
 	],
-	'debug-buffertest-daisy2': [
+	debug_buffertest_daisy2: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21218,10 +21218,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-buffertest-daisy3',
+			script: 'debug_buffertest_daisy3',
 		},
 	],
-	'debug-buffertest-daisy3': [
+	debug_buffertest_daisy3: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21229,10 +21229,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-buffertest-daisy4',
+			script: 'debug_buffertest_daisy4',
 		},
 	],
-	'debug-buffertest-daisy4': [
+	debug_buffertest_daisy4: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21240,10 +21240,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-buffertest-daisy5',
+			script: 'debug_buffertest_daisy5',
 		},
 	],
-	'debug-buffertest-daisy5': [
+	debug_buffertest_daisy5: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21251,10 +21251,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'debug-buffertest-daisy6',
+			script: 'debug_buffertest_daisy6',
 		},
 	],
-	'debug-buffertest-daisy6': [
+	debug_buffertest_daisy6: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21265,7 +21265,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'debug-buffertest',
 		},
 	],
-	'debug-buffertest-singles': [
+	debug_buffertest_singles: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21276,7 +21276,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'debug-buffertest',
 		},
 	],
-	'debug-buffertest-big': [
+	debug_buffertest_big: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -21287,14 +21287,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'debug-buffertest',
 		},
 	],
-	'debug-buffertest-singles_q': [
+	debug_buffertest_singles_q: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
 			serial_dialog: 'buffer-test.mgs:156:2',
 		},
 	],
-	'debug-buffertest-big_q': [
+	debug_buffertest_big_q: [
 		{
 			action: 'SHOW_SERIAL_DIALOG',
 			disable_newline: false,
@@ -22364,7 +22364,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-cutscene-bert-secret',
+			script: 'ch2_cutscene_bert_secret',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -22551,37 +22551,37 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '0',
-			script: 'debug-map-flags-for-round0',
+			script: 'debug_map_flags_for_round0',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '1',
-			script: 'debug-map-flags-for-round1',
+			script: 'debug_map_flags_for_round1',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '2',
-			script: 'debug-map-flags-for-round2',
+			script: 'debug_map_flags_for_round2',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '3',
-			script: 'debug-map-flags-for-round3',
+			script: 'debug_map_flags_for_round3',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '4',
-			script: 'debug-map-flags-for-round4',
+			script: 'debug_map_flags_for_round4',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'storyflag',
 			argument: '5',
-			script: 'debug-map-flags-for-round5',
+			script: 'debug_map_flags_for_round5',
 		},
 	],
 	'ch2-debug-storyflag': [
@@ -22601,7 +22601,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			serial_dialog: 'ch2-admin.mgs:287:2',
 		},
 	],
-	'debug-map-flags-for-round0': [
+	debug_map_flags_for_round0: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-take_off_map-round1',
@@ -22625,7 +22625,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 0,
 		},
 	],
-	'debug-map-flags-for-round1': [
+	debug_map_flags_for_round1: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-put_on_map-round1',
@@ -22649,7 +22649,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 1,
 		},
 	],
-	'debug-map-flags-for-round2': [
+	debug_map_flags_for_round2: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-take_off_map-round1',
@@ -22673,7 +22673,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 2,
 		},
 	],
-	'debug-map-flags-for-round3': [
+	debug_map_flags_for_round3: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-take_off_map-round1',
@@ -22697,7 +22697,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 3,
 		},
 	],
-	'debug-map-flags-for-round4': [
+	debug_map_flags_for_round4: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-take_off_map-round1',
@@ -22721,7 +22721,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 4,
 		},
 	],
-	'debug-map-flags-for-round5': [
+	debug_map_flags_for_round5: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2-take_off_map-round1',
@@ -22750,7 +22750,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'ch2-debug-storyflag-log': [
+	'ch2-debug_storyflag_log': [
 		{
 			disable_newline: false,
 			action: 'SHOW_SERIAL_DIALOG',
@@ -23048,7 +23048,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 12602',
 		},
@@ -23100,7 +23100,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'LOAD_MAP',
-			map: 'ch2-castle-21-postgame',
+			map: 'ch2_castle_21_postgame',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -23134,7 +23134,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'LOAD_MAP',
-			map: 'ch2-castle-22-postgame',
+			map: 'ch2_castle_22_postgame',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -23518,7 +23518,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_baker: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			expected_bool: true,
@@ -23554,13 +23554,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	interact_ch2_jackob_bakery: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -23982,7 +23982,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -24013,7 +24013,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -24448,7 +24448,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-cutscene-bob-party',
+			script: 'ch2_cutscene_bob_party',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -24465,10 +24465,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'tick-linger-1': [
+	tick_linger_1: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -24501,7 +24501,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 4000,
 		},
 	],
-	'on_tick-turn-right-and-down-kinda': [
+	on_tick_turn_right_and_down_kinda: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 4500,
@@ -24525,7 +24525,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 800,
 		},
 	],
-	'tick-rand-mini': [
+	tick_rand_mini: [
 		{
 			action: 'MUTATE_VARIABLE',
 			variable: 'rand',
@@ -24585,7 +24585,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f5055',
 		},
 	],
-	'tick-rand-broad': [
+	tick_rand_broad: [
 		{
 			action: 'MUTATE_VARIABLE',
 			variable: 'rand',
@@ -24645,10 +24645,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f5201',
 		},
 	],
-	'tick-linger-2': [
+	tick_linger_2: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -24703,10 +24703,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 20000,
 		},
 	],
-	'tick-linger-3': [
+	tick_linger_3: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -24743,10 +24743,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 4000,
 		},
 	],
-	'tick-linger-4': [
+	tick_linger_4: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -24788,7 +24788,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 12000,
 		},
 	],
-	'on_tick-turn-right-and-down-kinda2': [
+	on_tick_turn_right_and_down_kinda2: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 3300,
@@ -24812,7 +24812,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 3800,
 		},
 	],
-	'on_tick-turn-left-and-down-kinda': [
+	on_tick_turn_left_and_down_kinda: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 2200,
@@ -24836,7 +24836,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 2800,
 		},
 	],
-	'on_tick-turn-left-and-down-kinda2': [
+	on_tick_turn_left_and_down_kinda2: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 1310,
@@ -24860,7 +24860,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 4900,
 		},
 	],
-	'on_tick-turn-right-and-up-kinda': [
+	on_tick_turn_right_and_up_kinda: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 400,
@@ -24894,7 +24894,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-bobsclub',
 		},
 	],
-	'ch2-cutscene-bob-party': [
+	ch2_cutscene_bob_party: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -24906,7 +24906,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -25131,7 +25131,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 10050',
 		},
@@ -25264,7 +25264,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_guardianbob: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -25272,13 +25272,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	interact_ch2_bobaustin: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -25293,7 +25293,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_bobmoss: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -25308,7 +25308,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_party_cups: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -25323,7 +25323,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_pizza: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -25338,7 +25338,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_marathonbob: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'MUTATE_VARIABLE',
@@ -25540,7 +25540,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 		{
 			action: 'MUTATE_VARIABLE',
@@ -25558,13 +25558,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 14368',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 14636',
 		},
@@ -25621,7 +25621,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 14006',
 		},
@@ -25827,14 +25827,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'want-cc': [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			bool_value: true,
 		},
 	],
 	'unwant-cc': [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			bool_value: false,
 		},
 	],
@@ -25883,7 +25883,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			bool_value: false,
 		},
 		{
@@ -26034,7 +26034,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 7037',
 		},
@@ -26054,7 +26054,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 7204',
 		},
@@ -26177,7 +26177,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -26202,7 +26202,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6447',
 		},
@@ -26484,7 +26484,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 9606',
 		},
@@ -26573,7 +26573,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			expected_bool: true,
@@ -26777,7 +26777,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			target_entity: 'Bert',
 		},
 	],
-	'ch2-cutscene-bert-secret': [
+	ch2_cutscene_bert_secret: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -27598,7 +27598,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4939',
 		},
@@ -27773,7 +27773,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			is_fail: false,
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
 			command: 'toot',
-			script: 'debug-finish-toot',
+			script: 'debug_finish_toot',
 		},
 		{
 			is_fail: false,
@@ -27869,19 +27869,19 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'round',
 			argument: '1',
-			script: 'debug-get-items-for-round1',
+			script: 'debug_get_items_for_round1',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'round',
 			argument: '2',
-			script: 'debug-get-items-for-round2',
+			script: 'debug_get_items_for_round2',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'round',
 			argument: '3',
-			script: 'debug-get-items-for-round3',
+			script: 'debug_get_items_for_round3',
 		},
 		{
 			action: 'SHOW_SERIAL_DIALOG',
@@ -27901,7 +27901,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2-player-spawn-click-protection',
 		},
 	],
-	'debug-finish-toot': [
+	debug_finish_toot: [
 		{
 			action: 'MUTATE_VARIABLE',
 			variable: 'ch2_storyflag_round',
@@ -28458,7 +28458,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 11124',
 		},
@@ -29035,7 +29035,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Wizard',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
 	'tick-ch2-wizard-ascend-and-watch': [
@@ -29053,7 +29053,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Wizard',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
 	'ch2-wizard-descend': [
@@ -29621,7 +29621,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Wizard',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -29651,7 +29651,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			bool_value: true,
 		},
 		{
@@ -29739,7 +29739,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-castle-21',
 		},
 	],
-	'ch2-castle-21-ending': [
+	ch2_castle_21_ending: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -29802,7 +29802,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-castle-22',
 		},
 	],
-	'ch2-castle-22-ending': [
+	ch2_castle_22_ending: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -31515,7 +31515,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-cutscene-castle11',
+			script: 'ch2_cutscene_castle11',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -31526,7 +31526,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f2922',
 		},
 	],
-	'ch2-cutscene-castle11': [
+	ch2_cutscene_castle11: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -31542,7 +31542,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-blockage',
+			save_flag: 'ch2_blockage',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3064',
 		},
@@ -31556,7 +31556,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-blockage',
+			save_flag: 'ch2_blockage',
 			bool_value: true,
 		},
 		{
@@ -31578,7 +31578,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'watch-kuro',
+			script: 'watch_kuro',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -31702,7 +31702,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Kuro',
-			script: 'ch2-walk-to-monitor',
+			script: 'ch2_walk_to_monitor',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
@@ -31736,7 +31736,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Kuro',
-			script: 'kuro-hop',
+			script: 'kuro_hop',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -31745,7 +31745,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Kuro',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -31762,7 +31762,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'ch2-walk-to-monitor': [
+	ch2_walk_to_monitor: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 300,
@@ -31811,10 +31811,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Kuro',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
-	'kuro-hop': [
+	kuro_hop: [
 		{
 			action: 'PLAY_ENTITY_ANIMATION',
 			entity: '%SELF%',
@@ -31831,7 +31831,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'watch-kuro': [
+	watch_kuro: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -31992,7 +31992,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-monitor': [
+	ch2_touch_monitor: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-11.mgs:238:2',
@@ -32002,7 +32002,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-11.mgs:242:2',
 		},
 	],
-	'ch2-touch-monitor-yes': [
+	ch2_touch_monitor_yes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-11.mgs:249:2',
@@ -32030,7 +32030,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-monitor-no': [
+	ch2_touch_monitor_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-11.mgs:262:2',
@@ -32038,7 +32038,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'ch2-touch-monitor',
+			script: 'ch2_touch_monitor',
 		},
 	],
 	interact_ch2_kuro: [
@@ -47162,7 +47162,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 3292',
 		},
@@ -47224,12 +47224,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Templeton',
-			script: 'templeton-catalog-search',
+			script: 'templeton_catalog_search',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'King Gibson',
-			script: 'king-debris-ponder',
+			script: 'king_debris_ponder',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -47298,7 +47298,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-cutscene-castle12',
+			script: 'ch2_cutscene_castle12',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -47323,7 +47323,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-cutscene-kingreturns',
+			script: 'ch2_cutscene_kingreturns',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -47334,7 +47334,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f4236',
 		},
 	],
-	'ch2-skip-13': [
+	ch2_skip_13: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2_cutseen_castle13',
@@ -47345,7 +47345,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-castle-13',
 		},
 	],
-	'ch2-templeton-pace': [
+	ch2_templeton_pace: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: '%SELF%',
@@ -47360,7 +47360,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-templeton-pace',
+			save_flag: 'ch2_templeton_pace',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4497',
 		},
@@ -47385,7 +47385,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f4520',
 		},
 	],
-	'ch2-sebastian-paceonce': [
+	ch2_sebastian_paceonce: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: '%SELF%',
@@ -47403,7 +47403,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-sebastian-stomp': [
+	ch2_sebastian_stomp: [
 		{
 			action: 'PLAY_ENTITY_ANIMATION',
 			entity: 'Sebastian',
@@ -47415,7 +47415,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-lizard-lurch': [
+	ch2_lizard_lurch: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: '%SELF%',
@@ -47427,7 +47427,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-sebastian-approach': [
+	ch2_sebastian_approach: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 800,
@@ -47449,7 +47449,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-mage-approach': [
+	ch2_mage_approach: [
 		{
 			action: 'WALK_ENTITY_ALONG_GEOMETRY',
 			entity: '%PLAYER%',
@@ -47461,7 +47461,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-lizard-withdraw': [
+	ch2_lizard_withdraw: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: 'Sebastian',
@@ -47473,7 +47473,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-cutscene-castle12': [
+	ch2_cutscene_castle12: [
 		{
 			action: 'CHECK_DEBUG_MODE',
 			expected_bool: true,
@@ -47491,7 +47491,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			is_fail: false,
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
 			command: 'skip',
-			script: 'ch2-skip-13',
+			script: 'ch2_skip_13',
 		},
 		{
 			action: 'SHOW_SERIAL_DIALOG',
@@ -47558,7 +47558,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Sebastian',
-			script: 'ch2-sebastian-paceonce',
+			script: 'ch2_sebastian_paceonce',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -47566,13 +47566,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-templeton-pace',
+			save_flag: 'ch2_templeton_pace',
 			bool_value: true,
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Templeton',
-			script: 'ch2-templeton-pace',
+			script: 'ch2_templeton_pace',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -47580,7 +47580,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-templeton-pace',
+			save_flag: 'ch2_templeton_pace',
 			bool_value: false,
 		},
 		{
@@ -47595,7 +47595,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Sebastian',
-			script: 'ch2-sebastian-stomp',
+			script: 'ch2_sebastian_stomp',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -47636,7 +47636,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'ch2-mage-approach',
+			script: 'ch2_mage_approach',
 		},
 		{
 			action: 'SCREEN_FADE_IN',
@@ -47646,7 +47646,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Sebastian',
-			script: 'ch2-sebastian-approach',
+			script: 'ch2_sebastian_approach',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -47659,7 +47659,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Sebastian',
-			script: 'ch2-lizard-lurch',
+			script: 'ch2_lizard_lurch',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -47702,7 +47702,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Sebastian',
-			script: 'ch2-lizard-withdraw',
+			script: 'ch2_lizard_withdraw',
 		},
 		{
 			action: 'SET_ENTITY_DIRECTION',
@@ -47814,7 +47814,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'walk-over-1500': [
+	walk_over_1500: [
 		{
 			action: 'WALK_ENTITY_ALONG_GEOMETRY',
 			entity: '%SELF%',
@@ -47826,7 +47826,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-cutscene-kingreturns': [
+	ch2_cutscene_kingreturns: [
 		{
 			action: 'SCREEN_FADE_OUT',
 			color: '#000000',
@@ -47854,7 +47854,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'King Gibson',
-			script: 'walk-over-1500',
+			script: 'walk_over_1500',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -47863,7 +47863,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'walk-over-1500',
+			script: 'walk_over_1500',
 		},
 		{
 			action: 'SCREEN_FADE_IN',
@@ -48031,7 +48031,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Templeton',
-			script: 'templeton-catalog-search',
+			script: 'templeton_catalog_search',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -48040,7 +48040,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'King Gibson',
-			script: 'king-walk-to-debris',
+			script: 'king_walk_to_debris',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -48048,7 +48048,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-king-walk',
+			script: 'interrupt_king_walk',
 		},
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
@@ -48061,7 +48061,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-king-walk',
+			script: 'resume_king_walk',
 		},
 		{
 			action: 'SET_WARP_STATE',
@@ -48069,7 +48069,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			bool_value: true,
 		},
 		{
@@ -48082,7 +48082,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'king-walk-to-debris': [
+	king_walk_to_debris: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: '%SELF%',
@@ -48091,7 +48091,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'king-debris-ponder',
+			script: 'king_debris_ponder',
 		},
 	],
 	on_tick_ch2_castle_13_postgame: [
@@ -48161,7 +48161,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	on_tick_ch2_castle_13: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 15469',
 		},
@@ -48249,7 +48249,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2_load_castle_12_special',
 		},
 	],
-	'ch2-touch-goldfish': [
+	ch2_touch_goldfish: [
 		{
 			action: 'CHECK_SAVE_FLAG',
 			save_flag: 'ch2_cutseen_castle14',
@@ -48258,7 +48258,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 16305',
 		},
@@ -48288,11 +48288,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-king-walk',
+			script: 'interrupt_king_walk',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-templeton-walk',
+			script: 'interrupt_templeton_walk',
 		},
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
@@ -48327,11 +48327,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-king-walk',
+			script: 'resume_king_walk',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-templeton-walk',
+			script: 'resume_templeton_walk',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
@@ -48368,11 +48368,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-king-unharmed',
+			script: 'ch2_king_unharmed',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 16369',
 		},
@@ -48398,7 +48398,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			bool_value: true,
 		},
 		{
@@ -48410,10 +48410,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f18505',
 		},
 	],
-	'ch2-king-unharmed': [
+	ch2_king_unharmed: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 18604',
 		},
@@ -48463,7 +48463,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_sebastian: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -48473,7 +48473,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 19272',
 		},
@@ -48498,7 +48498,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Templeton',
-			script: 'templeton-catalog-search',
+			script: 'templeton_catalog_search',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -48522,11 +48522,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-king-unharmed',
+			script: 'ch2_king_unharmed',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 19336',
 		},
@@ -48552,7 +48552,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			bool_value: true,
 		},
 		{
@@ -48567,7 +48567,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_templeton: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -48577,13 +48577,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 20202',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -48591,7 +48591,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -48619,11 +48619,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-king-unharmed',
+			script: 'ch2_king_unharmed',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 20266',
 		},
@@ -48649,7 +48649,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-king-report',
+			save_flag: 'ch2_king_report',
 			bool_value: true,
 		},
 		{
@@ -48661,7 +48661,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f20709',
 		},
 	],
-	'interrupt-king-walk': [
+	interrupt_king_walk: [
 		{
 			inbound: true,
 			action: 'COPY_VARIABLE',
@@ -48778,7 +48778,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			target_entity: '%PLAYER%',
 		},
 	],
-	'resume-king-walk': [
+	resume_king_walk: [
 		{
 			inbound: false,
 			action: 'COPY_VARIABLE',
@@ -48885,7 +48885,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f21713',
 		},
 	],
-	'interrupt-templeton-walk': [
+	interrupt_templeton_walk: [
 		{
 			inbound: true,
 			action: 'COPY_VARIABLE',
@@ -49002,7 +49002,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			target_entity: '%PLAYER%',
 		},
 	],
-	'resume-templeton-walk': [
+	resume_templeton_walk: [
 		{
 			inbound: false,
 			action: 'COPY_VARIABLE',
@@ -49109,10 +49109,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f22670',
 		},
 	],
-	'templeton-catalog-search': [
+	templeton_catalog_search: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -49122,7 +49122,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -49132,13 +49132,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 	],
-	'king-debris-ponder': [
+	king_debris_ponder: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -49153,7 +49153,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -49172,13 +49172,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 	],
 	interact_ch2_gibson_throneroom: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			expected_bool: true,
@@ -49190,7 +49190,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-clock-permission',
+			save_flag: 'ch2_clock_permission',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 23591',
 		},
@@ -49256,7 +49256,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-clock-permission',
+			save_flag: 'ch2_clock_permission',
 			bool_value: true,
 		},
 		{
@@ -49269,7 +49269,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	interact_ch2_sebastian_end: [
@@ -49284,10 +49284,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-13.mgs:696:2',
 		},
 	],
-	'interact_ch2_gibson_throneroom-end': [
+	interact_ch2_gibson_throneroom_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -49427,7 +49427,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'ch2-cutscene-kingreturns-bedroom',
+			script: 'ch2_cutscene_kingreturns_bedroom',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -49527,7 +49527,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2955',
 		},
@@ -49738,7 +49738,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'King Gibson',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -49777,7 +49777,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6635',
 		},
@@ -49863,7 +49863,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-clock': [
+	ch2_touch_clock: [
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
@@ -49874,13 +49874,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7538',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-clock-permission',
+			save_flag: 'ch2_clock_permission',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7816',
 		},
@@ -49930,7 +49930,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-clock-firstlook',
+			save_flag: 'ch2_clock_firstlook',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7277',
 		},
@@ -49952,7 +49952,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-clock-firstlook',
+			save_flag: 'ch2_clock_firstlook',
 			bool_value: true,
 		},
 		{
@@ -49972,7 +49972,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f8057',
 		},
 	],
-	'ch2-touch-clock-yes': [
+	ch2_touch_clock_yes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-14.mgs:237:2',
@@ -49991,7 +49991,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-clock-no': [
+	ch2_touch_clock_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-14.mgs:245:2',
@@ -49999,7 +49999,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'ch2-touch-clock',
+			script: 'ch2_touch_clock',
 		},
 	],
 	interact_ch2_gibson_bedroom: [
@@ -50060,7 +50060,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_keypad: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 10614',
 		},
@@ -50154,7 +50154,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'interact_ch2_keypad_prompt',
 		},
 	],
-	'interact_ch2_keypad_good-pass': [
+	interact_ch2_keypad_good_pass: [
 		{
 			disable_newline: false,
 			action: 'SHOW_SERIAL_DIALOG',
@@ -50179,14 +50179,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'COPY_VARIABLE',
 			entity: 'King Gibson',
 			field: 'x',
-			variable: 'kingpos-x',
+			variable: 'kingpos_x',
 		},
 		{
 			inbound: true,
 			action: 'COPY_VARIABLE',
 			entity: 'King Gibson',
 			field: 'y',
-			variable: 'kingpos-y',
+			variable: 'kingpos_y',
 		},
 		{
 			action: 'SET_WARP_STATE',
@@ -50197,7 +50197,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-castle-14-postgame',
 		},
 	],
-	'ch2-king-leaves': [
+	ch2_king_leaves: [
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
 			entity: '%SELF%',
@@ -50205,7 +50205,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 1500,
 		},
 	],
-	'ch2-cutscene-kingreturns-bedroom': [
+	ch2_cutscene_kingreturns_bedroom: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'restore_player_state',
@@ -50213,14 +50213,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			inbound: false,
 			action: 'COPY_VARIABLE',
-			variable: 'kingpos-x',
+			variable: 'kingpos_x',
 			entity: 'King Gibson',
 			field: 'x',
 		},
 		{
 			inbound: false,
 			action: 'COPY_VARIABLE',
-			variable: 'kingpos-y',
+			variable: 'kingpos_y',
 			entity: 'King Gibson',
 			field: 'y',
 		},
@@ -50239,7 +50239,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'King Gibson',
-			script: 'ch2-king-leaves',
+			script: 'ch2_king_leaves',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -50440,7 +50440,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			expected_bool: true,
 			action: 'CHECK_WARP_STATE',
 			string: 'ch2 ending',
-			success_script: 'ch2-castle-21-ending',
+			success_script: 'ch2_castle_21_ending',
 		},
 		{
 			action: 'MUTATE_VARIABLE',
@@ -50783,7 +50783,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2_load_castle_11_special',
 		},
 	],
-	'ch2-touch-abacus': [
+	ch2_touch_abacus: [
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
@@ -50807,7 +50807,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-abacus-firstlook',
+			save_flag: 'ch2_abacus_firstlook',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6833',
 		},
@@ -50825,7 +50825,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-abacus-firstlook',
+			save_flag: 'ch2_abacus_firstlook',
 			bool_value: true,
 		},
 		{
@@ -50859,7 +50859,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-abacus-permission',
+			save_flag: 'ch2_abacus_permission',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 7267',
 		},
@@ -50926,12 +50926,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-manual',
+			save_flag: 'ch2_want_manual',
 			bool_value: true,
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-handoff-abacus-to-manual',
+			script: 'ch2_handoff_abacus_to_manual',
 		},
 		{
 			action: 'SET_ENTITY_DIRECTION',
@@ -50959,7 +50959,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-abacus-yes': [
+	ch2_touch_abacus_yes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-21.mgs:255:2',
@@ -50978,7 +50978,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-abacus-no': [
+	ch2_touch_abacus_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-21.mgs:263:2',
@@ -50986,7 +50986,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'ch2-touch-abacus',
+			script: 'ch2_touch_abacus',
 		},
 	],
 	interact_ch2_pie: [
@@ -51028,7 +51028,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_jeanpaul: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -51052,7 +51052,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-ramchips',
+			save_flag: 'ch2_want_ramchips',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 10260',
 		},
@@ -51064,7 +51064,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interact_ch2_room21_split-s',
+			script: 'interact_ch2_room21_split_s',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -51137,7 +51137,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_frankie: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -51206,7 +51206,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-abacus-permission',
+			save_flag: 'ch2_abacus_permission',
 			bool_value: true,
 		},
 		{
@@ -51242,7 +51242,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-abacus-permission',
+			save_flag: 'ch2_abacus_permission',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 11617',
 		},
@@ -51331,7 +51331,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-ramchips',
+			save_flag: 'ch2_want_ramchips',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 12313',
 		},
@@ -51343,7 +51343,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interact_ch2_room21_split-s',
+			script: 'interact_ch2_room21_split_s',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -51415,7 +51415,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-lambda-deletion-backstory',
+			save_flag: 'ch2_lambda_deletion_backstory',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 13097',
 		},
@@ -51592,12 +51592,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-ramchips',
+			save_flag: 'ch2_want_ramchips',
 			bool_value: true,
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-handoff-ramchips-to-seamoss',
+			script: 'ch2_handoff_ramchips_to_seamoss',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -51690,7 +51690,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f16498',
 		},
 	],
-	'interact_ch2_room21_split-s': [
+	interact_ch2_room21_split_s: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: 'Jean-Paul',
@@ -51727,7 +51727,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_frankie_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -51742,7 +51742,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_jeanpaul_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -51757,13 +51757,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_goose: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2_installed_minirake-99',
+			save_flag: 'ch2_installed_minirake_99',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 17542',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2_carrying_minirake-99',
+			save_flag: 'ch2_carrying_minirake_99',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 17673',
 		},
@@ -51773,12 +51773,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2_carrying_minirake-99',
+			save_flag: 'ch2_carrying_minirake_99',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2_installed_minirake-99',
+			save_flag: 'ch2_installed_minirake_99',
 			bool_value: true,
 		},
 		{
@@ -51923,7 +51923,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			expected_bool: true,
 			action: 'CHECK_WARP_STATE',
 			string: 'ch2 ending',
-			success_script: 'ch2-castle-22-ending',
+			success_script: 'ch2_castle_22_ending',
 		},
 		{
 			action: 'MUTATE_VARIABLE',
@@ -52118,7 +52118,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -52132,7 +52132,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -52140,7 +52140,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -52173,7 +52173,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 		{
 			action: 'SET_PLAYER_CONTROL',
@@ -52183,7 +52183,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_ckwatt: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -52214,7 +52214,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-powersupply-permission',
+			save_flag: 'ch2_powersupply_permission',
 			bool_value: true,
 		},
 		{
@@ -52234,7 +52234,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_ckwatt_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -52249,7 +52249,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_scuzzy_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -52273,10 +52273,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-powersupply': [
+	ch2_touch_powersupply: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-powersupply-permission',
+			save_flag: 'ch2_powersupply_permission',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5847',
 		},
@@ -52337,7 +52337,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-powersupply-permission',
+			save_flag: 'ch2_powersupply_permission',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6218',
 		},
@@ -52362,7 +52362,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f6358',
 		},
 	],
-	'ch2-touch-powersupply-yes': [
+	ch2_touch_powersupply_yes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-22.mgs:191:2',
@@ -52381,7 +52381,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-powersupply-no': [
+	ch2_touch_powersupply_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-22.mgs:199:2',
@@ -52389,7 +52389,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'ch2-touch-powersupply',
+			script: 'ch2_touch_powersupply',
 		},
 	],
 	look_ch2_castle_23: [
@@ -52613,7 +52613,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f3157',
 		},
 	],
-	'ch2-powerplant-supervise': [
+	ch2_powerplant_supervise: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: '%SELF%',
@@ -52621,7 +52621,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-mini',
+			script: 'tick_rand_mini',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -52636,7 +52636,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -52651,7 +52651,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'tick-rand-broad',
+			script: 'tick_rand_broad',
 		},
 	],
 	on_exit_ch2_castle_23: [
@@ -52679,7 +52679,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_helvetica: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -52687,20 +52687,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	interact_ch2_tracy: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-23.mgs:121:2',
 		},
 	],
-	'rocco-work-fancy': [
+	rocco_work_fancy: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: 'Rocco',
@@ -53019,7 +53019,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			byte_value: 3,
 		},
 	],
-	'rocco-work': [
+	rocco_work: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: 'Rocco',
@@ -53028,10 +53028,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Rocco',
-			script: 'rocco-work-fancy',
+			script: 'rocco_work_fancy',
 		},
 	],
-	'rocco-idle': [
+	rocco_idle: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Rocco',
@@ -53046,7 +53046,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_rocco: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 5889',
 		},
@@ -53088,11 +53088,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-idle',
+			script: 'rocco_idle',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53100,7 +53100,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-work',
+			script: 'rocco_work',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53108,11 +53108,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-idle',
+			script: 'rocco_idle',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53120,7 +53120,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-lambda-deletion-backstory',
+			save_flag: 'ch2_lambda_deletion_backstory',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6682',
 		},
@@ -53164,7 +53164,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-work',
+			script: 'rocco_work',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53191,7 +53191,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53199,7 +53199,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-work',
+			script: 'rocco_work',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53212,17 +53212,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-heatsink-firstlook',
+			save_flag: 'ch2_heatsink_firstlook',
 			bool_value: true,
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-handoff-heatsink-to-cactuscooler',
+			script: 'ch2_handoff_heatsink_to_cactuscooler',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -53248,11 +53248,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-idle',
+			script: 'rocco_idle',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53265,7 +53265,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'interact_ch2_rocco_give-q',
+			script: 'interact_ch2_rocco_give_q',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -53285,11 +53285,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-idle',
+			script: 'rocco_idle',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -53328,7 +53328,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'interact_ch2_rocco_give-q',
+			script: 'interact_ch2_rocco_give_q',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -53343,7 +53343,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'interact_ch2_rocco_wrapup',
 		},
 	],
-	'interact_ch2_rocco_give-q': [
+	interact_ch2_rocco_give_q: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-23.mgs:295:2',
@@ -53396,7 +53396,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-work',
+			script: 'rocco_work',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53408,7 +53408,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-turn_in-cactuscooler',
+			script: 'ch2_turn_in_cactuscooler',
 		},
 		{
 			action: 'RUN_SCRIPT',
@@ -53428,7 +53428,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_rocco_wrapup: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'rocco-work',
+			script: 'rocco_work',
 		},
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
@@ -53448,14 +53448,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-23.mgs:348:2',
 		},
 	],
-	'simon-game-launcher': [
+	simon_game_launcher: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Simon',
-			script: 'simon-game-start-q',
+			script: 'simon_game_start_q',
 		},
 	],
-	'simon-game-start-q': [
+	simon_game_start_q: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: 'Simon',
@@ -53463,7 +53463,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1608',
 		},
@@ -53492,16 +53492,16 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f2243',
 		},
 	],
-	'simon-game-start-q-swap': [
+	simon_game_start_q_swap: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2307',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			bool_value: true,
 		},
 		{
@@ -53518,7 +53518,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			bool_value: false,
 		},
 		{
@@ -53534,7 +53534,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f3017',
 		},
 	],
-	'simon-game-start-difference': [
+	simon_game_start_difference: [
 		{
 			action: 'SET_LIGHTS_CONTROL',
 			enabled: true,
@@ -53556,7 +53556,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-flash-battle-high',
+			script: 'screen_lights_flash_battle_high',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53579,7 +53579,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-flash-battle-low',
+			script: 'screen_lights_flash_battle_low',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -53596,13 +53596,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-start-q',
+			script: 'simon_game_start_q',
 		},
 	],
-	'simon-game-start-nevermind': [
+	simon_game_start_nevermind: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3948',
 		},
@@ -53647,10 +53647,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-start-q-wrapup',
+			script: 'simon_game_start_q_wrapup',
 		},
 	],
-	'simon-game-start-q-wrapup': [
+	simon_game_start_q_wrapup: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: 'Simon',
@@ -53666,7 +53666,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'simon-game-start': [
+	simon_game_start: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -53677,49 +53677,49 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos1',
+			variable: 'simon_pos1',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos2',
+			variable: 'simon_pos2',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos3',
+			variable: 'simon_pos3',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos4',
+			variable: 'simon_pos4',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos5',
+			variable: 'simon_pos5',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos6',
+			variable: 'simon_pos6',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos7',
+			variable: 'simon_pos7',
 			operation: 'RNG',
 			value: 4,
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 5025',
 		},
@@ -53733,43 +53733,43 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos1',
+			variable: 'simon_pos1',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos2',
+			variable: 'simon_pos2',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos3',
+			variable: 'simon_pos3',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos4',
+			variable: 'simon_pos4',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos5',
+			variable: 'simon_pos5',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos6',
+			variable: 'simon_pos6',
 			operation: 'ADD',
 			value: 2,
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-pos7',
+			variable: 'simon_pos7',
 			operation: 'ADD',
 			value: 2,
 		},
@@ -53783,7 +53783,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-round',
+			variable: 'simon_round',
 			operation: 'SET',
 			value: 1,
 		},
@@ -53846,18 +53846,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 5697',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-flash-battle-low',
+			script: 'screen_lights_flash_battle_low',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-low',
+			save_flag: 'ch2_simon_heard_low',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6247',
 		},
@@ -53879,7 +53879,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-low',
+			save_flag: 'ch2_simon_heard_low',
 			bool_value: true,
 		},
 		{
@@ -53901,11 +53901,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-flash-battle-high',
+			script: 'screen_lights_flash_battle_high',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-high',
+			save_flag: 'ch2_simon_heard_high',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5805',
 		},
@@ -53927,7 +53927,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-high',
+			save_flag: 'ch2_simon_heard_high',
 			bool_value: true,
 		},
 		{
@@ -53958,13 +53958,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-enemy-turn-start',
+			script: 'simon_enemy_turn_start',
 		},
 	],
-	'simon-enemy-turn-start': [
+	simon_enemy_turn_start: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: false,
 		},
 		{
@@ -54051,9 +54051,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos1',
+			source: 'simon_pos1',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54065,9 +54065,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos2',
+			source: 'simon_pos2',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54079,9 +54079,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos3',
+			source: 'simon_pos3',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54093,9 +54093,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos4',
+			source: 'simon_pos4',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54107,9 +54107,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos5',
+			source: 'simon_pos5',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54121,9 +54121,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos6',
+			source: 'simon_pos6',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54135,9 +54135,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos7',
+			source: 'simon_pos7',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54150,7 +54150,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 0,
 			jump_index: 'bodyStart ZIGZAG 7405',
@@ -54158,7 +54158,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 1,
 			jump_index: 'bodyStart ZIGZAG 7526',
@@ -54166,7 +54166,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 2,
 			jump_index: 'bodyStart ZIGZAG 7646',
@@ -54174,7 +54174,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 3,
 			jump_index: 'bodyStart ZIGZAG 7767',
@@ -54182,7 +54182,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 4,
 			jump_index: 'bodyStart ZIGZAG 7887',
@@ -54190,7 +54190,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 5,
 			jump_index: 'bodyStart ZIGZAG 8007',
@@ -54348,7 +54348,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'CHECK_VARIABLES',
 			variable: 'i',
 			comparison: '<',
-			source: 'simon-round',
+			source: 'simon_round',
 			jump_index: 'bodyStart ZIGZAG 6837',
 		},
 		{
@@ -54377,10 +54377,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-turn-start',
+			script: 'simon_player_turn_start',
 		},
 	],
-	'simon-player-turn-start': [
+	simon_player_turn_start: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 10,
@@ -54393,16 +54393,16 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-turn-loop-start',
+			script: 'simon_player_turn_loop_start',
 		},
 	],
-	'simon-player-turn-loop-start': [
+	simon_player_turn_loop_start: [
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLES',
 			variable: 'i',
 			comparison: '>=',
-			source: 'simon-round',
+			source: 'simon_round',
 			jump_index: 'bodyStart ZIGZAG 8402',
 		},
 		{
@@ -54415,7 +54415,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-turn-end',
+			script: 'simon_player_turn_end',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54491,9 +54491,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos1',
+			source: 'simon_pos1',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54505,9 +54505,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos2',
+			source: 'simon_pos2',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54519,9 +54519,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos3',
+			source: 'simon_pos3',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54533,9 +54533,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos4',
+			source: 'simon_pos4',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54547,9 +54547,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos5',
+			source: 'simon_pos5',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54561,9 +54561,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos6',
+			source: 'simon_pos6',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54575,9 +54575,9 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLES',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			operation: 'SET',
-			source: 'simon-pos7',
+			source: 'simon_pos7',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54589,10 +54589,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-listen',
+			script: 'simon_player_listen',
 		},
 	],
-	'simon-player-listen': [
+	simon_player_listen: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: '%PLAYER%',
@@ -54600,14 +54600,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 9117',
 		},
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 0,
 			jump_index: 'bodyStart ZIGZAG 9730',
@@ -54636,18 +54636,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 0,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54668,7 +54668,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 1,
 			jump_index: 'bodyStart ZIGZAG 9997',
@@ -54697,18 +54697,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 1,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54737,7 +54737,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 4,
 			jump_index: 'bodyStart ZIGZAG 9162',
@@ -54766,18 +54766,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 4,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54798,7 +54798,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 5,
 			jump_index: 'bodyStart ZIGZAG 9429',
@@ -54827,18 +54827,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 5,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54867,7 +54867,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 2,
 			jump_index: 'bodyStart ZIGZAG 10302',
@@ -54896,18 +54896,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 2,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54928,7 +54928,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: false,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 3,
 			jump_index: 'bodyStart ZIGZAG 10561',
@@ -54957,18 +54957,18 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 3,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -54988,14 +54988,14 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 10917',
 		},
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 0,
 			jump_index: 'bodyStart ZIGZAG 11274',
@@ -55024,13 +55024,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 0,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55051,7 +55051,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 1,
 			jump_index: 'bodyStart ZIGZAG 11415',
@@ -55080,13 +55080,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 1,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55115,7 +55115,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 4,
 			jump_index: 'bodyStart ZIGZAG 10958',
@@ -55144,13 +55144,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 4,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55171,7 +55171,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 5,
 			jump_index: 'bodyStart ZIGZAG 11099',
@@ -55200,13 +55200,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 5,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55235,7 +55235,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 2,
 			jump_index: 'bodyStart ZIGZAG 11594',
@@ -55264,13 +55264,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 2,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55291,7 +55291,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-pos-curr',
+			variable: 'simon_pos_curr',
 			comparison: '==',
 			value: 3,
 			jump_index: 'bodyStart ZIGZAG 11729',
@@ -55320,13 +55320,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			operation: 'SET',
 			value: 3,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-do-move',
+			script: 'simon_player_do_move',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55347,10 +55347,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Simon',
-			script: 'simon-player-listen',
+			script: 'simon_player_listen',
 		},
 	],
-	'simon-player-animation-pose_bottom_left': [
+	simon_player_animation_pose_bottom_left: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55358,10 +55358,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_bottom_left-wait',
+			script: 'simon_player_animation_pose_bottom_left_wait',
 		},
 	],
-	'simon-player-animation-pose_bottom_right': [
+	simon_player_animation_pose_bottom_right: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55369,10 +55369,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_bottom_right-wait',
+			script: 'simon_player_animation_pose_bottom_right_wait',
 		},
 	],
-	'simon-player-animation-pose_left': [
+	simon_player_animation_pose_left: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55380,10 +55380,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_left-wait',
+			script: 'simon_player_animation_pose_left_wait',
 		},
 	],
-	'simon-player-animation-pose_right': [
+	simon_player_animation_pose_right: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55391,10 +55391,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_right-wait',
+			script: 'simon_player_animation_pose_right_wait',
 		},
 	],
-	'simon-player-animation-pose_top_left': [
+	simon_player_animation_pose_top_left: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55402,10 +55402,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_top_left-wait',
+			script: 'simon_player_animation_pose_top_left_wait',
 		},
 	],
-	'simon-player-animation-pose_top_right': [
+	simon_player_animation_pose_top_right: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -55413,10 +55413,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-animation-pose_top_right-wait',
+			script: 'simon_player_animation_pose_top_right_wait',
 		},
 	],
-	'simon-player-animation-pose_bottom_left-wait': [
+	simon_player_animation_pose_bottom_left_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55433,7 +55433,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55449,7 +55449,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f13547',
 		},
 	],
-	'simon-player-animation-pose_bottom_right-wait': [
+	simon_player_animation_pose_bottom_right_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55466,7 +55466,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55482,7 +55482,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f13716',
 		},
 	],
-	'simon-player-animation-pose_left-wait': [
+	simon_player_animation_pose_left_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55499,7 +55499,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55515,7 +55515,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f13877',
 		},
 	],
-	'simon-player-animation-pose_right-wait': [
+	simon_player_animation_pose_right_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55532,7 +55532,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55548,7 +55548,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f14039',
 		},
 	],
-	'simon-player-animation-pose_top_left-wait': [
+	simon_player_animation_pose_top_left_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55565,7 +55565,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55581,7 +55581,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f14204',
 		},
 	],
-	'simon-player-animation-pose_top_right-wait': [
+	simon_player_animation_pose_top_right_wait: [
 		{
 			expected_bool: false,
 			action: 'CHECK_FOR_BUTTON_STATE',
@@ -55598,7 +55598,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: true,
 		},
 		{
@@ -55614,11 +55614,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f14370',
 		},
 	],
-	'simon-player-do-move': [
+	simon_player_do_move: [
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 0,
 			jump_index: 'bodyStart ZIGZAG 14449',
@@ -55626,7 +55626,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 1,
 			jump_index: 'bodyStart ZIGZAG 14601',
@@ -55634,7 +55634,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 2,
 			jump_index: 'bodyStart ZIGZAG 14754',
@@ -55642,7 +55642,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 3,
 			jump_index: 'bodyStart ZIGZAG 14899',
@@ -55650,7 +55650,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 4,
 			jump_index: 'bodyStart ZIGZAG 15045',
@@ -55658,7 +55658,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-player-move',
+			variable: 'simon_player_move',
 			comparison: '==',
 			value: 5,
 			jump_index: 'bodyStart ZIGZAG 15194',
@@ -55679,7 +55679,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_bottom_left',
+			script: 'simon_player_animation_pose_bottom_left',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55697,7 +55697,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_bottom_right',
+			script: 'simon_player_animation_pose_bottom_right',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55715,7 +55715,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_left',
+			script: 'simon_player_animation_pose_left',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55733,7 +55733,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_right',
+			script: 'simon_player_animation_pose_right',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55751,7 +55751,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_top_left',
+			script: 'simon_player_animation_pose_top_left',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55769,7 +55769,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'simon-player-animation-pose_top_right',
+			script: 'simon_player_animation_pose_top_right',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55781,13 +55781,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-wait',
+			script: 'simon_player_wait',
 		},
 	],
-	'simon-player-wait': [
+	simon_player_wait: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 15393',
 		},
@@ -55801,7 +55801,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-wait-finished',
+			script: 'simon_player_wait_finished',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55812,10 +55812,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f15431',
 		},
 	],
-	'simon-player-wait-finished': [
+	simon_player_wait_finished: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'simon-player-wait-finished',
+			save_flag: 'simon_player_wait_finished',
 			bool_value: false,
 		},
 		{
@@ -55836,7 +55836,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-move-fail',
+			save_flag: 'ch2_simon_move_fail',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 15717',
 		},
@@ -55850,7 +55850,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-lose',
+			script: 'simon_game_lose',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55862,20 +55862,20 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-player-turn-loop-start',
+			script: 'simon_player_turn_loop_start',
 		},
 	],
-	'simon-player-turn-end': [
+	simon_player_turn_end: [
 		{
 			action: 'MUTATE_VARIABLE',
-			variable: 'simon-round',
+			variable: 'simon_round',
 			operation: 'ADD',
 			value: 1,
 		},
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
-			variable: 'simon-round',
+			variable: 'simon_round',
 			comparison: '>',
 			value: 7,
 			jump_index: 'bodyStart ZIGZAG 15878',
@@ -55890,7 +55890,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-win',
+			script: 'simon_game_win',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -55902,10 +55902,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-enemy-turn-start',
+			script: 'simon_enemy_turn_start',
 		},
 	],
-	'simon-game-lose': [
+	simon_game_lose: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -55917,11 +55917,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Keyboard',
-			script: 'simon-rock',
+			script: 'simon_rock',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 16130',
 		},
@@ -55957,12 +55957,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-lose',
+			script: 'screen_lights_lose',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'player-lose',
+			script: 'player_lose',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -55993,10 +55993,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-go-again',
+			script: 'simon_game_go_again',
 		},
 	],
-	'simon-game-win': [
+	simon_game_win: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -56007,7 +56007,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 16691',
 		},
@@ -56039,16 +56039,16 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-win',
+			script: 'screen_lights_win',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'player-win',
+			script: 'player_win',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 16855',
 		},
@@ -56107,13 +56107,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 17191',
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-go-again',
+			script: 'simon_game_go_again',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -56125,7 +56125,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'simon-game-restore-positions',
+			script: 'simon_game_restore_positions',
 		},
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
@@ -56178,7 +56178,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			bool_value: true,
 		},
 		{
@@ -56194,7 +56194,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f18647',
 		},
 	],
-	'simon-game-restore-positions': [
+	simon_game_restore_positions: [
 		{
 			action: 'SCREEN_FADE_OUT',
 			color: '#000000',
@@ -56235,10 +56235,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 400,
 		},
 	],
-	'simon-game-go-again': [
+	simon_game_go_again: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'simon-game-restore-positions',
+			script: 'simon_game_restore_positions',
 		},
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
@@ -56250,16 +56250,16 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-31-simon.mgs:621:2',
 		},
 	],
-	'simon-game-go-again-yes': [
+	simon_game_go_again_yes: [
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-start-q-reprise',
+			script: 'simon_game_start_q_reprise',
 		},
 	],
-	'simon-game-start-q-reprise': [
+	simon_game_start_q_reprise: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 19408',
 		},
@@ -56288,7 +56288,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f19984',
 		},
 	],
-	'player-win': [
+	player_win: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -56340,7 +56340,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'player-lose': [
+	player_lose: [
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
 			entity: '%PLAYER%',
@@ -56392,7 +56392,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'simon-rock': [
+	simon_rock: [
 		{
 			action: 'SET_ENTITY_DIRECTION',
 			entity: 'Simon',
@@ -56416,7 +56416,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			play_count: 2,
 		},
 	],
-	'screen-lights-bits': [
+	screen_lights_bits: [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'LED_BIT1',
@@ -56458,7 +56458,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			enabled: true,
 		},
 	],
-	'screen-lights-flash-battle-low': [
+	screen_lights_flash_battle_low: [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'LED_BIT1',
@@ -56493,7 +56493,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 200,
 		},
 	],
-	'screen-lights-flash-battle-high': [
+	screen_lights_flash_battle_high: [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'LED_MEM0',
@@ -56528,7 +56528,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 200,
 		},
 	],
-	'screen-lights-lose': [
+	screen_lights_lose: [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'ALL',
@@ -56616,7 +56616,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'screen-lights-bits',
+			script: 'screen_lights_bits',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -56633,7 +56633,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'screen-lights-bits',
+			script: 'screen_lights_bits',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -56653,7 +56653,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'screen-lights-win': [
+	screen_lights_win: [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'ALL',
@@ -57007,12 +57007,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-high',
+			save_flag: 'ch2_simon_heard_high',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-heard-low',
+			save_flag: 'ch2_simon_heard_low',
 			bool_value: false,
 		},
 		{
@@ -57036,31 +57036,31 @@ export const idk: Record<string, TYPES.Action[]> = {
 			is_fail: false,
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
 			command: 'simon',
-			script: 'debug-simon',
+			script: 'debug_simon',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'simon',
 			argument: 'high',
-			script: 'debug-simon-high',
+			script: 'debug_simon_high',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'simon',
 			argument: 'low',
-			script: 'debug-simon-low',
+			script: 'debug_simon_low',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'simon',
 			argument: 'win',
-			script: 'debug-simon-win',
+			script: 'debug_simon_win',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'simon',
 			argument: 'lose',
-			script: 'debug-simon-lose',
+			script: 'debug_simon_lose',
 		},
 		{
 			action: 'SHOW_SERIAL_DIALOG',
@@ -57076,44 +57076,44 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f4377',
 		},
 	],
-	'debug-simon': [
+	debug_simon: [
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 	],
-	'debug-simon-low': [
+	debug_simon_low: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			bool_value: false,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 	],
-	'debug-simon-high': [
+	debug_simon_high: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-high',
+			save_flag: 'ch2_simon_high',
 			bool_value: true,
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 	],
-	'debug-simon-win': [
+	debug_simon_win: [
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-win',
+			script: 'simon_game_win',
 		},
 	],
-	'debug-simon-lose': [
+	debug_simon_lose: [
 		{
 			action: 'RUN_SCRIPT',
-			script: 'simon-game-lose',
+			script: 'simon_game_lose',
 		},
 	],
 	on_tick_ch2_castle_31: [],
@@ -57220,7 +57220,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_theodore: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5601',
 		},
@@ -57258,7 +57258,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_alvin: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5965',
 		},
@@ -57322,7 +57322,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-won-before',
+			save_flag: 'ch2_simon_won_before',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7363',
 		},
@@ -57339,7 +57339,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-repeat-backstory',
+			save_flag: 'ch2_simon_repeat_backstory',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 8847',
 		},
@@ -57361,7 +57361,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-repeat-backstory',
+			save_flag: 'ch2_simon_repeat_backstory',
 			bool_value: true,
 		},
 		{
@@ -57380,7 +57380,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-simon-repeat-brunhilda-backstory',
+			save_flag: 'ch2_simon_repeat_brunhilda_backstory',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 9360',
 		},
@@ -57413,7 +57413,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-simon-repeat-brunhilda-backstory',
+			save_flag: 'ch2_simon_repeat_brunhilda_backstory',
 			bool_value: true,
 		},
 		{
@@ -57434,7 +57434,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -57491,7 +57491,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Alvin',
-			script: 'camera-angry-shake',
+			script: 'camera_angry_shake',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -57535,7 +57535,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -57556,7 +57556,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'simon-game-launcher',
+			script: 'simon_game_launcher',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -57594,7 +57594,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_gloria_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -57615,7 +57615,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_tracy_end: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -57645,10 +57645,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-keyboard': [
+	ch2_touch_keyboard: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-keyboard-firstlook',
+			save_flag: 'ch2_keyboard_firstlook',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 11460',
 		},
@@ -57666,7 +57666,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-keyboard-firstlook',
+			save_flag: 'ch2_keyboard_firstlook',
 			bool_value: true,
 		},
 		{
@@ -57724,7 +57724,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f11995',
 		},
 	],
-	'camera-angry-shake': [
+	camera_angry_shake: [
 		{
 			action: 'SET_SCREEN_SHAKE',
 			frequency: 100,
@@ -58076,7 +58076,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'want',
 			argument: 'chips',
-			script: 'debug-want-chips',
+			script: 'debug_want_chips',
 		},
 		{
 			action: 'SHOW_SERIAL_DIALOG',
@@ -58092,10 +58092,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f4871',
 		},
 	],
-	'debug-want-chips': [
+	debug_want_chips: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-ramchips',
+			save_flag: 'ch2_want_ramchips',
 			bool_value: true,
 		},
 	],
@@ -58487,7 +58487,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'PLAY_ENTITY_ANIMATION',
@@ -58513,7 +58513,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%SELF%',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -58569,7 +58569,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_samson: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
@@ -58704,7 +58704,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 10395',
 		},
@@ -58716,13 +58716,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 10395',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-bobparty',
+			save_flag: 'ch2_want_bobparty',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 10579',
 		},
@@ -58917,12 +58917,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-want-bobparty',
+			save_flag: 'ch2_want_bobparty',
 			bool_value: true,
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'ch2-handoff-cactuscooler-to-bobaustin',
+			script: 'ch2_handoff_cactuscooler_to_bobaustin',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -58936,11 +58936,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_seamoss: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-ramchips',
+			save_flag: 'ch2_want_ramchips',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 11918',
 		},
@@ -59250,10 +59250,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 			string: ' ',
 		},
 	],
-	'ch2-touch-ramchips': [
+	ch2_touch_ramchips: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ramchips-firstlook',
+			save_flag: 'ch2_ramchips_firstlook',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 15901',
 		},
@@ -59275,7 +59275,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-ramchips-firstlook',
+			save_flag: 'ch2_ramchips_firstlook',
 			bool_value: true,
 		},
 		{
@@ -59291,7 +59291,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-32.mgs:505:2',
 		},
 	],
-	'ch2-touch-ramchips-yes': [
+	ch2_touch_ramchips_yes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-32.mgs:512:2',
@@ -59315,7 +59315,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-ramchips-no': [
+	ch2_touch_ramchips_no: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-32.mgs:521:2',
@@ -59323,7 +59323,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: '%SELF%',
-			script: 'ch2-touch-ramchips',
+			script: 'ch2_touch_ramchips',
 		},
 	],
 	look_ch2_castle_33: [
@@ -59690,7 +59690,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2_load_castle_32_special',
 		},
 	],
-	'screen-lights-flash-bits': [
+	'screen_lights_flash-bits': [
 		{
 			action: 'SET_LIGHTS_STATE',
 			lights: 'LED_BIT1',
@@ -59783,7 +59783,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_gregory: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -59968,11 +59968,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Gregory',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -60038,7 +60038,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Gregory',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -60056,7 +60056,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Lights',
-			script: 'screen-lights-flash-bits',
+			script: 'screen_lights_flash-bits',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -60113,7 +60113,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6897',
 		},
@@ -60125,7 +60125,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6897',
 		},
@@ -60196,11 +60196,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Gregory',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -60213,7 +60213,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6279',
 		},
@@ -60225,7 +60225,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6279',
 		},
@@ -60310,7 +60310,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-touch-mouse': [
+	ch2_touch_mouse: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-33.mgs:333:2',
@@ -60481,7 +60481,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: 'Mouse',
-			script: 'ch2-touch-mouse',
+			script: 'ch2_touch_mouse',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
@@ -61254,7 +61254,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_INTERACT_SCRIPT',
 			entity: 'Mouse',
-			script: 'ch2-touch-mouse',
+			script: 'ch2_touch_mouse',
 		},
 		{
 			inbound: true,
@@ -67920,7 +67920,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_pantryfridge: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3948',
 		},
@@ -67932,7 +67932,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 3948',
 		},
@@ -67964,7 +67964,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_pantryshelf: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4291',
 		},
@@ -67976,7 +67976,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4291',
 		},
@@ -68037,7 +68037,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-plate-firstlook',
+			save_flag: 'ch2_plate_firstlook',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 5107',
 		},
@@ -68047,7 +68047,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-plate-firstlook',
+			save_flag: 'ch2_plate_firstlook',
 			bool_value: true,
 		},
 		{
@@ -68190,7 +68190,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -68220,7 +68220,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-cactuscooler',
+			save_flag: 'ch2_want_cactuscooler',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7654',
 		},
@@ -68232,7 +68232,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 7654',
 		},
@@ -68294,7 +68294,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -68317,7 +68317,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f8683',
 		},
 	],
-	'ch2-touch-plate': [
+	ch2_touch_plate: [
 		{
 			expected_bool: true,
 			action: 'CHECK_VARIABLE',
@@ -68362,7 +68362,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-plate-firstlook',
+			save_flag: 'ch2_plate_firstlook',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 8838',
 		},
@@ -68380,7 +68380,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-plate-firstlook',
+			save_flag: 'ch2_plate_firstlook',
 			bool_value: true,
 		},
 		{
@@ -68737,7 +68737,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2_carrying_minirake-99',
+			save_flag: 'ch2_carrying_minirake_99',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4904',
 		},
@@ -68813,7 +68813,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'ch2-cutscene-castle99',
+			script: 'ch2_cutscene_castle99',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -68946,7 +68946,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-cutscene-castle99': [
+	ch2_cutscene_castle99: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -69178,7 +69178,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			dialog: 'ch2-castle-99.mgs:273:2',
 		},
 	],
-	'ch2-cutscene-castle99-dangeryes': [
+	ch2_cutscene_castle99_dangeryes: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-99.mgs:282:2',
@@ -69194,10 +69194,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'ch2-cutscene-castle99-continue',
+			script: 'ch2_cutscene_castle99_continue',
 		},
 	],
-	'ch2-cutscene-castle99-dangeridk': [
+	ch2_cutscene_castle99_dangeridk: [
 		{
 			action: 'SHOW_DIALOG',
 			dialog: 'ch2-castle-99.mgs:293:2',
@@ -69213,10 +69213,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'ch2-cutscene-castle99-continue',
+			script: 'ch2_cutscene_castle99_continue',
 		},
 	],
-	'ch2-cutscene-castle99-os-pickup': [
+	ch2_cutscene_castle99_os_pickup: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 350,
@@ -69242,7 +69242,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-cutscene-castle99-os-pickup-return': [
+	ch2_cutscene_castle99_os_pickup_return: [
 		{
 			action: 'NON_BLOCKING_DELAY',
 			duration: 150,
@@ -69283,11 +69283,11 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	'ch2-cutscene-castle99-continue': [
+	ch2_cutscene_castle99_continue: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'ch2-cutscene-castle99-os-pickup',
+			script: 'ch2_cutscene_castle99_os_pickup',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -69315,7 +69315,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'ch2-cutscene-castle99-os-pickup-return',
+			script: 'ch2_cutscene_castle99_os_pickup_return',
 		},
 		{
 			action: 'SET_ENTITY_MOVEMENT_RELATIVE',
@@ -69507,7 +69507,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_lambda_lab: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_CURRENT_ANIMATION',
@@ -69563,7 +69563,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2_carrying_minirake-99',
+			save_flag: 'ch2_carrying_minirake_99',
 			bool_value: true,
 		},
 		{
@@ -70123,7 +70123,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	ch2_map_init_hex: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1631',
 		},
@@ -70862,7 +70862,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'debug-curr-state',
+			save_flag: 'debug_curr_state',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4390',
 		},
@@ -70889,7 +70889,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'debug-curr-state',
+			save_flag: 'debug_curr_state',
 			bool_value: false,
 		},
 		{
@@ -70902,7 +70902,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'debug-curr-state',
+			save_flag: 'debug_curr_state',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4151',
 		},
@@ -70929,7 +70929,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'debug-curr-state',
+			save_flag: 'debug_curr_state',
 			bool_value: true,
 		},
 		{
@@ -71876,7 +71876,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'look-left-and-right-fast',
+			script: 'look_left_and_right_fast',
 		},
 		{
 			action: 'NON_BLOCKING_DELAY',
@@ -73533,7 +73533,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_trekkie: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -73872,7 +73872,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -73895,7 +73895,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -73918,7 +73918,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -74323,7 +74323,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_manual: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-want-manual',
+			save_flag: 'ch2_want_manual',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4283',
 		},
@@ -74375,7 +74375,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_timmy: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -74554,7 +74554,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -74996,7 +74996,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_zappy: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -75079,7 +75079,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_zippy: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -75262,12 +75262,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Beatrice',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Delmar',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -75363,7 +75363,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Delmar',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -75450,7 +75450,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'ch2-cutscene-delmar-reconnect',
+			script: 'ch2_cutscene_delmar_reconnect',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -75469,7 +75469,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f2914',
 		},
 	],
-	'ch2-cutscene-delmar-reconnect': [
+	ch2_cutscene_delmar_reconnect: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -75577,7 +75577,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_delmar: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
@@ -75671,7 +75671,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_beatrice: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -75933,12 +75933,12 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Beatrice',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Delmar',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -75958,7 +75958,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f8406',
 		},
 	],
-	'debug-get-items-for-round1': [
+	debug_get_items_for_round1: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_pickup_monitor',
@@ -75972,7 +75972,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2_pickup_powersupply',
 		},
 	],
-	'debug-get-items-for-round2': [
+	debug_get_items_for_round2: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_pickup_keyboard',
@@ -75994,7 +75994,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2-solder-harddrive',
 		},
 	],
-	'debug-get-items-for-round3': [
+	debug_get_items_for_round3: [
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_pickup_ramchips',
@@ -76016,7 +76016,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'ch2-solder-cpu',
 		},
 	],
-	'debug-set-flags-to-round0': [
+	debug_set_flags_to_round0: [
 		{
 			action: 'SET_SERIAL_DIALOG_CONTROL',
 			bool_value: true,
@@ -76042,68 +76042,68 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'debug-jump-to-round1': [
+	debug_jump_to_round1: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round1',
+			script: 'debug_set_flags_to_round1',
 		},
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_load_castle_1_special',
 		},
 	],
-	'debug-jump-to-round2': [
+	debug_jump_to_round2: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round2',
+			script: 'debug_set_flags_to_round2',
 		},
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_load_castle_1_special',
 		},
 	],
-	'debug-jump-to-round3': [
+	debug_jump_to_round3: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round3',
+			script: 'debug_set_flags_to_round3',
 		},
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_load_castle_1_special',
 		},
 	],
-	'debug-jump-to-round4': [
+	debug_jump_to_round4: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round4',
+			script: 'debug_set_flags_to_round4',
 		},
 		{
 			action: 'COPY_SCRIPT',
 			script: 'ch2_load_castle_1_special',
 		},
 	],
-	'debug-set-flags-to-round1': [
+	debug_set_flags_to_round1: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round0',
+			script: 'debug_set_flags_to_round0',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-finish-toot',
+			script: 'debug_finish_toot',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-map-flags-for-round1',
+			script: 'debug_map_flags_for_round1',
 		},
 	],
-	'debug-set-flags-to-round2': [
+	debug_set_flags_to_round2: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round1',
+			script: 'debug_set_flags_to_round1',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-get-items-for-round1',
+			script: 'debug_get_items_for_round1',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -76134,17 +76134,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-map-flags-for-round2',
+			script: 'debug_map_flags_for_round2',
 		},
 	],
-	'debug-set-flags-to-round3': [
+	debug_set_flags_to_round3: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round2',
+			script: 'debug_set_flags_to_round2',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-get-items-for-round2',
+			script: 'debug_get_items_for_round2',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -76170,17 +76170,17 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-map-flags-for-round3',
+			script: 'debug_map_flags_for_round3',
 		},
 	],
-	'debug-set-flags-to-round4': [
+	debug_set_flags_to_round4: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round3',
+			script: 'debug_set_flags_to_round3',
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-get-items-for-round3',
+			script: 'debug_get_items_for_round3',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -76211,7 +76211,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-map-flags-for-round4',
+			script: 'debug_map_flags_for_round4',
 		},
 	],
 	'ch2-put_on_map-round1': [
@@ -76386,7 +76386,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'look-powersupply',
 		},
 	],
-	'ch2-handoff-heatsink-to-cactuscooler': [
+	ch2_handoff_heatsink_to_cactuscooler: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2-map-heatsink',
@@ -76398,7 +76398,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			bool_value: true,
 		},
 	],
-	'ch2-handoff-cactuscooler-to-bobaustin': [
+	ch2_handoff_cactuscooler_to_bobaustin: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2-map-cactuscooler-castle',
@@ -76441,7 +76441,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	ch2_pickup_heatsink: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-cactuscooler-delivered',
+			save_flag: 'ch2_cactuscooler_delivered',
 			bool_value: true,
 		},
 		{
@@ -76726,7 +76726,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'look-abacus',
 		},
 	],
-	'ch2-handoff-abacus-to-manual': [
+	ch2_handoff_abacus_to_manual: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2-map-abacus',
@@ -76809,7 +76809,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'look-cpu',
 		},
 	],
-	'ch2-handoff-ramchips-to-seamoss': [
+	ch2_handoff_ramchips_to_seamoss: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2-map-ramchips',
@@ -76885,7 +76885,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			argument: 'monitor',
 		},
 	],
-	'ch2-turn_in-cactuscooler': [
+	ch2_turn_in_cactuscooler: [
 		{
 			action: 'SET_SAVE_FLAG',
 			save_flag: 'ch2_carrying_cactuscooler',
@@ -84520,7 +84520,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_yabbomongo: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -84530,7 +84530,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_marta: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -84613,7 +84613,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_shepherd: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -84701,7 +84701,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_delmar_town: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -84716,7 +84716,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_verthandi: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			expected_bool: true,
@@ -84818,7 +84818,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	interact_ch2_alfonso_verthandi: [
@@ -84896,7 +84896,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -84991,7 +84991,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -85027,7 +85027,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_cat: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -85042,7 +85042,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	interact_ch2_hamster: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			expected_bool: true,
@@ -87009,7 +87009,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2_carrying_minirake-99',
+			save_flag: 'ch2_carrying_minirake_99',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4489',
 		},
@@ -87261,7 +87261,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2151',
 		},
@@ -89433,7 +89433,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-lambda-deletion-backstory',
+			save_flag: 'ch2_lambda_deletion_backstory',
 			bool_value: true,
 		},
 		{
@@ -90485,7 +90485,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'command-parts-fail': [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 3425',
 		},
@@ -90535,7 +90535,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'command-parts': [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 3881',
 		},
@@ -93683,7 +93683,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6077',
 		},
@@ -93912,7 +93912,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'warp-ch2-town-destination-check': [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 7505',
 		},
@@ -94438,7 +94438,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-max-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94472,7 +94472,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94493,7 +94493,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-timmy-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94501,13 +94501,13 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	'show_dialog-kid-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'interrupt-walk',
+			script: 'interrupt_walk',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94515,7 +94515,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'resume-walk',
+			script: 'resume_walk',
 		},
 	],
 	'show_dialog-goose-demo_map': [
@@ -94531,7 +94531,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94557,7 +94557,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94576,7 +94576,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-trekkie-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94586,7 +94586,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-verthandi-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94635,7 +94635,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'show_dialog-smith-demo_map': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 		{
 			action: 'SHOW_DIALOG',
@@ -94828,7 +94828,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'show_dialog-demo-end-dream-q',
 		},
 	],
-	'face-player': [
+	face_player: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: '%SELF%',
@@ -94839,7 +94839,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%SELF%',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
 	'clear-own-tick': [
@@ -95428,7 +95428,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f4448',
 		},
 	],
-	'interrupt-walk': [
+	interrupt_walk: [
 		{
 			inbound: true,
 			action: 'COPY_VARIABLE',
@@ -95453,10 +95453,10 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'face-player',
+			script: 'face_player',
 		},
 	],
-	'resume-walk': [
+	resume_walk: [
 		{
 			inbound: false,
 			action: 'COPY_VARIABLE',
@@ -95761,7 +95761,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			is_fail: false,
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
 			command: 'simon',
-			script: 'debug-menu-simon',
+			script: 'debug_menu_simon',
 		},
 		{
 			is_fail: false,
@@ -95803,25 +95803,25 @@ export const idk: Record<string, TYPES.Action[]> = {
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'skip',
 			argument: '1',
-			script: 'debug-jump-to-round1',
+			script: 'debug_jump_to_round1',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'skip',
 			argument: '2',
-			script: 'debug-jump-to-round2',
+			script: 'debug_jump_to_round2',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'skip',
 			argument: '3',
-			script: 'debug-jump-to-round3',
+			script: 'debug_jump_to_round3',
 		},
 		{
 			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
 			command: 'skip',
 			argument: '4',
-			script: 'debug-jump-to-round4',
+			script: 'debug_jump_to_round4',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -95853,7 +95853,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round4',
+			script: 'debug_set_flags_to_round4',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -95881,7 +95881,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-ring-zero-enabled-in-castle',
+			save_flag: 'ch2_ring_zero_enabled_in_castle',
 			bool_value: true,
 		},
 		{
@@ -95904,7 +95904,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			map: 'ch2-castle-outside',
 		},
 	],
-	'debug-menu-simon': [
+	debug_menu_simon: [
 		{
 			action: 'SET_SERIAL_DIALOG_CONTROL',
 			bool_value: true,
@@ -95926,7 +95926,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-finish-toot',
+			script: 'debug_finish_toot',
 		},
 		{
 			action: 'MUTATE_VARIABLE',
@@ -96016,7 +96016,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	'debug-king': [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round3',
+			script: 'debug_set_flags_to_round3',
 		},
 		{
 			action: 'SET_SAVE_FLAG',
@@ -96030,7 +96030,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'ch2-king-rescued',
+			save_flag: 'ch2_king_rescued',
 			bool_value: true,
 		},
 		{
@@ -96045,7 +96045,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	debug: [
 		{
 			action: 'COPY_SCRIPT',
-			script: 'debug-set-flags-to-round0',
+			script: 'debug_set_flags_to_round0',
 		},
 		{
 			action: 'COPY_SCRIPT',

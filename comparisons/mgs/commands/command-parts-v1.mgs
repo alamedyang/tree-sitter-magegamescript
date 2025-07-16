@@ -72,7 +72,7 @@ man-parts {
 // COMMAND
 command-parts-fail {
 	if (
-		flag ch2-ring-zero-enabled-in-castle is true // the artifact is full power
+		flag ch2_ring_zero_enabled_in_castle is true // the artifact is full power
 		|| variable ch2_in_room is not 0 // OR you're in the castle
 	) {
 		// \`parts\` works normally
@@ -91,7 +91,7 @@ command-parts-fail {
 
 command-parts {
 	if (
-		flag ch2-ring-zero-enabled-in-castle is true // the artifact is full power
+		flag ch2_ring_zero_enabled_in_castle is true // the artifact is full power
 		|| variable ch2_in_room is not 0 // OR you're in the castle
 	) {
 		// \`parts\` works normally

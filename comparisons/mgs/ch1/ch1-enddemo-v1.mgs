@@ -154,7 +154,7 @@ demoend-cutscene {
 		Alfonso "Oh, dear.... Oh, dear!"
 	}
 	turn entity Alfonso toward entity "%PLAYER%";
-	set entity "%PLAYER%" on_tick to look-left-and-right-fast;
+	set entity "%PLAYER%" on_tick to look_left_and_right_fast;
 	show dialog {
 		PLAYER "But I can't fight the Big Bad! What am I supposed to do?"
 	}
@@ -190,7 +190,7 @@ demoend-cutscene {
 		PLAYER "Buh?"
 		Jackob "As a reward for completing the demo, I'll tell you how to unlock debug mode."
 	}
-	set entity Jackob on_tick to look-left-and-right;
+	set entity Jackob on_tick to look_left_and_right;
 	show dialog {
 		Jackob "Press XOR and MEM0 at the same time -- that's the top button on each side of the screen -- and...."
 	}
@@ -260,12 +260,12 @@ on_tick-credits {
 	load map main;
 }
 
-debug-roll-credits-q {
+debug_roll_credits_q {
 	show dialog {
 		SELF alignment BL portrait goldfish
 		"Show credits?"
 		> "Yes" : goto "roll-credits"
-		> "No" : goto "debug-roll-credits-no"
+		> "No" : goto "debug_roll_credits_no"
 	}
 }
 
@@ -274,8 +274,8 @@ roll-credits {
 	load map credits;
 }
 
-debug-roll-credits-no {
-	set entity "%SELF%" on_interact to debug-roll-credits-q;
+debug_roll_credits_no {
+	set entity "%SELF%" on_interact to debug_roll_credits_q;
 }
 
 goose-loiter-honk {

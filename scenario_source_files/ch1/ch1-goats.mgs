@@ -100,7 +100,7 @@ include "header.mgs";
 
 
 "show_dialog-verthandi-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		goto "show_dialog-verthandi-glitched"; // JUMP
 	}

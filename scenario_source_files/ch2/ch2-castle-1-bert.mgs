@@ -6,7 +6,7 @@ include "header.mgs";
 	self direction = entity "Bert";
 }
 
-"ch2-cutscene-bert-secret" {
+"ch2_cutscene_bert_secret" {
 	player_control = off;
 	wait 800ms;
 	entity "Bert" position = geometry "bert-spot";

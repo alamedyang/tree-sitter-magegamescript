@@ -270,13 +270,13 @@ include "header.mgs";
 
 // Bob Austin
 "show_dialog-bobrock-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) { // glitched
 		show dialog { SELF "Sqd'j meha byau jxyi." };
 	} else if (!entity "Bob Austin" intersects geometry "bobzone") { // !glitched && !bobzone
 		// teleport him back into bounds
 		player_control = off;
-		copy!("face-player")
+		copy!(face_player)
 		show dialog { SELF "Goin' back to work."};
 		camera fade out -> #000000 over 500ms;
 		entity "Bob Austin" position = geometry "bob_point";
@@ -363,7 +363,7 @@ include "header.mgs";
 
 // Guardian Bob
 "show_dialog-bobsclub-bob" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "Gung'f n onq fvta." };
 	} else {
@@ -376,7 +376,7 @@ include "header.mgs";
 			player_control = off;
 			wait 120ms;
 			player_control = on;
-			entity "Guardian Bob" on_tick = "look-left-and-right-fast";
+			entity "Guardian Bob" on_tick = "look_left_and_right_fast";
 			show dialog {
 				SELF "Wait. Weren't there two Bob golems last year?"
 			};
@@ -392,7 +392,7 @@ include "header.mgs";
 	if (self glitched) {
 		show dialog { SELF "fhqwhgadshgnsdhjsdbkhsdabkfabkveybvf" };
 	} else {
-		copy!("face-player")
+		copy!(face_player)
 		if (!"strong_bad-backstory") {
 			// hear his "backstory"
 			show dialog {
@@ -416,7 +416,7 @@ include "header.mgs";
 /** ------ BOB MOSS ------ **/
 
 "show_dialog-bobmoss-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		copy!("show_dialog-bobmoss-deglitch")
 		self on_interact = "show_dialog-bobmoss-start";
@@ -433,7 +433,7 @@ include "header.mgs";
 		"I've made so many squirrel friends, and...."
 	};
 	entity "Bob Moss" on_tick = null_script;
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "Oh!"
 		"I didn't realize how late it was getting. I think I might be late for work."
@@ -454,7 +454,7 @@ include "header.mgs";
 "show_dialog-bobmoss-start-s" {
 	// can't zigzag this without editing the Tiled map... todo later
 	// (What the crap does this mean?? ^^)
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		copy!("show_dialog-bobmoss-deglitch")
 		self on_interact = "show_dialog-bobmoss-start-s";
@@ -482,48 +482,48 @@ include "header.mgs";
 
 /* --- DEBUG --- */
 
-"debug-begin-flail" {
+"debug_begin_flail" {
 	copy!("begin-flail")
-	self on_interact = "debug-end-flail";
+	self on_interact = "debug_end_flail";
 }
-"debug-end-flail" {
+"debug_end_flail" {
 	copy!("end-flail")
-	self on_interact = "debug-begin-flail";
+	self on_interact = "debug_begin_flail";
 }
 
-"debug-bob-q" {
-	copy!("face-player")
+"debug_bob_q" {
+	copy!(face_player)
 	show dialog {
 		SELF
 		"How to Bob?"
-		> "Skip Bob Austin conversation" = "debug-bob-skipconvo"
-		> "Above + set name Bob" = "debug-bob-also-setnamebob"
-		> "Skip cutscene and teleport" = "debug-bob-teleport"
-		> "Never mind" = "debug-bob-no"
+		> "Skip Bob Austin conversation" = "debug_bob_skipconvo"
+		> "Above + set name Bob" = "debug_bob_also_setnamebob"
+		> "Skip cutscene and teleport" = "debug_bob_teleport"
+		> "Never mind" = "debug_bob_no"
 	};
 }
-"debug-bob-skipconvo" {
+"debug_bob_skipconvo" {
 	"bobrock-backstory" = true;
 	show dialog {
 		SELF "Bob Austin has been spoken to."
 	};
-	self on_interact = "debug-bob-q";
+	self on_interact = "debug_bob_q";
 }
-"debug-bob-also-setnamebob" {
+"debug_bob_also_setnamebob" {
 	player name = "Bob";
 	"bobrock-backstory" = true;
 	show dialog {
 		SELF "Bob Austin has been spoken to, and your name is Bob."
 	};
-	self on_interact = "debug-bob-q";
+	self on_interact = "debug_bob_q";
 }
-"debug-bob-teleport" {
+"debug_bob_teleport" {
 	"bobsclub-entered" = true;
 	show dialog {
 		SELF "Teleportation in progress."
 	};
 	load map "bobsclub";
 }
-"debug-bob-no" {
-	self on_interact = "debug-bob-q";
+"debug_bob_no" {
+	self on_interact = "debug_bob_q";
 }

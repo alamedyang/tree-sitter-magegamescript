@@ -120,9 +120,9 @@ snake_box-interact {
 
 interact_ch2_pantryfridge {
 	if (
-		flag ch2-want-cactuscooler is false
+		flag ch2_want_cactuscooler is false
 		|| flag ch2_carrying_cactuscooler is true
-		|| flag ch2-cactuscooler-delivered is true
+		|| flag ch2_cactuscooler_delivered is true
 	) {
 		show dialog {
 			PLAYER "Meats and fruits and vegetables... oh my."
@@ -135,9 +135,9 @@ interact_ch2_pantryfridge {
 }
 interact_ch2_pantryshelf {
 	if (
-		flag ch2-want-cactuscooler is false
+		flag ch2_want_cactuscooler is false
 		|| flag ch2_carrying_cactuscooler is true
-		|| flag ch2-cactuscooler-delivered is true
+		|| flag ch2_cactuscooler_delivered is true
 	) {
 		show dialog {
 		PLAYER "Looks like a lot of dry and canned goods."
@@ -162,7 +162,7 @@ ch2-iron-content {
 	show dialog {
 		PLAYER "Yeah."
 	}
-	if (flag ch2-plate-firstlook is true) {
+	if (flag ch2_plate_firstlook is true) {
 		show dialog {
 			Clara "Well, the plates are in there."
 			PLAYER "The PlateMover 9000?"
@@ -171,7 +171,7 @@ ch2-iron-content {
 		show dialog {
 			Clara "Well, that thing is a PlateMover 9000. The plates are in there."
 		}
-		set flag ch2-plate-firstlook to true;
+		set flag ch2_plate_firstlook to true;
 	}
 	turn entity "%PLAYER%" toward entity Clara;
 	show dialog {
@@ -226,7 +226,7 @@ Cactus Cooler    .     X        .     X
 
 interact_ch2_clara {
 	if (variable ch2_storyflag_round is < 2) {
-		copy interrupt-walk;
+		copy interrupt_walk;
 		if (flag ch2_clara_backstory is false) {
 			show dialog {
 				SELF "Holy crap -- a new person!"
@@ -234,9 +234,9 @@ interact_ch2_clara {
 			}
 		}
 		if (
-			flag ch2-want-cactuscooler is false
+			flag ch2_want_cactuscooler is false
 			|| flag ch2_carrying_cactuscooler is true
-			|| flag ch2-cactuscooler-delivered is true
+			|| flag ch2_cactuscooler_delivered is true
 		) {
 			if (flag ch2_clara_backstory is false) {
 				// just so it doesn't take this branch the first time:
@@ -251,7 +251,7 @@ interact_ch2_clara {
 				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
 			}
 		}
-		copy resume-walk;
+		copy resume_walk;
 	} else if (flag ch2_jukebox_backstory is true) {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
@@ -267,9 +267,9 @@ interact_ch2_clara {
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
 
-ch2-touch-plate {
+ch2_touch_plate {
 	if (variable ch2_storyflag_round is < 2) {
-		if (flag ch2-plate-firstlook is false) {
+		if (flag ch2_plate_firstlook is false) {
 			show dialog {
 				PLAYER "This thing is a PlateMover 90?"
 				Clara "Oh, it's actually a PlateMover 9000. It's so old, the last few numbers have worn off."
@@ -277,7 +277,7 @@ ch2-touch-plate {
 				PLAYER "It looks like a jukebox."
 				Clara "It acts like a jukebox."
 			}
-			set flag ch2-plate-firstlook to true;
+			set flag ch2_plate_firstlook to true;
 		}
 	} else if (flag ch2_jukebox_backstory is false) {
 		show dialog {

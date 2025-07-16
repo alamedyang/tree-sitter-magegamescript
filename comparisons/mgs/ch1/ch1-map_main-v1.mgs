@@ -365,7 +365,7 @@ show_dialog-cat {
 }
 
 show_dialog-hamster-start {
-	copy face-player;
+	copy face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog {
 			SELF "Mxqj'i jxyi? Q mehbtmytu iybysed ixehjqwu?!"

@@ -74,16 +74,16 @@ on_load_ch2_castle_11 {
 
 	// check if you do the cutscene or not
 	if (flag ch2_cutseen_castle11 is false) {
-		copy ch2-cutscene-castle11;
+		copy ch2_cutscene_castle11;
 	}
 }
 
-ch2-cutscene-castle11 {
+ch2_cutscene_castle11 {
 	turn player control off;
 	wait 500ms;
 	set entity Kuro on_tick to null_script;
-	if (flag ch2-blockage is false) {
-		set flag ch2-blockage to true;
+	if (flag ch2_blockage is false) {
+		set flag ch2_blockage to true;
 		show dialog {
 			PLAYER "Oh, cool, I got past the blockage."
 			"This artifact is handy."
@@ -92,7 +92,7 @@ ch2-cutscene-castle11 {
 	show dialog {
 		name "???" "Intruder! Intruder!"
 	}
-	set entity "%PLAYER%" on_tick to watch-kuro;
+	set entity "%PLAYER%" on_tick to watch_kuro;
 	walk entity Kuro to geometry kuro-walk over 300ms;
 	walk entity Kuro to geometry kuro-spot over 300ms;
 	walk entity Kuro to geometry kuro-walk over 300ms;
@@ -140,7 +140,7 @@ ch2-cutscene-castle11 {
 	show dialog {
 		PLAYER "So I need a monitor. Lambda said there was one in here I could use. I think he meant..."
 	}
-	set entity Kuro on_tick to ch2-walk-to-monitor;
+	set entity Kuro on_tick to ch2_walk_to_monitor;
 	set entity "%PLAYER%" on_tick to null_script;
 	walk entity "%PLAYER%" along geometry warp-spot over 1900ms;
 	show dialog {
@@ -152,7 +152,7 @@ ch2-cutscene-castle11 {
 		Kuro "Beats me."
 		PLAYER "Is it... supposed to be showing that stuff?"
 	}
-	set entity Kuro on_tick to kuro-hop;
+	set entity Kuro on_tick to kuro_hop;
 	show dialog {
 		Kuro "Nuh-uh. This thing used to show a dumb \"Welcome to King Gibson's castle\" slideshow."
 		"Guess the computer it was plugged into got damaged in the quake."
@@ -160,13 +160,13 @@ ch2-cutscene-castle11 {
 		PLAYER "So I can take it?"
 		Kuro "Dunno. I guess? I don't think anyone would miss it."
 	}
-	set entity Kuro on_tick to face-player;
+	set entity Kuro on_tick to face_player;
 	turn player control on;
 	set entity "%PLAYER%" on_tick to null_script;
 	set flag ch2_cutseen_castle11 to true;
 }
 
-ch2-walk-to-monitor {
+ch2_walk_to_monitor {
 	wait 300ms;
 	walk entity Kuro along geometry kuro-walk over 650ms;
 	wait 800ms;
@@ -176,15 +176,15 @@ ch2-walk-to-monitor {
 	turn entity Kuro south;
 	wait 180ms;
 	walk entity Kuro along geometry kuro-walk2 over 400ms;
-	set entity Kuro on_tick to face-player;
+	set entity Kuro on_tick to face_player;
 }
-kuro-hop {
+kuro_hop {
 	play entity "%SELF%" animation 1 once;
 	turn entity Kuro east;
 	goto null_script;
 }
 
-watch-kuro {
+watch_kuro {
 	turn entity "%SELF%" toward entity Kuro;
 }
 
@@ -236,18 +236,18 @@ ch2_hide_monitor {
 	set entity "Monitor" name to " ";
 }
 
-ch2-touch-monitor {
+ch2_touch_monitor {
 	show dialog {
 		PLAYER "Is the computer sad? It keeps making frowny faces."
 		Kuro "Computer's basically dead. And I know a dead thing when I see one. Monitor's fine, though."
 	}
 	show dialog {
 		name "" "(Pick up the monitor?)"
-		> "Yes" : ch2-touch-monitor-yes
-		> "No" : ch2-touch-monitor-no
+		> "Yes" : ch2_touch_monitor_yes
+		> "No" : ch2_touch_monitor_no
 	}
 }
-ch2-touch-monitor-yes {
+ch2_touch_monitor_yes {
 	show dialog {
 		PLAYER "Um, how do I take it?"
 		Kuro "Just unplug all the cables from the computer case. One power cable, one data cable."
@@ -260,11 +260,11 @@ ch2-touch-monitor-yes {
 	copy script ch2_hide_monitor;
 	set entity "%SELF%" on_interact to null_script;
 }
-ch2-touch-monitor-no {
+ch2_touch_monitor_no {
 	show dialog {
 		PLAYER "Maybe later, then."
 	}
-	set entity "%SELF%" on_interact to ch2-touch-monitor; // reset after script jump
+	set entity "%SELF%" on_interact to ch2_touch_monitor; // reset after script jump
 }
 
 interact_ch2_kuro {

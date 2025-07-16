@@ -191,7 +191,7 @@ interact_ch2_mainframe {
 
 ch2-start-round-2 {
 	set entity "%PLAYER%" current_animation to 0;
-	copy ch2-cutscene-bert-secret;
+	copy ch2_cutscene_bert_secret;
 	turn player control off;
 	wait 200ms;
 	show serial dialog spacer;
@@ -267,80 +267,80 @@ ch2-start-round-4 {
 
 register-storyflag {
 	register storyflag -> ch2-debug-storyflag;
-	register storyflag + "0" -> debug-map-flags-for-round0;
-	register storyflag + "1" -> debug-map-flags-for-round1;
-	register storyflag + "2" -> debug-map-flags-for-round2;
-	register storyflag + "3" -> debug-map-flags-for-round3;
-	register storyflag + "4" -> debug-map-flags-for-round4;
-	register storyflag + "5" -> debug-map-flags-for-round5;
+	register storyflag + "0" -> debug_map_flags_for_round0;
+	register storyflag + "1" -> debug_map_flags_for_round1;
+	register storyflag + "2" -> debug_map_flags_for_round2;
+	register storyflag + "3" -> debug_map_flags_for_round3;
+	register storyflag + "4" -> debug_map_flags_for_round4;
+	register storyflag + "5" -> debug_map_flags_for_round5;
 }
 
 ch2-debug-storyflag {
 	show serial dialog spacer;
 	show serial dialog {
 		"<y>DEBUG></>: Set flag 'ch2_storyflag_round' to what value? (0-5)"
-		_ "0" : debug-map-flags-for-round0
-		_ "1" : debug-map-flags-for-round1
-		_ "2" : debug-map-flags-for-round2
-		_ "3" : debug-map-flags-for-round3
-		_ "4" : debug-map-flags-for-round4
-		_ "5" : debug-map-flags-for-round5
+		_ "0" : debug_map_flags_for_round0
+		_ "1" : debug_map_flags_for_round1
+		_ "2" : debug_map_flags_for_round2
+		_ "3" : debug_map_flags_for_round3
+		_ "4" : debug_map_flags_for_round4
+		_ "5" : debug_map_flags_for_round5
 	}
 	show serial dialog {
 		"Nothing changed."
 	}
 }
 
-debug-map-flags-for-round0 {
+debug_map_flags_for_round0 {
 	copy ch2-take_off_map-round1;
 	copy ch2-take_off_map-round2;
 	copy ch2-take_off_map-round3;
 	copy ch2-take_off_map-round4;
 	mutate ch2_storyflag_round = 0;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-debug-map-flags-for-round1 {
+debug_map_flags_for_round1 {
 	copy ch2-put_on_map-round1;
 	copy ch2-take_off_map-round2;
 	copy ch2-take_off_map-round3;
 	copy ch2-take_off_map-round4;
 	mutate ch2_storyflag_round = 1;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-debug-map-flags-for-round2 {
+debug_map_flags_for_round2 {
 	copy ch2-take_off_map-round1;
 	copy ch2-put_on_map-round2;
 	copy ch2-take_off_map-round3;
 	copy ch2-take_off_map-round4;
 	mutate ch2_storyflag_round = 2;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-debug-map-flags-for-round3 {
+debug_map_flags_for_round3 {
 	copy ch2-take_off_map-round1;
 	copy ch2-take_off_map-round2;
 	copy ch2-put_on_map-round3;
 	copy ch2-take_off_map-round4;
 	mutate ch2_storyflag_round = 3;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-debug-map-flags-for-round4 {
+debug_map_flags_for_round4 {
 	copy ch2-take_off_map-round1;
 	copy ch2-take_off_map-round2;
 	copy ch2-take_off_map-round3;
 	copy ch2-put_on_map-round4;
 	mutate ch2_storyflag_round = 4;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-debug-map-flags-for-round5 {
+debug_map_flags_for_round5 {
 	copy ch2-take_off_map-round1;
 	copy ch2-take_off_map-round2;
 	copy ch2-take_off_map-round3;
 	copy ch2-take_off_map-round4;
 	mutate ch2_storyflag_round = 5;
 	set flag ch2_cutseen_castle99 to true;
-	// copy ch2-debug-storyflag-log;
+	// copy ch2-debug_storyflag_log;
 }
-ch2-debug-storyflag-log {
+ch2-debug_storyflag_log {
 	show serial dialog spacer;
 	show serial dialog {
 		"Flag 'ch2_storyflag_round' is now $ch2_storyflag_round$"
@@ -410,7 +410,7 @@ ch2_load_castle_13_special {
 ch2_load_castle_14_special {
 	if (
 		variable ch2_storyflag_round is >= 5
-		|| flag ch2-king-rescued is true
+		|| flag ch2_king_rescued is true
 	) {
 		load map ch2-castle-14-postgame;
 	} else {
@@ -419,14 +419,14 @@ ch2_load_castle_14_special {
 }
 ch2_load_castle_21_special {
 	if (variable ch2_storyflag_round is >= 5) {
-		load map ch2-castle-21-postgame;
+		load map ch2_castle_21_postgame;
 	} else {
 		load map ch2-castle-21;
 	}
 }
 ch2_load_castle_22_special {
 	if (variable ch2_storyflag_round is >= 5) {
-		load map ch2-castle-22-postgame;
+		load map ch2_castle_22_postgame;
 	} else {
 		load map ch2-castle-22;
 	}

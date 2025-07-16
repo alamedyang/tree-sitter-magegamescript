@@ -166,7 +166,7 @@ ch2-escort-cutscene {
 		PLAYER "Yeah. I mean, no. I mean...."
 	}
 	wait 150ms;
-	set entity "%PLAYER%" on_tick to look-left-and-right-fast;
+	set entity "%PLAYER%" on_tick to look_left_and_right_fast;
 	wait 300ms;
 	show dialog {
 		PLAYER "Wait, weren't you supposed to bring me a book this morning? A book about the cereal castle?"
@@ -189,7 +189,7 @@ ch2-escort-cutscene {
 		Alfonso "You have demonstrated incredible competence with what you've already done with Ring Zero, so we are confident you can work your way through the castle on your own."
 	}
 	wait 100ms;
-	set entity "%PLAYER%" on_tick to look-left-and-right-fast;
+	set entity "%PLAYER%" on_tick to look_left_and_right_fast;
 	wait 200ms;
 	show dialog {
 		PLAYER "On my own? You aren't coming inside with me?"

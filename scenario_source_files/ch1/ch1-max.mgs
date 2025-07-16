@@ -69,10 +69,10 @@ include "header.mgs";
 	if (player type != "pipscat") {
 		goto "on_tick-max-neutral";
 	}
-	entity "Felix" on_tick = "face-player";
-	entity "Maru" on_tick = "face-player";
-	entity "B. Murray" on_tick = "face-player";
-	entity "Deuteronomy" on_tick = "face-player";
+	entity "Felix" on_tick = "face_player";
+	entity "Maru" on_tick = "face_player";
+	entity "B. Murray" on_tick = "face_player";
+	entity "Deuteronomy" on_tick = "face_player";
 	if (player current_animation == 2) {
 		goto "on_tick-max-thumbwatch";
 	}
@@ -201,13 +201,13 @@ include "header.mgs";
 			SELF "Azr. Vm jvbyzl aolyl'k il huvaoly jvtwspjhapvu!"
 		};
 	} else if ("storyflag-catwork") {
-		copy!("face-player")
+		copy!(face_player)
 		show dialog {
 			entity "Max Swagger"
 			"Finally! Now work on my fashion shop can progress!"
 		};
 	} else if (player type == "pipscat") {
-		copy!("face-player")
+		copy!(face_player)
 		show dialog {
 			entity "Max Swagger"
 			"Oh! The cat boss, here at last!"
@@ -216,7 +216,7 @@ include "header.mgs";
 		copy!("set-hint-max")
 		"max-backstory" = true;
 	} else if ("max-backstory") {
-		copy!("face-player")
+		copy!(face_player)
 		show dialog {
 			SELF "All the crew needs to begin now is a thumbs up from their boss!"
 			"Where is that cat?"
@@ -225,7 +225,7 @@ include "header.mgs";
 	} else {
 		player_control = off;
 		wait 200ms;
-		copy!("face-player")
+		copy!(face_player)
 		wait 400ms;
 		show dialog {
 			SELF "Ah, yes! I know you!"
@@ -249,7 +249,7 @@ include "header.mgs";
 			SELF "The CONSTRUCTION CREW must finish building the interior!!"
 		};
 		wait 200ms;
-		copy!("face-player")
+		copy!(face_player)
 		wait 400ms;
 		show dialog {
 			SELF "They have everything they need to begin and yet they won't do any work!"
@@ -270,7 +270,7 @@ include "header.mgs";
 			SELF "Yes, of course! Of course the boss must approve first!"
 		};
 		wait 200ms;
-		copy!("face-player")
+		copy!(face_player)
 		wait 400ms;
 		show dialog {
 			SELF "But the boss is nowhere around!"

@@ -123,7 +123,7 @@ on_load_ch2_castle_32 {
 
 	// DEBUG
 	if (debug mode is on) {
-		register want + chips -> debug-want-chips;
+		register want + chips -> debug_want_chips;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> <c>WANT CHIPS</>"
@@ -132,8 +132,8 @@ on_load_ch2_castle_32 {
 	// END DEBUG
 }
 
-debug-want-chips {
-	set flag ch2-want-ramchips to true;
+debug_want_chips {
+	set flag ch2_want_ramchips to true;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -234,7 +234,7 @@ interact_ch2_stove {
 interact_ch2_gloria {
 	turn player control off;
 	set entity "%SELF%" on_tick to null_script;
-	copy face-player;
+	copy face_player;
 	play entity "%SELF%" animation 3 once;
 	set entity "%SELF%" current_animation to 4;
 	if (flag ch2_gloria_backstory is false) {
@@ -248,7 +248,7 @@ interact_ch2_gloria {
 		show dialog {
 			SELF "Are you here to rescue us? Please, Samson is so upset."
 		}
-		set entity "%SELF%" on_tick to face-player;
+		set entity "%SELF%" on_tick to face_player;
 	}
 	set entity "%SELF%" on_tick to ch2-gloria-worry-walk;
 	play entity "%SELF%" animation 5 once;
@@ -256,7 +256,7 @@ interact_ch2_gloria {
 	turn player control on;
 }
 interact_ch2_samson {
-	copy face-player;
+	copy face_player;
 	set entity "%SELF%" current_animation to 2;
 	if (variable ch2-samson-count is 0) {
 		show dialog {
@@ -326,14 +326,14 @@ interact_ch2_vendingmachine {
 			}
 		}
 	} else if (
-		flag ch2-want-cactuscooler is false
+		flag ch2_want_cactuscooler is false
 		|| flag ch2_carrying_cactuscooler is true
-		|| flag ch2-cactuscooler-delivered is true
+		|| flag ch2_cactuscooler_delivered is true
 	) {
 		show dialog vending-pocket-change { // reused
 			PLAYER "There's sure a lot of snacks in there. Too bad I'm out of pocket change."
 		}
-	} else if (flag ch2-want-bobparty is false) {
+	} else if (flag ch2_want_bobparty is false) {
 		show dialog {
 			PLAYER "Hmm. I thought there might be Cactus Cooler in here, but it's just chips and stuff. No soda."
 		}
@@ -348,8 +348,8 @@ interact_ch2_vendingmachine {
 			PLAYER "(But there's no Bob's Club party this year. Maybe I could go back to town and ask him if he has any extra from last year?)"
 		}
 		turn entity "Sea Moss" toward entity "%PLAYER%";
-		set flag ch2-want-bobparty to true;
-		copy ch2-handoff-cactuscooler-to-bobaustin;
+		set flag ch2_want_bobparty to true;
+		copy ch2_handoff_cactuscooler_to_bobaustin;
 	} else {
 		show dialog {
 			PLAYER "Oh, right. No soda in here."
@@ -368,8 +368,8 @@ interact_ch2_vendingmachine {
 }
 
 interact_ch2_seamoss {
-	copy face-player;
-	if (flag ch2-want-ramchips is false) {
+	copy face_player;
+	if (flag ch2_want_ramchips is false) {
 		if (flag ch2_seamoss_backstory is false) {
 			show dialog {
 				PLAYER "You know, you remind me of Bob Moss."
@@ -492,13 +492,13 @@ ch2_hide_ramchips {
 	// (you must still target this entity with its original name, though)
 }
 
-ch2-touch-ramchips {
-	if (flag ch2-ramchips-firstlook is false) {
+ch2_touch_ramchips {
+	if (flag ch2_ramchips_firstlook is false) {
 		show dialog {
 			PLAYER "That's the biggest bag of chips I've ever seen in my life."
 			"...And it's probably only a quarter full."
 		}
-		set flag ch2-ramchips-firstlook to true;
+		set flag ch2_ramchips_firstlook to true;
 	} else {
 		show dialog {
 			PLAYER "That's an obscene amount of chips."
@@ -506,11 +506,11 @@ ch2-touch-ramchips {
 	}
 	show dialog {
 		name "" "(Pick up the RAM chips?)"
-		> "Yes" : ch2-touch-ramchips-yes
-		> "No" : ch2-touch-ramchips-no
+		> "Yes" : ch2_touch_ramchips_yes
+		> "No" : ch2_touch_ramchips_no
 	}
 }
-ch2-touch-ramchips-yes {
+ch2_touch_ramchips_yes {
 	show dialog {
 		name "" "(You pick up the RAM chips!)"
 	}
@@ -519,9 +519,9 @@ ch2-touch-ramchips-yes {
 	set flag ch2-ramchips-dispensed to false;
 	set entity "%SELF%" on_interact to null_script;
 }
-ch2-touch-ramchips-no {
+ch2_touch_ramchips_no {
 	show dialog {
 		PLAYER "Maybe later, then."
 	}
-	set entity "%SELF%" on_interact to ch2-touch-ramchips;  // reset after script jump
+	set entity "%SELF%" on_interact to ch2_touch_ramchips;  // reset after script jump
 }

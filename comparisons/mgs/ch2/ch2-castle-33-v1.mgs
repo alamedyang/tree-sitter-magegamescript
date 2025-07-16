@@ -120,7 +120,7 @@ const! (
 	$time = 200ms
 )
 
-screen-lights-flash-bits {
+screen_lights_flash-bits {
 	turn light LED_BIT1 on;
 	turn light LED_BIT2 on;
 	turn light LED_BIT4 on;
@@ -153,7 +153,7 @@ interact_ch2_gregory_breakno {
 }
 
 interact_ch2_gregory {
-	copy face-player;
+	copy face_player;
 	if (flag ch2-mousegame is true) {
 		if (flag interrupt is false) {
 			show dialog {
@@ -188,17 +188,17 @@ interact_ch2_gregory {
 				SELF "This wing was recently redone to install a bunch of fancy tech."
 				"These hydroponics trays, the induction stovetops in the next room... that kind of thing."
 			}
-			set entity Gregory on_tick to face-player;
-			copy face-player;
+			set entity Gregory on_tick to face_player;
+			copy face_player;
 			show dialog {
 				SELF "They did some structural reinforcement, too, but don't remember specifics."
 				"At the time, the only thing I cared about was my new stovetop."
 			}
 			set flag ch2_gregory_backstory to true;
 			if (
-				flag ch2-want-cactuscooler is false
+				flag ch2_want_cactuscooler is false
 				|| flag ch2_carrying_cactuscooler is true
-				|| flag ch2-cactuscooler-delivered is true
+				|| flag ch2_cactuscooler_delivered is true
 			) { /*NADA*/ } else {
 				show dialog {
 					PLAYER "Gotcha. So, um...."
@@ -211,9 +211,9 @@ interact_ch2_gregory {
 			}
 		} else {
 			if (
-				flag ch2-want-cactuscooler is false
+				flag ch2_want_cactuscooler is false
 					|| flag ch2_carrying_cactuscooler is true
-					|| flag ch2-cactuscooler-delivered is true
+					|| flag ch2_cactuscooler_delivered is true
 			) {
 				show dialog {
 					SELF "I'm slowing down in my old age, but even so, I don't want my habits ingrained to the point that I'm sabotaging myself. I try to keep my mind spry."
@@ -254,8 +254,8 @@ interact_ch2_gregory {
 			show dialog {
 				SELF "It's loose in this room somewhere, but I'm not as fast as I used to be, and can't quite get ahold of it."
 			}
-			set entity Gregory on_tick to face-player;
-			copy face-player;
+			set entity Gregory on_tick to face_player;
+			copy face_player;
 			show dialog {
 				SELF "It's hiding in one of the hydroponics bins, I should think."
 				PLAYER "I'm sorry... your bluetooth mouse is hiding in the vegetables?"
@@ -274,14 +274,14 @@ interact_ch2_gregory {
 			rotate entity Gregory 1;
 			wait 800ms;
 			rotate entity Gregory -1;
-			set entity Gregory on_tick to face-player;
+			set entity Gregory on_tick to face_player;
 			show dialog {
 				SELF "Here, this is a bluetooth proximity detector. It's got eight lights that will turn on depending on how close you are to the mouse."
 				PLAYER "Eight lights?"
 			}
 			turn lights control on;
 			turn light ALL off;
-			set entity Lights on_tick to screen-lights-flash-bits;
+			set entity Lights on_tick to screen_lights_flash-bits;
 			show dialog {
 				SELF "Yes, these eight lights in a line, here along the bottom. You see?"
 				PLAYER "Um...."
@@ -330,7 +330,7 @@ ch2_hide_mouse {
 	set entity Mouse on_interact to null_script;
 }
 
-ch2-touch-mouse {
+ch2_touch_mouse {
 	show dialog {
 		name "" "(You found the mouse!)"
 	}
@@ -396,7 +396,7 @@ const! (
 
 ch2-debug-mousegame {
 	set entity "Mouse" name to "Mouse";
-	set entity Mouse on_interact to ch2-touch-mouse;
+	set entity Mouse on_interact to ch2_touch_mouse;
 	set entity Mouse on_tick to ch2-mousegame-prepare-board;
 }
 
@@ -513,7 +513,7 @@ ch2-mousegame-prepare-board {
 	show dialog {
 		name "" "(SQUEAK!)"
 	}
-	set entity Mouse on_interact to ch2-touch-mouse;
+	set entity Mouse on_interact to ch2_touch_mouse;
 	copy entity Mouse x into variable mousegame-mouseX;
 	copy entity Mouse y into variable mousegame-mouseY;
 	set flag ch2-mousegame to true;

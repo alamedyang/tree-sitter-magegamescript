@@ -48,7 +48,7 @@ include "header.mgs";
 	} 
 	
 	copy!("set-bender-handler-off")
-	copy!("face-player")
+	copy!(face_player)
 
 	if ("storyflag-bender") {
 		if (entity "Bender" type == "bender") {
@@ -140,7 +140,7 @@ include "header.mgs";
 	entity "Bender" on_tick = null_script;
 }
 "set-bender-handler-on" {
-	entity "Bender" on_tick = "face-player";
+	entity "Bender" on_tick = "face_player";
 	entity "Bob Austin" on_tick = "handler-bender-timer";
 }
 "set-bender-handler-none" {

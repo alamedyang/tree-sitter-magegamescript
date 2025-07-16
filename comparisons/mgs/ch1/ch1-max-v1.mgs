@@ -55,10 +55,10 @@ on_tick-max-neutral {
 }
 on_tick-max-catwatch {
 	if entity "%PLAYER%" type is not pipscat then goto on_tick-max-neutral;
-	set entity Felix on_tick to face-player;
-	set entity Maru on_tick to face-player;
-	set entity "B. Murray" on_tick to face-player;
-	set entity Deuteronomy on_tick to face-player;
+	set entity Felix on_tick to face_player;
+	set entity Maru on_tick to face_player;
+	set entity "B. Murray" on_tick to face_player;
+	set entity Deuteronomy on_tick to face_player;
 	if entity "%PLAYER%" current_animation is 2 then goto on_tick-max-thumbwatch;
 }
 on_tick-max-thumbwatch {
@@ -175,13 +175,13 @@ show_dialog-max-start {
 			SELF "Azr. Vm jvbyzl aolyl'k il huvaoly jvtwspjhapvu!"
 		}
 	} else if (flag storyflag-catwork is true) {
-		copy face-player;
+		copy face_player;
 		show dialog {
 			entity "Max Swagger"
 			"Finally! Now work on my fashion shop can progress!"
 		}
 	} else if (entity "%PLAYER%" type is pipscat) {
-		copy face-player;
+		copy face_player;
 		show dialog {
 			entity "Max Swagger"
 			"Oh! The cat boss, here at last!"
@@ -190,7 +190,7 @@ show_dialog-max-start {
 		copy set-hint-max;
 		set flag max-backstory to true;
 	} else if (flag max-backstory is true) {
-		copy face-player;
+		copy face_player;
 		show dialog {
 			SELF "All the crew needs to begin now is a thumbs up from their boss!"
 			"Where is that cat?"
@@ -199,7 +199,7 @@ show_dialog-max-start {
 	} else {
 		turn player control off;
 		wait 200ms;
-		copy face-player;
+		copy face_player;
 		wait 400ms;
 		show dialog {
 			SELF "Ah, yes! I know you!"
@@ -223,7 +223,7 @@ show_dialog-max-start {
 			SELF "The CONSTRUCTION CREW must finish building the interior!!"
 		}
 		wait 200ms;
-		copy face-player;
+		copy face_player;
 		wait 400ms;
 		show dialog {
 			SELF "They have everything they need to begin and yet they won't do any work!"
@@ -244,7 +244,7 @@ show_dialog-max-start {
 			SELF "Yes, of course! Of course the boss must approve first!"
 		}
 		wait 200ms;
-		copy face-player;
+		copy face_player;
 		wait 400ms;
 		show dialog {
 			SELF "But the boss is nowhere around!"

@@ -80,7 +80,7 @@ include "header.mgs";
 
 "on_load_ch2_castle_32_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2_in_room" = 32;
+	ch2_in_room = 32;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE KITCHEN</>..." };
@@ -94,7 +94,7 @@ include "header.mgs";
 }
 "on_load_ch2_castle_32" {
 	// ch2 room state
-	"ch2_in_room" = 32;
+	ch2_in_room = 32;
 	entity "Gloria" position = geometry "worry-walk2";
 	entity "Gloria" direction = entity "Samson";
 
@@ -123,7 +123,7 @@ include "header.mgs";
 
 	// DEBUG
 	if (debug_mode) {
-		command "want" + "chips" = "debug-want-chips";
+		command "want" + "chips" = "debug_want_chips";
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> <c>WANT CHIPS</>"
@@ -132,8 +132,8 @@ include "header.mgs";
 	// END DEBUG
 }
 
-"debug-want-chips" {
-	"ch2-want-ramchips" = true;
+"debug_want_chips" {
+	"ch2_want_ramchips" = true;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -195,7 +195,7 @@ $walkspeed = 200ms;
 /* ---------- EXIT STUFF ---------- */
 
 "on_exit_ch2_castle_32" { // sanitize ch2 room state
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 }
 
 // SERIAL: go
@@ -233,7 +233,7 @@ $walkspeed = 200ms;
 "interact_ch2_gloria" {
 	player_control = off;
 	self on_tick = null_script;
-	copy!("face-player")
+	copy!(face_player)
 	self animation -> 3 once;
 	self current_animation = 4;
 	if (!"ch2_gloria_backstory") {
@@ -247,7 +247,7 @@ $walkspeed = 200ms;
 		show dialog {
 			SELF "Are you here to rescue us? Please, Samson is so upset."
 		};
-		self on_tick = "face-player";
+		self on_tick = "face_player";
 	}
 	self on_tick = "ch2-gloria-worry-walk";
 	self animation -> 5 once;
@@ -255,7 +255,7 @@ $walkspeed = 200ms;
 	player_control = on;
 }
 "interact_ch2_samson" {
-	copy!("face-player")
+	copy!(face_player)
 	self current_animation = 2;
 	if ("ch2-samson-count" == 0) {
 		show dialog {
@@ -325,14 +325,14 @@ $walkspeed = 200ms;
 			};
 		}
 	} else if (
-		!"ch2-want-cactuscooler"
+		!"ch2_want_cactuscooler"
 		|| "ch2_carrying_cactuscooler"
-		|| "ch2-cactuscooler-delivered"
+		|| "ch2_cactuscooler_delivered"
 	) {
 		show dialog "vending-pocket-change" { // reused
 			PLAYER "There's sure a lot of snacks in there. Too bad I'm out of pocket change."
 		};
-	} else if (!"ch2-want-bobparty") {
+	} else if (!"ch2_want_bobparty") {
 		show dialog {
 			PLAYER "Hmm. I thought there might be Cactus Cooler in here, but it's just chips and stuff. No soda."
 		};
@@ -347,8 +347,8 @@ $walkspeed = 200ms;
 			PLAYER "(But there's no Bob's Club party this year. Maybe I could go back to town and ask him if he has any extra from last year?)"
 		};
 		entity "Sea Moss" direction = player;
-		"ch2-want-bobparty" = true;
-		copy!("ch2-handoff-cactuscooler-to-bobaustin")
+		"ch2_want_bobparty" = true;
+		copy!("ch2_handoff_cactuscooler_to_bobaustin")
 	} else {
 		show dialog {
 			PLAYER "Oh, right. No soda in here."
@@ -367,8 +367,8 @@ $walkspeed = 200ms;
 }
 
 "interact_ch2_seamoss" {
-	copy!("face-player")
-	if (!"ch2-want-ramchips") {
+	copy!(face_player)
+	if (!"ch2_want_ramchips") {
 		if (!"ch2_seamoss_backstory") {
 			show dialog {
 				PLAYER "You know, you remind me of Bob Moss."
@@ -491,13 +491,13 @@ $walkspeed = 200ms;
 	// (you must still target this entity with its original name, though)
 }
 
-"ch2-touch-ramchips" {
-	if (!"ch2-ramchips-firstlook") {
+"ch2_touch_ramchips" {
+	if (!"ch2_ramchips_firstlook") {
 		show dialog {
 			PLAYER "That's the biggest bag of chips I've ever seen in my life."
 			"...And it's probably only a quarter full."
 		};
-		"ch2-ramchips-firstlook" = true;
+		"ch2_ramchips_firstlook" = true;
 	} else {
 		show dialog {
 			PLAYER "That's an obscene amount of chips."
@@ -505,11 +505,11 @@ $walkspeed = 200ms;
 	}
 	show dialog {
 		name "" "(Pick up the RAM chips?)"
-		> "Yes" = "ch2-touch-ramchips-yes"
-		> "No" = "ch2-touch-ramchips-no"
+		> "Yes" = "ch2_touch_ramchips_yes"
+		> "No" = "ch2_touch_ramchips_no"
 	};
 }
-"ch2-touch-ramchips-yes" {
+"ch2_touch_ramchips_yes" {
 	show dialog {
 		name "" "(You pick up the RAM chips!)"
 	};
@@ -518,9 +518,9 @@ $walkspeed = 200ms;
 	"ch2-ramchips-dispensed" = false;
 	self on_interact = null_script;
 }
-"ch2-touch-ramchips-no" {
+"ch2_touch_ramchips_no" {
 	show dialog {
 		PLAYER "Maybe later, then."
 	};
-	self on_interact = "ch2-touch-ramchips";  // reset after script jump
+	self on_interact = "ch2_touch_ramchips";  // reset after script jump
 }

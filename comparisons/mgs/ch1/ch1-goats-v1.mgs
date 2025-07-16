@@ -90,7 +90,7 @@ show_dialog-verthandi-glitched-s {
 
 
 show_dialog-verthandi-start {
-	copy face-player;
+	copy face_player;
 	if (entity "%SELF%" is glitched) {
 		goto show_dialog-verthandi-glitched; // JUMP
 	}

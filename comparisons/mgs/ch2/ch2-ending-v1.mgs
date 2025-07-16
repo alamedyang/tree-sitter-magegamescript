@@ -292,7 +292,7 @@ ch2-post-credits {
 	show dialog {
 		Jackob "Oh, dear. Oh, dear."
 	}
-	set entity "%PLAYER%" on_tick to look-left-and-right-fast;
+	set entity "%PLAYER%" on_tick to look_left_and_right_fast;
 	wait 800ms;
 	show dialog {
 		PLAYER "This is getting dangerous, isn't it?"

@@ -159,20 +159,20 @@ include "header.mgs";
 /*------------------------------*/
 
 "lodge-watch-player-gradually" {
-	entity "Beatrice" on_tick = "face-player";
-	entity "Cleo" on_tick = "face-player";
-	entity "Trekkie" on_tick = "face-player";
+	entity "Beatrice" on_tick = "face_player";
+	entity "Cleo" on_tick = "face_player";
+	entity "Trekkie" on_tick = "face_player";
 	wait 200ms;
-	entity "Max Swagger" on_tick = "face-player";
-	entity "Verthandi" on_tick = "face-player";
-	entity "Marta" on_tick = "face-player";
+	entity "Max Swagger" on_tick = "face_player";
+	entity "Verthandi" on_tick = "face_player";
+	entity "Marta" on_tick = "face_player";
 	wait 200ms;
-	entity "Baker" on_tick = "face-player";
-	entity "Smith" on_tick = "face-player";
-	entity "Uncle Zappy" on_tick = "face-player";
+	entity "Baker" on_tick = "face_player";
+	entity "Smith" on_tick = "face_player";
+	entity "Uncle Zappy" on_tick = "face_player";
 	wait 200ms;
-	entity "Aunt Zippy" on_tick = "face-player";
-	entity "Shepherd" on_tick = "face-player";
+	entity "Aunt Zippy" on_tick = "face_player";
+	entity "Shepherd" on_tick = "face_player";
 }
 "alfonso-left-right" {
 	wait 200ms; /**/ entity "Alfonso" direction = west;
@@ -386,7 +386,7 @@ include "header.mgs";
 // Villagers' dialog:
 
 "show_dialog-zippy-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "We always knew you were destined for great things!" };
 	} else {
@@ -394,7 +394,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-zappy-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "We're both so proud of you!" };
 	} else {
@@ -402,7 +402,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-verthandi-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Oh, how exciting!" };
 	} else {
@@ -412,7 +412,7 @@ include "header.mgs";
 	// accident? or just unimaginative Belldandy?
 }
 "show_dialog-smith-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Sounds like that ring is a big deal." "Neat." };
 	} else {
@@ -420,7 +420,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-max-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Hmm. That ring looks a bit too plain to be the real Ring Zero, doesn't it?" };
 	} else {
@@ -428,7 +428,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-marta-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Wow. Never seen a TUESDAY like this before!" };
 	} else if ("artifact-broom-touched") {
@@ -438,7 +438,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-trekkie-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Amazing!" };
 	} else {
@@ -446,7 +446,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-shepherd-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Neat!" };
 	} else {
@@ -454,7 +454,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-cleo-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "It looks so shiny!" };
 	} else {
@@ -462,7 +462,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-beatrice-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Oh! I never thought I'd see this day! Oh, my Delmar...!" };
 	} else {
@@ -470,7 +470,7 @@ include "header.mgs";
 	}
 }
 "show_dialog-baker-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ring-acquired") {
 		show dialog { SELF "Congratulations, %PLAYER%!" };
 	} else {
@@ -478,19 +478,19 @@ include "header.mgs";
 	}
 }
 "show_dialog-jackob-prechoose" {
-	copy!("face-player")
-	entity "Jackob" on_tick = "look-left-and-right-fast";
+	copy!(face_player)
+	entity "Jackob" on_tick = "look_left_and_right_fast";
 	show dialog { SELF "(Wait, was this everything?)" };
 	entity "Jackob" on_tick = null_script;
 	self direction = south;
 }
 "show_dialog-alfonso-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog { SELF "*ahem*" "The mage must present themselves to the artifacts until one shows interest." };
 	self direction = south;
 }
 "show_dialog-bert-prechoose" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog { SELF "Touch each item, please." };
 	self direction = south;
 }
@@ -551,7 +551,7 @@ include "header.mgs";
 	entity "Marta" type = "marta_broom";
 	wait 300ms;
 	entity "Marta" position -> geometry "marta-broom-watch-spot" origin over 700ms;
-	entity "Marta" on_tick = "face-player";
+	entity "Marta" on_tick = "face_player";
 	wait 300ms;
 	"artifact-broom-touched" = true;
 	player on_tick = null_script;
@@ -598,7 +598,7 @@ include "header.mgs";
 			PLAYER "Maybe a different artifact?"
 			"Wait. Was that the last one?"
 		};
-		player on_tick = "look-left-and-right-fast";
+		player on_tick = "look_left_and_right_fast";
 		player_control = off;
 		wait 900ms;
 		player on_tick = null_script;
@@ -687,7 +687,7 @@ include "header.mgs";
 /*------------------------*/
 
 "cutscene-artifacts-eval-good" { // TUESDAY PART 2
-	player on_tick = "look-left-and-right";
+	player on_tick = "look_left_and_right";
 	wait 300ms;
 	show dialog {
 		Marta alignment TR
@@ -762,7 +762,7 @@ include "header.mgs";
 		Bert "No one has been chosen by this ring before."
 		Alfonso "Oh, but... but perhaps...."
 	};
-	entity "Alfonso" on_tick = "look-left-and-right-fast";
+	entity "Alfonso" on_tick = "look_left_and_right_fast";
 	show dialog {
 		Alfonso "Oh, but this is good news, isn't it?"
 		"This means we can finally fix things!"
@@ -833,7 +833,7 @@ include "header.mgs";
 /*-------------------*/
 
 "show_dialog-lodge_cat" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "////////" };
 		if (!"lodge_cat-unglitched") {
@@ -864,7 +864,7 @@ include "header.mgs";
 /*------------------------------*/
 
 "show_dialog-timmy-start" {
-	copy!("face-player")
+	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF alignment TL "Ner ubg qbtf n fnaqjvpu?" };
 		self direction = west;
@@ -919,7 +919,7 @@ include "header.mgs";
 /*     DEBUG     */
 /*---------------*/
 
-"debug-cat-prep" { // used as an on_interact for an exa?
+"debug_cat_prep" { // used as an on_interact for an exa?
 	entity "Cat" glitched = false;
 	copy!("set-hint-max-from-cleo")
 }
@@ -933,20 +933,20 @@ include "header.mgs";
 	entity "Marta" position = geometry "lodge-hidingplace";
 	// possibly you can't teleport an entity twice in one tick... though why then does this one work?
 }
-"debug-disable-tuesday-q" {
+"debug_disable_tuesday_q" {
 	show dialog {
 		SELF "Disable TUESDAY?"
-		> "Completely" = "debug-disable-tuesday-complete"
-		> "Partially" = "debug-disable-tuesday-walkup"
-		> "Un-disable" = "debug-undisable-tuesday"
-		> "Never mind" = "debug-disable-tuesday-no"
+		> "Completely" = "debug_disable_tuesday_complete"
+		> "Partially" = "debug_disable_tuesday_walkup"
+		> "Un-disable" = "debug_undisable_tuesday"
+		> "Never mind" = "debug_disable_tuesday_no"
 	};
 }
-"debug-disable-tuesday-no" {
+"debug_disable_tuesday_no" {
 	show dialog { SELF "Nothing changed." };
-	self on_interact = "debug-disable-tuesday-q";
+	self on_interact = "debug_disable_tuesday_q";
 }
-"debug-disable-tuesday-walkup" {
+"debug_disable_tuesday_walkup" {
 	copy!("set-goodmorning-flags-true")
 	// so you don't accidentally trigger walk-to-lodge
 	// if you set all flags to false before engaging the lodge
@@ -957,17 +957,17 @@ include "header.mgs";
 	// so you can voluntarily start the cutscene and it'll look okay
 	hex_control = on;
 	show dialog { SELF "TUESDAY partially disabled." };
-	self on_interact = "debug-disable-tuesday-q";
+	self on_interact = "debug_disable_tuesday_q";
 }
-"debug-disable-tuesday-complete" {
+"debug_disable_tuesday_complete" {
 	copy!("set-goodmorning-flags-true")
 	copy!("set-artifact-flags-true")
 	copy!("set-tuesday-flags-true")
 	hex_control = on;
 	show dialog { SELF "TUESDAY completely disabled." };
-	self on_interact = "debug-disable-tuesday-q";
+	self on_interact = "debug_disable_tuesday_q";
 }
-"debug-undisable-tuesday" {
+"debug_undisable_tuesday" {
 	copy!("set-goodmorning-flags-true")
 	// so you don't accidentally trigger walk-to-lodge
 	// if you set all flags to false before engaging the lodge
@@ -977,57 +977,57 @@ include "header.mgs";
 	show dialog {
 		SELF "TUESDAY re-enabled."
 	};
-	self on_interact = "debug-disable-tuesday-q";
+	self on_interact = "debug_disable_tuesday_q";
 }
-"debug-bypass-tuesday-q" {
-	copy!("face-player")
+"debug_bypass_tuesday_q" {
+	copy!(face_player)
 	show dialog {
 		SELF "Bypass TUESDAY?"
-		> "Yes" = "debug-bypass-tuesday"
-		> "Yes (but enable hintman cutscene)" = "debug-bypass-tuesday-but-enable-hintman"
-		> "No" = "debug-bypass-tuesday-no"
+		> "Yes" = "debug_bypass_tuesday"
+		> "Yes (but enable hintman cutscene)" = "debug_bypass_tuesday_but_enable_hintman"
+		> "No" = "debug_bypass_tuesday_no"
 	};
 }
-"debug-bypass-tuesday" {
+"debug_bypass_tuesday" {
 	copy!("bypass-tuesday")
 	copy!("set-tuesday-flags-true")
 	show dialog { SELF "Tuesday bypassed." };
-	self on_interact = "debug-bypass-tuesday-q";
+	self on_interact = "debug_bypass_tuesday_q";
 }
-"debug-bypass-tuesday-but-enable-hintman" {
+"debug_bypass_tuesday_but_enable_hintman" {
 	copy!("bypass-tuesday")
 	copy!("set-tuesday-flags-true")
 	"hintman-explanation" = false;
 	// set to true in above copied script
 	show dialog { SELF "Tuesday bypassed. Prepare for hintman cutscene." };
-	self on_interact = "debug-bypass-tuesday-q";
+	self on_interact = "debug_bypass_tuesday_q";
 }
-"debug-bypass-tuesday-no" {
-	self on_interact = "debug-bypass-tuesday-q";
+"debug_bypass_tuesday_no" {
+	self on_interact = "debug_bypass_tuesday_q";
 }
-"debug-cutscene-tuesday-q" {
-	copy!("face-player")
+"debug_cutscene_tuesday_q" {
+	copy!(face_player)
 	show dialog {
 		SELF "Begin TUESDAY cutscene?"
-		> "Yes" = "debug-cutscene-tuesday"
-		> "No" = "debug-cutscene-tuesday-no"
+		> "Yes" = "debug_cutscene_tuesday"
+		> "No" = "debug_cutscene_tuesday_no"
 	};
 }
-"debug-cutscene-tuesday" {
+"debug_cutscene_tuesday" {
 	copy!("cutscene-tuesday")
-	self on_interact = "debug-bypass-tuesday-q";
+	self on_interact = "debug_bypass_tuesday_q";
 }
-"debug-cutscene-tuesday-no" {
-	self on_interact = "debug-bypass-tuesday-q";
+"debug_cutscene_tuesday_no" {
+	self on_interact = "debug_bypass_tuesday_q";
 }
-"debug-touch-artifacts-q" {
-	copy!("face-player")
+"debug_touch_artifacts_q" {
+	copy!(face_player)
 	show dialog {
 		SELF "Do what to artifacts?"
-		> "Touch all artifacts" = "debug-touch-artifacts"
-		> "Finish lecture and lower bookcase" = "debug-touch-artifacts-and-aftermath"
+		> "Touch all artifacts" = "debug_touch_artifacts"
+		> "Finish lecture and lower bookcase" = "debug_touch_artifacts_and_aftermath"
 		> "Teleport to secret room (with cutscene)" = "enter-secretroom-with-guaranteed-cutscene"
-		> "No" = "debug-touch-artifacts-no"
+		> "No" = "debug_touch_artifacts_no"
 	};
 }
 "skip-artifacts" {
@@ -1038,13 +1038,13 @@ include "header.mgs";
 	entity "Bracelet" position = geometry "lodge-hidingplace";
 	entity "Marta" type = "marta_broom";
 }
-"debug-touch-artifacts-end" {
-	self on_interact = "debug-touch-artifacts-q";
+"debug_touch_artifacts_end" {
+	self on_interact = "debug_touch_artifacts_q";
 }
-"debug-touch-artifacts-no" {
-	self on_interact = "debug-touch-artifacts-q";
+"debug_touch_artifacts_no" {
+	self on_interact = "debug_touch_artifacts_q";
 }
-"debug-touch-artifacts-and-aftermath" {
+"debug_touch_artifacts_and_aftermath" {
 	copy!("skip-artifacts")
 	entity "Bookcase" position = geometry "lodge-hidingplace";
 	"ring-acquired" = true;
@@ -1052,16 +1052,16 @@ include "header.mgs";
 	entity "Alfonso" position = geometry "lodge-hidingplace";
 	entity "Bert" position = geometry "lodge-hidingplace";
 	entity "Jackob" position = geometry "lodge-hidingplace";
-	goto "debug-touch-artifacts-end";
+	goto "debug_touch_artifacts_end";
 }
-"debug-touch-artifacts" {
+"debug_touch_artifacts" {
 	copy!("skip-artifacts")
-	goto "debug-touch-artifacts-end";
+	goto "debug_touch_artifacts_end";
 }
 
 dialog "dialog-artifacts-touch" { // not used (anymore)?
 	SELF "All artifacts touched."
 }
-dialog "dialog-debug-touch-artifacts" { // not used (anymore)?
+dialog "dialog-debug_touch_artifacts" { // not used (anymore)?
 	SELF "Artifacts touched."
 }

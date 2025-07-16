@@ -151,7 +151,7 @@ on_load_ch2_castle_1 {
 		// so his name is blank for when Ring Zero is back
 	}
 
-	if (flag ch2-ring-zero-enabled-in-castle is true) {
+	if (flag ch2_ring_zero_enabled_in_castle is true) {
 		set entity "Wizard" on_interact to interact_ch2_wizard_mainframedone;
 		set entity "Wizard" current_animation to 3; // head poking up
 	}
@@ -173,7 +173,7 @@ on_load_ch2_castle_1 {
 	// DEBUG
 	if (debug mode is on) {
 		register credits -> debug-ch2-credits;
-		register toot -> debug-finish-toot;
+		register toot -> debug_finish_toot;
 		register walk -> debug-walk;
 		register get + monitor -> ch2_pickup_monitor;
 		register get + heatsink -> ch2_pickup_heatsink;
@@ -189,9 +189,9 @@ on_load_ch2_castle_1 {
 		register get + goldfish -> ch2_pickup_goldfish;
 		register get + abacus -> ch2_pickup_abacus;
 		register get + cpu -> ch2-solder-cpu;
-		register round + "1" -> debug-get-items-for-round1;
-		register round + "2" -> debug-get-items-for-round2;
-		register round + "3" -> debug-get-items-for-round3;
+		register round + "1" -> debug_get_items_for_round1;
+		register round + "2" -> debug_get_items_for_round2;
+		register round + "3" -> debug_get_items_for_round3;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> this room only"
@@ -205,7 +205,7 @@ on_load_ch2_castle_1 {
 	// END DEBUG
 	copy ch2-player-spawn-click-protection;
 }
-debug-finish-toot {
+debug_finish_toot {
 	mutate ch2_storyflag_round = 1;
 	set flag ch2-has-map to true;
 	set flag ch2-has-artifact to true;
@@ -336,7 +336,7 @@ on_tick_ch2_castle_1 {
 	if (dialog is closed) {
 		// check for hax button press
 		// (Not going to do shenanigans like this for other rooms because if you've left room 1 then you've seen the tutorial already)
-		if (flag ch2-ring-zero-enabled-in-castle is false) {
+		if (flag ch2_ring_zero_enabled_in_castle is false) {
 			if (button HAX) { // You're attempting to use Ring Zero and...
 				// ...you've been told Ring Zero won't work
 				if (flag ch2-toot-done is true) {
@@ -497,15 +497,15 @@ tick-ch2-wizard-ascend-and-watch-with-check {
 		// show serial dialog {"DEBUG: Wizard is not <bold>strictly</> down..."}
 		set entity Wizard current_animation to 3;
 	}
-	set entity Wizard on_tick to face-player;
+	set entity Wizard on_tick to face_player;
 }
 tick-ch2-wizard-ascend-and-watch {
 	// show serial dialog {"\t'play entity Wizard animation 5 once'"}
 	play entity Wizard animation 5 once;
 	// show serial dialog {"\t'set entity Wizard current_animation to 3'"}
 	set entity Wizard current_animation to 3;
-	// show serial dialog {"\t'set entity Wizard on_tick to face-player'"}
-	set entity Wizard on_tick to face-player;
+	// show serial dialog {"\t'set entity Wizard on_tick to face_player'"}
+	set entity Wizard on_tick to face_player;
 }
 ch2-wizard-descend {
 	turn player control off;
@@ -692,7 +692,7 @@ ch2-install-wizard {
 	goto ch2-install-wizard-resume2;
 }
 ch2-install-wizard2 {
-	set entity Wizard on_tick to face-player;
+	set entity Wizard on_tick to face_player;
 	wait 300ms;
 	fade out camera to #FFDD00 over 600ms;
 	wait 100ms;
@@ -705,8 +705,8 @@ ch2-install-wizard2 {
 		"Oh! It's warm! I wonder if it'll work now?"
 		PLAYER "What was it again? \"Touch the hat on the PCB\" -- right?"
 	}
-	set flag ch2-ring-zero-enabled-in-castle to true;
-	// show serial dialog {"set flag ch2-ring-zero-enabled-in-castle to true;"}
+	set flag ch2_ring_zero_enabled_in_castle to true;
+	// show serial dialog {"set flag ch2_ring_zero_enabled_in_castle to true;"}
 	turn player control on;
 	// show serial dialog {"turn player control on;"}
 	if (debug mode is off) {
@@ -742,7 +742,7 @@ ch2-install-wizard-resume2 {
 	copy ch2-ending-fadeout;
 	load map ch2-castle-21;
 }
-ch2-castle-21-ending {
+ch2_castle_21_ending {
 	turn player control off;
 	turn serial control off;
 	teleport camera to geometry warp-spot;
@@ -761,7 +761,7 @@ ch2-castle-21-ending {
 	copy ch2-ending-fadeout;
 	load map ch2-castle-22;
 }
-ch2-castle-22-ending {
+ch2_castle_22_ending {
 	turn player control off;
 	turn serial control off;
 	teleport camera to geometry warp-spot;

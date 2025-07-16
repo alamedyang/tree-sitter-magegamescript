@@ -107,7 +107,7 @@ include "header.mgs";
 	if ("ch2_storyflag_round" != 3) {
 		goto null_script;
 	}
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF
 		"Bert said he was going to check something, but whatever he's doing, he's sure taking his time."
@@ -120,7 +120,7 @@ include "header.mgs";
 	if ("ch2_storyflag_round" != 3) {
 		goto null_script;
 	}
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF
 		"We're doing just fine here, %PLAYER%, but don't you dawdle too long. Time is slipping away from us."
@@ -134,7 +134,7 @@ include "header.mgs";
 	if ("ch2_storyflag_round" != 1) {
 		goto null_script;
 	}
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF
 		"This morning we could not find the book you need, but I want to find it still."

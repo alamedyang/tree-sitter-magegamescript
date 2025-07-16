@@ -1,7 +1,7 @@
 include!("header.mgs")
 
 show_dialog-shepherd-start {
-	copy face-player;
+	copy face_player;
 	if (entity "%SELF%" is glitched) { // if he's glitched
 		show dialog { SELF "Jubn, jung'f tbvat ba?!" }
 	} else if (flag storyflag-shepherd is true) { // if you've solved the puzzle already
@@ -20,7 +20,7 @@ show_dialog-shepherd-start {
 				|| entity Helga is inside geometry sheep-pen
 			) { // ...and if at least one IS in the pen
 				// give a "cheer"
-				copy face-player;
+				copy face_player;
 				show dialog { SELF "Awesome! Don't stop, now!" }
 				copy set-hint-shepherd-partial;
 			} else { // ...and they're ALL still outside
@@ -60,7 +60,7 @@ show_dialog-shepherd-start {
 }
 
 show_dialog-shepherd-backstory {
-	copy face-player;
+	copy face_player;
 	show dialog {
 		SELF "...."
 		"I messed up."
@@ -87,7 +87,7 @@ show_dialog-sheep {
 }
 
 turn-right-and-left {
-	copy face-player;
+	copy face_player;
 	turn player control off;
 	wait 200ms;
 	rotate entity "%SELF%" 1;
@@ -96,7 +96,7 @@ turn-right-and-left {
 	wait 500ms;
 	rotate entity "%SELF%" 1;
 	wait 200ms;
-	copy face-player;
+	copy face_player;
 	turn player control on;
 }
 
@@ -145,28 +145,28 @@ make-sheep-loiter {
 	wait 800ms;
 }
 
-debug-sheep-q {
-	copy face-player;
+debug_sheep_q {
+	copy face_player;
 	show dialog {
 		SELF "Return sheep to pen?"
-		> "Yes (all)" : goto "debug-sheep-all"
-		> "Yes (three out of four)" : goto "debug-sheep-most"
-		> "No" : goto "debug-sheep-no"
+		> "Yes (all)" : goto "debug_sheep_all"
+		> "Yes (three out of four)" : goto "debug_sheep_most"
+		> "No" : goto "debug_sheep_no"
 	}
 }
-debug-sheep-all {
+debug_sheep_all {
 	copy sheep-in-pen;
 	show dialog { SELF "All sheep returned." }
-	set entity "%SELF%" on_interact to debug-sheep-q;
+	set entity "%SELF%" on_interact to debug_sheep_q;
 }
-debug-sheep-most {
+debug_sheep_most {
 	teleport entity Baa to geometry baa_point;
 	teleport entity Ram to geometry ram_point;
 	teleport entity Ewe to geometry ewe_point;
 	show dialog { SELF "Helga remains." }
-	set entity "%SELF%" on_interact to debug-sheep-q;
+	set entity "%SELF%" on_interact to debug_sheep_q;
 }
-debug-sheep-no {
+debug_sheep_no {
 	show dialog { SELF "Nothing changed." }
-	set entity "%SELF%" on_interact to debug-sheep-q;
+	set entity "%SELF%" on_interact to debug_sheep_q;
 }

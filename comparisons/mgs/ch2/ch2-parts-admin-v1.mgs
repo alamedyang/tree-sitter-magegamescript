@@ -3,86 +3,86 @@ include!("header.mgs")
 
 // debug: "win" that storyflag round
 
-debug-get-items-for-round1 {
+debug_get_items_for_round1 {
 	copy ch2_pickup_monitor;
 	copy ch2_pickup_heatsink;
 	copy ch2_pickup_powersupply;
 }
-debug-get-items-for-round2 {
+debug_get_items_for_round2 {
 	copy ch2_pickup_keyboard;
 	copy ch2_pickup_mouse;
 	copy ch2_pickup_needle;
 	copy ch2_pickup_plate;
 	copy ch2-solder-harddrive;
 }
-debug-get-items-for-round3 {
+debug_get_items_for_round3 {
 	copy ch2_pickup_ramchips;
 	copy ch2_pickup_clock;
 	copy ch2_pickup_goldfish;
 	copy ch2_pickup_abacus;
 	copy ch2-solder-cpu;
 }
-debug-set-flags-to-round0 {
+debug_set_flags_to_round0 {
 	turn serial control on;
 	set flag ch2-has-artifact to true;
 	turn hex control on;
 	mutate current-chapter = 2;
 	set flag ch2_cutseen_birthday to true;
-	// debug!("<y>debug-set-flags-to-round0")
+	// debug!("<y>debug_set_flags_to_round0")
 }
-debug-jump-to-round1 {
-	copy debug-set-flags-to-round1;
+debug_jump_to_round1 {
+	copy debug_set_flags_to_round1;
 	copy ch2_load_castle_1_special;
 }
-debug-jump-to-round2 {
-	copy debug-set-flags-to-round2;
+debug_jump_to_round2 {
+	copy debug_set_flags_to_round2;
 	copy ch2_load_castle_1_special;
 }
-debug-jump-to-round3 {
-	copy debug-set-flags-to-round3;
+debug_jump_to_round3 {
+	copy debug_set_flags_to_round3;
 	copy ch2_load_castle_1_special;
 }
-debug-jump-to-round4 {
-	copy debug-set-flags-to-round4;
+debug_jump_to_round4 {
+	copy debug_set_flags_to_round4;
 	copy ch2_load_castle_1_special;
 }
 
-debug-set-flags-to-round1 {
-	copy debug-set-flags-to-round0;
-	copy debug-finish-toot;
-	copy debug-map-flags-for-round1;
+debug_set_flags_to_round1 {
+	copy debug_set_flags_to_round0;
+	copy debug_finish_toot;
+	copy debug_map_flags_for_round1;
 }
-debug-set-flags-to-round2 {
-	copy debug-set-flags-to-round1;
-	copy debug-get-items-for-round1;
+debug_set_flags_to_round2 {
+	copy debug_set_flags_to_round1;
+	copy debug_get_items_for_round1;
 	copy ch2-install-heatsink;
 	copy ch2-install-powersupply;
 	copy ch2-install-monitor;
 	set flag ch2_cutseen_bert_secret to true;
 	set flag ch2-lambda-bert-backstory to true;
 	set flag ch2-parts-round-2-backstory to true;
-	copy debug-map-flags-for-round2;
+	copy debug_map_flags_for_round2;
 }
-debug-set-flags-to-round3 {
-	copy debug-set-flags-to-round2;
-	copy debug-get-items-for-round2;
+debug_set_flags_to_round3 {
+	copy debug_set_flags_to_round2;
+	copy debug_get_items_for_round2;
 	copy ch2-install-harddrive;
 	copy ch2-install-keyboard;
 	copy ch2-install-mouse;
 	set flag ch2_cutseen_bert_message to true;
 	set flag ch2-parts-round-3-backstory to true;
-	copy debug-map-flags-for-round3;
+	copy debug_map_flags_for_round3;
 }
-debug-set-flags-to-round4 {
-	copy debug-set-flags-to-round3;
-	copy debug-get-items-for-round3;
+debug_set_flags_to_round4 {
+	copy debug_set_flags_to_round3;
+	copy debug_get_items_for_round3;
 	copy ch2-install-ramchips;
 	copy ch2-install-clock;
 	copy ch2-install-cpu;
 	set flag ch2_cutseen_last_parts_done to true;
 	set flag ch2-warp-granted to true;
 	set flag ch2-parts-round-4-backstory to true;
-	copy debug-map-flags-for-round4;
+	copy debug_map_flags_for_round4;
 }
 
 /* ---------- PUT QUEST MARKERS ON MAP ---------- */
@@ -144,11 +144,11 @@ ch2_pickup_powersupply {
 	set flag ch2_carrying_powersupply to true;
 	register look + "power supply" -> look-powersupply;
 }
-ch2-handoff-heatsink-to-cactuscooler {
+ch2_handoff_heatsink_to_cactuscooler {
 	set flag ch2-map-heatsink to false;
 	set flag ch2-map-cactuscooler-castle to true;
 }
-ch2-handoff-cactuscooler-to-bobaustin {
+ch2_handoff_cactuscooler_to_bobaustin {
 	set flag ch2-map-cactuscooler-castle to false;
 	set flag ch2-map-cactuscooler-bobaustin to true;
 }
@@ -160,7 +160,7 @@ ch2_pickup_cactuscooler {
 	register look + "cactus cooler" -> look-cactuscooler;
 }
 ch2_pickup_heatsink {
-	set flag ch2-cactuscooler-delivered to true;
+	set flag ch2_cactuscooler_delivered to true;
 	set flag ch2-map-cactuscooler-castle to false // just in case you went straight there
 	set flag ch2-map-heatsink to false;
 	set flag ch2_carrying_heatsink to true;
@@ -231,7 +231,7 @@ ch2_pickup_manual {
 	set flag ch2_carrying_manual to true;
 	register look + abacus -> look-abacus;
 }
-ch2-handoff-abacus-to-manual {
+ch2_handoff_abacus_to_manual {
 	set flag ch2-map-abacus to false;
 	set flag ch2-map-manual to true;
 }
@@ -250,7 +250,7 @@ ch2-solder-cpu {
 	set flag ch2_carrying_cpu to true;
 	register look + cpu -> look-cpu;
 }
-ch2-handoff-ramchips-to-seamoss {
+ch2_handoff_ramchips_to_seamoss {
 	set flag ch2-map-ramchips to false;
 	set flag ch2-map-seamoss to true;
 }
@@ -277,7 +277,7 @@ ch2-install-monitor {
 	set flag ch2_installed_monitor to true;
 	unregister look + monitor;
 }
-ch2-turn_in-cactuscooler {
+ch2_turn_in_cactuscooler {
 	set flag ch2_carrying_cactuscooler to false;
 	unregister look + "cactus cooler";
 	// picking up heatsink is currently a separate step

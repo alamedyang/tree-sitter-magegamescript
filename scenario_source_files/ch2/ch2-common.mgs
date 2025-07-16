@@ -23,15 +23,15 @@ serial_dialog "lambda-over" {
 "ch2_map_init_hex" {
 	if (
 		// if you've fixed the mainframe to the point you can use Ring Zero normally inside the castle
-		"ch2-ring-zero-enabled-in-castle"
+		"ch2_ring_zero_enabled_in_castle"
 		// OR you're not in the castle at all
-		|| "ch2_in_room" == 0
+		|| ch2_in_room == 0
 		// OR debug_mode
 		|| debug_mode
 	) {
 		hex_control = on;
 		lights_control = off;
-		if ("ch2_in_room" == 0) {
+		if (ch2_in_room == 0) {
 			light LED_USB = off;
 		}
 	} else {
@@ -122,23 +122,23 @@ serial_dialog "lambda-over" {
 }
 "ch2_map_init_serial_debug_message" {
 	if (debug_mode) {
-		if (!"debug-curr-state") {
+		if (!"debug_curr_state") {
 			show serial_dialog {
 				"<y>+-------------------------+</>"
 				"<y>|  DEBUG MODE IS NOW ON!  |</>"
 				"<y>+-------------------------+</>"
 			};
 		}
-		"debug-curr-state" = true;
+		"debug_curr_state" = true;
 	} else {
-		if ("debug-curr-state") {
+		if ("debug_curr_state") {
 			show serial_dialog {
 				"<y>+--------------------------+</>"
 				"<y>|  DEBUG MODE IS NOW OFF!  |</>"
 				"<y>+--------------------------+</>"
 			};
 		}
-		"debug-curr-state" = false;
+		"debug_curr_state" = false;
 	}
 }
 

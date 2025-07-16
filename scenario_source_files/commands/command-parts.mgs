@@ -72,7 +72,7 @@ include "header.mgs";
 // COMMAND
 "command-parts-fail" {
 	if (
-		"ch2-ring-zero-enabled-in-castle" // the artifact is full power
+		"ch2_ring_zero_enabled_in_castle" // the artifact is full power
 		|| "ch2_in_room" != 0 // OR you're in the castle
 	) {
 		// `parts` works normally
@@ -91,7 +91,7 @@ include "header.mgs";
 
 "command-parts" {
 	if (
-		"ch2-ring-zero-enabled-in-castle" // the artifact is full power
+		"ch2_ring_zero_enabled_in_castle" // the artifact is full power
 		|| "ch2_in_room" != 0 // OR you're in the castle
 	) {
 		// `parts` works normally

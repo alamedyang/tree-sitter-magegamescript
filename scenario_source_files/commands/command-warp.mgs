@@ -158,14 +158,14 @@ include "header.mgs";
 	}
 	// all warps will fail before the computer is ok
 	// if you're PHYSICALLY OUTSIDE the castle
-	if (!"ch2-ring-zero-enabled-in-castle") {
+	if (!"ch2_ring_zero_enabled_in_castle") {
 		if (!debug_mode) {
-			if ("ch2_in_room" == 0) {
+			if (ch2_in_room == 0) {
 				goto "warp-ch2-town-check-fail-message";
 			}
 		}
 	}
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 	"current-chapter" = 2; // todo: remove this; it's here for ch2 debug mode protection for the WOPR room
 	copy!(warping_out_fade_out)
 }
@@ -232,7 +232,7 @@ include "header.mgs";
 "warp-ch2-town-destination-check" {
 	// all warps will fail before the computer is ok
 	// if your DESTINATION is outside the castle
-	if (!"ch2-ring-zero-enabled-in-castle") {
+	if (!"ch2_ring_zero_enabled_in_castle") {
 		if (!debug_mode) {
 			goto "warp-ch2-town-check-fail-message";
 		}

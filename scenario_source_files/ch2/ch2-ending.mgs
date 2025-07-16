@@ -292,7 +292,7 @@ $panicked = 5;
 	show dialog {
 		Jackob "Oh, dear. Oh, dear."
 	};
-	player on_tick = "look-left-and-right-fast";
+	player on_tick = "look_left_and_right_fast";
 	wait 800ms;
 	show dialog {
 		PLAYER "This is getting dangerous, isn't it?"

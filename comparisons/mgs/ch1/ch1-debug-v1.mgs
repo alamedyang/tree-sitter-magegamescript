@@ -1,82 +1,82 @@
 include!("header.mgs")
 
-debug-hub-q {
+debug_hub_q {
 	show dialog {
 		SELF portrait goldfish
 		"Go to debug map hub?"
-		> "Yes" : debug-hub-go
-		> "No" : debug-hub-no
+		> "Yes" : debug_hub_go
+		> "No" : debug_hub_no
 	}
 }
 
-debug-hub-go {
+debug_hub_go {
 	goto script load_map-warp_zone;
 }
 
-debug-hub-no {
-	set entity "%SELF%" on_interact to debug-hub-q;
+debug_hub_no {
+	set entity "%SELF%" on_interact to debug_hub_q;
 }
 
-debug-demobonus-q {
+debug_demobonus_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF portrait goldfish
 		"Demo bonus debugging"
-		> "Set story flags true + ch1_finished true" : debug-demobonus-pre-flags-true
-		> "Set story flags true + ch1_finished false" : debug-demobonus-pre-flags-false
-		> "Set demo bonus event flags false" : debug-demobonus-event-flags-false
-		> "Never mind" : debug-demobonus-no
+		> "Set story flags true + ch1_finished true" : debug_demobonus_pre_flags_true
+		> "Set story flags true + ch1_finished false" : debug_demobonus_pre_flags_false
+		> "Set demo bonus event flags false" : debug_demobonus_event_flags_false
+		> "Never mind" : debug_demobonus_no
 	}
 }
 
-debug-demobonus-pre-flags-true {
+debug_demobonus_pre_flags_true {
 	copy script set-story-flags-true;
 	set flag ch1_finished to true;
 	set warp state to exit_from-credits;
-	set entity "%SELF%" on_interact to debug-demobonus-q;
+	set entity "%SELF%" on_interact to debug_demobonus_q;
 }
 
-debug-demobonus-pre-flags-false {
+debug_demobonus_pre_flags_false {
 	copy script set-story-flags-false;
 	set flag ch1_finished to false;
-	set entity "%SELF%" on_interact to debug-demobonus-q;
+	set entity "%SELF%" on_interact to debug_demobonus_q;
 }
 
-debug-demobonus-event-flags-false {
+debug_demobonus_event_flags_false {
 	set flag demobonus to false;
 	set flag demobonus-jackob-informed to false;
 	set flag demobonus-timmy-yell to false;
 	set flag demobonus-sportsbook-read to false;
-	set entity "%SELF%" on_interact to debug-demobonus-q;
+	set entity "%SELF%" on_interact to debug_demobonus_q;
 }
 
-debug-demobonus-no {
-	set entity "%SELF%" on_interact to debug-demobonus-q;
+debug_demobonus_no {
+	set entity "%SELF%" on_interact to debug_demobonus_q;
 }
 
-debug-set-flags-false-q {
+debug_set_flags_false_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF "Set what to FALSE?"
-		> "Story flags and misc flags" : debug-set-story-and-misc-flags-false
-		> "Backstory flags" : debug-set-backstory-false
-		> "Unglitch flags" : debug-set-glitch-flags-false
-		> "Never mind" : debug-set-flags-false-no
+		> "Story flags and misc flags" : debug_set_story_and_misc_flags_false
+		> "Backstory flags" : debug_set_backstory_false
+		> "Unglitch flags" : debug_set_glitch_flags_false
+		> "Never mind" : debug_set_flags_false_no
 	}
 }
 
-debug-set-flags-true-q {
+debug_set_flags_true_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF "Set what to TRUE?"
-		> "Everything (except winning)" : debug-set-all-true
-		> "Backstory flags" : debug-set-backstory-true
-		> "Unglitch flags" : debug-set-glitch-flags-true
-		> "Never mind" : debug-set-flags-true-no
+		> "Everything (except winning)" : debug_set_all_true
+		> "Backstory flags" : debug_set_backstory_true
+		> "Unglitch flags" : debug_set_glitch_flags_true
+		> "Never mind" : debug_set_flags_true_no
 	}
 }
 
-debug-set-story-and-misc-flags-false {
+debug_set_story_and_misc_flags_false {
 	mutate hint-tracking = 0;
 	copy script set-story-flags-false;
 	copy script set-misc-flags-false;
@@ -84,44 +84,44 @@ debug-set-story-and-misc-flags-false {
 	show dialog {
 		SELF "All story and misc flags set to FALSE."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-false-q;
+	set entity "%SELF%" on_interact to debug_set_flags_false_q;
 }
 
-debug-set-backstory-false {
+debug_set_backstory_false {
 	copy script set-backstory-flags-false;
 	show dialog {
 		SELF "All entities have forgotten their first\nconversations with you."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-false-q;
+	set entity "%SELF%" on_interact to debug_set_flags_false_q;
 }
 
-debug-set-backstory-true {
+debug_set_backstory_true {
 	copy script set-backstory-flags-true;
 	show dialog {
 		SELF "All entities are inexplicably under the\nimpression that you've spoken to them\nbefore."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-true-q;
+	set entity "%SELF%" on_interact to debug_set_flags_true_q;
 }
 
-debug-set-glitch-flags-true {
+debug_set_glitch_flags_true {
 	copy script set-glitch-flags-true;
 	make entity Billy unglitched;
 	make entity Kid unglitched;
 	make entity Fountain unglitched;
 	make entity Hamster unglitched;
-	set entity "%SELF%" on_interact to debug-set-flags-true-q;
+	set entity "%SELF%" on_interact to debug_set_flags_true_q;
 }
 
-debug-set-glitch-flags-false {
+debug_set_glitch_flags_false {
 	copy script set-glitch-flags-false;
 	make entity Billy glitched;
 	make entity Kid glitched;
 	make entity Fountain glitched;
 	make entity Hamster glitched;
-	set entity "%SELF%" on_interact to debug-set-flags-false-q;
+	set entity "%SELF%" on_interact to debug_set_flags_false_q;
 }
 
-debug-set-all-true {
+debug_set_all_true {
 	copy script set-story-flags-true;
 	copy script set-glitch-flags-true;
 	copy script set-goodmorning-flags-true;
@@ -132,21 +132,21 @@ debug-set-all-true {
 	show dialog {
 		SELF "All flags set to TRUE. You may have to reload the map to see some changes."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-true-q;
+	set entity "%SELF%" on_interact to debug_set_flags_true_q;
 }
 
-debug-set-flags-false-no {
+debug_set_flags_false_no {
 	show dialog {
 		SELF "Nothing changed."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-false-q;
+	set entity "%SELF%" on_interact to debug_set_flags_false_q;
 }
 
-debug-set-flags-true-no {
+debug_set_flags_true_no {
 	show dialog {
 		SELF "Nothing changed."
 	}
-	set entity "%SELF%" on_interact to debug-set-flags-true-q;
+	set entity "%SELF%" on_interact to debug_set_flags_true_q;
 }
 
 load_map-warp_zone {

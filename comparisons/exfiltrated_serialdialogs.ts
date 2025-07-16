@@ -596,19 +596,19 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: ["Verb Overrides UN-registered: 'Look', 'look mage 01', 'go west'"],
 		name: 'serial_dialog-go_un-override',
 	},
-	'dialog-debug-go-space': {
+	'dialog-debug_go_space': {
 		messages: ['HONK! The goose has stolen the door!'],
-		name: 'dialog-debug-go-space',
+		name: 'dialog-debug_go_space',
 	},
-	'dialog-debug-look-override': {
+	'dialog-debug_look_override': {
 		messages: [
 			'HONK! The goose tells you an awesome story about the rise and fall of his enemies, and prevents you from looking about the room!',
 		],
-		name: 'dialog-debug-look-override',
+		name: 'dialog-debug_look_override',
 	},
-	'dialog-debug-look-mage01-override': {
+	'dialog-debug_look_mage01-override': {
 		messages: ["HONK! The goose attacks when you try to look at the 'Mage 01'!"],
-		name: 'dialog-debug-look-mage01-override',
+		name: 'dialog-debug_look_mage01-override',
 	},
 	'ch1-secretroom.mgs:134:2': {
 		messages: [
@@ -623,23 +623,23 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Daisy chain',
-				script: 'debug-buffertest-daisy',
+				script: 'debug_buffertest_daisy',
 			},
 			{
 				label: 'Single messages',
-				script: 'debug-buffertest-singles',
+				script: 'debug_buffertest_singles',
 			},
 			{
 				label: 'Big message',
-				script: 'debug-buffertest-big',
+				script: 'debug_buffertest_big',
 			},
 			{
 				label: 'Single messages with #',
-				script: 'debug-buffertest-singles_q',
+				script: 'debug_buffertest_singles_q',
 			},
 			{
 				label: 'Big message with #',
-				script: 'debug-buffertest-big_q',
+				script: 'debug_buffertest_big_q',
 			},
 			{
 				label: 'Quit',
@@ -882,12 +882,12 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 			"\u001b[33mDEBUG>\u001b[0m: Set flag 'ch2_storyflag_round' to what value? (0-5)",
 		],
 		text_options: {
-			0: 'debug-map-flags-for-round0',
-			1: 'debug-map-flags-for-round1',
-			2: 'debug-map-flags-for-round2',
-			3: 'debug-map-flags-for-round3',
-			4: 'debug-map-flags-for-round4',
-			5: 'debug-map-flags-for-round5',
+			0: 'debug_map_flags_for_round0',
+			1: 'debug_map_flags_for_round1',
+			2: 'debug_map_flags_for_round2',
+			3: 'debug_map_flags_for_round3',
+			4: 'debug_map_flags_for_round4',
+			5: 'debug_map_flags_for_round5',
 		},
 		name: 'ch2-admin.mgs:278:2',
 	},
@@ -4471,7 +4471,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 			'Enter password:',
 		],
 		text_options: {
-			AUTHENTICATE: 'interact_ch2_keypad_good-pass',
+			AUTHENTICATE: 'interact_ch2_keypad_good_pass',
 		},
 		name: 'ch2-castle-14.mgs:301:2',
 	},

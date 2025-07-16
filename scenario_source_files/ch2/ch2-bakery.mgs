@@ -68,7 +68,7 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "interact_ch2_baker" {
-	copy!("interrupt-walk")
+	copy!(interrupt_walk)
 	if ("ch2_storyflag_round" >= 5) {
 		show dialog {
 			SELF "Good job building that computer. That's really impressive."
@@ -79,11 +79,11 @@ include "header.mgs";
 			"But good luck conquering the serial castle."
 		};
 	}
-	copy!("resume-walk")
+	copy!("resume_walk")
 }
 
 "interact_ch2_jackob_bakery" {
-	copy!("face-player")
+	copy!(face_player)
 	show dialog {
 		SELF "I'm just taking a little shopping break. Sometimes you just really want some fresh bread, you know?"
 		"Mmmm, fresh bread!"

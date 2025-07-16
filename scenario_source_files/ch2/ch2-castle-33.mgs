@@ -24,7 +24,7 @@ $lightsdefault = "ch2-serial-light-manager";
 
 "on_load_ch2_castle_33" {
 	// ch2 room state
-	"ch2_in_room" = 33;
+	ch2_in_room = 33;
 
 	// entrance text
 	show serial_dialog spacer;
@@ -103,7 +103,7 @@ $lightsdefault = "ch2-serial-light-manager";
 /* ---------- EXIT STUFF ---------- */
 
 "on_exit_ch2_castle_33" { // sanitize ch2 room state
-	"ch2_in_room" = 0;
+	ch2_in_room = 0;
 }
 
 // SERIAL: go
@@ -118,7 +118,7 @@ $lightsdefault = "ch2-serial-light-manager";
 
 $time = 200ms;
 
-"screen-lights-flash-bits" {
+"screen_lights_flash-bits" {
 	light LED_BIT1 = on;
 	light LED_BIT2 = on;
 	light LED_BIT4 = on;
@@ -151,7 +151,7 @@ $time = 200ms;
 }
 
 "interact_ch2_gregory" {
-	copy!("face-player")
+	copy!(face_player)
 	if ("ch2-mousegame") {
 		if (!interrupt) {
 			show dialog {
@@ -186,17 +186,17 @@ $time = 200ms;
 				SELF "This wing was recently redone to install a bunch of fancy tech."
 				"These hydroponics trays, the induction stovetops in the next room... that kind of thing."
 			};
-			entity "Gregory" on_tick = "face-player";
-			copy!("face-player")
+			entity "Gregory" on_tick = "face_player";
+			copy!(face_player)
 			show dialog {
 				SELF "They did some structural reinforcement, too, but don't remember specifics."
 				"At the time, the only thing I cared about was my new stovetop."
 			};
 			"ch2_gregory_backstory" = true;
 			if (
-				!"ch2-want-cactuscooler"
+				!"ch2_want_cactuscooler"
 				|| "ch2_carrying_cactuscooler"
-				|| "ch2-cactuscooler-delivered"
+				|| "ch2_cactuscooler_delivered"
 			) { /*NADA*/ } else {
 				show dialog {
 					PLAYER "Gotcha. So, um...."
@@ -209,9 +209,9 @@ $time = 200ms;
 			}
 		} else {
 			if (
-				!"ch2-want-cactuscooler"
+				!"ch2_want_cactuscooler"
 					|| "ch2_carrying_cactuscooler"
-					|| "ch2-cactuscooler-delivered"
+					|| "ch2_cactuscooler_delivered"
 			) {
 				show dialog {
 					SELF "I'm slowing down in my old age, but even so, I don't want my habits ingrained to the point that I'm sabotaging myself. I try to keep my mind spry."
@@ -252,8 +252,8 @@ $time = 200ms;
 			show dialog {
 				SELF "It's loose in this room somewhere, but I'm not as fast as I used to be, and can't quite get ahold of it."
 			};
-			entity "Gregory" on_tick = "face-player";
-			copy!("face-player")
+			entity "Gregory" on_tick = "face_player";
+			copy!(face_player)
 			show dialog {
 				SELF "It's hiding in one of the hydroponics bins, I should think."
 				PLAYER "I'm sorry... your bluetooth mouse is hiding in the vegetables?"
@@ -272,14 +272,14 @@ $time = 200ms;
 			entity "Gregory" direction += 1;
 			wait 800ms;
 			entity "Gregory" direction -= 1;
-			entity "Gregory" on_tick = "face-player";
+			entity "Gregory" on_tick = "face_player";
 			show dialog {
 				SELF "Here, this is a bluetooth proximity detector. It's got eight lights that will turn on depending on how close you are to the mouse."
 				PLAYER "Eight lights?"
 			};
 			lights_control = on;
 			light ALL = off;
-			entity "Lights" on_tick = "screen-lights-flash-bits";
+			entity "Lights" on_tick = "screen_lights_flash-bits";
 			show dialog {
 				SELF "Yes, these eight lights in a line, here along the bottom. You see?"
 				PLAYER "Um...."
@@ -328,7 +328,7 @@ $time = 200ms;
 	entity "Mouse" on_interact = null_script;
 }
 
-"ch2-touch-mouse" {
+"ch2_touch_mouse" {
 	show dialog {
 		name "" "(You found the mouse!)"
 	};
@@ -394,7 +394,7 @@ $time = 200ms;
 
 "ch2-debug-mousegame" {
 	entity "Mouse" name = "Mouse";
-	entity "Mouse" on_interact = "ch2-touch-mouse";
+	entity "Mouse" on_interact = "ch2_touch_mouse";
 	entity "Mouse" on_tick = "ch2-mousegame-prepare-board";
 }
 
@@ -511,7 +511,7 @@ $time = 200ms;
 	show dialog {
 		name "" "(SQUEAK!)"
 	};
-	entity "Mouse" on_interact = "ch2-touch-mouse";
+	entity "Mouse" on_interact = "ch2_touch_mouse";
 	"mousegame-mouseX" = entity "Mouse" x;
 	"mousegame-mouseY" = entity "Mouse" y;
 	"ch2-mousegame" = true;

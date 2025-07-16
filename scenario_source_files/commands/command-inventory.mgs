@@ -139,7 +139,7 @@ include "header.mgs";
 		"ch2-count-inventory" += 1;
 	}
 	// mini-rake quest
-	if ("ch2_carrying_minirake-99") {
+	if ("ch2_carrying_minirake_99") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	mini rake" };
 		}

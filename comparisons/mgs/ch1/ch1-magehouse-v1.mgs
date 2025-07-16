@@ -185,7 +185,7 @@ show_dialog-zappy-start {
 			SELF "Abj V srry rkgen mnccl!"
 		}
 	} else {
-		copy face-player;
+		copy face_player;
 		show dialog {
 			SELF "Did you remember to feed %Mr. Tickles% today?"
 		}
@@ -196,7 +196,7 @@ show_dialog-zippy-start {
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Jbj, guvf srryf ernyyl jrveq! Vg erzvaqf zr bs guvf bar gvzr va pbyyrtr...." }
 	} else {
-		copy face-player;
+		copy face_player;
 		show dialog { SELF "How's your day going, %PLAYER%?" }
 	}
 }
@@ -274,30 +274,30 @@ show_dialog-sink {
 
 /* ---------- DEBUG ---------- */
 
-debug-walk-to-lodge-q {
+debug_walk_to_lodge_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF "Go on a morning walk?"
-		> "Yes" : goto "debug-walk-to-lodge"
-		> "No" : goto "debug-walk-to-lodge-no"
+		> "Yes" : goto "debug_walk_to_lodge"
+		> "No" : goto "debug_walk_to_lodge_no"
 	}
 }
 
-debug-walk-to-lodge {
+debug_walk_to_lodge {
 	copy walk-to-lodge;
 }
 
-debug-walk-to-lodge-no {
-	set entity "%SELF%" on_interact to debug-walk-to-lodge-q;
+debug_walk_to_lodge_no {
+	set entity "%SELF%" on_interact to debug_walk_to_lodge_q;
 }
 
-debug-goodmorning-q {
+debug_goodmorning_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF "Start the beginning cutscene?"
 		> "Yes (just the magehouse and exterior)" : goto "debug-goodmorning"
-		> "Yes (also the lodge stuff)" : goto "debug-goodmorning-plus"
-		> "No" : goto "debug-goodmorning-no"
+		> "Yes (also the lodge stuff)" : goto "debug_goodmorning_plus"
+		> "No" : goto "debug_goodmorning_no"
 	}
 }
 
@@ -310,7 +310,7 @@ debug-goodmorning {
 	set map on_tick to on_tick-magehouse;
 }
 
-debug-goodmorning-plus {
+debug_goodmorning_plus {
 	show dialog dialog-debug-goodmorning;
 	turn hex control off;
 	copy set-goodmorning-flags-false;
@@ -322,34 +322,34 @@ debug-goodmorning-plus {
 	set map on_tick to on_tick-magehouse;
 }
 
-debug-goodmorning-no {
-	set entity "%SELF%" on_interact to debug-goodmorning-q;
+debug_goodmorning_no {
+	set entity "%SELF%" on_interact to debug_goodmorning_q;
 }
 
-debug-everything-q {
+debug_everything_q {
 	show dialog {
 		SELF "DEBUG EVERYTHING"
-		> "Turn debug mode on" : goto "debug-everything-on"
-		> "Go to debug map hub" : goto "debug-hub-go"
-		> "Never mind" : goto "debug-everything-off"
+		> "Turn debug mode on" : goto "debug_everything_on"
+		> "Go to debug map hub" : goto "debug_hub_go"
+		> "Never mind" : goto "debug_everything_off"
 	}
 }
 
-debug-everything-on {
+debug_everything_on {
 	set flag debug-mode to true;
 	turn hex control on;
 	copy set-goodmorning-flags-true;
 	set flag tuesday-walkedup to true;
 	set flag hintman-explanation to true;
 	set map on_tick to on_tick-magehouse;
-	teleport entity "Debug Exa" to geometry debug-exa-spot;
+	teleport entity "Debug Exa" to geometry debug_exa_spot;
 	show dialog {
 		SELF "Debug mode on."
 	}
-	set entity "%SELF%" on_interact to debug-everything-q;
+	set entity "%SELF%" on_interact to debug_everything_q;
 }
 
-debug-everything-off {
+debug_everything_off {
 	show dialog { SELF "Never mind."}
-	set entity "%SELF%" on_interact to debug-everything-q;
+	set entity "%SELF%" on_interact to debug_everything_q;
 }
