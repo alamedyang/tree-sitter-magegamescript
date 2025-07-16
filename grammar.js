@@ -776,7 +776,7 @@ export default grammar({
 				field('type', 'serial_control'),
 				seq(field('entity_identifier', $.entity_identifier), field('type', 'glitched')),
 				seq(field('type', 'light'), field('light', $.string_expandable)),
-				field('flag', $.string),
+				seq(optional('flag'), field('flag', $.string)),
 			),
 		bool_setable_expandable: ($) => prec(1, choice($.bool_setable, $.bool_setable_expansion)),
 		bool_setable_expansion: ($) =>
@@ -795,6 +795,7 @@ export default grammar({
 					field('type', 'intersects'),
 					field('geometry_identifier', $.geometry_identifier),
 				),
+				seq(field('type', 'flag'), field('value', $.string)),
 				seq(field('type', 'dialog'), field('value', choice('open', 'closed'))),
 				seq(field('type', 'serial_dialog'), field('value', choice('open', 'closed'))),
 				seq(
@@ -851,7 +852,9 @@ export default grammar({
 					field('entity_identifier', $.entity_identifier),
 					field('property', $.entity_property_int),
 				),
-				field('variable', $.string),
+				field('variable', $.string), // replace with vv
+				// seq(optional('variable'), field('variable', $.string)),
+				// todo turns out this is involved, too
 			),
 		int_setable_expandable: ($) => prec(1, choice($.int_setable, $.int_setable_expansion)),
 		int_setable_expansion: ($) =>
@@ -866,6 +869,8 @@ export default grammar({
 					field('entity_identifier', $.entity_identifier),
 					field('property', $.entity_property_int),
 				),
+				// seq(optional('variable'), field('variable', $.string)),
+				// todo might be kind of involved actually
 			),
 		simple_bool_unary_expression: ($) =>
 			seq(field('operator', '!'), field('operand', $._simple_bool_unit)),

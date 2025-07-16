@@ -2334,6 +2334,10 @@
             "named": false
           },
           {
+            "type": "flag",
+            "named": false
+          },
+          {
             "type": "glitched",
             "named": false
           },
@@ -2351,6 +2355,18 @@
         "multiple": false,
         "required": false,
         "types": [
+          {
+            "type": "BAREWORD",
+            "named": true
+          },
+          {
+            "type": "CONSTANT",
+            "named": true
+          },
+          {
+            "type": "QUOTED_STRING",
+            "named": true
+          },
           {
             "type": "closed",
             "named": false
@@ -5859,6 +5875,10 @@
   },
   {
     "type": "false",
+    "named": false
+  },
+  {
+    "type": "flag",
     "named": false
   },
   {

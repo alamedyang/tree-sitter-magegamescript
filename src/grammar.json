@@ -4670,12 +4670,29 @@
           ]
         },
         {
-          "type": "FIELD",
-          "name": "flag",
-          "content": {
-            "type": "SYMBOL",
-            "name": "string"
-          }
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "flag"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            },
+            {
+              "type": "FIELD",
+              "name": "flag",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
         }
       ]
     },
@@ -4811,6 +4828,27 @@
               "content": {
                 "type": "SYMBOL",
                 "name": "geometry_identifier"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "STRING",
+                "value": "flag"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
               }
             }
           ]

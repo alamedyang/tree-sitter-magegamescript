@@ -322,6 +322,9 @@ const captureFns = {
 		return inverted;
 	},
 	int_getable: (f: FileState, node: TreeSitterNode) => {
+		// if (textForFieldName(f, node, 'variable')) {
+		// 	return captureForFieldName(f, node, 'variable');
+		// }
 		return {
 			mathlang: 'int_getable',
 			field: textForFieldName(f, node, 'property'),
@@ -343,8 +346,12 @@ const captureFns = {
 			value: '',
 			state: '',
 			button_id: '',
+			save_flag: '',
 		};
-		if (type === 'debug_mode') {
+		if (type === 'flag') {
+			ret.action = 'CHECK_SAVE_FLAG';
+			ret.save_flag = captureForFieldName(f, node, 'value');
+		} else if (type === 'debug_mode') {
 			ret.action = 'CHECK_DEBUG_MODE';
 		} else if (type === 'glitched') {
 			ret.action = 'CHECK_ENTITY_GLITCHED';
