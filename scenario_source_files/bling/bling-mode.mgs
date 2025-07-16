@@ -93,7 +93,7 @@ $maxBling = 5;
 		"bling-rotate-state" = 0;
 	}
 	"bling-rotate-state-calc-done" = true;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 
 "bling-rotate-state-decrement" {
@@ -102,7 +102,7 @@ $maxBling = 5;
 		"bling-rotate-state" = $maxBling;
 	}
 	"bling-rotate-state-calc-done" = true;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 
 /* --- for the "Timer" entity --- */

@@ -98,23 +98,23 @@ $panicked = 5;
 
 "ch2-post-credits-walkin" {
 	player position -> geometry "end-walkin" length over 1800ms;
-	goto "null_script";
+	goto null_script;
 }
 "lambda-cower" {
 	entity $Lambda position -> geometry "lambda-hide" length over 1000ms;
-	goto "null_script";
+	goto null_script;
 }
 "player-watch-alfonso" {
 	player direction = entity Alfonso;
 }
 "ch2-elder-ending-walkin" {
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-elder-ending-walkin-end" {
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
-	self on_tick = "yeet";
-	goto "null_script";
+	self on_tick = yeet;
+	goto null_script;
 }
 
 "ch2-post-credits" {
@@ -122,7 +122,7 @@ $panicked = 5;
 	player_control = off;
 
 	// Make Bert into Lambda
-	entity $Lambda on_tick = "null_script";
+	entity $Lambda on_tick = null_script;
 	entity $Lambda position = geometry "hiding-spot";
 	entity $Lambda type = "lambda";
 
@@ -160,12 +160,12 @@ $panicked = 5;
 	show dialog {
 		Lambda emote $panicked "Wait a minute! I --"
 	};
-	entity $Lambda on_tick = "spin_self_clockwise";
+	entity $Lambda on_tick = spin_self_clockwise;
 	show dialog {
 		PLAYER "What's wrong? You wanted to talk to them."
 		Lambda emote $panicked "Yes, but not quite so fast! I-I need to work myself up to it! I gotta --"
 	};
-	entity $Lambda on_tick = "null_script";
+	entity $Lambda on_tick = null_script;
 	entity $Lambda on_tick = "lambda-cower";
 	player on_tick = "player-watch-lambda-actor";
 	show dialog {
@@ -205,7 +205,7 @@ $panicked = 5;
 		"Who actually is the Big Bad? Could it be... Lambda?"
 		Jackob "Lambda? Who's that?"
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = entity $Lambda;
 	show dialog {
 		PLAYER "Well?"
@@ -225,9 +225,9 @@ $panicked = 5;
 	wait 500ms;
 	entity $Lambda position -> geometry "lambda7" origin over 2300ms;
 	entity $Lambda current_animation = $opaque;
-	player on_tick = "null_script";
-	entity Jackob on_tick = "null_script";
-	entity Alfonso on_tick = "null_script";
+	player on_tick = null_script;
+	entity Jackob on_tick = null_script;
+	entity Alfonso on_tick = null_script;
 	wait 200ms;
 	entity $Lambda direction = entity Alfonso;
 	wait 1400ms;
@@ -297,7 +297,7 @@ $panicked = 5;
 	show dialog {
 		PLAYER "This is getting dangerous, isn't it?"
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = entity Alfonso; 
 	entity Jackob direction = player; 
 	show dialog {
@@ -319,7 +319,7 @@ $panicked = 5;
 	};
 	entity Alfonso direction = entity $Lambda;
 	wait 800ms;
-	entity Jackob on_tick = "null_script";
+	entity Jackob on_tick = null_script;
 	entity Jackob direction = entity $Lambda;
 	show dialog {
 		Alfonso "I don't know if I can trust you, Lambda."
@@ -396,12 +396,12 @@ $panicked = 5;
 	entity $Lambda on_tick = "ch2-lambda-walkout";
 	"ch2-cutseen-secret-ending" = true;
 	wait 800ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	camera fade out -> #000000 over 1200ms;
 	load map "credits2";
 }
 
 "ch2-lambda-walkout" {
 	entity $Lambda position -> geometry "lambda9" origin over 2600ms;
-	entity $Lambda on_tick = "yeet";
+	entity $Lambda on_tick = yeet;
 }

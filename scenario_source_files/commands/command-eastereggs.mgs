@@ -16,7 +16,7 @@ include "header.mgs";
 // COMMAND
 
 "command-plover" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -52,21 +52,21 @@ include "header.mgs";
 }
 
 "command-xyzzy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You hex a decimal. It looks surprised."
 	};
 }
 
 "command-plugh" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"Bless you."
 	};
 }
 
 "command-fum" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"While I've never actually made a mistake, there have been a few, let's call 'em \"stnanks,\" that could be worthy of a do-over."
 	};

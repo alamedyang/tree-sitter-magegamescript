@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-lodge" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>LIBRARY</>."
 		"\tThe sight of endless books -- and the smell of books, new and old! Is there another single sight on the planet that promises such boundless knowledge, fantastic adventure, or exquisite trivia factoids?"
@@ -12,7 +12,7 @@ include "header.mgs";
 }
 
 "look-ch2-cat-lodge" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tIts eyes are fixed on your every movement. This is probably normal for a cat."
@@ -20,7 +20,7 @@ include "header.mgs";
 }
 
 "look-ch2-timmy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe child monster-bug wears his heart on his... arms? In any case, he is clearly excited by what he's reading."
@@ -28,7 +28,7 @@ include "header.mgs";
 }
 
 "look-ch2-sportsbook" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe cover of this book is so vague that it's unclear which sport it's celebrating."
@@ -36,7 +36,7 @@ include "header.mgs";
 }
 
 "look-ch2-dejavu" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe magazine itself seems not to have run long, as this issue claims to be both the third issue and the final issue. The glossy cover is a badly-Photoshopped collage of improbable monsters in implausible situations."
@@ -44,7 +44,7 @@ include "header.mgs";
 }
 
 "look-ch2-manual" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tOverall, you're left with confusion as to why a calculator would require a whole book to use it properly."
@@ -55,11 +55,11 @@ include "header.mgs";
 
 "on_load-ch2-lodge" {
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>LIBRARY</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
 	if ("ch2-storyflag-round" != 1) {
-		entity "Alfonso" on_tick = "yeet";
+		entity "Alfonso" on_tick = yeet;
 	}
 	// The part of Uncle Zappy is being played by Jackob
 	if (
@@ -69,12 +69,12 @@ include "header.mgs";
 		entity "Jackob" position = geometry "zappy-spot";
 		entity "Jackob" name = "Uncle Zappy";
 		entity "Jackob" on_look = "look-ch2-zappy";
-		entity "Jackob" on_tick = "null_script";
+		entity "Jackob" on_tick = null_script;
 		entity "Jackob" on_interact = "interact-ch2-zappy";
 		entity "Jackob" type = "lightning_boy2";
 		entity "Jackob" direction = north;
 	} else if ("ch2-storyflag-round" != 1) {
-		entity "Jackob" on_tick = "yeet";
+		entity "Jackob" on_tick = yeet;
 	}
 	// hide stuff
 	if (

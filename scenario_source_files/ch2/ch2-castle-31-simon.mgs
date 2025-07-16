@@ -123,7 +123,7 @@ $rocking = 12;
 "simon-game-start-q-wrapup" {
 	entity "Simon" current_animation = 0;
 	entity "Simon" on_interact = "interact-ch2-simon";
-	goto "null_script";
+	goto null_script;
 }
 
 /*
@@ -430,37 +430,37 @@ Simon animations:
 "simon-player-animation-pose_bottom_left-wait" {
 	if (button $button0 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 "simon-player-animation-pose_bottom_right-wait" {
 	if (button $button1 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 "simon-player-animation-pose_left-wait" {
 	if (button $button2 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 "simon-player-animation-pose_right-wait" {
 	if (button $button3 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 "simon-player-animation-pose_top_left-wait" {
 	if (button $button4 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 "simon-player-animation-pose_top_right-wait" {
 	if (button $button5 up) {
 		"simon-player-wait-finished" = true;
-		goto "null_script";
+		goto null_script;
 	}
 }
 
@@ -538,7 +538,7 @@ Simon animations:
 	entity "Lights" on_tick = $lightsdefault;
 	copy!("ch2-map-init-hex")
 	player_control = on;
-	entity "Keyboard" on_tick = "null_script";
+	entity "Keyboard" on_tick = null_script;
 	entity "Simon" current_animation = 5;
 	goto "simon-game-go-again";
 }
@@ -596,7 +596,7 @@ Simon animations:
 		"interrupt" = true;
 		copy!("ch2-pickup-keyboard")
 		"ch2-simon-won-before" = true;
-		goto "null_script";
+		goto null_script;
 	} else {
 		goto "simon-game-go-again";
 	}
@@ -662,7 +662,7 @@ $time_q = 125ms;
 	player direction = south;
 	wait $time_q;
 	player current_animation = $rocking;
-	goto "null_script";
+	goto null_script;
 }
 "player-lose" {
 	player current_animation = $guitar_idle;
@@ -675,7 +675,7 @@ $time_q = 125ms;
 	player direction = east;
 	wait $time_q;
 	player direction = south;
-	goto "null_script";
+	goto null_script;
 }
 
 "simon-rock" {
@@ -751,7 +751,7 @@ $time_q = 125ms;
 
 	light ALL = off;
 
-	goto "null_script";
+	goto null_script;
 }
 
 "screen-lights-win" {

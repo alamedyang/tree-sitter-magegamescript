@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-32" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE KITCHEN</>."
 		"\tThis room seems to be a combination employee break room and industrial-strength kitchen. The smell of the place is a stange combination of corporate disinfectant and maybe-fresh coffee."
@@ -12,14 +12,14 @@ include "header.mgs";
 }
 
 "ch2-look-onions" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tFresh and fragrant. You appreciate the care to flavor that this cook is putting into whatever it is they're intending to cook. You also appreciate that fact that you don't have to cut them yourself."
 	};
 }
 "ch2-look-stove" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe glassy surface is very clean, perfectly black and very shiny."
@@ -27,7 +27,7 @@ include "header.mgs";
 }
 
 "look-ch2-seamoss" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThis old, moist stone golem hums softly to himself while he munches on his Skittles. When you look directly at him, he casts a smile your way."
@@ -35,7 +35,7 @@ include "header.mgs";
 }
 
 "look-ch2-samson" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe young larvae seems entirely oblivious to his mother's panic. He stares at you with wonder, as if you're the most interesting thing he's seen all day."
@@ -43,7 +43,7 @@ include "header.mgs";
 }
 
 "look-ch2-gloria" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tShe's checking %Samson% over again and again, as if the child's condition might have changed in the last few seconds. Her antenna swivels toward you when you come close."
@@ -51,7 +51,7 @@ include "header.mgs";
 }
 
 "look-ch2-ramchips" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tYou can't decide whether the promise of spicy nacho outweighs the fact that the chips are made of metal and silicon. The image on the package (enlarged to show texture) isn't helping. You're astounded there's a market for this."
@@ -59,7 +59,7 @@ include "header.mgs";
 }
 
 "look-ch2-vendingmachine" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tAt first glance, the machine contains the standard smattering of snacks, but you eventually notice some oddities: red twisted pair licorice, lemon silicon wafers, and mixed nuts-and-bolts granola bars."
@@ -67,7 +67,7 @@ include "header.mgs";
 }
 
 "look-ch2-coffee" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tWarm and fresh -- by some corporate standard. It's coffee that aims for the floor and achieves its goals completely."
@@ -82,7 +82,7 @@ include "header.mgs";
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 32;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE KITCHEN</>..." };
 	if (warp_state == "walk_from-northeast") {
 		player position = geometry "walk_from-northeast";
@@ -99,7 +99,7 @@ include "header.mgs";
 	entity "Gloria" direction = entity "Samson";
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-32") {
 		show serial_dialog { "Discovered <bold><c>CASTLE KITCHEN</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-32" = true;
@@ -232,7 +232,7 @@ $walkspeed = 200ms;
 
 "interact-ch2-gloria" {
 	player_control = off;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 	copy!("face-player")
 	self animation -> 3 once;
 	self current_animation = 4;
@@ -412,7 +412,7 @@ $walkspeed = 200ms;
 	player position -> geometry "vending-watch" origin over 1900ms;
 	wait 200ms;
 	player direction = north;
-	goto "null_script";
+	goto null_script;
 }
 
 "ch2-walk-to-vend-short" {
@@ -420,7 +420,7 @@ $walkspeed = 200ms;
 	player position -> geometry "vending-watch" origin over 500ms;
 	wait 200ms;
 	player direction = north;
-	goto "null_script";
+	goto null_script;
 }
 
 "interact-ch2-seamoss-cutscene" {
@@ -449,7 +449,7 @@ $walkspeed = 200ms;
 "ch2-seamoss-summon-chips" {
 	entity "Sea Moss" position -> geometry "vending-spot" origin over 1800ms;
 	wait 800ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = north;
 	show dialog {
 		entity "Sea Moss" "I know a secret code for the ultimate cache of cache. Just need some cash...."
@@ -475,7 +475,7 @@ $walkspeed = 200ms;
 	player_control = on;
 	"ch2-cutseen-ramchips" = true;
 	"ch2-ramchips-dispensed" = true;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 }
 
 "interact-ch2-vendingmachine-end" {
@@ -516,7 +516,7 @@ $walkspeed = 200ms;
 	copy!("ch2-hide-ramchips")
 	copy!("ch2-pickup-ramchips")
 	"ch2-ramchips-dispensed" = false;
-	self on_interact = "null_script";
+	self on_interact = null_script;
 }
 "ch2-touch-ramchips-no" {
 	show dialog {

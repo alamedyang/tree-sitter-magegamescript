@@ -9,7 +9,7 @@ add dialog settings {
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-12" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE HALLWAY BACK</>."
 	};
@@ -27,7 +27,7 @@ add dialog settings {
 }
 
 "look-ch2-concierge" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe man is professionalism itself, from his well-fitten suit and his professional body language -- apart from the expression on his face, which is incongruously aggressive. You think you can make out the sound of growling."
@@ -35,7 +35,7 @@ add dialog settings {
 }
 
 "look-ch2-guest_book" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tIt's a massive volume open to a page filled with names in eclectic handwriting. An elegant gold bookmark, attached to the book at the top of the spine, is draped across the opposite page."
@@ -43,7 +43,7 @@ add dialog settings {
 }
 
 "look-ch2-stereo" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThis machine is massive by modern standards, large enough to house four CDs in the CD changer up top and two cassette decks side-by-side the front face. It's thoroughly wired into the wall."
@@ -56,7 +56,7 @@ add dialog settings {
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 12;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE HALLWAY BACK</>..." };
 	if (warp_state == "walk_from-north") {
 		player position = geometry "walk_from-north";
@@ -73,7 +73,7 @@ add dialog settings {
 	"ch2-in-room" = 12;
 	
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-12") {
 		show serial_dialog { "Discovered <bold><c>CASTLE HALLWAY BACK</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-12" = true;
@@ -335,7 +335,7 @@ serial_dialog "ch2-ws-rowstart" { "<r>" }
 serial_dialog "ch2-ws-col" { "</>   " }
 
 "ch2-ws-doturn" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	copy!("ch2-ws-count-flags")
 	show serial_dialog {
 		wrap 100
@@ -359,7 +359,7 @@ include "header.mgs";
 	"ch2-ws-turn-value" = 0;
 	"ch2-ws-turn-status" = 0;
 	copy!("ch2-ws-count-flags")
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-ws-flags-tally" == 0) {
 		show serial_dialog {
 			"<y>STEREO</>: All done for now? Well, thanks for taking a look."
@@ -394,7 +394,7 @@ include "header.mgs";
 }
 
 "ch2-ws-cutscene" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show dialog {
 		Concierge "Oh! Oh! I can hear it! The old, reliable stereo is back in business!"
 	};
@@ -423,7 +423,7 @@ include "header.mgs";
 }
 
 "ch2-stereo-intro1" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<y>STEREO</>: Huh? Is there someone there? I-I think I hear a voice!"
 		" "
@@ -434,17 +434,17 @@ include "header.mgs";
 }
 
 "ch2-stereo-intro2a" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "<c>YOU</>: Hello. Are you okay?" };
 	goto "ch2-stereo-intro2";
 }
 "ch2-stereo-intro2b" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "<c>YOU</>: Howdy. Are you okay?" };
 	goto "ch2-stereo-intro2";
 }
 "ch2-stereo-intro2c" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "<c>YOU</>: Ahoy. Are you okay?" };
 	goto "ch2-stereo-intro2";
 }
@@ -458,7 +458,7 @@ include "header.mgs";
 	};
 }
 "ch2-stereo-intro3" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: You have amnesia?"
 		" "
@@ -468,7 +468,7 @@ include "header.mgs";
 	};
 }
 "ch2-stereo-intro4" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: You're a stereo system. You're supposed to play music."
 		" "
@@ -479,7 +479,7 @@ include "header.mgs";
 }
 "ch2-stereo-intro5" {
 	"ch2-stereo-backstory" = true;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Help like what?"
 		" "

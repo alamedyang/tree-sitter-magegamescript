@@ -5,7 +5,7 @@ include "header.mgs";
     player y = 0;
     for ("j" = 0; "i" < 1030; "j" += 1) {
         player y = "j";
-        copy!("cutbug")
+        copy!(cutbug)
         wait 250ms;
     }
 }
@@ -13,7 +13,7 @@ include "header.mgs";
 "cutbug" {
     "qty" = player y;
     // "qty" %= 256;
-    show serial_dialog "spacer";
+    show serial_dialog spacer;
     concat serial_dialog {
         "<c>CUTBUG!</> "
     };

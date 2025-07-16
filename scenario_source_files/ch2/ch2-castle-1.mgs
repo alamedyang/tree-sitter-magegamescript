@@ -13,7 +13,7 @@ $calc = #5AB5F7;
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-1" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE ENTRANCE</>."
 	};
@@ -32,7 +32,7 @@ $calc = #5AB5F7;
 }
 
 "look-ch2-mainframe-end" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tIt's one majestic computer, full of your sweat, blood, and tears -- in some proportion."
@@ -41,7 +41,7 @@ $calc = #5AB5F7;
 }
 
 "look-ch2-mainframe" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		" "
@@ -97,9 +97,9 @@ $calc = #5AB5F7;
 }
 
 "look-ch2-wizard" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (entity "Wizard" current_animation == 0) { // WIZARD IS DOWN
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"You looked at the <m>%SELF%</>."
 			"\tAt least, you looked at the trash can itself. It's... a trash can. It's pungent enough that you think it best to breathe through your mouth for the moment."
@@ -119,13 +119,13 @@ $calc = #5AB5F7;
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 1;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE ENTRANCE</>..." };
 
 	entity "Wizard" on_interact = "interact-ch2-wizard-mainframedone";
 	entity "Wizard" current_animation = 3; // head poking up
 	if (warp_state == "raw_game_load-ch2") {
-		copy!("restore_player_state")
+		copy!(restore_player_state)
 	} else if (warp_state == "walk_from-north") {
 		player position = geometry "walk_from-north";
 	} else if (warp_state == "walk_from-south") {
@@ -144,12 +144,12 @@ $calc = #5AB5F7;
 	"ch2-seen-room-1" = true;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE ENTRANCE</>..." };
 
 	// room unique stuff
 	if ("ch2-cutseen-bert-secret") {
-		entity "Bert" on_tick = "yeet";
+		entity "Bert" on_tick = yeet;
 		// so his name is blank for when Ring Zero is back
 	}
 
@@ -158,10 +158,10 @@ $calc = #5AB5F7;
 		entity "Wizard" current_animation = 3; // head poking up
 	}
 	if ("ch2-has-artifact") {
-		entity "Artifact" on_tick = "yeet";
+		entity "Artifact" on_tick = yeet;
 	}
 	if (warp_state == "raw_game_load-ch2") {
-		copy!("restore_player_state")
+		copy!(restore_player_state)
 	} else if (warp_state == "walk_from-south") {
 		player position = geometry "walk_from-south";
 	} else if (warp_state == "ch2-ending") {
@@ -229,11 +229,11 @@ $calc = #5AB5F7;
 "tick-artifact-open" {
 	entity "Artifact" animation -> 2 once;
 	entity "Artifact" current_animation = 3;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-camera-to-artifact" {
 	camera -> geometry "artifact-get" origin over 1200ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-artifact-walk" {
 	player_control = off; // temp (take out of final)
@@ -272,7 +272,7 @@ $calc = #5AB5F7;
 	// walks up to it
 	player position -> geometry "artifact-get" origin over 200ms;
 	wait 600ms;
-	entity "Artifact" on_tick = "yeet";
+	entity "Artifact" on_tick = yeet;
 	// remove artifact
 	wait 100ms;
 	entity "XA" on_tick = "ch2-camera-from-artifact";
@@ -299,14 +299,14 @@ $calc = #5AB5F7;
 	camera fade out -> $calc over 800ms;
 	player position = geometry "artifact-approach";
 	camera = player position;
-	entity "calc1" on_tick = "yeet";
-	entity "calc2" on_tick = "yeet";
+	entity "calc1" on_tick = yeet;
+	entity "calc2" on_tick = yeet;
 	camera fade in -> $calc over 800ms;
 	player direction = south;
 }
 "ch2-camera-from-artifact" {
 	camera -> player position over 300ms;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -405,7 +405,7 @@ $calc = #5AB5F7;
 // SERIAL: go
 
 "on_go_ch2-notyet" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"(You better finish your conversation with Lambda before attempting to <c>GO</> anywhere....)"
 		" "
@@ -620,7 +620,7 @@ $calc = #5AB5F7;
 		"Can I help install it? Please?"
 		PLAYER "I wouldn't have it any other way."
 	};
-	entity "Wizard" on_tick = "null_script";
+	entity "Wizard" on_tick = null_script;
 	copy!("ch2-spin-wizard")
 	show dialog {
 		Wizard "Awesome!"
@@ -654,7 +654,7 @@ $calc = #5AB5F7;
 	};
 	wait 800ms;
 	serial_control = off;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"Starting"
 	};
@@ -749,7 +749,7 @@ $calc = #5AB5F7;
 	serial_control = off;
 	camera = geometry "warp-spot";
 	player position = geometry "hiding-spot";
-	entity "abacus" on_tick = "yeet";
+	entity "abacus" on_tick = yeet;
 	entity "Jean-Paul" direction = south;
 	copy!("ch2-ending-fadein")
 	wait 800ms;
@@ -768,7 +768,7 @@ $calc = #5AB5F7;
 	serial_control = off;
 	camera = geometry "warp-spot";
 	player position = geometry "hiding-spot";
-	entity "Power Supply" on_tick = "yeet";
+	entity "Power Supply" on_tick = yeet;
 	copy!("ch2-ending-fadein")
 	wait 800ms;
 	show dialog {
@@ -846,7 +846,7 @@ $calc = #5AB5F7;
 	player direction = west;
 	wait 500ms;
 	player direction = south;
-	goto "null_script";
+	goto null_script;
 }
 
 
@@ -1164,7 +1164,7 @@ $calc = #5AB5F7;
 }
 "ch2-bootup" {
 	// serial_control = off;
-	// show serial_dialog "spacer";
+	// show serial_dialog spacer;
 	// ^^ moved from here to the other place, but this is what it was fyi
 	wait 1050ms;
 	show serial_dialog {
@@ -1406,7 +1406,7 @@ $calc = #5AB5F7;
 		};
 		"can-interrupt-dialog" = false;
 		if (serial_dialog closed) {
-			show serial_dialog "spacer";
+			show serial_dialog spacer;
 			show serial_dialog {
 				"(Type <c>MAN</> to finish your conversation with Lambda.)"
 			};
@@ -1505,7 +1505,7 @@ picocom /dev/serial/by-id/(ONE OF THE DEVICES FROM THE LIST ABOVE)
 	show dialog {
 		Lambda "Let's test the serial connection."
 	};
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: Testing, testing...."
 	};
@@ -1533,7 +1533,7 @@ picocom /dev/serial/by-id/(ONE OF THE DEVICES FROM THE LIST ABOVE)
 		};
 		"can-interrupt-dialog" = false;
 		if (serial_dialog closed) {
-			show serial_dialog "spacer";
+			show serial_dialog spacer;
 			show serial_dialog {
 				"(Type <c>MAN</> to continue your conversation with Lambda.)"
 			};

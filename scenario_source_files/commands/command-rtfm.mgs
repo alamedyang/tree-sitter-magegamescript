@@ -9,7 +9,7 @@ include "header.mgs";
 // MAN PAGE
 
 "man-rtfm" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - RTFM</>"
 		" "
@@ -22,7 +22,7 @@ include "header.mgs";
 // COMMAND
 
 "command-rtfm" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><cyan>RTFM!</> Hex editor docs! Read which book?"
 		"\t1: <g>Entities 1</>"
@@ -76,21 +76,21 @@ include "header.mgs";
 	goto "command-rtfm-invalid";
 }
 "command-rtfm-invalid" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"Invalid book id! Restarting...."
 	};
 	goto "command-rtfm";
 }
 "command-rtfm-quit" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><cyan>RTFM!</> Thanks for reading!"
 	};
 }
 
 "serial-entities1" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #1 - ENTITIES 1</>"
 		" "
@@ -105,7 +105,7 @@ include "header.mgs";
 }
 
 "serial-entities2" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #2 - ENTITIES 2</>"
 		" "
@@ -123,7 +123,7 @@ include "header.mgs";
 }
 
 "serial-entities3" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #3 - ENTITIES 3</>"
 		" "
@@ -138,7 +138,7 @@ include "header.mgs";
 }
 
 "serial-entities4" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #4 - ENTITIES 4</>"
 		" "
@@ -152,7 +152,7 @@ include "header.mgs";
 }
 
 "serial-hexediting" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #5 - HEX EDITS 1</>"
 		" "
@@ -166,7 +166,7 @@ include "header.mgs";
 }
 
 "serial-hexediting2" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #6 - HEX EDITS 2</>"
 		" "
@@ -182,7 +182,7 @@ include "header.mgs";
 }
 
 "serial-bitsbytes" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><b>RTFM #A - BITS & BYTES</>"
 		" "
@@ -195,7 +195,7 @@ include "header.mgs";
 }
 
 "serial-math" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><b>RTFM #B - MATH</>"
 		" "
@@ -207,7 +207,7 @@ include "header.mgs";
 }
 
 "serial-bookorigins" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>RTFM #C - BOOK ORIGINS</>"
 		" "
@@ -223,7 +223,7 @@ include "header.mgs";
 }
 
 "serial-redletters" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>RTFM #D - RED LETTERS</>"
 		" "

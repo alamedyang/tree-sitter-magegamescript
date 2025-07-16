@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-23" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>POWER PLANT</>."
 		"\tThe room is filled with hisses and a whirring or rumbling noise. Scores of pipes sprawl everywhere. Some of the gauges are labeled \"pressure\" -- and some of the pipes seem to be warm when you draw a hand close."
@@ -12,21 +12,21 @@ include "header.mgs";
 }
 
 "look-ch2-tracy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tShe's staring you, but it's like she's trying trying not to <bold>look</> like she's staring at you. She gives you a tight smile as if encouraging you to be on your best behavior."
 	};
 }
 "look-ch2-rocco" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tHis hands are moving about a small circuit board in a way that makes it clear he's done this a hundred times. You seem to be outside his notice."
 	};
 }
 "look-ch2-helvetica" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tHer attention is fixed on the numerous gauges and dials at her workstation. She seems to be concentrating fiercely, if the twitch of her tail is any indication."
@@ -39,7 +39,7 @@ include "header.mgs";
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 23;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>POWER PLANT</>..." };
 	if (warp_state == "walk_from-south") {
 		player position = geometry "walk_from-south";
@@ -52,7 +52,7 @@ include "header.mgs";
 	"ch2-in-room" = 23;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-23") {
 		show serial_dialog { "Discovered <bold><c>POWER PLANT</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-23" = true;
@@ -168,7 +168,7 @@ $reach = 6;
 	entity "Rocco" on_tick = "rocco-work-fancy";
 }
 "rocco-idle" {
-	entity "Rocco" on_tick = "null_script";
+	entity "Rocco" on_tick = null_script;
 	entity "Rocco" current_animation = 0;
 }
 
@@ -231,7 +231,7 @@ add dialog settings {
 			"It would need a heavy-duty heat sink, though, and I don't have all the right supplies here. This isn't exactly my normal workstation."
 			PLAYER "What else would you need? I could fetch you something."
 		};
-		entity "Rocco" on_tick = "null_script";
+		entity "Rocco" on_tick = null_script;
 		entity "Rocco" current_animation = $idle;
 		show dialog {
 			SELF "Well, given what I've got here...."

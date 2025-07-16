@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-bobsclub-basement" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>BOB'S CLUB BASEMENT</>."
 		"\tThe downstairs strongly resembles the upstairs in terms of furnishings, though of course, it's much more heavily populated. As for the Bobs themselves, what they lack in variety they make up in volume -- both in terms of their quantity and their noise. Everyone is in the middle of a conversation, and they have to speak loudly to be heard over the raucous dubstep."
@@ -12,56 +12,56 @@ include "header.mgs";
 }
 
 "look-ch2-bobaustin" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tStoic and inscrutable, the giant stone golem could as easily be a hundred years old as a thousand. With his eyes glowing as they are, you can't be sure where he's looking, but you wouldn't be surprised if his gaze was following you as you move about the room."
 	};
 }
 "look-ch2-bobmoss" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\t%SELF% may share the same sharp edges and chiseled brow as his cousin, %Bob Austin%, but somehow %SELF%'s demeanor is more cheerful and friendly. It may be his mossy afro -- or it may be the way he lifts his hands more freely, as if they didn't weigh anything."
 	};
 }
 "look-ch2-icechest" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA half dozen cans of assorted sodas peak through the mountain of ice within the chest, but the vast majority of cans are a bold orange, yellow, and green. The ice isn't very melted yet, so all the cans must be frosty."
 	};
 }
 "look-ch2-marathonbob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at one of the <m>%SELF%s</>."
 		"\tEach Bob has a military look to them: a holstered firearm, combat boots, and a headset -- though the nature of their eyepieces escapes you. Each of these Bobs act alike, and apart from their colored uniforms, might as well be entirely interchangable with one another."
 	};
 }
 "look-ch2-guardianbob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tStrangely, this Bob has a different cast to his skin, as if he were made of metal and plastic -- as if the shadows didn't land quite right around his body. But perhaps that's just how people from the 'net usually look."
 	};
 }
 "look-ch2-bob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>Bob</>."
 		"\t...Or you would, but there's a lot of Bobs around, and \"Bob\" is a bit vague, isn't it?"
 	};
 }
 "look-ch2-party-cups" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the red <m>%SELF%</>."
 		"\tClassic party fare! It wouldn't be a party without plastic <bold>American Name Brand Party Cups (c)</>!"
 	};
 }
 "look-ch2-pizza" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>pizza</>."
 		"\tPlentiful boxes from a local pizza establishment, but there's only cheese and pepperoni -- this party seems to be about quantity instead of quality. From the shine of the cheese, the pizzas are a little greasier than was strictly necessary. Still, the smell is enticing!"
@@ -72,7 +72,7 @@ include "header.mgs";
 
 "on_load-ch2-bobsclub-basement" {
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BOB'S CLUB BASEMENT</>..." };
 	if (!"ch2-cutseen-bob-party") {
 		camera = geometry "gasp-spot";
@@ -90,7 +90,7 @@ include "header.mgs";
 /* ---------- ON_TICK ---------- */
 
 "on_tick-ch2-bobsclub-basement" {
-	goto "null_script";
+	goto null_script;
 }
 
 "tick-linger-1" {
@@ -216,7 +216,7 @@ include "header.mgs";
 	show dialog {
 		PLAYER "Huh. Well, I found the source of the noise...."
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = entity "Guardian Bob";
 	show dialog {
 		GBob "Hey! You're not allowed in here!"
@@ -239,12 +239,12 @@ include "header.mgs";
 	show dialog {
 		GBob "Oh, well. Too late regardless."
 	};
-	entity "Guardian Bob" on_tick = "spin_self_clockwise";
+	entity "Guardian Bob" on_tick = spin_self_clockwise;
 	show dialog {
 		GBob "Welcome to the annual Bob's Club party."
 		PLAYER "I thought the party was canceled this year."
 	};
-	entity "Guardian Bob" on_tick = "null_script";
+	entity "Guardian Bob" on_tick = null_script;
 	entity "Guardian Bob" direction = player;
 	show dialog {
 		GBob "It was, but we seem to be experiencing a time anomaly."
@@ -284,13 +284,13 @@ include "header.mgs";
 		GBob "Probably."
 	};
 	wait 100ms;
-	player on_tick = "spin_self_clockwise";
+	player on_tick = spin_self_clockwise;
 	wait 240ms;
 	show dialog {
 		PLAYER "This is freaking me out. How do we stop it?"
 	};
 	entity "Guardian Bob" direction = south;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = entity "Guardian Bob";
 	show dialog {
 		GBob "Depends on the exact cause. I've been keeping my eye on it with my keytool, Glitch. Trying to investigate from several angles."

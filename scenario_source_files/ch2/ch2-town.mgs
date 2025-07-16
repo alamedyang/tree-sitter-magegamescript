@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-town" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>TOWN</>."
 		"\tThere's no place like home! You know practically every pebble on every dirt patch, and every cracked brick in every building."
@@ -28,17 +28,17 @@ include "header.mgs";
 	}
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>TOWN</>..." };
 	// sending entities to their places
 	// elders
-	entity "Bert" on_tick = "yeet"; // always hiding
+	entity "Bert" on_tick = yeet; // always hiding
 	if ("ch2-storyflag-round" < 5) {
-		entity "Jackob" on_tick = "yeet"; // always hiding before end
+		entity "Jackob" on_tick = yeet; // always hiding before end
 		if ("ch2-storyflag-round" == 2) {
 			copy!("ch2-setup-alfonso-verthandi")
 		} else {
-			entity "Alfonso" on_tick = "yeet";
+			entity "Alfonso" on_tick = yeet;
 		}
 	}
 	// shepherd
@@ -48,7 +48,7 @@ include "header.mgs";
 	) {
 		entity "Shepherd" position = geometry "shepherd2";
 		entity "Shepherd" direction = east;
-		entity "Shepherd" on_tick = "null_script";
+		entity "Shepherd" on_tick = null_script;
 	} else if (
 		"ch2-storyflag-round" == 3
 		|| "ch2-storyflag-round" == 4
@@ -82,13 +82,13 @@ include "header.mgs";
 	}
 	// delmar
 	if ("ch2-delmar-in-house") {
-		entity "Delmar" on_tick = "yeet";
+		entity "Delmar" on_tick = yeet;
 	}
 
 	// walking out of doorways:
 	player_control = off;
 	if (warp_state == "raw_game_load-ch2") {
-		copy!("restore_player_state")
+		copy!(restore_player_state)
 	} else if (warp_state == "exit_from-credits") {
 		player position = geometry "from-credits-spot";
 		camera fade in -> #000000 over 800ms;
@@ -189,12 +189,12 @@ include "header.mgs";
 "on_tick-ch2-town-walkfadeout" {
 	player_control = off;
 	player position -> geometry "%ENTITY_PATH%" origin over 3500ms;
-	goto "null_script";
+	goto null_script;
 }
 "on_tick-ch2-town-walkfadein" {
 	player position -> geometry "%ENTITY_PATH%" length over 500ms;
 	player_control = on;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- EXIT STUFF ---------- */
@@ -252,14 +252,14 @@ include "header.mgs";
 /* ---------- ENTITIES ---------- */
 
 "look-ch2-townsign" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA worn wooden sign featuring the words \"to King Gibson's palace\" -- but \"palace\" is crossed out, and \"castle\" is scrawled above it."
 	};
 }
 "look-ch2-lakesign" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA worn wooden sign that says \"LINQ PARKING.\""
@@ -426,7 +426,7 @@ include "header.mgs";
 
 "interact-ch2-jackob-end" {
 	if ("ch2-storyflag-round" < 5) {
-		goto "null_script";
+		goto null_script;
 	}
 	copy!("face-player")
 	show dialog {
@@ -453,7 +453,7 @@ include "header.mgs";
 
 "interact-ch2-alfonso-end" {
 	if ("ch2-storyflag-round" < 5) {
-		goto "null_script";
+		goto null_script;
 	}
 	copy!("face-player")
 	show dialog {

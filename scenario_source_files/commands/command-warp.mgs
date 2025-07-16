@@ -101,7 +101,7 @@ include "header.mgs";
 // MAN PAGE
 
 "man-warp" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - WARP</>"
 		" "
@@ -116,7 +116,7 @@ include "header.mgs";
 // FAIL
 
 "warp-fail" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>WARP FAILED!</> You have not been to that destination yet or that destination does not exist."
 	};
@@ -125,7 +125,7 @@ include "header.mgs";
 // COMMAND
 
 "command-warp" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"List of valid <c>WARP</> destinations:"
 		" "
@@ -240,7 +240,7 @@ include "header.mgs";
 }
 
 "warp-ch2-town-check-fail-message" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>ERROR</>: <bold>warp-assistant</> timed out"
 		" "

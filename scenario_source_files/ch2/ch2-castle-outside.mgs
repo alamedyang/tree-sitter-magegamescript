@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-outside" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE EXTERIOR</>."
 		"\tThe building itself is undeniably ominous with its stark, charcoal-colored stone. You can just make out that the green orbs of light embedded in its walls are flickering slightly. A subtle humming emanates from the nearby pillars. It is no surprise that the townsfolk avoid this place."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 "look-ch2-entrancesign" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA worn wooden sign inscribed with the words \"King Gibson's castle.\""
@@ -26,11 +26,11 @@ include "header.mgs";
 		// todo: cutscene: leading you inside
 	}
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE EXTERIOR</>..." };
 	// Village elders hiding
 	if ("ch2-storyflag-round" != 0) {
-		entity "Bert" on_tick = "yeet";
+		entity "Bert" on_tick = yeet;
 	}
 	if (
 		"ch2-storyflag-round" == 1
@@ -38,8 +38,8 @@ include "header.mgs";
 		|| "ch2-storyflag-round" == 3
 		|| "ch2-storyflag-round" >= 5
 	) {
-		entity "Jackob" on_tick = "yeet";
-		entity "Alfonso" on_tick = "yeet";
+		entity "Jackob" on_tick = yeet;
+		entity "Alfonso" on_tick = yeet;
 	}
 	// unique stuff done
 	copy!("ch2-map-init") // (player control comes back here)

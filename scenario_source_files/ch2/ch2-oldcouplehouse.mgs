@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-oldcouplehouse" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around <c>BEATRICE'S HOUSE</>."
 		"\tThe interior has a cozy, lived-in feel to it. All the furniture is of an older style and worn down on some of the edges. A house for two, and it has been that way for a long time. Probably, like, 100 years or something."
@@ -12,7 +12,7 @@ include "header.mgs";
 }
 
 "look-ch2-delmar" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tNo matter what shape he takes, it's clearly still %SELF%."
@@ -20,7 +20,7 @@ include "header.mgs";
 }
 
 "look-ch2-beatrice" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tIs that exasperation in her eyes or is she just old? Right now, she might be both."
@@ -31,11 +31,11 @@ include "header.mgs";
 
 "on_load-ch2-oldcouplehouse" {
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BEATRICE'S HOUSE</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
 	if (!"ch2-delmar-in-house") {
-		entity "Delmar" on_tick = "yeet";
+		entity "Delmar" on_tick = yeet;
 	} else {
 		if (!"ch2-delmar-is-man") {
 			entity "Beatrice" on_tick = "face-player";
@@ -69,7 +69,7 @@ include "header.mgs";
 
 "ch2-check-if-sheep" {
 	if ("ch2-delmar-is-man") {
-		goto "null_script";
+		goto null_script;
 	}
 	if (entity "Delmar" type == "old_man") {
 		"ch2-delmar-is-man" = true;
@@ -84,8 +84,8 @@ include "header.mgs";
 	camera fade out -> #000000 over 300ms;
 	entity "Beatrice" position = geometry "beatrice-point";
 	entity "Delmar" position = geometry "delmar-point";
-	entity "Beatrice" on_tick = "null_script";
-	entity "Delmar" on_tick = "null_script";
+	entity "Beatrice" on_tick = null_script;
+	entity "Delmar" on_tick = null_script;
 	entity "Beatrice" direction = entity "Delmar";
 	entity "Delmar" direction = entity "Beatrice";
 	wait 400ms;
@@ -106,7 +106,7 @@ include "header.mgs";
 	entity "Beatrice" direction = entity "Delmar";
 	"ch2-cutseen-delmar" = true;
 	player_control = on;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- EXIT STUFF ---------- */

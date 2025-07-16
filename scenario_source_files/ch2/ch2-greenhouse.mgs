@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-greenhouse" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>GREENHOUSE</>."
 		"\tThe interior is bright and warm, and the air is lightly muggy. Fragrance from the ether nettle blossoms tempers the scent of greenery and soil. The raised planters smells earthy but not musty."
@@ -12,7 +12,7 @@ include "header.mgs";
 }
 
 "look-ch2-trekkie" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tHe's softly humming to himself, probably a song from one of those musicals he's always going on about. His eyes dart back and forth across the screen."
@@ -20,7 +20,7 @@ include "header.mgs";
 }
 
 "look-ch2-ethernettles" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the ethernettles."
 		"\tThe blossoms are strangely fluffy, as if the petals were graced with downy hair. The plants themselves are less inviting, with their spines and the sharp corners on their leaves."
@@ -28,7 +28,7 @@ include "header.mgs";
 
 }
 "look-ch2-ethernettle-top" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	concat serial_dialog {
 		"You looked at <m>%SELF%</>.\n"
 		"\tThe "
@@ -100,7 +100,7 @@ include "header.mgs";
 }
 
 "look-ch2-tumbleweed" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThis cable looks hopelessly tangled. You hope no one needs to use this one any time soon."
@@ -108,7 +108,7 @@ include "header.mgs";
 }
 
 "look-ch2-ethernet" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe looping on the bundle is tight and neat, like the cable was only just freed from its plastic packaging. The friendly blue makes it look like a network cable to you, but you're not sure why."
@@ -116,7 +116,7 @@ include "header.mgs";
 }
 
 "look-ch2-mulch" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe bag looks to be a bajillion pounds, and is well worn. It's dirty but in a wholesome, earthy way."
@@ -124,7 +124,7 @@ include "header.mgs";
 }
 
 "look-ch2-modem" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tAn arcane black box with a series of enigmatic green lights across the front. It's slightly warm."
@@ -139,7 +139,7 @@ include "header.mgs";
 "on_load-ch2-greenhouse" {
 	command "look" + "ethernettles" = "look-ch2-ethernettles";
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>GREENHOUSE</>..." };
 	"ethernettle_id" = entity "EtherNettle1" primary_id;
 	"EtherNettle1" = entity "EtherNettle1" primary_id;

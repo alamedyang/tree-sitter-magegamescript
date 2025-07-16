@@ -43,7 +43,7 @@ include "header.mgs";
 
 "hiding-cat" {
 	self position = geometry "catwalk-hide";
-	goto "null_script";
+	goto null_script;
 }
 
 "cat-walking-to-work" {
@@ -55,7 +55,7 @@ include "header.mgs";
 
 "on_tick-max-neutral" {
 	if ("storyflag-catwork") {
-		goto "null_script";
+		goto null_script;
 	}
 	if (player type == "pipscat") {
 		goto "on_tick-max-catwatch";
@@ -132,7 +132,7 @@ include "header.mgs";
 	if ("hint-tracking-check" == 6) {
 		copy!("set-hint-none")
 	}
-	goto "null_script";
+	goto null_script;
 }
 "show_dialog-max-crewmissing" {
 	show dialog {

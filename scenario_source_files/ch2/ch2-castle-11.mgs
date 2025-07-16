@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-11" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE HALLWAY FRONT</>."
 	};
@@ -21,7 +21,7 @@ include "header.mgs";
 }
 
 "look-ch2-kuro" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tA large crow or raven, one whose eyes seem to pierce you to your soul -- and one who's had too much coffee, by the way he's moving."
@@ -34,7 +34,7 @@ include "header.mgs";
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 11;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE HALLWAY FRONT</>..." };
 	if (warp_state == "walk_from-north") {
 		player position = geometry "walk_from-north";
@@ -51,7 +51,7 @@ include "header.mgs";
 	"ch2-in-room" = 11;
 	
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-11") {
 		show serial_dialog { "Discovered <bold><c>CASTLE HALLWAY FRONT</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-11" = true;
@@ -81,7 +81,7 @@ include "header.mgs";
 "ch2-cutscene-castle11" {
 	player_control = off;
 	wait 500ms;
-	entity "Kuro" on_tick = "null_script";
+	entity "Kuro" on_tick = null_script;
 	if (!"ch2-blockage") {
 		"ch2-blockage" = true;
 		show dialog {
@@ -141,12 +141,12 @@ include "header.mgs";
 		PLAYER "So I need a monitor. Lambda said there was one in here I could use. I think he meant..."
 	};
 	entity "Kuro" on_tick = "ch2-walk-to-monitor";
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player position -> geometry "warp-spot" length over 1900ms;
 	show dialog {
 		PLAYER "...this one, right? Is this one free for me to take?"
 	};
-	entity "Kuro" on_tick = "null_script";
+	entity "Kuro" on_tick = null_script;
 	entity "Kuro" direction = south;
 	show dialog {
 		Kuro "Beats me."
@@ -162,7 +162,7 @@ include "header.mgs";
 	};
 	entity "Kuro" on_tick = "face-player";
 	player_control = on;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	"ch2-cutseen-castle11" = true;
 }
 
@@ -181,7 +181,7 @@ include "header.mgs";
 "kuro-hop" {
 	self animation -> 1 once;
 	entity "Kuro" direction = east;
-	goto "null_script";
+	goto null_script;
 }
 
 "watch-kuro" {
@@ -258,7 +258,7 @@ include "header.mgs";
 		name "" "(You pick up the monitor!)"
 	};
 	copy!("ch2-hide-monitor")
-	self on_interact = "null_script";
+	self on_interact = null_script;
 }
 "ch2-touch-monitor-no" {
 	show dialog {

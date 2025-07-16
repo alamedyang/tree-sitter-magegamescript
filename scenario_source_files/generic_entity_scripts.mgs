@@ -7,7 +7,7 @@
 }
 
 "clear-own-tick" {
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 
 "loop_on_path_30s" {
@@ -24,7 +24,7 @@
 
 "walk_on_path_20s" {
 	self position -> geometry "%ENTITY_PATH%" length over 20000ms;
-	goto "null_script";
+	goto null_script;
 }
 
 "spin_self_clockwise" {
@@ -178,10 +178,10 @@
 
 "yeet" {
 	self position = geometry "hiding-spot";
-	self on_interact = "null_script";
-	self on_look = "null_script";
+	self on_interact = null_script;
+	self on_look = null_script;
 	self name = " ";
-	goto "null_script";
+	goto null_script;
 }
 
 "capture_self_direction" {
@@ -211,13 +211,13 @@
 	"captured_animation" = self current_animation;
 	self current_animation = 0;
 	pause self on_tick;
-	copy!("capture_self_direction")
+	copy!(capture_self_direction)
 	copy!("face-player")
 }
 "resume-walk" {
 	self current_animation = "captured_animation";
 	unpause self on_tick;
-	copy!("restore_self_direction")
+	copy!(restore_self_direction)
 }
 
 "capture_player_state" {

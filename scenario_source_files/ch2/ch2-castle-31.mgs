@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-31" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>GRAND HALL</>."
 		"\tThis place seems to be a hybrid entertainment ampitheater and mess hall. But, empty of people and other distractions, the stage -- and its performers -- steal all your attention."
@@ -11,21 +11,21 @@ include "header.mgs";
 	};
 }
 "look-ch2-simon" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tLanky and brooding, his glare moves back and forth between you and the ceiling. At your guess, he's the band lead singer."
 	};
 }
 "look-ch2-theodore" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tTheodore is the bulkiest of the three band members, and looks to be half falling asleep."
 	};
 }
 "look-ch2-alvin" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tPeriodically she watches you as you move around the room, but she is feigning disinterest."
@@ -33,7 +33,7 @@ include "header.mgs";
 }
 
 "look-ch2-speaker" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tLarge and boxy, with velvety round circles set onto its face. It all looks very expensive."
@@ -41,14 +41,14 @@ include "header.mgs";
 }
 
 "look-ch2-drum" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe \"1023 MB\" logo is surprisingly well done, with its thoughtful serifs and clean linework. The professional logo and the aggressive red of the drumset make a strange contrast with the ragtag musicians."
 	};
 }
 "look-ch2-bartable" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tComplete with a pair of chairs, the set is all tall and fancy like those at a high class cocktail bar. All the tables could support are a handful of tiny plates and very tall, very narrow drinks. Not much fun in your opinion."
@@ -62,7 +62,7 @@ include "header.mgs";
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 31;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>GRAND HALL</>..." };
 	entity "Simon" current_animation = 12;
 	entity "Sea Moss" direction = west;
@@ -79,7 +79,7 @@ include "header.mgs";
 	"ch2-in-room" = 31;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-31") {
 		show serial_dialog { "Discovered <bold><c>GRAND HALL</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-31" = true;
@@ -235,7 +235,7 @@ include "header.mgs";
 				Simon emote 2 "WHOA WHOA WHOA hey, hands off! I'm not just going to give you my precious Rosetta!"
 				PLAYER "(Rosetta?)"
 			};
-			entity "Alvin" on_tick = "null_script";
+			entity "Alvin" on_tick = null_script;
 			entity "Simon" current_animation = 0;
 			show dialog {
 				Simon emote 1 "But hey, you know what? I'll give you the chance to prove you deserve this beauty."
@@ -364,5 +364,5 @@ include "header.mgs";
 
 "camera-angry-shake" {
 	camera shake -> 100ms 4px over 500ms;
-	goto "null_script";
+	goto null_script;
 }

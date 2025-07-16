@@ -37,7 +37,7 @@ include "header.mgs";
 		player_control = on;
 	}
 	if ("demobonus-timmy-yell" || !"demobonus") {
-		goto "null_script";
+		goto null_script;
 	}
 	player_control = off;
 	wait 200ms;
@@ -46,7 +46,7 @@ include "header.mgs";
 		Timmy "Hey! Hey! My book!"
 	};
 	"demobonus-timmy-yell" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 "empty-lodge" {
@@ -141,7 +141,7 @@ include "header.mgs";
 }
 "lodge_cat_now_unglitched" {
 	"lodge_cat-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 "timmy-glitchwatch" {
@@ -151,7 +151,7 @@ include "header.mgs";
 }
 "timmy_now_unglitched" {
 	"timmy-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 /*------------------------------*/
@@ -192,7 +192,7 @@ include "header.mgs";
 "lodge-murmur" {
 	entity "Cleo" on_tick = "gossip-down-player";
 	entity "Baker" on_tick = "gossip-up-player";
-	entity "Beatrice" on_tick = "null_script";
+	entity "Beatrice" on_tick = null_script;
 	entity "Beatrice" direction = player;
 	entity "Shepherd" on_tick = "gossip-left-player";
 	entity "Trekkie" on_tick = "gossip-right-player";
@@ -201,31 +201,31 @@ include "header.mgs";
 	entity "Smith" on_tick = "gossip-left-player";
 	entity "Verthandi" on_tick = "gossip-up-player";
 	entity "Aunt Zippy" on_tick = "gossip-down-player";
-	entity "Uncle Zappy" on_tick = "null_script";
+	entity "Uncle Zappy" on_tick = null_script;
 	entity "Uncle Zappy" direction = player;
 }
 "lodge-un-murmur" {
-	entity "Cleo" on_tick = "null_script";
+	entity "Cleo" on_tick = null_script;
 	entity "Cleo" direction = player;
-	entity "Baker" on_tick = "null_script";
+	entity "Baker" on_tick = null_script;
 	entity "Baker" direction = player;
-	entity "Beatrice" on_tick = "null_script";
+	entity "Beatrice" on_tick = null_script;
 	entity "Beatrice" direction = player;
-	entity "Shepherd" on_tick = "null_script";
+	entity "Shepherd" on_tick = null_script;
 	entity "Shepherd" direction = player;
-	entity "Trekkie" on_tick = "null_script";
+	entity "Trekkie" on_tick = null_script;
 	entity "Trekkie" direction = player;
-	entity "Marta" on_tick = "null_script";
+	entity "Marta" on_tick = null_script;
 	entity "Marta" direction = player;
-	entity "Max Swagger" on_tick = "null_script";
+	entity "Max Swagger" on_tick = null_script;
 	entity "Max Swagger" direction = player;
-	entity "Smith" on_tick = "null_script";
+	entity "Smith" on_tick = null_script;
 	entity "Smith" direction = player;
-	entity "Verthandi" on_tick = "null_script";
+	entity "Verthandi" on_tick = null_script;
 	entity "Verthandi" direction = player;
-	entity "Aunt Zippy" on_tick = "null_script";
+	entity "Aunt Zippy" on_tick = null_script;
 	entity "Aunt Zippy" direction = player;
-	entity "Uncle Zappy" on_tick = "null_script";
+	entity "Uncle Zappy" on_tick = null_script;
 	entity "Uncle Zappy" direction = player;
 }
 "gossip-left-player" {
@@ -281,14 +281,14 @@ include "header.mgs";
 "secretdoor-walk" {
 	self position -> geometry "secretdoor-point" origin over 800ms;
 	self position = geometry "lodge-hidingplace";
-	goto "null_script"; // simultaneous behavior with on_tick; must cancel with null_script
+	goto null_script; // simultaneous behavior with on_tick; must cancel with null_script
 }
 "deaden-artifacts" {
-	entity "Broom" on_interact = "null_script";
-	entity "Glasses" on_interact = "null_script";
-	entity "Wand" on_interact = "null_script";
-	entity "Book" on_interact = "null_script";
-	entity "Bracelet" on_interact = "null_script";
+	entity "Broom" on_interact = null_script;
+	entity "Glasses" on_interact = null_script;
+	entity "Wand" on_interact = null_script;
+	entity "Book" on_interact = null_script;
+	entity "Bracelet" on_interact = null_script;
 }
 
 /*------------------------*/
@@ -481,7 +481,7 @@ include "header.mgs";
 	copy!("face-player")
 	entity "Jackob" on_tick = "look-left-and-right-fast";
 	show dialog { SELF "(Wait, was this everything?)" };
-	entity "Jackob" on_tick = "null_script";
+	entity "Jackob" on_tick = null_script;
 	self direction = south;
 }
 "show_dialog-alfonso-prechoose" {
@@ -538,7 +538,7 @@ include "header.mgs";
 }
 "examine-broom" {
 	player_control = off;
-	entity "Marta" on_tick = "null_script";
+	entity "Marta" on_tick = null_script;
 	entity "Marta" position -> geometry "marta-broom-step-spot" origin over 500ms;
 	player on_tick = "watch-marta";
 	show dialog {
@@ -554,7 +554,7 @@ include "header.mgs";
 	entity "Marta" on_tick = "face-player";
 	wait 300ms;
 	"artifact-broom-touched" = true;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player_control = on;
 	goto "artifacts-eval";
 }
@@ -565,7 +565,7 @@ include "header.mgs";
 	};
 	player_control = off;
 	wait 900ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = south;
 	show dialog {
 		PLAYER "Make Up!"
@@ -601,7 +601,7 @@ include "header.mgs";
 		player on_tick = "look-left-and-right-fast";
 		player_control = off;
 		wait 900ms;
-		player on_tick = "null_script";
+		player on_tick = null_script;
 		copy!("lodge-murmur")
 		goto "player-ringzero-landing";
 	}
@@ -704,7 +704,7 @@ include "header.mgs";
 		"Maybe they missed one."
 	};
 	wait 200ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = north;
 	show dialog {
 		Alfonso
@@ -770,17 +770,17 @@ include "header.mgs";
 		Jackob "Yes...."
 		"Yes!"
 	};
-	entity "Alfonso" on_tick = "null_script";
+	entity "Alfonso" on_tick = null_script;
 	entity "Alfonso" direction = south;
 	show dialog {
 		Jackob "Yes, you can fix things at last!"
 		PLAYER "Fix the town?"
 	};
-	player on_tick = "loiter2";
+	player on_tick = loiter2;
 	show dialog {
 		PLAYER "But the town is all glitchy and hacked! How am I supposed to fix it with this thing? Unless...."
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = entity "Alfonso";
 	show dialog {
 		Alfonso "Yes, exactly! That ring, Ring Zero --"

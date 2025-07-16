@@ -3,7 +3,7 @@ include "header.mgs";
 $goosefactcount = 20;
 
 "stop-goosefacts" {
-    show serial_dialog "spacer";
+    show serial_dialog spacer;
     show serial_dialog {
         "You are no longer subscribed to goose facts."
     };

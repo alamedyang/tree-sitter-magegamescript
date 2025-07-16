@@ -48,18 +48,18 @@ include "header.mgs";
 }
 "goldfish_now_unglitched" {
 	"goldfish-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- CHOREOGRAPHY ---------- */
 
 "zippy-arriving" {
 	entity "Aunt Zippy" position -> geometry "zippy-arrive" length over 1700ms;
-	goto "null_script";
+	goto null_script;
 }
 "zappy-arriving" {
 	entity "Uncle Zappy" position -> geometry "zappy-arrive" length over 1400ms;
-	goto "null_script";
+	goto null_script;
 }
 
 "freak-out" {
@@ -101,11 +101,11 @@ include "header.mgs";
 	wait 200ms; /**/ show dialog {
 		entity "Aunt Zippy" "Don't worry! We weren't about to let you miss it!"
 	};
-	wait 200ms; /**/ player on_tick = "spin_self_clockwise";
+	wait 200ms; /**/ player on_tick = spin_self_clockwise;
 	wait 200ms; /**/ show dialog {
 		PLAYER "(AAAAH!)"
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = west;
 	show dialog {
 		entity "Uncle Zappy" "Your 16th birthday is a big day. But no matter what happens, we're proud of you and the mage you've become."
@@ -136,14 +136,14 @@ include "header.mgs";
 	entity "Aunt Zippy" position -> geometry "zippy-leave" length over 1800ms;
 	entity "Aunt Zippy" position = geometry "magehouse-hidingplace";
 	entity "Cake" on_interact = "show_dialog-cake-nozappy";
-	goto "null_script";
+	goto null_script;
 }
 "zappy-leaving" {
 	wait 200ms;
 	entity "Uncle Zappy" position -> geometry "zappy-leave" origin over 300ms;
 	entity "Uncle Zappy" position -> geometry "zappy-leave" length over 2100ms;
 	entity "Uncle Zappy" position = geometry "magehouse-hidingplace";
-	goto "null_script";
+	goto null_script;
 }
 
 "mage-to-lodge" {
@@ -155,18 +155,18 @@ include "header.mgs";
 "zippy-to-lodge" {
 	entity "Ram" position -> geometry "morning-walk-zippy" length over 10200ms;
 	entity "Ram" position = geometry "catwalk-hide";
-	goto "null_script";
+	goto null_script;
 }
 "zappy-to-lodge" {
 	entity "Helga" position -> geometry "morning-walk-zappy" length over 9800ms;
 	entity "Helga" position = geometry "catwalk-hide";
-	goto "null_script";
+	goto null_script;
 }
 "walk-to-lodge" {
 	player_control = off;
 	entity "Verthandi" position = geometry "catwalk-hide";
 	entity "Marta" position = geometry "catwalk-hide";
-	entity "Cleo" on_tick = "null_script";
+	entity "Cleo" on_tick = null_script;
 	entity "Cleo" position = geometry "catwalk-hide";
 	entity "Shepherd" position = geometry "catwalk-hide";
 	entity "Max Swagger" position = geometry "catwalk-hide";

@@ -144,7 +144,7 @@ include "header.mgs";
 
 "handler-skip-splash" {
 	map on_tick = "main_menu-fade_in";
-	goto "null_script";
+	goto null_script;
 }
 
 // map script shows the splash, and can be interrupted by the handler above; otherwise it continues to the menu itself
@@ -161,13 +161,13 @@ include "header.mgs";
 	camera fade in -> #000000 over 800ms;
 	wait 2900ms;
 	camera fade out -> #000000 over 800ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	goto "main_menu-fade_in";
 }
 
 "main_menu-fade_in" {
 	hex_control = false;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	camera = geometry "menu-center";
 	camera fade in -> #000000 over 800ms;
 	goto "main_menu";
@@ -537,7 +537,7 @@ include "header.mgs";
 }
 
 "menu-save_game-yes" {
-	copy!("capture_player_state")
+	copy!(capture_player_state)
 	save slot;
 	self on_interact = "menu-save_game";
 }

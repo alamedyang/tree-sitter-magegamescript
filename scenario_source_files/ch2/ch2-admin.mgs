@@ -192,7 +192,7 @@ $goto_round_5 = 10;
 	copy!("ch2-cutscene-bert-secret")
 	player_control = off;
 	wait 200ms;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { " (DING)" };
 	"ch2-lambda-paging" = true;
 	"ch2-cutseen-bert-secret" = true;
@@ -202,7 +202,7 @@ $goto_round_5 = 10;
 		PLAYER "...? Did I just hear some kind of digital sound effect?"
 		Wizard "That was the bell on the terminal. Whats-his-face is paging you. Better talk to him."
 	};
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"(Lambda wants to talk to you! Type <c>MAN</> to answer.)"
 	};
@@ -223,7 +223,7 @@ $goto_round_5 = 10;
 		Wizard "Beats me."
 	};
 	wait 200ms;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		" (DING)"
 	};
@@ -234,14 +234,14 @@ $goto_round_5 = 10;
 	show dialog {
 		PLAYER "...? Oh, that's the terminal bell. I guess Lambda is calling me."
 	};
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"(Lambda wants to talk to you! Type <c>MAN</> to answer.)"
 	};
 	player_control = on;
 }
 "ch2-start-round-4" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		" (DING)"
 	};
@@ -253,7 +253,7 @@ $goto_round_5 = 10;
 		PLAYER "...! Oh, the terminal bell. That scared me."
 		"I guess it's time to talk to Lambda again."
 	};
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"(Lambda wants to talk to you! Type <c>MAN</> to answer.)"
 	};
@@ -274,7 +274,7 @@ $goto_round_5 = 10;
 }
 
 "ch2-debug-storyflag" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<y>DEBUG></>: Set flag 'ch2-storyflag-round' to what value? (0-5)"
 		_ "0" = "debug-map-flags-for-round0"
@@ -339,7 +339,7 @@ $goto_round_5 = 10;
 	// copy ch2-debug-storyflag-log;
 }
 "ch2-debug-storyflag-log" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"Flag 'ch2-storyflag-round' is now $ch2-storyflag-round$"
 	};

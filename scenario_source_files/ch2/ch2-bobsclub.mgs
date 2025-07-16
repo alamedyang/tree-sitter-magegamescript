@@ -8,7 +8,7 @@ $fridge = 3;
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-bobsclub" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You look around at the <m><bold>Bob's Club</>."
 		"\tYou can hear muffled, rhythmic thumping through the floor, though there's no clear source."
@@ -17,7 +17,7 @@ $fridge = 3;
 }
 
 "look-ch2-bobbarstool" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThis lone piece of furniture feels out of place when not part of a lineup of identical pieces. It's a melancholy image, dwarfed in the open space."
@@ -25,7 +25,7 @@ $fridge = 3;
 }
 
 "look-ch2-bobglasses" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 	};
@@ -40,21 +40,21 @@ $fridge = 3;
 	}
 }
 "look-ch2-bobsbox" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's still sealed. The sides are bulging, as though it was packed tightly with something."
 	};
 }
 "look-ch2-bobsbarrel" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's not marked, though you always assumed barrels like this would contain ale or beer or something. You suppose it could just as easily contain oyster crackers."
 	};
 }
 "look-ch2-bobcountertop" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThere are hard water rings on the surface in several places. Most of it is dry, but some of the larger spots are still holding onto droplets of water. Did someone set some drinks here recently?"
@@ -62,21 +62,21 @@ $fridge = 3;
 }
 
 "look-ch2-bobcupboard" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tGlass tumblers are packed together in lines on each shelf. None are missing; there are no gaps."
 	};
 }
 "look-ch2-bobsink" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThere's splashes of water -- and an emaciated ice cube -- near the drain. Someone has used the sink recently."
 	};
 }
 "look-ch2-bobfridge" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tIt's a larger-than-normal, industral-style refrigerator. There are a handful of small magnets on the front, but they mostly consist of the letters \"O\" and \"B\"."
@@ -116,7 +116,7 @@ $fridge = 3;
 
 "on_load-ch2-bobsclub" {
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BOB'S CLUB</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
 	"ch2-rattle-count" = 0;
@@ -325,7 +325,7 @@ $fridge = 3;
 }
 
 "player-look-down" {
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = south;
 }
 

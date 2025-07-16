@@ -159,7 +159,7 @@ serial_dialog "lambda-over" {
 	// extra goose stuff
 	if ("ch2-goosefacts") {
 		command "stop" = "stop-goosefacts";
-		copy!("goosefacts")
+		copy!(goosefacts)
 	}
 }
 
@@ -183,7 +183,7 @@ serial_dialog "lambda-over" {
 	player position = geometry "warp-spot";
 	player on_tick = "spin-quickly";
 	camera fade in -> #000000 over 300ms;
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = south;
 	warp_state = "warped"; // it needs to be set to SOMETHING...
 	player_control = on; // todo: remove after shared behavior is fully merged

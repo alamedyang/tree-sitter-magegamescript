@@ -7,7 +7,7 @@ add dialog settings {
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-14" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around <c>KING GIBSON'S BEDROOM</>."
 		"\tOpulent and pretentious -- perhaps the archetypal royal bedroom. You're not sure whether the heirloom four poster bed completes the look or is just over the top. But you concede that the red and gold looks fabulous together."
@@ -16,7 +16,7 @@ add dialog settings {
 }
 
 "look-ch2-gibson" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tHis bearing is not as imposing as his physique, but perhaps he was simply shaken by the earthquake and his subsequent isolation. His horns are shiny, as if they were oiled or waxed."
@@ -24,7 +24,7 @@ add dialog settings {
 }
 
 "look-ch2-keypad" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tIt's a small boxy number pad. On the underside is a plug socket and a scribbled message: \"The default admin password can be found throughout the castle's --\""
@@ -56,7 +56,7 @@ add dialog settings {
 	"ch2-in-room" = 14;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-14") {
 		show serial_dialog { "Discovered <bold><c>KING GIBSON'S BEDROOM</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-14" = true;
@@ -75,8 +75,8 @@ add dialog settings {
 		"ch2-storyflag-round" >= 5
 		|| "ch2-king-rescued"
 	) {
-		entity "King Gibson" on_tick = "yeet";
-		entity "keypad" on_interact = "null_script";
+		entity "King Gibson" on_tick = yeet;
+		entity "keypad" on_interact = null_script;
 	}
 
 	// initialize everything
@@ -101,7 +101,7 @@ add dialog settings {
 			show dialog {
 				KING emote 2 "Help! Guards!"
 			};
-			entity "King Gibson" on_tick = "null_script";
+			entity "King Gibson" on_tick = null_script;
 			entity "King Gibson" current_animation = 2;
 			wait 400ms;
 			show dialog {
@@ -241,7 +241,7 @@ add dialog settings {
 	};
 	copy!("ch2-hide-clock")
 	copy!("ch2-pickup-clock")
-	self on_interact = "null_script";
+	self on_interact = null_script;
 }
 "ch2-touch-clock-no" {
 	show dialog {
@@ -299,7 +299,7 @@ add dialog settings {
 	}
 }
 "interact-ch2-keypad-prompt" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<r>USER CONFIG CORRUPTED!</> Cannot unlock door with PINs! Perform manual unlocks with admin password."
 		"Enter password:"
@@ -308,7 +308,7 @@ add dialog settings {
 	goto "interact-ch2-keypad-incorrect";
 }
 "interact-ch2-keypad-incorrect" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<r>Password incorrect!</>"
 		"Touch keypad to try again."
@@ -316,12 +316,12 @@ add dialog settings {
 	self on_interact = "interact-ch2-keypad-prompt";
 }
 "interact-ch2-keypad-good-pass" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<g>DOOR UNLOCKED</>"
 	};
 	self on_interact = "interact-ch2-keypad-prompt";
-	copy!("capture_player_state")
+	copy!(capture_player_state)
 	"kingpos-x" = entity "King Gibson" x;
 	"kingpos-y" = entity "King Gibson" y;
 	// not necessary to capture the king's direction, as he always faces the player
@@ -334,7 +334,7 @@ add dialog settings {
 }
 
 "ch2-cutscene-kingreturns-bedroom" {
-	copy!("restore_player_state")
+	copy!(restore_player_state)
 	entity "King Gibson" x = "kingpos-x";
 	entity "King Gibson" y = "kingpos-y";
 	player_control = off;

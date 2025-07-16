@@ -18,7 +18,7 @@ include "header.mgs";
 		copy!("set-hint-none")
 	}
 	// you win!
-	goto "null_script";
+	goto null_script;
 }
 "on_tick-goose-mission-rake-out-of-lake" {
 	// if rake is approx at start point, jump
@@ -26,7 +26,7 @@ include "header.mgs";
 		goto "goose-misison-rake-on-rake-point";
 	}
 	entity "Goose" direction = south;
-	copy!("honk")
+	copy!(honk)
 	entity "Goose" position -> geometry "goose_midpoint" origin over 600ms;
 	entity "Goose" position -> geometry "goose_lakepoint" origin over 600ms;
 	entity "Goose" direction = south;
@@ -38,14 +38,14 @@ include "header.mgs";
 		goto "on_tick-goose-mission-rake-out-of-lake";
 	}
 	entity "Goose" direction = south;
-	copy!("honk")
+	copy!(honk)
 	entity "Goose" position -> geometry "goose_rakepoint" origin over 1200ms;
 	entity "Goose" direction = entity "Rake";
 	// if rake has left its start point, jump
 	if (!entity "Rake" intersects geometry "rake-point") {
 		goto "on_tick-goose-mission-rake-out-of-lake";
 	}
-	copy!("honk")
+	copy!(honk)
 	entity "Goose" position -> geometry "goose_lakepoint" origin over 1200ms;
 	entity "Goose" direction = south;
 	// if rake has left its start point, jump
@@ -92,7 +92,7 @@ include "header.mgs";
 	}
 }
 "rescue-goose" {
-	entity "Goose" on_tick = "null_script";
+	entity "Goose" on_tick = null_script;
 	entity "Goose" position = geometry "goose-rescue";
 	entity "Goose" position -> geometry "goose_lakepoint" origin over 2000ms;
 	entity "Goose" on_tick = "on_tick-goose-mission";

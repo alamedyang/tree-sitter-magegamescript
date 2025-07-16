@@ -28,6 +28,7 @@ import { makeMap, parseProject } from './parser.js';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import * as TYPES from './parser-bytecode-info.ts';
+import { ansiTags } from './parser-utilities.js';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -675,15 +676,16 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		console.error(`Anonymous dialogs: found ${anonymousSerialDialogDiffs.length} differences`);
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`${anonymousSerialDialogWarnings.length} anonymous dialogs were near matches (text wrap issues)!`,
+				`    ...and ${anonymousSerialDialogWarnings.length} anonymous dialogs were only probable matches (due to text wrap bug from old version)`,
 			);
 		}
 		console.error(anonymousSerialDialogDiffs.join('\n'));
 	} else {
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`Most anonymous dialogs from all ${serialDialogFileNames.size} files are identical!\n` +
-					`${anonymousSerialDialogWarnings.length} anonymous dialogs were near matches (text wrap issues)!`,
+				`Anonymous dialogs from all ${serialDialogFileNames.size} files are identical with the caveat that...\n` +
+					`    ...${anonymousSerialDialogWarnings.length} anonymous dialogs were probable matches (due to text wrap bug from old version)\n` +
+					`    Good enough!`,
 			);
 		} else {
 			console.log(
@@ -771,17 +773,27 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 		}
 	});
 
-	const olds = Object.values(bad)
-		.sort((a, b) => a.old.length - b.old.length)
-		.map((v: PrintComparison) => v.old)
-		.join('\n\n');
-	const news = Object.values(bad)
-		.sort((a, b) => a.old.length - b.old.length)
-		.map((v: PrintComparison) => v.new)
-		.join('\n\n');
+	const badNames: string[] = [];
+	const olds: string[] = [];
+	const news: string[] = [];
+	Object.entries(bad)
+		.sort((a, b) => a[1].old.length - b[1].old.length)
+		.forEach((entry: [string, PrintComparison]) => {
+			const [k, v] = entry;
+			badNames.push(k);
+			olds.push(v.old);
+			news.push(v.new);
+		});
+	const clearlyDifferent =
+		badTally === 0
+			? `${badTally} were clearly different`
+			: `${ansiTags.red}${badTally} were clearly different${ansiTags.reset}:`;
 	console.log(
-		`${tally} scripts were identical, ${functionalTally} were functionally identical, and ${badTally} were clearly different`,
+		`${tally} scripts were identical, ${functionalTally} ${badTally === 1 ? 'was' : 'were'} functionally identical, and ${clearlyDifferent}`,
 	);
-	writeFileSync(`./comparisons/olds.mgs`, olds);
-	writeFileSync(`./comparisons/news.mgs`, news);
+	badNames.forEach((oldScriptName) => {
+		console.error(`  - ${ansiTags.red}${oldScriptName}${ansiTags.reset}`);
+	});
+	writeFileSync(`./comparisons/olds.mgs`, olds.join('\n\n'));
+	writeFileSync(`./comparisons/news.mgs`, news.join('\n\n'));
 });

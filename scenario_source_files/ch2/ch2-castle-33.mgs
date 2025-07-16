@@ -4,7 +4,7 @@ $lightsdefault = "ch2-serial-light-manager";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-33" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>HYDROPONICS ROOM</>."
 		"\tThis room is sweetly humid and surprisingly cold. The faint buzz of the lights compete with a dripping noise coming from the pipes tucked into the rims of each box. You catch a whiff of leafy green onion."
@@ -13,7 +13,7 @@ $lightsdefault = "ch2-serial-light-manager";
 }
 
 "look-ch2-gregory" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe cat is gray around the whiskers, but he moves with energy and precision. He appears happy to be receiving a visitor."
@@ -27,7 +27,7 @@ $lightsdefault = "ch2-serial-light-manager";
 	"ch2-in-room" = 33;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-33") {
 		show serial_dialog { "Discovered <bold><c>HYDROPONICS ROOM</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-33" = true;
@@ -181,7 +181,7 @@ $time = 200ms;
 				PLAYER "But why isn't the door to this room crushed, damaged, or blocked like the rest?"
 			};
 			player direction = entity "Gregory";
-			entity "Gregory" on_tick = "spin_self_clockwise";
+			entity "Gregory" on_tick = spin_self_clockwise;
 			show dialog {
 				SELF "This wing was recently redone to install a bunch of fancy tech."
 				"These hydroponics trays, the induction stovetops in the next room... that kind of thing."
@@ -248,7 +248,7 @@ $time = 200ms;
 			show dialog {
 				PLAYER "Catch it?"
 			};
-			entity "Gregory" on_tick = "spin_self_clockwise";
+			entity "Gregory" on_tick = spin_self_clockwise;
 			show dialog {
 				SELF "It's loose in this room somewhere, but I'm not as fast as I used to be, and can't quite get ahold of it."
 			};
@@ -268,7 +268,7 @@ $time = 200ms;
 				SELF "We are indeed."
 			};
 			player_control = off;
-			entity "Gregory" on_tick = "null_script";
+			entity "Gregory" on_tick = null_script;
 			entity "Gregory" direction += 1;
 			wait 800ms;
 			entity "Gregory" direction -= 1;
@@ -325,7 +325,7 @@ $time = 200ms;
 "ch2-hide-mouse" {
 	entity "Mouse" position = geometry "hiding-spot";
 	entity "Mouse" name = " ";
-	entity "Mouse" on_interact = "null_script";
+	entity "Mouse" on_interact = null_script;
 }
 
 "ch2-touch-mouse" {
@@ -382,7 +382,7 @@ $time = 200ms;
 			Gregory "Oh dear."
 			"Well, you might be fine anyway. Good luck with everything."
 		};
-		entity "Mouse" on_interact = "null_script";
+		entity "Mouse" on_interact = null_script;
 	}
 }
 
@@ -515,7 +515,7 @@ $time = 200ms;
 	"mousegame-mouseX" = entity "Mouse" x;
 	"mousegame-mouseY" = entity "Mouse" y;
 	"ch2-mousegame" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 "ch2-mousegame-tick" {

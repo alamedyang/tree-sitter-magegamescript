@@ -23,7 +23,7 @@ include "header.mgs";
 	if ("hint-tracking-check" == 8) {
 		copy!("set-hint-none")
 	}
-	goto "null_script";
+	goto null_script;
 }
 
 "on_load-family" {
@@ -52,7 +52,7 @@ include "header.mgs";
 		copy!("set-hint-sportskid")
 	}
 	// RESET
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	self on_interact = "show_dialog-kid";
 }
 

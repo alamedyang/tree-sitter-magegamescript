@@ -9,7 +9,7 @@ include "header.mgs";
 	if (!"storyflag-bobmoss") {
 		entity "Bob Moss" position = geometry "bobsclub-hidingplace";
 		entity "Bob Moss" name = " ";
-		entity "Bob Moss" on_interact = "null_script";
+		entity "Bob Moss" on_interact = null_script;
 		entity "Bob Moss" type = "exa";
 	}
 	if (!"bobsclub-entered") {
@@ -88,7 +88,7 @@ include "header.mgs";
 	player_control = on;
 	"bobsclub-entered" = true;
 	if (!"baker-backstory") {
-		goto "null_script"; // end it here
+		goto null_script; // end it here
 	}
 	player direction = entity "Guardian Bob";
 	entity "Guardian Bob" direction = player;
@@ -129,20 +129,20 @@ include "header.mgs";
 
 // bakery
 "on_tick-bake" {
-	copy!("add_flour")
-	copy!("add_flour")
-	copy!("add_flour")
+	copy!(add_flour)
+	copy!(add_flour)
+	copy!(add_flour)
 	self position -> geometry "bakery_mid" origin over 200ms;
 	self position -> geometry "pre_sink" origin over 350ms;
-	copy!("wash_hands")
+	copy!(wash_hands)
 	self position -> geometry "bakery_ovenzone" origin over 1300ms;
-	copy!("load_bread")
+	copy!(load_bread)
 	self position -> geometry "bakery_ovenzone" origin over 300ms;
-	copy!("load_bread")
+	copy!(load_bread)
 	self position -> geometry "bakery_fridgezone" origin over 1800ms;
-	copy!("check_fridge")
+	copy!(check_fridge)
 	self position -> geometry "pre_sink" origin over 700ms;
-	copy!("wash_hands")
+	copy!(wash_hands)
 	self position -> geometry "bakery_mid" origin over 450ms;
 	self position -> geometry "bakery_kneading" origin over 250ms;
 	wait 600ms;
@@ -243,7 +243,7 @@ include "header.mgs";
 		}
 		copy!("set-hint-baker")
 	}
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	self on_interact = "show_dialog-baker-start";
 }
 
@@ -381,7 +381,7 @@ include "header.mgs";
 				SELF "Wait. Weren't there two Bob golems last year?"
 			};
 			copy!("set-hint-bobmoss-from-guardian")
-			entity "Guardian Bob" on_tick = "null_script";
+			entity "Guardian Bob" on_tick = null_script;
 			entity "Guardian Bob" direction = south;
 		}
 	}
@@ -427,12 +427,12 @@ include "header.mgs";
 	show dialog {
 		SELF "Oh, hello, there."
 	};
-	entity "Bob Moss" on_tick = "spin_self_clockwise";
+	entity "Bob Moss" on_tick = spin_self_clockwise;
 	show dialog {
 		SELF "I was just admiring the forest, with its happy little trees...."
 		"I've made so many squirrel friends, and...."
 	};
-	entity "Bob Moss" on_tick = "null_script";
+	entity "Bob Moss" on_tick = null_script;
 	copy!("face-player")
 	show dialog {
 		SELF "Oh!"

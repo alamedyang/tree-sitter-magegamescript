@@ -59,7 +59,7 @@ include "header.mgs";
 // MAN PAGE
 
 "man-parts" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - PARTS</>"
 		" "
@@ -76,7 +76,7 @@ include "header.mgs";
 		|| "ch2-in-room" != 0 // OR you're in the castle
 	) {
 		// `parts` works normally
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"<m>LAMBDA</>: Not sure what you mean. Want to ask about one of these instead?"
 			" "
@@ -95,7 +95,7 @@ include "header.mgs";
 		|| "ch2-in-room" != 0 // OR you're in the castle
 	) {
 		// `parts` works normally
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"<c>PARTS LIST</>"
 			" "
@@ -263,7 +263,7 @@ include "header.mgs";
 "ch2-describe-abacus" { show serial_dialog "ch2-describe-abacus"; }
 
 "command-parts-ahead" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: Hold on! Don't get ahead of yourself, haha.... For now just focus on the below:"
 		" "
@@ -271,7 +271,7 @@ include "header.mgs";
 	goto "command-parts-print";
 }
 "command-parts-ahead-confused" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: I don't know if that will be of any use, but... want to ask about something else?"
 	};
@@ -281,7 +281,7 @@ include "header.mgs";
 // ROUND ONE: normal
 
 "command-parts-monitor" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-monitor") {
 		show serial_dialog { "<m>LAMBDA</>: You've got the monitor all set up already. If it looks broken, it's only because the mainframe can't boot up yet." };
 	} else if ("ch2-carrying-monitor") {
@@ -293,7 +293,7 @@ include "header.mgs";
 	show serial_dialog "lambda-over";
 }
 "command-parts-heatsink" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-heatsink") {
 		show serial_dialog { "<m>LAMBDA</>: You've got the heat sink ready to go, but you'll need to install the CPU first, so, uh, you can just leave it there for the moment." };
 	} else if ("ch2-carrying-heatsink") {
@@ -305,7 +305,7 @@ include "header.mgs";
 	show serial_dialog "lambda-over";
 }
 "command-parts-powersupply" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-powersupply") {
 		show serial_dialog { "<m>LAMBDA</>: The power supply is in place already. Notice, though, that it's got a bunch of smaller wires coming off of it -- you'll need to plug other components into those later. Everything is keyed, so it should be obvious how everything should be plugged when the time comes." };
 	} else if ("ch2-carrying-powersupply") {
@@ -323,7 +323,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-keyboard") {
 		show serial_dialog { "<m>LAMBDA</>: You've got a keyboard plugged in already... though I realize it's not going to be the easiest to use. But hey, did you know that very early keyboards used a lot of \"chords\" as part of their normal input paradigm?\n\t...Yeah, they kind of sucked. QWERTY is much nicer." };
 	} else if ("ch2-carrying-keyboard") {
@@ -338,7 +338,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-mouse") {
 		show serial_dialog { "<m>LAMBDA</>: You've got your mouse dongle plugged in, so the mouse will work fine now once we get the rest of the machine up and running. Oh, that's assuming its batteries are charged, I guess." };
 	} else if ("ch2-carrying-mouse") {
@@ -353,7 +353,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-harddrive") {
 		show serial_dialog { "<m>LAMBDA</>: The hard drive is already in place, so we'll have all the on-board storage we'll need. Not sure how much space we'll have, given how it was constructed, but... I'm sure it'll be fine." };
 	} else if ("ch2-carrying-harddrive") {
@@ -371,7 +371,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead-confused";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-plate") {
 		show serial_dialog { "<m>LAMBDA</>: You've already... um, \"used\" the plate to make a <m>hard drive</>. You're good." };
 	} else if ("ch2-carrying-plate") {
@@ -390,7 +390,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead-confused";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-needle") {
 		show serial_dialog { "<m>LAMBDA</>: You've already... um, \"used\" the <m>needle</> to make a <m>hard drive</>. You're good." };
 	} else if ("ch2-carrying-needle") {
@@ -409,7 +409,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 2) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-ramchips") {
 		show serial_dialog { "<m>LAMBDA</>: The RAM is in place, nice and tight. They're all set." };
 	} else if ("ch2-carrying-ramchips") {
@@ -427,7 +427,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 3) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-clock") {
 		show serial_dialog { "<m>LAMBDA</>: The clock's installed already. It's just... you know... clocking away." };
 	} else if ("ch2-carrying-clock") {
@@ -442,7 +442,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 3) {
 		goto "command-parts-ahead";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-cpu") {
 		show serial_dialog { "<m>LAMBDA</>: Your CPU is in place already, ready to go off and be the brain of the whole operation." };
 	} else if ("ch2-carrying-cpu") {
@@ -457,7 +457,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 3) {
 		goto "command-parts-ahead-confused";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-goldfish") {
 		show serial_dialog { "<m>LAMBDA</>: You've already... um, \"used\" the goldfish to make a CPU. You're good." };
 	} else if ("ch2-carrying-goldfish") {
@@ -476,7 +476,7 @@ include "header.mgs";
 	if ("ch2-storyflag-round" < 3) {
 		goto "command-parts-ahead-confused";
 	}
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-installed-abacus") {
 		show serial_dialog { "<m>LAMBDA</>: You've already got the abacus combined with the goldfish into a CPU, so don't worry about the abacus half of things now." };
 	} else if ("ch2-carrying-abacus") {
@@ -492,7 +492,7 @@ include "header.mgs";
 	show serial_dialog "lambda-over";
 }
 "command-parts-os" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-storyflag-round" < 4) {
 		show serial_dialog { "<m>LAMBDA</>: The operating system isn't quite ready yet. Sorry. Keep working on the hardware and I'll keep working on getting the OS ready for you." };
 	} else if (!"ch2-cutseen-castle99") {

@@ -13,7 +13,7 @@ include "header.mgs";
 // MAN PAGE
 
 "man-inventory" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - INVENTORY</>"
 		" "
@@ -33,7 +33,7 @@ include "header.mgs";
 	// set the `count-inventory` flag "first"; if true, don't print anything! just count!
 	"ch2-count-inventory" = 0;
 	if (!"only-count-inventory") {
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"<c>INVENTORY:</>"
 		};

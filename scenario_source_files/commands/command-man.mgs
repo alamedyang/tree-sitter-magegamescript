@@ -16,7 +16,7 @@ include "header.mgs";
 // MAN PAGE
 
 "man-man" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - MAN</>"
 		" "
@@ -29,7 +29,7 @@ include "header.mgs";
 // FAIL
 
 "man-fail" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold>MAN PAGE NOT FOUND!</> There is no documentation for that command, or that command does not exist."
 	};
@@ -61,7 +61,7 @@ include "header.mgs";
 }
 
 "ch2-wireless-error" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>ERROR</>: <bold>lambda-talk</> timed out"
 		" "
@@ -102,7 +102,7 @@ include "header.mgs";
 /* ---------- LAMBDA NORMAL CONVO ---------- */
 
 "command-man-normal-convo" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: What do you want to know?"
 		" "
@@ -140,7 +140,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-ishouldgo" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: I should go."
 		" "
@@ -153,7 +153,7 @@ include "header.mgs";
 /* ---------- ARTIFACT ---------- */
 
 "ch2-lambda-topic-parts" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: You had a question about the parts?"
 		" "
@@ -169,7 +169,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-topic-parts-list" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What is the parts list?"
 		" "
@@ -181,7 +181,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-topic-parts-installation" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: How do I install the parts once I've got them?"
 		" "
@@ -192,7 +192,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-topic-artifact" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: You had a question about the artifact?"
 		" "
@@ -209,7 +209,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-topic-artifact-words" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What can you tell me about \"magic words?\" You said they were commands?"
 		" "
@@ -223,7 +223,7 @@ include "header.mgs";
 /* ---------- MAINFRAME ---------- */
 
 "ch2-lambda-topic-mainframe" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: You had a question about the mainframe?"
 		" "
@@ -242,7 +242,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-mainframe-broken" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Why did you break it?"
 		" "
@@ -254,7 +254,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-mainframe-broken-1" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What exactly about it is broken?"
 		" "
@@ -265,7 +265,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-mainframe-broken-2" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: Yeah, so, um... it might not have been necessary, strictly speaking. I wiped its software first. That would've been enough on its own, to be honest."
 		"	I don't know. I just wanted to be <bold>sure</>. I sort of regret it now."
@@ -275,7 +275,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-mainframe-fix-1" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("ch2-storyflag-round" < 4) {
 		show serial_dialog {
 			"<c>YOU</>: How do we fix it? What do we need?"
@@ -308,7 +308,7 @@ include "header.mgs";
 /* ---------- CASTLE ---------- */
 
 "ch2-lambda-topic-castle" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: You had a question about the castle?"
 		" "
@@ -326,7 +326,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-castle-who" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Whose castle is this?"
 		" "
@@ -336,7 +336,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-castle-q";
 }
 "ch2-lambda-castle-damage" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: The earthquake caused some damage?"
 		" "
@@ -350,7 +350,7 @@ include "header.mgs";
 /* ---------- PEOPLE (CONVO START) ---------- */
 
 "ch2-lambda-topic-person-start" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: Who did you want to ask about?"
 		" "
@@ -442,7 +442,7 @@ include "header.mgs";
 		_ "QUIT" = "command-man-normal-convo"
 		_ "STOP" = "command-man-normal-convo"
 	};
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<m>LAMBDA</>: Sorry, not sure who you mean. You might have to be more specific."
 		// "	...Or perhaps even less specific." // Use this in case we find there's a limit for the quantity of free response options!
@@ -457,7 +457,7 @@ include "header.mgs";
 
 // Wizard
 "ch2-lambda-person-wizard" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What's with this \"Wizard\" guy?"
 		" "
@@ -466,7 +466,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-wizard-continued";
 }
 "ch2-lambda-person-raccoon" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What's with the raccoon?"
 		" "
@@ -482,7 +482,7 @@ include "header.mgs";
 }
 // Kuro
 "ch2-lambda-person-kuro" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-11") {
 		show serial_dialog {
 			"<c>YOU</>: Tell me about Kuro."
@@ -500,7 +500,7 @@ include "header.mgs";
 }
 // Concierge
 "ch2-lambda-person-concierge" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about the castle concierge."
 		" "
@@ -520,7 +520,7 @@ include "header.mgs";
 }
 // Templeton
 "ch2-lambda-person-templeton" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Templeton."
 		" "
@@ -538,7 +538,7 @@ include "header.mgs";
 }
 // Sebastian
 "ch2-lambda-person-sebastian" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Sebastian."
 		" "
@@ -556,7 +556,7 @@ include "header.mgs";
 }
 // Goldfish
 "ch2-lambda-person-aurelius" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Aurelius."
 		" "
@@ -565,7 +565,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-goldfish-aurelius";
 }
 "ch2-lambda-person-goldfish" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about the goldfish."
 		" "
@@ -581,7 +581,7 @@ include "header.mgs";
 }
 // King Gibson
 "ch2-lambda-person-kinggibson" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about King Gibson."
 		" "
@@ -594,7 +594,7 @@ include "header.mgs";
 
 // Alvin, Theodore, Simon
 "ch2-lambda-person-alvin" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Alvin."
 		" "
@@ -615,7 +615,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-theodore" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Theodore."
 		" "
@@ -636,7 +636,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-simon" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Simon."
 		" "
@@ -658,7 +658,7 @@ include "header.mgs";
 }
 // Sea Moss
 "ch2-lambda-person-seamoss" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Sea Moss."
 		" "
@@ -679,7 +679,7 @@ include "header.mgs";
 }
 // Gloria
 "ch2-lambda-person-gloria" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Gloria."
 		" "
@@ -697,7 +697,7 @@ include "header.mgs";
 }
 // Samson
 "ch2-lambda-person-samson" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Samson."
 		" "
@@ -715,7 +715,7 @@ include "header.mgs";
 }
 // Gregory
 "ch2-lambda-person-gregory" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Gregory."
 		" "
@@ -732,7 +732,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-a-cat" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about a cat."
 		" "
@@ -743,7 +743,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-the-cat" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about the cat."
 		" "
@@ -755,7 +755,7 @@ include "header.mgs";
 }
 // Clara
 "ch2-lambda-person-clara" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Clara."
 		" "
@@ -770,7 +770,7 @@ include "header.mgs";
 
 //Jean-Paul
 "ch2-lambda-person-jeanpaul" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Jean-Paul."
 		" "
@@ -788,7 +788,7 @@ include "header.mgs";
 }
 // Frankie
 "ch2-lambda-person-frankie" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Frankie."
 		" "
@@ -806,7 +806,7 @@ include "header.mgs";
 }
 // Scuzzy
 "ch2-lambda-person-scuzzy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Scuzzy."
 		" "
@@ -825,7 +825,7 @@ include "header.mgs";
 }
 // C.K.Watt
 "ch2-lambda-person-ckwatt" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about C. K. Watt."
 		" "
@@ -843,7 +843,7 @@ include "header.mgs";
 }
 // Tracy
 "ch2-lambda-person-tracy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Tracy."
 		" "
@@ -861,7 +861,7 @@ include "header.mgs";
 }
 // Rocco
 "ch2-lambda-person-rocco" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Rocco."
 		" "
@@ -882,7 +882,7 @@ include "header.mgs";
 }
 // Helvetica
 "ch2-lambda-person-helvetica" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Helvetica."
 		" "
@@ -898,7 +898,7 @@ include "header.mgs";
 
 // Bob
 "ch2-lambda-person-bob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Bob."
 		" "
@@ -908,7 +908,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-guardianbob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Guardian Bob."
 		" "
@@ -917,7 +917,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-solidsnek" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Solid Snek."
 		" "
@@ -930,7 +930,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-marathonbob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about the Marathon Bobs."
 		" "
@@ -948,7 +948,7 @@ include "header.mgs";
 /* ---------- PEOPLE (COMPLICATED) ---------- */
 
 "ch2-lambda-person-xa" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about XA."
 		" "
@@ -958,7 +958,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-xb" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about XB."
 		" "
@@ -967,7 +967,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-xc" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about XC."
 		" "
@@ -990,7 +990,7 @@ include "header.mgs";
 // The player
 
 "ch2-lambda-person-player" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about me!"
 		" "
@@ -1002,7 +1002,7 @@ include "header.mgs";
 }
 "ch2-lambda-person-player-2" {
 	"ch2-cameras-explanation" = true;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: How did you know I'm wearing a hat?"
 		" "
@@ -1013,7 +1013,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-person-player-2a" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Cameras? That's creepy."
 		" "
@@ -1022,7 +1022,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-player-2b" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Cameras? That's a sensible measure to take."
 		" "
@@ -1033,7 +1033,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-person-player-3a" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Okay, maybe it's a little invasive."
 		" "
@@ -1042,7 +1042,7 @@ include "header.mgs";
 	goto "ch2-lambda-topic-person-s";
 }
 "ch2-lambda-person-player-3b" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: It's not that invasive."
 		" "
@@ -1054,7 +1054,7 @@ include "header.mgs";
 // Lambda
 
 "ch2-lambda-person-lambda" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about you!"
 		" "
@@ -1073,7 +1073,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-person-lambda-where" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-99") {
 		show serial_dialog {
 			"<c>YOU</>: Where are you?"
@@ -1098,7 +1098,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-lambda-q";
 }
 "ch2-lambda-person-lambda-name" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What's your real name? It's not really \"Lambda,\" is it?"
 		" "
@@ -1112,7 +1112,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-person-lambda-name-2a" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: You're kidding, right?"
 		" "
@@ -1122,7 +1122,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-lambda-name-2c";
 }
 "ch2-lambda-person-lambda-name-2b" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: How could you forget your own name? What happened?"
 		" "
@@ -1148,7 +1148,7 @@ include "header.mgs";
 	}
 }
 "ch2-lambda-person-lambda-name-3" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What? But why?"
 		" "
@@ -1178,7 +1178,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-person-lambda-name-followup-severed" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What else was severed?"
 		" "
@@ -1189,7 +1189,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-lambda-name-followup";
 }
 "ch2-lambda-person-lambda-name-followup-bigbad" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Is that why the <r>Big Bad</> doesn't have a name? Did he destroy his name, too, so that other hackers can't target him for hacks?"
 		" "
@@ -1200,7 +1200,7 @@ include "header.mgs";
 	goto "ch2-lambda-person-lambda-name-followup";
 }
 "ch2-lambda-person-lambda-name-followup-nickname" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Does a nickname not count as a name? I've been calling you \"Lambda,\" after all. Isn't that a name?"
 		" "
@@ -1212,7 +1212,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-person-lambda-name-followup-lambda" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Why \"Lambda\" though?"
 		" "
@@ -1225,7 +1225,7 @@ include "header.mgs";
 // Big Bad
 
 "ch2-lambda-person-big-bad" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about the <r>Big Bad</>."
 		" "
@@ -1236,7 +1236,7 @@ include "header.mgs";
 	};
 }
 "ch2-lambda-person-big-bad2" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: You're making it sound like you knew him."
 		" "
@@ -1250,7 +1250,7 @@ include "header.mgs";
 // Elders
 
 "ch2-lambda-person-alfonso" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Alfonso."
 	};
@@ -1271,7 +1271,7 @@ include "header.mgs";
 }
 
 "ch2-lambda-person-jackob" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Tell me about Jackob."
 	};
@@ -1292,7 +1292,7 @@ include "header.mgs";
 // Bert
 
 "ch2-lambda-person-bert" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-cutseen-bert-secret") {
 		show serial_dialog {
 			"<c>YOU</>: Tell me about Bert."
@@ -1323,7 +1323,7 @@ include "header.mgs";
 
 "ch2-lambda-bert-like" {
 	"ch2-lambdabert-q1" = true;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What is Bert like?"
 		" "
@@ -1339,7 +1339,7 @@ include "header.mgs";
 "ch2-lambda-bert-mentioned" {
 	"ch2-lambdabert-q2" = true;
 	if (!"ch2-cutseen-castle99") {
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"<c>YOU</>: Bert's never mentioned you."
 			" "
@@ -1352,7 +1352,7 @@ include "header.mgs";
 		};
 		goto "ch2-lambda-bert-autocontinue-check";
 	} else {
-		show serial_dialog "spacer";
+		show serial_dialog spacer;
 		show serial_dialog {
 			"<c>YOU</>: Bert's never mentioned you."
 			" "
@@ -1364,7 +1364,7 @@ include "header.mgs";
 }
 "ch2-lambda-bert-door" {
 	"ch2-lambdabert-q3" = true;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: What did Bert mean by 'back door?'"
 		" "
@@ -1379,7 +1379,7 @@ include "header.mgs";
 
 "ch2-lambda-bert-message" {
 	"ch2-lambdabert-q4" = true;
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Do you know if Bert left a message yet?"
 		" "

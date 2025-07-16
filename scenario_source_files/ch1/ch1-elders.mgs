@@ -41,17 +41,17 @@ include "header.mgs";
 "return-to-watchspot-alfonso" {
 	self position -> geometry "alfonso-waitspot" origin over 500ms;
 	self direction = south;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 "return-to-watchspot-jackob" {
 	self position -> geometry "hintman-walkback" length over 800ms;
 	self direction = south;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 "return-to-watchspot-bert" {
 	self position -> geometry "bert-waitspot" origin over 500ms;
 	self direction = west;
-	self on_tick = "null_script";
+	self on_tick = null_script;
 }
 
 "show_dialog-bert-start" {

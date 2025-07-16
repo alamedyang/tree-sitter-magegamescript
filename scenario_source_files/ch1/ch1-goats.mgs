@@ -9,7 +9,7 @@ include "header.mgs";
 }
 "billy_now_unglitched" {
 	"billy-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 "kid-glitchwatch" {
 	if (!entity "Kid" glitched) {
@@ -18,7 +18,7 @@ include "header.mgs";
 }
 "kid_now_unglitched" {
 	"kid-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- goat handler (on_tick) ---------- */
@@ -34,14 +34,14 @@ include "header.mgs";
 	}
 }
 "move_goats_to_low" {
-	entity "Billy" on_tick = "move_billy_to_low";
-	entity "Kid" on_tick = "move_kid_to_low";
-	entity "Verthandi" on_tick = "check_if_player_is_goat_low";
+	entity "Billy" on_tick = move_billy_to_low;
+	entity "Kid" on_tick = move_kid_to_low;
+	entity "Verthandi" on_tick = check_if_player_is_goat_low;
 }
 "move_goats_to_high" {
-	entity "Billy" on_tick = "move_billy_to_high";
-	entity "Kid" on_tick = "move_kid_to_high";
-	entity "Verthandi" on_tick = "check_if_player_is_goat_high";
+	entity "Billy" on_tick = move_billy_to_high;
+	entity "Kid" on_tick = move_kid_to_high;
+	entity "Verthandi" on_tick = check_if_player_is_goat_high;
 }
 "move_billy_to_low" {
 	entity "Billy" position -> geometry "low1" origin over 900ms;

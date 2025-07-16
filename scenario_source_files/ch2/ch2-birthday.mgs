@@ -171,7 +171,7 @@ include "header.mgs";
 	show dialog {
 		PLAYER "Wait, weren't you supposed to bring me a book this morning? A book about the cereal castle?"
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = south;
 	show dialog {
 		Jackob
@@ -194,7 +194,7 @@ include "header.mgs";
 	show dialog {
 		PLAYER "On my own? You aren't coming inside with me?"
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 	player direction = south;
 	show dialog {
 		Jackob "We are not hackers and cannot pass the gate."
@@ -223,9 +223,9 @@ include "header.mgs";
 		Bert "I don't know."
 	};
 	wait 500ms;
-	entity "Alfonso" on_tick = "null_script";
-	entity "Jackob" on_tick = "null_script";
-	entity "Bert" on_tick = "null_script";
+	entity "Alfonso" on_tick = null_script;
+	entity "Jackob" on_tick = null_script;
+	entity "Bert" on_tick = null_script;
 	wait 100ms;
 	entity "Alfonso" direction = north;
 	wait 50ms;
@@ -281,11 +281,11 @@ include "header.mgs";
 		PLAYER "All right. Take a deep breath.\nYou can do it, %PLAYER%."
 	};
 	warp_state = "none";
-	entity "Jackob" on_tick = "yeet";
-	entity "Alfonso" on_tick = "yeet";
-	entity "Bert" on_tick = "yeet";
+	entity "Jackob" on_tick = yeet;
+	entity "Alfonso" on_tick = yeet;
+	entity "Bert" on_tick = yeet;
 	player_control = on;
-	goto "null_script";
+	goto null_script;
 }
 "cutscene-ch2-escort-exit" {
 	warp_state = "walk_from-east";

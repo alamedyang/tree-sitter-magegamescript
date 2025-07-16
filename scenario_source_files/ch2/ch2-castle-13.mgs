@@ -13,7 +13,7 @@ add dialog settings {
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-13" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE THRONE ROOM</>."
 		"\tTall, imposing statues line the walls, regal and bovine. Banners bearing the castle crest hang beside them. The floors gleam in the torchlight. The whole place is fancy enough that it makes you feel like you should stand a little straighter."
@@ -22,7 +22,7 @@ add dialog settings {
 }
 
 "look-ch2-sebastian" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tYou're not sure whether his glowing green eyes are evidence of powerful magic or whether this is typical for his species. You keep your distance, determined not to learn firsthand."
@@ -31,7 +31,7 @@ add dialog settings {
 }
 
 "look-ch2-templeton" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tYou're not sure what aspect of his gelatinous body might be his face -- if he even has one. His jiggling seems more born from nervousness than aggression, at least."
@@ -44,7 +44,7 @@ add dialog settings {
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 13;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE THRONE ROOM</>..." };
 	if (warp_state == "walk_from-north") {
 		player position = geometry "walk_from-north";
@@ -55,7 +55,7 @@ add dialog settings {
 }
 "on_load-ch2-castle-13" {
 	if (warp_state == "ch2 ending") {
-		entity "door" on_tick = "yeet";
+		entity "door" on_tick = yeet;
 		entity "King Gibson" position = geometry "king-examine1";
 		entity "Sebastian" position = geometry "end-sebastian";
 		entity "Templeton" position = geometry "end-templeton1";
@@ -65,7 +65,7 @@ add dialog settings {
 	"ch2-in-room" = 13;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-13") {
 		show serial_dialog { "Discovered <bold><c>CASTLE THRONE ROOM</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-13" = true;
@@ -76,10 +76,10 @@ add dialog settings {
 	// room unique stuff
 
 	if (warp_state == "Ch2 King Returns") {
-		entity "door" on_tick = "yeet";
+		entity "door" on_tick = yeet;
 		camera = geometry "camera-spot2";
 	} else if ("ch2-king-rescued") {
-		entity "door" on_tick = "yeet";
+		entity "door" on_tick = yeet;
 		entity "King Gibson" position = geometry "king-examine1";
 		entity "Sebastian" position = geometry "end-sebastian";
 		entity "Templeton" position = geometry "end-templeton1";
@@ -87,14 +87,14 @@ add dialog settings {
 		entity "Templeton" on_tick = "templeton-catalog-search";
 		entity "King Gibson" on_tick = "king-debris-ponder";
 	} else {
-		entity "King Gibson" on_tick = "yeet";
+		entity "King Gibson" on_tick = yeet;
 	}
 
 	if (
 		"ch2-installed-goldfish"
 		|| "ch2-carrying-goldfish"
 	) {
-		entity "Aurelius" on_tick = "yeet";
+		entity "Aurelius" on_tick = yeet;
 	}
 
 	copy!("ch2-map-init")
@@ -119,35 +119,35 @@ add dialog settings {
 	self position -> geometry "templeton1" origin over 400ms;
 	self position -> geometry "templeton2" origin over 400ms;
 	if (!"ch2-templeton-pace") {
-		goto "null_script";
+		goto null_script;
 	}
 }
 "ch2-sebastian-paceonce" {
 	self position -> geometry "lizard1" origin over 600ms;
 	self position -> geometry "lizard2" origin over 600ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-sebastian-stomp" {
 	entity "Sebastian" animation -> 2 once; // magical slam on the ground
-	goto "null_script";
+	goto null_script;
 }
 "ch2-lizard-lurch" {
 	self position -> geometry "lizard-lurch" origin over 300ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-sebastian-approach" {
 	wait 800;
 	entity "Sebastian" position -> geometry "lizard-walk" origin over 800ms;
 	entity "Sebastian" position -> geometry "lizard-walk" length over 600ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-mage-approach" {
 	player position -> geometry "mage-walk" length over 2500ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-lizard-withdraw" {
 	entity "Sebastian" position -> geometry "lizard-walk" origin over 800ms;
-	goto "null_script";
+	goto null_script;
 }
 $fadeTime = 600ms;
 "ch2-cutscene-castle12" {
@@ -172,7 +172,7 @@ $fadeTime = 600ms;
 	camera = geometry "camera-spot";
 	player position = geometry "mage-walk";
 	camera fade in -> black over $fadeTime;
-	entity "Templeton" on_tick = "spin_self_clockwise";
+	entity "Templeton" on_tick = spin_self_clockwise;
 	show dialog {
 		Templeton "Oh... oh dear."
 	};
@@ -286,7 +286,7 @@ $fadeTime = 600ms;
 
 "walk-over-1500" {
 	self position -> geometry "%ENTITY_PATH%" length over 1500ms;
-	goto "null_script";
+	goto null_script;
 }
 "ch2-cutscene-kingreturns" {
 	camera fade out -> black over 1ms;
@@ -496,7 +496,7 @@ $fadeTime = 600ms;
 			};
 			copy!("resume-king-walk")
 			copy!("resume-templeton-walk")
-			entity "Aurelius" on_tick = "yeet";
+			entity "Aurelius" on_tick = yeet;
 		}
 	}
 }
@@ -540,7 +540,7 @@ $fadeTime = 600ms;
 		show dialog {
 			SELF "%Templeton%, I promise not to yell at you for eating my spellbooks again if you can produce the right page in the next five minutes."
 		};
-		entity "Templeton" on_tick = "null_script";
+		entity "Templeton" on_tick = null_script;
 		entity "Templeton" direction = entity "Sebastian";
 		// pauses fussing
 		show dialog {

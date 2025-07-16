@@ -90,43 +90,43 @@ add dialog settings {
 		camera fade in -> #000000 over 800ms;
 		player_control = on;
 		if (!"ch1_finished") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-catwork") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-shepherd") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-bender") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-baker") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-bobmoss") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-bea1") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-trekkie") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-sportskid") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-bea2") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-rake") {
-			goto "null_script";
+			goto null_script;
 		}
 		if (!"storyflag-verthandi") {
-			goto "null_script";
+			goto null_script;
 		}
 		if ("demobonus-jackob-informed") {
-			goto "null_script";
+			goto null_script;
 		}
 		"demobonus" = true;
 		// ^^ set now because all story flags and credits confirmed true; use this flag for same check hereafter
@@ -154,7 +154,7 @@ add dialog settings {
 }
 "fountain_now_unglitched" {
 	"fountain-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 "hamster-glitchwatch" {
 	if (!self glitched) {
@@ -163,7 +163,7 @@ add dialog settings {
 }
 "hamster_now_unglitched" {
 	"main_hamster-unglitched" = true;
-	goto "null_script";
+	goto null_script;
 }
 "cat-watch" {
 	if (!entity "Cat" intersects geometry "cat-watch-box") {
@@ -239,12 +239,12 @@ add dialog settings {
 "on_tick-wrap_into-west" {
 	player_control = off;
 	player position -> geometry "exit_to-west" origin over 3500ms; 
-	goto "null_script";
+	goto null_script;
 }
 "on_tick-wrap_from-west" {
 	player position -> geometry "enter_from-east" length over 600ms; 
 	player_control = on;
-	goto "null_script";
+	goto null_script;
 }
 "wrap_from-east" {
 	player on_tick = "on_tick-wrap_into-east";
@@ -256,12 +256,12 @@ add dialog settings {
 "on_tick-wrap_into-east" {
 	player_control = off;
 	player position -> geometry "exit_to-east" origin over 3500ms; 
-	goto "null_script";
+	goto null_script;
 }
 "on_tick-wrap_from-east" {
 	player position -> geometry "enter_from-west" length over 600ms; 
 	player_control = on;
-	goto "null_script";
+	goto null_script;
 }
 
 /* ---------- dialog ---------- */
@@ -274,7 +274,7 @@ add dialog settings {
 		// (Cockney rhyming slang, which was requested by the artist for this character)
 		// (Something more clever might be used instead; feel free to change)
 	};
-	player on_tick = "null_script";
+	player on_tick = null_script;
 }
 "yabbo-watch" {
 	player direction = entity "Yabbo Mongo";

@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-castle-22" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>SERVER ROOM</>."
 		"\tRacks upon racks of servers hum with a buzz so deep you can feel it through your bones. Cold air flows in from somewhere, presumably to keep the stacks cool, but it rustles your hat and clothes."
@@ -12,7 +12,7 @@ include "header.mgs";
 }
 
 "look-ch2-ckwatt" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe purple fur of this rabbit-like creature looks incredibly soft. You're tempted to pet it, but that may in fact be a rude thing to do to a sapient creature. Rude, or weird."
@@ -20,7 +20,7 @@ include "header.mgs";
 }
 
 "look-ch2-scuzzy" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tHis cool, slick hair looks like it would take a lot of time to care for. %SELF% might spend as much time on it as he does his work, even when catastrophe had struck the castle."
@@ -33,7 +33,7 @@ include "header.mgs";
 	// abbreviated copy-pasta of the below
 	"ch2-in-room" = 22;
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>SERVER ROOM</>..." };
 	if (warp_state == "walk_from-south") {
 		player position = geometry "walk_from-south";
@@ -50,7 +50,7 @@ include "header.mgs";
 	"ch2-in-room" = 22;
 
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if (!"ch2-seen-room-22") {
 		show serial_dialog { "Discovered <bold><c>SERVER ROOM</>! Room added to <c>MAP</>!" };
 		"ch2-seen-room-22" = true;
@@ -197,7 +197,7 @@ include "header.mgs";
 	};
 	copy!("ch2-hide-powersupply")
 	copy!("ch2-pickup-powersupply")
-	self on_interact = "null_script";
+	self on_interact = null_script;
 }
 "ch2-touch-powersupply-no" {
 	show dialog {

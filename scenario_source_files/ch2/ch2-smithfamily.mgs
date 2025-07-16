@@ -3,7 +3,7 @@ include "header.mgs";
 /* ---------- LOOK SCRIPTS ---------- */
 
 "look-ch2-smithfamily" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the<c>SMITH'S HOUSE</>."
 		"\tThere are faint rubber skid marks on the floor and -- impressively -- the ceiling. One of the beds, likely the child's, is more disheveled. Still, Mr. %Smith% does well to keep the rest of the house tidy."
@@ -12,7 +12,7 @@ include "header.mgs";
 }
 
 "look-ch2-sportskid" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe child does not seem distressed that he has taken the form of sports equipment. On the contrary, best you can tell, he's elated. You shoot him a thumbs up, and he bounces up and down slightly."
@@ -20,7 +20,7 @@ include "header.mgs";
 }
 
 "look-ch2-smith" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tYour neighbor seems to be taking the status of his son in stride. He's as friendly to you as ever, and is maintaining a cheerful -- if slightly baffled -- expression."
@@ -31,7 +31,7 @@ include "header.mgs";
 
 "on_load-ch2-smithfamily" {
 	// entrance text
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>SMITH'S HOUSE</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
 	copy!("ch2-map-init")

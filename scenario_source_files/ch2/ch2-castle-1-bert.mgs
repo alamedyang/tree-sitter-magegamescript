@@ -28,12 +28,12 @@ include "header.mgs";
 		PLAYER "Bert? But how did you get in? I thought none of you could cross the threshold."
 		Bert "I remembered back door. But...."
 	};
-	entity "Bert" on_tick = "spin_self_clockwise";
+	entity "Bert" on_tick = spin_self_clockwise;
 	wait 400ms;
 	show dialog {
 		Bert "No. I can go no further. I could, once. Perhaps."
 	};
-	entity "Bert" on_tick = "null_script";
+	entity "Bert" on_tick = null_script;
 	entity "Bert" direction = player;
 	show dialog {
 		Bert "%PLAYER%, I must not stay long. But I must tell you this."
@@ -63,14 +63,14 @@ include "header.mgs";
 	};
 	entity "Bert" position -> geometry "walk_from-south" origin over 800ms;
 	wait 80ms;
-	entity "Bert" on_tick = "yeet";
-	player on_tick = "null_script";
+	entity "Bert" on_tick = yeet;
+	player on_tick = null_script;
 	player_control = on;
 	"interrupt" = true;
 }
 
 "ch2-bert-secret-lambda-intro" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	if ("interrupt") {
 		show serial_dialog {
 			"<m>LAMBDA</>: Bert? BERT! Oh my God, Bert! I remember that guy!"
@@ -104,7 +104,7 @@ include "header.mgs";
 	};
 }
 "ch2-bert-secret-lambda-intro2" {
-	show serial_dialog "spacer";
+	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: Should I go back and fetch him? Let you talk to him?"
 		" "
