@@ -374,7 +374,7 @@ var makeNatlangMapLogicSegment = function (template) {
 			var specialCondition = '';
 			if (char === '@') {
 				// The player will not be in multiple rooms simultaneously... (right?)
-				specialCondition = `variable ch2-in-room is ${currentRoom}`;
+				specialCondition = `variable ch2_in_room is ${currentRoom}`;
 				messageName = 'player';
 			} else if (char === '?') {
 				specialCondition = flagConditions[currentRoom]

@@ -12,7 +12,7 @@ include "header.mgs";
 	if ("goldfish-unglitched") {
 		entity "Mr. Tickles" glitched = false;
 	}
-	if (!"goodmorning") {
+	if (!goodmorning) {
 		player position = geometry "wakeup_spot";
 		player direction = south;
 		hex_control = off;
@@ -27,7 +27,7 @@ include "header.mgs";
 	if (player intersects geometry "door-magehouse") {
 		goto "leave-magehouse";
 	}
-	if (!"goodmorning") {
+	if (!goodmorning) {
 		goto "bedroom-door-watch";
 	}
 }
@@ -125,7 +125,7 @@ include "header.mgs";
 	wait 1ms;
 	entity "Uncle Zappy" on_tick = "zappy-leaving";
 	entity "Aunt Zippy" on_tick = "zippy-leaving";
-	"goodmorning" = true;
+	goodmorning = true;
 	player_control = on;
 	// RESET (jump to top)
 	goto "on_tick-magehouse";
@@ -325,7 +325,7 @@ include "header.mgs";
 	"ring-acquired" = false;
 	"hide-lodge-crowd" = false;
 	"hide-lodge-crowd-mini" = false;
-	"tuesdayd" = false;
+	tuesdayd = false;
 	"hintman-explanation" = false;
 	map on_tick = "on_tick-magehouse";
 }

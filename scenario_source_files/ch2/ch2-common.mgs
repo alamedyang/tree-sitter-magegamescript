@@ -12,26 +12,26 @@ serial_dialog "lambda-over" {
 
 /* ---------- CASTLE ON_LOAD INIT ---------- */
 
-"ch2-map-init-registers" {
-	"interrupt" = false; // flag set when something happens in the room and you haven't left the room yet
-	"interrupt2" = false; // for when you need a second one
-	"interrupt3" = false; // OwO
+"ch2_map_init_registers" {
+	interrupt = false; // flag set when something happens in the room and you haven't left the room yet
+	interrupt2 = false; // for when you need a second one
+	interrupt3 = false; // OwO
 	"tempvar" = 0;
 	"tempvar2" = 0;
 	"can-interrupt-dialog" = false;
 }
-"ch2-map-init-hex" {
+"ch2_map_init_hex" {
 	if (
 		// if you've fixed the mainframe to the point you can use Ring Zero normally inside the castle
 		"ch2-ring-zero-enabled-in-castle"
 		// OR you're not in the castle at all
-		|| "ch2-in-room" == 0
+		|| "ch2_in_room" == 0
 		// OR debug_mode
 		|| debug_mode
 	) {
 		hex_control = on;
 		lights_control = off;
-		if ("ch2-in-room" == 0) {
+		if ("ch2_in_room" == 0) {
 			light LED_USB = off;
 		}
 	} else {
@@ -41,7 +41,7 @@ serial_dialog "lambda-over" {
 		light ALL = off;
 	}
 }
-"ch2-map-init-serial" {
+"ch2_map_init_serial" {
 	if (!"ch2-has-artifact") { // no artifact at all
 		serial_control = off;
 	} else { // you have the artifact
@@ -63,64 +63,64 @@ serial_dialog "lambda-over" {
 	} else if ("ch2-warp-granted") {
 		copy!("register-warp")
 	}
-	if ("ch2-storyflag-round" > 0) {
-		if ("ch2-storyflag-round" < 5) {
+	if ("ch2_storyflag_round" > 0) {
+		if ("ch2_storyflag_round" < 5) {
 			copy!("register-parts")
 		}
 	}
 }
-"ch2-map-init-inventory-look" {
-	if ("ch2-carrying-monitor") {
+"ch2_map_init_inventory_look" {
+	if ("ch2_carrying_monitor") {
 		command "look" + "monitor" = "look-monitor";
 	}
-	if ("ch2-carrying-heatsink") {
+	if ("ch2_carrying_heatsink") {
 		command "look" + "heat sink" = "look-heatsink";
 	}
-	if ("ch2-carrying-cactuscooler") {
+	if ("ch2_carrying_cactuscooler") {
 		command "look" + "cactus cooler" = "look-cactuscooler";
 	}
-	if ("ch2-carrying-powersupply") {
+	if ("ch2_carrying_powersupply") {
 		command "look" + "power supply" = "look-powersupply";
 	}
-	if ("ch2-carrying-keyboard") {
+	if ("ch2_carrying_keyboard") {
 		command "look" + "keyboard" = "look-keyboard";
 	}
-	if ("ch2-carrying-mouse") {
+	if ("ch2_carrying_mouse") {
 		command "look" + "mouse" = "look-mouse";
 	}
-	if ("ch2-carrying-harddrive") {
+	if ("ch2_carrying_harddrive") {
 		command "look" + "hard drive" = "look-harddrive";
 	}
-	if ("ch2-carrying-plate") {
+	if ("ch2_carrying_plate") {
 		command "look" + "plate" = "look-plate";
 	}
-	if ("ch2-carrying-needle") {
+	if ("ch2_carrying_needle") {
 		command "look" + "needle" = "look-needle";
 	}
-	if ("ch2-carrying-ramchips") {
+	if ("ch2_carrying_ramchips") {
 		command "look" + "ram chip" = "look-ramchips";
 		command "look" + "ram" = "look-ramchips";
 	}
-	if ("ch2-carrying-clock") {
+	if ("ch2_carrying_clock") {
 		command "look" + "clock" = "look-clock";
 	}
-	if ("ch2-carrying-cpu") {
+	if ("ch2_carrying_cpu") {
 		command "look" + "cpu" = "look-cpu";
 	}
-	if ("ch2-carrying-goldfish") {
+	if ("ch2_carrying_goldfish") {
 		command "look" + "goldfish" = "look-goldfish";
 	}
-	if ("ch2-carrying-manual") {
+	if ("ch2_carrying_manual") {
 		command "look" + "manual" = "look-manual";
 	}
-	if ("ch2-carrying-abacus") {
+	if ("ch2_carrying_abacus") {
 		command "look" + "abacus" = "look-abacus";
 	}
-	if ("ch2-carrying-mainframeos") {
+	if ("ch2_carrying_mainframeos") {
 		command "look" + "mainframeos" = "look-mainframeos";
 	}
 }
-"ch2-map-init-serial-debug-message" {
+"ch2_map_init_serial_debug_message" {
 	if (debug_mode) {
 		if (!"debug-curr-state") {
 			show serial_dialog {
@@ -142,20 +142,20 @@ serial_dialog "lambda-over" {
 	}
 }
 
-"ch2-map-init-warp-in" {
+"ch2_map_init_warp_in" {
 	if (warp_state == "warping") {
 		copy!("warping-in-fade-in")
 	}
 	player_control = on;
 }
 
-"ch2-map-init" {
-	copy!("ch2-map-init-registers")
-	copy!("ch2-map-init-hex")
-	copy!("ch2-map-init-serial")
-	copy!("ch2-map-init-inventory-look")
-	copy!("ch2-map-init-serial-debug-message")
-	copy!("ch2-map-init-warp-in")
+"ch2_map_init" {
+	copy!(ch2_map_init_registers)
+	copy!(ch2_map_init_hex)
+	copy!(ch2_map_init_serial)
+	copy!(ch2_map_init_inventory_look)
+	copy!(ch2_map_init_serial_debug_message)
+	copy!(ch2_map_init_warp_in)
 	// extra goose stuff
 	if ("ch2-goosefacts") {
 		command "stop" = "stop-goosefacts";
@@ -171,7 +171,7 @@ serial_dialog "lambda-over" {
 	wait 150ms;
 }
 
-"warping-out-fade-out" {
+"warping_out_fade_out" {
 	player_control = off;
 	serial_control = off;
 	warp_state = "warping";

@@ -12,12 +12,12 @@ $calc = #5AB5F7;
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-1" {
+"look_ch2_castle_1" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE ENTRANCE</>."
 	};
-	if ("ch2-storyflag-round" < 5) {
+	if ("ch2_storyflag_round" < 5) {
 		show serial_dialog {
 			"\tThis castle might have been glorious once, but it seems that time has not been kind to it. The edges of its banners are fraying and grungy, and you're not sure you'll ever get the \"used castle smell\" out of your hat."
 			" "
@@ -31,7 +31,7 @@ $calc = #5AB5F7;
 	// (Exits list goes here) (P.S. That's why there's an empty line above!)
 }
 
-"look-ch2-mainframe-end" {
+"look_ch2_mainframe_end" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -40,53 +40,53 @@ $calc = #5AB5F7;
 
 }
 
-"look-ch2-mainframe" {
+"look_ch2_mainframe" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		" "
 	};
-	"temp" = false;
+	temp = false;
 	show serial_dialog { "This hardy beige box contains:"};
 	show serial_dialog {
 		"\t- wires"
 		"\t- what looks like a huge circuit board"
 	};
 	// normal
-	if ("ch2-installed-heatsink") {
+	if ("ch2_installed_heatsink") {
 		show serial_dialog { "\t- a heatsink" };
 	}
-	if ("ch2-installed-powersupply") {
+	if ("ch2_installed_powersupply") {
 		show serial_dialog { "\t- a power supply (2 kW)" };
 	}
 	// abstract
-	if ("ch2-installed-harddrive") {
+	if ("ch2_installed_harddrive") {
 		show serial_dialog { "\t- a hard drive" };
 	}
 	// desperate
-	if ("ch2-installed-ramchips") {
+	if ("ch2_installed_ramchips") {
 		show serial_dialog { "\t- a bunch of RAM chips" };
 	}
-	if ("ch2-installed-clock") {
+	if ("ch2_installed_clock") {
 		show serial_dialog { "\t- a system clock" };
 	}
-	if ("ch2-installed-cpu") {
+	if ("ch2_installed_cpu") {
 		show serial_dialog { "\t- a CPU" };
 	}
 	// EXTERNAL
 	show serial_dialog { "On the outside is:" };
 	if (
-		"ch2-installed-monitor"
-		|| "ch2-installed-keyboard"
-		|| "ch2-installed-mouse"
+		"ch2_installed_monitor"
+		|| "ch2_installed_keyboard"
+		|| "ch2_installed_mouse"
 	) {
-		if ("ch2-installed-monitor") {
+		if ("ch2_installed_monitor") {
 			show serial_dialog { "\t- a monitor" };
 		}
-		if ("ch2-installed-keyboard") {
+		if ("ch2_installed_keyboard") {
 			show serial_dialog { "\t- a keyboard" };
 		}
-		if ("ch2-installed-mouse") {
+		if ("ch2_installed_mouse") {
 			show serial_dialog { "\t- a mouse" };
 		}
 	}
@@ -96,7 +96,7 @@ $calc = #5AB5F7;
 	};
 }
 
-"look-ch2-wizard" {
+"look_ch2_wizard" {
 	show serial_dialog spacer;
 	if (entity "Wizard" current_animation == 0) { // WIZARD IS DOWN
 		show serial_dialog spacer;
@@ -115,14 +115,14 @@ $calc = #5AB5F7;
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-1-doorless" {
+"on_load_ch2_castle_1_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2-in-room" = 1;
+	"ch2_in_room" = 1;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE ENTRANCE</>..." };
 
-	entity "Wizard" on_interact = "interact-ch2-wizard-mainframedone";
+	entity "Wizard" on_interact = "interact_ch2_wizard_mainframedone";
 	entity "Wizard" current_animation = 3; // head poking up
 	if (warp_state == "raw_game_load-ch2") {
 		copy!(restore_player_state)
@@ -131,30 +131,30 @@ $calc = #5AB5F7;
 	} else if (warp_state == "walk_from-south") {
 		player position = geometry "walk_from-south";
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 	copy!("ch2-player-spawn-click-protection")
 }
 
-"on_load-ch2-castle-1" {
+"on_load_ch2_castle_1" {
 	if (warp_state == "ch2 ending") {
 		goto "ch2-castle-1-ending";
 	}
 	// ch2 room state
-	"ch2-in-room" = 1;
-	"ch2-seen-room-1" = true;
+	"ch2_in_room" = 1;
+	ch2_seen_room_1 = true;
 
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE ENTRANCE</>..." };
 
 	// room unique stuff
-	if ("ch2-cutseen-bert-secret") {
+	if ("ch2_cutseen_bert_secret") {
 		entity "Bert" on_tick = yeet;
 		// so his name is blank for when Ring Zero is back
 	}
 
 	if ("ch2-ring-zero-enabled-in-castle") {
-		entity "Wizard" on_interact = "interact-ch2-wizard-mainframedone";
+		entity "Wizard" on_interact = "interact_ch2_wizard_mainframedone";
 		entity "Wizard" current_animation = 3; // head poking up
 	}
 	if ("ch2-has-artifact") {
@@ -167,29 +167,29 @@ $calc = #5AB5F7;
 	} else if (warp_state == "ch2-ending") {
 		player position = geometry "mainframe-look-spot";
 	}
-	if ("ch2-carrying-mainframeos") {
+	if ("ch2_carrying_mainframeos") {
 		entity "Wizard" current_animation = 3;
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 
 	// DEBUG
 	if (debug_mode) {
 		command "credits" = "debug-ch2-credits";
 		command "toot" = "debug-finish-toot";
 		command "walk" = "debug-walk";
-		command "get" + "monitor" = "ch2-pickup-monitor";
-		command "get" + "heatsink" = "ch2-pickup-heatsink";
-		command "get" + "cactuscooler" = "ch2-pickup-cactuscooler";
-		command "get" + "powersupply" = "ch2-pickup-powersupply";
-		command "get" + "keyboard" = "ch2-pickup-keyboard";
-		command "get" + "mouse" = "ch2-pickup-mouse";
+		command "get" + "monitor" = "ch2_pickup_monitor";
+		command "get" + "heatsink" = "ch2_pickup_heatsink";
+		command "get" + "cactuscooler" = "ch2_pickup_cactuscooler";
+		command "get" + "powersupply" = "ch2_pickup_powersupply";
+		command "get" + "keyboard" = "ch2_pickup_keyboard";
+		command "get" + "mouse" = "ch2_pickup_mouse";
 		command "get" + "harddrive" = "ch2-solder-harddrive";
-		command "get" + "plate" = "ch2-pickup-plate";
-		command "get" + "needle" = "ch2-pickup-needle";
-		command "get" + "ramchips" = "ch2-pickup-ramchips";
-		command "get" + "clock" = "ch2-pickup-clock";
-		command "get" + "goldfish" = "ch2-pickup-goldfish";
-		command "get" + "abacus" = "ch2-pickup-abacus";
+		command "get" + "plate" = "ch2_pickup_plate";
+		command "get" + "needle" = "ch2_pickup_needle";
+		command "get" + "ramchips" = "ch2_pickup_ramchips";
+		command "get" + "clock" = "ch2_pickup_clock";
+		command "get" + "goldfish" = "ch2_pickup_goldfish";
+		command "get" + "abacus" = "ch2_pickup_abacus";
 		command "get" + "cpu" = "ch2-solder-cpu";
 		command "round" + "1" = "debug-get-items-for-round1";
 		command "round" + "2" = "debug-get-items-for-round2";
@@ -208,7 +208,7 @@ $calc = #5AB5F7;
 	copy!("ch2-player-spawn-click-protection")
 }
 "debug-finish-toot" {
-	"ch2-storyflag-round" = 1;
+	"ch2_storyflag_round" = 1;
 	"ch2-has-map" = true;
 	"ch2-has-artifact" = true;
 	copy!("register-map")
@@ -311,28 +311,28 @@ $calc = #5AB5F7;
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-1-doorless" {
+"on_tick_ch2_castle_1_postgame" {
 	if (player intersects geometry "south-hitbox") {
-		copy!("on_exit-ch2-castle-1")
+		copy!(on_exit_ch2_castle_1)
 		warp_state = "walk_from-north";
 		load map "ch2-castle-outside";
 	}
 	if (player intersects geometry "north-hitbox") {
-		copy!("on_exit-ch2-castle-1")
+		copy!(on_exit_ch2_castle_1)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-11-special")
+		copy!(ch2_load_castle_11_special)
 	}
 }
 
-"on_tick-ch2-castle-1" {
+"on_tick_ch2_castle_1" {
 	if (player intersects geometry "south-hitbox") {
-		copy!("on_exit-ch2-castle-1")
+		copy!(on_exit_ch2_castle_1)
 		warp_state = "walk_from-north";
 		load map "ch2-castle-outside";
 	}
 	if ("ch2-wait-for-hat-touch") {
 		// show serial_dialog {"if ("ch2-wait-for-hat-touch") {"};
-		goto "on_tick-ch2-castle-1-hexwait1";
+		goto "on_tick_ch2_castle_1_hexwait1";
 	}
 	// if there's a dialog open currently, don't do anything! But...
 	if (dialog closed) {
@@ -370,21 +370,21 @@ $calc = #5AB5F7;
 	}
 }
 
-"on_tick-ch2-castle-1-hexwait1" {
-	copy!("on_tick-ch2-castle-1-hexwait-protec")
+"on_tick_ch2_castle_1_hexwait1" {
+	copy!("on_tick_ch2_castle_1_hexwait-protec")
 	if (button HAX pressed) {
-		goto "on_tick-ch2-castle-1-hexwait2";
+		goto "on_tick_ch2_castle_1_hexwait2";
 	}
 }
-"on_tick-ch2-castle-1-hexwait2" {
-	copy!("on_tick-ch2-castle-1-hexwait-protec")
+"on_tick_ch2_castle_1_hexwait2" {
+	copy!("on_tick_ch2_castle_1_hexwait-protec")
 	if (button HAX pressed) {
 		"ch2-wait-for-hat-touch" = false;
 		player on_tick = "ch2-install-wizard-resume";
-		goto "on_tick-ch2-castle-1";
+		goto "on_tick_ch2_castle_1";
 	}
 }
-"on_tick-ch2-castle-1-hexwait-protec" {
+"on_tick_ch2_castle_1_hexwait-protec" {
 	if (player intersects geometry "south-hitbox") {
 		copy!("ch2-wait-for-hat-touch-message")
 		player_control = off;
@@ -395,11 +395,11 @@ $calc = #5AB5F7;
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-1" { // sanitize ch2 room state
+"on_exit_ch2_castle_1" { // sanitize ch2 room state
 	if ("ch2-wait-for-hat-touch") {
 		goto "ch2-wait-for-hat-touch-message";
 	}
-	"ch2-in-room" = 0;
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
@@ -413,22 +413,22 @@ $calc = #5AB5F7;
 	};
 }
 
-"on_go-castle-1-north" {
+"on_go_castle_1_north" {
 	if (!"ch2-toot-done") {
 		goto "on_go_ch2-notyet";
 	} else {
-		copy!("on_exit-ch2-castle-1")
-		copy!("warping-out-fade-out")
-		copy!("ch2-load-castle-11-special")
+		copy!(on_exit_ch2_castle_1)
+		copy!(warping_out_fade_out)
+		copy!(ch2_load_castle_11_special)
 	}
 }
 
-"on_go-castle-1-south" {
+"on_go_castle_1_south" {
 	if (!"ch2-toot-done") {
 		goto "on_go_ch2-notyet";
 	} else {
-		copy!("on_exit-ch2-castle-1")
-		copy!("warping-out-fade-out")
+		copy!(on_exit_ch2_castle_1)
+		copy!(warping_out_fade_out)
 		load map "ch2-castle-outside";
 	}
 }
@@ -516,7 +516,7 @@ $calc = #5AB5F7;
 	player_control = on;
 }
 
-"interact-ch2-wizard" {
+"interact_ch2_wizard" {
 	if (self current_animation == 0) { // WIZARD IS DOWN
 		// go up
 		copy!("ch2-wizard-ascend")
@@ -548,11 +548,11 @@ $calc = #5AB5F7;
 			SELF "Looks like whats-his-name is paging you. Better answer him on the terminal."
 		};
 	}
-	else if ("ch2-carrying-mainframeos") {
+	else if ("ch2_carrying_mainframeos") {
 		copy!("ch2-install-wizard")
 	}
 	else {
-		if (!"ch2-wizard-backstory") {
+		if (!"ch2_wizard_backstory") {
 			show dialog {
 				SELF "Hey."
 				PLAYER "Hi."
@@ -565,8 +565,8 @@ $calc = #5AB5F7;
 				PLAYER "Oh."
 				SELF "But once it's built, I can help install the OS or whatever programs you might need to do whatever. Always happy to help."
 			};
-			"ch2-wizard-backstory" = true;
-			"interrupt2" = true; // `interrupt` is used for Bert cutscene 
+			"ch2_wizard_backstory" = true;
+			interrupt2 = true; // `interrupt` is used for Bert cutscene 
 		} else {
 			if ("interrupt2") {
 				show dialog {
@@ -574,7 +574,7 @@ $calc = #5AB5F7;
 					"Let me know when the hardware is done and I can help install the OS and stuff. I'm great with software."
 				};
 			} else {
-				if (!"interrupt3") {
+				if (!interrupt3) {
 					show dialog {
 						SELF "Hey."
 						PLAYER "Hi."
@@ -583,7 +583,7 @@ $calc = #5AB5F7;
 						SELF "Cool, cool. So anyway, let me know when the hardware is done and I can help install the OS and stuff. I'm great with software."
 						PLAYER "Okay. Thanks."
 					};
-					"interrupt3" = true; // OwO
+					interrupt3 = true; // OwO
 				} else {
 					show dialog {
 						SELF "Finished it already?"
@@ -794,7 +794,7 @@ $calc = #5AB5F7;
 	entity "Sebastian" on_tick = "sebastian-to-three";
 	wait 200ms;
 	copy!("ch2-ending-fadeout")
-	copy!("ch2-load-castle-1-special")
+	copy!(ch2_load_castle_1_special)
 }
 
 "ch2-player-exit" {
@@ -817,7 +817,7 @@ $calc = #5AB5F7;
 		PLAYER "Awesome! I'll go tell the village elders I've got the artifact fully working."
 		"We're one step closer to facing the Big Bad!"
 	};
-	"ch2-storyflag-round" = 5;
+	"ch2_storyflag_round" = 5;
 	player_control = off;
 	entity "XA" on_tick = "ch2-player-exit";
 	warp_state = "ch2-ending";
@@ -826,7 +826,7 @@ $calc = #5AB5F7;
 	load map "ch2-castle-outside";
 }
 "debug-ch2-credits" {
-	"ch2-storyflag-round" = 5;
+	"ch2_storyflag_round" = 5;
 	player_control = off;
 	camera fade out -> #000000 over 1500ms;
 	"credits-from-menu" = false;
@@ -1273,14 +1273,14 @@ $calc = #5AB5F7;
 	serial_control = on;
 }
 
-"interact-ch2-wizard-mainframedone" {
+"interact_ch2_wizard_mainframedone" {
 	show dialog {
 		SELF "I love the smell of software in the morning."
 		"...What? That's a thing."
 	};
 }
 
-"interact-ch2-xa" {
+"interact_ch2_xa" {
 	if ("ch2-toot-done") {
 		goto "ch2-terminal-setup-check";
 	} else {

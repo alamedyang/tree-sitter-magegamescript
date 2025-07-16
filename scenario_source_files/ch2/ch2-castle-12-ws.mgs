@@ -5,165 +5,165 @@ $album = 1; $analog = 2; $audio = 3; $aux = 4; $bass = 5; $beat = 6; $bpm = 7; $
 $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chiptunes = 46; $codecs = 47; $frequencies = 48; $gramophone = 49; $headphone = 50; $lasers = 51; $microphones = 52; $phones = 53; $phone = 54; $mic = 55; $musician = 56; $radios = 57; $recordings = 58; $record = 59; $sequence = 60; $sequencers = 61; $sing = 62; $singing = 63; $songs = 64; $sound = 65; $soundtracks = 66; $synth = 67; $synthesizers = 68; $track = 69; $tracks = 70; $speaker = 71; $stereos = 72; $streams = 73; $subwoofers = 74; $tapes = 75; $tune = 76; $tunes = 77; $vinyls = 78; $vocoders = 79;
 
 // todo: should the "unfound" letters be lowercase for accessibility?
-"ch2-ws-count-flags" {
-	"ch2-ws-flags-tally" = 0;
-	if ("ch2-ws-album") {
-		"ch2-ws-flags-tally" += 1;
+"ch2_ws_count_flags" {
+	"ch2_ws_flags_tally" = 0;
+	if ("ch2_ws_album") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-analog") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_analog") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-audio") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_audio") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-aux") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_aux") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-bass") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_bass") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-beat") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_beat") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-bpm") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_bpm") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-broadcast") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_broadcast") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-cassette") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_cassette") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-chiptune") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_chiptune") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-codec") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_codec") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-compact") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_compact") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-frequency") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_frequency") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-headphones") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_headphones") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-hifi") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_hifi") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-laser") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_laser") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-lofi") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_lofi") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-media") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_media") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-microphone") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_microphone") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-midi") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_midi") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-mixing") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_mixing") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-music") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_music") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-phonograph") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_phonograph") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-radio") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_radio") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-recording") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_recording") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-rhythm") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_rhythm") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-sequencer") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_sequencer") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-song") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_song") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-soundtrack") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_soundtrack") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-speakers") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_speakers") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-stereo") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_stereo") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-stream") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_stream") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-subwoofer") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_subwoofer") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-surround") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_surround") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-synthesizer") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_synthesizer") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-tape") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_tape") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-treble") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_treble") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-vinyl") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_vinyl") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-vocoder") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_vocoder") {
+		"ch2_ws_flags_tally" += 1;
 	}
-	if ("ch2-ws-volume") {
-		"ch2-ws-flags-tally" += 1;
+	if ("ch2_ws_volume") {
+		"ch2_ws_flags_tally" += 1;
 	}
 }
 
-"ch2-ws-draw-map" {
+"ch2_ws_draw_map" {
 
 	// ROW 0
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-tape") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_tape") {
 		concat serial_dialog { "<y><bold>T </><r>" };
 	} else {
 		concat serial_dialog { "T " };
 	}
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
 	concat serial_dialog { "T " };
-	if ("ch2-ws-vinyl") {
+	if ("ch2_ws_vinyl") {
 		concat serial_dialog { "<y><bold>V I N Y L </><r>" };
 	} else {
 		concat serial_dialog { "V I N Y L " };
 	}
 	concat serial_dialog { "U J Z D U H E A A U Z " };
-	if ("ch2-ws-media") {
+	if ("ch2_ws_media") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
 	concat serial_dialog { "Q Z G S M " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-aux") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_aux") {
 		concat serial_dialog { "aux" };
 	} else {
 		concat serial_dialog { "---" };
 	}
 	concat serial_dialog { "  " };
-	if ("ch2-ws-synthesizer") {
+	if ("ch2_ws_synthesizer") {
 		concat serial_dialog { "synthesizer" };
 	} else {
 		concat serial_dialog { "-----------" };
@@ -171,44 +171,44 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 1
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-tape") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_tape") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "P " };
-	if ("ch2-ws-music") {
+	if ("ch2_ws_music") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
 	concat serial_dialog { "L K " };
-	if ("ch2-ws-chiptune") {
+	if ("ch2_ws_chiptune") {
 		concat serial_dialog { "<y><bold>C H I P T U N E </><r>" };
 	} else {
 		concat serial_dialog { "C H I P T U N E " };
 	}
 	concat serial_dialog { "F B P S " };
-	if ("ch2-ws-media") {
+	if ("ch2_ws_media") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "P Q R S A P " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-bpm") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_bpm") {
 		concat serial_dialog { "bpm" };
 	} else {
 		concat serial_dialog { "---" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-soundtrack") {
+	if ("ch2_ws_soundtrack") {
 		concat serial_dialog { "soundtrack" };
 	} else {
 		concat serial_dialog { "----------" };
@@ -216,55 +216,55 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 2
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-tape") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_tape") {
 		concat serial_dialog { "<y><bold>P </><r>" };
 	} else {
 		concat serial_dialog { "P " };
 	}
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "V F " };
-	if ("ch2-ws-music") {
+	if ("ch2_ws_music") {
 		concat serial_dialog { "<y><bold>U </><r>" };
 	} else {
 		concat serial_dialog { "U " };
 	}
 	concat serial_dialog { "F " };
-	if ("ch2-ws-aux") {
+	if ("ch2_ws_aux") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "X S Y N V R Z K K Y " };
-	if ("ch2-ws-media") {
+	if ("ch2_ws_media") {
 		concat serial_dialog { "<y><bold>D </><r>" };
 	} else {
 		concat serial_dialog { "D " };
 	}
 	concat serial_dialog { "F " };
-	if ("ch2-ws-radio") {
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
 	concat serial_dialog { "O S U L " };
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-bass") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_bass") {
 		concat serial_dialog { "bass" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "  " };
-	if ("ch2-ws-phonograph") {
+	if ("ch2_ws_phonograph") {
 		concat serial_dialog { "phonograph" };
 	} else {
 		concat serial_dialog { "----------" };
@@ -272,56 +272,56 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 3
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-tape") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_tape") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
 	concat serial_dialog { "S T S " };
-	if ("ch2-ws-music") {
+	if ("ch2_ws_music") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
 	concat serial_dialog { "I " };
-	if ("ch2-ws-aux") {
+	if ("ch2_ws_aux") {
 		concat serial_dialog { "<y><bold>U </><r>" };
 	} else {
 		concat serial_dialog { "U " };
 	}
 	concat serial_dialog { "K A S Y P N K D " };
-	if ("ch2-ws-media") {
+	if ("ch2_ws_media") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "H I " };
-	if ("ch2-ws-radio") {
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "N P F " };
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "O " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-beat") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_beat") {
 		concat serial_dialog { "beat" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "  " };
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "microphone" };
 	} else {
 		concat serial_dialog { "----------" };
@@ -329,58 +329,58 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 4
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "T " };
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "H G " };
-	if ("ch2-ws-laser") {
+	if ("ch2_ws_laser") {
 		concat serial_dialog { "<y><bold>L </><r>" };
 	} else {
 		concat serial_dialog { "L " };
 	}
 	concat serial_dialog { "Q " };
-	if ("ch2-ws-music") {
+	if ("ch2_ws_music") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "B " };
-	if ("ch2-ws-aux") {
+	if ("ch2_ws_aux") {
 		concat serial_dialog { "<y><bold>X </><r>" };
 	} else {
 		concat serial_dialog { "X " };
 	}
 	concat serial_dialog { "V L H N P I " };
-	if ("ch2-ws-media") {
+	if ("ch2_ws_media") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "Z V W " };
-	if ("ch2-ws-radio") {
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "<y><bold>D </><r>" };
 	} else {
 		concat serial_dialog { "D " };
 	}
 	concat serial_dialog { "V N " };
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>X </><r>" };
 	} else {
 		concat serial_dialog { "X " };
 	}
 	concat serial_dialog { "B Y " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-hifi") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_hifi") {
 		concat serial_dialog { "hifi" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "  " };
-	if ("ch2-ws-headphones") {
+	if ("ch2_ws_headphones") {
 		concat serial_dialog { "headphones" };
 	} else {
 		concat serial_dialog { "----------" };
@@ -388,57 +388,57 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 5
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "Y " };
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>P </><r>" };
 	} else {
 		concat serial_dialog { "P " };
 	}
 	concat serial_dialog { "U M " };
-	if ("ch2-ws-laser") {
+	if ("ch2_ws_laser") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "Y W " };
-	if ("ch2-ws-music") {
+	if ("ch2_ws_music") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "E M A O " };
-	if ("ch2-ws-compact") {
+	if ("ch2_ws_compact") {
 		concat serial_dialog { "<y><bold>C O M P A C T </><r>" };
 	} else {
 		concat serial_dialog { "C O M P A C T " };
 	}
-	if ("ch2-ws-radio") {
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "P " };
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "V " };
-	if ("ch2-ws-codec") {
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "Z " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-lofi") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_lofi") {
 		concat serial_dialog { "lofi" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-subwoofer") {
+	if ("ch2_ws_subwoofer") {
 		concat serial_dialog { "subwoofer" };
 	} else {
 		concat serial_dialog { "---------" };
@@ -446,54 +446,54 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 6
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-vocoder") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>V </><r>" };
 	} else {
 		concat serial_dialog { "V " };
 	}
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>H </><r>" };
 	} else {
 		concat serial_dialog { "H " };
 	}
 	concat serial_dialog { "Y K " };
-	if ("ch2-ws-laser" || "ch2-ws-sequencer") {
+	if ("ch2_ws_laser" || "ch2_ws_sequencer") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
-	if ("ch2-ws-sequencer") {
+	if ("ch2_ws_sequencer") {
 		concat serial_dialog { "<y><bold>E Q U E N C E R </><r>" };
 	} else {
 		concat serial_dialog { "E Q U E N C E R " };
 	}
 	concat serial_dialog { "Z P W V Q R " };
-	if ("ch2-ws-radio") {
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>N </><r>" };
 	} else {
 		concat serial_dialog { "N " };
 	}
 	concat serial_dialog { "M " };
-	if ("ch2-ws-codec") {
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "V U " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-midi") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_midi") {
 		concat serial_dialog { "midi" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-sequencer") {
+	if ("ch2_ws_sequencer") {
 		concat serial_dialog { "sequencer" };
 	} else {
 		concat serial_dialog { "---------" };
@@ -501,46 +501,46 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 7
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "F " };
-	if ("ch2-ws-microphone" || "ch2-ws-vocoder") {
+	if ("ch2_ws_microphone" || "ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "N F " };
-	if ("ch2-ws-laser") {
+	if ("ch2_ws_laser") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "N M W W T " };
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "G X E Q H Z O J " };
-	if ("ch2-ws-mixing") {
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "<y><bold>G </><r>" };
 	} else {
 		concat serial_dialog { "G " };
 	}
 	concat serial_dialog { "J " };
-	if ("ch2-ws-codec") {
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "<y><bold>D </><r>" };
 	} else {
 		concat serial_dialog { "D " };
 	}
 	concat serial_dialog { "J J R " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-song") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_song") {
 		concat serial_dialog { "song" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "recording" };
 	} else {
 		concat serial_dialog { "---------" };
@@ -548,56 +548,56 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 8
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "D " };
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>N </><r>" };
 	} else {
 		concat serial_dialog { "N " };
 	}
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "T " };
-	if ("ch2-ws-laser") {
+	if ("ch2_ws_laser") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
 	concat serial_dialog { "V N Q D " };
-	if ("ch2-ws-song") {
+	if ("ch2_ws_song") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "V " };
-	if ("ch2-ws-stream") {
+	if ("ch2_ws_stream") {
 		concat serial_dialog { "<y><bold>S T R E A M </><r>" };
 	} else {
 		concat serial_dialog { "S T R E A M " };
 	}
 	concat serial_dialog { "G A " };
-	if ("ch2-ws-codec") {
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "H O E Z " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-tape") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_tape") {
 		concat serial_dialog { "tape" };
 	} else {
 		concat serial_dialog { "----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-frequency") {
+	if ("ch2_ws_frequency") {
 		concat serial_dialog { "frequency" };
 	} else {
 		concat serial_dialog { "---------" };
@@ -605,50 +605,50 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 9
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "I " };
-	if ("ch2-ws-microphone") {
+	if ("ch2_ws_microphone") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "O " };
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "R O B B " };
-	if ("ch2-ws-song") {
+	if ("ch2_ws_song") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "D " };
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
 	concat serial_dialog { "Q L Y U E M L T " };
-	if ("ch2-ws-codec") {
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
-	if ("ch2-ws-audio") {
+	if ("ch2_ws_audio") {
 		concat serial_dialog { "<y><bold>A U D I O </><r>" };
 	} else {
 		concat serial_dialog { "A U D I O " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-album") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_album") {
 		concat serial_dialog { "album" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "  " };
-	if ("ch2-ws-broadcast") {
+	if ("ch2_ws_broadcast") {
 		concat serial_dialog { "broadcast" };
 	} else {
 		concat serial_dialog { "---------" };
@@ -656,51 +656,51 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 10
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "W V Q F " };
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>D </><r>" };
 	} else {
 		concat serial_dialog { "D " };
 	}
 	concat serial_dialog { "V J " };
-	if ("ch2-ws-song") {
+	if ("ch2_ws_song") {
 		concat serial_dialog { "<y><bold>N </><r>" };
 	} else {
 		concat serial_dialog { "N " };
 	}
 	concat serial_dialog { "O O " };
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
 	concat serial_dialog { "R Q N " };
-	if ("ch2-ws-midi") {
+	if ("ch2_ws_midi") {
 		concat serial_dialog { "<y><bold>M I D I </><r>" };
 	} else {
 		concat serial_dialog { "M I D I " };
 	}
 	concat serial_dialog { "D W " };
-	if ("ch2-ws-stereo") {
+	if ("ch2_ws_stereo") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
-	if ("ch2-ws-album") {
+	if ("ch2_ws_album") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "Y Y O " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-audio") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_audio") {
 		concat serial_dialog { "audio" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-surround") {
+	if ("ch2_ws_surround") {
 		concat serial_dialog { "surround" };
 	} else {
 		concat serial_dialog { "--------" };
@@ -708,68 +708,68 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 11
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-recording") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
 	concat serial_dialog { "S O N U " };
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	if ("ch2-ws-song") {
+	if ("ch2_ws_song") {
 		concat serial_dialog { "<y><bold>G </><r>" };
 	} else {
 		concat serial_dialog { "G " };
 	}
 	concat serial_dialog { "M J " };
-	if ("ch2-ws-headphones") {
+	if ("ch2_ws_headphones") {
 		concat serial_dialog { "<y><bold>H </><r>" };
 	} else {
 		concat serial_dialog { "H " };
 	}
-	if ("ch2-ws-headphones" || "ch2-ws-cassette") {
+	if ("ch2_ws_headphones" || "ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	if ("ch2-ws-headphones") {
+	if ("ch2_ws_headphones") {
 		concat serial_dialog { "<y><bold>A D P H O N E S </><r>" };
 	} else {
 		concat serial_dialog { "A D P H O N E S " };
 	}
-	if ("ch2-ws-stereo") {
+	if ("ch2_ws_stereo") {
 		concat serial_dialog { "<y><bold>T </><r>" };
 	} else {
 		concat serial_dialog { "T " };
 	}
-	if ("ch2-ws-lofi") {
+	if ("ch2_ws_lofi") {
 		concat serial_dialog { "<y><bold>L </><r>" };
 	} else {
 		concat serial_dialog { "L " };
 	}
-	if ("ch2-ws-album") {
+	if ("ch2_ws_album") {
 		concat serial_dialog { "<y><bold>L </><r>" };
 	} else {
 		concat serial_dialog { "L " };
 	}
 	concat serial_dialog { "U O " };
-	if ("ch2-ws-bpm" || "ch2-ws-beat") {
+	if ("ch2_ws_bpm" || "ch2_ws_beat") {
 		concat serial_dialog { "<y><bold>B </><r>" };
 	} else {
 		concat serial_dialog { "B " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-codec") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_codec") {
 		concat serial_dialog { "codec" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-speakers") {
+	if ("ch2_ws_speakers") {
 		concat serial_dialog { "speakers" };
 	} else {
 		concat serial_dialog { "--------" };
@@ -777,70 +777,70 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 12
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "M " };
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "X R F U " };
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
-	if ("ch2-ws-rhythm") {
+	if ("ch2_ws_rhythm") {
 		concat serial_dialog { "<y><bold>R H Y </><r>" };
 	} else {
 		concat serial_dialog { "R H Y " };
 	}
-	if ("ch2-ws-cassette" || "ch2-ws-rhythm") {
+	if ("ch2_ws_cassette" || "ch2_ws_rhythm") {
 		concat serial_dialog { "<y><bold>T </><r>" };
 	} else {
 		concat serial_dialog { "T " };
 	}
-	if ("ch2-ws-rhythm") {
+	if ("ch2_ws_rhythm") {
 		concat serial_dialog { "<y><bold>H M </><r>" };
 	} else {
 		concat serial_dialog { "H M " };
 	}
 	concat serial_dialog { "W H G C R " };
-	if ("ch2-ws-stereo") {
+	if ("ch2_ws_stereo") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
 	concat serial_dialog { "O " };
-	if ("ch2-ws-lofi") {
+	if ("ch2_ws_lofi") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
-	if ("ch2-ws-album") {
+	if ("ch2_ws_album") {
 		concat serial_dialog { "<y><bold>B </><r>" };
 	} else {
 		concat serial_dialog { "B " };
 	}
 	concat serial_dialog { "H " };
-	if ("ch2-ws-bpm") {
+	if ("ch2_ws_bpm") {
 		concat serial_dialog { "<y><bold>P </><r>" };
 	} else {
 		concat serial_dialog { "P " };
 	}
-	if ("ch2-ws-beat") {
+	if ("ch2_ws_beat") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-laser") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_laser") {
 		concat serial_dialog { "laser" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-chiptune") {
+	if ("ch2_ws_chiptune") {
 		concat serial_dialog { "chiptune" };
 	} else {
 		concat serial_dialog { "--------" };
@@ -848,64 +848,64 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 13
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "W R " };
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>C </><r>" };
 	} else {
 		concat serial_dialog { "C " };
 	}
 	concat serial_dialog { "P G C T " };
-	if ("ch2-ws-synthesizer") {
+	if ("ch2_ws_synthesizer") {
 		concat serial_dialog { "<y><bold>S Y N </><r>" };
 	} else {
 		concat serial_dialog { "S Y N " };
 	}
-	if ("ch2-ws-cassette" || "ch2-ws-synthesizer") {
+	if ("ch2_ws_cassette" || "ch2_ws_synthesizer") {
 		concat serial_dialog { "<y><bold>T </><r>" };
 	} else {
 		concat serial_dialog { "T " };
 	}
-	if ("ch2-ws-synthesizer") {
+	if ("ch2_ws_synthesizer") {
 		concat serial_dialog { "<y><bold>H E S I Z E </><r>" };
 	} else {
 		concat serial_dialog { "H E S I Z E " };
 	}
-	if ("ch2-ws-stereo" || "ch2-ws-synthesizer") {
+	if ("ch2_ws_stereo" || "ch2_ws_synthesizer") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
 	concat serial_dialog { "T A " };
-	if ("ch2-ws-lofi") {
+	if ("ch2_ws_lofi") {
 		concat serial_dialog { "<y><bold>F </><r>" };
 	} else {
 		concat serial_dialog { "F " };
 	}
-	if ("ch2-ws-album") {
+	if ("ch2_ws_album") {
 		concat serial_dialog { "<y><bold>U </><r>" };
 	} else {
 		concat serial_dialog { "U " };
 	}
-	if ("ch2-ws-bpm") {
+	if ("ch2_ws_bpm") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
 	concat serial_dialog { "T " };
-	if ("ch2-ws-beat") {
+	if ("ch2_ws_beat") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-media") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_media") {
 		concat serial_dialog { "media" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "   " };
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "cassette" };
 	} else {
 		concat serial_dialog { "--------" };
@@ -913,58 +913,58 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 14
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "U D W " };
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
 	concat serial_dialog { "H K X Q H Y " };
-	if ("ch2-ws-cassette") {
+	if ("ch2_ws_cassette") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	if ("ch2-ws-frequency") {
+	if ("ch2_ws_frequency") {
 		concat serial_dialog { "<y><bold>F R E Q U </><r>" };
 	} else {
 		concat serial_dialog { "F R E Q U " };
 	}
-	if ("ch2-ws-frequency" || "ch2-ws-stereo") {
+	if ("ch2_ws_frequency" || "ch2_ws_stereo") {
 		concat serial_dialog { "<y><bold>E </><r>" };
 	} else {
 		concat serial_dialog { "E " };
 	}
-	if ("ch2-ws-frequency") {
+	if ("ch2_ws_frequency") {
 		concat serial_dialog { "<y><bold>N C Y </><r>" };
 	} else {
 		concat serial_dialog { "N C Y " };
 	}
-	if ("ch2-ws-lofi") {
+	if ("ch2_ws_lofi") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
-	if ("ch2-ws-album") {
+	if ("ch2_ws_album") {
 		concat serial_dialog { "<y><bold>M </><r>" };
 	} else {
 		concat serial_dialog { "M " };
 	}
 	concat serial_dialog { "T I " };
-	if ("ch2-ws-beat") {
+	if ("ch2_ws_beat") {
 		concat serial_dialog { "<y><bold>T </><r>" };
 	} else {
 		concat serial_dialog { "T " };
 	}
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-music") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_music") {
 		concat serial_dialog { "music" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "    " };
-	if ("ch2-ws-vocoder") {
+	if ("ch2_ws_vocoder") {
 		concat serial_dialog { "vocoder" };
 	} else {
 		concat serial_dialog { "-------" };
@@ -972,53 +972,53 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 15
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "S " };
-	if ("ch2-ws-surround") {
+	if ("ch2_ws_surround") {
 		concat serial_dialog { "<y><bold>S U R </><r>" };
 	} else {
 		concat serial_dialog { "S U R " };
 	}
-	if ("ch2-ws-surround" || "ch2-ws-recording") {
+	if ("ch2_ws_surround" || "ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>R </><r>" };
 	} else {
 		concat serial_dialog { "R " };
 	}
-	if ("ch2-ws-surround") {
+	if ("ch2_ws_surround") {
 		concat serial_dialog { "<y><bold>O U N D </><r>" };
 	} else {
 		concat serial_dialog { "O U N D " };
 	}
 	concat serial_dialog { "V E B G " };
-	if ("ch2-ws-broadcast") {
+	if ("ch2_ws_broadcast") {
 		concat serial_dialog { "<y><bold>B R </><r>" };
 	} else {
 		concat serial_dialog { "B R " };
 	}
-	if ("ch2-ws-broadcast" || "ch2-ws-stereo") {
+	if ("ch2_ws_broadcast" || "ch2_ws_stereo") {
 		concat serial_dialog { "<y><bold>O </><r>" };
 	} else {
 		concat serial_dialog { "O " };
 	}
-	if ("ch2-ws-broadcast") {
+	if ("ch2_ws_broadcast") {
 		concat serial_dialog { "<y><bold>A D C A S T </><r>" };
 	} else {
 		concat serial_dialog { "A D C A S T " };
 	}
-	if ("ch2-ws-hifi") {
+	if ("ch2_ws_hifi") {
 		concat serial_dialog { "<y><bold>H </><r>" };
 	} else {
 		concat serial_dialog { "H " };
 	}
 	concat serial_dialog { "K A " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-radio") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_radio") {
 		concat serial_dialog { "radio" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "    " };
-	if ("ch2-ws-compact") {
+	if ("ch2_ws_compact") {
 		concat serial_dialog { "compact" };
 	} else {
 		concat serial_dialog { "-------" };
@@ -1026,54 +1026,54 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 16
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "L " };
-	if ("ch2-ws-soundtrack") {
+	if ("ch2_ws_soundtrack") {
 		concat serial_dialog { "<y><bold>S O U N </><r>" };
 	} else {
 		concat serial_dialog { "S O U N " };
 	}
-	if ("ch2-ws-soundtrack" || "ch2-ws-recording") {
+	if ("ch2_ws_soundtrack" || "ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>D </><r>" };
 	} else {
 		concat serial_dialog { "D " };
 	}
-	if ("ch2-ws-soundtrack") {
+	if ("ch2_ws_soundtrack") {
 		concat serial_dialog { "<y><bold>T R A C K </><r>" };
 	} else {
 		concat serial_dialog { "T R A C K " };
 	}
 	concat serial_dialog { "C " };
-	if ("ch2-ws-treble") {
+	if ("ch2_ws_treble") {
 		concat serial_dialog { "<y><bold>T R E </><r>" };
 	} else {
 		concat serial_dialog { "T R E " };
 	}
-	if ("ch2-ws-treble" || "ch2-ws-bass") {
+	if ("ch2_ws_treble" || "ch2_ws_bass") {
 		concat serial_dialog { "<y><bold>B </><r>" };
 	} else {
 		concat serial_dialog { "B " };
 	}
-	if ("ch2-ws-treble") {
+	if ("ch2_ws_treble") {
 		concat serial_dialog { "<y><bold>L E </><r>" };
 	} else {
 		concat serial_dialog { "L E " };
 	}
 	concat serial_dialog { "P R C " };
-	if ("ch2-ws-hifi") {
+	if ("ch2_ws_hifi") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "D Y M " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-vinyl") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_vinyl") {
 		concat serial_dialog { "vinyl" };
 	} else {
 		concat serial_dialog { "-----" };
 	}
 	concat serial_dialog { "     " };
-	if ("ch2-ws-volume") {
+	if ("ch2_ws_volume") {
 		concat serial_dialog { "volume" };
 	} else {
 		concat serial_dialog { "------" };
@@ -1081,44 +1081,44 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 17
-	concat serial_dialog "ch2-ws-rowstart";
-	if ("ch2-ws-volume") {
+	concat serial_dialog "ch2_ws_rowstart";
+	if ("ch2_ws_volume") {
 		concat serial_dialog { "<y><bold>V O L U M E </><r>" };
 	} else {
 		concat serial_dialog { "V O L U M E " };
 	}
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "O " };
-	if ("ch2-ws-analog") {
+	if ("ch2_ws_analog") {
 		concat serial_dialog { "<y><bold>A N A L O G </><r>" };
 	} else {
 		concat serial_dialog { "A N A L O G " };
 	}
 	concat serial_dialog { "F " };
-	if ("ch2-ws-bass") {
+	if ("ch2_ws_bass") {
 		concat serial_dialog { "<y><bold>A </><r>" };
 	} else {
 		concat serial_dialog { "A " };
 	}
 	concat serial_dialog { "D V M A " };
-	if ("ch2-ws-hifi") {
+	if ("ch2_ws_hifi") {
 		concat serial_dialog { "<y><bold>F </><r>" };
 	} else {
 		concat serial_dialog { "F " };
 	}
 	concat serial_dialog { "C K Z D " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-analog") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_analog") {
 		concat serial_dialog { "analog" };
 	} else {
 		concat serial_dialog { "------" };
 	}
 	concat serial_dialog { "    " };
-	if ("ch2-ws-treble") {
+	if ("ch2_ws_treble") {
 		concat serial_dialog { "treble" };
 	} else {
 		concat serial_dialog { "------" };
@@ -1126,38 +1126,38 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 18
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "U I X X H X E " };
-	if ("ch2-ws-recording") {
+	if ("ch2_ws_recording") {
 		concat serial_dialog { "<y><bold>N </><r>" };
 	} else {
 		concat serial_dialog { "N " };
 	}
-	if ("ch2-ws-speakers") {
+	if ("ch2_ws_speakers") {
 		concat serial_dialog { "<y><bold>S P E A K E R </><r>" };
 	} else {
 		concat serial_dialog { "S P E A K E R " };
 	}
-	if ("ch2-ws-bass" || "ch2-ws-speakers") {
+	if ("ch2_ws_bass" || "ch2_ws_speakers") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
 	concat serial_dialog { "K S V " };
-	if ("ch2-ws-hifi") {
+	if ("ch2_ws_hifi") {
 		concat serial_dialog { "<y><bold>I </><r>" };
 	} else {
 		concat serial_dialog { "I " };
 	}
 	concat serial_dialog { "K Z X Y N " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-mixing") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_mixing") {
 		concat serial_dialog { "mixing" };
 	} else {
 		concat serial_dialog { "------" };
 	}
 	concat serial_dialog { "    " };
-	if ("ch2-ws-stream") {
+	if ("ch2_ws_stream") {
 		concat serial_dialog { "stream" };
 	} else {
 		concat serial_dialog { "------" };
@@ -1165,43 +1165,43 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 
 	// ROW 19
-	concat serial_dialog "ch2-ws-rowstart";
+	concat serial_dialog "ch2_ws_rowstart";
 	concat serial_dialog { "Q X C " };
-	if ("ch2-ws-phonograph") {
+	if ("ch2_ws_phonograph") {
 		concat serial_dialog { "<y><bold>P H O N O </><r>" };
 	} else {
 		concat serial_dialog { "P H O N O " };
 	}
-	if ("ch2-ws-recording" || "ch2-ws-phonograph") {
+	if ("ch2_ws_recording" || "ch2_ws_phonograph") {
 		concat serial_dialog { "<y><bold>G </><r>" };
 	} else {
 		concat serial_dialog { "G " };
 	}
-	if ("ch2-ws-phonograph") {
+	if ("ch2_ws_phonograph") {
 		concat serial_dialog { "<y><bold>R A P H </><r>" };
 	} else {
 		concat serial_dialog { "R A P H " };
 	}
 	concat serial_dialog { "O Y " };
-	if ("ch2-ws-subwoofer" || "ch2-ws-bass") {
+	if ("ch2_ws_subwoofer" || "ch2_ws_bass") {
 		concat serial_dialog { "<y><bold>S </><r>" };
 	} else {
 		concat serial_dialog { "S " };
 	}
-	if ("ch2-ws-subwoofer") {
+	if ("ch2_ws_subwoofer") {
 		concat serial_dialog { "<y><bold>U B W O O F E R </><r>" };
 	} else {
 		concat serial_dialog { "U B W O O F E R " };
 	}
 	concat serial_dialog { "C " };
-	concat serial_dialog "ch2-ws-col";
-	if ("ch2-ws-rhythm") {
+	concat serial_dialog "ch2_ws_col";
+	if ("ch2_ws_rhythm") {
 		concat serial_dialog { "rhythm" };
 	} else {
 		concat serial_dialog { "------" };
 	}
 	concat serial_dialog { "    " };
-	if ("ch2-ws-stereo") {
+	if ("ch2_ws_stereo") {
 		concat serial_dialog { "stereo" };
 	} else {
 		concat serial_dialog { "------" };
@@ -1209,911 +1209,911 @@ $albums = 41; $base = 42; $beats = 43; $broadcasts = 44; $cassettes = 45; $chipt
 	concat serial_dialog "newline";
 }
 
-serial_dialog "ch2-ws-input" {
+serial_dialog "ch2_ws_input" {
 	" "
-	_ "Q" = "ch2-ws-guess-quit"
-	_ "QUIT" = "ch2-ws-guess-quit"
-	_ "EXIT" = "ch2-ws-guess-quit"
+	_ "Q" = "ch2_ws_guess_quit"
+	_ "QUIT" = "ch2_ws_guess_quit"
+	_ "EXIT" = "ch2_ws_guess_quit"
 	// target words
-	_ "ALBUM" = "ch2-ws-guess-album"
-	_ "ANALOG" = "ch2-ws-guess-analog"
-	_ "AUDIO" = "ch2-ws-guess-audio"
-	_ "AUX" = "ch2-ws-guess-aux"
-	_ "BASS" = "ch2-ws-guess-bass"
-	_ "BEAT" = "ch2-ws-guess-beat"
-	_ "BPM" = "ch2-ws-guess-bpm"
-	_ "BROADCAST" = "ch2-ws-guess-broadcast"
-	_ "CASSETTE" = "ch2-ws-guess-cassette"
-	_ "CHIPTUNE" = "ch2-ws-guess-chiptune"
-	_ "CODEC" = "ch2-ws-guess-codec"
-	_ "COMPACT" = "ch2-ws-guess-compact"
-	_ "FREQUENCY" = "ch2-ws-guess-frequency"
-	_ "HEADPHONES" = "ch2-ws-guess-headphones"
-	_ "HIFI" = "ch2-ws-guess-hifi"
-	_ "LASER" = "ch2-ws-guess-laser"
-	_ "LOFI" = "ch2-ws-guess-lofi"
-	_ "MEDIA" = "ch2-ws-guess-media"
-	_ "MICROPHONE" = "ch2-ws-guess-microphone"
-	_ "MIDI" = "ch2-ws-guess-midi"
-	_ "MIXING" = "ch2-ws-guess-mixing"
-	_ "MUSIC" = "ch2-ws-guess-music"
-	_ "PHONOGRAPH" = "ch2-ws-guess-phonograph"
-	_ "RADIO" = "ch2-ws-guess-radio"
-	_ "RECORDING" = "ch2-ws-guess-recording"
-	_ "RHYTHM" = "ch2-ws-guess-rhythm"
-	_ "SEQUENCER" = "ch2-ws-guess-sequencer"
-	_ "SONG" = "ch2-ws-guess-song"
-	_ "SOUNDTRACK" = "ch2-ws-guess-soundtrack"
-	_ "SPEAKERS" = "ch2-ws-guess-speakers"
-	_ "STEREO" = "ch2-ws-guess-stereo"
-	_ "STREAM" = "ch2-ws-guess-stream"
-	_ "SUBWOOFER" = "ch2-ws-guess-subwoofer"
-	_ "SURROUND" = "ch2-ws-guess-surround"
-	_ "SYNTHESIZER" = "ch2-ws-guess-synthesizer"
-	_ "TAPE" = "ch2-ws-guess-tape"
-	_ "TREBLE" = "ch2-ws-guess-treble"
-	_ "VINYL" = "ch2-ws-guess-vinyl"
-	_ "VOCODER" = "ch2-ws-guess-vocoder"
-	_ "VOLUME" = "ch2-ws-guess-volume"
+	_ "ALBUM" = "ch2_ws_guess_album"
+	_ "ANALOG" = "ch2_ws_guess_analog"
+	_ "AUDIO" = "ch2_ws_guess_audio"
+	_ "AUX" = "ch2_ws_guess_aux"
+	_ "BASS" = "ch2_ws_guess_bass"
+	_ "BEAT" = "ch2_ws_guess_beat"
+	_ "BPM" = "ch2_ws_guess_bpm"
+	_ "BROADCAST" = "ch2_ws_guess_broadcast"
+	_ "CASSETTE" = "ch2_ws_guess_cassette"
+	_ "CHIPTUNE" = "ch2_ws_guess_chiptune"
+	_ "CODEC" = "ch2_ws_guess_codec"
+	_ "COMPACT" = "ch2_ws_guess_compact"
+	_ "FREQUENCY" = "ch2_ws_guess_frequency"
+	_ "HEADPHONES" = "ch2_ws_guess_headphones"
+	_ "HIFI" = "ch2_ws_guess_hifi"
+	_ "LASER" = "ch2_ws_guess_laser"
+	_ "LOFI" = "ch2_ws_guess_lofi"
+	_ "MEDIA" = "ch2_ws_guess_media"
+	_ "MICROPHONE" = "ch2_ws_guess_microphone"
+	_ "MIDI" = "ch2_ws_guess_midi"
+	_ "MIXING" = "ch2_ws_guess_mixing"
+	_ "MUSIC" = "ch2_ws_guess_music"
+	_ "PHONOGRAPH" = "ch2_ws_guess_phonograph"
+	_ "RADIO" = "ch2_ws_guess_radio"
+	_ "RECORDING" = "ch2_ws_guess_recording"
+	_ "RHYTHM" = "ch2_ws_guess_rhythm"
+	_ "SEQUENCER" = "ch2_ws_guess_sequencer"
+	_ "SONG" = "ch2_ws_guess_song"
+	_ "SOUNDTRACK" = "ch2_ws_guess_soundtrack"
+	_ "SPEAKERS" = "ch2_ws_guess_speakers"
+	_ "STEREO" = "ch2_ws_guess_stereo"
+	_ "STREAM" = "ch2_ws_guess_stream"
+	_ "SUBWOOFER" = "ch2_ws_guess_subwoofer"
+	_ "SURROUND" = "ch2_ws_guess_surround"
+	_ "SYNTHESIZER" = "ch2_ws_guess_synthesizer"
+	_ "TAPE" = "ch2_ws_guess_tape"
+	_ "TREBLE" = "ch2_ws_guess_treble"
+	_ "VINYL" = "ch2_ws_guess_vinyl"
+	_ "VOCODER" = "ch2_ws_guess_vocoder"
+	_ "VOLUME" = "ch2_ws_guess_volume"
 	// "close" words
-	_ "ALBUMS" = "ch2-ws-guess-albums"
-	_ "BASE" = "ch2-ws-guess-base"
-	_ "BEATS" = "ch2-ws-guess-beats"
-	_ "BROADCASTS" = "ch2-ws-guess-broadcasts"
-	_ "CASSETTES" = "ch2-ws-guess-cassettes"
-	_ "CHIPTUNES" = "ch2-ws-guess-chiptunes"
-	_ "CODECS" = "ch2-ws-guess-codecs"
-	_ "FREQUENCIES" = "ch2-ws-guess-frequencies"
-	_ "GRAMOPHONE" = "ch2-ws-guess-gramophone"
-	_ "HEADPHONE" = "ch2-ws-guess-headphone"
-	_ "LASERS" = "ch2-ws-guess-lasers"
-	_ "MICROPHONES" = "ch2-ws-guess-microphones"
-	_ "PHONES" = "ch2-ws-guess-phones"
-	_ "PHONE" = "ch2-ws-guess-phone"
-	_ "MIC" = "ch2-ws-guess-mic"
-	_ "MUSICIAN" = "ch2-ws-guess-musician"
-	_ "RADIOS" = "ch2-ws-guess-radios"
-	_ "RECORDINGS" = "ch2-ws-guess-recordings"
-	_ "RECORD" = "ch2-ws-guess-record"
-	_ "SEQUENCE" = "ch2-ws-guess-sequence"
-	_ "SEQUENCERS" = "ch2-ws-guess-sequencers"
-	_ "SING" = "ch2-ws-guess-sing"
-	_ "SINGING" = "ch2-ws-guess-singing"
-	_ "SONGS" = "ch2-ws-guess-songs"
-	_ "SOUND" = "ch2-ws-guess-sound"
-	_ "SOUNDTRACKS" = "ch2-ws-guess-soundtracks"
-	_ "SYNTH" = "ch2-ws-guess-synth"
-	_ "SYNTHESIZERS" = "ch2-ws-guess-synthesizers"
-	_ "TRACK" = "ch2-ws-guess-track"
-	_ "TRACKS" = "ch2-ws-guess-tracks"
-	_ "SPEAKER" = "ch2-ws-guess-speaker"
-	_ "STEREOS" = "ch2-ws-guess-stereos"
-	_ "STREAMS" = "ch2-ws-guess-streams"
-	_ "SUBWOOFERS" = "ch2-ws-guess-subwoofers"
-	_ "TAPES" = "ch2-ws-guess-tapes"
-	_ "TUNE" = "ch2-ws-guess-tune"
-	_ "TUNES" = "ch2-ws-guess-tunes"
-	_ "VINYLS" = "ch2-ws-guess-vinyls"
-	_ "VOCODERS" = "ch2-ws-guess-vocoders"
+	_ "ALBUMS" = "ch2_ws_guess_albums"
+	_ "BASE" = "ch2_ws_guess_base"
+	_ "BEATS" = "ch2_ws_guess_beats"
+	_ "BROADCASTS" = "ch2_ws_guess_broadcasts"
+	_ "CASSETTES" = "ch2_ws_guess_cassettes"
+	_ "CHIPTUNES" = "ch2_ws_guess_chiptunes"
+	_ "CODECS" = "ch2_ws_guess_codecs"
+	_ "FREQUENCIES" = "ch2_ws_guess_frequencies"
+	_ "GRAMOPHONE" = "ch2_ws_guess_gramophone"
+	_ "HEADPHONE" = "ch2_ws_guess_headphone"
+	_ "LASERS" = "ch2_ws_guess_lasers"
+	_ "MICROPHONES" = "ch2_ws_guess_microphones"
+	_ "PHONES" = "ch2_ws_guess_phones"
+	_ "PHONE" = "ch2_ws_guess_phone"
+	_ "MIC" = "ch2_ws_guess_mic"
+	_ "MUSICIAN" = "ch2_ws_guess_musician"
+	_ "RADIOS" = "ch2_ws_guess_radios"
+	_ "RECORDINGS" = "ch2_ws_guess_recordings"
+	_ "RECORD" = "ch2_ws_guess_record"
+	_ "SEQUENCE" = "ch2_ws_guess_sequence"
+	_ "SEQUENCERS" = "ch2_ws_guess_sequencers"
+	_ "SING" = "ch2_ws_guess_sing"
+	_ "SINGING" = "ch2_ws_guess_singing"
+	_ "SONGS" = "ch2_ws_guess_songs"
+	_ "SOUND" = "ch2_ws_guess_sound"
+	_ "SOUNDTRACKS" = "ch2_ws_guess_soundtracks"
+	_ "SYNTH" = "ch2_ws_guess_synth"
+	_ "SYNTHESIZERS" = "ch2_ws_guess_synthesizers"
+	_ "TRACK" = "ch2_ws_guess_track"
+	_ "TRACKS" = "ch2_ws_guess_tracks"
+	_ "SPEAKER" = "ch2_ws_guess_speaker"
+	_ "STEREOS" = "ch2_ws_guess_stereos"
+	_ "STREAMS" = "ch2_ws_guess_streams"
+	_ "SUBWOOFERS" = "ch2_ws_guess_subwoofers"
+	_ "TAPES" = "ch2_ws_guess_tapes"
+	_ "TUNE" = "ch2_ws_guess_tune"
+	_ "TUNES" = "ch2_ws_guess_tunes"
+	_ "VINYLS" = "ch2_ws_guess_vinyls"
+	_ "VOCODERS" = "ch2_ws_guess_vocoders"
 	// cheats
-	_ "GLITTERING PRIZES" = "ch2-ws-guess-cheat"
+	_ "GLITTERING PRIZES" = "ch2_ws_guess_cheat"
 }
 
 // Guesses: cheat
-"ch2-ws-guess-cheat" {
-	"ch2-ws-turn-value" = 0;
-	"ch2-ws-turn-status" = $cheat;
-	"ch2-ws-album" = true;
-	"ch2-ws-analog" = true;
-	"ch2-ws-audio" = true;
-	"ch2-ws-aux" = true;
-	"ch2-ws-bass" = true;
-	"ch2-ws-beat" = true;
-	"ch2-ws-bpm" = true;
-	"ch2-ws-broadcast" = true;
-	"ch2-ws-cassette" = true;
-	"ch2-ws-chiptune" = true;
-	"ch2-ws-codec" = true;
-	"ch2-ws-compact" = true;
-	"ch2-ws-frequency" = true;
-	"ch2-ws-headphones" = true;
-	"ch2-ws-hifi" = true;
-	"ch2-ws-laser" = true;
-	"ch2-ws-lofi" = true;
-	"ch2-ws-media" = true;
-	"ch2-ws-microphone" = true;
-	"ch2-ws-midi" = true;
-	"ch2-ws-mixing" = true;
-	"ch2-ws-music" = true;
-	"ch2-ws-phonograph" = true;
-	"ch2-ws-radio" = true;
-	"ch2-ws-recording" = true;
-	"ch2-ws-rhythm" = true;
-	"ch2-ws-sequencer" = true;
-	"ch2-ws-song" = true;
-	"ch2-ws-soundtrack" = true;
-	"ch2-ws-speakers" = true;
-	"ch2-ws-stereo" = true;
-	"ch2-ws-stream" = true;
-	"ch2-ws-subwoofer" = true;
-	"ch2-ws-surround" = true;
-	"ch2-ws-synthesizer" = true;
-	"ch2-ws-tape" = true;
-	"ch2-ws-treble" = true;
-	"ch2-ws-vinyl" = true;
-	"ch2-ws-vocoder" = true;
-	"ch2-ws-volume" = true;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_cheat" {
+	"ch2_ws_turn_value" = 0;
+	"ch2_ws_turn_status" = $cheat;
+	"ch2_ws_album" = true;
+	"ch2_ws_analog" = true;
+	"ch2_ws_audio" = true;
+	"ch2_ws_aux" = true;
+	"ch2_ws_bass" = true;
+	"ch2_ws_beat" = true;
+	"ch2_ws_bpm" = true;
+	"ch2_ws_broadcast" = true;
+	"ch2_ws_cassette" = true;
+	"ch2_ws_chiptune" = true;
+	"ch2_ws_codec" = true;
+	"ch2_ws_compact" = true;
+	"ch2_ws_frequency" = true;
+	"ch2_ws_headphones" = true;
+	"ch2_ws_hifi" = true;
+	"ch2_ws_laser" = true;
+	"ch2_ws_lofi" = true;
+	"ch2_ws_media" = true;
+	"ch2_ws_microphone" = true;
+	"ch2_ws_midi" = true;
+	"ch2_ws_mixing" = true;
+	"ch2_ws_music" = true;
+	"ch2_ws_phonograph" = true;
+	"ch2_ws_radio" = true;
+	"ch2_ws_recording" = true;
+	"ch2_ws_rhythm" = true;
+	"ch2_ws_sequencer" = true;
+	"ch2_ws_song" = true;
+	"ch2_ws_soundtrack" = true;
+	"ch2_ws_speakers" = true;
+	"ch2_ws_stereo" = true;
+	"ch2_ws_stream" = true;
+	"ch2_ws_subwoofer" = true;
+	"ch2_ws_surround" = true;
+	"ch2_ws_synthesizer" = true;
+	"ch2_ws_tape" = true;
+	"ch2_ws_treble" = true;
+	"ch2_ws_vinyl" = true;
+	"ch2_ws_vocoder" = true;
+	"ch2_ws_volume" = true;
+	goto "ch2_ws_doturn";
 }
 
 // Guesses: "close" words:
-"ch2-ws-guess-albums" {
-	"ch2-ws-turn-value" = $albums;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_albums" {
+	"ch2_ws_turn_value" = $albums;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-base" {
-	"ch2-ws-turn-value" = $base;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_base" {
+	"ch2_ws_turn_value" = $base;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-beats" {
-	"ch2-ws-turn-value" = $beats;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_beats" {
+	"ch2_ws_turn_value" = $beats;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-broadcasts" {
-	"ch2-ws-turn-value" = $broadcasts;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_broadcasts" {
+	"ch2_ws_turn_value" = $broadcasts;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-cassettes" {
-	"ch2-ws-turn-value" = $cassettes;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_cassettes" {
+	"ch2_ws_turn_value" = $cassettes;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-chiptunes" {
-	"ch2-ws-turn-value" = $chiptunes;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_chiptunes" {
+	"ch2_ws_turn_value" = $chiptunes;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-codecs" {
-	"ch2-ws-turn-value" = $codecs;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_codecs" {
+	"ch2_ws_turn_value" = $codecs;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-frequencies" {
-	"ch2-ws-turn-value" = $frequencies;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_frequencies" {
+	"ch2_ws_turn_value" = $frequencies;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-gramophone" {
-	"ch2-ws-turn-value" = $gramophone;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_gramophone" {
+	"ch2_ws_turn_value" = $gramophone;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-headphone" {
-	"ch2-ws-turn-value" = $headphone;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_headphone" {
+	"ch2_ws_turn_value" = $headphone;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-lasers" {
-	"ch2-ws-turn-value" = $lasers;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_lasers" {
+	"ch2_ws_turn_value" = $lasers;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-microphones" {
-	"ch2-ws-turn-value" = $microphones;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_microphones" {
+	"ch2_ws_turn_value" = $microphones;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-phones" {
-	"ch2-ws-turn-value" = $phones;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_phones" {
+	"ch2_ws_turn_value" = $phones;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-phone" {
-	"ch2-ws-turn-value" = $phone;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_phone" {
+	"ch2_ws_turn_value" = $phone;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-mic" {
-	"ch2-ws-turn-value" = $mic;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_mic" {
+	"ch2_ws_turn_value" = $mic;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-musician" {
-	"ch2-ws-turn-value" = $musician;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_musician" {
+	"ch2_ws_turn_value" = $musician;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-radios" {
-	"ch2-ws-turn-value" = $radios;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_radios" {
+	"ch2_ws_turn_value" = $radios;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-recordings" {
-	"ch2-ws-turn-value" = $recordings;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_recordings" {
+	"ch2_ws_turn_value" = $recordings;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-record" {
-	"ch2-ws-turn-value" = $record;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_record" {
+	"ch2_ws_turn_value" = $record;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-sequence" {
-	"ch2-ws-turn-value" = $sequence;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_sequence" {
+	"ch2_ws_turn_value" = $sequence;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-sequencers" {
-	"ch2-ws-turn-value" = $sequencers;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_sequencers" {
+	"ch2_ws_turn_value" = $sequencers;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-sing" {
-	"ch2-ws-turn-value" = $sing;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_sing" {
+	"ch2_ws_turn_value" = $sing;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-singing" {
-	"ch2-ws-turn-value" = $singing;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_singing" {
+	"ch2_ws_turn_value" = $singing;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-songs" {
-	"ch2-ws-turn-value" = $songs;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_songs" {
+	"ch2_ws_turn_value" = $songs;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-sound" {
-	"ch2-ws-turn-value" = $sound;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_sound" {
+	"ch2_ws_turn_value" = $sound;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-soundtracks" {
-	"ch2-ws-turn-value" = $soundtracks;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_soundtracks" {
+	"ch2_ws_turn_value" = $soundtracks;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-synth" {
-	"ch2-ws-turn-value" = $synth;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_synth" {
+	"ch2_ws_turn_value" = $synth;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-synthesizers" {
-	"ch2-ws-turn-value" = $synthesizers;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_synthesizers" {
+	"ch2_ws_turn_value" = $synthesizers;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-track" {
-	"ch2-ws-turn-value" = $track;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_track" {
+	"ch2_ws_turn_value" = $track;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-tracks" {
-	"ch2-ws-turn-value" = $tracks;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_tracks" {
+	"ch2_ws_turn_value" = $tracks;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-speaker" {
-	"ch2-ws-turn-value" = $speaker;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_speaker" {
+	"ch2_ws_turn_value" = $speaker;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-stereos" {
-	"ch2-ws-turn-value" = $stereos;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_stereos" {
+	"ch2_ws_turn_value" = $stereos;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-streams" {
-	"ch2-ws-turn-value" = $streams;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_streams" {
+	"ch2_ws_turn_value" = $streams;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-subwoofers" {
-	"ch2-ws-turn-value" = $subwoofers;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_subwoofers" {
+	"ch2_ws_turn_value" = $subwoofers;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-tapes" {
-	"ch2-ws-turn-value" = $tapes;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_tapes" {
+	"ch2_ws_turn_value" = $tapes;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-tune" {
-	"ch2-ws-turn-value" = $tune;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_tune" {
+	"ch2_ws_turn_value" = $tune;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-tunes" {
-	"ch2-ws-turn-value" = $tunes;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_tunes" {
+	"ch2_ws_turn_value" = $tunes;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-vinyls" {
-	"ch2-ws-turn-value" = $vinyls;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_vinyls" {
+	"ch2_ws_turn_value" = $vinyls;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-vocoders" {
-	"ch2-ws-turn-value" = $vocoders;
-	"ch2-ws-turn-status" = $close;
-	goto "ch2-ws-doturn";
+"ch2_ws_guess_vocoders" {
+	"ch2_ws_turn_value" = $vocoders;
+	"ch2_ws_turn_status" = $close;
+	goto "ch2_ws_doturn";
 }
 
 // Guesses: hits
-"ch2-ws-guess-album" {
-	"ch2-ws-turn-value" = $album;
-	if ("ch2-ws-album") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_album" {
+	"ch2_ws_turn_value" = $album;
+	if ("ch2_ws_album") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-album" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_album" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-analog" {
-	"ch2-ws-turn-value" = $analog;
-	if ("ch2-ws-analog") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_analog" {
+	"ch2_ws_turn_value" = $analog;
+	if ("ch2_ws_analog") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-analog" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_analog" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-audio" {
-	"ch2-ws-turn-value" = $audio;
-	if ("ch2-ws-audio") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_audio" {
+	"ch2_ws_turn_value" = $audio;
+	if ("ch2_ws_audio") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-audio" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_audio" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-aux" {
-	"ch2-ws-turn-value" = $aux;
-	if ("ch2-ws-aux") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_aux" {
+	"ch2_ws_turn_value" = $aux;
+	if ("ch2_ws_aux") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-aux" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_aux" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-bass" {
-	"ch2-ws-turn-value" = $bass;
-	if ("ch2-ws-bass") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_bass" {
+	"ch2_ws_turn_value" = $bass;
+	if ("ch2_ws_bass") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-bass" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_bass" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-beat" {
-	"ch2-ws-turn-value" = $beat;
-	if ("ch2-ws-beat") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_beat" {
+	"ch2_ws_turn_value" = $beat;
+	if ("ch2_ws_beat") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-beat" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_beat" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-bpm" {
-	"ch2-ws-turn-value" = $bpm;
-	if ("ch2-ws-bpm") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_bpm" {
+	"ch2_ws_turn_value" = $bpm;
+	if ("ch2_ws_bpm") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-bpm" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_bpm" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-broadcast" {
-	"ch2-ws-turn-value" = $broadcast;
-	if ("ch2-ws-broadcast") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_broadcast" {
+	"ch2_ws_turn_value" = $broadcast;
+	if ("ch2_ws_broadcast") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-broadcast" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_broadcast" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-cassette" {
-	"ch2-ws-turn-value" = $cassette;
-	if ("ch2-ws-cassette") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_cassette" {
+	"ch2_ws_turn_value" = $cassette;
+	if ("ch2_ws_cassette") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-cassette" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_cassette" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-chiptune" {
-	"ch2-ws-turn-value" = $chiptune;
-	if ("ch2-ws-chiptune") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_chiptune" {
+	"ch2_ws_turn_value" = $chiptune;
+	if ("ch2_ws_chiptune") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-chiptune" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_chiptune" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-codec" {
-	"ch2-ws-turn-value" = $codec;
-	if ("ch2-ws-codec") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_codec" {
+	"ch2_ws_turn_value" = $codec;
+	if ("ch2_ws_codec") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-codec" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_codec" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-compact" {
-	"ch2-ws-turn-value" = $compact;
-	if ("ch2-ws-compact") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_compact" {
+	"ch2_ws_turn_value" = $compact;
+	if ("ch2_ws_compact") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-compact" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_compact" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-frequency" {
-	"ch2-ws-turn-value" = $frequency;
-	if ("ch2-ws-frequency") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_frequency" {
+	"ch2_ws_turn_value" = $frequency;
+	if ("ch2_ws_frequency") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-frequency" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_frequency" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-headphones" {
-	"ch2-ws-turn-value" = $headphones;
-	if ("ch2-ws-headphones") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_headphones" {
+	"ch2_ws_turn_value" = $headphones;
+	if ("ch2_ws_headphones") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-headphones" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_headphones" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-hifi" {
-	"ch2-ws-turn-value" = $hifi;
-	if ("ch2-ws-hifi") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_hifi" {
+	"ch2_ws_turn_value" = $hifi;
+	if ("ch2_ws_hifi") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-hifi" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_hifi" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-laser" {
-	"ch2-ws-turn-value" = $laser;
-	if ("ch2-ws-laser") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_laser" {
+	"ch2_ws_turn_value" = $laser;
+	if ("ch2_ws_laser") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-laser" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_laser" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-lofi" {
-	"ch2-ws-turn-value" = $lofi;
-	if ("ch2-ws-lofi") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_lofi" {
+	"ch2_ws_turn_value" = $lofi;
+	if ("ch2_ws_lofi") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-lofi" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_lofi" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-media" {
-	"ch2-ws-turn-value" = $media;
-	if ("ch2-ws-media") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_media" {
+	"ch2_ws_turn_value" = $media;
+	if ("ch2_ws_media") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-media" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_media" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-microphone" {
-	"ch2-ws-turn-value" = $microphone;
-	if ("ch2-ws-microphone") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_microphone" {
+	"ch2_ws_turn_value" = $microphone;
+	if ("ch2_ws_microphone") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-microphone" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_microphone" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-midi" {
-	"ch2-ws-turn-value" = $midi;
-	if ("ch2-ws-midi") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_midi" {
+	"ch2_ws_turn_value" = $midi;
+	if ("ch2_ws_midi") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-midi" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_midi" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-mixing" {
-	"ch2-ws-turn-value" = $mixing;
-	if ("ch2-ws-mixing") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_mixing" {
+	"ch2_ws_turn_value" = $mixing;
+	if ("ch2_ws_mixing") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-mixing" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_mixing" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-music" {
-	"ch2-ws-turn-value" = $music;
-	if ("ch2-ws-music") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_music" {
+	"ch2_ws_turn_value" = $music;
+	if ("ch2_ws_music") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-music" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_music" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-phonograph" {
-	"ch2-ws-turn-value" = $phonograph;
-	if ("ch2-ws-phonograph") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_phonograph" {
+	"ch2_ws_turn_value" = $phonograph;
+	if ("ch2_ws_phonograph") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-phonograph" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_phonograph" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-radio" {
-	"ch2-ws-turn-value" = $radio;
-	if ("ch2-ws-radio") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_radio" {
+	"ch2_ws_turn_value" = $radio;
+	if ("ch2_ws_radio") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-radio" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_radio" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-recording" {
-	"ch2-ws-turn-value" = $recording;
-	if ("ch2-ws-recording") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_recording" {
+	"ch2_ws_turn_value" = $recording;
+	if ("ch2_ws_recording") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-recording" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_recording" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-rhythm" {
-	"ch2-ws-turn-value" = $rhythm;
-	if ("ch2-ws-rhythm") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_rhythm" {
+	"ch2_ws_turn_value" = $rhythm;
+	if ("ch2_ws_rhythm") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-rhythm" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_rhythm" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-sequencer" {
-	"ch2-ws-turn-value" = $sequencer;
-	if ("ch2-ws-sequencer") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_sequencer" {
+	"ch2_ws_turn_value" = $sequencer;
+	if ("ch2_ws_sequencer") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-sequencer" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_sequencer" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-song" {
-	"ch2-ws-turn-value" = $song;
-	if ("ch2-ws-song") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_song" {
+	"ch2_ws_turn_value" = $song;
+	if ("ch2_ws_song") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-song" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_song" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-soundtrack" {
-	"ch2-ws-turn-value" = $soundtrack;
-	if ("ch2-ws-soundtrack") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_soundtrack" {
+	"ch2_ws_turn_value" = $soundtrack;
+	if ("ch2_ws_soundtrack") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-soundtrack" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_soundtrack" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-speakers" {
-	"ch2-ws-turn-value" = $speakers;
-	if ("ch2-ws-speakers") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_speakers" {
+	"ch2_ws_turn_value" = $speakers;
+	if ("ch2_ws_speakers") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-speakers" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_speakers" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-stereo" {
-	"ch2-ws-turn-value" = $stereo;
-	if ("ch2-ws-stereo") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_stereo" {
+	"ch2_ws_turn_value" = $stereo;
+	if ("ch2_ws_stereo") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-stereo" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_stereo" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-stream" {
-	"ch2-ws-turn-value" = $stream;
-	if ("ch2-ws-stream") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_stream" {
+	"ch2_ws_turn_value" = $stream;
+	if ("ch2_ws_stream") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-stream" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_stream" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-subwoofer" {
-	"ch2-ws-turn-value" = $subwoofer;
-	if ("ch2-ws-subwoofer") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_subwoofer" {
+	"ch2_ws_turn_value" = $subwoofer;
+	if ("ch2_ws_subwoofer") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-subwoofer" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_subwoofer" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-surround" {
-	"ch2-ws-turn-value" = $surround;
-	if ("ch2-ws-surround") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_surround" {
+	"ch2_ws_turn_value" = $surround;
+	if ("ch2_ws_surround") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-surround" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_surround" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-synthesizer" {
-	"ch2-ws-turn-value" = $synthesizer;
-	if ("ch2-ws-synthesizer") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_synthesizer" {
+	"ch2_ws_turn_value" = $synthesizer;
+	if ("ch2_ws_synthesizer") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-synthesizer" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_synthesizer" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-tape" {
-	"ch2-ws-turn-value" = $tape;
-	if ("ch2-ws-tape") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_tape" {
+	"ch2_ws_turn_value" = $tape;
+	if ("ch2_ws_tape") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-tape" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_tape" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-treble" {
-	"ch2-ws-turn-value" = $treble;
-	if ("ch2-ws-treble") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_treble" {
+	"ch2_ws_turn_value" = $treble;
+	if ("ch2_ws_treble") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-treble" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_treble" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-vinyl" {
-	"ch2-ws-turn-value" = $vinyl;
-	if ("ch2-ws-vinyl") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_vinyl" {
+	"ch2_ws_turn_value" = $vinyl;
+	if ("ch2_ws_vinyl") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-vinyl" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_vinyl" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-vocoder" {
-	"ch2-ws-turn-value" = $vocoder;
-	if ("ch2-ws-vocoder") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_vocoder" {
+	"ch2_ws_turn_value" = $vocoder;
+	if ("ch2_ws_vocoder") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-vocoder" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_vocoder" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
-"ch2-ws-guess-volume" {
-	"ch2-ws-turn-value" = $volume;
-	if ("ch2-ws-volume") {
-		"ch2-ws-turn-status" = $repeat;
+"ch2_ws_guess_volume" {
+	"ch2_ws_turn_value" = $volume;
+	if ("ch2_ws_volume") {
+		"ch2_ws_turn_status" = $repeat;
 	} else {
-		"ch2-ws-volume" = true;
-		"ch2-ws-turn-status" = $hit;
+		"ch2_ws_volume" = true;
+		"ch2_ws_turn_status" = $hit;
 	}
-	goto "ch2-ws-doturn";
+	goto "ch2_ws_doturn";
 }
 
 // MESSAGES
 
-"ch2-ws-turn-message" {
-	if ("ch2-ws-turn-status" == $cheat) {
+"ch2_ws_turn_message" {
+	if ("ch2_ws_turn_status" == $cheat) {
 		concat serial_dialog {
 			"Whoa! Look who's a medieval man!"
 		};
-	} else if ("ch2-ws-turn-status" == $miss) {
+	} else if ("ch2_ws_turn_status" == $miss) {
 		concat serial_dialog {
 			"Huh? I don't think I know that word."
 		};
-	} else 	if ("ch2-ws-turn-value" == $albums) {
+	} else 	if ("ch2_ws_turn_value" == $albums) {
 		concat serial_dialog {
 			"ALBUMS? Love your enthusiasm, but I'm a single-slot kind of guy."
 		};
-	} else if ("ch2-ws-turn-value" == $base) {
+	} else if ("ch2_ws_turn_value" == $base) {
 		concat serial_dialog {
 			"BASE? Hmmm. Is that how you spell that?"
 		};
-	} else if ("ch2-ws-turn-value" == $beats) {
+	} else if ("ch2_ws_turn_value" == $beats) {
 		concat serial_dialog {
 			"BEATS? Almost, but not quite what I'm looking for."
 		};
-	} else if ("ch2-ws-turn-value" == $broadcasts) {
+	} else if ("ch2_ws_turn_value" == $broadcasts) {
 		concat serial_dialog {
 			"BROADCASTS? Optimistic, but I don't know about that."
 		};
-	} else if ("ch2-ws-turn-value" == $cassettes) {
+	} else if ("ch2_ws_turn_value" == $cassettes) {
 		concat serial_dialog {
 			"CASSETTES? As in multiple? What decade is this?"
 		};
-	} else if ("ch2-ws-turn-value" == $chiptunes) {
+	} else if ("ch2_ws_turn_value" == $chiptunes) {
 		concat serial_dialog {
 			"CHIPTUNES? I think you're a smidge off, but keep trying."
 		};
-	} else if ("ch2-ws-turn-value" == $codecs) {
+	} else if ("ch2_ws_turn_value" == $codecs) {
 		concat serial_dialog {
 			"CODECS? I think you're nearly there, but not quite."
 		};
-	} else if ("ch2-ws-turn-value" == $frequencies) {
+	} else if ("ch2_ws_turn_value" == $frequencies) {
 		concat serial_dialog {
 			"FREQUENCIES? Almost, but not what I'm thinking of."
 		};
-	} else if ("ch2-ws-turn-value" == $gramophone) {
+	} else if ("ch2_ws_turn_value" == $gramophone) {
 		concat serial_dialog {
 			"GRAMOPHONE? Are you just making things up now?"
 		};
-	} else if ("ch2-ws-turn-value" == $headphone) {
+	} else if ("ch2_ws_turn_value" == $headphone) {
 		concat serial_dialog {
 			"HEADPHONE? Is that like a 'scissor'? Or a 'pant'?"
 		};
-	} else if ("ch2-ws-turn-value" == $lasers) {
+	} else if ("ch2_ws_turn_value" == $lasers) {
 		concat serial_dialog {
 			"LASERS? Almost, but not quite. Sounds fun though!"
 		};
-	} else if ("ch2-ws-turn-value" == $microphones) {
+	} else if ("ch2_ws_turn_value" == $microphones) {
 		concat serial_dialog {
 			"MICROPHONES? Do I look like I need more than one?"
 		};
-	} else if ("ch2-ws-turn-value" == $phones) {
+	} else if ("ch2_ws_turn_value" == $phones) {
 		concat serial_dialog {
 			"PHONES? Close, but way off."
 		};
-	} else if ("ch2-ws-turn-value" == $phone) {
+	} else if ("ch2_ws_turn_value" == $phone) {
 		concat serial_dialog {
 			"PHONE? Getting close to something, I can feel it."
 		};
-	} else if ("ch2-ws-turn-value" == $mic) {
+	} else if ("ch2_ws_turn_value" == $mic) {
 		concat serial_dialog {
 			"MIC? No, but I think that's almost something."
 		};
-	} else if ("ch2-ws-turn-value" == $musician) {
+	} else if ("ch2_ws_turn_value" == $musician) {
 		concat serial_dialog {
 			"MUSICIAN? A bit overboard, but you're on to something."
 		};
-	} else if ("ch2-ws-turn-value" == $radios) {
+	} else if ("ch2_ws_turn_value" == $radios) {
 		concat serial_dialog {
 			"RADIOS? Sorry, there's only one of me here."
 		};
-	} else if ("ch2-ws-turn-value" == $recordings) {
+	} else if ("ch2_ws_turn_value" == $recordings) {
 		concat serial_dialog {
 			"RECORDINGS? Close, but I think you're going a bit overboard."
 		};
-	} else if ("ch2-ws-turn-value" == $record) {
+	} else if ("ch2_ws_turn_value" == $record) {
 		concat serial_dialog {
 			"RECORD? Aha, yes! Oh, no, wait. Not this time. Close though."
 		};
-	} else if ("ch2-ws-turn-value" == $sequence) {
+	} else if ("ch2_ws_turn_value" == $sequence) {
 		concat serial_dialog {
 			"SEQUENCE? You're getting somewhere, but no dice this time."
 		};
-	} else if ("ch2-ws-turn-value" == $sequencers) {
+	} else if ("ch2_ws_turn_value" == $sequencers) {
 		concat serial_dialog {
 			"SEQUENCERS? Were that I was that cool! Maybe scale that back."
 		};
-	} else if ("ch2-ws-turn-value" == $sing) {
+	} else if ("ch2_ws_turn_value" == $sing) {
 		concat serial_dialog {
 			"SING? I feel like that's close, but I don't know."
 		};
-	} else if ("ch2-ws-turn-value" == $singing) {
+	} else if ("ch2_ws_turn_value" == $singing) {
 		concat serial_dialog {
 			"SINGING? I mean sure, but... no, that's not what I'm missing."
 		};
-	} else if ("ch2-ws-turn-value" == $songs) {
+	} else if ("ch2_ws_turn_value" == $songs) {
 		concat serial_dialog {
 			"SONGS? Almost! Not exactly though."
 		};
-	} else if ("ch2-ws-turn-value" == $sound) {
+	} else if ("ch2_ws_turn_value" == $sound) {
 		concat serial_dialog {
 			"SOUND? I mean sure, but... no, not what I'm looking for."
 		};
-	} else if ("ch2-ws-turn-value" == $soundtracks) {
+	} else if ("ch2_ws_turn_value" == $soundtracks) {
 		concat serial_dialog {
 			"SOUNDTRACKS? Enthusiastic, aren't you! Not quite, though."
 		};
-	} else if ("ch2-ws-turn-value" == $synth) {
+	} else if ("ch2_ws_turn_value" == $synth) {
 		concat serial_dialog {
 			"SYNTH? Getting there, but I think you can go bigger!"
 		};
-	} else if ("ch2-ws-turn-value" == $synthesizers) {
+	} else if ("ch2_ws_turn_value" == $synthesizers) {
 		concat serial_dialog {
 			"SYNTHESIZERS? Almost there, but maybe a little different."
 		};
-	} else if ("ch2-ws-turn-value" == $track) {
+	} else if ("ch2_ws_turn_value" == $track) {
 		concat serial_dialog {
 			"TRACK? Was it more than that? It's on the tip of my silicon."
 		};
-	} else if ("ch2-ws-turn-value" == $tracks) {
+	} else if ("ch2_ws_turn_value" == $tracks) {
 		concat serial_dialog {
 			"TRACKS? No, but I think that's close."
 		};
-	} else if ("ch2-ws-turn-value" == $speaker) {
+	} else if ("ch2_ws_turn_value" == $speaker) {
 		concat serial_dialog {
 			"SPEAKER? Hey, I'm more sophisticated than that! Go bigger!"
 		};
-	} else if ("ch2-ws-turn-value" == $stereos) {
+	} else if ("ch2_ws_turn_value" == $stereos) {
 		concat serial_dialog {
 			"STEREOS? Can you use the word like that? Was it something similar?"
 		};
-	} else if ("ch2-ws-turn-value" == $streams) {
+	} else if ("ch2_ws_turn_value" == $streams) {
 		concat serial_dialog {
 			"STREAMS? I'm loving the river vibe, but not exactly right."
 		};
-	} else if ("ch2-ws-turn-value" == $subwoofers) {
+	} else if ("ch2_ws_turn_value" == $subwoofers) {
 		concat serial_dialog {
 			"SUBWOOFERS? I hardly know her!"
 		};
-	} else if ("ch2-ws-turn-value" == $tapes) {
+	} else if ("ch2_ws_turn_value" == $tapes) {
 		concat serial_dialog {
 			"TAPES? So close, but a little too much."
 		};
-	} else if ("ch2-ws-turn-value" == $tune) {
+	} else if ("ch2_ws_turn_value" == $tune) {
 		concat serial_dialog {
 			"TUNE? Hmmm... almost, but not quite. Maybe it's something more."
 		};
-	} else if ("ch2-ws-turn-value" == $tunes) {
+	} else if ("ch2_ws_turn_value" == $tunes) {
 		concat serial_dialog {
 			"TUNES? Hmmm, maybe something else, something similar."
 		};
-	} else if ("ch2-ws-turn-value" == $vinyls) {
+	} else if ("ch2_ws_turn_value" == $vinyls) {
 		concat serial_dialog {
 			"VINYLS? No, I don't know if that's quite how that goes."
 		};
-	} else if ("ch2-ws-turn-value" == $vocoders) {
+	} else if ("ch2_ws_turn_value" == $vocoders) {
 		concat serial_dialog {
 			"VOCODERS? Technically, yes, but not what I'm looking for this time."
 		};
-	} else 	if ("ch2-ws-turn-value" == $album) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else 	if ("ch2_ws_turn_value" == $album) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"ALBUM? Oh, but you've found that one already."
 			};
@@ -2122,8 +2122,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>ALBUM</>! Oh, of course! This is my bread and butter!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $analog) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $analog) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"ANALOG? Oh, but you've found that one already."
 			};
@@ -2132,8 +2132,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>ANALOG</>! Yeah! Who could forget that warm, velvety sound?"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $audio) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $audio) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"AUDIO? Oh, but you've found that one already."
 			};
@@ -2142,8 +2142,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>AUDIO</>! That's right! My raison d'etre! My joie de vivre!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $aux) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $aux) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"AUX? Oh, but you've found that one already."
 			};
@@ -2152,8 +2152,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>AUX</>! How could I forget? Who would ever want to lose this?"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $bass) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $bass) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"BASS? Oh, but you've found that one already."
 			};
@@ -2162,8 +2162,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BASS</>! Oh, yeah! I'm all about that low frequency! It's the butter zone!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $beat) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $beat) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"BEAT? Oh, but you've found that one already."
 			};
@@ -2172,8 +2172,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BEAT</>! It's all coming back! Makes my LEDs all tingly."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $bpm) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $bpm) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"BPM? Oh, but you've found that one already."
 			};
@@ -2182,8 +2182,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BPM</>! Oh, yeah! Reminds me of my buddy, Metronome!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $broadcast) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $broadcast) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"BROADCAST? Oh, but you've found that one already."
 			};
@@ -2192,8 +2192,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>BROADCAST</>! Oh, yeah! Reminds me of those aluminum flags I used to wear."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $cassette) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $cassette) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"CASSETTE? Oh, but you've found that one already."
 			};
@@ -2202,8 +2202,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CASSETTE</>! Oh, I remember those! They're so cute and spindly!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $chiptune) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $chiptune) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"CHIPTUNE? Oh, but you've found that one already."
 			};
@@ -2212,8 +2212,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CHIPTUNE</>! Oh, right! So sine wavey and squarey...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $codec) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $codec) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"CODEC? Oh, but you've found that one already."
 			};
@@ -2222,8 +2222,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>CODEC</>! Oh, that's right, I think I know a few of these."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $compact) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $compact) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"COMPACT? Oh, but you've found that one already."
 			};
@@ -2232,8 +2232,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>COMPACT</>! Ha! Compact discs? More like--yeah, no, I got nothing."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $frequency) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $frequency) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"FREQUENCY? Oh, but you've found that one already."
 			};
@@ -2242,8 +2242,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>FREQUENCY</>! That's the best! Dial it in, find the sweet spot...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $headphones) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $headphones) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"HEADPHONES? Oh, but you've found that one already."
 			};
@@ -2252,8 +2252,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>HEADPHONES</>! Yeah, I remember these! Let's get tinitus together!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $hifi) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $hifi) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"HIFI? Oh, but you've found that one already."
 			};
@@ -2262,8 +2262,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>HIFI</>! Who could forget? My audio standards are through the ROOF!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $laser) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $laser) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"LASER? Oh, but you've found that one already."
 			};
@@ -2272,8 +2272,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>LASER</>! Ahaha, that's right! It's all about the 1s and 0s, isn't it?"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $lofi) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $lofi) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"LOFI? Oh, but you've found that one already."
 			};
@@ -2282,8 +2282,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>LOFI</>! Oh, so nostalgic! Oh... I'm tearing up."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $media) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $media) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"MEDIA? Oh, but you've found that one already."
 			};
@@ -2292,8 +2292,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MEDIA</>! Oh, that's right! Anything you can throw at me, I can take!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $microphone) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $microphone) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"MICROPHONE? Oh, but you've found that one already."
 			};
@@ -2302,8 +2302,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MICROPHONE</>! Oh yeah! I used to host karaoke parties all the time!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $midi) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $midi) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"MIDI? Oh, but you've found that one already."
 			};
@@ -2312,8 +2312,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MIDI</>! WOW, that's right! Who has a classy sound font? This guy!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $mixing) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $mixing) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"MIXING? Oh, but you've found that one already."
 			};
@@ -2322,8 +2322,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MIXING</>! Aha, so that's what my second tape deck was for!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $music) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $music) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"MUSIC? Oh, but you've found that one already."
 			};
@@ -2332,8 +2332,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>MUSIC</>! Oh, yes! I remember! This is the best part about all of this!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $phonograph) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $phonograph) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"PHONOGRAPH? Oh, but you've found that one already."
 			};
@@ -2342,8 +2342,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>PHONOGRAPH</>! Oh, that's right, my great-grandpa! That takes me back."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $radio) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $radio) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"RADIO? Oh, but you've found that one already."
 			};
@@ -2352,8 +2352,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RADIO</>! Yeah, let's take a caller! Let's go to a commercial!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $recording) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $recording) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"RECORDING? Oh, but you've found that one already."
 			};
@@ -2362,8 +2362,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RECORDING</>! Yes! This is the best part! It's like having a time machine!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $rhythm) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $rhythm) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"RHYTHM? Oh, but you've found that one already."
 			};
@@ -2372,8 +2372,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>RHYTHM</>! Yeah! You've hit the nail on the head! That's why we're here!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $sequencer) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $sequencer) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SEQUENCER? Oh, but you've found that one already."
 			};
@@ -2382,8 +2382,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SEQUENCER</>! Oh yeah! I always wanted to be one of these when I grew up."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $song) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $song) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SONG? Oh, but you've found that one already."
 			};
@@ -2392,8 +2392,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SONG</>! Oh, yes! These are like stories, or like memories! I remember...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $soundtrack) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $soundtrack) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SOUNDTRACK? Oh, but you've found that one already."
 			};
@@ -2402,8 +2402,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SOUNDTRACK</>! Aha! Wonderful. I'm remembering...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $speakers) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $speakers) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SPEAKERS? Oh, but you've found that one already."
 			};
@@ -2412,8 +2412,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SPEAKERS</>! Oh, yeah! Without these, music would be DEAD."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $stereo) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $stereo) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"STEREO? Oh, but you've found that one already."
 			};
@@ -2422,8 +2422,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>STEREO</>! Ooh ooh! Yeah, I control the horizontal... of a sort."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $stream) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $stream) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"STREAM? Oh, but you've found that one already."
 			};
@@ -2432,8 +2432,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>STREAM</>! Oh, yeah! Buffer 'til the cows come home!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $subwoofer) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $subwoofer) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SUBWOOFER? Oh, but you've found that one already."
 			};
@@ -2442,8 +2442,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SUBWOOFER</>! Oh, that's right! Let's rattle some windows!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $surround) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $surround) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SURROUND? Oh, but you've found that one already."
 			};
@@ -2452,8 +2452,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SURROUND</>! I remember filling the world with sound from all around!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $synthesizer) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $synthesizer) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"SYNTHESIZER? Oh, but you've found that one already."
 			};
@@ -2462,8 +2462,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>SYNTHESIZER</>! Oh! I had a job in college where I worked as one of these."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $tape) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $tape) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"TAPE? Oh, but you've found that one already."
 			};
@@ -2472,8 +2472,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>TAPE</>! Aha, I remember... those things give me indigestion! Yuck!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $treble) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $treble) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"TREBLE? Oh, but you've found that one already."
 			};
@@ -2482,8 +2482,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>TREBLE</>! Of course! Sends shivers down my copper wiring!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $vinyl) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $vinyl) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"VINYL? Oh, but you've found that one already."
 			};
@@ -2492,8 +2492,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>VINYL</>! Oh! What a nostalgic thought! Reminds me of old grandpappy...."
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $vocoder) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $vocoder) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"VOCODER? Oh, but you've found that one already."
 			};
@@ -2502,8 +2502,8 @@ serial_dialog "ch2-ws-input" {
 				"<y>VOCODER</>! Oh, yeah! I remembered how to do a Dalek voice!"
 			};
 		}
-	} else if ("ch2-ws-turn-value" == $volume) {
-		if ("ch2-ws-turn-status" == $repeat) {
+	} else if ("ch2_ws_turn_value" == $volume) {
+		if ("ch2_ws_turn_status" == $repeat) {
 			concat serial_dialog {
 				"VOLUME? Oh, but you've found that one already."
 			};
@@ -2513,11 +2513,11 @@ serial_dialog "ch2-ws-input" {
 			};
 		}
 	} else {
-		if ("ch2-ws-flags-tally" == 40) {
+		if ("ch2_ws_flags_tally" == 40) {
 			concat serial_dialog {
 				"You know? I think you've done it! Everything is clear to me now!"
 			};
-		} else if ("ch2-ws-won") {
+		} else if ("ch2_ws_won") {
 			concat serial_dialog {
 				"Oh boy! What else is there inside my head?"
 			};

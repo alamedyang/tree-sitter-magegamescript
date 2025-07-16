@@ -64,15 +64,15 @@ include "header.mgs";
 
 /* DEBUGSSSS */
 "debug-post" {
-	"ch2-wizard-backstory" = true;
+	"ch2_wizard_backstory" = true;
 	copy!("debug-set-flags-to-round4")
-	"ch2-seen-room-99" = true;
+	ch2_seen_room_99 = true;
 	"ch2-map-mainframeos" = false;
-	"ch2-carrying-mainframeos" = true;
-	"ch2-cutseen-castle99" = true;
+	ch2_carrying_mainframeos = true;
+	ch2_cutseen_castle99 = true;
 	copy!("ch2-install-mainframeos")
 	"ch2-ring-zero-enabled-in-castle" = true;
-	"ch2-storyflag-round" = 5;
+	"ch2_storyflag_round" = 5;
 	"credits-from-menu" = false;
 	warp_state = "ch2-ending";
 	load map "ch2-castle-outside";
@@ -84,7 +84,7 @@ include "header.mgs";
 	hex_control = true;
 	"current-chapter" = 2;
 	copy!("debug-finish-toot")
-	"ch2-storyflag-round" = 2;
+	"ch2_storyflag_round" = 2;
 	copy!("warp-ch2-31") // this has a load_map in it
 }
 
@@ -115,14 +115,14 @@ include "header.mgs";
 	warp_state = warping;
 	"ch2-has-artifact" = true;
 	"ch2-has-map" = true;
-	"ch2-cutseen-bob-party" = true;
+	ch2_cutseen_bob_party = true;
 	load map "ch2-bobsclub-basement";
 }
 
 "debug-king" {
 	copy!("debug-set-flags-to-round3")
-	"ch2-cutseen-castle13" = true;
-	"ch2-cutseen-castle14" = true;
+	ch2_cutseen_castle13 = true;
+	ch2_cutseen_castle14 = true;
 	"ch2-king-rescued" = true;
 	warp_state = "Ch2 King Returns";
 	load map "ch2-castle-13";
@@ -130,7 +130,7 @@ include "header.mgs";
 
 "debug" {
 	copy!("debug-set-flags-to-round0")
-	copy!("ch2-load-castle-1-special")
+	copy!(ch2_load_castle_1_special)
 }
 
 /* ---------- INTRO SPLASH ---------- */
@@ -498,7 +498,7 @@ include "header.mgs";
 		// passthrough
 		goto "menu-chapter_select-2";
 	} else {
-		"warned_ch1_incomplete" = true;
+		warned_ch1_incomplete = true;
 		show dialog {
 			name " "
 			border_tileset menu
@@ -511,12 +511,12 @@ include "header.mgs";
 
 "menu-chapter_select-2" {
 	"current-chapter" = 2;
-	if (!"ch2-cutseen-birthday") {
+	if (!ch2_cutseen_birthday) {
 		load map "ch2-magehouse-birthday";
 	}
 	warp_state = "raw_game_load-ch2";
 	if ("playersave-room" == 1) {
-		copy!("ch2-load-castle-1-special")
+		copy!(ch2_load_castle_1_special)
 	} else {
 		load map "ch2-town";
 	}

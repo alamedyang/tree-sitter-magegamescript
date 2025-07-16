@@ -201,7 +201,7 @@ include "header.mgs";
 		PLAYER "(Zuh)"
 	};
 	camera fade out -> #000000 over 1200ms;
-	"ch1_finished" = true;
+	ch1_finished = true;
 	goto "roll-credits";
 }
 

@@ -8428,11 +8428,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-interact-guestbook-signyes',
+					script: 'interact_ch2_guestbook_signyes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-interact-guestbook-signno',
+					script: 'interact_ch2_guestbook_signno',
 				},
 			],
 		},
@@ -8462,7 +8462,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Maybe later.'],
 		},
 	],
-	'ch2-stereo-fix-proposal': [
+	ch2_stereo_fix_proposal: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -8546,7 +8546,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'ch2-trying-times': [
+	ch2_trying_times: [
 		{
 			entity: 'Concierge',
 			portrait: 'concierge',
@@ -8632,11 +8632,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-touch-needle-yes',
+					script: 'ch2_touch_needle_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-touch-needle-no',
+					script: 'ch2_touch_needle_no',
 				},
 			],
 		},
@@ -8663,7 +8663,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Oh! Oh! I can hear it! The old, reliable\nstereo is back in business!'],
 		},
 	],
-	'ch2-needle-prompt': [
+	ch2_needle_prompt: [
 		{
 			entity: 'Concierge',
 			portrait: 'concierge',
@@ -10826,11 +10826,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'interact-ch2-rocco-give',
+					script: 'interact_ch2_rocco_give',
 				},
 				{
 					label: 'No',
-					script: 'interact-ch2-rocco-nogive',
+					script: 'interact_ch2_rocco_nogive',
 				},
 			],
 		},
@@ -12016,11 +12016,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes, I want to take a break.',
-					script: 'ch2-interact-gregory-breakyes',
+					script: 'interact_ch2_gregory_breakyes',
 				},
 				{
 					label: 'No, I want to keep trying.',
-					script: 'ch2-interact-gregory-breakno',
+					script: 'interact_ch2_gregory_breakno',
 				},
 			],
 		},
@@ -12037,11 +12037,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes, I want to take a break.',
-					script: 'ch2-interact-gregory-breakyes',
+					script: 'interact_ch2_gregory_breakyes',
 				},
 				{
 					label: 'No, I want to keep trying.',
-					script: 'ch2-interact-gregory-breakno',
+					script: 'interact_ch2_gregory_breakno',
 				},
 			],
 		},
@@ -12064,11 +12064,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-interact-gregory-gameyes',
+					script: 'interact_ch2_gregory_gameyes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-interact-gregory-gameno',
+					script: 'interact_ch2_gregory_gameno',
 				},
 			],
 		},

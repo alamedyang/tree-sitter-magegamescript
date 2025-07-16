@@ -17,7 +17,7 @@ $opaque_lowered_almost = 5;
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-99" {
+"look_ch2_castle_99" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>SECRET LAB</>."
@@ -26,7 +26,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-lab" {
+"look_ch2_lambda_lab" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -34,7 +34,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-xc" {
+"look_ch2_xc" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -42,7 +42,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-crt" {
+"look_ch2_lambda_crt" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -50,7 +50,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-books" {
+"look_ch2_lambda_books" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -58,7 +58,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-ration" {
+"look_ch2_lambda_ration" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -66,7 +66,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-poster" {
+"look_ch2_lambda_poster" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -74,7 +74,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-drawer" {
+"look_ch2_lambda_drawer" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -82,7 +82,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-computer" {
+"look_ch2_lambda_computer" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -90,7 +90,7 @@ $opaque_lowered_almost = 5;
 	};
 }
 
-"look-ch2-lambda-box" {
+"look_ch2_lambda_box" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -100,15 +100,15 @@ $opaque_lowered_almost = 5;
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-99" {
+"on_load_ch2_castle_99" {
 	// ch2 room state
-	"ch2-in-room" = 99;
+	"ch2_in_room" = 99;
 	
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-99") {
+	if (!ch2_seen_room_99) {
 		show serial_dialog { "Discovered <bold><c>SECRET LAB</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-99" = true;
+		ch2_seen_room_99 = true;
 	} else {
 		show serial_dialog { "Entering <bold>SECRET LAB</>..." };
 	}
@@ -117,20 +117,20 @@ $opaque_lowered_almost = 5;
 	camera = geometry "camera";
 
 	// cutscene pre-fade :/
-	if (!"ch2-cutseen-castle99") {
+	if (!ch2_cutseen_castle99) {
 		entity "Lambda" current_animation = $lowered
 	}
 
 	// Check if rake has been obtained
-	if ("ch2-carrying-minirake-99") {
+	if ("ch2_carrying_minirake-99") {
 		copy!("ch2-minirake-99-hide")
 	}
 	
 	// initialize everything
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 
 	// check if you do the cutscene or not
-	if (!"ch2-cutseen-castle99") {
+	if (!ch2_cutseen_castle99) {
 		if (debug_mode) {
 			command "skip" = "ch2-skip-99";
 			show serial_dialog {
@@ -144,9 +144,9 @@ $opaque_lowered_almost = 5;
 
 "ch2-skip-99" {
 	"ch2-map-mainframeos" = false;
-	"ch2-carrying-mainframeos" = true;
-	"ch2-cutseen-castle99" = true;
-	copy!("ch2-load-castle-1-special")
+	ch2_carrying_mainframeos = true;
+	ch2_cutseen_castle99 = true;
+	copy!(ch2_load_castle_1_special)
 }
 
 "ch2-lambda-shving_on-tickversion" {
@@ -363,55 +363,55 @@ $opaque_lowered_almost = 5;
 	entity "Lambda" direction = north;
 	player_control = on;
 	"ch2-map-mainframeos" = false;
-	"ch2-carrying-mainframeos" = true;
-	"ch2-cutseen-castle99" = true;
+	ch2_carrying_mainframeos = true;
+	ch2_cutseen_castle99 = true;
 }
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-99" {
+"on_tick_ch2_castle_99" {
 	goto null_script;
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-99" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_99" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 /* ---------- ENTITY THINGS ---------- */
 
-"interact-ch2-xc" {
+"interact_ch2_xc" {
 	show dialog {
 		PLAYER "(Wow, it looks just like the spider robot in the first room of the castle.)"
 	};
 }
-"interact-ch2-lambda-drawer" {
+"interact_ch2_lambda_drawer" {
 	show dialog {
 		PLAYER "(It's full of cables. But how many years of tangle is this?)"
 	};
 }
-"interact-ch2-lambda-computer" {
+"interact_ch2_lambda_computer" {
 	show dialog {
 		PLAYER "(That looks a lot like the mainframe in the castle entrance.)"
 	};
 }
-"interact-ch2-lambda-ration" {
+"interact_ch2_lambda_ration" {
 	show dialog {
 		PLAYER "(It's a meal, ready to eat.)"
 	};
 }
-"interact-ch2-lambda-box" {
+"interact_ch2_lambda_box" {
 	show dialog {
 		PLAYER "(It's just a box....)"
 	};
 }
-"interact-ch2-lambda-poster" {
+"interact_ch2_lambda_poster" {
 	show dialog {
 		PLAYER "(Policenauts? Must be an anime.)"
 	};
 }
-"interact-ch2-lambda-books" {
+"interact_ch2_lambda_books" {
 	show dialog {
 		PLAYER "(Why do these books all have weird black-and-white pictures of animals on their covers when they're about programmming?)"
 		"(Oh, this one has a cool dragon on the cover, but... no, I guess this one is about programming, too.)"
@@ -420,16 +420,16 @@ $opaque_lowered_almost = 5;
 
 // I think the CRT is too hard to aim at, so taking this out:
 
-// interact-ch2-lambda-crt {
+// interact_ch2_lambda_crt {
 // 	show dialog {
 // 		PLAYER "todo on_interact crt"
 // 	};
 // }
 
-"interact-ch2-lambda-lab" {
+"interact_ch2_lambda_lab" {
 	copy!("face-player")
 	entity "Lambda" current_animation = $opaque;
-	if ("ch2-storyflag-round" < 5) {
+	if ("ch2_storyflag_round" < 5) {
 		show dialog {
 			Lambda "Go ahead, and I'll watch over things from here."
 		};
@@ -443,13 +443,13 @@ $opaque_lowered_almost = 5;
 	self direction = entity "CRT";
 }
 
-"interact-ch2-minirake-99" {
+"interact_ch2_minirake_99" {
 	show dialog {
 		PLAYER alignment TL "(Lambda seems to have been using this rake to help keep his laundry together.)"
 		"(I hope he doesn't mind me borrowing it.)"
 	};
 	copy!("ch2-minirake-99-hide")
-	"ch2-carrying-minirake-99" = true;
+	"ch2_carrying_minirake-99" = true;
 	show dialog {
 		name "" alignment TL "(You picked up the mini rake!)"
 	};

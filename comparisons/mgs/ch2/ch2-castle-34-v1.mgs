@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-34 {
+look_ch2_castle_34 {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>CASTLE PANTRY</>."
@@ -11,7 +11,7 @@ look-ch2-castle-34 {
 	}
 }
 
-look-ch2-snakebox {
+look_ch2_snakebox {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ look-ch2-snakebox {
 	}
 }
 
-look-ch2-winerack {
+look_ch2_winerack {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -27,7 +27,7 @@ look-ch2-winerack {
 	}
 }
 
-look-ch2-pantryshelf {
+look_ch2_pantryshelf {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -35,7 +35,7 @@ look-ch2-pantryshelf {
 	}
 }
 
-look-ch2-dishshelf {
+look_ch2_dishshelf {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -43,7 +43,7 @@ look-ch2-dishshelf {
 	}
 }
 
-look-ch2-clara {
+look_ch2_clara {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -53,30 +53,30 @@ look-ch2-clara {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-castle-34 {
+on_load_ch2_castle_34 {
 	// ch2 room state
-	mutate ch2-in-room = 34;
+	mutate ch2_in_room = 34;
 
 	// entrance text
 	show serial dialog spacer;
-	if (flag ch2-seen-room-34 is false) {
+	if (flag ch2_seen_room_34 is false) {
 		show serial dialog { "Discovered the <bold><c>CASTLE PANTRY</>! Room added to <c>MAP</>!" }
-		set flag ch2-seen-room-34 to true;
+		set flag ch2_seen_room_34 to true;
 	} else {
 		show serial dialog { "Entering the <bold>CASTLE PANTRY</>..." }
 	}
 
 	// room unique stuff
 	
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-castle-34 {
+on_tick_ch2_castle_34 {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		set warp state to walk_from-northeast;
-		copy ch2-load-castle-32-special;
+		copy ch2_load_castle_32_special;
 	}
 }
 
@@ -95,16 +95,16 @@ tick-ch2-clara {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-castle-34 { // sanitize ch2 room state
-	mutate ch2-in-room = 0;
+on_exit_ch2_castle_34 { // sanitize ch2 room state
+	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go-castle-34-south {
-	copy on_exit-ch2-castle-34;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-32-special;
+on_go_castle_34_south {
+	copy on_exit_ch2_castle_34;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_32_special;
 }
 
 /* ---------- ENTITIES ---------- */
@@ -118,10 +118,10 @@ snake_box-interact {
 	}
 }
 
-ch2-interact-pantryfridge {
+interact_ch2_pantryfridge {
 	if (
 		flag ch2-want-cactuscooler is false
-		|| flag ch2-carrying-cactuscooler is true
+		|| flag ch2_carrying_cactuscooler is true
 		|| flag ch2-cactuscooler-delivered is true
 	) {
 		show dialog {
@@ -133,10 +133,10 @@ ch2-interact-pantryfridge {
 		}
 	}
 }
-ch2-interact-pantryshelf {
+interact_ch2_pantryshelf {
 	if (
 		flag ch2-want-cactuscooler is false
-		|| flag ch2-carrying-cactuscooler is true
+		|| flag ch2_carrying_cactuscooler is true
 		|| flag ch2-cactuscooler-delivered is true
 	) {
 		show dialog {
@@ -189,13 +189,13 @@ ch2-iron-content {
 		PLAYER "Oh, no."
 		Clara "Yeah, so... go on up to the PlateMover 9000 and... uh, good luck."
 	}
-	set flag ch2-jukebox-backstory to true;
+	set flag ch2_jukebox_backstory to true;
 	unpause entity Clara on_tick;
 }
-ch2-interact-dishshelf {
+interact_ch2_dishshelf {
 	if (
-		flag ch2-jukebox-backstory is true
-		|| variable ch2-storyflag-round is < 2
+		flag ch2_jukebox_backstory is true
+		|| variable ch2_storyflag_round is < 2
 	) {
 		show dialog {
 			PLAYER "Plates, cups, and tablecloths. How many place settings is this?"
@@ -212,7 +212,7 @@ ch2-interact-dishshelf {
 		copy ch2-iron-content;
 	}
 }
-ch2-interact-winerack {
+interact_ch2_winerack {
 	show dialog {
 		PLAYER "Is this just bottles of wine? It all looks very fancy."
 	}
@@ -224,10 +224,10 @@ New around here  .     .        X     .
 Cactus Cooler    .     X        .     X
 */
 
-interact-ch2-clara {
-	if (variable ch2-storyflag-round is < 2) {
+interact_ch2_clara {
+	if (variable ch2_storyflag_round is < 2) {
 		copy interrupt-walk;
-		if (flag ch2-clara-backstory is false) {
+		if (flag ch2_clara_backstory is false) {
 			show dialog {
 				SELF "Holy crap -- a new person!"
 				PLAYER "Yup, that's me."
@@ -235,24 +235,24 @@ interact-ch2-clara {
 		}
 		if (
 			flag ch2-want-cactuscooler is false
-			|| flag ch2-carrying-cactuscooler is true
+			|| flag ch2_carrying_cactuscooler is true
 			|| flag ch2-cactuscooler-delivered is true
 		) {
-			if (flag ch2-clara-backstory is false) {
+			if (flag ch2_clara_backstory is false) {
 				// just so it doesn't take this branch the first time:
-				set flag ch2-clara-backstory to true;
+				set flag ch2_clara_backstory to true;
 			} else {
 				show dialog { SELF "I'm new around here. I gotta say, this has been an interesting first week of work." }
 			}
 		} else {
-			set flag ch2-clara-backstory to true;
+			set flag ch2_clara_backstory to true;
 			show dialog ch2-clara-soda { // reused
 				PLAYER "So... I'm looking for some Cactus Cooler. It's this rare kind of soda...."
 				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
 			}
 		}
 		copy resume-walk;
-	} else if (flag ch2-jukebox-backstory is true) {
+	} else if (flag ch2_jukebox_backstory is true) {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
 			"We could have kept those plates on some normal shelf, but my boss wanted \"technological novelty\" for his project."
@@ -261,14 +261,14 @@ interact-ch2-clara {
 		}
 	} else {
 		copy ch2-iron-content;
-		set flag ch2-jukebox-backstory to true;
+		set flag ch2_jukebox_backstory to true;
 	}
 }
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
 
 ch2-touch-plate {
-	if (variable ch2-storyflag-round is < 2) {
+	if (variable ch2_storyflag_round is < 2) {
 		if (flag ch2-plate-firstlook is false) {
 			show dialog {
 				PLAYER "This thing is a PlateMover 90?"
@@ -279,7 +279,7 @@ ch2-touch-plate {
 			}
 			set flag ch2-plate-firstlook to true;
 		}
-	} else if (flag ch2-jukebox-backstory is false) {
+	} else if (flag ch2_jukebox_backstory is false) {
 		show dialog {
 			PLAYER "There are plates in here, but... how do I know which ones have high iron content?"
 		}
@@ -313,11 +313,11 @@ ch2-touch-plate {
 			PLAYER "Oh, no."
 			Clara "Yeah, so... uh, good luck with that."
 		}
-		set flag ch2-jukebox-backstory to true;
+		set flag ch2_jukebox_backstory to true;
 		unpause entity Clara on_tick;
 	} else if (
-		flag ch2-carrying-plate is true
-		|| flag ch2-installed-plate is true
+		flag ch2_carrying_plate is true
+		|| flag ch2_installed_plate is true
 	) {
 		show dialog {
 			PLAYER "A jukebox seems like a really bad way to manage dishes."
@@ -331,7 +331,7 @@ ch2-touch-plate {
 	}
 }
 won_hanoi_get_plate {
-	copy script ch2-pickup-plate;
+	copy script ch2_pickup_plate;
 	show dialog {
 		PLAYER "Aha! I got plate #6!"
 	}

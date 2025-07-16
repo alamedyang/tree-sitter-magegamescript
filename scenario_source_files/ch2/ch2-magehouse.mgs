@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-magehouse" {
+"look_ch2_magehouse" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around <c>YOUR HOUSE</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-tickles" {
+"look_ch2_tickles" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-zappy" {
+"look_ch2_zappy" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -27,7 +27,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-zippy" {
+"look_ch2_zippy" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -35,7 +35,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-magejournal" {
+"look_ch2_magejournal" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -43,7 +43,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-magebox" {
+"look_ch2_magebox" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -51,7 +51,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-microwave-magehouse" {
+"look_ch2_microwave_magehouse" {
 	show serial_dialog spacer;
 	if (!"ch2-microwave-time") {
 		show serial_dialog {
@@ -67,7 +67,7 @@ include "header.mgs";
 	}
 }
 
-"look-ch2-cake" {
+"look_ch2_cake" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -83,21 +83,21 @@ include "header.mgs";
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>YOUR HOUSE</>..." };
 	if (
-		"ch2-storyflag-round" == 0
+		"ch2_storyflag_round" == 0
 	) {
 		entity "Aunt Zippy" position = geometry "alt-spot1";
 		entity "Uncle Zappy" position = geometry "alt-spot3";
 	} else if (
-		"ch2-storyflag-round" == 3
-		|| "ch2-storyflag-round" == 4
+		"ch2_storyflag_round" == 3
+		|| "ch2_storyflag_round" == 4
 	) {
 		entity "Aunt Zippy" on_tick = yeet;
 		entity "Uncle Zappy" on_tick = yeet;
-	} else if ("ch2-storyflag-round" == 5) {
+	} else if ("ch2_storyflag_round" == 5) {
 		entity "Aunt Zippy" position = geometry "alt-spot2";
 		entity "Uncle Zappy" position = geometry "alt-spot1";
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
@@ -112,19 +112,19 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-magehouse-south" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-zappy" {
+"interact_ch2_zappy" {
 	copy!("face-player")
-	if ("ch2-storyflag-round" == 0) {
+	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "Good morning, %PLAYER%! Off to the castle this morning?"
 		};
-	} else if ("ch2-storyflag-round" <= 2) {
+	} else if ("ch2_storyflag_round" <= 2) {
 		show dialog {
 			SELF "I heard from Alfonso that you'll need to grapple with some insects in the castle. I had no idea."
 			PLAYER "Insects?"
@@ -135,7 +135,7 @@ include "header.mgs";
 			SELF "Ha! Yes, sorry! I was trying to think of a \"dad joke\" about this all morning, but that was the best I could do."
 			PLAYER "Thanks, %SELF%. I appreciate the effort."
 		};
-	} else if ("ch2-storyflag-round" <= 4) {
+	} else if ("ch2_storyflag_round" <= 4) {
 		show dialog {
 			PLAYER "Hey, %SELF%, I'm looking for Bert. I don't suppose you've seen him today?"
 			SELF "Sorry, I haven't been paying much attention to library patrons. I've been glued to these Spanish textbooks."
@@ -152,17 +152,17 @@ include "header.mgs";
 		};
 	}
 }
-"interact-ch2-zippy" {
+"interact_ch2_zippy" {
 	copy!("face-player")
-	if ("ch2-storyflag-round" == 0) {
+	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "If you need a break from the castle out west, don't forget to come back home for a visit."
 		};
-	} else if ("ch2-storyflag-round" <= 2) {
+	} else if ("ch2_storyflag_round" <= 2) {
 		show dialog {
 			SELF "I'm so proud of you, %PLAYER%, for all the things you've learned. You've grown a lot this year, and I want you to know that."
 		};
-	} else if ("ch2-storyflag-round" <= 4) {
+	} else if ("ch2_storyflag_round" <= 4) {
 		show dialog {
 			SELF "Why, hello, %PLAYER%. I was just doing this week's shopping. How does French toast sound for breakfast tomorrow?"
 			PLAYER "That would be awesome. But, um, I was wondering...."
@@ -176,12 +176,12 @@ include "header.mgs";
 		};
 	}
 }
-"interact-ch2-cake" {
+"interact_ch2_cake" {
 	show dialog {
 		PLAYER "There's a little frosting left. I wonder if Aunt Zappy would let me lick the plate clean?"
 	};
 }
-"interact-ch2-magejournal" {
+"interact_ch2_magejournal" {
 	show dialog {
 		entity "Mage Journal" portrait journal
 		"Dear Diary,"
@@ -189,7 +189,7 @@ include "header.mgs";
 		"It looks like computers are super complicated."
 	};
 }
-"interact-ch2-magebox" {
+"interact_ch2_magebox" {
 	show dialog {
 		PLAYER "Yeah, I should probably unpack. It's been years."
 	};

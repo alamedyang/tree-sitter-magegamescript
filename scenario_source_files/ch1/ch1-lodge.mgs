@@ -128,7 +128,7 @@ include "header.mgs";
 	load map "secretroom";
 }
 "enter-secretroom-with-guaranteed-cutscene" { // for debug purposes
-	"tuesdayd" = false;
+	tuesdayd = false;
 	copy!("enter-secretroom")
 }
 
@@ -871,7 +871,7 @@ include "header.mgs";
 		if (!"timmy-unglitched") {
 			copy!("set-hint-glitch")
 		}
-	} else if (!"demobonus") { // if you haven't won ch1 yet
+	} else if (!demobonus) { // if you haven't won ch1 yet
 		if ("timmy-endstory") {
 			show dialog {
 				SELF alignment TL "I've been trying to find books about the olympics."

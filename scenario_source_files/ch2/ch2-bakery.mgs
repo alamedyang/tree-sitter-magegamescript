@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-bakery" {
+"look_ch2_bakery" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>BAKERY</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-baker" {
+"look_ch2_baker" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -27,25 +27,25 @@ include "header.mgs";
 	show serial_dialog { "Entering <bold>BAKERY</>..." };
 	// The part of Aunt Zippy is being played by Jackob
 	if (
-		"ch2-storyflag-round" == 3
-		|| "ch2-storyflag-round" == 4
+		"ch2_storyflag_round" == 3
+		|| "ch2_storyflag_round" == 4
 	) {
-		if ("ch2-storyflag-round" == 3) {
+		if ("ch2_storyflag_round" == 3) {
 			entity "Jackob" position = geometry "zippy-spot1";
-		} else if ("ch2-storyflag-round" == 4) {
+		} else if ("ch2_storyflag_round" == 4) {
 			entity "Jackob" position = geometry "zippy-spot2";
 		}
 		entity "Jackob" name = "Aunt Zippy";
-		entity "Jackob" on_look = "look-ch2-zippy";
+		entity "Jackob" on_look = "look_ch2_zippy";
 		entity "Jackob" on_tick = null_script;
-		entity "Jackob" on_interact = "interact-ch2-zippy";
+		entity "Jackob" on_interact = "interact_ch2_zippy";
 		entity "Jackob" type = "lightning_boy";
 		entity "Jackob" direction = north;
-	} else if ("ch2-storyflag-round" != 2) {
+	} else if ("ch2_storyflag_round" != 2) {
 		entity "Jackob" on_tick = yeet;
 	}
 	// All the rest
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
@@ -61,15 +61,15 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-bakery-south" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-baker" {
+"interact_ch2_baker" {
 	copy!("interrupt-walk")
-	if ("ch2-storyflag-round" >= 5) {
+	if ("ch2_storyflag_round" >= 5) {
 		show dialog {
 			SELF "Good job building that computer. That's really impressive."
 		};
@@ -82,7 +82,7 @@ include "header.mgs";
 	copy!("resume-walk")
 }
 
-"interact-ch2-jackob-bakery" {
+"interact_ch2_jackob_bakery" {
 	copy!("face-player")
 	show dialog {
 		SELF "I'm just taking a little shopping break. Sometimes you just really want some fresh bread, you know?"

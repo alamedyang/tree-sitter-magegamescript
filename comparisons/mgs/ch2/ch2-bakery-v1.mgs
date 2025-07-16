@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-bakery {
+look_ch2_bakery {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>BAKERY</>."
@@ -11,7 +11,7 @@ look-ch2-bakery {
 	}
 }
 
-look-ch2-baker {
+look_ch2_baker {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -27,25 +27,25 @@ on_load-ch2-bakery {
 	show serial dialog { "Entering <bold>BAKERY</>..." }
 	// The part of Aunt Zippy is being played by Jackob
 	if (
-		variable ch2-storyflag-round is 3
-		|| variable ch2-storyflag-round is 4
+		variable ch2_storyflag_round is 3
+		|| variable ch2_storyflag_round is 4
 	) {
-		if (variable ch2-storyflag-round is 3) {
+		if (variable ch2_storyflag_round is 3) {
 			teleport entity Jackob to geometry zippy-spot1;
-		} else if (variable ch2-storyflag-round is 4) {
+		} else if (variable ch2_storyflag_round is 4) {
 			teleport entity Jackob to geometry zippy-spot2;
 		}
 		set entity Jackob name to "Aunt Zippy";
-		set entity Jackob on_look to look-ch2-zippy;
+		set entity Jackob on_look to look_ch2_zippy;
 		set entity Jackob on_tick to null_script;
-		set entity Jackob on_interact to interact-ch2-zippy;
+		set entity Jackob on_interact to interact_ch2_zippy;
 		set entity Jackob type to lightning_boy;
 		turn entity Jackob north;
-	} else if (variable ch2-storyflag-round is not 2) {
+	} else if (variable ch2_storyflag_round is not 2) {
 		set entity Jackob on_tick to yeet;
 	}
 	// All the rest
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -61,15 +61,15 @@ on_tick-ch2-bakery {
 /* ---------- EXIT STUFF ---------- */
 
 on_go-ch2-bakery-south {
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-town;
 }
 
 /* ---------- ENTITIES ---------- */
 
-interact-ch2-baker {
+interact_ch2_baker {
 	copy interrupt-walk;
-	if (variable ch2-storyflag-round is >= 5) {
+	if (variable ch2_storyflag_round is >= 5) {
 		show dialog {
 			SELF "Good job building that computer. That's really impressive."
 		}
@@ -82,7 +82,7 @@ interact-ch2-baker {
 	copy resume-walk;
 }
 
-interact-ch2-jackob-bakery {
+interact_ch2_jackob_bakery {
 	copy face-player;
 	show dialog {
 		SELF "I'm just taking a little shopping break. Sometimes you just really want some fresh bread, you know?"

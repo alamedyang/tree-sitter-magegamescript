@@ -7,7 +7,7 @@ settings for dialog {
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-21 {
+look_ch2_castle_21 {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>WORKSHOP</>."
@@ -16,7 +16,7 @@ look-ch2-castle-21 {
 	}
 }
 
-look-ch2-goose {
+look_ch2_goose {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -24,7 +24,7 @@ look-ch2-goose {
 	}
 }
 
-look-ch2-jean_paul {
+look_ch2_jean_paul {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -32,7 +32,7 @@ look-ch2-jean_paul {
 	}
 }
 
-look-ch2-frankie {
+look_ch2_frankie {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -40,28 +40,28 @@ look-ch2-frankie {
 	}
 }
 
-look-ch2-pie {
+look_ch2_pie {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tBizarrely out of place is this golden, flakey pastry with its glistening ruby filling. Though not steaming hot, or even warm, it's still fresh enough to eat."
 	}
 }
-look-ch2-3dprinter {
+look_ch2_3dprinter {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe colored spools on the left of the device are counterparts to the one currently attached, as if the line of yellow plastic might be swapped out with any of the other colors."
 	}
 }
-look-ch2-figurines {
+look_ch2_figurines {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tTheir yellow plastic seems to match that from the spool attached to the nearby device. In fact, the figurines themselves seem to have been built up by lines of the stuff."
 	}
 }
-look-ch2-cablesbox {
+look_ch2_cablesbox {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -69,7 +69,7 @@ look-ch2-cablesbox {
 	}
 }
 
-look-ch2-solder {
+look_ch2_solder {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -79,9 +79,9 @@ look-ch2-solder {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-castle-21-doorless {
+on_load_ch2_castle_21_postgame {
 	// abbreviated copy-pasta of the below
-	mutate ch2-in-room = 21;
+	mutate ch2_in_room = 21;
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>WORKSHOP</>..." }
@@ -90,31 +90,31 @@ on_load-ch2-castle-21-doorless {
 	} else if (warp state is walk_from-east) {
 		teleport entity "%PLAYER%" to geometry walk_from-east;
 	}
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
-on_load-ch2-castle-21 {
+on_load_ch2_castle_21 {
 	if warp state is "ch2 ending" then goto ch2-castle-21-ending;
 	// ch2 room state
-	mutate ch2-in-room = 21;
+	mutate ch2_in_room = 21;
 
 	// entrance text
 	show serial dialog spacer;
-	if (flag ch2-seen-room-21 is false) {
+	if (flag ch2_seen_room_21 is false) {
 		show serial dialog { "Discovered <bold><c>WORKSHOP</>! Room added to <c>MAP</>!" }
-		set flag ch2-seen-room-21 to true;
+		set flag ch2_seen_room_21 to true;
 	} else {
 		show serial dialog { "Entering <bold>WORKSHOP</>..." }
 	}
 
 	// room unique stuff
 	if (
-		flag ch2-installed-abacus is true
-		|| flag ch2-carrying-abacus is true
+		flag ch2_installed_abacus is true
+		|| flag ch2_carrying_abacus is true
 	) {
-		copy script ch2-hide-abacus;
+		copy script ch2_hide_abacus;
 	}
-	copy ch2-map-init;
-	if (flag ch2-cutseen-castle21 is false) {
+	copy ch2_map_init;
+	if (flag ch2_cutseen_castle21 is false) {
 		turn player control off;
 		wait 500ms;
 		turn entity Frankie toward entity "%PLAYER%";
@@ -153,48 +153,48 @@ on_load-ch2-castle-21 {
 		turn entity Jean-Paul south;
 		turn entity Frankie south;
 		turn player control on;
-		set flag ch2-cutseen-castle21 to true;
+		set flag ch2_cutseen_castle21 to true;
 	}
 }
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-castle-21 {}
-on_tick-ch2-castle-21-doorless {
+on_tick_ch2_castle_21 {}
+on_tick_ch2_castle_21_postgame {
 	if (entity "%PLAYER%" is inside geometry north-hitbox) {
-		copy on_exit-ch2-castle-21;
+		copy on_exit_ch2_castle_21;
 		set warp state to walk_from-south;
-		copy ch2-load-castle-22-special;
+		copy ch2_load_castle_22_special;
 	} else if (entity "%PLAYER%" is inside geometry east-hitbox) {
-		copy on_exit-ch2-castle-21;
+		copy on_exit_ch2_castle_21;
 		set warp state to walk_from-west;
-		copy ch2-load-castle-11-special;
+		copy ch2_load_castle_11_special;
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-castle-21 { // sanitize ch2 room state
-	mutate ch2-in-room = 0;
+on_exit_ch2_castle_21 { // sanitize ch2 room state
+	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go-castle-21-north {
-	copy on_exit-ch2-castle-21;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-22-special;
+on_go_castle_21_north {
+	copy on_exit_ch2_castle_21;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_22_special;
 }
-on_go-castle-21-east {
-	copy on_exit-ch2-castle-21;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-11-special;
+on_go_castle_21_east {
+	copy on_exit_ch2_castle_21;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_11_special;
 }
 
 /* ---------- ABACUS (ADMIN) ---------- */
 
 ch2-touch-abacus {
-	if (variable ch2-storyflag-round is < 3) {
+	if (variable ch2_storyflag_round is < 3) {
 		turn entity Frankie toward entity "%PLAYER%";
 		if (flag ch2-abacus-firstlook is false) {
 			show dialog {
@@ -218,7 +218,7 @@ ch2-touch-abacus {
 		}
 		// auto end due to branching dialog
 	}
-	if (flag ch2-abacus-backstory is false) {
+	if (flag ch2_abacus_backstory is false) {
 		show dialog {
 			PLAYER alignment TR "Hey, does this abacus belong to anyone?"
 		}
@@ -236,7 +236,7 @@ ch2-touch-abacus {
 			PLAYER alignment TR "Cool, so all I need to do is grab that manual?"
 			Frankie "If you would. It's black with a blue stripe on the top. Thanks."
 		}
-		set flag ch2-abacus-backstory to true;
+		set flag ch2_abacus_backstory to true;
 		set flag ch2-want-manual to true;
 		copy ch2-handoff-abacus-to-manual;
 		turn entity Frankie south;
@@ -247,7 +247,7 @@ ch2-touch-abacus {
 	}
 }
 
-ch2-hide-abacus {
+ch2_hide_abacus {
 	teleport entity "abacus" to geometry hiding-spot;
 	set entity "abacus" name to " ";
 }
@@ -256,8 +256,8 @@ ch2-touch-abacus-yes {
 	show dialog {
 		name "" "(You pick up the abacus!)"
 	}
-	copy script ch2-hide-abacus;
-	copy script ch2-pickup-abacus;
+	copy script ch2_hide_abacus;
+	copy script ch2_pickup_abacus;
 	set entity "%SELF%" on_interact to null_script;
 }
 ch2-touch-abacus-no {
@@ -269,41 +269,41 @@ ch2-touch-abacus-no {
 
 /* ---------- ENTITIES ---------- */
 
-ch2-interact-pie {
+interact_ch2_pie {
 	show dialog { PLAYER "Huh. A raspberry pie." }
 }
-ch2-interact-3dprinter {
+interact_ch2_3dprinter {
 	show dialog { PLAYER "I have no idea how this thing works." }
 }
-interact-ch2-printer {
+interact_ch2_printer {
 	show dialog { PLAYER "\"Brother\"? Is this printer someone's brother, then? Or does this printer belong to someone's brother?" }
 }
-interact-ch2-scanner {
+interact_ch2_scanner {
 	show dialog { PLAYER "This doesn't look like a cannon to me. Where's the barrel? The fuse?" }
 }
-ch2-interact-cablesbox {
+interact_ch2_cablesbox {
 	show dialog { PLAYER "Just some boxes full of cables." }
 }
-interact-ch2-figurines {
+interact_ch2_figurines {
 	show dialog { PLAYER "A toy boat and sphinx. Plastic figurines?" }
 }
 
-interact-ch2-jeanpaul {
+interact_ch2_jeanpaul {
 	copy face-player;
-	if (variable ch2-storyflag-round is < 3) {
+	if (variable ch2_storyflag_round is < 3) {
 		show dialog {
 			JEANPAUL "The rubble is too much for us to move on our own, so instead we've been doing damage assessment for the castle's digital systems."
 		}
 	} else if (
-		flag ch2-carrying-ramchips is true
-		|| flag ch2-installed-ramchips is true
+		flag ch2_carrying_ramchips is true
+		|| flag ch2_installed_ramchips is true
 	) {
 		show dialog {
 			JEANPAUL "Good luck building your computer."
 		}
 	} else if (flag ch2-want-ramchips is false) {
 		mutate CALLBACK = 1;
-		goto interact-ch2-room21-split;
+		goto interact_ch2_room21_split;
 	} else if (flag interrupt is true) {
 		show dialog {
 			JEANPAUL "Sea Moss is an odd duck."
@@ -311,14 +311,14 @@ interact-ch2-jeanpaul {
 			JEANPAUL "Erm, no, he's a stone golem, but let's just say he's a creative character."
 		}
 	} else {
-		copy interact-ch2-room21-split-s;
+		copy interact_ch2_room21_split-s;
 	}
 	turn entity "%SELF%" south;
 }
 
-interact-ch2-frankie {
+interact_ch2_frankie {
 	copy face-player;
-	if (variable ch2-storyflag-round is < 3) {
+	if (variable ch2_storyflag_round is < 3) {
 		show dialog {
 			Frankie "If we can get the intercom system working, we can coordinate with people trapped in other rooms."
 			"We've been able to reestablish contact with the room north of us, but that's it. There's a lot of work left for us to do."
@@ -327,7 +327,7 @@ interact-ch2-frankie {
 		return;
 	}
 	// Calculator manual stuff
-	if (flag ch2-carrying-manual is true) {
+	if (flag ch2_carrying_manual is true) {
 		show dialog {
 			PLAYER alignment TR "Hey, I brought your calculator manual."
 			Frankie "Oh, thanks!"
@@ -335,13 +335,13 @@ interact-ch2-frankie {
 			"Go ahead and take the abacus. I won't need it anymore."
 			PLAYER alignment TR "Thank you!"
 		}
-		set flag ch2-carrying-manual to false;
-		set flag ch2-installed-manual to true;
+		set flag ch2_carrying_manual to false;
+		set flag ch2_installed_manual to true;
 		set flag ch2-abacus-permission to true;
 		turn entity Frankie south;
 		return;
 	}
-	if (flag ch2-abacus-backstory is true) {
+	if (flag ch2_abacus_backstory is true) {
 		if (flag ch2-abacus-permission is false) {
 			turn entity Frankie toward entity "%PLAYER%";
 			show dialog {
@@ -355,8 +355,8 @@ interact-ch2-frankie {
 		}
 	}
 	if (
-		flag ch2-carrying-ramchips is true
-		|| flag ch2-installed-ramchips is true
+		flag ch2_carrying_ramchips is true
+		|| flag ch2_installed_ramchips is true
 	) {
 		show dialog {
 			Frankie "Hey, if you ever need something soldered, just let us know. We'd be happy to walk you though it."
@@ -366,19 +366,19 @@ interact-ch2-frankie {
 	}
 	if (flag ch2-want-ramchips is false) {
 		mutate CALLBACK = 2;
-		goto interact-ch2-room21-split;
+		goto interact_ch2_room21_split;
 	} else if (flag interrupt is true) {
 		show dialog {
 			Frankie "Sea Moss sure loves his snacks."
 			"Because... you know."
 		}
 	} else {
-		copy interact-ch2-room21-split-s;
+		copy interact_ch2_room21_split-s;
 	}
 	turn entity Frankie south; // also added to all "early returns" O.o
 }
 
-interact-ch2-room21-split {
+interact_ch2_room21_split {
 	turn entity Frankie toward entity "%PLAYER%";
 	turn entity Jean-Paul toward entity "%PLAYER%";
 	show dialog {
@@ -443,7 +443,7 @@ interact-ch2-room21-split {
 	show dialog {
 		JEANPAUL "His name is Sea Moss, and he's a giant stone golem. Can't miss him."
 	}
-	if (flag ch2-seamoss-backstory is true) {
+	if (flag ch2_seamoss_backstory is true) {
 		show dialog {
 			PLAYER "Wait, I think I saw that guy. He was in the castle kitchen."
 		}
@@ -476,20 +476,20 @@ interact-ch2-room21-split {
 	turn entity Frankie south;
 	if (variable CALLBACK is 1) {
 		mutate CALLBACK = 0;
-		set entity "%SELF%" on_interact to interact-ch2-jeanpaul;
+		set entity "%SELF%" on_interact to interact_ch2_jeanpaul;
 		return;
 	} else if (variable CALLBACK is 2) {
 		mutate CALLBACK = 0;
-		set entity "%SELF%" on_interact to interact-ch2-frankie;
+		set entity "%SELF%" on_interact to interact_ch2_frankie;
 		return;
 	} else {
 		show serial dialog {
-			"<r>DEBUG></>: Something went wrong splitting into entity wrapup scripts after shared behavior in 'interact-ch2-room21-split'! 'CALLBACK' value: $CALLBACK$"
+			"<r>DEBUG></>: Something went wrong splitting into entity wrapup scripts after shared behavior in 'interact_ch2_room21_split'! 'CALLBACK' value: $CALLBACK$"
 		}
 	}
 }
 
-interact-ch2-room21-split-s {
+interact_ch2_room21_split-s {
 	turn entity Jean-Paul toward entity "%PLAYER%";
 	turn entity Frankie toward entity "%PLAYER%";
 	show dialog {
@@ -506,23 +506,23 @@ interact-ch2-room21-split-s {
 	}
 }
 
-interact-ch2-frankie-end {
+interact_ch2_frankie_end {
 	copy face-player;
 	show dialog { SELF "Wow, it's so much easier to fix everything with the castle connected. I was tearing my hair out!" }
 	turn entity "%SELF%" south;
 }
-interact-ch2-jeanpaul-end {
+interact_ch2_jeanpaul_end {
 	copy face-player;
 	show dialog { SELF "Almost done patching things up. Then it's off to see the band!" }
 	turn entity "%SELF%" south;
 }
-interact-ch2-goose {
-	if (flag ch2-installed-minirake-99 is true) {
+interact_ch2_goose {
+	if (flag ch2_installed_minirake-99 is true) {
 		show dialog {
 			PLAYER "I guess the goose likes me."
 			Goose "Honk!"
 		}
-	} else if (flag ch2-carrying-minirake-99 is false) {
+	} else if (flag ch2_carrying_minirake-99 is false) {
 	    show dialog {
 			name "" "(An image of the goose honking atop a mountain of rakes floods your mind.)"
 			PLAYER "Did the goose just..."
@@ -537,7 +537,7 @@ interact-ch2-goose {
 			name "" "(The goose seems to fluff its feathers and almost glow with an RGB shimmer. Somehow it seems stronger, and it honks with a mischievious smile in eyes.)"
 			PLAYER "We seem to be an... accomplice? Or perhaps this is a new partnership?"
 		}
-		set flag ch2-carrying-minirake-99 to false;
-		set flag ch2-installed-minirake-99 to true;
+		set flag ch2_carrying_minirake-99 to false;
+		set flag ch2_installed_minirake-99 to true;
     }
 }

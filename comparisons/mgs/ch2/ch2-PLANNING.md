@@ -11,7 +11,7 @@
 - [ ] Make the menu mage more chiseled (like last ch)
 - [ ] Decide what to do with the null entity `door`, and be consistent about it
 - [ ] Rename scripts so they're consistent
-    - e.g. `ch2-interact-asdfasdf` should all be `interact-ch2-asdfasdf` -- or vice versa (pick one!)
+    - e.g. `interact_ch2_asdfasdf` should all be `interact_ch2_asdfasdf` -- or vice versa (pick one!)
 - [x] Move Tiled files to the folders they should actually be (some entity JSON files are in the maps folder, etc.)
     - [x] And update all file paths in files that link to them, please!
 - [ ] Turn off serial control during cutscenes
@@ -104,7 +104,7 @@ See below for color choices.
 #### Rooms
 
 ```mgs
-look-ch2-roomname {
+look_ch2_roomname {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>NAME OF ROOM</>."
@@ -120,7 +120,7 @@ The extra line break at the end is only needed for places, since the exit list w
 #### Entities
 
 ```mgs
-look-ch2-roomname {
+look_ch2_roomname {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%EntityName%</>."

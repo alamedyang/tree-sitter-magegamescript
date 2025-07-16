@@ -160,14 +160,14 @@ warp-common {
 	// if you're PHYSICALLY OUTSIDE the castle
 	if (flag ch2-ring-zero-enabled-in-castle is false) {
 		if (debug mode is off) {
-			if (variable ch2-in-room is 0) {
+			if (variable ch2_in_room is 0) {
 				goto warp-ch2-town-check-fail-message;
 			}
 		}
 	}
-	mutate ch2-in-room = 0;
+	mutate ch2_in_room = 0;
 	mutate current-chapter = 2; // todo: remove this; it's here for ch2 debug mode protection for the WOPR room
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 }
 
 warp-ch2-castle-exterior {
@@ -176,43 +176,43 @@ warp-ch2-castle-exterior {
 }
 warp-ch2-1 {
 	copy warp-common;
-	copy ch2-load-castle-1-special;
+	copy ch2_load_castle_1_special;
 }
 warp-ch2-11 {
 	copy warp-common;
-	copy ch2-load-castle-11-special;
+	copy ch2_load_castle_11_special;
 }
 warp-ch2-12 {
 	copy warp-common;
-	copy ch2-load-castle-12-special;
+	copy ch2_load_castle_12_special;
 }
 warp-ch2-13 {
 	copy warp-common;
-	copy ch2-load-castle-13-special;
+	copy ch2_load_castle_13_special;
 }
 warp-ch2-14 {
 	copy warp-common;
-	copy ch2-load-castle-14-special;
+	copy ch2_load_castle_14_special;
 }
 warp-ch2-21 {
 	copy warp-common;
-	copy ch2-load-castle-21-special;
+	copy ch2_load_castle_21_special;
 }
 warp-ch2-22 {
 	copy warp-common;
-	copy ch2-load-castle-22-special;
+	copy ch2_load_castle_22_special;
 }
 warp-ch2-23 {
 	copy warp-common;
-	copy ch2-load-castle-23-special;
+	copy ch2_load_castle_23_special;
 }
 warp-ch2-31 {
 	copy warp-common;
-	copy ch2-load-castle-31-special;
+	copy ch2_load_castle_31_special;
 }
 warp-ch2-32 {
 	copy warp-common;
-	copy ch2-load-castle-32-special;
+	copy ch2_load_castle_32_special;
 }
 warp-ch2-33 {
 	copy warp-common;

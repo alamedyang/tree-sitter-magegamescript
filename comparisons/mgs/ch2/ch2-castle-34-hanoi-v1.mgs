@@ -457,10 +457,10 @@ hanoi_quit {
 			" "
 			"Quitting <m>Plates of Hanoi</> (your progress has been saved)"
 		}
-	} else if (flag ch2-carrying-plate is false || flag ch2-installed-plate is false) {
+	} else if (flag ch2_carrying_plate is false || flag ch2_installed_plate is false) {
 		copy won_hanoi_get_plate;
 	}
-	goto on_tick-ch2-castle-34;
+	goto on_tick_ch2_castle_34;
 }
 hanoi_help {
 	set flag hanoi_draw_help to true;

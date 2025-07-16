@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-outside {
+look_ch2_castle_outside {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>CASTLE EXTERIOR</>."
@@ -10,7 +10,7 @@ look-ch2-castle-outside {
 		" "
 	}
 }
-look-ch2-entrancesign {
+look_ch2_entrancesign {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -29,20 +29,20 @@ on_load-ch2-castle-outside {
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>CASTLE EXTERIOR</>..." }
 	// Village elders hiding
-	if (variable ch2-storyflag-round is not 0) {
+	if (variable ch2_storyflag_round is not 0) {
 		set entity Bert on_tick to yeet;
 	}
 	if (
-		variable ch2-storyflag-round is 1
-		|| variable ch2-storyflag-round is 2
-		|| variable ch2-storyflag-round is 3
-		|| variable ch2-storyflag-round is >= 5
+		variable ch2_storyflag_round is 1
+		|| variable ch2_storyflag_round is 2
+		|| variable ch2_storyflag_round is 3
+		|| variable ch2_storyflag_round is >= 5
 	) {
 		set entity Jackob on_tick to yeet;
 		set entity Alfonso on_tick to yeet;
 	}
 	// unique stuff done
-	copy ch2-map-init; // (player control comes back here)
+	copy ch2_map_init; // (player control comes back here)
 	// animations
 	if (warp state is walk_from-north) {
 		walk entity "%PLAYER%" along geometry walk_from-north over 200ms;
@@ -62,7 +62,7 @@ on_tick-ch2-castle-outside {
 	if (entity "%PLAYER%" is inside geometry north-hitbox) {
 		copy on_exit-ch2-castle-outside;
 		set warp state to walk_from-south;
-		copy ch2-load-castle-1-special;
+		copy ch2_load_castle_1_special;
 	}
 	if (entity "%PLAYER%" is inside geometry east-hitbox) {
 		copy on_exit-ch2-castle-outside;
@@ -85,25 +85,25 @@ on_exit-ch2-castle-outside {
 
 on_go-castle-outside-north {
 	copy on_exit-ch2-castle-outside;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-1-special;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_1_special;
 }
 on_go-castle-outside-east {
 	copy on_exit-ch2-castle-outside;
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-town;
 }
 
 /* ---------- ENTITIES ---------- */
 
-interact-ch2-entrancesign {
+interact_ch2_entrancesign {
 	show dialog {
 		name "" "King Gibson's castle"
 	}
 }
 
-interact-ch2-alfonso-outside {
-	if (variable ch2-storyflag-round is 4) {
+interact_ch2_alfonso_outside {
+	if (variable ch2_storyflag_round is 4) {
 		if (flag ch2-alfonso-almostdone is false) {
 			show dialog {
 				SELF "Word on the street is that you're almost done repairing the artifact." "Very well done so far, but keep going!"
@@ -121,14 +121,14 @@ interact-ch2-alfonso-outside {
 	}
 }
 
-interact-ch2-bert-outside {
+interact_ch2_bert_outside {
 	show dialog {
 		SELF "Only hackers may cross door into castle."
 	}
 }
 
-interact-ch2-jackob-outside {
-	if (variable ch2-storyflag-round is 4) {
+interact_ch2_jackob_outside {
+	if (variable ch2_storyflag_round is 4) {
 		if (flag ch2-jackob-almostdone is false) {
 			show dialog {
 				SELF "There's a buzz around town that you're nearly finished. Very impressive."
@@ -145,14 +145,14 @@ interact-ch2-jackob-outside {
 	}
 }
 
-interact-ch2-pedestal {
+interact_ch2_pedestal {
 	show dialog {
 		PLAYER "What a strange symbol. Like a trident, but with different shapes on the tips of the tines: a square, triangle, and circle."
 		"But what does it mean?" // Frontier psychiatry
 	}
 }
 
-interact-ch2-pillar {
+interact_ch2_pillar {
 	show dialog {
 		PLAYER "What do these things do?"
 	}

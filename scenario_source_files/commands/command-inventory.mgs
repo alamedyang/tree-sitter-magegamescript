@@ -39,107 +39,107 @@ include "header.mgs";
 		};
 	}
 	// normal
-	if ("ch2-carrying-cactuscooler") {
+	if ("ch2_carrying_cactuscooler") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	can of Cactus Cooler" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-heatsink") {
+	if ("ch2_carrying_heatsink") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	heat sink" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-powersupply") {
+	if ("ch2_carrying_powersupply") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	power supply" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-monitor") {
+	if ("ch2_carrying_monitor") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	monitor" };
 		}
 		"ch2-count-inventory" += 1;
 	}
 	// abstract
-	if ("ch2-carrying-harddrive") {
+	if ("ch2_carrying_harddrive") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	hard drive" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-plate") {
+	if ("ch2_carrying_plate") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	dinner plate" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-needle") {
+	if ("ch2_carrying_needle") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	phonograph needle" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-keyboard") {
+	if ("ch2_carrying_keyboard") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	keyboard" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-mouse") {
+	if ("ch2_carrying_mouse") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	mouse" };
 		}
 		"ch2-count-inventory" += 1;
 	}
 	// desperate
-	if ("ch2-carrying-ramchips") {
+	if ("ch2_carrying_ramchips") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	ramchips" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-clock") {
+	if ("ch2_carrying_clock") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	clock" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-cpu") {
+	if ("ch2_carrying_cpu") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	cpu" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-goldfish") {
+	if ("ch2_carrying_goldfish") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	goldfish" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-manual") {
+	if ("ch2_carrying_manual") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	calculator manual" };
 		}
 		"ch2-count-inventory" += 1;
 	}
-	if ("ch2-carrying-abacus") {
+	if ("ch2_carrying_abacus") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	abacus" };
 		}
 		"ch2-count-inventory" += 1;
 	}
 	// final
-	if ("ch2-carrying-mainframeos") {
+	if ("ch2_carrying_mainframeos") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	mainframe OS CD" };
 		}
 		"ch2-count-inventory" += 1;
 	}
 	// mini-rake quest
-	if ("ch2-carrying-minirake-99") {
+	if ("ch2_carrying_minirake-99") {
 		if (!"only-count-inventory") {
 			show serial_dialog { "	mini rake" };
 		}

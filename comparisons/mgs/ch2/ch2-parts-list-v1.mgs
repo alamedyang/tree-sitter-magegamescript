@@ -121,7 +121,7 @@ ch2-toot-step99-cleanstate {
 }
 
 ch2-toot-step99 {
-	mutate ch2-storyflag-round = 1;
+	mutate ch2_storyflag_round = 1;
 	copy register-parts;
 	copy ch2-put_on_map-round1;
 	show serial dialog {
@@ -458,7 +458,7 @@ ch2-lambda-round-4d {
 
 look-monitor {
 	show serial dialog spacer;
-	if (flag ch2-carrying-monitor is false) {
+	if (flag ch2_carrying_monitor is false) {
 		show serial dialog {
 			"You look at the <m>monitor</>: a modestly large flat screen monitor or television. The colors are crispy enough, though there's a dead pixel in the lower-right corner."
 		}
@@ -524,7 +524,7 @@ look-ramchips {
 }
 look-clock {
 	show serial dialog spacer;
-	if (flag ch2-carrying-clock is false) {
+	if (flag ch2_carrying_clock is false) {
 		show serial dialog {
 			"You look at the <m>clock</>: a giant grandfather clock that's definitely larger than you. Never mind how it could fit in your pocket."
 		}

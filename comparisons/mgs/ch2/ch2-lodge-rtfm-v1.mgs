@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-lodge-rtfm {
+look_ch2_lodge_rtfm {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around at the <c>RTFM ROOM</>."
@@ -11,7 +11,7 @@ look-ch2-lodge-rtfm {
 	}
 }
 
-look-ch2-hackbook {
+look_ch2_hackbook {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the book called \"<m>%SELF%</>.\""
@@ -19,7 +19,7 @@ look-ch2-hackbook {
 	}
 }
 
-look-ch2-bitsbytes {
+look_ch2_bitsbytes {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the book called \"<m>%SELF%</>.\""
@@ -27,7 +27,7 @@ look-ch2-bitsbytes {
 	}
 }
 
-look-ch2-entities {
+look_ch2_entities {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the book called \"<m>%SELF%</>.\""
@@ -35,7 +35,7 @@ look-ch2-entities {
 	}
 }
 
-look-ch2-hexediting {
+look_ch2_hexediting {
 	show serial dialog spacer;
 	show serial dialog books-extra { // referred to elsewhere
 		"You looked at the book called \"<m>%SELF%</>.\""
@@ -43,12 +43,12 @@ look-ch2-hexediting {
 	}
 }
 
-look-ch2-hexediting2 {
+look_ch2_hexediting2 {
 	show serial dialog spacer;
 	show serial dialog books-extra;
 }
 
-look-ch2-redletters {
+look_ch2_redletters {
 	show serial dialog spacer;
 	show serial dialog red-letter-pamphlet { // referred to elsewhere
 		"You looked at the book called \"<m>%SELF%</>.\""
@@ -57,7 +57,7 @@ look-ch2-redletters {
 	}
 }
 
-look-ch2-bookorigins {
+look_ch2_bookorigins {
 	show serial dialog spacer;
 	show serial dialog red-letter-pamphlet;
 }
@@ -73,15 +73,15 @@ on_load-ch2-lodge-rtfm {
 	// do unique stuff first (but turn serial / player control off first, if you do)
 	
 	// Village elders hiding
-	if (variable ch2-storyflag-round is not 1) {
+	if (variable ch2_storyflag_round is not 1) {
 		set entity Bert on_tick to yeet;
 	}
-	if (variable ch2-storyflag-round is not 3) {
+	if (variable ch2_storyflag_round is not 3) {
 		set entity Jackob on_tick to yeet;
 		set entity Alfonso on_tick to yeet;
 	}
 	// unique stuff done
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -96,15 +96,15 @@ on_tick-ch2-lodge-rtfm {
 /* ---------- EXIT STUFF ---------- */
 
 on_go-ch2-lodge-rtfm-south {
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-lodge;
 }
 
 /* ---------- ENTITIES ---------- */
 
-interact-ch2-alfonso-rtfm {
+interact_ch2_alfonso_rtfm {
 	// divert people trying to hack their way to see this convo early
-	if variable ch2-storyflag-round is not 3
+	if variable ch2_storyflag_round is not 3
 		then goto null_script;
 	copy face-player;
 	show dialog {
@@ -114,9 +114,9 @@ interact-ch2-alfonso-rtfm {
 	}
 	turn entity "%SELF%" west;
 }
-interact-ch2-jackob-rtfm {
+interact_ch2_jackob_rtfm {
 	// divert people trying to hack their way to see this convo early
-	if variable ch2-storyflag-round is not 3
+	if variable ch2_storyflag_round is not 3
 		then goto null_script;
 	copy face-player;
 	show dialog {
@@ -127,9 +127,9 @@ interact-ch2-jackob-rtfm {
 	}
 	turn entity "%SELF%" south;
 }
-interact-ch2-bert-rtfm {
+interact_ch2_bert_rtfm {
 	// divert people trying to hack their way to see this convo early
-	if variable ch2-storyflag-round is not 1
+	if variable ch2_storyflag_round is not 1
 		then goto null_script;
 	copy face-player;
 	show dialog {

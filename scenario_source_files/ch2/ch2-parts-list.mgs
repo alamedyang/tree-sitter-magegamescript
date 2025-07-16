@@ -121,7 +121,7 @@ serial_dialog "ch2-describe-ramchips" {
 }
 
 "ch2-toot-step99" {
-	"ch2-storyflag-round" = 1;
+	"ch2_storyflag_round" = 1;
 	copy!("register-parts")
 	copy!("ch2-put_on_map-round1")
 	show serial_dialog {
@@ -458,7 +458,7 @@ serial_dialog "ch2-describe-ramchips" {
 
 "look-monitor" {
 	show serial_dialog spacer;
-	if (!"ch2-carrying-monitor") {
+	if (!ch2_carrying_monitor) {
 		show serial_dialog {
 			"You look at the <m>monitor</>: a modestly large flat screen monitor or television. The colors are crispy enough, though there's a dead pixel in the lower-right corner."
 		};
@@ -524,7 +524,7 @@ serial_dialog "ch2-describe-ramchips" {
 }
 "look-clock" {
 	show serial_dialog spacer;
-	if (!"ch2-carrying-clock") {
+	if (!ch2_carrying_clock) {
 		show serial_dialog {
 			"You look at the <m>clock</>: a giant grandfather clock that's definitely larger than you. Never mind how it could fit in your pocket."
 		};

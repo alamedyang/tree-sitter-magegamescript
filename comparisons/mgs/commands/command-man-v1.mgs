@@ -44,13 +44,13 @@ command-man {
 			set flag can-interrupt-dialog to false;
 		}
 	}
-	if (variable ch2-in-room is 99) {
+	if (variable ch2_in_room is 99) {
 		show dialog {
 			name Lambda portrait lambda "Sorry, it's a little awkward to text chat with you when you're looking over my shoulder."
 		}
 	} else if (
 		flag ch2-ring-zero-enabled-in-castle is true // the artifact is full power
-		|| variable ch2-in-room is not 0 // OR you're in the castle
+		|| variable ch2_in_room is not 0 // OR you're in the castle
 	) {
 		// `man` works normally
 		goto command-man-normal;
@@ -72,19 +72,19 @@ ch2-wireless-error {
 }
 
 command-man-normal {
-	if (flag ch2-cutseen-bert-secret is true) {
+	if (flag ch2_cutseen_bert_secret is true) {
 		if (flag ch2-lambda-bert-backstory is false) {
 			goto ch2-bert-secret-lambda-intro;
 		} else if (flag ch2-parts-round-2-backstory is false) {
 			goto ch2-lambda-round-2-parts1;
 		}
 	}
-	if (flag ch2-cutseen-bert-message is true) {
+	if (flag ch2_cutseen_bert_message is true) {
 		if (flag ch2-parts-round-3-backstory is false) {
 			goto ch2-bert-message-lambda-intro;
 		}
 	}
-	if (flag ch2-cutseen-last-parts-done is true) {
+	if (flag ch2_cutseen_last_parts_done is true) {
 		if (flag ch2-parts-round-4-backstory is false) {
 			goto ch2-lambda-round-4;
 		}
@@ -111,7 +111,7 @@ command-man-normal-convo {
 }
 
 ch2-lambda-topic-q {
-	if (variable ch2-storyflag-round is < 5) {
+	if (variable ch2_storyflag_round is < 5) {
 		goto ch2-lambda-topic-q-midgame;
 	} else {
 		goto ch2-lambda-topic-q-end;
@@ -276,7 +276,7 @@ ch2-lambda-mainframe-broken-2 {
 
 ch2-lambda-mainframe-fix-1 {
 	show serial dialog spacer;
-	if (variable ch2-storyflag-round is < 4) {
+	if (variable ch2_storyflag_round is < 4) {
 		show serial dialog {
 			"<c>YOU</>: How do we fix it? What do we need?"
 			" "
@@ -284,7 +284,7 @@ ch2-lambda-mainframe-fix-1 {
 			"\tBut there should be enough <m>computer parts</> scattered throughout the castle. I have my parts list right here. The software though... I'll, um, get back to you about that."
 			" "
 		}
-	} else if (variable ch2-storyflag-round is 4) {
+	} else if (variable ch2_storyflag_round is 4) {
 		show serial dialog {
 			"<c>YOU</>: How do we fix it? What do we need?"
 			" "
@@ -483,7 +483,7 @@ ch2-lambda-person-wizard-continued {
 // Kuro
 ch2-lambda-person-kuro {
 	show serial dialog spacer;
-	if (flag ch2-seen-room-11 is false) {
+	if (flag ch2_seen_room_11 is false) {
 		show serial dialog {
 			"<c>YOU</>: Tell me about Kuro."
 			" "
@@ -505,7 +505,7 @@ ch2-lambda-person-concierge {
 		"<c>YOU</>: Tell me about the castle concierge."
 		" "
 	}
-	if (flag ch2-seen-room-12 is false) {
+	if (flag ch2_seen_room_12 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: The concierge? Have you been so deep into the castle hallway yet? But oh, you've probably guessed there's a concierge, right? It's true that this is <bold>that</> kind of castle. Overly formal, I mean."
 			"\tI don't remember too much about that guy, but... oh, I guess I don't remember him at all. We must never have crossed paths much."
@@ -525,7 +525,7 @@ ch2-lambda-person-templeton {
 		"<c>YOU</>: Tell me about Templeton."
 		" "
 	}
-	if (flag ch2-seen-room-13 is false) {
+	if (flag ch2_seen_room_13 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Templeton, Templeton. One of King Gibson's advisors, I think. Or was he a giant blancmange? Sorry, I guess I don't know much about that guy."
 		}
@@ -543,7 +543,7 @@ ch2-lambda-person-sebastian {
 		"<c>YOU</>: Tell me about Sebastian."
 		" "
 	}
-	if (flag ch2-seen-room-13 is false) {
+	if (flag ch2_seen_room_13 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Sebastian? He was one of King Gibson's advisors, wasn't he? I seem to recall him being combatative fairly often. Some kind of magic user, too."
 		}
@@ -663,7 +663,7 @@ ch2-lambda-person-seamoss {
 		"<c>YOU</>: Tell me about Sea Moss."
 		" "
 	}
-	if (flag ch2-seen-room-32 is false) {
+	if (flag ch2_seen_room_32 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Sea Moss? Sea Moss... I-I think I...."
 			"\tI think I used to be good friends with him, but... what did we do together?"
@@ -684,7 +684,7 @@ ch2-lambda-person-gloria {
 		"<c>YOU</>: Tell me about Gloria."
 		" "
 	}
-	if (flag ch2-seen-room-32 is false) {
+	if (flag ch2_seen_room_32 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Gloria? I think I recognize the name, but I can't picture a face. Maybe if I could just see who it was...."
 		}
@@ -702,7 +702,7 @@ ch2-lambda-person-samson {
 		"<c>YOU</>: Tell me about Samson."
 		" "
 	}
-	if (flag ch2-seen-room-32 is false) {
+	if (flag ch2_seen_room_32 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Samson? That name doesn't ring a bell."
 		}
@@ -720,7 +720,7 @@ ch2-lambda-person-gregory {
 		"<c>YOU</>: Tell me about Gregory."
 		" "
 	}
-	if (flag ch2-seen-room-33 is false) {
+	if (flag ch2_seen_room_33 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: I think Gregory was the castle chef... maybe? I feel like he's been there forever, but I can't remember what he looks like."
 		}
@@ -775,7 +775,7 @@ ch2-lambda-person-jeanpaul {
 		"<c>YOU</>: Tell me about Jean-Paul."
 		" "
 	}
-	if (flag ch2-seen-room-21 is false) {
+	if (flag ch2_seen_room_21 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Jean-Paul. A French... hen? Chicken? Some kind of bird? Gosh, I really can't remember, I'm sorry."
 		}
@@ -793,7 +793,7 @@ ch2-lambda-person-frankie {
 		"<c>YOU</>: Tell me about Frankie."
 		" "
 	}
-	if (flag ch2-seen-room-21 is false) {
+	if (flag ch2_seen_room_21 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Hmm, \"Frankie,\" let's see.... Was that one of the hardware guys? I can't remember anything else, sorry."
 		}
@@ -811,7 +811,7 @@ ch2-lambda-person-scuzzy {
 		"<c>YOU</>: Tell me about Scuzzy."
 		" "
 	}
-	if (flag ch2-seen-room-22 is false) {
+	if (flag ch2_seen_room_22 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Scuzzy? Or did you mean SCSI, that old data interface? It was kind of a pain, to be honest. You couldn't just connect things together -- you had to daisy chain the devices, and have a SCSI terminator at the end or none of it would work. Good riddance."
 		}
@@ -830,7 +830,7 @@ ch2-lambda-person-ckwatt {
 		"<c>YOU</>: Tell me about C. K. Watt."
 		" "
 	}
-	if (flag ch2-seen-room-22 is false) {
+	if (flag ch2_seen_room_22 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: C. K. Watt? Isn't that a bit from Fawlty Towers? I mean, it's a bit of an obnoxious reference, isn't it?"
 		}
@@ -848,7 +848,7 @@ ch2-lambda-person-tracy {
 		"<c>YOU</>: Tell me about Tracy."
 		" "
 	}
-	if (flag ch2-seen-room-23 is false) {
+	if (flag ch2_seen_room_23 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Tracy. Hmm. I think there was someone named Tracy in the power plant. Can't remember what their job was, though."
 		}
@@ -866,7 +866,7 @@ ch2-lambda-person-rocco {
 		"<c>YOU</>: Tell me about Rocco."
 		" "
 	}
-	if (flag ch2-seen-room-23 is false) {
+	if (flag ch2_seen_room_23 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Rocco was... hmm, let me see... was he someone from the workshop? I think that's right. I don't know if we ever interacted much."
 		}
@@ -972,7 +972,7 @@ ch2-lambda-person-xc {
 		"<c>YOU</>: Tell me about XC."
 		" "
 	}
-	if (flag ch2-seen-room-99 is false) {
+	if (flag ch2_seen_room_99 is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: I mean, it's true I have an Exa named XC in here with me. I guess you extrapolated the name XC, right?"
 		}
@@ -1074,14 +1074,14 @@ ch2-lambda-person-lambda-q {
 }
 ch2-lambda-person-lambda-where {
 	show serial dialog spacer;
-	if (flag ch2-seen-room-99 is false) {
+	if (flag ch2_seen_room_99 is false) {
 		show serial dialog {
 			"<c>YOU</>: Where are you?"
 			" "
 			"<m>LAMBDA</>: You know... um... it's kind of complicated. In a manner of speaking, I'm inside the castle. Let's just say I'm nearby but not close."
 		}
 	} else {
-		if (variable ch2-in-room is 99) {
+		if (variable ch2_in_room is 99) {
 			show serial dialog {
 				"<c>YOU</>: Where are you? I mean, where are WE? There aren't any doors here."
 			}
@@ -1134,7 +1134,7 @@ ch2-lambda-person-lambda-name-2c {
 	show serial dialog {
 		"\t...I found the place in the world where my name linked to my data as an entity... and destroyed it."
 	}
-	if (variable ch2-storyflag-round is < 5) {
+	if (variable ch2_storyflag_round is < 5) {
 		show serial dialog {
 			" "
 			# "What? But why?" : ch2-lambda-person-lambda-name-3
@@ -1254,7 +1254,7 @@ ch2-lambda-person-alfonso {
 	show serial dialog {
 		"<c>YOU</>: Tell me about Alfonso."
 	}
-	if (flag ch2-cutseen-secret-ending is false) {
+	if (flag ch2_cutseen_secret_ending is false) {
 		show serial dialog {
 			" "
 			"<m>LAMBDA</>: Alfonso? That name rings a bell... maybe? I-I feel like I should know who that is."
@@ -1275,7 +1275,7 @@ ch2-lambda-person-jackob {
 	show serial dialog {
 		"<c>YOU</>: Tell me about Jackob."
 	}
-	if (flag ch2-cutseen-secret-ending is false) {
+	if (flag ch2_cutseen_secret_ending is false) {
 		show serial dialog {
 			" "
 			"<m>LAMBDA</>: Jackob... Jackob.... That name is a bit odd, isn't it? There's something about that name... like there's something wrong about it. Is that really how it's spelled?"
@@ -1293,7 +1293,7 @@ ch2-lambda-person-jackob {
 
 ch2-lambda-person-bert {
 	show serial dialog spacer;
-	if (flag ch2-cutseen-bert-secret is false) {
+	if (flag ch2_cutseen_bert_secret is false) {
 		show serial dialog {
 			"<c>YOU</>: Tell me about Bert."
 			" "
@@ -1338,7 +1338,7 @@ ch2-lambda-bert-like {
 }
 ch2-lambda-bert-mentioned {
 	set flag ch2-lambdabert-q2 to true;
-	if (flag ch2-cutseen-castle99 is false) {
+	if (flag ch2_cutseen_castle99 is false) {
 		show serial dialog spacer;
 		show serial dialog {
 			"<c>YOU</>: Bert's never mentioned you."

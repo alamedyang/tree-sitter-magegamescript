@@ -99,7 +99,7 @@ include "header.mgs";
 	goto "cutscene-ch2-birthday-exit";
 }
 "cutscene-ch2-birthday-exit" {
-	"ch2-cutseen-birthday" = true;
+	ch2_cutseen_birthday = true;
 	warp_state = "cutscene-escort";
 	load map "ch2-town";
 }

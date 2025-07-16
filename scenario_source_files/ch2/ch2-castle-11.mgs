@@ -2,12 +2,12 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-11" {
+"look_ch2_castle_11" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE HALLWAY FRONT</>."
 	};
-	if ("ch2-storyflag-round" < 5) {
+	if ("ch2_storyflag_round" < 5) {
 		show serial_dialog {
 			"\tThe ceiling has collapsed, probably from the recent earthquake. What's left standing appears stable, fortunately -- at least, structurally stable."
 			" "
@@ -20,7 +20,7 @@ include "header.mgs";
 	}
 }
 
-"look-ch2-kuro" {
+"look_ch2_kuro" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -30,9 +30,9 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-11-doorless" {
+"on_load_ch2_castle_11_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2-in-room" = 11;
+	"ch2_in_room" = 11;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE HALLWAY FRONT</>..." };
@@ -43,18 +43,18 @@ include "header.mgs";
 	} else if (warp_state == "walk_from-west") {
 		player position = geometry "walk_from-west";
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
-"on_load-ch2-castle-11" {
+"on_load_ch2_castle_11" {
 	// ch2 room state
-	"ch2-in-room" = 11;
+	"ch2_in_room" = 11;
 	
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-11") {
+	if (!ch2_seen_room_11) {
 		show serial_dialog { "Discovered <bold><c>CASTLE HALLWAY FRONT</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-11" = true;
+		ch2_seen_room_11 = true;
 	} else {
 		show serial_dialog { "Entering <bold>CASTLE HALLWAY FRONT</>..." };
 	}
@@ -63,17 +63,17 @@ include "header.mgs";
 	// room unique things
 
 	if (
-		"ch2-installed-monitor"
-		|| "ch2-carrying-monitor"
+		"ch2_installed_monitor"
+		|| "ch2_carrying_monitor"
 	) {
-		copy!("ch2-hide-monitor")
+		copy!(ch2_hide_monitor)
 	}
 
 	// initialize everything
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 
 	// check if you do the cutscene or not
-	if (!"ch2-cutseen-castle11") {
+	if (!ch2_cutseen_castle11) {
 		copy!("ch2-cutscene-castle11")
 	}
 }
@@ -163,7 +163,7 @@ include "header.mgs";
 	entity "Kuro" on_tick = "face-player";
 	player_control = on;
 	player on_tick = null_script;
-	"ch2-cutseen-castle11" = true;
+	ch2_cutseen_castle11 = true;
 }
 
 "ch2-walk-to-monitor" {
@@ -190,48 +190,48 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-11" {}
-"on_tick-ch2-castle-11-doorless" {
+"on_tick_ch2_castle_11" {}
+"on_tick_ch2_castle_11_postgame" {
 	if (player intersects geometry "south-hitbox") {
-		copy!("on_exit-ch2-castle-11")
+		copy!(on_exit_ch2_castle_11)
 		warp_state = "walk_from-north";
-		copy!("ch2-load-castle-1-special")
+		copy!(ch2_load_castle_1_special)
 	} else if (player intersects geometry "north-hitbox") {
-		copy!("on_exit-ch2-castle-11")
+		copy!(on_exit_ch2_castle_11)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-12-special")
+		copy!(ch2_load_castle_12_special)
 	} else if (player intersects geometry "west-hitbox") {
-		copy!("on_exit-ch2-castle-11")
+		copy!(on_exit_ch2_castle_11)
 		warp_state = "walk_from-east";
-		copy!("ch2-load-castle-21-special")
+		copy!(ch2_load_castle_21_special)
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-11" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_11" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-11-north" {
-	copy!("on_exit-ch2-castle-11")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-12-special")
+"on_go_castle_11_north" {
+	copy!(on_exit_ch2_castle_11)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_12_special)
 }
-"on_go-castle-11-west" {
-	copy!("on_exit-ch2-castle-11")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-21-special")
+"on_go_castle_11_west" {
+	copy!(on_exit_ch2_castle_11)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_21_special)
 }
-"on_go-castle-11-south" {
-	copy!("on_exit-ch2-castle-11")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-1-special")
+"on_go_castle_11_south" {
+	copy!(on_exit_ch2_castle_11)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_1_special)
 }
 
-"ch2-hide-monitor" {
+"ch2_hide_monitor" {
 	entity "Monitor" position = geometry "hiding-spot";
 	entity "Monitor" name = " ";
 }
@@ -252,12 +252,12 @@ include "header.mgs";
 		PLAYER "Um, how do I take it?"
 		Kuro "Just unplug all the cables from the computer case. One power cable, one data cable."
 	};
-	copy!("ch2-pickup-monitor")
+	copy!(ch2_pickup_monitor)
 	self position = geometry "hiding-spot"; // for visuals; don't wanna change the script slot yet though! That will come AFTER the dialog so that execution isn't halted early
 	show dialog {
 		name "" "(You pick up the monitor!)"
 	};
-	copy!("ch2-hide-monitor")
+	copy!(ch2_hide_monitor)
 	self on_interact = null_script;
 }
 "ch2-touch-monitor-no" {
@@ -267,7 +267,7 @@ include "header.mgs";
 	self on_interact = "ch2-touch-monitor"; // reset after script jump
 }
 
-"interact-ch2-kuro" {
+"interact_ch2_kuro" {
 	entity "Kuro" current_animation = 1;
 	show dialog {
 		Kuro "So, um, you can get me out of here, right?"

@@ -42,7 +42,7 @@ include "header.mgs";
 		warp_state == "ch2-ending"
 		|| !"credits-from-menu" // todo: is this redundant with warp state? Maybe manage warp state better?
 	) {
-		copy!("ch2-load-castle-1-special")
+		copy!(ch2_load_castle_1_special)
 	} else {
 		load map "main_menu";
 	}
@@ -394,7 +394,7 @@ $panicked = 5;
 		Lambda "Good luck with everything, %PLAYER%."
 	};
 	entity $Lambda on_tick = "ch2-lambda-walkout";
-	"ch2-cutseen-secret-ending" = true;
+	ch2_cutseen_secret_ending = true;
 	wait 800ms;
 	player on_tick = null_script;
 	camera fade out -> #000000 over 1200ms;

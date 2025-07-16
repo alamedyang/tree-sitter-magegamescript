@@ -3,7 +3,7 @@ $lightsdefault = "ch2-serial-light-manager";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-33" {
+"look_ch2_castle_33" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>HYDROPONICS ROOM</>."
@@ -12,7 +12,7 @@ $lightsdefault = "ch2-serial-light-manager";
 	};
 }
 
-"look-ch2-gregory" {
+"look_ch2_gregory" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -22,29 +22,29 @@ $lightsdefault = "ch2-serial-light-manager";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-33" {
+"on_load_ch2_castle_33" {
 	// ch2 room state
-	"ch2-in-room" = 33;
+	"ch2_in_room" = 33;
 
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-33") {
+	if (!ch2_seen_room_33) {
 		show serial_dialog { "Discovered <bold><c>HYDROPONICS ROOM</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-33" = true;
+		ch2_seen_room_33 = true;
 	} else {
 		show serial_dialog { "Entering <bold>HYDROPONICS ROOM</>..." };
 	}
 
 	// room unique stuff
 	if (
-		"ch2-installed-mouse"
-		|| "ch2-carrying-mouse"
+		"ch2_installed_mouse"
+		|| "ch2_carrying_mouse"
 	) {
-		copy!("ch2-hide-mouse")
+		copy!(ch2_hide_mouse)
 	}
 	"ch2-mousegame" = false;
 
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 	if (debug_mode) {
 		command "mousegame" = "ch2-debug-mousegame";
 		show serial_dialog {
@@ -52,7 +52,7 @@ $lightsdefault = "ch2-serial-light-manager";
 			"<y>DEBUG></> <c>MOUSEGAME</>: start the mouse game!"
 		};
 	}
-	if (!"ch2-cutseen-castle33") {
+	if (!ch2_cutseen_castle33) {
 		player_control = off;
 		if (warp_state != "warped") {
 			wait 600ms;
@@ -74,13 +74,13 @@ $lightsdefault = "ch2-serial-light-manager";
 			};
 		}
 		player_control = on;
-		"ch2-cutseen-castle33" = true;
+		ch2_cutseen_castle33 = true;
 	}
 }
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-33" {
+"on_tick_ch2_castle_33" {
 	if (player intersects geometry "south-hitbox") {
 		if ("ch2-mousegame") {
 			player_control = off;
@@ -92,7 +92,7 @@ $lightsdefault = "ch2-serial-light-manager";
 			player_control = on;
 		} else {
 			warp_state = "walk_from-northwest";
-			copy!("ch2-load-castle-32-special")
+			copy!(ch2_load_castle_32_special)
 		}
 	}
 	if ("ch2-mousegame") {
@@ -102,16 +102,16 @@ $lightsdefault = "ch2-serial-light-manager";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-33" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_33" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-33-south" {
-	copy!("on_exit-ch2-castle-33")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-32-special")
+"on_go_castle_33_south" {
+	copy!(on_exit_ch2_castle_33)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_32_special)
 }
 
 /* ---------- ENTITIES ---------- */
@@ -132,45 +132,45 @@ $time = 200ms;
 	wait $time;
 }
 
-"ch2-interact-gregory-breakyes" {
+"interact_ch2_gregory_breakyes" {
 	show dialog {
 		SELF "I'll take the mouse proximity detector back then, then."
 	};
 	"ch2-mousegame" = false;
-	copy!("ch2-map-init-hex")
+	copy!(ch2_map_init_hex)
 	show dialog {
 		SELF "Let me know when you want to have another go."
 	};
-	self on_interact = "ch2-interact-gregory";
+	self on_interact = "interact_ch2_gregory";
 }
-"ch2-interact-gregory-breakno" {
+"interact_ch2_gregory_breakno" {
 	show dialog {
 		SELF "Good luck."
 	};
-	self on_interact = "ch2-interact-gregory";
+	self on_interact = "interact_ch2_gregory";
 }
 
-"ch2-interact-gregory" {
+"interact_ch2_gregory" {
 	copy!("face-player")
 	if ("ch2-mousegame") {
-		if (!"interrupt") {
+		if (!interrupt) {
 			show dialog {
 				SELF "That bluetooth proximity detector will tell you how close you are to the mouse. The closer you are to it, the more lights will light up."
 				"Or did you want to take a break?"
-				> "Yes, I want to take a break." = "ch2-interact-gregory-breakyes"
-				> "No, I want to keep trying." = "ch2-interact-gregory-breakno"
+				> "Yes, I want to take a break." = "interact_ch2_gregory_breakyes"
+				> "No, I want to keep trying." = "interact_ch2_gregory_breakno"
 			};
-			"interrupt" = true;
+			interrupt = true;
 		} else {
 			show dialog {
 				SELF "Did you want to take a break?"
-				> "Yes, I want to take a break." = "ch2-interact-gregory-breakyes"
-				> "No, I want to keep trying." = "ch2-interact-gregory-breakno"
+				> "Yes, I want to take a break." = "interact_ch2_gregory_breakyes"
+				> "No, I want to keep trying." = "interact_ch2_gregory_breakno"
 			};
 		}
 	}
-	if ("ch2-storyflag-round" < 2) {
-		if (!"ch2-gregory-backstory") {
+	if ("ch2_storyflag_round" < 2) {
+		if (!"ch2_gregory_backstory") {
 			show dialog {
 				SELF "Not sure how you got in, but..."
 				"Oh! Unless the blockage is gone at last?"
@@ -192,10 +192,10 @@ $time = 200ms;
 				SELF "They did some structural reinforcement, too, but don't remember specifics."
 				"At the time, the only thing I cared about was my new stovetop."
 			};
-			"ch2-gregory-backstory" = true;
+			"ch2_gregory_backstory" = true;
 			if (
 				!"ch2-want-cactuscooler"
-				|| "ch2-carrying-cactuscooler"
+				|| "ch2_carrying_cactuscooler"
 				|| "ch2-cactuscooler-delivered"
 			) { /*NADA*/ } else {
 				show dialog {
@@ -210,7 +210,7 @@ $time = 200ms;
 		} else {
 			if (
 				!"ch2-want-cactuscooler"
-					|| "ch2-carrying-cactuscooler"
+					|| "ch2_carrying_cactuscooler"
 					|| "ch2-cactuscooler-delivered"
 			) {
 				show dialog {
@@ -227,12 +227,12 @@ $time = 200ms;
 			}
 		}
 	} else {
-		if ("ch2-carrying-mouse" || "ch2-installed-mouse") {
+		if ("ch2_carrying_mouse" || "ch2_installed_mouse") {
 			show dialog {
 				SELF "I like my mouse to be physically connected to my computer."
 				"Hmm, is that too on the nose?"
 			};
-		} else if (!"ch2-mousegame-backstory") {
+		} else if (!"ch2_mousegame_backstory") {
 			show dialog {
 				PLAYER "This is kind of random, but I need a mouse for something, and was wondering --"
 				SELF "A mouse? A rodent, or a computer mouse?"
@@ -285,44 +285,44 @@ $time = 200ms;
 				PLAYER "Um...."
 				SELF "The more lights come on, the closer you are to finding it. Walk around a bit and see for yourself."
 			};
-			copy!("ch2-map-init-hex")
+			copy!(ch2_map_init_hex)
 			entity "Lights" on_tick = $lightsdefault;
 			show dialog {
 				SELF "Well, let me know when you want to have a go, anyway."
 			};
 			player_control = on;
-			"interrupt" = true;
-			"ch2-mousegame-backstory" = true;
+			interrupt = true;
+			"ch2_mousegame_backstory" = true;
 		} else {
-			if (!"interrupt") {
+			if (!interrupt) {
 				show dialog {
 					SELF "You still need that bluetooth mouse? I've still got that bluetooth proximity detector right here."
 				};
 			}
 			show dialog {
 				SELF "Want to try to catch the mouse?"
-				> "Yes" = "ch2-interact-gregory-gameyes"
-				> "No" = "ch2-interact-gregory-gameno"
+				> "Yes" = "interact_ch2_gregory_gameyes"
+				> "No" = "interact_ch2_gregory_gameno"
 			};
 		}
 	}
 }
 
-"ch2-interact-gregory-gameyes" {
+"interact_ch2_gregory_gameyes" {
 	entity "Mouse" on_tick = "ch2-mousegame-prepare-board";
-	self on_interact = "ch2-interact-gregory";
+	self on_interact = "interact_ch2_gregory";
 }
 
-"ch2-interact-gregory-gameno" {
+"interact_ch2_gregory_gameno" {
 	show dialog {
 		SELF "Oh. Well, let me know when you want to give it a shot."
 	};
-	self on_interact = "ch2-interact-gregory";
+	self on_interact = "interact_ch2_gregory";
 }
 
 /* ---------- MOUSE (ADMIN) ---------- */
 
-"ch2-hide-mouse" {
+"ch2_hide_mouse" {
 	entity "Mouse" position = geometry "hiding-spot";
 	entity "Mouse" name = " ";
 	entity "Mouse" on_interact = null_script;
@@ -367,9 +367,9 @@ $time = 200ms;
 		player direction = entity "Gregory";
 		camera fade in -> black over 400ms;
 		player_control = on;
-		copy!("ch2-map-init-hex")
-		copy!("ch2-hide-mouse")
-		copy!("ch2-pickup-mouse")
+		copy!(ch2_map_init_hex)
+		copy!(ch2_hide_mouse)
+		copy!(ch2_pickup_mouse)
 		show dialog {
 			Gregory "Don't forget this -- the USB dongle. Now you can use that mouse with computers that don't have bluetooth hardware built in."
 			PLAYER "This thingy plugs into a USB port? What if the mainframe doesn't have one of those?"
@@ -631,5 +631,5 @@ $time = 200ms;
 		light LED_BIT2 = on;
 		light LED_BIT1 = on;
 	}
-	map on_tick = "on_tick-ch2-castle-33"; // reset (NOTE: not an infinite loop, because it's not a `goto` here)
+	map on_tick = "on_tick_ch2_castle_33"; // reset (NOTE: not an infinite loop, because it's not a `goto` here)
 }

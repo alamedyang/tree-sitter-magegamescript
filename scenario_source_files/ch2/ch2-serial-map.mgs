@@ -12,13 +12,13 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 1
 	concat serial_dialog {"|  "};
-	if ("ch2-seen-room-99") {
+	if (ch2_seen_room_99) {
 		concat serial_dialog {"/----\\"};
 	} else {
 		concat serial_dialog {"      "};
 	}
 	concat serial_dialog {"      "};
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
@@ -28,15 +28,15 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 2
 	concat serial_dialog {"|  "};
-	if ("ch2-seen-room-99") {
+	if (ch2_seen_room_99) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-in-room" == 99) {
+	if ("ch2_in_room" == 99) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-99") {
+		if (ch2_seen_room_99) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -45,19 +45,19 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-mainframeos") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-99") {
+		if (ch2_seen_room_99) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-99") {
+	if (ch2_seen_room_99) {
 		concat serial_dialog {".|"};
 	} else {
 		concat serial_dialog {"  "};
 	}
 	concat serial_dialog {"     "};
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {"/.\\"};
 	} else {
 		concat serial_dialog {"   "};
@@ -67,21 +67,21 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 3
 	concat serial_dialog {"|  "};
-	if ("ch2-seen-room-99") {
+	if (ch2_seen_room_99) {
 		concat serial_dialog {"------"};
 	} else {
 		concat serial_dialog {"      "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {"/.."};
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-in-room" == 14) {
+	if ("ch2_in_room" == 14) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-14") {
+		if (ch2_seen_room_14) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -90,13 +90,13 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-clock") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-14") {
+		if (ch2_seen_room_14) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {".\\"};
 	} else {
 		concat serial_dialog {"  "};
@@ -106,17 +106,17 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 4
 	concat serial_dialog {"|           "};
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-14" || "ch2-seen-room-13") {
+	if (ch2_seen_room_14 || ch2_seen_room_13) {
 		concat serial_dialog {"--+--"};
 	} else {
 		concat serial_dialog {"     "};
 	}
-	if ("ch2-seen-room-14") {
+	if (ch2_seen_room_14) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
@@ -126,23 +126,23 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 5
 	concat serial_dialog {"|            "};
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {"|...|"};
 	} else {
 		concat serial_dialog {"     "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-33") {
+	if (ch2_seen_room_33) {
 		concat serial_dialog {"---"};
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-seen-room-33" || "ch2-seen-room-34") {
+	if (ch2_seen_room_33 || ch2_seen_room_34) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-34") {
+	if (ch2_seen_room_34) {
 		concat serial_dialog {"---"};
 	} else {
 		concat serial_dialog {"   "};
@@ -152,33 +152,33 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 6
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-23") {
+	if (ch2_seen_room_23) {
 		concat serial_dialog {"-----"};
 	} else {
 		concat serial_dialog {"     "};
 	}
 	concat serial_dialog {"    "};
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-in-room" == 13) {
+	if ("ch2_in_room" == 13) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-13") {
+		if (ch2_seen_room_13) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {".|"};
 	} else {
 		concat serial_dialog {"  "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-33") {
+	if (ch2_seen_room_33) {
 		concat serial_dialog {"|"};
 	} else {
 		concat serial_dialog {" "};
@@ -186,30 +186,30 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-mouse") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-33") {
+		if (ch2_seen_room_33) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-in-room" == 33) {
+	if ("ch2_in_room" == 33) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-33") {
+		if (ch2_seen_room_33) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-33" || "ch2-seen-room-34") {
+	if (ch2_seen_room_33 || ch2_seen_room_34) {
 		concat serial_dialog {"|"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-in-room" == 34) {
+	if ("ch2_in_room" == 34) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-34") {
+		if (ch2_seen_room_34) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -218,13 +218,13 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-plate") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-34") {
+		if (ch2_seen_room_34) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-34") {
+	if (ch2_seen_room_34) {
 		concat serial_dialog {"|"};
 	} else {
 		concat serial_dialog {" "};
@@ -234,27 +234,27 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 7
 	concat serial_dialog {"|  "};
-	if ("ch2-seen-room-23") {
+	if (ch2_seen_room_23) {
 		concat serial_dialog {"/.."};
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-in-room" == 23) {
+	if ("ch2_in_room" == 23) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-23") {
+		if (ch2_seen_room_23) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-23") {
+	if (ch2_seen_room_23) {
 		concat serial_dialog {"..\\"};
 	} else {
 		concat serial_dialog {"   "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
@@ -262,39 +262,39 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-goldfish") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-13") {
+		if (ch2_seen_room_13) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {".|"};
 	} else {
 		concat serial_dialog {"  "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-33") {
+	if (ch2_seen_room_33) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-33" || "ch2-seen-room-32") {
+	if (ch2_seen_room_33 || ch2_seen_room_32) {
 		concat serial_dialog {"-+"};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-seen-room-33" || "ch2-seen-room-32" || "ch2-seen-room-34") {
+	if (ch2_seen_room_33 || "ch2_seen_room_32" || ch2_seen_room_34) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-32" || "ch2-seen-room-34") {
+	if (ch2_seen_room_32 || ch2_seen_room_34) {
 		concat serial_dialog {"+-"};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-seen-room-34") {
+	if (ch2_seen_room_34) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
@@ -304,7 +304,7 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 8
 	concat serial_dialog {"|  "};
-	if ("ch2-seen-room-23") {
+	if (ch2_seen_room_23) {
 		concat serial_dialog {"\\.."};
 	} else {
 		concat serial_dialog {"   "};
@@ -312,39 +312,39 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-heatsink") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-23") {
+		if (ch2_seen_room_23) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-23") {
+	if (ch2_seen_room_23) {
 		concat serial_dialog {"../"};
 	} else {
 		concat serial_dialog {"   "};
 	}
 	concat serial_dialog {"   "};
-	if ("ch2-seen-room-13") {
+	if (ch2_seen_room_13) {
 		concat serial_dialog {"|...|"};
 	} else {
 		concat serial_dialog {"     "};
 	}
 	concat serial_dialog {"    "};
-	if ("ch2-seen-room-32") {
+	if (ch2_seen_room_32) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-in-room" == 32) {
+	if ("ch2_in_room" == 32) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-32") {
+		if (ch2_seen_room_32) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-32") {
+	if (ch2_seen_room_32) {
 		concat serial_dialog {".|"};
 	} else {
 		concat serial_dialog {"  "};
@@ -354,28 +354,28 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 9
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-22" || "ch2-seen-room-23") {
+	if (ch2_seen_room_22 || ch2_seen_room_23) {
 		concat serial_dialog {"--+--"};
 	} else {
 		concat serial_dialog {"     "};
 	}
 	concat serial_dialog {"    "};
-	if ("ch2-seen-room-12" || "ch2-seen-room-13") {
+	if (ch2_seen_room_12 || ch2_seen_room_13) {
 		concat serial_dialog {"--+-"};
 	} else {
 		concat serial_dialog {"    "};
 	}
-	if ("ch2-seen-room-12" || "ch2-seen-room-13" || "ch2-seen-room-31") {
+	if (ch2_seen_room_12 || "ch2_seen_room_13" || ch2_seen_room_31) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-31") {
+	if (ch2_seen_room_31) {
 		concat serial_dialog {"----"};
 	} else {
 		concat serial_dialog {"    "};
 	}
-	if ("ch2-seen-room-31" || "ch2-seen-room-32") {
+	if (ch2_seen_room_31 || ch2_seen_room_32) {
 		concat serial_dialog {"--+--"};
 	} else {
 		concat serial_dialog {"     "};
@@ -390,15 +390,15 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 10
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-22") {
+	if (ch2_seen_room_22) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-in-room" == 22) {
+	if ("ch2_in_room" == 22) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-22") {
+		if (ch2_seen_room_22) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -407,27 +407,27 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-powersupply") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-22") {
+		if (ch2_seen_room_22) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-22") {
+	if (ch2_seen_room_22) {
 		concat serial_dialog {"|"};
 	} else {
 		concat serial_dialog {" "};
 	}
 	concat serial_dialog {"    "};
-	if ("ch2-seen-room-12") {
+	if (ch2_seen_room_12) {
 		concat serial_dialog {"|."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-in-room" == 12) {
+	if ("ch2_in_room" == 12) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-12") {
+		if (ch2_seen_room_12) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -436,32 +436,32 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-needle") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-12") {
+		if (ch2_seen_room_12) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-12" || "ch2-seen-room-31") {
+	if (ch2_seen_room_12 || ch2_seen_room_31) {
 		concat serial_dialog {"+"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-31") {
+	if (ch2_seen_room_31) {
 		concat serial_dialog {"..."};
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-in-room" == 31) {
+	if ("ch2_in_room" == 31) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-31") {
+		if (ch2_seen_room_31) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-31") {
+	if (ch2_seen_room_31) {
 		concat serial_dialog {"."};
 	} else {
 		concat serial_dialog {" "};
@@ -469,13 +469,13 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-keyboard") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-31") {
+		if (ch2_seen_room_31) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-31") {
+	if (ch2_seen_room_31) {
 		concat serial_dialog {"..|"};
 	} else {
 		concat serial_dialog {"   "};
@@ -490,32 +490,32 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 11
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-22" || "ch2-seen-room-21") {
+	if (ch2_seen_room_22 || ch2_seen_room_21) {
 		concat serial_dialog {"--+--"};
 	} else {
 		concat serial_dialog {"     "};
 	}
-	if ("ch2-seen-room-21") {
+	if (ch2_seen_room_21) {
 		concat serial_dialog {"----"};
 	} else {
 		concat serial_dialog {"    "};
 	}
-	if ("ch2-seen-room-11" || "ch2-seen-room-12" || "ch2-seen-room-21") {
+	if (ch2_seen_room_11 || "ch2_seen_room_12" || ch2_seen_room_21) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-11" || "ch2-seen-room-12") {
+	if (ch2_seen_room_11 || ch2_seen_room_12) {
 		concat serial_dialog {"-+-"};
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-seen-room-11" || "ch2-seen-room-12" || "ch2-seen-room-31") {
+	if (ch2_seen_room_11 || "ch2_seen_room_12" || ch2_seen_room_31) {
 		concat serial_dialog {"-"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-31") {
+	if (ch2_seen_room_31) {
 		concat serial_dialog {"---------"};
 	} else {
 		concat serial_dialog {"         "};
@@ -530,21 +530,21 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 12
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-21") {
+	if (ch2_seen_room_21) {
 		concat serial_dialog {"|..."};
 	} else {
 		concat serial_dialog {"    "};
 	}
-	if ("ch2-in-room" == 21) {
+	if ("ch2_in_room" == 21) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-21") {
+		if (ch2_seen_room_21) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-21") {
+	if (ch2_seen_room_21) {
 		concat serial_dialog {"."};
 	} else {
 		concat serial_dialog {" "};
@@ -552,31 +552,31 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-abacus" || "ch2-map-ramchips" || "ch2-map-solder") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-21") {
+		if (ch2_seen_room_21) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-21") {
+	if (ch2_seen_room_21) {
 		concat serial_dialog {".."};
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-seen-room-21" || "ch2-seen-room-11") {
+	if (ch2_seen_room_21 || ch2_seen_room_11) {
 		concat serial_dialog {"+"};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-seen-room-11") {
+	if (ch2_seen_room_11) {
 		concat serial_dialog {"."};
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-in-room" == 11) {
+	if ("ch2_in_room" == 11) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-11") {
+		if (ch2_seen_room_11) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
@@ -585,13 +585,13 @@ serial_dialog "item" {"<g>?</>"}
 	if ("ch2-map-monitor") {
 		concat serial_dialog "item";
 	} else {
-		if ("ch2-seen-room-11") {
+		if (ch2_seen_room_11) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-seen-room-11") {
+	if (ch2_seen_room_11) {
 		concat serial_dialog {"|"};
 	} else {
 		concat serial_dialog {" "};
@@ -601,7 +601,7 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 13
 	concat serial_dialog {"|   "};
-	if ("ch2-seen-room-21") {
+	if (ch2_seen_room_21) {
 		concat serial_dialog {"-------"};
 	} else {
 		concat serial_dialog {"       "};
@@ -620,10 +620,10 @@ serial_dialog "item" {"<g>?</>"}
 
 	// ROW 14
 	concat serial_dialog {"|          |..."};
-	if ("ch2-in-room" == 1) {
+	if ("ch2_in_room" == 1) {
 		concat serial_dialog "player";
 	} else {
-		if ("ch2-seen-room-1") {
+		if (ch2_seen_room_1) {
 			concat serial_dialog "dot";
 		} else {
 			concat serial_dialog "space";

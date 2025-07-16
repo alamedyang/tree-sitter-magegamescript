@@ -103,7 +103,7 @@ simon-game-start-difference {
 		Simon "That means these lights down here, naturally!"
 	}
 	set entity Lights on_tick to $lightsdefault;
-	copy ch2-map-init-hex;
+	copy ch2_map_init_hex;
 	goto simon-game-start-q;
 }
 
@@ -125,7 +125,7 @@ simon-game-start-nevermind {
 
 simon-game-start-q-wrapup {
 	set entity Simon current_animation to 0;
-	set entity Simon on_interact to interact-ch2-simon;
+	set entity Simon on_interact to interact_ch2_simon;
 	goto null_script;
 }
 
@@ -539,7 +539,7 @@ simon-game-lose {
 	set entity "%PLAYER%" on_tick to player-lose;
 	show dialog { Simon emote 3 "Too bad! Better luck next time!" }
 	set entity Lights on_tick to $lightsdefault;
-	copy ch2-map-init-hex;
+	copy ch2_map_init_hex;
 	turn player control on;
 	set entity Keyboard on_tick to null_script;
 	set entity Simon current_animation to 5;
@@ -565,7 +565,7 @@ simon-game-win {
 	set entity Simon current_animation to 4;
 	show dialog { Simon emote 3 "GREAT JOB! Way to go, kid!" }
 	set entity Lights on_tick to $lightsdefault;
-	copy ch2-map-init-hex;
+	copy ch2_map_init_hex;
 	turn player control on;
 	if (flag ch2-simon-won-before is false) {
 		copy simon-game-restore-positions;
@@ -589,7 +589,7 @@ simon-game-win {
 		show dialog {
 			Simon emote 1 "Don't worry, I'll keep my end of the bargain. Rosetta is yours now. You deserve it."
 		}
-		copy script ch2-hide-keyboard;
+		copy script ch2_hide_keyboard;
 		show dialog {
 			name "" "(You pick up the keyboard!)"
 			Simon emote 1 "Keep it, and keep making awesome music!"
@@ -597,7 +597,7 @@ simon-game-win {
 		}
 		set entity Simon current_animation to 12;
 		set flag interrupt to true;
-		copy script ch2-pickup-keyboard;
+		copy script ch2_pickup_keyboard;
 		set flag ch2-simon-won-before to true;
 		goto null_script;
 	} else {

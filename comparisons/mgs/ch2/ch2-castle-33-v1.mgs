@@ -3,7 +3,7 @@ const!($lightsdefault = ch2-serial-light-manager)
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-33 {
+look_ch2_castle_33 {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>HYDROPONICS ROOM</>."
@@ -12,7 +12,7 @@ look-ch2-castle-33 {
 	}
 }
 
-look-ch2-gregory {
+look_ch2_gregory {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -22,29 +22,29 @@ look-ch2-gregory {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-castle-33 {
+on_load_ch2_castle_33 {
 	// ch2 room state
-	mutate ch2-in-room = 33;
+	mutate ch2_in_room = 33;
 
 	// entrance text
 	show serial dialog spacer;
-	if (flag ch2-seen-room-33 is false) {
+	if (flag ch2_seen_room_33 is false) {
 		show serial dialog { "Discovered <bold><c>HYDROPONICS ROOM</>! Room added to <c>MAP</>!" }
-		set flag ch2-seen-room-33 to true;
+		set flag ch2_seen_room_33 to true;
 	} else {
 		show serial dialog { "Entering <bold>HYDROPONICS ROOM</>..." }
 	}
 
 	// room unique stuff
 	if (
-		flag ch2-installed-mouse is true
-		|| flag ch2-carrying-mouse is true
+		flag ch2_installed_mouse is true
+		|| flag ch2_carrying_mouse is true
 	) {
-		copy script ch2-hide-mouse;
+		copy script ch2_hide_mouse;
 	}
 	set flag ch2-mousegame to false;
 
-	copy ch2-map-init;
+	copy ch2_map_init;
 	if (debug mode is on) {
 		register mousegame -> ch2-debug-mousegame;
 		show serial dialog {
@@ -52,7 +52,7 @@ on_load-ch2-castle-33 {
 			"<y>DEBUG></> <c>MOUSEGAME</>: start the mouse game!"
 		}
 	}
-	if (flag ch2-cutseen-castle33 is false) {
+	if (flag ch2_cutseen_castle33 is false) {
 		turn player control off;
 		if (warp state is not warped) {
 			wait 600ms;
@@ -74,13 +74,13 @@ on_load-ch2-castle-33 {
 			}
 		}
 		turn player control on;
-		set flag ch2-cutseen-castle33 to true;
+		set flag ch2_cutseen_castle33 to true;
 	}
 }
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-castle-33 {
+on_tick_ch2_castle_33 {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		if (flag ch2-mousegame is true) {
 			turn player control off;
@@ -92,7 +92,7 @@ on_tick-ch2-castle-33 {
 			turn player control on;
 		} else {
 			set warp state to walk_from-northwest;
-			copy ch2-load-castle-32-special;
+			copy ch2_load_castle_32_special;
 		}
 	}
 	if (flag ch2-mousegame is true) {
@@ -102,16 +102,16 @@ on_tick-ch2-castle-33 {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-castle-33 { // sanitize ch2 room state
-	mutate ch2-in-room = 0;
+on_exit_ch2_castle_33 { // sanitize ch2 room state
+	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go-castle-33-south {
-	copy on_exit-ch2-castle-33;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-32-special;
+on_go_castle_33_south {
+	copy on_exit_ch2_castle_33;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_32_special;
 }
 
 /* ---------- ENTITIES ---------- */
@@ -134,45 +134,45 @@ screen-lights-flash-bits {
 	wait $time;
 }
 
-ch2-interact-gregory-breakyes {
+interact_ch2_gregory_breakyes {
 	show dialog {
 		SELF "I'll take the mouse proximity detector back then, then."
 	}
 	set flag ch2-mousegame to false;
-	copy ch2-map-init-hex;
+	copy ch2_map_init_hex;
 	show dialog {
 		SELF "Let me know when you want to have another go."
 	}
-	set entity "%SELF%" on_interact to ch2-interact-gregory;
+	set entity "%SELF%" on_interact to interact_ch2_gregory;
 }
-ch2-interact-gregory-breakno {
+interact_ch2_gregory_breakno {
 	show dialog {
 		SELF "Good luck."
 	}
-	set entity "%SELF%" on_interact to ch2-interact-gregory;
+	set entity "%SELF%" on_interact to interact_ch2_gregory;
 }
 
-ch2-interact-gregory {
+interact_ch2_gregory {
 	copy face-player;
 	if (flag ch2-mousegame is true) {
 		if (flag interrupt is false) {
 			show dialog {
 				SELF "That bluetooth proximity detector will tell you how close you are to the mouse. The closer you are to it, the more lights will light up."
 				"Or did you want to take a break?"
-				> "Yes, I want to take a break." : ch2-interact-gregory-breakyes
-				> "No, I want to keep trying." : ch2-interact-gregory-breakno
+				> "Yes, I want to take a break." : interact_ch2_gregory_breakyes
+				> "No, I want to keep trying." : interact_ch2_gregory_breakno
 			}
 			set flag interrupt to true;
 		} else {
 			show dialog {
 				SELF "Did you want to take a break?"
-				> "Yes, I want to take a break." : ch2-interact-gregory-breakyes
-				> "No, I want to keep trying." : ch2-interact-gregory-breakno
+				> "Yes, I want to take a break." : interact_ch2_gregory_breakyes
+				> "No, I want to keep trying." : interact_ch2_gregory_breakno
 			}
 		}
 	}
-	if (variable ch2-storyflag-round is < 2) {
-		if (flag ch2-gregory-backstory is false) {
+	if (variable ch2_storyflag_round is < 2) {
+		if (flag ch2_gregory_backstory is false) {
 			show dialog {
 				SELF "Not sure how you got in, but..."
 				"Oh! Unless the blockage is gone at last?"
@@ -194,10 +194,10 @@ ch2-interact-gregory {
 				SELF "They did some structural reinforcement, too, but don't remember specifics."
 				"At the time, the only thing I cared about was my new stovetop."
 			}
-			set flag ch2-gregory-backstory to true;
+			set flag ch2_gregory_backstory to true;
 			if (
 				flag ch2-want-cactuscooler is false
-				|| flag ch2-carrying-cactuscooler is true
+				|| flag ch2_carrying_cactuscooler is true
 				|| flag ch2-cactuscooler-delivered is true
 			) { /*NADA*/ } else {
 				show dialog {
@@ -212,7 +212,7 @@ ch2-interact-gregory {
 		} else {
 			if (
 				flag ch2-want-cactuscooler is false
-					|| flag ch2-carrying-cactuscooler is true
+					|| flag ch2_carrying_cactuscooler is true
 					|| flag ch2-cactuscooler-delivered is true
 			) {
 				show dialog {
@@ -229,12 +229,12 @@ ch2-interact-gregory {
 			}
 		}
 	} else {
-		if (flag ch2-carrying-mouse is true || flag ch2-installed-mouse is true) {
+		if (flag ch2_carrying_mouse is true || flag ch2_installed_mouse is true) {
 			show dialog {
 				SELF "I like my mouse to be physically connected to my computer."
 				"Hmm, is that too on the nose?"
 			}
-		} else if (flag ch2-mousegame-backstory is false) {
+		} else if (flag ch2_mousegame_backstory is false) {
 			show dialog {
 				PLAYER "This is kind of random, but I need a mouse for something, and was wondering --"
 				SELF "A mouse? A rodent, or a computer mouse?"
@@ -287,14 +287,14 @@ ch2-interact-gregory {
 				PLAYER "Um...."
 				SELF "The more lights come on, the closer you are to finding it. Walk around a bit and see for yourself."
 			}
-			copy ch2-map-init-hex;
+			copy ch2_map_init_hex;
 			set entity Lights on_tick to $lightsdefault;
 			show dialog {
 				SELF "Well, let me know when you want to have a go, anyway."
 			}
 			turn player control on;
 			set flag interrupt to true;
-			set flag ch2-mousegame-backstory to true;
+			set flag ch2_mousegame_backstory to true;
 		} else {
 			if (flag interrupt is false) {
 				show dialog {
@@ -303,28 +303,28 @@ ch2-interact-gregory {
 			}
 			show dialog {
 				SELF "Want to try to catch the mouse?"
-				> "Yes" : ch2-interact-gregory-gameyes
-				> "No" : ch2-interact-gregory-gameno
+				> "Yes" : interact_ch2_gregory_gameyes
+				> "No" : interact_ch2_gregory_gameno
 			}
 		}
 	}
 }
 
-ch2-interact-gregory-gameyes {
+interact_ch2_gregory_gameyes {
 	set entity Mouse on_tick to ch2-mousegame-prepare-board;
-	set entity "%SELF%" on_interact to ch2-interact-gregory;
+	set entity "%SELF%" on_interact to interact_ch2_gregory;
 }
 
-ch2-interact-gregory-gameno {
+interact_ch2_gregory_gameno {
 	show dialog {
 		SELF "Oh. Well, let me know when you want to give it a shot."
 	}
-	set entity "%SELF%" on_interact to ch2-interact-gregory;
+	set entity "%SELF%" on_interact to interact_ch2_gregory;
 }
 
 /* ---------- MOUSE (ADMIN) ---------- */
 
-ch2-hide-mouse {
+ch2_hide_mouse {
 	teleport entity "Mouse" to geometry hiding-spot;
 	set entity "Mouse" name to " ";
 	set entity Mouse on_interact to null_script;
@@ -369,9 +369,9 @@ ch2-touch-mouse {
 		turn entity "%PLAYER%" toward entity Gregory;
 		fade in camera from black over 400ms;
 		turn on player control;
-		copy ch2-map-init-hex;
-		copy script ch2-hide-mouse;
-		copy script ch2-pickup-mouse;
+		copy ch2_map_init_hex;
+		copy script ch2_hide_mouse;
+		copy script ch2_pickup_mouse;
 		show dialog {
 			Gregory "Don't forget this -- the USB dongle. Now you can use that mouse with computers that don't have bluetooth hardware built in."
 			PLAYER "This thingy plugs into a USB port? What if the mainframe doesn't have one of those?"
@@ -633,5 +633,5 @@ ch2-mousegame-tick {
 		turn light LED_BIT2 on;
 		turn light LED_BIT1 on;
 	}
-	set map on_tick to on_tick-ch2-castle-33; // reset (NOTE: not an infinite loop, because it's not a `goto` here)
+	set map on_tick to on_tick_ch2_castle_33; // reset (NOTE: not an infinite loop, because it's not a `goto` here)
 }

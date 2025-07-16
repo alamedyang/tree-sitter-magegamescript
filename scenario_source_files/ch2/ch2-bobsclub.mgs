@@ -7,7 +7,7 @@ $fridge = 3;
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-bobsclub" {
+"look_ch2_bobsclub" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You look around at the <m><bold>Bob's Club</>."
@@ -16,7 +16,7 @@ $fridge = 3;
 	};
 }
 
-"look-ch2-bobbarstool" {
+"look_ch2_bobbarstool" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -24,12 +24,12 @@ $fridge = 3;
 	};
 }
 
-"look-ch2-bobglasses" {
+"look_ch2_bobglasses" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 	};
-	if (!"ch2-cutseen-bob-party") {
+	if (!ch2_cutseen_bob_party) {
 		show serial_dialog {
 			"\tFancy glass goblets for fancy parties. These pieces are definitely reserved for fancy drink orders. Not that you've ever seen a party in here."
 		};
@@ -39,21 +39,21 @@ $fridge = 3;
 		};
 	}
 }
-"look-ch2-bobsbox" {
+"look_ch2_bobsbox" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's still sealed. The sides are bulging, as though it was packed tightly with something."
 	};
 }
-"look-ch2-bobsbarrel" {
+"look_ch2_bobsbarrel" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's not marked, though you always assumed barrels like this would contain ale or beer or something. You suppose it could just as easily contain oyster crackers."
 	};
 }
-"look-ch2-bobcountertop" {
+"look_ch2_bobcountertop" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -61,21 +61,21 @@ $fridge = 3;
 	};
 }
 
-"look-ch2-bobcupboard" {
+"look_ch2_bobcupboard" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tGlass tumblers are packed together in lines on each shelf. None are missing; there are no gaps."
 	};
 }
-"look-ch2-bobsink" {
+"look_ch2_bobsink" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThere's splashes of water -- and an emaciated ice cube -- near the drain. Someone has used the sink recently."
 	};
 }
-"look-ch2-bobfridge" {
+"look_ch2_bobfridge" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -90,8 +90,8 @@ $fridge = 3;
 "unfind-cc" { "ch1-found-cactuscooler" = false; }
 "want-cc" { "ch2-want-cactuscooler" = true; }
 "unwant-cc" { "ch2-want-cactuscooler" = false; }
-"basement" { "ch2-cutseen-bob-party" = true; }
-"unbasement" { "ch2-cutseen-bob-party" = false; }
+"basement" { ch2_cutseen_bob_party = true; }
+"unbasement" { ch2_cutseen_bob_party = false; }
 "toot" {
 	"ch2-toot-done" = true;
 	copy!("register-parts")
@@ -101,10 +101,10 @@ $fridge = 3;
 	delete command "parts" ;
 }
 "reset" {
-	"ch2-carrying-cactuscooler" = false;
+	ch2_carrying_cactuscooler = false;
 	"ch2-want-cactuscooler" = false;
 	"ch1-found-cactuscooler" = false;
-	"ch2-cutseen-bob-party" = false;
+	ch2_cutseen_bob_party = false;
 	"ch2-toot-done" = false;
 	"ch2-rattle-count" = 0;
 	show serial_dialog {
@@ -121,7 +121,7 @@ $fridge = 3;
 	// do unique stuff first (but player_control = serial / off first, if you do)
 	"ch2-rattle-count" = 0;
 	
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 
 	// DEBUG
 	if (debug_mode) {
@@ -133,7 +133,7 @@ $fridge = 3;
 		command "unbasement" = "unbasement";
 		command "toot" = "toot";
 		command "untoot" = "untoot";
-		command "carry" + "cc" = "ch2-pickup-cactuscooler";
+		command "carry" + "cc" = "ch2_pickup_cactuscooler";
 		command "uncarry" + "cc" = "ch2-unpickup-cactuscooler";
 		command "reset" = "reset";
 		show serial_dialog {
@@ -155,7 +155,7 @@ $fridge = 3;
 	// END DEBUG
 
 	// Have NOT been in the basement
-	if (!"ch2-cutseen-bob-party") {
+	if (!ch2_cutseen_bob_party) {
 		player_control = off;
 		if (warp_state != "warped") {
 			player position -> geometry "walk-spot" origin over 400ms;
@@ -198,7 +198,7 @@ $fridge = 3;
 	else { // You HAVE been in the basement
 		if ("ch2-want-cactuscooler") { // If you know you need CC
 			if ( // You've already collected the CC
-				"ch2-carrying-cactuscooler"
+				"ch2_carrying_cactuscooler"
 				|| "ch2-cactuscooler-delivered"
 			) {
 				// DO NOTHING
@@ -233,18 +233,18 @@ $fridge = 3;
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-bobsclub-stairs" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-bobsclub-basement";
 }
 "on_go-ch2-bobsclub-south" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-bobbox" {
-	if (!"ch2-cutseen-bob-party") {
+"interact_ch2_bobbox" {
+	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "It's a box of unfilled balloons. There used to be a ton more of them though."
 		};
@@ -255,8 +255,8 @@ $fridge = 3;
 		};
 	}
 }
-"interact-ch2-bobbarstool" {
-	if (!"ch2-cutseen-bob-party") {
+"interact_ch2_bobbarstool" {
+	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "Only one stool for the whole bar? Where's the rest?"
 		};
@@ -267,13 +267,13 @@ $fridge = 3;
 		};
 	}
 }
-"interact-ch2-bobbarrel" {
+"interact_ch2_bobbarrel" {
 	show dialog {
 		PLAYER "A beer keg maybe?"
 	};
 }
-"interact-ch2-bobcountertop" {
-	if (!"ch2-cutseen-bob-party") {
+"interact_ch2_bobcountertop" {
+	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "I KNOW there used to be bottles by the sink! Where did everything go?"
 		};
@@ -282,7 +282,7 @@ $fridge = 3;
 
 // CALLBACK (ish) STUFF
 
-"interact-ch2-bobcupboard" {
+"interact_ch2_bobcupboard" {
 	if (!"ch2-touched-bobcupboard") {
 		show dialog {
 			PLAYER "Those are some hardy-looking glasses and tumblers."
@@ -296,15 +296,15 @@ $fridge = 3;
 	}
 	copy!("ch2-bobrattling")
 }
-"interact-ch2-bobglasses" {
+"interact_ch2_bobglasses" {
 	show dialog {
 		PLAYER "These glasses look super fancy."
 	};
 	copy!("ch2-bobrattling")
 }
-"interact-ch2-bobfridge" {
+"interact_ch2_bobfridge" {
 	if ( // You've already collected the CC
-		"ch2-carrying-cactuscooler"
+		"ch2_carrying_cactuscooler"
 		|| "ch2-cactuscooler-delivered"
 	) {
 		show dialog { PLAYER "Nothing in here." };
@@ -330,7 +330,7 @@ $fridge = 3;
 }
 
 "ch2-bobrattling" { // Hint that there's more inside the building
-	if (!"ch2-cutseen-bob-party") {
+	if (!ch2_cutseen_bob_party) {
 		player on_tick = "look-left-and-right-fast";
 		// naive only
 		if ("ch2-rattle-count" == 0) {

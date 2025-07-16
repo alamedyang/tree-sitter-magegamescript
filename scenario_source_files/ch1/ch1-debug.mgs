@@ -31,19 +31,19 @@ include "header.mgs";
 
 "debug-demobonus-pre-flags-true" {
 	copy!("set-story-flags-true")
-	"ch1_finished" = true;
+	ch1_finished = true;
 	warp_state = "exit_from-credits";
 	self on_interact = "debug-demobonus-q";
 }
 
 "debug-demobonus-pre-flags-false" {
 	copy!("set-story-flags-false")
-	"ch1_finished" = false;
+	ch1_finished = false;
 	self on_interact = "debug-demobonus-q";
 }
 
 "debug-demobonus-event-flags-false" {
-	"demobonus" = false;
+	demobonus = false;
 	"demobonus-jackob-informed" = false;
 	"demobonus-timmy-yell" = false;
 	"demobonus-sportsbook-read" = false;
@@ -203,12 +203,12 @@ include "header.mgs";
 
 "set-goodmorning-flags-false" {
 	"walked-to-lodge" = false;
-	"goodmorning" = false;
+	goodmorning = false;
 }
 
 "set-goodmorning-flags-true" {
 	"walked-to-lodge" = true;
-	"goodmorning" = true;
+	goodmorning = true;
 }
 
 "set-tuesday-flags-true" {
@@ -216,7 +216,7 @@ include "header.mgs";
 	"ring-acquired" = true;
 	"hide-lodge-crowd" = true;
 	"hide-lodge-crowd-mini" = true;
-	"tuesdayd" = true;
+	tuesdayd = true;
 	"hintman-explanation" = true;
 }
 
@@ -225,7 +225,7 @@ include "header.mgs";
 	"ring-acquired" = false;
 	"hide-lodge-crowd" = false;
 	"hide-lodge-crowd-mini" = false;
-	"tuesdayd" = false;
+	tuesdayd = false;
 	"hintman-explanation" = false;
 }
 
@@ -244,19 +244,19 @@ include "header.mgs";
 }
 
 "set-begunthegame-flags-true" {
-	"begunthegame" = true;
+	begunthegame = true;
 }
 
 "set-begunthegame-flags-false" {
-	"begunthegame" = false;
+	begunthegame = false;
 }
 
 "set-ch1_finished-flags-true" {
-	"ch1_finished" = true;
+	ch1_finished = true;
 }
 
 "set-ch1_finished-flags-false" {
-	"ch1_finished" = false;
+	ch1_finished = false;
 }
 
 "set-glitch-flags-true" {

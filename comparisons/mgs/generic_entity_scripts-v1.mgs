@@ -200,7 +200,7 @@ capture_player_state {
 	// todo: when we have functions, genericize this!
 	copy entity "%PLAYER%" x into variable playersave-x;
 	copy entity "%PLAYER%" y into variable playersave-y;
-	mutate playersave-room = ch2-in-room;
+	mutate playersave-room = ch2_in_room;
 	if (entity "%PLAYER%" direction is north) {
 		mutate playersave-dir = 0;
 	} else if (entity "%PLAYER%" direction is east) {

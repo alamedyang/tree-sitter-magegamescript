@@ -34,55 +34,55 @@ include "header.mgs";
 	concat serial_dialog {
 		"\nCurrent location: <c>"
 	};
-	if ("ch2-in-room" == 1) {
+	if ("ch2_in_room" == 1) {
 		concat serial_dialog {
 			"CASTLE ENTRANCE"
 		};
-	} else if ("ch2-in-room" == 11) {
+	} else if ("ch2_in_room" == 11) {
 		concat serial_dialog {
 			"CASTLE HALLWAY FRONT"
 		};
-	} else if ("ch2-in-room" == 12) {
+	} else if ("ch2_in_room" == 12) {
 		concat serial_dialog {
 			"CASTLE HALLWAY BACK"
 		};
-	} else if ("ch2-in-room" == 13) {
+	} else if ("ch2_in_room" == 13) {
 		concat serial_dialog {
 			"THRONE ROOM"
 		};
-	} else if ("ch2-in-room" == 14) {
+	} else if ("ch2_in_room" == 14) {
 		concat serial_dialog {
 			"KING GIBSON'S BEDROOM"
 		};
-	} else if ("ch2-in-room" == 21) {
+	} else if ("ch2_in_room" == 21) {
 		concat serial_dialog {
 			"WORKSHOP"
 		};
-	} else if ("ch2-in-room" == 22) {
+	} else if ("ch2_in_room" == 22) {
 		concat serial_dialog {
 			"SERVER ROOM"
 		};
-	} else if ("ch2-in-room" == 23) {
+	} else if ("ch2_in_room" == 23) {
 		concat serial_dialog {
 			"POWER PLANT"
 		};
-	} else if ("ch2-in-room" == 31) {
+	} else if ("ch2_in_room" == 31) {
 		concat serial_dialog {
 			"GRAND HALL"
 		};
-	} else if ("ch2-in-room" == 32) {
+	} else if ("ch2_in_room" == 32) {
 		concat serial_dialog {
 			"CASTLE KITCHEN"
 		};
-	} else if ("ch2-in-room" == 33) {
+	} else if ("ch2_in_room" == 33) {
 		concat serial_dialog {
 			"HYDROPONICS ROOM"
 		};
-	} else if ("ch2-in-room" == 34) {
+	} else if ("ch2_in_room" == 34) {
 		concat serial_dialog {
 			"CASTLE PANTRY"
 		};
-	} else if ("ch2-in-room" == 99) {
+	} else if ("ch2_in_room" == 99) {
 		concat serial_dialog {
 			"LAMBDA'S LAB"
 		};

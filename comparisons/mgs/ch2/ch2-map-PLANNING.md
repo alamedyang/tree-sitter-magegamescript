@@ -222,7 +222,7 @@ with doors as pluses:
 
 (Only numbered items count as story flags)
 
-Choose which "round" with the `ch2-storyflag-round` variable. Checkboxes refer to script scaffolding (the exact convos may be still unwritten); see `ch2-PLANNING.md` for the sprites checklist.
+Choose which "round" with the `ch2_storyflag_round` variable. Checkboxes refer to script scaffolding (the exact convos may be still unwritten); see `ch2-PLANNING.md` for the sprites checklist.
 
 In debug mode, you can use the command `storyflag` to set this arbitrarily for testing purposes.
 
@@ -230,7 +230,7 @@ In debug mode, you can use the command `storyflag` to set this arbitrarily for t
 
 Plot points implemented:
 
-- INTRO (`ch2-storyflag-round` = 0)
+- INTRO (`ch2_storyflag_round` = 0)
 
     - [x] Picking up the artifact from a sliding door cubby on the side of the wall: door opens, player character moves over there, turns to get it, then maybe door closes again (so we can reuse that temp entity)
     - [x] Intro to Lambda
@@ -241,7 +241,7 @@ Plot points implemented:
         - [x] Waiting for completion
     - Starting item: enclosure/motherboard (room 1)
 
-- FIRST ROUND: normal (`ch2-storyflag-round` = 1)
+- FIRST ROUND: normal (`ch2_storyflag_round` = 1)
 
     - [x] (1.) `monitor` (room 11)
     - [x] (2.) `heatsink` (room 23)
@@ -251,7 +251,7 @@ Plot points implemented:
     - [x] Bert secret cutscene happens when all of the above are done
     - [x] Lambda gives next round of the parts list
 
-- SECOND ROUND: abstract (`ch2-storyflag-round` = 2)
+- SECOND ROUND: abstract (`ch2_storyflag_round` = 2)
 
     - [x] (4.) `keyboard` (keytar) (room 31)
     - [x] (5.) `mouse` (rodent) (room 33)
@@ -263,7 +263,7 @@ Plot points implemented:
     - [x] Bert "any messages yet?" convo happens when all of the above are done
     - [x] Lambda gives next round of the parts list
 
-- THIRD ROUND: desperate (`ch2-storyflag-round` = 3)
+- THIRD ROUND: desperate (`ch2_storyflag_round` = 3)
 
     - [x] (7.) `ramchips` (bag of Doritos) (room 32)
     - [x] (8.) `clock` (grandfather clock) (room 14)
@@ -291,7 +291,7 @@ Plot points implemented:
             - [x] Manual needs sprite
     - [x] Lambda shows you how to `warp` and invites you to room #99
 
-- FINAL ROUND: software (`ch2-storyflag-round` = 4)
+- FINAL ROUND: software (`ch2_storyflag_round` = 4)
 
     - [x] Lambda talks to you in person
     - [x] (10.) `mainframeos` (room 99) (might be handled differently from other items)
@@ -300,7 +300,7 @@ Plot points implemented:
     - [~] "You did it" cutscene
     - [~] Credits
 
-- AFTERWARD (`ch2-storyflag-round` = 5)
+- AFTERWARD (`ch2_storyflag_round` = 5)
     - [x] Post-credits sequence: Alfonso mentions one of the Big Bad's powers that most people don't know about
     - [~] Go about the overworld now
 
@@ -308,24 +308,24 @@ Plot points implemented:
 
 ALL DONE!
 
-- INTRO (`ch2-storyflag-round` = 0)
+- INTRO (`ch2_storyflag_round` = 0)
     - [x] All outside castle entrance
     - [x] All encouraging you
-- FIRST ROUND: normal (`ch2-storyflag-round` = 1)
+- FIRST ROUND: normal (`ch2_storyflag_round` = 1)
     - [x] Alfonso: in the library, getting distracted by random books on accident
     - [x] Jackob: in the library, in a staring contest with the goose
     - [x] Bert: in the inner sanctum, looking for the book they lost
     - Bert visits you
-- SECOND ROUND: abstract (`ch2-storyflag-round` = 2)
+- SECOND ROUND: abstract (`ch2_storyflag_round` = 2)
     - [x] Alfonso: talking to Verthandi
     - [x] Jackob: in the bakery, shopping for fresh bread
-- THIRD ROUND: desperate (`ch2-storyflag-round` = 3)
+- THIRD ROUND: desperate (`ch2_storyflag_round` = 3)
     - [x] Jackob in inner sanctum, worried about the time you are taking
     - [x] Alfonso in inner sanctum, worried about Bert
-- FINAL ROUND: software (`ch2-storyflag-round` = 4)
+- FINAL ROUND: software (`ch2_storyflag_round` = 4)
     - [x] Jackob/Alfonso waiting outside
     - [x] Jackob/Alfonso urging you to finish
-- AFTERWARD (`ch2-storyflag-round` = 5)
+- AFTERWARD (`ch2_storyflag_round` = 5)
     - [x] In the main square
     - [x] Mention how you can have a break now
         - [x] If you haven't beaten part 1, Jackob invites you to do so now
@@ -334,27 +334,27 @@ ALL DONE!
 
 They should move around a bit between all these story flags, though chunking them to the following four categories is fine (rather than the six above)
 
-- INTRO (`ch2-storyflag-round` = 0)
+- INTRO (`ch2_storyflag_round` = 0)
     - [ ] Villagers direct you to western dungeon (castle)
-- FIRST ROUND: normal (`ch2-storyflag-round` <= 2)
+- FIRST ROUND: normal (`ch2_storyflag_round` <= 2)
     - [ ] Villagers ask how things are going
-- THIRD ROUND: desperate (`ch2-storyflag-round` <= 4)
+- THIRD ROUND: desperate (`ch2_storyflag_round` <= 4)
     - [ ] Player asks villages about Bert; they haven't seen him
-- AFTERWARD (`ch2-storyflag-round` <= 5)
+- AFTERWARD (`ch2_storyflag_round` <= 5)
     - [ ] Speculate on next location: software!
 
 Use this template:
 
 ```
-if (variable ch2-storyflag-round is 0) {
+if (variable ch2_storyflag_round is 0) {
 	show dialog {
 	// hint at western dungeon
 	}
-} else if (variable ch2-storyflag-round is <= 2) {
+} else if (variable ch2_storyflag_round is <= 2) {
 	show dialog {
 	// asks how things are going
 	}
-} else if (variable ch2-storyflag-round is <= 4) {
+} else if (variable ch2_storyflag_round is <= 4) {
 	show dialog {
 	// player asks after Bert; entity hasn't seen him
 	}
@@ -419,7 +419,7 @@ For each item: (Copy existing pattern wherever these are found)
 2. In file `ch2/ch2-admin.mgs`:
     1. Script `command-inventory` — Add serial dialog `\tITEM` display check (using flag `ch2-carrying-ITEM`)
     2. Script `ch2-count-flags` — Add tally logic check (using flag `ch2-installed-ITEM`)
-    3. Script `ch2-interact-mainframe` — Add installation dialog (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
+    3. Script `interact_ch2_mainframe` — Add installation dialog (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
 3. In script file for the map room:
     1. Room's `on_load` — Add entity hide behavior (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
     2. Make script `ch2-hide-ITEM`

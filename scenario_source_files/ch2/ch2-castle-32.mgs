@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-32" {
+"look_ch2_castle_32" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE KITCHEN</>."
@@ -26,7 +26,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-seamoss" {
+"look_ch2_seamoss" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -34,7 +34,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-samson" {
+"look_ch2_samson" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -42,7 +42,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-gloria" {
+"look_ch2_gloria" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -50,7 +50,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-ramchips" {
+"look_ch2_ramchips" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -58,7 +58,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-vendingmachine" {
+"look_ch2_vendingmachine" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -66,7 +66,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-coffee" {
+"look_ch2_coffee" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -78,9 +78,9 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-32-doorless" {
+"on_load_ch2_castle_32_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2-in-room" = 32;
+	"ch2_in_room" = 32;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>CASTLE KITCHEN</>..." };
@@ -89,27 +89,27 @@ include "header.mgs";
 	} else if (warp_state == "walk_from-northwest") {
 		player position = geometry "walk_from-northwest";
 	}
-	command "look" + "vending machine" = "look-ch2-vendingmachine";
-	copy!("ch2-map-init")
+	command "look" + "vending machine" = "look_ch2_vendingmachine";
+	copy!(ch2_map_init)
 }
-"on_load-ch2-castle-32" {
+"on_load_ch2_castle_32" {
 	// ch2 room state
-	"ch2-in-room" = 32;
+	"ch2_in_room" = 32;
 	entity "Gloria" position = geometry "worry-walk2";
 	entity "Gloria" direction = entity "Samson";
 
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-32") {
+	if (!ch2_seen_room_32) {
 		show serial_dialog { "Discovered <bold><c>CASTLE KITCHEN</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-32" = true;
+		ch2_seen_room_32 = true;
 	} else {
 		show serial_dialog { "Entering <bold>CASTLE KITCHEN</>..." };
 	}
 
 	// room unique stuff
 	if (!"ch2-ramchips-dispensed") {
-		copy!("ch2-hide-ramchips")
+		copy!(ch2_hide_ramchips)
 	}
 	
 	if (warp_state == "walk_from-northeast") {
@@ -118,8 +118,8 @@ include "header.mgs";
 		player position = geometry "walk_from-northwest";
 	}
 	
-	command "look" + "vending machine" = "look-ch2-vendingmachine";
-	copy!("ch2-map-init")
+	command "look" + "vending machine" = "look_ch2_vendingmachine";
+	copy!(ch2_map_init)
 
 	// DEBUG
 	if (debug_mode) {
@@ -138,30 +138,30 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-32" {
+"on_tick_ch2_castle_32" {
 	if (player intersects geometry "northwest-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-33-special")
+		copy!(ch2_load_castle_33_special)
 	} else if (player intersects geometry "northeast-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-34-special")
+		copy!(ch2_load_castle_34_special)
 	}
 }
-"on_tick-ch2-castle-32-doorless" {
+"on_tick_ch2_castle_32_postgame" {
 	if (player intersects geometry "northwest-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-33-special")
+		copy!(ch2_load_castle_33_special)
 	} else if (player intersects geometry "northeast-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-34-special")
+		copy!(ch2_load_castle_34_special)
 	} else if (player intersects geometry "south-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-north";
-		copy!("ch2-load-castle-31-special")
+		copy!(ch2_load_castle_31_special)
 	}
 }
 
@@ -194,54 +194,54 @@ $walkspeed = 200ms;
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-32" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_32" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-32-northeast" {
-	copy!("on_exit-ch2-castle-32")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-34-special")
+"on_go_castle_32_northeast" {
+	copy!(on_exit_ch2_castle_32)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_34_special)
 }
-"on_go-castle-32-northwest" {
-	copy!("on_exit-ch2-castle-32")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-33-special")
+"on_go_castle_32_northwest" {
+	copy!(on_exit_ch2_castle_32)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_33_special)
 }
-"on_go-castle-32-south" {
-	copy!("on_exit-ch2-castle-32")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-31-special")
+"on_go_castle_32_south" {
+	copy!(on_exit_ch2_castle_32)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_31_special)
 }
 
 /* ---------- ENTITIES ---------- */
 
-"ch2-interact-onions" {
+"interact_ch2_onions" {
 	show dialog {
 		PLAYER "Onions, nice! Guess there's a delicious meal in someone's future."
 	};
 }
 
-"ch2-interact-stove" {
+"interact_ch2_stove" {
 	show dialog {
 		PLAYER "This glasstop stove looks brand new. Or someone keeps it very clean, anyway."
 	};
 }
 
-"interact-ch2-gloria" {
+"interact_ch2_gloria" {
 	player_control = off;
 	self on_tick = null_script;
 	copy!("face-player")
 	self animation -> 3 once;
 	self current_animation = 4;
-	if (!"ch2-gloria-backstory") {
+	if (!"ch2_gloria_backstory") {
 		show dialog {
 			SELF "Oh, dear. What terrible timing. It was \"take your child to work\" day yesterday, and...."
 			"What a quake! Poor Samson was scared out of his wits. And now we're trapped in here."
 		};
-		"ch2-gloria-backstory" = true;
+		"ch2_gloria_backstory" = true;
 		entity "Gloria" direction = entity "Samson";
 	} else {
 		show dialog {
@@ -254,7 +254,7 @@ $walkspeed = 200ms;
 	self current_animation = 0;
 	player_control = on;
 }
-"interact-ch2-samson" {
+"interact_ch2_samson" {
 	copy!("face-player")
 	self current_animation = 2;
 	if ("ch2-samson-count" == 0) {
@@ -280,15 +280,15 @@ $walkspeed = 200ms;
 	self direction = west;
 }
 
-"interact-ch2-coffee" {
+"interact_ch2_coffee" {
 	show dialog {
 		PLAYER "Mmmm, fresh coffee!"
 	};
 }
 
-"interact-ch2-vendingmachine" {
-	if ("ch2-storyflag-round" >= 3) {
-		if (!"ch2-cutseen-ramchips") {
+"interact_ch2_vendingmachine" {
+	if ("ch2_storyflag_round" >= 3) {
+		if (!ch2_cutseen_ramchips) {
 			player_control = false;
 			show dialog {
 				PLAYER "Oh! There's actually chips in here! Are those RAM chips?"
@@ -326,7 +326,7 @@ $walkspeed = 200ms;
 		}
 	} else if (
 		!"ch2-want-cactuscooler"
-		|| "ch2-carrying-cactuscooler"
+		|| "ch2_carrying_cactuscooler"
 		|| "ch2-cactuscooler-delivered"
 	) {
 		show dialog "vending-pocket-change" { // reused
@@ -366,16 +366,16 @@ $walkspeed = 200ms;
 	}
 }
 
-"interact-ch2-seamoss" {
+"interact_ch2_seamoss" {
 	copy!("face-player")
 	if (!"ch2-want-ramchips") {
-		if (!"ch2-seamoss-backstory") {
+		if (!"ch2_seamoss_backstory") {
 			show dialog {
 				PLAYER "You know, you remind me of Bob Moss."
 				SELF "Oh sure. Bob Moss is my cousin. I'm Sea Moss."
 				"Nice to meetcha."
 			};
-			"ch2-seamoss-backstory" = true;
+			"ch2_seamoss_backstory" = true;
 		} else {
 			show dialog {
 				SELF "I've been stuck in here for a while now."
@@ -383,20 +383,20 @@ $walkspeed = 200ms;
 			};
 		}
 	} else {
-		if (!"ch2-cutseen-ramchips") {
-			if (!"ch2-seamoss-backstory") {
+		if (!ch2_cutseen_ramchips) {
+			if (!"ch2_seamoss_backstory") {
 				show dialog {
 					PLAYER "Say, are you Sea Moss?"
 					SELF "Yup, that's me. How did you know?"
 					PLAYER "Lucky guess. Anyway, I heard you knew something about computer memory."
 				};
-				"ch2-seamoss-backstory" = true;
+				"ch2_seamoss_backstory" = true;
 			} else {
 				show dialog {
 					PLAYER "Hey, Sea Moss. I heard you knew something about computer memory."
 				};
 			}
-			copy!("interact-ch2-seamoss-cutscene")
+			copy!("interact_ch2_seamoss_cutscene")
 		} else {
 			show dialog {
 				SELF "I do declare... chips are the greatest invention on the planet."
@@ -423,7 +423,7 @@ $walkspeed = 200ms;
 	goto null_script;
 }
 
-"interact-ch2-seamoss-cutscene" {
+"interact_ch2_seamoss_cutscene" {
 	player_control = off;
 	show dialog {
 		SELF "Oh, sure. I remember all sorts of stuff about that."
@@ -473,18 +473,18 @@ $walkspeed = 200ms;
 		entity "Sea Moss" "Any time."
 	};
 	player_control = on;
-	"ch2-cutseen-ramchips" = true;
+	ch2_cutseen_ramchips = true;
 	"ch2-ramchips-dispensed" = true;
 	player on_tick = null_script;
 }
 
-"interact-ch2-vendingmachine-end" {
+"interact_ch2_vendingmachine_end" {
 	show dialog "vending-pocket-change";
 }
 
 /* ---------- RAMCHIPS (ADMIN) ---------- */
 
-"ch2-hide-ramchips" {
+"ch2_hide_ramchips" {
 	entity "RAM chips" position = geometry "hiding-spot";
 	entity "RAM chips" name = " ";
 	// ^^ when viewed with hex editor its name will appear blank
@@ -513,8 +513,8 @@ $walkspeed = 200ms;
 	show dialog {
 		name "" "(You pick up the RAM chips!)"
 	};
-	copy!("ch2-hide-ramchips")
-	copy!("ch2-pickup-ramchips")
+	copy!(ch2_hide_ramchips)
+	copy!(ch2_pickup_ramchips)
 	"ch2-ramchips-dispensed" = false;
 	self on_interact = null_script;
 }

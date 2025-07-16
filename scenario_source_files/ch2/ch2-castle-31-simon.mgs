@@ -100,7 +100,7 @@ $rocking = 12;
 		Simon "That means these lights down here, naturally!"
 	};
 	entity "Lights" on_tick = $lightsdefault;
-	copy!("ch2-map-init-hex")
+	copy!(ch2_map_init_hex)
 	goto "simon-game-start-q";
 }
 
@@ -122,7 +122,7 @@ $rocking = 12;
 
 "simon-game-start-q-wrapup" {
 	entity "Simon" current_animation = 0;
-	entity "Simon" on_interact = "interact-ch2-simon";
+	entity "Simon" on_interact = "interact_ch2_simon";
 	goto null_script;
 }
 
@@ -536,7 +536,7 @@ Simon animations:
 	player on_tick = "player-lose";
 	show dialog { Simon emote 3 "Too bad! Better luck next time!" };
 	entity "Lights" on_tick = $lightsdefault;
-	copy!("ch2-map-init-hex")
+	copy!(ch2_map_init_hex)
 	player_control = on;
 	entity "Keyboard" on_tick = null_script;
 	entity "Simon" current_animation = 5;
@@ -562,7 +562,7 @@ Simon animations:
 	entity "Simon" current_animation = 4;
 	show dialog { Simon emote 3 "GREAT JOB! Way to go, kid!" };
 	entity "Lights" on_tick = $lightsdefault;
-	copy!("ch2-map-init-hex")
+	copy!(ch2_map_init_hex)
 	player_control = on;
 	if (!"ch2-simon-won-before") {
 		copy!("simon-game-restore-positions")
@@ -586,15 +586,15 @@ Simon animations:
 		show dialog {
 			Simon emote 1 "Don't worry, I'll keep my end of the bargain. Rosetta is yours now. You deserve it."
 		};
-		copy!("ch2-hide-keyboard")
+		copy!(ch2_hide_keyboard)
 		show dialog {
 			name "" "(You pick up the keyboard!)"
 			Simon emote 1 "Keep it, and keep making awesome music!"
 			PLAYER "Music, yeah. That is definitely what I was going to use it for. Yup."
 		};
 		entity "Simon" current_animation = 12;
-		"interrupt" = true;
-		copy!("ch2-pickup-keyboard")
+		interrupt = true;
+		copy!(ch2_pickup_keyboard)
 		"ch2-simon-won-before" = true;
 		goto null_script;
 	} else {

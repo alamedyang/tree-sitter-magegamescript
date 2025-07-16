@@ -70,11 +70,11 @@ $win_plate = 6;
 		}
 	}
 	if ("checked_value" == 0) {
-		"can_drop" = true;
+		can_drop = true;
 	} else if ("checked_value" > "cursor_value") {
-		"can_drop" = true;
+		can_drop = true;
 	} else {
-		"can_drop" = false;
+		can_drop = false;
 	}
 }
 
@@ -82,33 +82,33 @@ $win_plate = 6;
 	if ("cursor_value" == 0) {
 		if ("cursor_pos" == 1) {
 			if ("array1_length" > 0) {
-				copy!("array1_pop")
+				copy!(array1_pop)
 			}
 		} else if ("cursor_pos" == 2) {
 			if ("array2_length" > 0) {
-				copy!("array2_pop")
+				copy!(array2_pop)
 			}
 		} else if ("cursor_pos" == 3) {
 			if ("array3_length" > 0) {
-				copy!("array3_pop")
+				copy!(array3_pop)
 			}
 		}
 	} else {
 		copy!(check_cursor)
 		if ("can_drop") {
 			if ("cursor_pos" == 1) {
-				copy!("array1_push")
+				copy!(array1_push)
 			} else if ("cursor_pos" == 2) {
-				copy!("array2_push")
+				copy!(array2_push)
 			} else if ("cursor_pos" == 3) {
-				copy!("array3_push")
+				copy!(array3_push)
 			}
 		} else {
-			"hanoi_warning_size" = true;
+			hanoi_warning_size = true;
 		}
 	}
 	if ("cursor_value" == $win_plate) {
-		"hanoi_won" = true;
+		hanoi_won = true;
 	}
 	copy!(draw_hanoi)
 }
@@ -337,7 +337,7 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	"row" = 10;
 	if ("hanoi_warning_size") {
 		show serial_dialog "hanoi_size_warning";
-		"hanoi_warning_size" = false;
+		hanoi_warning_size = false;
 	} else if ("hanoi_won") {
 		copy!(hanoi_won_message_B)
 	} else {
@@ -427,7 +427,7 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 			"<m>TIP:</> You only need uncover (and grab) the #6 plate; you need not move it to another tray and build the tower of plates again."
 			"<m>TIP:</> Only put odd numbered plates on top of even plates and vice versa. E.g. put plate <bold>1</> on top of plate <bold>4</>, not <bold>3</> or <bold>5</>."
 		};
-		"hanoi_draw_help" = false;
+		hanoi_draw_help = false;
 	}
 }
 
@@ -452,23 +452,23 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	light LED_USB = off;
 	entity "Lights" on_tick = $lightsdefault;
 	copy!(hanoi_unregister)
-	if (!"hanoi_won") {
+	if (!hanoi_won) {
 		show serial_dialog {
 			" "
 			"Quitting <m>Plates of Hanoi</> (your progress has been saved)"
 		};
-	} else if (!"ch2-carrying-plate" || !"ch2-installed-plate") {
+	} else if (!"ch2_carrying_plate" || !"ch2_installed_plate") {
 		copy!(won_hanoi_get_plate)
 	}
-	goto "on_tick-ch2-castle-34";
+	goto "on_tick_ch2_castle_34";
 }
 "hanoi_help" {
-	"hanoi_draw_help" = true;
+	hanoi_draw_help = true;
 	copy!(hanoi_move)
 }
 
 "hanoi_reset" {
-	"hanoi_init_done" = false;
+	hanoi_init_done = false;
 	copy!(hanoi_init_variables)
 	copy!(draw_hanoi)
 }
@@ -501,8 +501,8 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	"array3_1" = 0;
 	"array3_length" = 0;
 	"hanoi_move_count" = 0;
-	"hanoi_init_done" = true;
-	"hanoi_won" = false;
+	hanoi_init_done = true;
+	hanoi_won = false;
 }
 "hanoi_init_game" {
 	if (
@@ -531,7 +531,7 @@ serial_dialog hanoi_plate_7       { "  7777777777777777  " }
 	map on_tick = hanoi_quit;
 }
 "hanoi_win" {
-	"hanoi_won" = true;
+	hanoi_won = true;
 	copy!(hanoi_unregister)
 	goto "draw_hanoi";
 }

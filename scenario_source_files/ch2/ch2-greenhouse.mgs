@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-greenhouse" {
+"look_ch2_greenhouse" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>GREENHOUSE</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-trekkie" {
+"look_ch2_trekkie" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-ethernettles" {
+"look_ch2_ethernettles" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the ethernettles."
@@ -27,14 +27,14 @@ include "header.mgs";
 	};
 
 }
-"look-ch2-ethernettle-top" {
+"look_ch2_ethernettle_top" {
 	show serial_dialog spacer;
 	concat serial_dialog {
 		"You looked at <m>%SELF%</>.\n"
 		"\tThe "
 	};
 }
-"look-ch2-ethernettle-bot" {
+"look_ch2_ethernettle_bot" {
 	concat serial_dialog {
 		/*orange*/" blossoms are strangely fluffy, as if the petals\n"
 	};
@@ -42,7 +42,7 @@ include "header.mgs";
 		"were graced with downy hair. The plant itself is less inviting, with its spines and the sharp corners on its leaves."
 	};
 }
-"look-ch2-ethernettle-bot-long" {
+"look_ch2_ethernettle_bot-long" {
 	concat serial_dialog {
 		/*orange-and-white*/" blossoms are strangely fluffy, as if\n"
 	};
@@ -51,55 +51,55 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-ethernettle1" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle1" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "orange-and-white" };
-	copy!("look-ch2-ethernettle-bot-long")
+	copy!("look_ch2_ethernettle_bot-long")
 }
 
-"look-ch2-ethernettle2" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle2" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "orange" };
-	copy!("look-ch2-ethernettle-bot")
+	copy!("look_ch2_ethernettle_bot")
 }
 
-"look-ch2-ethernettle3" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle3" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "green-and-white" };
-	copy!("look-ch2-ethernettle-bot-long")
+	copy!("look_ch2_ethernettle_bot-long")
 }
 
-"look-ch2-ethernettle4" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle4" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "blue" };
-	copy!("look-ch2-ethernettle-bot")
+	copy!("look_ch2_ethernettle_bot")
 }
 
-"look-ch2-ethernettle5" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle5" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "blue-and-white" };
-	copy!("look-ch2-ethernettle-bot-long")
+	copy!("look_ch2_ethernettle_bot-long")
 }
 
-"look-ch2-ethernettle6" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle6" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "green" };
-	copy!("look-ch2-ethernettle-bot")
+	copy!("look_ch2_ethernettle_bot")
 }
 
-"look-ch2-ethernettle7" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle7" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "brown-and-white" };
-	copy!("look-ch2-ethernettle-bot-long")
+	copy!("look_ch2_ethernettle_bot-long")
 }
 
-"look-ch2-ethernettle8" {
-	copy!("look-ch2-ethernettle-top")
+"look_ch2_ethernettle8" {
+	copy!("look_ch2_ethernettle_top")
 	concat serial_dialog { "brown" };
-	copy!("look-ch2-ethernettle-bot")
+	copy!("look_ch2_ethernettle_bot")
 }
 
-"look-ch2-tumbleweed" {
+"look_ch2_tumbleweed" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -107,7 +107,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-ethernet" {
+"look_ch2_ethernet" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -115,7 +115,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-mulch" {
+"look_ch2_mulch" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -123,7 +123,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-modem" {
+"look_ch2_modem" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -137,7 +137,7 @@ include "header.mgs";
 /* ---------- ON_LOAD ---------- */
 
 "on_load-ch2-greenhouse" {
-	command "look" + "ethernettles" = "look-ch2-ethernettles";
+	command "look" + "ethernettles" = "look_ch2_ethernettles";
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>GREENHOUSE</>..." };
@@ -150,7 +150,7 @@ include "header.mgs";
 	"EtherNettle6" = entity "EtherNettle6" primary_id;
 	"EtherNettle7" = entity "EtherNettle7" primary_id;
 	"EtherNettle8" = entity "EtherNettle8" primary_id;
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
@@ -263,7 +263,7 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-greenhouse-south" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 "on_walk-ch2-greenhouse-south" {
@@ -272,23 +272,23 @@ include "header.mgs";
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-trekkie" {
+"interact_ch2_trekkie" {
 	copy!("face-player")
-	if ("ch2-storyflag-round" == 0) {
+	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "Oh, %PLAYER%! Me heard you were going to the serial castle in the mountain!"
 			PLAYER "Yeah, I guess."
 			SELF "Me want to wish you the best of luck!"
 			PLAYER "Thanks, %SELF%."
 		};
-	} else if ("ch2-storyflag-round" <= 2) {
+	} else if ("ch2_storyflag_round" <= 2) {
 		show dialog {
 			SELF "How are things going, %PLAYER%?"
 			PLAYER "They're going okay, %SELF%. What about you?"
 			SELF "Me thinking of replacing the Ether Nettles with a faster spec. Gigabit Ether Nettles!"
 			PLAYER "(Giga what?)"
 		};
-	} else if ("ch2-storyflag-round" <= 4) {
+	} else if ("ch2_storyflag_round" <= 4) {
 		show dialog {
 			PLAYER "Say, %SELF%, have you seen Bert around here recently?"
 			SELF "Me have not seen Bert for a long time. Me sorry, %PLAYER%."
@@ -302,27 +302,27 @@ include "header.mgs";
 	self direction = east;
 }
 
-"interact-ch2-modem" {
+"interact_ch2_modem" {
 	show dialog {
 		PLAYER "Oh, good. Looks like the internet is still working."
 	};
 }
-"interact-ch2-tumbleweed" {
+"interact_ch2_tumbleweed" {
 	show dialog {
 		PLAYER "I swear, this thing gets more tangled every time I see it."
 	};
 }
-"interact-ch2-ethernet" {
+"interact_ch2_ethernet" {
 	show dialog {
 		PLAYER "Looks like this one is new out of the box. Not a kink or pretzel in the whole thing."
 	};
 }
-"interact-ch2-mulch" {
+"interact_ch2_mulch" {
 	show dialog {
 		PLAYER "I bet this mulch is really heavy."
 	};
 }
-"interact-ch2-barrel" {
+"interact_ch2_barrel" {
 	show dialog {
 		PLAYER "I wonder if this is rainwater."
 	};

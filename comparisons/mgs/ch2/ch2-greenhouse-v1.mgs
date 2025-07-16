@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-greenhouse {
+look_ch2_greenhouse {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>GREENHOUSE</>."
@@ -11,7 +11,7 @@ look-ch2-greenhouse {
 	}
 }
 
-look-ch2-trekkie {
+look_ch2_trekkie {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -19,7 +19,7 @@ look-ch2-trekkie {
 	}
 }
 
-look-ch2-ethernettles {
+look_ch2_ethernettles {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the ethernettles."
@@ -27,14 +27,14 @@ look-ch2-ethernettles {
 	}
 
 }
-look-ch2-ethernettle-top {
+look_ch2_ethernettle_top {
 	show serial dialog spacer;
 	concat serial dialog {
 		"You looked at <m>%SELF%</>.\n"
 		"\tThe "
 	}
 }
-look-ch2-ethernettle-bot {
+look_ch2_ethernettle_bot {
 	concat serial dialog {
 		/*orange*/" blossoms are strangely fluffy, as if the petals\n"
 	}
@@ -42,7 +42,7 @@ look-ch2-ethernettle-bot {
 		"were graced with downy hair. The plant itself is less inviting, with its spines and the sharp corners on its leaves."
 	}
 }
-look-ch2-ethernettle-bot-long {
+look_ch2_ethernettle_bot-long {
 	concat serial dialog {
 		/*orange-and-white*/" blossoms are strangely fluffy, as if\n"
 	}
@@ -51,55 +51,55 @@ look-ch2-ethernettle-bot-long {
 	}
 }
 
-look-ch2-ethernettle1 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle1 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "orange-and-white" }
-	copy look-ch2-ethernettle-bot-long;
+	copy look_ch2_ethernettle_bot-long;
 }
 
-look-ch2-ethernettle2 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle2 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "orange" }
-	copy look-ch2-ethernettle-bot;
+	copy look_ch2_ethernettle_bot;
 }
 
-look-ch2-ethernettle3 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle3 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "green-and-white" }
-	copy look-ch2-ethernettle-bot-long;
+	copy look_ch2_ethernettle_bot-long;
 }
 
-look-ch2-ethernettle4 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle4 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "blue" }
-	copy look-ch2-ethernettle-bot;
+	copy look_ch2_ethernettle_bot;
 }
 
-look-ch2-ethernettle5 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle5 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "blue-and-white" }
-	copy look-ch2-ethernettle-bot-long;
+	copy look_ch2_ethernettle_bot-long;
 }
 
-look-ch2-ethernettle6 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle6 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "green" }
-	copy look-ch2-ethernettle-bot;
+	copy look_ch2_ethernettle_bot;
 }
 
-look-ch2-ethernettle7 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle7 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "brown-and-white" }
-	copy look-ch2-ethernettle-bot-long;
+	copy look_ch2_ethernettle_bot-long;
 }
 
-look-ch2-ethernettle8 {
-	copy look-ch2-ethernettle-top;
+look_ch2_ethernettle8 {
+	copy look_ch2_ethernettle_top;
 	concat serial dialog { "brown" }
-	copy look-ch2-ethernettle-bot;
+	copy look_ch2_ethernettle_bot;
 }
 
-look-ch2-tumbleweed {
+look_ch2_tumbleweed {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -107,7 +107,7 @@ look-ch2-tumbleweed {
 	}
 }
 
-look-ch2-ethernet {
+look_ch2_ethernet {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -115,7 +115,7 @@ look-ch2-ethernet {
 	}
 }
 
-look-ch2-mulch {
+look_ch2_mulch {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -123,7 +123,7 @@ look-ch2-mulch {
 	}
 }
 
-look-ch2-modem {
+look_ch2_modem {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -137,7 +137,7 @@ look-ch2-modem {
 /* ---------- ON_LOAD ---------- */
 
 on_load-ch2-greenhouse {
-	register look + ethernettles -> look-ch2-ethernettles;
+	register look + ethernettles -> look_ch2_ethernettles;
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>GREENHOUSE</>..." }
@@ -150,7 +150,7 @@ on_load-ch2-greenhouse {
 	copy entity EtherNettle6 primary_id into variable EtherNettle6;
 	copy entity EtherNettle7 primary_id into variable EtherNettle7;
 	copy entity EtherNettle8 primary_id into variable EtherNettle8;
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -263,7 +263,7 @@ on_tick-ch2-greenhouse {
 /* ---------- EXIT STUFF ---------- */
 
 on_go-ch2-greenhouse-south {
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-town;
 }
 on_walk-ch2-greenhouse-south {
@@ -272,23 +272,23 @@ on_walk-ch2-greenhouse-south {
 
 /* ---------- ENTITIES ---------- */
 
-interact-ch2-trekkie {
+interact_ch2_trekkie {
 	copy face-player;
-	if (variable ch2-storyflag-round is 0) {
+	if (variable ch2_storyflag_round is 0) {
 		show dialog {
 			SELF "Oh, %PLAYER%! Me heard you were going to the serial castle in the mountain!"
 			PLAYER "Yeah, I guess."
 			SELF "Me want to wish you the best of luck!"
 			PLAYER "Thanks, %SELF%."
 		}
-	} else if (variable ch2-storyflag-round is <= 2) {
+	} else if (variable ch2_storyflag_round is <= 2) {
 		show dialog {
 			SELF "How are things going, %PLAYER%?"
 			PLAYER "They're going okay, %SELF%. What about you?"
 			SELF "Me thinking of replacing the Ether Nettles with a faster spec. Gigabit Ether Nettles!"
 			PLAYER "(Giga what?)"
 		}
-	} else if (variable ch2-storyflag-round is <= 4) {
+	} else if (variable ch2_storyflag_round is <= 4) {
 		show dialog {
 			PLAYER "Say, %SELF%, have you seen Bert around here recently?"
 			SELF "Me have not seen Bert for a long time. Me sorry, %PLAYER%."
@@ -302,27 +302,27 @@ interact-ch2-trekkie {
 	turn entity "%SELF%" east;
 }
 
-interact-ch2-modem {
+interact_ch2_modem {
 	show dialog {
 		PLAYER "Oh, good. Looks like the internet is still working."
 	}
 }
-interact-ch2-tumbleweed {
+interact_ch2_tumbleweed {
 	show dialog {
 		PLAYER "I swear, this thing gets more tangled every time I see it."
 	}
 }
-interact-ch2-ethernet {
+interact_ch2_ethernet {
 	show dialog {
 		PLAYER "Looks like this one is new out of the box. Not a kink or pretzel in the whole thing."
 	}
 }
-interact-ch2-mulch {
+interact_ch2_mulch {
 	show dialog {
 		PLAYER "I bet this mulch is really heavy."
 	}
 }
-interact-ch2-barrel {
+interact_ch2_barrel {
 	show dialog {
 		PLAYER "I wonder if this is rainwater."
 	}

@@ -2,12 +2,12 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-11 {
+look_ch2_castle_11 {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>CASTLE HALLWAY FRONT</>."
 	}
-	if (variable ch2-storyflag-round is < 5) {
+	if (variable ch2_storyflag_round is < 5) {
 		show serial dialog {
 			"\tThe ceiling has collapsed, probably from the recent earthquake. What's left standing appears stable, fortunately -- at least, structurally stable."
 			" "
@@ -20,7 +20,7 @@ look-ch2-castle-11 {
 	}
 }
 
-look-ch2-kuro {
+look_ch2_kuro {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -30,9 +30,9 @@ look-ch2-kuro {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-castle-11-doorless {
+on_load_ch2_castle_11_postgame {
 	// abbreviated copy-pasta of the below
-	mutate ch2-in-room = 11;
+	mutate ch2_in_room = 11;
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>CASTLE HALLWAY FRONT</>..." }
@@ -43,18 +43,18 @@ on_load-ch2-castle-11-doorless {
 	} else if (warp state is walk_from-west) {
 		teleport entity "%PLAYER%" to geometry walk_from-west;
 	}
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
-on_load-ch2-castle-11 {
+on_load_ch2_castle_11 {
 	// ch2 room state
-	mutate ch2-in-room = 11;
+	mutate ch2_in_room = 11;
 	
 	// entrance text
 	show serial dialog spacer;
-	if (flag ch2-seen-room-11 is false) {
+	if (flag ch2_seen_room_11 is false) {
 		show serial dialog { "Discovered <bold><c>CASTLE HALLWAY FRONT</>! Room added to <c>MAP</>!" }
-		set flag ch2-seen-room-11 to true;
+		set flag ch2_seen_room_11 to true;
 	} else {
 		show serial dialog { "Entering <bold>CASTLE HALLWAY FRONT</>..." }
 	}
@@ -63,17 +63,17 @@ on_load-ch2-castle-11 {
 	// room unique things
 
 	if (
-		flag ch2-installed-monitor is true
-		|| flag ch2-carrying-monitor is true
+		flag ch2_installed_monitor is true
+		|| flag ch2_carrying_monitor is true
 	) {
-		copy script ch2-hide-monitor;
+		copy script ch2_hide_monitor;
 	}
 
 	// initialize everything
-	copy ch2-map-init;
+	copy ch2_map_init;
 
 	// check if you do the cutscene or not
-	if (flag ch2-cutseen-castle11 is false) {
+	if (flag ch2_cutseen_castle11 is false) {
 		copy ch2-cutscene-castle11;
 	}
 }
@@ -163,7 +163,7 @@ ch2-cutscene-castle11 {
 	set entity Kuro on_tick to face-player;
 	turn player control on;
 	set entity "%PLAYER%" on_tick to null_script;
-	set flag ch2-cutseen-castle11 to true;
+	set flag ch2_cutseen_castle11 to true;
 }
 
 ch2-walk-to-monitor {
@@ -190,48 +190,48 @@ watch-kuro {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-castle-11 {}
-on_tick-ch2-castle-11-doorless {
+on_tick_ch2_castle_11 {}
+on_tick_ch2_castle_11_postgame {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
-		copy on_exit-ch2-castle-11;
+		copy on_exit_ch2_castle_11;
 		set warp state to walk_from-north;
-		copy ch2-load-castle-1-special;
+		copy ch2_load_castle_1_special;
 	} else if (entity "%PLAYER%" is inside geometry north-hitbox) {
-		copy on_exit-ch2-castle-11;
+		copy on_exit_ch2_castle_11;
 		set warp state to walk_from-south;
-		copy ch2-load-castle-12-special;
+		copy ch2_load_castle_12_special;
 	} else if (entity "%PLAYER%" is inside geometry west-hitbox) {
-		copy on_exit-ch2-castle-11;
+		copy on_exit_ch2_castle_11;
 		set warp state to walk_from-east;
-		copy ch2-load-castle-21-special;
+		copy ch2_load_castle_21_special;
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-castle-11 { // sanitize ch2 room state
-	mutate ch2-in-room = 0;
+on_exit_ch2_castle_11 { // sanitize ch2 room state
+	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go-castle-11-north {
-	copy on_exit-ch2-castle-11;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-12-special;
+on_go_castle_11_north {
+	copy on_exit_ch2_castle_11;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_12_special;
 }
-on_go-castle-11-west {
-	copy on_exit-ch2-castle-11;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-21-special;
+on_go_castle_11_west {
+	copy on_exit_ch2_castle_11;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_21_special;
 }
-on_go-castle-11-south {
-	copy on_exit-ch2-castle-11;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-1-special;
+on_go_castle_11_south {
+	copy on_exit_ch2_castle_11;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_1_special;
 }
 
-ch2-hide-monitor {
+ch2_hide_monitor {
 	teleport entity "Monitor" to geometry hiding-spot;
 	set entity "Monitor" name to " ";
 }
@@ -252,12 +252,12 @@ ch2-touch-monitor-yes {
 		PLAYER "Um, how do I take it?"
 		Kuro "Just unplug all the cables from the computer case. One power cable, one data cable."
 	}
-	copy script ch2-pickup-monitor;
+	copy script ch2_pickup_monitor;
 	teleport entity "%SELF%" to geometry hiding-spot; // for visuals; don't wanna change the script slot yet though! That will come AFTER the dialog so that execution isn't halted early
 	show dialog {
 		name "" "(You pick up the monitor!)"
 	}
-	copy script ch2-hide-monitor;
+	copy script ch2_hide_monitor;
 	set entity "%SELF%" on_interact to null_script;
 }
 ch2-touch-monitor-no {
@@ -267,7 +267,7 @@ ch2-touch-monitor-no {
 	set entity "%SELF%" on_interact to ch2-touch-monitor; // reset after script jump
 }
 
-interact-ch2-kuro {
+interact_ch2_kuro {
 	set entity Kuro current_animation to 1;
 	show dialog {
 		Kuro "So, um, you can get me out of here, right?"

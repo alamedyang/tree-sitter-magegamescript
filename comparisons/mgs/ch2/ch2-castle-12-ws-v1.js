@@ -635,34 +635,34 @@ var cheatGuessBulk = wordList
 	.join('\n');
 var cheatGuessScript = [
 	'// Guesses: cheat',
-	'ch2-ws-guess-cheat {',
-	'	mutate ch2-ws-turn-value = 0;',
-	'	mutate ch2-ws-turn-status = $cheat;',
+	'ch2_ws_guess_cheat {',
+	'	mutate ch2_ws_turn_value = 0;',
+	'	mutate ch2_ws_turn_status = $cheat;',
 	cheatGuessBulk,
-	'	goto ch2-ws-doturn;',
+	'	goto ch2_ws_doturn;',
 	'}',
 ].join('\n');
 
 var makeCloseGuessScript = function (word) {
-	return `ch2-ws-guess-${word.toLowerCase()} {
-	mutate ch2-ws-turn-value = $${word.toLowerCase()};
-	mutate ch2-ws-turn-status = $close;
-	goto ch2-ws-doturn;
+	return `ch2_ws_guess_${word.toLowerCase()} {
+	mutate ch2_ws_turn_value = $${word.toLowerCase()};
+	mutate ch2_ws_turn_status = $close;
+	goto ch2_ws_doturn;
 }`;
 };
 var closeGuessScripts =
 	`// Guesses: "close" words:\n` + closeWords.map(makeCloseGuessScript).join('\n');
 
 var makeHitGuessScript = function (word) {
-	return `ch2-ws-guess-${word} {
-	mutate ch2-ws-turn-value = $${word};
+	return `ch2_ws_guess_${word} {
+	mutate ch2_ws_turn_value = $${word};
 	if (flag ch2-ws-${word} is true) {
-		mutate ch2-ws-turn-status = $repeat;
+		mutate ch2_ws_turn_status = $repeat;
 	} else {
 		set flag ch2-ws-${word} to true;
-		mutate ch2-ws-turn-status = $hit;
+		mutate ch2_ws_turn_status = $hit;
 	}
-	goto ch2-ws-doturn;
+	goto ch2_ws_doturn;
 }`;
 };
 var hitGuessScripts = `// Guesses: hits\n` + wordList.map(makeHitGuessScript).join('\n');

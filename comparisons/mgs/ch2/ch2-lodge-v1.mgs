@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-lodge {
+look_ch2_lodge {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>LIBRARY</>."
@@ -11,7 +11,7 @@ look-ch2-lodge {
 	}
 }
 
-look-ch2-cat-lodge {
+look_ch2_cat_lodge {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ look-ch2-cat-lodge {
 	}
 }
 
-look-ch2-timmy {
+look_ch2_timmy {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -27,7 +27,7 @@ look-ch2-timmy {
 	}
 }
 
-look-ch2-sportsbook {
+look_ch2_sportsbook {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -35,7 +35,7 @@ look-ch2-sportsbook {
 	}
 }
 
-look-ch2-dejavu {
+look_ch2_dejavu {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -43,7 +43,7 @@ look-ch2-dejavu {
 	}
 }
 
-look-ch2-manual {
+look_ch2_manual {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -58,30 +58,30 @@ on_load-ch2-lodge {
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>LIBRARY</>..." }
 	// do unique stuff first (but turn serial / player control off first, if you do)
-	if (variable ch2-storyflag-round is not 1) {
+	if (variable ch2_storyflag_round is not 1) {
 		set entity Alfonso on_tick to yeet;
 	}
 	// The part of Uncle Zappy is being played by Jackob
 	if (
-		variable ch2-storyflag-round is 3
-		|| variable ch2-storyflag-round is 4
+		variable ch2_storyflag_round is 3
+		|| variable ch2_storyflag_round is 4
 	) {
 		teleport entity Jackob to geometry zappy-spot;
 		set entity Jackob name to "Uncle Zappy";
-		set entity Jackob on_look to look-ch2-zappy;
+		set entity Jackob on_look to look_ch2_zappy;
 		set entity Jackob on_tick to null_script;
-		set entity Jackob on_interact to interact-ch2-zappy;
+		set entity Jackob on_interact to interact_ch2_zappy;
 		set entity Jackob type to lightning_boy2;
 		turn entity Jackob north;
-	} else if (variable ch2-storyflag-round is not 1) {
+	} else if (variable ch2_storyflag_round is not 1) {
 		set entity Jackob on_tick to yeet;
 	}
 	// hide stuff
 	if (
-		flag ch2-installed-manual is true
-		|| flag ch2-carrying-manual is true
+		flag ch2_installed_manual is true
+		|| flag ch2_carrying_manual is true
 	) {
-		copy script ch2-hide-manual;
+		copy script ch2_hide_manual;
 	}
 
 	if (warp state is walk_from-north) {
@@ -89,7 +89,7 @@ on_load-ch2-lodge {
 		teleport entity "%PLAYER%" to geometry walk_from-north;
 	}
 	// player control comes on after this next script is over:
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
 
 /* ---------- ON_TICK ---------- */
@@ -119,17 +119,17 @@ look-left-sometimes {
 /* ---------- EXIT STUFF ---------- */
 
 on_go-ch2-lodge-south {
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-town;
 }
 on_go-ch2-lodge-north {
-	copy warping-out-fade-out;
+	copy warping_out_fade_out;
 	load map ch2-lodge-rtfm;
 }
 
 /* ---------- ENTITIES ---------- */
 
-ch2-interact-manual {
+interact_ch2_manual {
 	if (flag ch2-want-manual is false) {
 		show dialog {
 			PLAYER "Looks like a book about a calculator."
@@ -139,27 +139,27 @@ ch2-interact-manual {
 			PLAYER "Oh, this must be the calculator manual Frankie wanted."
 			name "" "(You pick up the calculator manual!)"
 		}
-		copy ch2-pickup-manual;
-		copy ch2-hide-manual;
+		copy ch2_pickup_manual;
+		copy ch2_hide_manual;
 	}
 }
-ch2-hide-manual {
+ch2_hide_manual {
 	teleport entity "HP35c Man" to geometry hiding-spot;
 	set entity "HP35c Man" name to " ";
 }
 
-interact-ch2-timmy {
+interact_ch2_timmy {
 	copy face-player;
-	if (variable ch2-storyflag-round is 0) {
+	if (variable ch2_storyflag_round is 0) {
 		show dialog {
 			SELF "I love the library! There's so many books here it would take a hundred years to read them all!"
 		}
-	} else if (variable ch2-storyflag-round is <= 2) {
+	} else if (variable ch2_storyflag_round is <= 2) {
 		show dialog {
 			SELF "If you had a race car, what color would you want?"
 			"I think red cars are faster than blue cars, usually."
 		}
-	} else if (variable ch2-storyflag-round is <= 4) {
+	} else if (variable ch2_storyflag_round is <= 4) {
 		show dialog {
 			PLAYER "Hey, %SELF%, do you know if Bert came in here recently?"
 			SELF "Bert? Who's that?"
@@ -180,13 +180,13 @@ interact-ch2-timmy {
 	}
 	turn entity "%SELF%" east;
 }
-interact-ch2-cat-lodge {
+interact_ch2_cat_lodge {
 	show dialog {
 		SELF "..."
 	}
 }
 
-interact-ch2-jackob-library {
+interact_ch2_jackob_library {
 	show dialog {
 		SELF "I hate geese. Especially that one."
 		"It keeps staring at me. I can't concentrate on what I'm doing."
@@ -195,7 +195,7 @@ interact-ch2-jackob-library {
 
 const!( $bookcount = 4)
 
-interact-ch2-alfonso-library {
+interact_ch2_alfonso_library {
 	mutate ch2-alfonso-library-count + 1;
 	mutate ch2-alfonso-library-count % $bookcount;
 	if (variable ch2-alfonso-library-count is 1) {

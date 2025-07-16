@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-31" {
+"look_ch2_castle_31" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>GRAND HALL</>."
@@ -10,21 +10,21 @@ include "header.mgs";
 		" "
 	};
 }
-"look-ch2-simon" {
+"look_ch2_simon" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tLanky and brooding, his glare moves back and forth between you and the ceiling. At your guess, he's the band lead singer."
 	};
 }
-"look-ch2-theodore" {
+"look_ch2_theodore" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tTheodore is the bulkiest of the three band members, and looks to be half falling asleep."
 	};
 }
-"look-ch2-alvin" {
+"look_ch2_alvin" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -32,7 +32,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-speaker" {
+"look_ch2_speaker" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -40,14 +40,14 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-drum" {
+"look_ch2_drum" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThe \"1023 MB\" logo is surprisingly well done, with its thoughtful serifs and clean linework. The professional logo and the aggressive red of the drumset make a strange contrast with the ragtag musicians."
 	};
 }
-"look-ch2-bartable" {
+"look_ch2_bartable" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -58,9 +58,9 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-31-doorless" {
+"on_load_ch2_castle_31_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2-in-room" = 31;
+	"ch2_in_room" = 31;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>GRAND HALL</>..." };
@@ -71,34 +71,34 @@ include "header.mgs";
 	} else if (warp_state == "walk_from-west") {
 		player position = geometry "walk_from-west";
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
-"on_load-ch2-castle-31" {
+"on_load_ch2_castle_31" {
 	// ch2 room state
-	"ch2-in-room" = 31;
+	"ch2_in_room" = 31;
 
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-31") {
+	if (!ch2_seen_room_31) {
 		show serial_dialog { "Discovered <bold><c>GRAND HALL</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-31" = true;
+		ch2_seen_room_31 = true;
 	} else {
 		show serial_dialog { "Entering <bold>GRAND HALL</>..." };
 	}
 
 	// room unique stuff
 	if (
-		"ch2-installed-keyboard"
-		|| "ch2-carrying-keyboard"
+		"ch2_installed_keyboard"
+		|| "ch2_carrying_keyboard"
 	) {
-		copy!("ch2-hide-keyboard")
+		copy!(ch2_hide_keyboard)
 	}
 
 	"ch2-simon-heard-high" = false;
 	"ch2-simon-heard-low" = false;
 
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 	//DEBUG STUFF
 	if (debug_mode) {
 		command "simon" = "debug-simon";
@@ -138,42 +138,42 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-31" {}
-"on_tick-ch2-castle-31-doorless" {
+"on_tick_ch2_castle_31" {}
+"on_tick_ch2_castle_31_postgame" {
 	if (player intersects geometry "north-hitbox") {
-		copy!("on_exit-ch2-castle-31")
+		copy!(on_exit_ch2_castle_31)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-32-special")
+		copy!(ch2_load_castle_32_special)
 	} else if (player intersects geometry "west-hitbox") {
-		copy!("on_exit-ch2-castle-32")
+		copy!(on_exit_ch2_castle_32)
 		warp_state = "walk_from-east";
-		copy!("ch2-load-castle-12-special")
+		copy!(ch2_load_castle_12_special)
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-31" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_31" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-31-north" {
-	copy!("on_exit-ch2-castle-31")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-32-special")
+"on_go_castle_31_north" {
+	copy!(on_exit_ch2_castle_31)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_32_special)
 }
-"on_go-castle-31-west" {
-	copy!("on_exit-ch2-castle-31")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-12-special")
+"on_go_castle_31_west" {
+	copy!(on_exit_ch2_castle_31)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_12_special)
 }
 
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-theodore" {
+"interact_ch2_theodore" {
 	if (!"ch2-simon-won-before" || !"interrupt") {
 		show dialog {
 			SELF portrait theodore "Bored bored bored BORED BORED!"
@@ -185,7 +185,7 @@ include "header.mgs";
 		};
 	}
 }
-"interact-ch2-alvin" {
+"interact_ch2_alvin" {
 	if (!"ch2-simon-won-before" || !"interrupt") {
 		show dialog {
 			SELF portrait alvin "We've been stuck in here, like, forever."
@@ -202,29 +202,29 @@ include "header.mgs";
 	}
 }
 
-"interact-ch2-drum" {
+"interact_ch2_drum" {
 	show dialog {
 		PLAYER "Your band is called \"1023 MB\"?"
 		Alvin portrait alvin "It's 'cause we can't get a real gig."
 	};
 }
-"interact-ch2-bartable" {
+"interact_ch2_bartable" {
 	show dialog {
 		PLAYER "These tables -- and chairs -- look way too tall and narrow to be comfortable."
 	};
 }
-"interact-ch2-banddrinks" {
+"interact_ch2_banddrinks" {
 	show dialog { PLAYER "Just a bunch of fancy drinks." };
 }
 
-"interact-ch2-simon" {
-	if ("ch2-storyflag-round" < 2) {
+"interact_ch2_simon" {
+	if ("ch2_storyflag_round" < 2) {
 		show dialog {
 			Simon "There's no audience! I can't play in these conditions! COME ON! What's the holdup? Where is everybody?"
 		};
 	}
 	else if (!"ch2-simon-won-before") {
-		if (!"ch2-simon-backstory") {
+		if (!"ch2_simon_backstory") {
 			show dialog {
 				PLAYER "So, about your keyboard -- erm, \"keytar?\""
 				"I sort of need one for --"
@@ -244,7 +244,7 @@ include "header.mgs";
 			show dialog {
 				Simon emote 1 "I'm bored to death, so how about a keytar battle? If you win, I'll let you keep Rosetta, and I'll use my backup keytar for the show instead."
 			};
-			"ch2-simon-backstory" = true;
+			"ch2_simon_backstory" = true;
 		} else {
 			entity "Simon" current_animation = 12;
 			show dialog {
@@ -276,7 +276,7 @@ include "header.mgs";
 			};
 		}
 		if (
-			"ch2-carrying-keyboard"
+			"ch2_carrying_keyboard"
 			|| "ch2-simon-repeat-brunhilda-backstory"
 		) {
 			/* Do nothing extra... */
@@ -299,42 +299,42 @@ include "header.mgs";
 		copy!("simon-game-launcher")
 	}
 }
-"interact-ch2-theodore-end" {
+"interact_ch2_theodore_end" {
 	show dialog { SELF portrait theodore "Wake me when we get an actual audience." };
 }
-"interact-ch2-simon-end" {
+"interact_ch2_simon_end" {
 	show dialog { SELF emote 1 "It's finally starting! The audience is trickling in! Soon we'll have a hundred -- no, a thousand people waiting to hear us!" };
 }
-"interact-ch2-alvin-end" {
+"interact_ch2_alvin_end" {
 	show dialog { SELF portrait alvin "I hope we'll get a larger audience than this. Let's give it a few more minutes, maybe?" };
 }
-"interact-ch2-kuro-end" {
+"interact_ch2_kuro_end" {
 	show dialog { SELF "I've been following this group since they were \"64 Bits\"! I hope they play \"Scary Pointer Math\" tonight! Or maybe \"The Off-By-One Blues\"!" };
 }
-"interact-ch2-gloria-end" {
+"interact_ch2_gloria_end" {
 	copy!("face-player")
 	show dialog { SELF "I'm not sure if this is the same band that was on the flyer. Oh, well. I'll give them a shot." };
 	self direction = north;
 }
-"interact-ch2-samson-end" {
+"interact_ch2_samson_end" {
 	show dialog {
 		SELF "Mommy, can I have a guitar?"
 		Gloria "Maybe for your next birthday, sweetie."
 	};
 }
-"interact-ch2-tracy-end" {
+"interact_ch2_tracy_end" {
 	copy!("face-player")
 	show dialog { SELF "Guess the refreshments are self serve this time. That's a bit on the cheap side...." };
 	self direction = south;
 }
 
-"interact-ch2-seamoss-end" {
+"interact_ch2_seamoss_end" {
 	show dialog { SELF "Awesome! Dinner and a show!"};
 }
 
 /* ---------- KEYBOARD (ADMIN) ---------- */
 
-"ch2-hide-keyboard" {
+"ch2_hide_keyboard" {
 	entity "Keyboard" position = geometry "hiding-spot";
 	entity "Keyboard" name = " ";
 }
@@ -355,7 +355,7 @@ include "header.mgs";
 		Simon emote 2 "Hey! Hey! Don't you insult Rosetta like that!"
 	};
 	entity "Simon" current_animation = 0;
-	if ("ch2-storyflag-round" == 2) {
+	if ("ch2_storyflag_round" == 2) {
 		show dialog {
 			PLAYER "(I can't just take this without asking. Better talk to %Simon%.)"
 		};

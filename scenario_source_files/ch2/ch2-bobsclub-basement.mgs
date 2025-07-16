@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-bobsclub-basement" {
+"look_ch2_bobsclub_basement" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>BOB'S CLUB BASEMENT</>."
@@ -11,56 +11,56 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-bobaustin" {
+"look_ch2_bobaustin" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tStoic and inscrutable, the giant stone golem could as easily be a hundred years old as a thousand. With his eyes glowing as they are, you can't be sure where he's looking, but you wouldn't be surprised if his gaze was following you as you move about the room."
 	};
 }
-"look-ch2-bobmoss" {
+"look_ch2_bobmoss" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\t%SELF% may share the same sharp edges and chiseled brow as his cousin, %Bob Austin%, but somehow %SELF%'s demeanor is more cheerful and friendly. It may be his mossy afro -- or it may be the way he lifts his hands more freely, as if they didn't weigh anything."
 	};
 }
-"look-ch2-icechest" {
+"look_ch2_icechest" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA half dozen cans of assorted sodas peak through the mountain of ice within the chest, but the vast majority of cans are a bold orange, yellow, and green. The ice isn't very melted yet, so all the cans must be frosty."
 	};
 }
-"look-ch2-marathonbob" {
+"look_ch2_marathonbob" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at one of the <m>%SELF%s</>."
 		"\tEach Bob has a military look to them: a holstered firearm, combat boots, and a headset -- though the nature of their eyepieces escapes you. Each of these Bobs act alike, and apart from their colored uniforms, might as well be entirely interchangable with one another."
 	};
 }
-"look-ch2-guardianbob" {
+"look_ch2_guardianbob" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tStrangely, this Bob has a different cast to his skin, as if he were made of metal and plastic -- as if the shadows didn't land quite right around his body. But perhaps that's just how people from the 'net usually look."
 	};
 }
-"look-ch2-bob" {
+"look_ch2_bob" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>Bob</>."
 		"\t...Or you would, but there's a lot of Bobs around, and \"Bob\" is a bit vague, isn't it?"
 	};
 }
-"look-ch2-party-cups" {
+"look_ch2_party_cups" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the red <m>%SELF%</>."
 		"\tClassic party fare! It wouldn't be a party without plastic <bold>American Name Brand Party Cups (c)</>!"
 	};
 }
-"look-ch2-pizza" {
+"look_ch2_pizza" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>pizza</>."
@@ -74,15 +74,15 @@ include "header.mgs";
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BOB'S CLUB BASEMENT</>..." };
-	if (!"ch2-cutseen-bob-party") {
+	if (!ch2_cutseen_bob_party) {
 		camera = geometry "gasp-spot";
 	} else {
 		entity "Guardian Bob" position = geometry "bob-walk2";
 		entity "Guardian Bob" on_tick = "loiter-slow";
 	}
-	copy!("ch2-map-init")
-	command "look" + "bob" = "look-ch2-bob";
-	if (!"ch2-cutseen-bob-party") {
+	copy!(ch2_map_init)
+	command "look" + "bob" = "look_ch2_bob";
+	if (!ch2_cutseen_bob_party) {
 		copy!("ch2-cutscene-bob-party")
 	}
 }
@@ -200,7 +200,7 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-bobsclub-basement-stairs" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-bobsclub";
 }
 
@@ -317,7 +317,7 @@ include "header.mgs";
 			GBob "Sure. We've got a lifetime supply in the ice chest back there. Help yourself."
 		};
 	}
-	"ch2-cutseen-bob-party" = true;
+	ch2_cutseen_bob_party = true;
 	wait 150ms;
 	entity "Guardian Bob" position -> geometry "bob-walk2" origin over 800ms;
 	entity "Guardian Bob" on_tick = "loiter-slow";
@@ -344,7 +344,7 @@ include "header.mgs";
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-guardianbob" {
+"interact_ch2_guardianbob" {
 	copy!("interrupt-walk")
 	show dialog {
 		PLAYER "So why is the party in the basement? I thought it was going to be upstairs. There were decorations half set up and everything."
@@ -358,7 +358,7 @@ include "header.mgs";
 	copy!("resume-walk")
 }
 
-"interact-ch2-bobaustin" {
+"interact_ch2_bobaustin" {
 	copy!("face-player")
 	show dialog {
 		SELF "I'm the MC for Bob Jeopardy this year."
@@ -370,7 +370,7 @@ include "header.mgs";
 	self direction = south;
 }
 
-"interact-ch2-bobmoss" {
+"interact_ch2_bobmoss" {
 	copy!("face-player")
 	show dialog {
 		SELF "Hey there, friend. Have a drink, on the house."
@@ -378,14 +378,14 @@ include "header.mgs";
 	};
 	self direction = south;
 }
-"interact-ch2-party-cups" {
+"interact_ch2_party_cups" {
 	copy!("face-player")
 	show dialog {
 		PLAYER "It's always red plastic cups, isn't it?"
 	};
 	self direction = south;
 }
-"interact-ch2-pizza" {
+"interact_ch2_pizza" {
 	copy!("face-player")
 	show dialog {
 		PLAYER "Mmmm, fresh pizza!"
@@ -394,7 +394,7 @@ include "header.mgs";
 	self direction = south;
 }
 
-"interact-ch2-marathonbob" {
+"interact_ch2_marathonbob" {
 	// capture original facing direction
 	copy!("interrupt-walk")
 	// normal behavior
@@ -426,8 +426,8 @@ include "header.mgs";
 	"bobtalkrand" = 0; // courtesy reset
 }
 
-"interact-ch2-icechest" {
-	if ("ch2-carrying-cactuscooler") {
+"interact_ch2_icechest" {
+	if ("ch2_carrying_cactuscooler") {
 		if (
 			!"interrupt" // you didn't just pick it up
 			|| !"ch2-want-cactuscooler" // OR you don't know you need it
@@ -455,7 +455,7 @@ include "header.mgs";
 		show dialog {
 			name "" "(You pick up the can of Cactus Cooler!)"
 		};
-		copy!("ch2-pickup-cactuscooler")
-		"interrupt" = true; // you just picked it up
+		copy!(ch2_pickup_cactuscooler)
+		interrupt = true; // you just picked it up
 	}
 }

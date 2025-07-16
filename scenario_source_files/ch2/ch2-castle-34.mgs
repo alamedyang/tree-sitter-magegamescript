@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-34" {
+"look_ch2_castle_34" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE PANTRY</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-snakebox" {
+"look_ch2_snakebox" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-winerack" {
+"look_ch2_winerack" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -27,7 +27,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-pantryshelf" {
+"look_ch2_pantryshelf" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -35,7 +35,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-dishshelf" {
+"look_ch2_dishshelf" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -43,7 +43,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-clara" {
+"look_ch2_clara" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -53,30 +53,30 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-34" {
+"on_load_ch2_castle_34" {
 	// ch2 room state
-	"ch2-in-room" = 34;
+	"ch2_in_room" = 34;
 
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-34") {
+	if (!ch2_seen_room_34) {
 		show serial_dialog { "Discovered the <bold><c>CASTLE PANTRY</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-34" = true;
+		ch2_seen_room_34 = true;
 	} else {
 		show serial_dialog { "Entering the <bold>CASTLE PANTRY</>..." };
 	}
 
 	// room unique stuff
 	
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-34" {
+"on_tick_ch2_castle_34" {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-northeast";
-		copy!("ch2-load-castle-32-special")
+		copy!(ch2_load_castle_32_special)
 	}
 }
 
@@ -95,16 +95,16 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-34" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_34" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-34-south" {
-	copy!("on_exit-ch2-castle-34")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-32-special")
+"on_go_castle_34_south" {
+	copy!(on_exit_ch2_castle_34)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_32_special)
 }
 
 /* ---------- ENTITIES ---------- */
@@ -118,10 +118,10 @@ include "header.mgs";
 	};
 }
 
-"ch2-interact-pantryfridge" {
+"interact_ch2_pantryfridge" {
 	if (
 		!"ch2-want-cactuscooler"
-		|| "ch2-carrying-cactuscooler"
+		|| "ch2_carrying_cactuscooler"
 		|| "ch2-cactuscooler-delivered"
 	) {
 		show dialog {
@@ -133,10 +133,10 @@ include "header.mgs";
 		};
 	}
 }
-"ch2-interact-pantryshelf" {
+"interact_ch2_pantryshelf" {
 	if (
 		!"ch2-want-cactuscooler"
-		|| "ch2-carrying-cactuscooler"
+		|| "ch2_carrying_cactuscooler"
 		|| "ch2-cactuscooler-delivered"
 	) {
 		show dialog {
@@ -189,13 +189,13 @@ include "header.mgs";
 		PLAYER "Oh, no."
 		Clara "Yeah, so... go on up to the PlateMover 9000 and... uh, good luck."
 	};
-	"ch2-jukebox-backstory" = true;
+	"ch2_jukebox_backstory" = true;
 	unpause entity Clara on_tick;
 }
-"ch2-interact-dishshelf" {
+"interact_ch2_dishshelf" {
 	if (
-		"ch2-jukebox-backstory"
-		|| "ch2-storyflag-round" < 2
+		"ch2_jukebox_backstory"
+		|| "ch2_storyflag_round" < 2
 	) {
 		show dialog {
 			PLAYER "Plates, cups, and tablecloths. How many place settings is this?"
@@ -212,7 +212,7 @@ include "header.mgs";
 		copy!("ch2-iron-content")
 	}
 }
-"ch2-interact-winerack" {
+"interact_ch2_winerack" {
 	show dialog {
 		PLAYER "Is this just bottles of wine? It all looks very fancy."
 	};
@@ -224,10 +224,10 @@ New around here  .     .        X     .
 Cactus Cooler    .     X        .     X
 */
 
-"interact-ch2-clara" {
-	if ("ch2-storyflag-round" < 2) {
+"interact_ch2_clara" {
+	if ("ch2_storyflag_round" < 2) {
 		copy!("interrupt-walk")
-		if (!"ch2-clara-backstory") {
+		if (!"ch2_clara_backstory") {
 			show dialog {
 				SELF "Holy crap -- a new person!"
 				PLAYER "Yup, that's me."
@@ -235,24 +235,24 @@ Cactus Cooler    .     X        .     X
 		}
 		if (
 			!"ch2-want-cactuscooler"
-			|| "ch2-carrying-cactuscooler"
+			|| "ch2_carrying_cactuscooler"
 			|| "ch2-cactuscooler-delivered"
 		) {
-			if (!"ch2-clara-backstory") {
+			if (!"ch2_clara_backstory") {
 				// just so it doesn't take this branch the first time:
-				"ch2-clara-backstory" = true;
+				"ch2_clara_backstory" = true;
 			} else {
 				show dialog { SELF "I'm new around here. I gotta say, this has been an interesting first week of work." };
 			}
 		} else {
-			"ch2-clara-backstory" = true;
+			"ch2_clara_backstory" = true;
 			show dialog "ch2-clara-soda" { // reused
 				PLAYER "So... I'm looking for some Cactus Cooler. It's this rare kind of soda...."
 				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
 			};
 		}
 		copy!("resume-walk")
-	} else if ("ch2-jukebox-backstory") {
+	} else if ("ch2_jukebox_backstory") {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
 			"We could have kept those plates on some normal shelf, but my boss wanted \"technological novelty\" for his project."
@@ -261,14 +261,14 @@ Cactus Cooler    .     X        .     X
 		};
 	} else {
 		copy!("ch2-iron-content")
-		"ch2-jukebox-backstory" = true;
+		"ch2_jukebox_backstory" = true;
 	}
 }
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
 
 "ch2-touch-plate" {
-	if ("ch2-storyflag-round" < 2) {
+	if ("ch2_storyflag_round" < 2) {
 		if (!"ch2-plate-firstlook") {
 			show dialog {
 				PLAYER "This thing is a PlateMover 90?"
@@ -279,7 +279,7 @@ Cactus Cooler    .     X        .     X
 			};
 			"ch2-plate-firstlook" = true;
 		}
-	} else if (!"ch2-jukebox-backstory") {
+	} else if (!"ch2_jukebox_backstory") {
 		show dialog {
 			PLAYER "There are plates in here, but... how do I know which ones have high iron content?"
 		};
@@ -313,11 +313,11 @@ Cactus Cooler    .     X        .     X
 			PLAYER "Oh, no."
 			Clara "Yeah, so... uh, good luck with that."
 		};
-		"ch2-jukebox-backstory" = true;
+		"ch2_jukebox_backstory" = true;
 		unpause entity Clara on_tick;
 	} else if (
-		"ch2-carrying-plate"
-		|| "ch2-installed-plate"
+		"ch2_carrying_plate"
+		|| "ch2_installed_plate"
 	) {
 		show dialog {
 			PLAYER "A jukebox seems like a really bad way to manage dishes."
@@ -331,7 +331,7 @@ Cactus Cooler    .     X        .     X
 	}
 }
 "won_hanoi_get_plate" {
-	copy!("ch2-pickup-plate")
+	copy!(ch2_pickup_plate)
 	show dialog {
 		PLAYER "Aha! I got plate #6!"
 	};

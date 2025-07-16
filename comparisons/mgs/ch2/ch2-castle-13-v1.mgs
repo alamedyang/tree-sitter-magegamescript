@@ -12,7 +12,7 @@ settings for dialog {
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-look-ch2-castle-13 {
+look_ch2_castle_13 {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked around the <c>CASTLE THRONE ROOM</>."
@@ -21,7 +21,7 @@ look-ch2-castle-13 {
 	}
 }
 
-look-ch2-sebastian {
+look_ch2_sebastian {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -30,7 +30,7 @@ look-ch2-sebastian {
 	}
 }
 
-look-ch2-templeton {
+look_ch2_templeton {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <m>%SELF%</>."
@@ -40,9 +40,9 @@ look-ch2-templeton {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-castle-13-doorless {
+on_load_ch2_castle_13_postgame {
 	// abbreviated copy-pasta of the below
-	mutate ch2-in-room = 13;
+	mutate ch2_in_room = 13;
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>CASTLE THRONE ROOM</>..." }
@@ -51,9 +51,9 @@ on_load-ch2-castle-13-doorless {
 	} else if (warp state is walk_from-south) {
 		teleport entity "%PLAYER%" to geometry walk_from-south;
 	}
-	copy ch2-map-init;
+	copy ch2_map_init;
 }
-on_load-ch2-castle-13 {
+on_load_ch2_castle_13 {
 	if (warp state is "ch2 ending") {
 		set entity door on_tick to yeet;
 		teleport entity "King Gibson" to geometry king-examine1;
@@ -62,13 +62,13 @@ on_load-ch2-castle-13 {
 		goto ch2-castle-13-ending;
 	}
 	// ch2 room state
-	mutate ch2-in-room = 13;
+	mutate ch2_in_room = 13;
 
 	// entrance text
 	show serial dialog spacer;
-	if (flag ch2-seen-room-13 is false) {
+	if (flag ch2_seen_room_13 is false) {
 		show serial dialog { "Discovered <bold><c>CASTLE THRONE ROOM</>! Room added to <c>MAP</>!" }
-		set flag ch2-seen-room-13 to true;
+		set flag ch2_seen_room_13 to true;
 	} else {
 		show serial dialog { "Entering <bold>CASTLE THRONE ROOM</>..." }
 	}
@@ -91,27 +91,27 @@ on_load-ch2-castle-13 {
 	}
 
 	if (
-		flag ch2-installed-goldfish is true
-		|| flag ch2-carrying-goldfish is true
+		flag ch2_installed_goldfish is true
+		|| flag ch2_carrying_goldfish is true
 	) {
 		set entity Aurelius on_tick to yeet;
 	}
 
-	copy ch2-map-init;
+	copy ch2_map_init;
 	
 	// check if you do the cutscene or not
 	if (warp state is "Ch2 King Returns") {
-		set flag ch2-cutseen-castle13 to true; // in case you didn't see the whole prev cutscene, set this flag so the reunion cutscene will play out correctly
+		set flag ch2_cutseen_castle13 to true; // in case you didn't see the whole prev cutscene, set this flag so the reunion cutscene will play out correctly
 		copy ch2-cutscene-kingreturns;
 	} else {
-		if (flag ch2-cutseen-castle13 is false) {
+		if (flag ch2_cutseen_castle13 is false) {
 			copy ch2-cutscene-castle12;
 		}
 	}
 }
 
 ch2-skip-13 {
-	set flag ch2-cutseen-castle13 to true;
+	set flag ch2_cutseen_castle13 to true;
 	load map ch2-castle-13;
 }
 
@@ -249,15 +249,15 @@ ch2-cutscene-castle12 {
 		Aurelius "How is the rest of the castle?"
 	}
 	if (
-		flag ch2-seen-room-21 is false
-		|| flag ch2-seen-room-22 is false
-		|| flag ch2-seen-room-23 is false
-		|| flag ch2-seen-room-31 is false
-		|| flag ch2-seen-room-32 is false
-		|| flag ch2-seen-room-33 is false
-		|| flag ch2-seen-room-34 is false
-		|| flag ch2-seen-room-11 is false
-		|| flag ch2-seen-room-12 is false
+		flag ch2_seen_room_21 is false
+		|| flag ch2_seen_room_22 is false
+		|| flag ch2_seen_room_23 is false
+		|| flag ch2_seen_room_31 is false
+		|| flag ch2_seen_room_32 is false
+		|| flag ch2_seen_room_33 is false
+		|| flag ch2_seen_room_34 is false
+		|| flag ch2_seen_room_11 is false
+		|| flag ch2_seen_room_12 is false
 	) {
 		show dialog {
 			PLAYER "Um, the rooms are in bad shape, but everyone seems okay. The people I've met so far, anyway."
@@ -280,7 +280,7 @@ ch2-cutscene-castle12 {
 		Aurelius "If you would be so kind as to check up on him, please?"
 		PLAYER "Sure."
 	}
-	set flag ch2-cutseen-castle13 to true;
+	set flag ch2_cutseen_castle13 to true;
 	turn player control on;
 }
 
@@ -399,50 +399,50 @@ king-walk-to-debris {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-castle-13-doorless {
+on_tick_ch2_castle_13_postgame {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
-		copy on_exit-ch2-castle-13;
+		copy on_exit_ch2_castle_13;
 		set warp state to walk_from-north;
-		copy ch2-load-castle-12-special;
+		copy ch2_load_castle_12_special;
 	} else if (entity "%PLAYER%" is inside geometry north-hitbox) {
-		copy on_exit-ch2-castle-13;
+		copy on_exit_ch2_castle_13;
 		set warp state to walk_from-south;
-		copy ch2-load-castle-14-special;
+		copy ch2_load_castle_14_special;
 	}
 }
-on_tick-ch2-castle-13 {
+on_tick_ch2_castle_13 {
 	if (flag ch2-king-rescued is true) {
 		if (entity "%PLAYER%" is inside geometry north-hitbox) {
 			set warp state to walk_from-south;
-			copy ch2-load-castle-14-special;
+			copy ch2_load_castle_14_special;
 		}
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-castle-13 { // sanitize ch2 room state
-	mutate ch2-in-room = 0;
+on_exit_ch2_castle_13 { // sanitize ch2 room state
+	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go-castle-13-north {
-	copy on_exit-ch2-castle-13;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-14-special;
+on_go_castle_13_north {
+	copy on_exit_ch2_castle_13;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_14_special;
 }
-on_go-castle-13-south {
-	copy on_exit-ch2-castle-13;
-	copy warping-out-fade-out;
-	copy ch2-load-castle-12-special;
+on_go_castle_13_south {
+	copy on_exit_ch2_castle_13;
+	copy warping_out_fade_out;
+	copy ch2_load_castle_12_special;
 }
 
 /* ---------- GOLDFISH (ADMIN) ---------- */
 
 
 ch2-touch-goldfish {
-	if (flag ch2-cutseen-castle14 is false) {
+	if (flag ch2_cutseen_castle14 is false) {
 		show dialog { // don't use "self"; "Aurelius" is a label!
 			Aurelius "Do please check on King Gibson, would you? He's in his bedroom, just to the north of us."
 		}
@@ -458,7 +458,7 @@ ch2-touch-goldfish {
 		show dialog {
 			Aurelius "Once the mainframe is repaired, we will be much better equipped to clear all the debris at once. Don't let us keep you."
 		}
-		if (variable ch2-storyflag-round is >= 3) {
+		if (variable ch2_storyflag_round is >= 3) {
 			show dialog {
 				PLAYER "Actually, I could use your help to fix it."
 				Aurelius "Of course. Anything."
@@ -489,7 +489,7 @@ ch2-touch-goldfish {
 				GIBSON "Very well. We'll continue to do our best here."
 			}
 			teleport entity Aurelius to geometry hiding-spot; // doing yeet now aborts the script early!
-			copy ch2-pickup-goldfish;
+			copy ch2_pickup_goldfish;
 			show dialog {
 				name "" "(You acquired a goldfish!)"
 				GIBSON "I'm counting on you both. Good luck."
@@ -522,9 +522,9 @@ ch2-king-unharmed {
 	}
 }
 
-interact-ch2-sebastian {
+interact_ch2_sebastian {
 	copy face-player;
-	if (flag ch2-cutseen-castle14 is false) {
+	if (flag ch2_cutseen_castle14 is false) {
 		show dialog {
 			SELF "Mark my words: he's ignoring us. He's all but abdicated."
 		}
@@ -550,9 +550,9 @@ interact-ch2-sebastian {
 	}
 }
 
-interact-ch2-templeton {
+interact_ch2_templeton {
 	copy face-player;
-	if (flag ch2-cutseen-castle14 is false) {
+	if (flag ch2_cutseen_castle14 is false) {
 		show dialog {
 			SELF "I know King Gibson doesn't always get along with us, but this silence is unlike him. I'm worried."
 		}
@@ -653,9 +653,9 @@ king-debris-ponder {
 	copy tick-rand-broad; // from bob's club basement
 }
 
-interact-ch2-gibson-throneroom {
+interact_ch2_gibson_throneroom {
 	copy interrupt-walk;
-	if (variable ch2-storyflag-round is < 3) {
+	if (variable ch2_storyflag_round is < 3) {
 		show dialog {
 			GIBSON "My staff and I are reunited, thanks to you."
 			"I am in your debt."
@@ -675,8 +675,8 @@ interact-ch2-gibson-throneroom {
 		set flag ch2-clock-permission to true;
 	} else {
 		if (
-			flag ch2-installed-goldfish is true
-			|| flag ch2-carrying-goldfish is true
+			flag ch2_installed_goldfish is true
+			|| flag ch2_carrying_goldfish is true
 		) {
 			show dialog {
 				GIBSON "Take good care of Aurelius for me."
@@ -691,13 +691,13 @@ interact-ch2-gibson-throneroom {
 	copy resume-walk;
 }
 
-interact-ch2-sebastian-end {
+interact_ch2_sebastian_end {
 	show dialog { SELF "*whew* All the doors are cleared now, so time for a break." }
 }
-interact-ch2-templeton-end {
+interact_ch2_templeton_end {
 	show dialog { SELF "Jeez Louise. I hope nothing else goes wrong today." }
 }
-interact-ch2-gibson-throneroom-end {
+interact_ch2_gibson_throneroom-end {
 	copy face-player;
 	show dialog {
 		SELF "Do let me know when we can get Aurelius back."
@@ -705,7 +705,7 @@ interact-ch2-gibson-throneroom-end {
 }
 	turn entity "%SELF%" south;
 }
-interact-ch2-statue {
+interact_ch2_statue {
 	show dialog {
 		PLAYER "Neat detail work in the beard. I wonder what kind of stone this is."
 	}

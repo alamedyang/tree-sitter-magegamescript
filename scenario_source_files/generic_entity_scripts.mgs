@@ -224,7 +224,7 @@
 	// todo: when we have functions, genericize this!
 	"playersave-x" = player x;
 	"playersave-y" = player y;
-	"playersave-room" = "ch2-in-room"*1;
+	"playersave-room" = "ch2_in_room"*1;
 	if (player direction == north) {
 		"playersave-dir" = 0;
 	} else if (player direction == east) {

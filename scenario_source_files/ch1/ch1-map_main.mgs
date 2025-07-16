@@ -24,8 +24,8 @@ add dialog settings {
 		command "rtfm" = "command-rtfm";
 	}
 	// if you haven't started ch1 yet
-	if (!"begunthegame") {
-		"begunthegame" = true;
+	if (!begunthegame) {
+		begunthegame = true;
 		hex_control = off;
 		camera fade in -> #000000 over 1ms; 
 		load map "magehouse";
@@ -89,7 +89,7 @@ add dialog settings {
 		player position = geometry "from-credits-spot";
 		camera fade in -> #000000 over 800ms;
 		player_control = on;
-		if (!"ch1_finished") {
+		if (!ch1_finished) {
 			goto null_script;
 		}
 		if (!"storyflag-catwork") {
@@ -128,7 +128,7 @@ add dialog settings {
 		if ("demobonus-jackob-informed") {
 			goto null_script;
 		}
-		"demobonus" = true;
+		demobonus = true;
 		// ^^ set now because all story flags and credits confirmed true; use this flag for same check hereafter
 		show dialog {
 			Jackob "While you were gone, I saw an odd flash of light coming from the library."

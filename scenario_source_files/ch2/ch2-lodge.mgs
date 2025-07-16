@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-lodge" {
+"look_ch2_lodge" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>LIBRARY</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-cat-lodge" {
+"look_ch2_cat_lodge" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-timmy" {
+"look_ch2_timmy" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -27,7 +27,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-sportsbook" {
+"look_ch2_sportsbook" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -35,7 +35,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-dejavu" {
+"look_ch2_dejavu" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -43,7 +43,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-manual" {
+"look_ch2_manual" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -58,30 +58,30 @@ include "header.mgs";
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>LIBRARY</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
-	if ("ch2-storyflag-round" != 1) {
+	if ("ch2_storyflag_round" != 1) {
 		entity "Alfonso" on_tick = yeet;
 	}
 	// The part of Uncle Zappy is being played by Jackob
 	if (
-		"ch2-storyflag-round" == 3
-		|| "ch2-storyflag-round" == 4
+		"ch2_storyflag_round" == 3
+		|| "ch2_storyflag_round" == 4
 	) {
 		entity "Jackob" position = geometry "zappy-spot";
 		entity "Jackob" name = "Uncle Zappy";
-		entity "Jackob" on_look = "look-ch2-zappy";
+		entity "Jackob" on_look = "look_ch2_zappy";
 		entity "Jackob" on_tick = null_script;
-		entity "Jackob" on_interact = "interact-ch2-zappy";
+		entity "Jackob" on_interact = "interact_ch2_zappy";
 		entity "Jackob" type = "lightning_boy2";
 		entity "Jackob" direction = north;
-	} else if ("ch2-storyflag-round" != 1) {
+	} else if ("ch2_storyflag_round" != 1) {
 		entity "Jackob" on_tick = yeet;
 	}
 	// hide stuff
 	if (
-		"ch2-installed-manual"
-		|| "ch2-carrying-manual"
+		"ch2_installed_manual"
+		|| "ch2_carrying_manual"
 	) {
-		copy!("ch2-hide-manual")
+		copy!(ch2_hide_manual)
 	}
 
 	if (warp_state == "walk_from-north") {
@@ -89,7 +89,7 @@ include "header.mgs";
 		player position = geometry "walk_from-north";
 	}
 	// player control comes on after this next script is over:
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
@@ -119,17 +119,17 @@ include "header.mgs";
 /* ---------- EXIT STUFF ---------- */
 
 "on_go-ch2-lodge-south" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 "on_go-ch2-lodge-north" {
-	copy!("warping-out-fade-out")
+	copy!(warping_out_fade_out)
 	load map "ch2-lodge-rtfm";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"ch2-interact-manual" {
+"interact_ch2_manual" {
 	if (!"ch2-want-manual") {
 		show dialog {
 			PLAYER "Looks like a book about a calculator."
@@ -139,27 +139,27 @@ include "header.mgs";
 			PLAYER "Oh, this must be the calculator manual Frankie wanted."
 			name "" "(You pick up the calculator manual!)"
 		};
-		copy!("ch2-pickup-manual")
-		copy!("ch2-hide-manual")
+		copy!(ch2_pickup_manual)
+		copy!(ch2_hide_manual)
 	}
 }
-"ch2-hide-manual" {
+"ch2_hide_manual" {
 	entity "HP35c Man" position = geometry "hiding-spot";
 	entity "HP35c Man" name = " ";
 }
 
-"interact-ch2-timmy" {
+"interact_ch2_timmy" {
 	copy!("face-player")
-	if ("ch2-storyflag-round" == 0) {
+	if ("ch2_storyflag_round" == 0) {
 		show dialog {
 			SELF "I love the library! There's so many books here it would take a hundred years to read them all!"
 		};
-	} else if ("ch2-storyflag-round" <= 2) {
+	} else if ("ch2_storyflag_round" <= 2) {
 		show dialog {
 			SELF "If you had a race car, what color would you want?"
 			"I think red cars are faster than blue cars, usually."
 		};
-	} else if ("ch2-storyflag-round" <= 4) {
+	} else if ("ch2_storyflag_round" <= 4) {
 		show dialog {
 			PLAYER "Hey, %SELF%, do you know if Bert came in here recently?"
 			SELF "Bert? Who's that?"
@@ -180,13 +180,13 @@ include "header.mgs";
 	}
 	self direction = east;
 }
-"interact-ch2-cat-lodge" {
+"interact_ch2_cat_lodge" {
 	show dialog {
 		SELF "..."
 	};
 }
 
-"interact-ch2-jackob-library" {
+"interact_ch2_jackob_library" {
 	show dialog {
 		SELF "I hate geese. Especially that one."
 		"It keeps staring at me. I can't concentrate on what I'm doing."
@@ -195,7 +195,7 @@ include "header.mgs";
 
 $bookcount = 4;
 
-"interact-ch2-alfonso-library" {
+"interact_ch2_alfonso_library" {
 	"ch2-alfonso-library-count" += 1;
 	"ch2-alfonso-library-count" %= $bookcount;
 	if ("ch2-alfonso-library-count" == 1) {

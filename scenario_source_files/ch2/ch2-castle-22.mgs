@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look-ch2-castle-22" {
+"look_ch2_castle_22" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>SERVER ROOM</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-ckwatt" {
+"look_ch2_ckwatt" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look-ch2-scuzzy" {
+"look_ch2_scuzzy" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -29,9 +29,9 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-22-doorless" {
+"on_load_ch2_castle_22_postgame" {
 	// abbreviated copy-pasta of the below
-	"ch2-in-room" = 22;
+	"ch2_in_room" = 22;
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>SERVER ROOM</>..." };
@@ -40,79 +40,79 @@ include "header.mgs";
 	} else if (warp_state == "walk_from-north") {
 		player position = geometry "walk_from-north";
 	}
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
-"on_load-ch2-castle-22" {
+"on_load_ch2_castle_22" {
 	if (warp_state == "ch2 ending") {
 		goto "ch2-castle-22-ending";
 	}
 	// ch2 room state
-	"ch2-in-room" = 22;
+	"ch2_in_room" = 22;
 
 	// entrance text
 	show serial_dialog spacer;
-	if (!"ch2-seen-room-22") {
+	if (!ch2_seen_room_22) {
 		show serial_dialog { "Discovered <bold><c>SERVER ROOM</>! Room added to <c>MAP</>!" };
-		"ch2-seen-room-22" = true;
+		ch2_seen_room_22 = true;
 	} else {
 		show serial_dialog { "Entering <bold>SERVER ROOM</>..." };
 	}
 
 	// room unique stuff
 	if (
-		"ch2-installed-powersupply"
-		|| "ch2-carrying-powersupply"
+		"ch2_installed_powersupply"
+		|| "ch2_carrying_powersupply"
 	) {
-		copy!("ch2-hide-powersupply")
+		copy!(ch2_hide_powersupply)
 	}
 	
-	copy!("ch2-map-init")
+	copy!(ch2_map_init)
 }
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-22" {}
-"on_tick-ch2-castle-22-doorless" {
+"on_tick_ch2_castle_22" {}
+"on_tick_ch2_castle_22_postgame" {
 	if (player intersects geometry "south-hitbox") {
-		copy!("on_exit-ch2-castle-22")
+		copy!(on_exit_ch2_castle_22)
 		warp_state = "walk_from-north";
-		copy!("ch2-load-castle-21-special")
+		copy!(ch2_load_castle_21_special)
 	} else if (player intersects geometry "north-hitbox") {
-		copy!("on_exit-ch2-castle-22")
+		copy!(on_exit_ch2_castle_22)
 		warp_state = "walk_from-south";
-		copy!("ch2-load-castle-23-special")
+		copy!(ch2_load_castle_23_special)
 	}
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-22" { // sanitize ch2 room state
-	"ch2-in-room" = 0;
+"on_exit_ch2_castle_22" { // sanitize ch2 room state
+	"ch2_in_room" = 0;
 }
 
 // SERIAL: go
 
-"on_go-castle-22-north" {
-	copy!("on_exit-ch2-castle-22")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-23-special")
+"on_go_castle_22_north" {
+	copy!(on_exit_ch2_castle_22)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_23_special)
 }
-"on_go-castle-22-south" {
-	copy!("on_exit-ch2-castle-22")
-	copy!("warping-out-fade-out")
-	copy!("ch2-load-castle-21-special")
+"on_go_castle_22_south" {
+	copy!(on_exit_ch2_castle_22)
+	copy!(warping_out_fade_out)
+	copy!(ch2_load_castle_21_special)
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact-ch2-scuzzy" {
+"interact_ch2_scuzzy" {
 	player_control = off;
 	copy!("interrupt-walk")
-	if (!"ch2-scuzzy-backstory") {
+	if (!"ch2_scuzzy_backstory") {
 		show dialog {
 			SELF "The quake caused a lot of infrastructure damage around here. We're trying to reroute things and compensate with software."
 		};
-		"ch2-scuzzy-backstory" = true;
+		"ch2_scuzzy_backstory" = true;
 	} else {
 		show dialog {
 			SELF "In a metaphorical sense, the castle a computer."
@@ -129,9 +129,9 @@ include "header.mgs";
 	copy!("resume-walk")
 	player_control = on;
 }
-"interact-ch2-ckwatt" {
+"interact_ch2_ckwatt" {
 	copy!("face-player")
-	if (!"ch2-ckwatt-backstory") {
+	if (!"ch2_ckwatt_backstory") {
 		show dialog {
 			SELF "Huh? You need a power supply?"
 			"Go ahead and take this one."
@@ -140,7 +140,7 @@ include "header.mgs";
 			PLAYER "Neat. Thank you!"
 			SELF "No prob."
 		};
-		"ch2-ckwatt-backstory" = true;
+		"ch2_ckwatt_backstory" = true;
 		"ch2-powersupply-permission" = true;
 	} else {
 		show dialog {
@@ -150,12 +150,12 @@ include "header.mgs";
 	}
 	self direction = south;
 }
-"interact-ch2-ckwatt-end" {
+"interact_ch2_ckwatt_end" {
 	copy!("face-player")
 	show dialog { SELF "I wanna get down to the great hall, but we're not quite done yet. Don't wanna be sloppy."};
 	self direction = south;
 }
-"interact-ch2-scuzzy-end" {
+"interact_ch2_scuzzy_end" {
 	copy!("face-player")
 	show dialog { SELF "I'm glad the king and his staff were able to clear the debris blocking the doors. Not that we can leave yet -- still more to do."};
 	self direction = south;
@@ -163,7 +163,7 @@ include "header.mgs";
 
 /* ---------- POWER SUPPLY (ADMIN) ---------- */
 
-"ch2-hide-powersupply" {
+"ch2_hide_powersupply" {
 	entity "Power Supply" position = geometry "hiding-spot";
 	entity "Power Supply" name = " ";
 }
@@ -176,11 +176,11 @@ include "header.mgs";
 		};
 		return;
 	}
-	if (!"interrupt") {
+	if (!interrupt) {
 		show dialog {
 			PLAYER "All right, power supply!"
 		};
-		"interrupt" = true;
+		interrupt = true;
 	}
 	if ("ch2-powersupply-permission") {
 		show dialog {
@@ -195,8 +195,8 @@ include "header.mgs";
 	show dialog {
 		name "" "(You pick up the power supply!)"
 	};
-	copy!("ch2-hide-powersupply")
-	copy!("ch2-pickup-powersupply")
+	copy!(ch2_hide_powersupply)
+	copy!(ch2_pickup_powersupply)
 	self on_interact = null_script;
 }
 "ch2-touch-powersupply-no" {
