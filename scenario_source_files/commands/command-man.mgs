@@ -246,7 +246,7 @@ include "header.mgs";
 	show serial_dialog {
 		"<c>YOU</>: Why did you break it?"
 		" "
-		"<m>LAMBDA</>: Like I said, I broke it to keep it out of the <r>Big <r>Bad</>'s hands."
+		"<m>LAMBDA</>: Like I said, I broke it to keep it out of the <r>Big Bad</>'s hands."
 		"	That artifact is capable of doing quite a lot of damage, you know. It's only a problem that we're lacking it now because of that recent earthquake."
 		" "
 	};

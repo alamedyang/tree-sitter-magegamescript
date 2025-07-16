@@ -171,7 +171,7 @@ include "header.mgs";
 		"<bold><g>RTFM #6 - HEX EDITS 2</>"
 		" "
 		"Some advanced tricks we have discovered:"
-		"\tHolding <c>PAGE</> and pressing a <m>MEM</> button reassigns the <m>MEM <m>shortcut</> to the currently-selected hex cell."
+		"\tHolding <c>PAGE</> and pressing a <m>MEM</> button reassigns the <m>MEM shortcut</> to the currently-selected hex cell."
 		"\tConveniently, <m>MEM references</> are relative to the entity the cursor is positioned within."
 		"\tThough we've found little reason to change the mapping more than a handful of times. Our favorite bytes continue to be the same four."
 		"\tIn addition, the use of --"

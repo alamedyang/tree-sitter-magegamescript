@@ -27,7 +27,7 @@ $goosefactcount = 20;
             };
         } else if ("goosefact" == 3) {
             show serial_dialog {
-                "Did you know? <bold>The most common goose name is <bold>Goosey-McGooseface!</>"
+                "Did you know? <bold>The most common goose name is Goosey-McGooseface!</>"
             };
         } else if ("goosefact" == 4) {
             show serial_dialog {
@@ -43,7 +43,7 @@ $goosefactcount = 20;
             };
         } else if ("goosefact" == 7) {
             show serial_dialog {
-                "Did you know? <bold>A single Canadian goose has between 20,000 and <bold>25,000 individual feathers!</>"
+                "Did you know? <bold>A single Canadian goose has between 20,000 and 25,000 individual feathers!</>"
             };
         } else if ("goosefact" == 8) {
             show serial_dialog {
@@ -51,7 +51,7 @@ $goosefactcount = 20;
             };
         } else if ("goosefact" == 9) {
             show serial_dialog {
-                "Did you know? <bold>The collective pronoun for geese are called <bold>gaggles or skeins!</>"
+                "Did you know? <bold>The collective pronoun for geese are called gaggles or skeins!</>"
             };
         } else if ("goosefact" == 10) {
             show serial_dialog {
@@ -75,15 +75,15 @@ $goosefactcount = 20;
             };
         } else if ("goosefact" == 15) {
             show serial_dialog {
-                "Did you know? <bold>Goslings bond with the first living thing <bold>they see!</> Newly hatched geese (called goslings) assume the first living thing they see is their mother. This is known as \"imprinting\"."
+                "Did you know? <bold>Goslings bond with the first living thing they see!</> Newly hatched geese (called goslings) assume the first living thing they see is their mother. This is known as \"imprinting\"."
             };
         } else if ("goosefact" == 16) {
             show serial_dialog {
-                "Did you know? <bold>Geese make constant improvements to their <bold>nests!</> Geese keep their nests for several years and make constant improvements using twigs, feathers, bark, and leaves."
+                "Did you know? <bold>Geese make constant improvements to their nests!</> Geese keep their nests for several years and make constant improvements using twigs, feathers, bark, and leaves."
             };
         } else if ("goosefact" == 17) {
             show serial_dialog {
-                "Did you know? <bold>Geese have been domesticated for thousands of <bold>years!</> Geese have been domesticated for at least 3,000 years. There are references to geese in ancient Egyptian hieroglyphics."
+                "Did you know? <bold>Geese have been domesticated for thousands of years!</> Geese have been domesticated for at least 3,000 years. There are references to geese in ancient Egyptian hieroglyphics."
             };
         } else if ("goosefact" == 18) {
             show serial_dialog {

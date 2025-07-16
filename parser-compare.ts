@@ -8,6 +8,7 @@ import { resolve as _resolve } from 'node:path';
 // Lacks some scripts for some reason.
 import { composites as oldPost } from './comparisons/exfiltrated_composites.ts';
 import {
+	compareFileSerialDialogs,
 	compareSerialDialogs,
 	type EncoderSerialDialog,
 	serialDialogs as origSerialDialogs,
@@ -180,14 +181,6 @@ const analyzeLine = (line: string): LineAnalysis => {
 		value: sanitizedLine,
 	};
 };
-// const advanceAdventureCS = (cs: AdventureCS, n?: number) => {
-// 	// ユウキリンリン　ゲンキハツラツ :P
-// 	const oldPos = cs.pos;
-// 	const newPos = n === undefined ? cs.pos + 1 : n;
-// 	cs.pos = newPos;
-// 	cs.from = oldPos;
-// 	return oldPos + '->' + newPos;
-// };
 
 const calculateRejoins = (lines: string[], registry: Record<string, number>) => {
 	const rejoins: Set<number> = new Set();
@@ -598,7 +591,8 @@ const sortSerialDialogs = (
 			ret.NAMED[name] = values;
 		} else {
 			const useName = splits[0];
-			ret[useName] = values;
+			ret[useName] = ret[useName] || [];
+			ret[useName].push(values);
 		}
 	});
 	return ret;
@@ -664,9 +658,15 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	// Comparing anonymous serial dialogs
 	const anonymousSerialDialogDiffs: string[] = [];
 	[...serialDialogFileNames].forEach((name) => {
-		const expected: EncoderSerialDialog = expectedSerialDialogsSorted[name];
-		const found: MATHLANG.SerialDialog = foundSerialDialogsSorted[name];
-		const diffs = compareSerialDialogs(expected, found, 'fileName', name);
+		const expected: EncoderSerialDialog[] = expectedSerialDialogsSorted[name];
+		const found: MATHLANG.SerialDialog[] = foundSerialDialogsSorted[name];
+		if (Array.isArray(expected) && Array.isArray(found) && expected.length !== found.length) {
+			namedSerialDialogDiffs.push(
+				`Expected ${expected.length} serial dialogs in file ${name}, found ${found.length}`,
+			);
+			return;
+		}
+		const diffs = compareFileSerialDialogs(expected, found, name);
 		anonymousSerialDialogDiffs.push(...diffs);
 	});
 	if (anonymousSerialDialogDiffs.length) {

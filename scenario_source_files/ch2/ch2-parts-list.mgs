@@ -324,7 +324,7 @@ serial_dialog "ch2-describe-ramchips" {
 		"<c>YOU</>: In what way?"
 		" "
 		"<m>LAMBDA</>: Well, we'll have to make a CPU from scratch, but I've worked it out so we only need two things."
-		"\tWe'll need something to act as the <bold>register file</> -- that is, the place the CPU keeps the very small set of values that a program modifies with each instruction. An <m>ABACUS</> should work well for this. Looks like <m>Frankie in the <m>workshop</> has one."
+		"\tWe'll need something to act as the <bold>register file</> -- that is, the place the CPU keeps the very small set of values that a program modifies with each instruction. An <m>ABACUS</> should work well for this. Looks like <m>Frankie in the workshop</> has one."
 		"\tFor the rest of the CPU, including the interpretation of program instructions and changing the values on the abacus itself, we'll need a... volunteer."
 		" "
 		# "Volunteer?" = "ch2-lambda-round-3-parts2b"

@@ -16,7 +16,7 @@ export const firstMessage = (dialog: EncoderSerialDialog | SerialDialog): string
 };
 export const messagesSummary = (serialDialog: EncoderSerialDialog | SerialDialog): string => {
 	return serialDialog.messages
-		.map((v) => '"' + v.split(' ').slice(0, 3).join(' ') + '"')
+		.map((v) => '"' + v.split(' ').slice(0, 5).join(' ') + '"')
 		.join(',')
 		.replace(/\n/g, '\\n');
 };
@@ -30,7 +30,10 @@ const compareSerialOptions = (expected: EncoderSerialDialog, found: SerialDialog
 
 	const expectedOptions =
 		expectedPlainOptions.length > 0 ? expectedPlainOptions : expectedTextOptions;
-	const foundOptions = (found.options || []).map((option) => [option.label, option.script]);
+	const foundOptions = (found.options || found.text_options || []).map((option) => [
+		option.label,
+		option.script,
+	]);
 
 	// neither have options? You're done
 	if (foundOptions.length === 0 && expectedOptions.length === 0) {
@@ -151,6 +154,109 @@ export const compareSerialDialogs = (
 		problems.push(...optionDiffs);
 	}
 	return problems;
+};
+export const compareFileSerialDialogs = (
+	expected: EncoderSerialDialog[],
+	found: SerialDialog[],
+	fileName: string,
+) => {
+	if (!found) {
+		return [`Did not find file "${fileName}" for anonymous dialog comparison`];
+	}
+	if (!expected) {
+		return [`Found unexpected file "${fileName}" for anonymous dialog comparison`];
+	}
+	const errors: string[] = [];
+	const homelessExpected: Record<string, EncoderSerialDialog[]> = {};
+	const homelessFound: Record<string, SerialDialog[]> = {};
+	expected.forEach((expectedSerialDialog, i) => {
+		const foundSerialDialog = found[i];
+		// get quick summary for quick comparison
+		const foundSummary = messagesSummary(foundSerialDialog);
+		const expectedSummary = messagesSummary(expectedSerialDialog);
+		if (foundSummary !== expectedSummary) {
+			// might be an overall ordering mismatch; set aside for now
+			homelessFound[foundSummary] = homelessFound[foundSummary] || [];
+			homelessExpected[expectedSummary] = homelessExpected[expectedSummary] || [];
+			homelessFound[foundSummary].push(foundSerialDialog);
+			homelessExpected[expectedSummary].push(expectedSerialDialog);
+			return;
+		}
+		const diffs = compareSerialDialogs(
+			expectedSerialDialog,
+			foundSerialDialog,
+			'fileName',
+			fileName,
+		);
+		if (diffs.length) {
+			// STILL might be an overall ordering mismatch; set aside
+			homelessFound[foundSummary] = homelessFound[foundSummary] || [];
+			homelessExpected[expectedSummary] = homelessExpected[expectedSummary] || [];
+			homelessFound[foundSummary].push(foundSerialDialog);
+			homelessExpected[expectedSummary].push(expectedSerialDialog);
+			return;
+		}
+	});
+	// THE REST OF THE OWL
+	const summaryIDs = new Set([...Object.keys(homelessFound), ...Object.keys(homelessExpected)]);
+	[...summaryIDs].forEach((summaryID) => {
+		const founds: SerialDialog[] = homelessFound[summaryID];
+		const expecteds: EncoderSerialDialog[] = homelessExpected[summaryID];
+		if (founds.length !== expecteds.length) {
+			errors.push(
+				`"${fileName}" ${summaryID}: found ${founds.length} serial dialogs, expected ${expecteds.length}`,
+			);
+			return;
+		}
+		if (founds.length === 1) {
+			const diffs = compareSerialDialogs(
+				expecteds[0],
+				founds[0],
+				'fileName',
+				fileName,
+				summaryID,
+			);
+			errors.push(...diffs);
+			return;
+		}
+		const workingFounds = [...founds];
+		const workingExpecteds = [...expecteds];
+		const nonMatchedFounds: SerialDialog[] = [];
+		while (workingFounds.length) {
+			const found = workingFounds.shift();
+			if (found === undefined) throw new Error('TS seriously');
+			let matched = false;
+			for (let i = 0; i < workingExpecteds.length; i++) {
+				const expected = workingExpecteds[i];
+				const diffs = compareSerialDialogs(
+					expected,
+					found,
+					'fileName',
+					fileName,
+					summaryID,
+				);
+				if (!diffs.length) {
+					matched = true;
+					workingExpecteds.splice(i, 1);
+				}
+			}
+			if (!matched) {
+				nonMatchedFounds.push(found);
+			}
+		}
+		nonMatchedFounds.forEach((nonMatchedFound, i) => {
+			const remainingExpected = workingExpecteds[i];
+			const diffs = compareSerialDialogs(
+				remainingExpected,
+				nonMatchedFound,
+				'fileName',
+				fileName,
+				summaryID,
+			);
+			errors.push(...diffs);
+		});
+	});
+	return errors;
 };
 
 export const serialDialogs: Record<string, EncoderSerialDialog> = {
@@ -5649,14 +5755,14 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 	},
 	'ch2-describe-needle': {
 		messages: [
-			"\u001b[35mLAMBDA\u001b[0m: To build a \u001b[35mhard drive\u001b[0m, we'll need a \u001b[35mNEEDLE\u001b[0m, like a\nrecord player needle. There's a \u001b[35mphonograph player somewhere\nin the central wing\u001b[0m of the castle. That might be your best\nbet.",
+			"\u001b[35mLAMBDA\u001b[0m: To build a \u001b[35mhard drive\u001b[0m, we'll need a \u001b[35mNEEDLE\u001b[0m, like a\nrecord player needle. There's a \u001b[35mphonograph player somewhere\n\u001b[35min the central wing\u001b[0m of the castle. That might be your best\nbet.",
 		],
 		name: 'ch2-describe-needle',
 	},
 	'ch2-describe-clock': {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: We'll need a \u001b[35mCLOCK\u001b[0m to keep all the computer parts\ncoordinated. Normally CPU clocks are very tiny quartz\ncrystals, which are shaped to oscillate at a specific\nrate....",
-			'    In our case... well, I know \u001b[35mKing Gibson has a nice\n\u001b[35mgrandfather clock in \u001b[35mhis bedroom\u001b[0m. Maybe ask him if you can\nuse it.',
+			'    In our case... well, I know \u001b[35mKing Gibson has a nice\n\u001b[35mgrandfather clock in his bedroom\u001b[0m. Maybe ask him if you can\nuse it.',
 		],
 		name: 'ch2-describe-clock',
 	},

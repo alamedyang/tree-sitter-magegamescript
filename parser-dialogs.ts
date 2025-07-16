@@ -129,9 +129,10 @@ const ansiWrapBodge = (arr: string[]) => {
 	return bodged;
 };
 
+const defaultWrap = 80;
 export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.SerialDialogInfo) => {
 	const serialDialogSettings: TYPES.SerialDialogSettings = {
-		wrap: 80,
+		wrap: defaultWrap,
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
@@ -148,6 +149,10 @@ export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.Serial
 		serialDialog[firstOptionType] = info.options;
 		const warnNodes: TYPES.MGSLocation[] = [];
 		info.options.forEach((option) => {
+			if (option.optionType === 'options') {
+				option.label = tagsToAnsiEscapes(option.label);
+			}
+			option.label = wrapText(option.label, serialDialogSettings.wrap || defaultWrap);
 			if (option.optionType !== firstOptionType) {
 				const node = option.debug.firstChild;
 				if (!node) throw new Error('TS');

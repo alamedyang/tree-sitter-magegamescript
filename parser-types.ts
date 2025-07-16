@@ -67,6 +67,7 @@ export type SerialDialog = {
 	info: SerialDialogInfo; // for debugging
 	messages: string[];
 	options?: SerialDialogOption[];
+	text_options?: SerialDialogOption[];
 };
 export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
@@ -79,8 +80,8 @@ export type SerialDialogSettings = {
 export type SerialDialogOption = {
 	mathlang: 'serial_dialog_option';
 	optionType: 'text_options' | 'options';
-	label: 'string';
-	script: 'string';
+	label: string;
+	script: string;
 	debug: TreeSitterNode;
 	fileName: string;
 };
