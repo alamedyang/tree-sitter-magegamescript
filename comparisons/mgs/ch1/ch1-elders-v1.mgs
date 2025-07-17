@@ -517,7 +517,7 @@ show_dialog_alfonso_start {
 			show dialog { SELF "Wow! You're nearly done!" }
 		} else if (variable ch1_storyflags_tally is 11) {
 			show dialog { SELF "Incredible! You've done everything on my list!" }
-			goto demoend_cutscene; // JUMP
+			goto ch1_end_cutscene; // JUMP
 		}
 	}
 }

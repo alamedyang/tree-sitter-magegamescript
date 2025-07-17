@@ -3530,7 +3530,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'set_bender_handler_off',
+			script: 'set_bender_idle_stop',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -3698,7 +3698,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'set_bender_handler_on',
+			script: 'set_bender_idle_glare_at_you',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -3782,7 +3782,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'set_bender_handler_none',
+			script: 'set_bender_idle_look_around_randomly',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -3837,7 +3837,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'set_bender_handler_none',
+			script: 'set_bender_idle_look_around_randomly',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -3868,7 +3868,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f5400',
 		},
 	],
-	set_bender_handler_off: [
+	set_bender_idle_stop: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Bob Austin',
@@ -3880,7 +3880,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'null_script',
 		},
 	],
-	set_bender_handler_on: [
+	set_bender_idle_glare_at_you: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Bender',
@@ -3892,7 +3892,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'handler_bender_timer',
 		},
 	],
-	set_bender_handler_none: [
+	set_bender_idle_look_around_randomly: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Bob Austin',
@@ -8116,7 +8116,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'RUN_SCRIPT',
-			script: 'demoend_cutscene',
+			script: 'ch1_end_cutscene',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -8327,7 +8327,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 900,
 		},
 	],
-	demoend_cutscene_move: [
+	ch1_end_cutscene_move: [
 		{
 			action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 			entity: 'Alfonso',
@@ -8389,7 +8389,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			script: 'loiter2',
 		},
 	],
-	demoend_everyone_south: [
+	ch1_end_everyone_south: [
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: 'Ram',
@@ -8446,7 +8446,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			direction: 'south',
 		},
 	],
-	demoend_everyone_look_at_jackob: [
+	ch1_end_everyone_look_at_jackob: [
 		{
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 			entity: 'Helga',
@@ -8478,7 +8478,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			target_entity: 'Jackob',
 		},
 	],
-	demoend_cutscene: [
+	ch1_end_cutscene: [
 		{
 			action: 'SET_PLAYER_CONTROL',
 			bool_value: false,
@@ -8502,7 +8502,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'demoend_cutscene_move',
+			script: 'ch1_end_cutscene_move',
 		},
 		{
 			action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
@@ -8590,7 +8590,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'demoend_everyone_south',
+			script: 'ch1_end_everyone_south',
 		},
 		{
 			action: 'COPY_SCRIPT',
@@ -8602,7 +8602,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'demoend_everyone_look_at_jackob',
+			script: 'ch1_end_everyone_look_at_jackob',
 		},
 		{
 			action: 'WALK_ENTITY_TO_GEOMETRY',
@@ -8729,7 +8729,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'demoend_everyone_south',
+			script: 'ch1_end_everyone_south',
 		},
 		{
 			action: 'COPY_SCRIPT',

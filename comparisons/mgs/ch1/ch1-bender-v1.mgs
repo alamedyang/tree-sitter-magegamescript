@@ -46,7 +46,7 @@ show_dialog_bender_start {
 		}
 	} else { // unglitched Bender
 		// normal dialog; turn off bender's handler and make him face the player
-		copy set_bender_handler_off;
+		copy set_bender_idle_stop;
 		copy face_player;
 		/* ----- puzzle was solved(?) ----- */
 		if (flag storyflag_bender is true) { // SOLVED
@@ -60,7 +60,7 @@ show_dialog_bender_start {
 				show dialog { SELF "Yeah, yeah, you're a real comedian, kid. Now turn me back!" }
 			}
 			// bender handler set (loiter)
-			copy set_bender_handler_none;
+			copy set_bender_idle_look_around_randomly;
 		} else { // NOT SOLVED
 			if (entity Bender type is bender) { // but he's bender now
 				if (flag bender_backstory is false) {
@@ -75,7 +75,7 @@ show_dialog_bender_start {
 				if (variable hint_tracking_check is 5) { // if the hint series is the same, reset hint
 					copy set_hint_none;
 				}
-				copy set_bender_handler_none;
+				copy set_bender_idle_look_around_randomly;
 			} else { // but he's not bender now
 				if (flag bender_backstory is true) { // you've heard the backstory
 					if (entity Bender type is "bender_sadbutt") { // he is sadbutt
@@ -131,7 +131,7 @@ show_dialog_bender_start {
 				set flag bender_backstory to true;
 				copy set_hint_bender;
 				// Turn on bender's look handler again
-				copy set_bender_handler_on;
+				copy set_bender_idle_glare_at_you;
 				// Reset interact_script
 			}
 		}
@@ -140,15 +140,15 @@ show_dialog_bender_start {
 
 /* ---- Bender on_tick handlers --- */
 
-set_bender_handler_off {
+set_bender_idle_stop {
 	set entity "Bob Austin" on_tick to null_script;
 	set entity Bender on_tick to null_script;
 }
-set_bender_handler_on {
+set_bender_idle_glare_at_you {
 	set entity Bender on_tick to face_player;
 	set entity "Bob Austin" on_tick to handler_bender_timer;
 }
-set_bender_handler_none {
+set_bender_idle_look_around_randomly {
 	set entity "Bob Austin" on_tick to null_script;
 	set entity Bender on_tick to on_tick_bender_loiter;
 }

@@ -47,7 +47,7 @@ show_dialog_bender_start {
 		return;
 	} 
 	
-	copy!(set_bender_handler_off)
+	copy!(set_bender_idle_stop)
 	copy!(face_player)
 
 	if (storyflag_bender) {
@@ -60,7 +60,7 @@ show_dialog_bender_start {
 		} else {
 			show dialog { SELF "Yeah, yeah, you're a real comedian, kid. Now turn me back!" };
 		}
-		copy!(set_bender_handler_none)
+		copy!(set_bender_idle_look_around_randomly)
 		return;
 	}
 
@@ -76,7 +76,7 @@ show_dialog_bender_start {
 		if (hint_tracking_check == 5) {
 			copy!(set_hint_none)
 		}
-		copy!(set_bender_handler_none)
+		copy!(set_bender_idle_look_around_randomly)
 		return;
 	}
 
@@ -130,20 +130,20 @@ show_dialog_bender_start {
 
 	bender_backstory = true;
 	copy!(set_hint_bender)
-	copy!(set_bender_handler_on)
+	copy!(set_bender_idle_glare_at_you)
 }
 
 /* ---- Bender on_tick handlers --- */
 
-set_bender_handler_off {
+set_bender_idle_stop {
 	entity "Bob Austin" on_tick = null_script;
 	entity Bender on_tick = null_script;
 }
-set_bender_handler_on {
+set_bender_idle_glare_at_you {
 	entity Bender on_tick = face_player;
 	entity "Bob Austin" on_tick = handler_bender_timer;
 }
-set_bender_handler_none {
+set_bender_idle_look_around_randomly {
 	entity "Bob Austin" on_tick = null_script;
 	entity Bender on_tick = on_tick_bender_loiter;
 }

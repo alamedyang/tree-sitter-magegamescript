@@ -88,7 +88,7 @@ on_load_ch2_castle_12 {
 	// initialize everything
 	copy!(ch2_map_init)
 
-	// check if you do the cutscene or not
+	// intro dialog "cutscene"
 	if (!ch2_cutseen_castle12) {
 		show dialog {
 			Concierge "Welcome!"
@@ -181,20 +181,6 @@ interact_ch2_guestbook_signno {
 	self on_interact = interact_ch2_guestbook;
 }
 
-ch2_stereo_fix_proposal {
-	show dialog ch2_stereo_fix_proposal {
-		PLAYER "Um, about that phonograph. I actually need to borrow the needle for something."
-		Concierge "Hmm? Whatever for?"
-		PLAYER "It'll help me fix the castle. Trust me."
-		Concierge "I could not in good conscience leave this room bereft of welcome music. But, perhaps...."
-		"You say you are going to fix the castle, therefore you must be the fixing type."
-		"Might you be able to fix that stereo behind me, perhaps? Were it repaired, I would have no need of this phonograph or its needle."
-		PLAYER "Fix the stereo? I can take a look."
-	};
-	ch2_ws_backstory = true;
-	ch2_needle_firstlook = true;
-}
-
 interact_ch2_concierge {
 	if (!ch2_concierge_backstory) {
 		if (interrupt) {
@@ -244,6 +230,21 @@ interact_ch2_concierge {
 		}
 	}
 }
+ch2_stereo_fix_proposal {
+	show dialog ch2_stereo_fix_proposal {
+		PLAYER "Um, about that phonograph. I actually need to borrow the needle for something."
+		Concierge "Hmm? Whatever for?"
+		PLAYER "It'll help me fix the castle. Trust me."
+		Concierge "I could not in good conscience leave this room bereft of welcome music. But, perhaps...."
+		"You say you are going to fix the castle, therefore you must be the fixing type."
+		"Might you be able to fix that stereo behind me, perhaps? Were it repaired, I would have no need of this phonograph or its needle."
+		PLAYER "Fix the stereo? I can take a look."
+	};
+	ch2_ws_backstory = true;
+	ch2_needle_firstlook = true;
+}
+
+// I think I forgot to plug this one in...
 interact_ch2_concierge_end {
 	show dialog {
 		Concierge "King Gibson's castle is now under (mostly) normal operation! Please enjoy your stay!"

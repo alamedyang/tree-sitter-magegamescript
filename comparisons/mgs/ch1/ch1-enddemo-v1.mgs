@@ -42,7 +42,7 @@ marta_walk {
 	walk entity Marta to geometry earthquake_setpiece-marta_walk over 900ms;
 }
 
-demoend_cutscene_move {
+ch1_end_cutscene_move {
 	teleport entity Alfonso to geometry demoend-alfonso-point;
 	teleport entity Bert to geometry demoend-bert-point;
 	teleport entity Jackob to geometry demoend-jackob-point;
@@ -60,7 +60,7 @@ demoend_cutscene_move {
 	set entity Helga on_tick to loiter2;
 }
 
-demoend_everyone_south {
+ch1_end_everyone_south {
 	set entity Ram on_tick to null_script;
 	set entity Marta on_tick to null_script;
 	set entity Helga on_tick to null_script;
@@ -74,7 +74,7 @@ demoend_everyone_south {
 	turn entity Jackob south;
 }
 
-demoend_everyone_look_at_jackob {
+ch1_end_everyone_look_at_jackob {
 	turn entity Helga toward entity Jackob;
 	turn entity Marta toward entity Jackob;
 	turn entity Ram toward entity Jackob;
@@ -83,7 +83,7 @@ demoend_everyone_look_at_jackob {
 	turn entity Bert toward entity Jackob;
 }
 
-demoend_cutscene {
+ch1_end_cutscene {
 	turn player control off;
 	copy earthquake;
 	show dialog {
@@ -91,7 +91,7 @@ demoend_cutscene {
 	}
 	fade out camera to #000000 over 300ms;
 	copy earthquake_setpiece;
-	copy demoend_cutscene_move;
+	copy ch1_end_cutscene_move;
 	make camera follow entity "%PLAYER%";
 	fade in camera from #000000 over 300ms;
 	walk entity Marta to geometry demoend-marta-point over 600ms;
@@ -117,10 +117,10 @@ demoend_cutscene {
 	wait 200ms; /**/ show dialog {
 		PLAYER alignment TR "Last time WHAT?"
 	}
-	copy demoend_everyone_south;
+	copy ch1_end_everyone_south;
 	copy earthquake;
 	wait 600ms;
-	copy demoend_everyone_look_at_jackob;
+	copy ch1_end_everyone_look_at_jackob;
 	// Jackob paces:
 	walk entity Jackob to geometry demoend-jackob-pace over 500ms;
 	walk entity Jackob to geometry demoend-jackob-point over 500ms;
@@ -165,7 +165,7 @@ demoend_cutscene {
 		Jackob "The other artifacts?"
 		Alfonso "Dangerous. Dangerous, but...."
 	}
-	copy demoend_everyone_south;
+	copy ch1_end_everyone_south;
 	copy earthquake;
 	wait 900ms;
 	show dialog {

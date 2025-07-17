@@ -42,7 +42,7 @@ marta_walk {
 	entity Marta position -> geometry "earthquake_setpiece-marta_walk" origin over 900ms;
 }
 
-demoend_cutscene_move {
+ch1_end_cutscene_move {
 	entity Alfonso position = geometry "demoend-alfonso-point";
 	entity Bert position = geometry "demoend-bert-point";
 	entity Jackob position = geometry "demoend-jackob-point";
@@ -60,7 +60,7 @@ demoend_cutscene_move {
 	entity Helga on_tick = loiter2;
 }
 
-demoend_everyone_south {
+ch1_end_everyone_south {
 	entity Ram on_tick = null_script;
 	entity Marta on_tick = null_script;
 	entity Helga on_tick = null_script;
@@ -74,7 +74,7 @@ demoend_everyone_south {
 	entity Jackob direction = south;
 }
 
-demoend_everyone_look_at_jackob {
+ch1_end_everyone_look_at_jackob {
 	entity Helga direction = entity Jackob;
 	entity Marta direction = entity Jackob;
 	entity Ram direction = entity Jackob;
@@ -83,7 +83,7 @@ demoend_everyone_look_at_jackob {
 	entity Bert direction = entity Jackob;
 }
 
-demoend_cutscene {
+ch1_end_cutscene {
 	player_control = off;
 	copy!(earthquake)
 	show dialog {
@@ -91,7 +91,7 @@ demoend_cutscene {
 	};
 	camera fade out -> #000000 over 300ms;
 	copy!(earthquake_setpiece)
-	copy!(demoend_cutscene_move)
+	copy!(ch1_end_cutscene_move)
 	camera = player position;
 	camera fade in -> #000000 over 300ms;
 	entity Marta position -> geometry "demoend-marta-point" origin over 600ms;
@@ -117,10 +117,10 @@ demoend_cutscene {
 	wait 200ms; /**/ show dialog {
 		PLAYER alignment TR "Last time WHAT?"
 	};
-	copy!(demoend_everyone_south)
+	copy!(ch1_end_everyone_south)
 	copy!(earthquake)
 	wait 600ms;
-	copy!(demoend_everyone_look_at_jackob)
+	copy!(ch1_end_everyone_look_at_jackob)
 	// Jackob paces:
 	entity Jackob position -> geometry "demoend-jackob-pace" origin over 500ms;
 	entity Jackob position -> geometry "demoend-jackob-point" origin over 500ms;
@@ -165,7 +165,7 @@ demoend_cutscene {
 		Jackob "The other artifacts?"
 		Alfonso "Dangerous. Dangerous, but...."
 	};
-	copy!(demoend_everyone_south)
+	copy!(ch1_end_everyone_south)
 	copy!(earthquake)
 	wait 900ms;
 	show dialog {
