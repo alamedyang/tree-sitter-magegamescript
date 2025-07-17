@@ -4,7 +4,7 @@ ch2_wizard_stomp {
 	wait 1800ms;
 	play entity "%SELF%" animation 2 once;
 }
-ch2-bird-hyper {
+ch2_bird_hyper {
 	turn entity "%SELF%" west;
 	set entity "%SELF%" current_animation to 0;
 	wait 1100ms;
@@ -76,13 +76,13 @@ const! ( // Lambda animations and emotes
 	$opaque_lowered_almost = 5
 	$panicked = 5
 )
-player-watch-lambda-actor {
+player_watch_lambda_actor {
 	turn entity "%PLAYER%" toward entity $Lambda;
 }
-alfonso-watch-lambda-actor {
+alfonso_watch_lambda_actor {
 	turn entity "Alfonso" toward entity $Lambda;
 }
-jackob-watch-lambda-actor {
+jackob_watch_lambda_actor {
 	turn entity "Jackob" toward entity $Lambda;
 }
 ch2_lambda_lower_actor {
@@ -96,18 +96,18 @@ ch2_lambda_raise_actor {
 
 // CUTSCENE
 
-ch2-post-credits-walkin {
+ch2_post_credits_walkin {
 	walk entity "%PLAYER%" along geometry end-walkin over 1800ms;
 	goto null_script;
 }
-lambda-cower {
+lambda_cower {
 	walk entity $Lambda along geometry lambda-hide over 1000ms;
 	goto null_script;
 }
-player-watch-alfonso {
+player_watch_alfonso {
 	turn entity "%PLAYER%" toward entity Alfonso;
 }
-ch2-elder-ending-walkin {
+ch2_elder_ending_walkin {
 	walk entity "%SELF%" along geometry "%ENTITY_PATH%" over 3000ms;
 	goto null_script;
 }
@@ -117,7 +117,7 @@ ch2_elder_ending_walkin_end {
 	goto null_script;
 }
 
-ch2-post-credits {
+ch2_post_credits {
 	turn serial control off;
 	turn player control off;
 
@@ -127,14 +127,14 @@ ch2-post-credits {
 	set entity $Lambda type to lambda;
 
 	// the rest of the owl
-	set entity "%PLAYER%" on_tick to ch2-post-credits-walkin;
+	set entity "%PLAYER%" on_tick to ch2_post_credits_walkin;
 	fade in camera from #000000 over 1100ms;
 	wait 700ms;
 	teleport entity $Lambda to geometry lambda1;
 	show dialog {
 		Lambda "%PLAYER%, wait!"
 	}
-	set entity "%PLAYER%" on_tick to player-watch-lambda-actor;
+	set entity "%PLAYER%" on_tick to player_watch_lambda_actor;
 	walk entity $Lambda to geometry lambda2 over 1800ms;
 	set entity $Lambda current_animation to $opaque;
 	wait 1200ms;
@@ -166,18 +166,18 @@ ch2-post-credits {
 		Lambda emote $panicked "Yes, but not quite so fast! I-I need to work myself up to it! I gotta --"
 	}
 	set entity $Lambda on_tick to null_script;
-	set entity $Lambda on_tick to lambda-cower;
-	set entity "%PLAYER%" on_tick to player-watch-lambda-actor;
+	set entity $Lambda on_tick to lambda_cower;
+	set entity "%PLAYER%" on_tick to player_watch_lambda_actor;
 	show dialog {
 		Lambda emote $panicked "HIDE!"
 		PLAYER "Hey!"
 	}
-	set entity "%PLAYER%" on_tick to player-watch-alfonso;
+	set entity "%PLAYER%" on_tick to player_watch_alfonso;
 	set entity Alfonso path to alfonso-walkin;
 	set entity Jackob path to jackob-walkin;
-	set entity Alfonso on_tick to ch2-elder-ending-walkin;
+	set entity Alfonso on_tick to ch2_elder_ending_walkin;
 	wait 200ms;
-	set entity Jackob on_tick to ch2-elder-ending-walkin;
+	set entity Jackob on_tick to ch2_elder_ending_walkin;
 	wait 100ms;
 	show dialog {
 		Alfonso "There you are, %PLAYER%. We've learned something terribly important."
@@ -211,9 +211,9 @@ ch2-post-credits {
 		PLAYER "Well?"
 	}
 	wait 1200ms;
-	set entity Alfonso on_tick to alfonso-watch-lambda-actor;
+	set entity Alfonso on_tick to alfonso_watch_lambda_actor;
 	wait 200ms;
-	set entity Jackob on_tick to jackob-watch-lambda-actor;
+	set entity Jackob on_tick to jackob_watch_lambda_actor;
 	wait 1400ms;
 	show dialog {
 		Lambda emote $opaque_lowered_almost "I-I'll come out. I'm sorry."
@@ -312,7 +312,7 @@ ch2-post-credits {
 	show dialog {
 		Alfonso "You must have known something absolutely vital. You MUST try to remember whatever it is you knew! It could be the key to everything!"
 	}
-	set entity Jackob on_tick to look-left-and-up-fast;
+	set entity Jackob on_tick to look_left_and_up_fast;
 	show dialog {
 		Jackob "But how do I remember what I don't know I don't remember?"
 		Alfonso "I don't know. We'll have you meditate. Do some free association. Think of songs or smells from your past or something."
@@ -366,7 +366,7 @@ ch2-post-credits {
 	copy ch2_lambda_lower_actor;
 	turn entity $Lambda south;
 	wait 200ms;
-	set entity "%PLAYER%" on_tick to player-watch-lambda-actor;
+	set entity "%PLAYER%" on_tick to player_watch_lambda_actor;
 	show dialog {
 		Lambda  emote $opaque_lowered "They'll never really trust me again. Maybe I was better off where I was, in hiding."
 		"...."

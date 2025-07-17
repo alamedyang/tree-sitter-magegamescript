@@ -386,7 +386,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 			'PLAYER: %PLAYER%',
 			'cli-variable: $cli-variable$',
 			"'Mage 01': %Mage 01%",
-			'ch1-storyflags-tally: $ch1-storyflags-tally$',
+			'ch1_storyflags_tally: $ch1_storyflags_tally$',
 			'SELF: %SELF%',
 			'MAP: %MAP%',
 		],
@@ -826,7 +826,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Back to menu',
-				script: 'debug-buffertest',
+				script: 'debug_buffertest',
 			},
 			{
 				label: 'Stop',
@@ -844,7 +844,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Back to menu',
-				script: 'debug-buffertest',
+				script: 'debug_buffertest',
 			},
 			{
 				label: 'Stop',
@@ -5527,20 +5527,20 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		],
 		name: 'ch2-lodge-rtfm.mgs:30:2',
 	},
-	'books-extra': {
+	books_extra: {
 		messages: [
 			'You looked at the book called "\u001b[35m%SELF%\u001b[0m."',
 			'    This tome resembles the hand-made "Entities" books, but\nthis one was more neatly constructed and is less worn. It\'s\none of a set of two.',
 		],
-		name: 'books-extra',
+		name: 'books_extra',
 	},
-	'red-letter-pamphlet': {
+	red_letter_pamphlet: {
 		messages: [
 			'You looked at the book called "\u001b[35m%SELF%\u001b[0m."',
 			'    This sheet -- and its nearby counterpart -- are ripped\non the left side, as if torn from a bound book. The paper is\nyellowed, particularly on the edges, and the ink is smeared\nin places.',
 			'    Some words are written in an ominous red.',
 		],
-		name: 'red-letter-pamphlet',
+		name: 'red_letter_pamphlet',
 	},
 	'ch2-lodge-rtfm.mgs:70:2': {
 		messages: ['Entering \u001b[1mRTFM ROOM\u001b[0m...'],

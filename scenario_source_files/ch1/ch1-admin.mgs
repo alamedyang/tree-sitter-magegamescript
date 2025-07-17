@@ -1,36 +1,36 @@
-"ch1-count-flags" {
-	"ch1-storyflags-tally" = 0;
+"ch1_count_flags" {
+	"ch1_storyflags_tally" = 0;
 	if ("storyflag-catwork") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-shepherd") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-bender") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-baker") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-bobmoss") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-bea1") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-trekkie") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-sportskid") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-verthandi") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-bea2") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 	if ("storyflag-rake") {
-		"ch1-storyflags-tally" += 1;
+		"ch1_storyflags_tally" += 1;
 	}
 }

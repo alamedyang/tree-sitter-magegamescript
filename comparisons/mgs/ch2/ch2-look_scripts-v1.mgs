@@ -21,7 +21,7 @@ look_ch2_jackob {
 		"\tThe man is old enough that his expression is cryptic. His eyes are all but entirely hidden under his sagging lids. He nods his head as if approving your efforts. Or is he genuinely falling asleep?"
 	}
 }
-look-player {
+look_player {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at <c>yourself</>."

@@ -7,46 +7,46 @@ const! (
 	$goto_round_5 = 10
 )
 
-ch2-count-flags {
-	mutate ch2-storyflags-tally = 0;
+ch2_count_flags {
+	mutate ch2_storyflags_tally = 0;
 	// normal
 	if (flag ch2_installed_heatsink is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_powersupply is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_monitor is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	// abstract
 	if (flag ch2_installed_harddrive is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_keyboard is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_mouse is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	// desperate
 	if (flag ch2_installed_ramchips is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_clock is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	if (flag ch2_installed_cpu is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 	// final
 	if (flag ch2_installed_mainframeos is true) {
-		mutate ch2-storyflags-tally + 1;
+		mutate ch2_storyflags_tally + 1;
 	}
 }
 
 interact_ch2_mainframe_end {
-	show dialog mainframe-working { name "" "(Nothing left to install. The computer is humming and buzzing along, and Aurelius seems to be doing okay.)" }
+	show dialog mainframe_working { name "" "(Nothing left to install. The computer is humming and buzzing along, and Aurelius seems to be doing okay.)" }
 }
 interact_ch2_mainframe {
 	if (flag ch2_wait_for_hat_touch is true) {
@@ -64,7 +64,7 @@ interact_ch2_mainframe {
 		copy ch2_install_wizard;
 		return;
 	} else if (flag ch2_installed_mainframeos is true) {
-		show dialog mainframe-working; // references above
+		show dialog mainframe_working; // references above
 		return;
 	} else if (flag ch2_toot_done is false) {
 		show dialog { PLAYER "What is this hunk of junk?" }
@@ -176,20 +176,20 @@ interact_ch2_mainframe {
 	} else {
 		set flag temp to false;
 		show dialog { PLAYER "That's all for now." }
-		copy ch2-count-flags;
+		copy ch2_count_flags;
 		// the below are separate scripts so that multiple things can trigger them
 		// (^^ should this be the case?) (todo: determine this)
-		if (variable ch2-storyflags-tally is == $goto_round_2) {
-			copy ch2-start-round-2;
-		} else if (variable ch2-storyflags-tally is == $goto_round_3) {
-			copy ch2-start-round-3;
-		} else if (variable ch2-storyflags-tally is == $goto_round_4) {
-			copy ch2-start-round-4;
+		if (variable ch2_storyflags_tally is == $goto_round_2) {
+			copy ch2_start_round_2;
+		} else if (variable ch2_storyflags_tally is == $goto_round_3) {
+			copy ch2_start_round_3;
+		} else if (variable ch2_storyflags_tally is == $goto_round_4) {
+			copy ch2_start_round_4;
 		}
 	}
 }
 
-ch2-start-round-2 {
+ch2_start_round_2 {
 	set entity "%PLAYER%" current_animation to 0;
 	copy ch2_cutscene_bert_secret;
 	turn player control off;
@@ -210,7 +210,7 @@ ch2-start-round-2 {
 	}
 	turn player control on;
 }
-ch2-start-round-3 {
+ch2_start_round_3 {
 	turn player control off;
 	wait 800ms;
 	turn entity "%PLAYER%" toward entity "Wizard";
@@ -242,7 +242,7 @@ ch2-start-round-3 {
 	}
 	turn player control on;
 }
-ch2-start-round-4 {
+ch2_start_round_4 {
 	show serial dialog spacer;
 	show serial dialog {
 		" (DING)"
@@ -266,7 +266,7 @@ ch2-start-round-4 {
 // DEBUG
 
 register_storyflag {
-	register storyflag -> ch2-debug-storyflag;
+	register storyflag -> ch2_debug_storyflag;
 	register storyflag + "0" -> debug_map_flags_for_round0;
 	register storyflag + "1" -> debug_map_flags_for_round1;
 	register storyflag + "2" -> debug_map_flags_for_round2;
@@ -275,7 +275,7 @@ register_storyflag {
 	register storyflag + "5" -> debug_map_flags_for_round5;
 }
 
-ch2-debug-storyflag {
+ch2_debug_storyflag {
 	show serial dialog spacer;
 	show serial dialog {
 		"<y>DEBUG></>: Set flag 'ch2_storyflag_round' to what value? (0-5)"
@@ -297,7 +297,7 @@ debug_map_flags_for_round0 {
 	copy ch2_take_off_map_round3;
 	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 0;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
 debug_map_flags_for_round1 {
 	copy ch2_put_on_map_round1;
@@ -305,7 +305,7 @@ debug_map_flags_for_round1 {
 	copy ch2_take_off_map_round3;
 	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 1;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
 debug_map_flags_for_round2 {
 	copy ch2_take_off_map_round1;
@@ -313,7 +313,7 @@ debug_map_flags_for_round2 {
 	copy ch2_take_off_map_round3;
 	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 2;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
 debug_map_flags_for_round3 {
 	copy ch2_take_off_map_round1;
@@ -321,7 +321,7 @@ debug_map_flags_for_round3 {
 	copy ch2_put_on_map_round3;
 	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 3;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
 debug_map_flags_for_round4 {
 	copy ch2_take_off_map_round1;
@@ -329,7 +329,7 @@ debug_map_flags_for_round4 {
 	copy ch2_take_off_map_round3;
 	copy ch2_put_on_map_round4;
 	mutate ch2_storyflag_round = 4;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
 debug_map_flags_for_round5 {
 	copy ch2_take_off_map_round1;
@@ -338,9 +338,9 @@ debug_map_flags_for_round5 {
 	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 5;
 	set flag ch2_cutseen_castle99 to true;
-	// copy ch2-debug_storyflag_log;
+	// copy ch2_debug_storyflag_log;
 }
-ch2-debug_storyflag_log {
+ch2_debug_storyflag_log {
 	show serial dialog spacer;
 	show serial dialog {
 		"Flag 'ch2_storyflag_round' is now $ch2_storyflag_round$"
@@ -348,7 +348,7 @@ ch2-debug_storyflag_log {
 }
 
 const!($time = 200ms)
-ch2-serial-light-manager {
+ch2_serial_light_manager {
 	if (serial dialog is open) {
 		// solid light while in a serial dialog (interactable)
 		turn light LED_USB on;
@@ -362,8 +362,8 @@ ch2-serial-light-manager {
 			turn light LED_USB on;
 		}
 		wait $time;
-	} else if (flag ch2-mousegame is true) {
-		// if flag ch2-mousegame is true, turn off and wait for it to be false before resuming above behavior
+	} else if (flag ch2_mousegame is true) {
+		// if flag ch2_mousegame is true, turn off and wait for it to be false before resuming above behavior
 		goto ch2_serial_light_manager_mouse;
 	} else {
 		// no light otherwise
@@ -372,8 +372,8 @@ ch2-serial-light-manager {
 }
 
 ch2_serial_light_manager_mouse {
-	if (flag ch2-mousegame is false) {
-		goto ch2-serial-light-manager;
+	if (flag ch2_mousegame is false) {
+		goto ch2_serial_light_manager;
 	}
 }
 

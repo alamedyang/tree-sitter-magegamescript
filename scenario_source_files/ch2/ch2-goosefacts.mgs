@@ -2,16 +2,16 @@ include "header.mgs";
 
 $goosefactcount = 20;
 
-"stop-goosefacts" {
+"stop_goosefacts" {
     show serial_dialog spacer;
     show serial_dialog {
         "You are no longer subscribed to goose facts."
     };
-    "ch2-goosefacts" = false;
+    "ch2_goosefacts" = false;
     delete command "stop" ;
 }
 "goosefacts" {
-    if ("ch2-goosefacts") {
+    if ("ch2_goosefacts") {
         show serial_dialog {" \n<g>You are subscribed to goose facts! HONK!<bell></>\n "};
         if ("goosefact" == 0) {
             show serial_dialog {

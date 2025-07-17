@@ -28,7 +28,7 @@ on_load-main_menu {
 		register king -> debug-king;
 		register ch2 -> menu-chapter_select-2;
 		register rtfm -> command-rtfm;
-		register buffer + test -> debug-buffertest;
+		register buffer + test -> debug_buffertest;
 		register boot -> ch2_bootup;
 		register post -> debug-post;
 		// register cutbug -> ch2_toot_step3_end2;
@@ -435,14 +435,14 @@ start-new-game-with-name {
 /* ---------- CHOOSING A CHAPTER ---------- */
 
 menu-chapter_select-q {
-	copy ch1-count-flags;
-	copy ch2-count-flags;
+	copy ch1_count_flags;
+	copy ch2_count_flags;
 	show dialog {
 		name " "
 		border_tileset menu
 		"PLAY (slot $slot-number$: \"%PLAYER%\")"
-		> "Chapter 1 ($ch1-storyflags-tally$/11)" : menu-chapter_select-1
-		> "Chapter 2 ($ch2-storyflags-tally$/10)" : menu-chapter_select-2-check
+		> "Chapter 1 ($ch1_storyflags_tally$/11)" : menu-chapter_select-1
+		> "Chapter 2 ($ch2_storyflags_tally$/10)" : menu-chapter_select-2-check
 		> "Back" : menu-play_game
 	}
 }

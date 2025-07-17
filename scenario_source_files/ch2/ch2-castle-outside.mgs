@@ -52,7 +52,7 @@ include "header.mgs";
 			// borrowing this from town scripts
 		camera fade in -> #000000 over 400ms;
 	} else if (warp_state == "ch2-ending") {
-		goto "ch2-post-credits";
+		goto "ch2_post_credits";
 	}
 }
 

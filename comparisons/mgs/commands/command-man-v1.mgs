@@ -1001,7 +1001,7 @@ ch2_lambda_person_player {
 	}
 }
 ch2_lambda_person_player_2 {
-	set flag ch2-cameras-explanation to true;
+	set flag ch2_cameras_explanation to true;
 	show serial dialog spacer;
 	show serial dialog {
 		"<c>YOU</>: How did you know I'm wearing a hat?"

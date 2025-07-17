@@ -2657,7 +2657,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
-			messages: ["You've completed $ch1-storyflags-tally$ out of 11 tasks."],
+			messages: ["You've completed $ch1_storyflags_tally$ out of 11 tasks."],
 		},
 	],
 	'ch1-elders.mgs:507:4': [
@@ -5907,7 +5907,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Nothing changed.'],
 		},
 	],
-	'mainframe-working': [
+	mainframe_working: [
 		{
 			name: '',
 			alignment: 'BOTTOM_LEFT',
@@ -11714,7 +11714,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ["Oh, I'll help you out. Come here."],
 		},
 	],
-	'vending-pocket-change': [
+	vending_pocket_change: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -12287,7 +12287,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Gotcha. So, um....'],
 		},
 	],
-	'ch2-gregory-cactus-help': [
+	ch2_gregory_cactus_help: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -14474,7 +14474,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Oh, Delmar, thank you!'],
 		},
 	],
-	'ch2-beatrice-plea': [
+	ch2_beatrice_plea: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -15836,11 +15836,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			response_type: 'SELECT_FROM_SHORT_LIST',
 			options: [
 				{
-					label: 'Chapter 1 ($ch1-storyflags-tally$/11)',
+					label: 'Chapter 1 ($ch1_storyflags_tally$/11)',
 					script: 'menu-chapter_select-1',
 				},
 				{
-					label: 'Chapter 2 ($ch2-storyflags-tally$/10)',
+					label: 'Chapter 2 ($ch2_storyflags_tally$/10)',
 					script: 'menu-chapter_select-2-check',
 				},
 				{

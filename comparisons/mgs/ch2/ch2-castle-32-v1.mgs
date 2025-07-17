@@ -11,14 +11,14 @@ look_ch2_castle_32 {
 	}
 }
 
-ch2-look-onions {
+look_ch2_onions {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tFresh and fragrant. You appreciate the care to flavor that this cook is putting into whatever it is they're intending to cook. You also appreciate that fact that you don't have to cut them yourself."
 	}
 }
-ch2-look-stove {
+look_ch2_stove {
 	show serial dialog spacer;
 	show serial dialog {
 		"You looked at the <m>%SELF%</>."
@@ -108,7 +108,7 @@ on_load_ch2_castle_32 {
 	}
 
 	// room unique stuff
-	if (flag ch2-ramchips-dispensed is false) {
+	if (flag ch2_ramchips_dispensed is false) {
 		copy script ch2_hide_ramchips;
 	}
 	
@@ -168,7 +168,7 @@ on_tick_ch2_castle_32_postgame {
 const! (
 	$walkspeed = 200ms
 )
-ch2-gloria-worry-walk {
+ch2_gloria_worry_walk {
 	mutate tempvar ? 4;
 	if (variable tempvar is 0) {
 		wait 400ms;
@@ -250,7 +250,7 @@ interact_ch2_gloria {
 		}
 		set entity "%SELF%" on_tick to face_player;
 	}
-	set entity "%SELF%" on_tick to ch2-gloria-worry-walk;
+	set entity "%SELF%" on_tick to ch2_gloria_worry_walk;
 	play entity "%SELF%" animation 5 once;
 	set entity "%SELF%" current_animation to 0;
 	turn player control on;
@@ -258,26 +258,26 @@ interact_ch2_gloria {
 interact_ch2_samson {
 	copy face_player;
 	set entity "%SELF%" current_animation to 2;
-	if (variable ch2-samson-count is 0) {
+	if (variable ch2_samson_count is 0) {
 		show dialog {
 			SELF "Someone was kicking the castle yesterday!"
 		}
-	} else if (variable ch2-samson-count is 1) {
+	} else if (variable ch2_samson_count is 1) {
 		show dialog {
 			SELF "It woke up the big stone man!"
 		}
-	} else if (variable ch2-samson-count is 2) {
+	} else if (variable ch2_samson_count is 2) {
 		show dialog {
 			SELF "Mommy used her wings and flew around in the big room and then the kicking stopped!"
 		}
-	} else if (variable ch2-samson-count is 3) {
+	} else if (variable ch2_samson_count is 3) {
 		show dialog {
 			SELF "Chips fell out of the box, and I got to eat all of them!"
 		}
 	}
 	set entity "%SELF%" current_animation to 0;
-	mutate ch2-samson-count + 1;
-	mutate ch2-samson-count % 4;
+	mutate ch2_samson_count + 1;
+	mutate ch2_samson_count % 4;
 	turn entity "%SELF%" west;
 }
 
@@ -316,9 +316,9 @@ interact_ch2_vendingmachine {
 			if (entity "%PLAYER%" is not inside geometry vending-watchbox) {
 				set entity "%PLAYER%" on_tick to ch2_walk_to_vend_short;
 			} else {
-				set entity "%PLAYER%" on_tick to ch2-watch-seamoss;
+				set entity "%PLAYER%" on_tick to ch2_watch_seamoss;
 			}
-			copy ch2-seamoss-summon-chips;
+			copy ch2_seamoss_summon_chips;
 		} else {
 			show dialog {
 				PLAYER "I wonder if they make \"cool ranch\" RAM chips."
@@ -330,7 +330,7 @@ interact_ch2_vendingmachine {
 		|| flag ch2_carrying_cactuscooler is true
 		|| flag ch2_cactuscooler_delivered is true
 	) {
-		show dialog vending-pocket-change { // reused
+		show dialog vending_pocket_change { // reused
 			PLAYER "There's sure a lot of snacks in there. Too bad I'm out of pocket change."
 		}
 	} else if (flag ch2_want_bobparty is false) {
@@ -408,7 +408,7 @@ interact_ch2_seamoss {
 	turn entity "%SELF%" south;
 }
 
-ch2-walk-to-vend {
+ch2_walk_to_vend {
 	wait 400ms;
 	walk entity "%PLAYER%" to geometry vending-watch over 1900ms;
 	wait 200ms;
@@ -440,14 +440,14 @@ interact_ch2_seamoss_cutscene {
 		SELF "It'll be fine. Come here, I'll show you."
 	}
 	wait 100ms;
-	set entity "%PLAYER%" on_tick to ch2-walk-to-vend;
-	copy ch2-seamoss-summon-chips;
+	set entity "%PLAYER%" on_tick to ch2_walk_to_vend;
+	copy ch2_seamoss_summon_chips;
 }
 
-ch2-watch-seamoss {
+ch2_watch_seamoss {
 	turn entity "%SELF%" toward entity "Sea Moss";
 }
-ch2-seamoss-summon-chips {
+ch2_seamoss_summon_chips {
 	walk entity "Sea Moss" to geometry vending-spot over 1800ms;
 	wait 800ms;
 	set entity "%PLAYER%" on_tick to null_script;
@@ -475,12 +475,12 @@ ch2-seamoss-summon-chips {
 	}
 	turn player control on;
 	set flag ch2_cutseen_ramchips to true;
-	set flag ch2-ramchips-dispensed to true;
+	set flag ch2_ramchips_dispensed to true;
 	set entity "%PLAYER%" on_tick to null_script;
 }
 
 interact_ch2_vendingmachine_end {
-	show dialog vending-pocket-change;
+	show dialog vending_pocket_change;
 }
 
 /* ---------- RAMCHIPS (ADMIN) ---------- */
@@ -516,7 +516,7 @@ ch2_touch_ramchips_yes {
 	}
 	copy script ch2_hide_ramchips;
 	copy script ch2_pickup_ramchips;
-	set flag ch2-ramchips-dispensed to false;
+	set flag ch2_ramchips_dispensed to false;
 	set entity "%SELF%" on_interact to null_script;
 }
 ch2_touch_ramchips_no {

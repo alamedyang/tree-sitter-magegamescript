@@ -16,7 +16,7 @@ on_load-main_menu {
    command king = debug-king;
    command ch2 = menu-chapter_select-2;
    command rtfm = command-rtfm;
-   command buffer + test = debug-buffertest;
+   command buffer + test = debug_buffertest;
    command boot = ch2_bootup;
    command post = debug-post;
    command skip + 1 = debug_jump_to_round1;
@@ -89,7 +89,7 @@ on_load-main_menu {
    command warp + smiths house = warp-ch2-smithfamily;
    command warp + smith house = warp-ch2-smithfamily;
    command warp + smith = warp-ch2-smithfamily;
-   command storyflag = ch2-debug-storyflag;
+   command storyflag = ch2_debug_storyflag;
    command storyflag + 0 = debug_map_flags_for_round0;
    command storyflag + 1 = debug_map_flags_for_round1;
    command storyflag + 2 = debug_map_flags_for_round2;
@@ -826,91 +826,91 @@ start-new-game-with-name {
 }
 
 menu-chapter_select-q {
-   ch1-storyflags-tally = 0;
+   ch1_storyflags_tally = 0;
    if (storyflag-catwork) { goto index 3; }
    goto index 5;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 5;
    if (storyflag-shepherd) { goto index 7; }
    goto index 9;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 9;
    if (storyflag-bender) { goto index 11; }
    goto index 13;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 13;
    if (storyflag-baker) { goto index 15; }
    goto index 17;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 17;
    if (storyflag-bobmoss) { goto index 19; }
    goto index 21;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 21;
    if (storyflag-bea1) { goto index 23; }
    goto index 25;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 25;
    if (storyflag-trekkie) { goto index 27; }
    goto index 29;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 29;
    if (storyflag-sportskid) { goto index 31; }
    goto index 33;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 33;
    if (storyflag-verthandi) { goto index 35; }
    goto index 37;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 37;
    if (storyflag-bea2) { goto index 39; }
    goto index 41;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 41;
    if (storyflag-rake) { goto index 43; }
    goto index 45;
-   ch1-storyflags-tally += 1;
+   ch1_storyflags_tally += 1;
    goto index 45;
-   ch2-storyflags-tally = 0;
+   ch2_storyflags_tally = 0;
    if (ch2_installed_heatsink) { goto index 48; }
    goto index 50;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 50;
    if (ch2_installed_powersupply) { goto index 52; }
    goto index 54;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 54;
    if (ch2_installed_monitor) { goto index 56; }
    goto index 58;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 58;
    if (ch2_installed_harddrive) { goto index 60; }
    goto index 62;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 62;
    if (ch2_installed_keyboard) { goto index 64; }
    goto index 66;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 66;
    if (ch2_installed_mouse) { goto index 68; }
    goto index 70;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 70;
    if (ch2_installed_ramchips) { goto index 72; }
    goto index 74;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 74;
    if (ch2_installed_clock) { goto index 76; }
    goto index 78;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 78;
    if (ch2_installed_cpu) { goto index 80; }
    goto index 82;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 82;
    if (ch2_installed_mainframeos) { goto index 84; }
    goto index 86;
-   ch2-storyflags-tally += 1;
+   ch2_storyflags_tally += 1;
    goto index 86;
    show dialog main_menu.mgs:438:2;
 }

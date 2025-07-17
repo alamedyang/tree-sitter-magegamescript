@@ -2,7 +2,7 @@ include!("header.mgs")
 
 /* ---------- BERT SECRET CUTSCENE ---------- */
 
-watch-bert {
+watch_bert {
 	turn entity "%SELF%" toward entity Bert;
 }
 
@@ -15,7 +15,7 @@ ch2_cutscene_bert_secret {
 		Bert "%PLAYER%, wait."
 	}
 	wait 100ms;
-	set entity "%PLAYER%" on_tick to watch-bert;
+	set entity "%PLAYER%" on_tick to watch_bert;
 	wait 400ms;
 	// the below is unnecessary if this cutscene is triggered via normal means; cannot use a zigzag here, though, since this script is run with COPY_SCRIPT
 	// you can't trigger the "stuck on animation 5" with this, though, since you can't feasibly get to this part of the script before the Wiz is all the way ascended anyway. (Hitting `tick_ch2_wizard_ascend_and_watch_with_check` when it's in progress breaks things!)
@@ -88,14 +88,14 @@ ch2_bert_secret_lambda_intro {
 		" "
 		"<m>LAMBDA</>: His name was a complete blank until you said it, but I recognized his face!"
 	}
-	if (flag ch2-cameras-explanation is false) {
+	if (flag ch2_cameras_explanation is false) {
 		show serial dialog {
 			" "
 			"<c>YOU</>: Wait, how did you see his face?"
 			" "
 			"<m>LAMBDA</>: The cameras! They're all around in -- look, it doesn't matter. The point is...."
 		}
-		set flag ch2-cameras-explanation to true;
+		set flag ch2_cameras_explanation to true;
 	}
 	show serial dialog {
 		"\tAw, man. The two of us? We go way back!"

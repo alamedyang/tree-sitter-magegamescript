@@ -105,7 +105,7 @@ on_tick_ch2_lodge {
 	}
 }
 
-look-left-sometimes {
+look_left_sometimes {
 	turn entity "%SELF%" west;
 	wait 800ms;
 	turn entity "%SELF%" north;
@@ -196,17 +196,17 @@ interact_ch2_jackob_library {
 const!( $bookcount = 4)
 
 interact_ch2_alfonso_library {
-	mutate ch2-alfonso-library-count + 1;
-	mutate ch2-alfonso-library-count % $bookcount;
-	if (variable ch2-alfonso-library-count is 1) {
+	mutate ch2_alfonso_library_count + 1;
+	mutate ch2_alfonso_library_count % $bookcount;
+	if (variable ch2_alfonso_library_count is 1) {
 		show dialog {
 			SELF "Oh, goodness! It's \"The Importance of Being Earnest.\" I remember this play. Twenty years ago, Jackob and I did a reading of it with --"
 		}
-	} else if (variable ch2-alfonso-library-count is 2) {
+	} else if (variable ch2_alfonso_library_count is 2) {
 		show dialog {
 			SELF "Aha, \"A Brief History of Time!\" You know, I've always wanted learn about time and space and the universe and all that. And it isn't very long."
 		}
-	} else if (variable ch2-alfonso-library-count is 3) {
+	} else if (variable ch2_alfonso_library_count is 3) {
 		show dialog {
 			SELF "Oho, \"The Complete Plays of Gilbert and Sullivan.\" I think I memorized one of their patter songs once. But was it from Pinafore or Penzance?"
 		}
@@ -222,20 +222,20 @@ interact_ch2_alfonso_library {
 	turn entity "%SELF%" north;
 }
 
-ch2-goose-library {
+ch2_goose_library {
 	if (flag ch2_has_artifact is false) {
 		show dialog {
 			SELF "Honk!"
 		}
 
 	} else {
-		if (flag ch2-goosefacts is false) {
+		if (flag ch2_goosefacts is false) {
 			concat serial dialog { "<bell>" }
 			show dialog {
 				SELF "HONK! You are now subscribed to goose facts!"
 			}
-			set flag ch2-goosefacts to true;
-			register stop -> stop-goosefacts;
+			set flag ch2_goosefacts to true;
+			register stop -> stop_goosefacts;
 		} else {
 			show dialog {
 				SELF "Enjoy your free goose facts!"

@@ -418,7 +418,7 @@ For each item: (Copy existing pattern wherever these are found)
 1. Put entity on a map (`ENTITY`) and set `on_interact` = `ch2_touch_ITEM`
 2. In file `ch2/ch2-admin.mgs`:
     1. Script `command-inventory` — Add serial dialog `\tITEM` display check (using flag `ch2-carrying-ITEM`)
-    2. Script `ch2-count-flags` — Add tally logic check (using flag `ch2-installed-ITEM`)
+    2. Script `ch2_count_flags` — Add tally logic check (using flag `ch2-installed-ITEM`)
     3. Script `interact_ch2_mainframe` — Add installation dialog (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
 3. In script file for the map room:
     1. Room's `on_load` — Add entity hide behavior (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)

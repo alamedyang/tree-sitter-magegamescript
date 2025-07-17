@@ -1,5 +1,5 @@
 include "header.mgs";
-$lightsdefault = "ch2-serial-light-manager";
+$lightsdefault = "ch2_serial_light_manager";
 
 /* ---------- LOAD ---------- */
 

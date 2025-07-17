@@ -52,7 +52,7 @@ on_load_ch2_castle_outside {
 			// borrowing this from town scripts
 		fade in camera from #000000 over 400ms;
 	} else if (warp state is ch2-ending) {
-		goto ch2-post-credits;
+		goto ch2_post_credits;
 	}
 }
 

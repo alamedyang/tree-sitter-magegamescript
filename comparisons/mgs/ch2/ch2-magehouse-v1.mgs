@@ -53,12 +53,12 @@ look_ch2_magebox {
 
 look_ch2_microwave_magehouse {
 	show serial dialog spacer;
-	if (flag ch2-microwave-time is false) {
+	if (flag ch2_microwave_time is false) {
 		show serial dialog {
 			"You looked at the <m>%SELF%</>."
 			"\tIt's one of those new flat-button models. Its tiny seven-segment display is glowing a soft blue-green... and you've just realized it's got the time wrong by an hour."
 		}
-		set flag ch2-microwave-time to true;
+		set flag ch2_microwave_time to true;
 	} else {
 		show serial dialog {
 			"You looked at the <m>%SELF%</>."

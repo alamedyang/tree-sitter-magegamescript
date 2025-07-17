@@ -1,27 +1,27 @@
 include "header.mgs";
 
-"look_ch2_bert" {
+look_ch2_bert {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tA bear of a man, yet he doesn't have an aggressive bearing. His eyes drift around his environment as if patiently regarding everything, considering each one in turn."
 	};
 }
-"look_ch2_alfonso" {
+look_ch2_alfonso {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe man may genuinely be having trouble standing still; he is fidgetting with his fingers, and the robe at his feet is jerking slightly, rhythmically, as if he is aggressively tapping his toes."
 	};
 }
-"look_ch2_jackob" {
+look_ch2_jackob {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
 		"\tThe man is old enough that his expression is cryptic. His eyes are all but entirely hidden under his sagging lids. He nods his head as if approving your efforts. Or is he genuinely falling asleep?"
 	};
 }
-"look-player" {
+look_player {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <c>yourself</>."
@@ -29,7 +29,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_xa" {
+look_ch2_xa {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."

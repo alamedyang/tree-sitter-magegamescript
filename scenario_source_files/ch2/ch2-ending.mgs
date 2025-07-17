@@ -1,10 +1,10 @@
 include "header.mgs";
 
-"ch2_wizard_stomp" {
+ch2_wizard_stomp {
 	wait 1800ms;
 	self animation -> 2 once;
 }
-"ch2-bird-hyper" {
+ch2_bird_hyper {
 	self direction = west;
 	self current_animation = 0;
 	wait 1100ms;
@@ -16,17 +16,17 @@ include "header.mgs";
 	self direction = south;
 	wait 800ms;
 }
-"on_tick_ch2_credits" {
+on_tick_ch2_credits {
 	hex_control = off;
 	serial_control = off;
 	player_control = on;
 	player direction = south;
 	camera = entity cameraman position;
-	entity cameraman position = geometry "credits_camera";
+	entity cameraman position = geometry credits_camera;
 	camera fade in -> #000000 over 400ms;
-	entity "Gregory" current_animation = 1;
+	entity Gregory current_animation = 1;
 	wait 1200ms;
-	entity cameraman position -> geometry "credits_camera" length over 52000ms;
+	entity cameraman position -> geometry credits_camera length over 52000ms;
 	wait 600ms;
 	entity Wizard direction = south;
 	entity Wizard animation -> 5 once;
@@ -40,23 +40,23 @@ include "header.mgs";
 	player_control = on;
 	if (
 		warp_state == "ch2-ending"
-		|| !"credits_from_menu" // todo: is this redundant with warp state? Maybe manage warp state better?
+		|| !credits_from_menu // todo: is this redundant with warp state? Maybe manage warp state better?
 	) {
 		copy!(ch2_load_castle_1_special)
 	} else {
-		load map "main_menu";
+		load map main_menu;
 	}
 }
 
 /* ---------------- END CUTSCENE STUFF --------------- */
 
 // ACTOR: The part of Lambda will be played by Bert.
-$Lambda = "Bert";
+$Lambda = Bert;
 
 add dialog settings {
 	label Lambda {
 		entity $Lambda
-		name "Lambda"
+		name Lambda
 	}
 }
  // Lambda animations and emotes
@@ -76,66 +76,66 @@ $opaque_lowered = 4;
 $opaque_lowered_almost = 5;
 $panicked = 5;
 
-"player-watch-lambda-actor" {
+player_watch_lambda_actor {
 	player direction = entity $Lambda;
 }
-"alfonso-watch-lambda-actor" {
+alfonso_watch_lambda_actor {
 	entity Alfonso direction = entity $Lambda;
 }
-"jackob-watch-lambda-actor" {
+jackob_watch_lambda_actor {
 	entity Jackob direction = entity $Lambda;
 }
-"ch2_lambda_lower_actor" {
+ch2_lambda_lower_actor {
 	entity $Lambda animation -> $lowering once;
 	entity $Lambda current_animation = $lowered;
 }
-"ch2_lambda_raise_actor" {
+ch2_lambda_raise_actor {
 	entity $Lambda animation -> $raising once;
 	entity $Lambda current_animation = $opaque;
 }
 
 // CUTSCENE
 
-"ch2-post-credits-walkin" {
+ch2_post_credits_walkin {
 	player position -> geometry "end-walkin" length over 1800ms;
 	goto null_script;
 }
-"lambda-cower" {
+lambda_cower {
 	entity $Lambda position -> geometry "lambda-hide" length over 1000ms;
 	goto null_script;
 }
-"player-watch-alfonso" {
+player_watch_alfonso {
 	player direction = entity Alfonso;
 }
-"ch2-elder-ending-walkin" {
+ch2_elder_ending_walkin {
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
 	goto null_script;
 }
-"ch2_elder_ending_walkin_end" {
+ch2_elder_ending_walkin_end {
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
 	self on_tick = yeet;
 	goto null_script;
 }
 
-"ch2-post-credits" {
+ch2_post_credits {
 	serial_control = off;
 	player_control = off;
 
 	// Make Bert into Lambda
 	entity $Lambda on_tick = null_script;
 	entity $Lambda position = geometry "hiding-spot";
-	entity $Lambda type = "lambda";
+	entity $Lambda type = lambda;
 
 	// the rest of the owl
-	player on_tick = "ch2-post-credits-walkin";
+	player on_tick = ch2_post_credits_walkin;
 	camera fade in -> #000000 over 1100ms;
 	wait 700ms;
-	entity $Lambda position = geometry "lambda1";
+	entity $Lambda position = geometry lambda1;
 	show dialog {
 		Lambda "%PLAYER%, wait!"
 	};
-	player on_tick = "player-watch-lambda-actor";
-	entity $Lambda position -> geometry "lambda2" origin over 1800ms;
+	player on_tick = player_watch_lambda_actor;
+	entity $Lambda position -> geometry lambda2 origin over 1800ms;
 	entity $Lambda current_animation = $opaque;
 	wait 1200ms;
 	show dialog {
@@ -166,18 +166,18 @@ $panicked = 5;
 		Lambda emote $panicked "Yes, but not quite so fast! I-I need to work myself up to it! I gotta --"
 	};
 	entity $Lambda on_tick = null_script;
-	entity $Lambda on_tick = "lambda-cower";
-	player on_tick = "player-watch-lambda-actor";
+	entity $Lambda on_tick = lambda_cower;
+	player on_tick = player_watch_lambda_actor;
 	show dialog {
 		Lambda emote $panicked "HIDE!"
 		PLAYER "Hey!"
 	};
-	player on_tick = "player-watch-alfonso";
+	player on_tick = player_watch_alfonso;
 	entity Alfonso path = "alfonso-walkin";
 	entity Jackob path = "jackob-walkin";
-	entity Alfonso on_tick = "ch2-elder-ending-walkin";
+	entity Alfonso on_tick = ch2_elder_ending_walkin;
 	wait 200ms;
-	entity Jackob on_tick = "ch2-elder-ending-walkin";
+	entity Jackob on_tick = ch2_elder_ending_walkin;
 	wait 100ms;
 	show dialog {
 		Alfonso "There you are, %PLAYER%. We've learned something terribly important."
@@ -211,19 +211,19 @@ $panicked = 5;
 		PLAYER "Well?"
 	};
 	wait 1200ms;
-	entity Alfonso on_tick = "alfonso-watch-lambda-actor";
+	entity Alfonso on_tick = alfonso_watch_lambda_actor;
 	wait 200ms;
-	entity Jackob on_tick = "jackob-watch-lambda-actor";
+	entity Jackob on_tick = jackob_watch_lambda_actor;
 	wait 1400ms;
 	show dialog {
 		Lambda emote $opaque_lowered_almost "I-I'll come out. I'm sorry."
 		Alfonso "!!"
 	};
 	wait 500ms;
-	entity $Lambda position -> geometry "lambda6" origin over 1200ms;
+	entity $Lambda position -> geometry lambda6 origin over 1200ms;
 	entity $Lambda direction = south;
 	wait 500ms;
-	entity $Lambda position -> geometry "lambda7" origin over 2300ms;
+	entity $Lambda position -> geometry lambda7 origin over 2300ms;
 	entity $Lambda current_animation = $opaque;
 	player on_tick = null_script;
 	entity Jackob on_tick = null_script;
@@ -240,7 +240,7 @@ $panicked = 5;
 		PLAYER "Why do you and the Big Bad both have the power to make people forget things, Lambda?"
 	};
 	entity $Lambda direction += 1;
-	copy!("ch2_lambda_lower_actor")
+	copy!(ch2_lambda_lower_actor)
 	wait 1400ms;
 	show dialog {
 		Lambda emote $panicked "The Big Bad? Oh, dear. Oh, no."
@@ -292,7 +292,7 @@ $panicked = 5;
 	show dialog {
 		Jackob "Oh, dear. Oh, dear."
 	};
-	player on_tick = "look_left_and_right_fast";
+	player on_tick = look_left_and_right_fast;
 	wait 800ms;
 	show dialog {
 		PLAYER "This is getting dangerous, isn't it?"
@@ -312,7 +312,7 @@ $panicked = 5;
 	show dialog {
 		Alfonso "You must have known something absolutely vital. You MUST try to remember whatever it is you knew! It could be the key to everything!"
 	};
-	entity Jackob on_tick = "look-left-and-up-fast";
+	entity Jackob on_tick = look_left_and_up_fast;
 	show dialog {
 		Jackob "But how do I remember what I don't know I don't remember?"
 		Alfonso "I don't know. We'll have you meditate. Do some free association. Think of songs or smells from your past or something."
@@ -324,14 +324,14 @@ $panicked = 5;
 	show dialog {
 		Alfonso "I don't know if I can trust you, Lambda."
 	};
-	copy!("ch2_lambda_lower_actor")
+	copy!(ch2_lambda_lower_actor)
 	show dialog {
 		Lambda emote $opaque_lowered "I-I know. It's part of having skills like mine, I think."
 		Alfonso "No, it's because you literally manipulated our minds."
 		"We're supposed to just believe that you're one of us? Or trust you after you've done something like that?"
 		Lambda emote $opaque_lowered "...."
 	};
-	copy!("ch2_lambda_raise_actor")
+	copy!(ch2_lambda_raise_actor)
 	show dialog {
 		Lambda emote $opaque_lowered_almost "If it means anything, I've been trying to make things right."
 		PLAYER "It's true. He helped me fix the serial artifact."
@@ -354,19 +354,19 @@ $panicked = 5;
 	};
 	entity Alfonso path = "alfonso-walkout";
 	entity Jackob path = "jackob-walkout";
-	entity Alfonso on_tick = "ch2_elder_ending_walkin_end";
+	entity Alfonso on_tick = ch2_elder_ending_walkin_end;
 	wait 100ms;
-	entity Jackob on_tick = "ch2_elder_ending_walkin_end";
+	entity Jackob on_tick = ch2_elder_ending_walkin_end;
 	show dialog {
 		Alfonso "Never mind that! You must remember what you've forgotten, Jackob! Hurry!"
 		name "Jackob" portrait village_elder // in case he's yeeted before this card comes up
 		"Don't rush me! You're making it worse!"
 	};
 	wait 1100ms;
-	copy!("ch2_lambda_lower_actor")
+	copy!(ch2_lambda_lower_actor)
 	entity $Lambda direction = south;
 	wait 200ms;
-	player on_tick = "player-watch-lambda-actor";
+	player on_tick = player_watch_lambda_actor;
 	show dialog {
 		Lambda  emote $opaque_lowered "They'll never really trust me again. Maybe I was better off where I was, in hiding."
 		"...."
@@ -377,7 +377,7 @@ $panicked = 5;
 		Lambda emote $transparent_serious "No. That line of thinking is unproductive. We can't go back to how things were, but that doesn't mean we can't move forward."
 		"I want to stop hiding. I want to be better. I'll prove my trustworthiness by how I act from here, even if it's slow."
 	};
-	entity $Lambda position -> geometry "lambda8" origin over 300ms;
+	entity $Lambda position -> geometry lambda8 origin over 300ms;
 	entity $Lambda current_animation = $opaque;
 	wait 500ms;
 	show dialog {
@@ -393,15 +393,15 @@ $panicked = 5;
 	show dialog {
 		Lambda "Good luck with everything, %PLAYER%."
 	};
-	entity $Lambda on_tick = "ch2_lambda_walkout";
+	entity $Lambda on_tick = ch2_lambda_walkout;
 	ch2_cutseen_secret_ending = true;
 	wait 800ms;
 	player on_tick = null_script;
 	camera fade out -> #000000 over 1200ms;
-	load map "credits2";
+	load map credits2;
 }
 
-"ch2_lambda_walkout" {
-	entity $Lambda position -> geometry "lambda9" origin over 2600ms;
+ch2_lambda_walkout {
+	entity $Lambda position -> geometry lambda9 origin over 2600ms;
 	entity $Lambda on_tick = yeet;
 }

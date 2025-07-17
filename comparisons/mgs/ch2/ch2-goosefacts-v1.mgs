@@ -2,16 +2,16 @@ include!("header.mgs")
 
 const!($goosefactcount = 20)
 
-stop-goosefacts {
+stop_goosefacts {
     show serial dialog spacer;
     show serial dialog {
         "You are no longer subscribed to goose facts."
     }
-    set flag ch2-goosefacts to false;
+    set flag ch2_goosefacts to false;
     unregister stop;
 }
 goosefacts {
-    if (flag ch2-goosefacts is true) {
+    if (flag ch2_goosefacts is true) {
         show serial dialog {" \n<g>You are subscribed to goose facts! HONK!<bell></>\n "}
         if (variable goosefact is 0) {
             show serial dialog {

@@ -1001,7 +1001,7 @@ include "header.mgs";
 	};
 }
 "ch2_lambda_person_player_2" {
-	"ch2-cameras-explanation" = true;
+	"ch2_cameras_explanation" = true;
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c>YOU</>: How did you know I'm wearing a hat?"

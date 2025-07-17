@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look_ch2_lodge" {
+look_ch2_lodge {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>LIBRARY</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_cat_lodge" {
+look_ch2_cat_lodge {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_timmy" {
+look_ch2_timmy {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -27,7 +27,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_sportsbook" {
+look_ch2_sportsbook {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -35,7 +35,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_dejavu" {
+look_ch2_dejavu {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -43,7 +43,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_manual" {
+look_ch2_manual {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -53,33 +53,33 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load_ch2_lodge" {
+on_load_ch2_lodge {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>LIBRARY</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
-	if ("ch2_storyflag_round" != 1) {
-		entity "Alfonso" on_tick = yeet;
+	if (ch2_storyflag_round != 1) {
+		entity Alfonso on_tick = yeet;
 	}
 	// The part of Uncle Zappy is being played by Jackob
 	if (
-		"ch2_storyflag_round" == 3
-		|| "ch2_storyflag_round" == 4
+		ch2_storyflag_round == 3
+		|| ch2_storyflag_round == 4
 	) {
-		entity "Jackob" position = geometry "zappy-spot";
-		entity "Jackob" name = "Uncle Zappy";
-		entity "Jackob" on_look = "look_ch2_zappy";
-		entity "Jackob" on_tick = null_script;
-		entity "Jackob" on_interact = "interact_ch2_zappy";
-		entity "Jackob" type = "lightning_boy2";
-		entity "Jackob" direction = north;
-	} else if ("ch2_storyflag_round" != 1) {
-		entity "Jackob" on_tick = yeet;
+		entity Jackob position = geometry "zappy-spot";
+		entity Jackob name = "Uncle Zappy";
+		entity Jackob on_look = look_ch2_zappy;
+		entity Jackob on_tick = null_script;
+		entity Jackob on_interact = interact_ch2_zappy;
+		entity Jackob type = lightning_boy2;
+		entity Jackob direction = north;
+	} else if (ch2_storyflag_round != 1) {
+		entity Jackob on_tick = yeet;
 	}
 	// hide stuff
 	if (
-		"ch2_installed_manual"
-		|| "ch2_carrying_manual"
+		ch2_installed_manual
+		|| ch2_carrying_manual
 	) {
 		copy!(ch2_hide_manual)
 	}
@@ -94,7 +94,7 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick_ch2_lodge" {
+on_tick_ch2_lodge {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-lodge";
 		load map "ch2-town";
@@ -105,7 +105,7 @@ include "header.mgs";
 	}
 }
 
-"look-left-sometimes" {
+look_left_sometimes {
 	self direction = west;
 	wait 800ms;
 	self direction = north;
@@ -118,19 +118,19 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go_ch2_lodge_south" {
+on_go_ch2_lodge_south {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
-"on_go_ch2_lodge_north" {
+on_go_ch2_lodge_north {
 	copy!(warping_out_fade_out)
 	load map "ch2-lodge-rtfm";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact_ch2_manual" {
-	if (!"ch2_want_manual") {
+interact_ch2_manual {
+	if (!ch2_want_manual) {
 		show dialog {
 			PLAYER "Looks like a book about a calculator."
 		};
@@ -143,23 +143,23 @@ include "header.mgs";
 		copy!(ch2_hide_manual)
 	}
 }
-"ch2_hide_manual" {
+ch2_hide_manual {
 	entity "HP35c Man" position = geometry "hiding-spot";
 	entity "HP35c Man" name = " ";
 }
 
-"interact_ch2_timmy" {
+interact_ch2_timmy {
 	copy!(face_player)
-	if ("ch2_storyflag_round" == 0) {
+	if (ch2_storyflag_round == 0) {
 		show dialog {
 			SELF "I love the library! There's so many books here it would take a hundred years to read them all!"
 		};
-	} else if ("ch2_storyflag_round" <= 2) {
+	} else if (ch2_storyflag_round <= 2) {
 		show dialog {
 			SELF "If you had a race car, what color would you want?"
 			"I think red cars are faster than blue cars, usually."
 		};
-	} else if ("ch2_storyflag_round" <= 4) {
+	} else if (ch2_storyflag_round <= 4) {
 		show dialog {
 			PLAYER "Hey, %SELF%, do you know if Bert came in here recently?"
 			SELF "Bert? Who's that?"
@@ -180,13 +180,13 @@ include "header.mgs";
 	}
 	self direction = east;
 }
-"interact_ch2_cat_lodge" {
+interact_ch2_cat_lodge {
 	show dialog {
 		SELF "..."
 	};
 }
 
-"interact_ch2_jackob_library" {
+interact_ch2_jackob_library {
 	show dialog {
 		SELF "I hate geese. Especially that one."
 		"It keeps staring at me. I can't concentrate on what I'm doing."
@@ -195,18 +195,18 @@ include "header.mgs";
 
 $bookcount = 4;
 
-"interact_ch2_alfonso_library" {
-	"ch2-alfonso-library-count" += 1;
-	"ch2-alfonso-library-count" %= $bookcount;
-	if ("ch2-alfonso-library-count" == 1) {
+interact_ch2_alfonso_library {
+	ch2_alfonso_library_count += 1;
+	ch2_alfonso_library_count %= $bookcount;
+	if (ch2_alfonso_library_count == 1) {
 		show dialog {
 			SELF "Oh, goodness! It's \"The Importance of Being Earnest.\" I remember this play. Twenty years ago, Jackob and I did a reading of it with --"
 		};
-	} else if ("ch2-alfonso-library-count" == 2) {
+	} else if (ch2_alfonso_library_count == 2) {
 		show dialog {
 			SELF "Aha, \"A Brief History of Time!\" You know, I've always wanted learn about time and space and the universe and all that. And it isn't very long."
 		};
-	} else if ("ch2-alfonso-library-count" == 3) {
+	} else if (ch2_alfonso_library_count == 3) {
 		show dialog {
 			SELF "Oho, \"The Complete Plays of Gilbert and Sullivan.\" I think I memorized one of their patter songs once. But was it from Pinafore or Penzance?"
 		};
@@ -222,20 +222,20 @@ $bookcount = 4;
 	self direction = north;
 }
 
-"ch2-goose-library" {
-	if (!"ch2_has_artifact") {
+ch2_goose_library {
+	if (!ch2_has_artifact) {
 		show dialog {
 			SELF "Honk!"
 		};
 
 	} else {
-		if (!"ch2-goosefacts") {
+		if (!ch2_goosefacts) {
 			concat serial_dialog { "<bell>" };
 			show dialog {
 				SELF "HONK! You are now subscribed to goose facts!"
 			};
-			"ch2-goosefacts" = true;
-			command "stop" = "stop-goosefacts";
+			ch2_goosefacts = true;
+			command stop = stop_goosefacts;
 		} else {
 			show dialog {
 				SELF "Enjoy your free goose facts!"

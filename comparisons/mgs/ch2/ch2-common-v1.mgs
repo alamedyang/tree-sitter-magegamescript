@@ -157,8 +157,8 @@ ch2_map_init {
 	copy ch2_map_init_serial_debug_message;
 	copy ch2_map_init_warp_in;
 	// extra goose stuff
-	if (flag ch2-goosefacts is true) {
-		register stop -> stop-goosefacts;
+	if (flag ch2_goosefacts is true) {
+		register stop -> stop_goosefacts;
 		copy goosefacts;
 	}
 }
