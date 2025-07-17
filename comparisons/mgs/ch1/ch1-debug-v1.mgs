@@ -10,7 +10,7 @@ debug_hub_q {
 }
 
 debug_hub_go {
-	goto script load_map-warp_zone;
+	goto script load_map_warp_zone;
 }
 
 debug_hub_no {
@@ -149,11 +149,11 @@ debug_set_flags_true_no {
 	set entity "%SELF%" on_interact to debug_set_flags_true_q;
 }
 
-load_map-warp_zone {
+load_map_warp_zone {
 	load map warp_zone;
 }
 
-load_map-testbig {
+load_map_testbig {
 	load map testbig;
 }
 

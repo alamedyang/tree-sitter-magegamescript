@@ -68,7 +68,7 @@ show_dialog-greenhouse-barrel {
 }
 
 show_dialog-trekkie-start {
-	copy script clear-own-tick;
+	copy script clear_own_tick;
 	copy script face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" }
@@ -138,7 +138,7 @@ ch1-greenhouse-trekkie-backstory-cutscene {
 	}
 	copy script set-hint-trekkie;
 	set flag trekkie-backstory to true;
-	copy script set_tick-watch-player;
+	copy script set_tick_watch_player;
 	turn player control on;
 }
 
@@ -149,7 +149,7 @@ ch1-greenhouse-trekkie-backstory-reminder {
 		"But me do remember orange stripey is first!"
 	}
 	copy script set-hint-trekkie;
-	copy script set_tick-watch-player;
+	copy script set_tick_watch_player;
 }
 
 ch1-greenhouse-modem-turning-on-cutscene {

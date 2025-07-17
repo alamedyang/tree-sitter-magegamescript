@@ -16,7 +16,7 @@ add serial_dialog settings {
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "map",
-			"script": "command-map-test"
+			"script": "command_map_test"
 		}
 	]
 	show serial_dialog "serial_dialog-go_register" {
@@ -78,7 +78,7 @@ add serial_dialog settings {
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "map",
-			"script": "command-map-fail",
+			"script": "command_map_fail",
 			"is_fail": true
 		}
 	]
@@ -92,13 +92,13 @@ add serial_dialog settings {
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "map",
 			"argument": "town",
-			"script": "command-map-town"
+			"script": "command_map_town"
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "map",
 			"argument": "dungeon",
-			"script": "command-map-dungeon"
+			"script": "command_map_dungeon"
 		}
 	]
 	show serial_dialog "serial_dialog-go_register_arguments" {
@@ -169,14 +169,14 @@ add serial_dialog settings {
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "secret",
-			"script": "command-secret-fail",
+			"script": "command_secret_fail",
 			"is_fail": true
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "secret",
 			"argument": "goat",
-			"script": "command-secret-goat"
+			"script": "command_secret_goat"
 		}
 	]
 	show serial_dialog "serial_dialog-go_register_secret" {
@@ -218,18 +218,18 @@ add serial_dialog settings {
 		"Unregistered Command: 'secret'!"
 	};
 }
-"command_secret" {
+command_secret {
 	show serial_dialog "serial_dialog-command-secret" {
 		"Yes, there's a secret, but what animal is secret?"
 	};
 }
-"command-secret-fail" {
-	show serial_dialog "serial_dialog-command-secret-fail" {
+command_secret_fail {
+	show serial_dialog "serial_dialog-command_secret_fail" {
 		"No! Wrong Secret!"
 	};
 }
-"command-secret-goat" {
-	show serial_dialog "serial_dialog-command-secret-goat" {
+command_secret_goat {
+	show serial_dialog "serial_dialog-command_secret_goat" {
 		"You found the secret goat!"
 		"               _))"
 		"              > *\\     _~"
@@ -239,23 +239,23 @@ add serial_dialog settings {
 		"               w w"
 	};
 }
-"command-map-test" {
+"command_map_test" {
 	show serial_dialog "serial_dialog-command-map" {
 		"OMG! I can look at maps!! But which one???"
 	};
 }
-"command-map-fail" {
-	show serial_dialog "serial_dialog-command-map-fail" {
+"command_map_fail" {
+	show serial_dialog "serial_dialog-command_map_fail" {
 		"I don't have a map named that!!!"
 	};
 }
-"command-map-town" {
-	show serial_dialog "serial_dialog-command-map-town" {
+"command_map_town" {
+	show serial_dialog "serial_dialog-command_map_town" {
 		"This map of the Town sure is... existing."
 	};
 }
-"command-map-dungeon" {
-	show serial_dialog "serial_dialog-command-map-dungeon" {
+"command_map_dungeon" {
+	show serial_dialog "serial_dialog-command_map_dungeon" {
 		"This map of the Dungeon is AWESOME!!!"
 	};
 }
@@ -371,7 +371,7 @@ serial_dialog "concat-end" {
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "moon",
-			"script": "command-map-moon"
+			"script": "command_map_moon"
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
@@ -390,8 +390,8 @@ serial_dialog "concat-end" {
 		"You have registered the verb 'moon' and the verb + argument 'moon moon'"
 	};
 }
-"command-map-moon" {
-	show serial_dialog "serial_dialog-command-map-moon" {
+"command_map_moon" {
+	show serial_dialog "serial_dialog-command_map_moon" {
 		"What would you like to moon?"
 	};
 }

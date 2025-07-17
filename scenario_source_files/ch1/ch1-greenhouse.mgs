@@ -86,7 +86,7 @@ include "header.mgs";
 }
 
 "show_dialog-trekkie-start" {
-	copy!("clear-own-tick")
+	copy!("clear_own_tick")
 	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" };
@@ -156,7 +156,7 @@ include "header.mgs";
 	};
 	copy!("set-hint-trekkie")
 	"trekkie-backstory" = true;
-	copy!("set_tick-watch-player")
+	copy!("set_tick_watch_player")
 	player_control = on;
 }
 
@@ -167,7 +167,7 @@ include "header.mgs";
 		"But me do remember orange stripey is first!"
 	};
 	copy!("set-hint-trekkie")
-	copy!("set_tick-watch-player")
+	copy!("set_tick_watch_player")
 }
 
 "ch1-greenhouse-modem-turning-on-cutscene" {

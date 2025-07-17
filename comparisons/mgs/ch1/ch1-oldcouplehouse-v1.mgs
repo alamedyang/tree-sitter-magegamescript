@@ -68,7 +68,7 @@ show_dialog-bea-start {
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Ydy D ymjk ht bgvnnzn? Ocz rjmgy'n bjiz v wdo apuut." }
 	} else {
-		copy script clear-own-tick;
+		copy script clear_own_tick;
 		copy script face_player;
 		if (flag bea-sequel-branch is false) {
 			goto show_dialog-bea-part1;
@@ -103,7 +103,7 @@ show_dialog-bea-part1 {
 		if (entity Delmar type is old_man) { // win condition met
 			// currently no backstory/!backstory difference
 			turn player control off;
-			copy script clear-own-tick;
+			copy script clear_own_tick;
 			copy script slow-stare-at-delmar;
 			turn player control on;
 			show dialog {
@@ -125,13 +125,13 @@ show_dialog-bea-part1 {
 						SELF "Forty years ago, things were sure different."
 						"I was a lot younger then, and my husband, %Delmar%...."
 					}
-					copy script clear-own-tick;
+					copy script clear_own_tick;
 					copy script slow-stare-at-delmar;
 					show dialog { SELF "My husband was a real man! Not a farm animal!" }
 					copy script slow-stare-at-player;
 					turn player control on;
 				} else { // is rando
-					copy script clear-own-tick;
+					copy script clear_own_tick;
 					copy script slow-stare-at-delmar;
 					show dialog { SELF "Oh, %Delmar%! You're... oh...." }
 					copy script face_player;
@@ -157,7 +157,7 @@ show_dialog-bea-part1 {
 			} else { // you DID hear the backstory (sheep or rando)
 				show dialog { SELF "Oh, %Delmar%... we'll fix you up real soon!" }
 			}
-			copy script set_tick-watch-player;
+			copy script set_tick_watch_player;
 			copy script set-hint-bea1;
 		}
 	} else { // you DID beat part1
@@ -206,7 +206,7 @@ show_dialog-bea-part2 {
 			if (entity Delmar type is old_man) {
 				if (flag bea2-backstory is false) {
 					show dialog { SELF "...." "You know, I appreciate what you did, %PLAYER%. I really do." }
-					copy script clear-own-tick;
+					copy script clear_own_tick;
 					copy script slow-stare-at-delmar;
 					show dialog { SELF "...." }
 					copy script slow-stare-at-player;
@@ -229,7 +229,7 @@ show_dialog-bea-part2 {
 					"Actually, I was hoping he could become a sheep again."
 				}
 			}
-			copy script set_tick-watch-player;
+			copy script set_tick_watch_player;
 			set flag bea2-backstory to true;
 			copy script set-hint-bea2;
 		}

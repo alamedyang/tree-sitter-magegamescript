@@ -452,11 +452,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: ["Yes, there's a secret, but what animal is secret?"],
 		name: 'serial_dialog-command-secret',
 	},
-	'serial_dialog-command-secret-fail': {
+	'serial_dialog-command_secret_fail': {
 		messages: ['No! Wrong Secret!'],
-		name: 'serial_dialog-command-secret-fail',
+		name: 'serial_dialog-command_secret_fail',
 	},
-	'serial_dialog-command-secret-goat': {
+	'serial_dialog-command_secret_goat': {
 		messages: [
 			'You found the secret goat!',
 			'               _))',
@@ -466,7 +466,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 			'                / / ``   w w',
 			'               w w',
 		],
-		name: 'serial_dialog-command-secret-goat',
+		name: 'serial_dialog-command_secret_goat',
 	},
 	'serial_dialog-go_register_arguments': {
 		messages: ["Registered Arguments: 'map' > ['town', 'dungeon']!"],
@@ -480,17 +480,17 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: ['OMG! I can look at maps!! But which one???'],
 		name: 'serial_dialog-command-map',
 	},
-	'serial_dialog-command-map-fail': {
+	'serial_dialog-command_map_fail': {
 		messages: ["I don't have a map named that!!!"],
-		name: 'serial_dialog-command-map-fail',
+		name: 'serial_dialog-command_map_fail',
 	},
-	'serial_dialog-command-map-town': {
+	'serial_dialog-command_map_town': {
 		messages: ['This map of the Town sure is... existing.'],
-		name: 'serial_dialog-command-map-town',
+		name: 'serial_dialog-command_map_town',
 	},
-	'serial_dialog-command-map-dungeon': {
+	'serial_dialog-command_map_dungeon': {
 		messages: ['This map of the Dungeon is AWESOME!!!'],
-		name: 'serial_dialog-command-map-dungeon',
+		name: 'serial_dialog-command_map_dungeon',
 	},
 	'serial_dialog-map-action_testing-go_concat': {
 		messages: ['This is a script about concatenation!', 'What would you like to concatenate?'],
@@ -550,9 +550,9 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: ["You have registered the verb 'moon' and the verb + argument 'moon moon'"],
 		name: 'serial_dialog-go_register_moon',
 	},
-	'serial_dialog-command-map-moon': {
+	'serial_dialog-command_map_moon': {
 		messages: ['What would you like to moon?'],
-		name: 'serial_dialog-command-map-moon',
+		name: 'serial_dialog-command_map_moon',
 	},
 	'serial_dialog-command_map_moon_fail': {
 		messages: ['You cannot moon that.'],

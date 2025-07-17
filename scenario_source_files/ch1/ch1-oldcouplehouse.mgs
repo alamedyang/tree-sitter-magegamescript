@@ -69,7 +69,7 @@ include "header.mgs";
 	if (self glitched) {
 		show dialog { SELF "Ydy D ymjk ht bgvnnzn? Ocz rjmgy'n bjiz v wdo apuut." };
 	} else {
-		copy!("clear-own-tick")
+		copy!("clear_own_tick")
 		copy!(face_player)
 		if (!"bea-sequel-branch") {
 			goto "show_dialog-bea-part1";
@@ -104,7 +104,7 @@ include "header.mgs";
 		if (entity "Delmar" type == "old_man") { // win condition met
 			// currently no backstory/!backstory difference
 			player_control = off;
-			copy!("clear-own-tick")
+			copy!("clear_own_tick")
 			copy!("slow-stare-at-delmar")
 			player_control = on;
 			show dialog {
@@ -126,13 +126,13 @@ include "header.mgs";
 						SELF "Forty years ago, things were sure different."
 						"I was a lot younger then, and my husband, %Delmar%...."
 					};
-					copy!("clear-own-tick")
+					copy!("clear_own_tick")
 					copy!("slow-stare-at-delmar")
 					show dialog { SELF "My husband was a real man! Not a farm animal!" };
 					copy!("slow-stare-at-player")
 					player_control = on;
 				} else { // is rando
-					copy!("clear-own-tick")
+					copy!("clear_own_tick")
 					copy!("slow-stare-at-delmar")
 					show dialog { SELF "Oh, %Delmar%! You're... oh...." };
 					copy!(face_player)
@@ -158,7 +158,7 @@ include "header.mgs";
 			} else { // you DID hear the backstory (sheep or rando)
 				show dialog { SELF "Oh, %Delmar%... we'll fix you up real soon!" };
 			}
-			copy!("set_tick-watch-player")
+			copy!("set_tick_watch_player")
 			copy!("set-hint-bea1")
 		}
 	} else { // you DID beat part1
@@ -207,7 +207,7 @@ include "header.mgs";
 			if (entity "Delmar" type == "old_man") {
 				if (!"bea2-backstory") {
 					show dialog { SELF "...." "You know, I appreciate what you did, %PLAYER%. I really do." };
-					copy!("clear-own-tick")
+					copy!("clear_own_tick")
 					copy!("slow-stare-at-delmar")
 					show dialog { SELF "...." };
 					copy!("slow-stare-at-player")
@@ -230,7 +230,7 @@ include "header.mgs";
 					"Actually, I was hoping he could become a sheep again."
 				};
 			}
-			copy!("set_tick-watch-player")
+			copy!("set_tick_watch_player")
 			"bea2-backstory" = true;
 			copy!("set-hint-bea2")
 		}

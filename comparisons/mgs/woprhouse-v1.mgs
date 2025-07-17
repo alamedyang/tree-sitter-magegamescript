@@ -1,6 +1,6 @@
 include!("header.mgs")
 
-on_load-woprhouse {
+on_load_woprhouse {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
@@ -26,14 +26,14 @@ on_load-woprhouse {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-woprhouse {
+on_tick_woprhouse {
 	if entity "%PLAYER%" is inside geometry north-hitbox
-		then goto on_walk-woprhouse-north;
+		then goto on_walk_woprhouse_north;
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-on_walk-woprhouse-north {
+on_walk_woprhouse_north {
 	// triggered by map's on_tick
 	if (variable current_chapter is 1) {
 		set warp state to exit_from-woprhouse;
@@ -51,28 +51,28 @@ on_walk-woprhouse-north {
 	}
 }
 
-on_go-woprhouse-north {
+on_go_woprhouse_north {
 	copy warping_out_fade_out;
 	load map ch2-town;
 }
 
 /* ---------- ENTITIES ---------- */
 
-show_dialog-wopr-start {
+show_dialog_wopr_start {
 	show dialog {
 		SELF portrait wopr
 		"SHALL WE PLAY A GAME?"
 
 		SELF portrait wopr
 		"PLAY?"
-		> "DO NOT PLAY" : goto "restart-wopr"
+		> "DO NOT PLAY" : goto "restart_wopr"
 	}
 }
-restart-wopr {
-	set entity "%SELF%" on_interact to show_dialog-wopr-start;
+restart_wopr {
+	set entity "%SELF%" on_interact to show_dialog_wopr_start;
 }
 
-show_dialog-woprbooks {
+show_dialog_woprbooks {
 	show dialog {
 		PLAYER "These shelves are full of Vogon poetry! What an odd sort of thing for a computer to collect."
 	}

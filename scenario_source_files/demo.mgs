@@ -1,8 +1,8 @@
 include "header.mgs";
 
-"show_dialog-timewarp" {
-	command "rtfm" = "command_rtfm";
-	if (!"demo-cutseen-timewarp") {
+show_dialog_timewarp {
+	command rtfm = command_rtfm;
+	if (!demo_cutseen_timewarp) {
 		camera fade out -> #000000 over 1ms;
 		wait 200ms;
 		player_control = off;
@@ -19,13 +19,13 @@ include "header.mgs";
 			"This has got to be a dream."
 		};
 		player_control = on;
-		"demo-cutseen-timewarp" = true;
+		demo_cutseen_timewarp = true;
 	}
 	hex_control = on;
 }
 
-"show_dialog-bob-first-demo_map" {
-	if (!"demo-bob-backstory") {
+show_dialog_bob_first_demo_map {
+	if (!demo_bob_backstory) {
 		show dialog {
 			SELF "Name's Bob."
 			"Stone Cold Bob Austin."
@@ -40,8 +40,8 @@ include "header.mgs";
 			SELF "Why?\nWhy is it Bobs only?"
 			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
 		};
-		"demo-bob-backstory" = true;
-	} else if ("demo-bob-notimplemented") {
+		demo_bob_backstory = true;
+	} else if (demo_bob_notimplemented) {
 		show dialog {
 			SELF "So, what's your name, then?"
 			PLAYER "The door doesn't work! What does it matter what my name is?"
@@ -51,7 +51,7 @@ include "header.mgs";
 		show dialog {
 			SELF "So, what's your name then?"
 		};
-		if (player name != "Bob") {
+		if (player name != Bob) {
 			show dialog {
 				PLAYER "Um.... it's not Bob."
 				SELF "Sorry, can't unlock the door for ya. Bobs only."
@@ -62,21 +62,21 @@ include "header.mgs";
 			PLAYER "Why, what luck!\nMy name happens to be Bob!"
 			SELF "Nice. Great name.\nI'll unlock the door."
 		};
-		entity "Bob" position -> geometry "%ENTITY_PATH%" origin over 666ms;
-		entity "Bob" direction = west;
+		entity Bob position -> geometry "%ENTITY_PATH%" origin over 666ms;
+		entity Bob direction = west;
 		wait 666ms;
-		entity "Bob" direction = south;
+		entity Bob direction = south;
 		show dialog {
 			SELF "There you go. It's open."
 		};
-		player position -> geometry "predoor" origin over 666ms;
-		player position -> geometry "door" origin over 1333ms;
+		player position -> geometry predoor origin over 666ms;
+		player position -> geometry door origin over 1333ms;
 		wait 666ms;
 		player direction = east;
 		show dialog {
 			PLAYER "Hey, what gives?\nI still can't get in."
 		};
-		entity "Bob" direction = west;
+		entity Bob direction = west;
 		show dialog {
 			SELF "Oh, it's unlocked."
 			PLAYER "Then why won't it open?"
@@ -85,19 +85,19 @@ include "header.mgs";
 			"You could've said that from the start!"
 			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
 		};
-		entity "Bob" direction = south;
-		"demo-bob-notimplemented" = true;
+		entity Bob direction = south;
+		demo_bob_notimplemented = true;
 	}
 }
 
-"show_dialog-sheep-demo_map" {
+show_dialog_sheep_demo_map {
 	show dialog { SELF "...." };
 }
-"show_dialog-dsheep-demo_map" {
+show_dialog_dsheep_demo_map {
 	show dialog { SELF "...?" };
 }
 
-"show_dialog-max-demo_map" {
+show_dialog_max_demo_map {
 	copy!(face_player)
 	show dialog {
 		SELF "Ah, a citizen!"
@@ -128,10 +128,10 @@ include "header.mgs";
 		"Until that glorious day, farewell!"
 	};
 	self position -> geometry "%ENTITY_PATH%" length over 9000ms;
-	self position = geometry "hiding";
+	self position = geometry hiding;
 }
 
-"show_dialog-timmy-demo_map" {
+show_dialog_timmy_demo_map {
 	copy!(interrupt_walk)
 	show dialog {
 		SELF "I'm practicing for my triathlon!"
@@ -140,24 +140,24 @@ include "header.mgs";
 		SELF "...?"
 		"No?"
 	};
-	copy!("resume_walk")
+	copy!(resume_walk)
 }
 
-"show_dialog-kid-demo_map" {
+show_dialog_kid_demo_map {
 	copy!(interrupt_walk)
 	show dialog {
 		SELF "I'm gonna be a Blitzball when I grow up!"
 	};
-	copy!("resume_walk")
+	copy!(resume_walk)
 }
 
-"show_dialog-goose-demo_map" {
+show_dialog_goose_demo_map {
 	show dialog {
 		SELF "Honk!"
 	};
 }
 
-"show_dialog-beatrice-demo_map" {
+show_dialog_beatrice_demo_map {
 	player_control = off;
 	copy!(face_player)
 	show dialog {
@@ -176,7 +176,7 @@ include "header.mgs";
 	self direction = south;
 }
 
-"show_dialog-trekkie-demo_map" {
+show_dialog_trekkie_demo_map {
 	copy!(face_player)
 	show dialog {
 		SELF "Me heard you will soon have a birthday!"
@@ -186,7 +186,7 @@ include "header.mgs";
 	};
 }
 
-"show_dialog-verthandi-demo_map" {
+show_dialog_verthandi_demo_map {
 	copy!(face_player)
 	show dialog {
 		SELF "I'm so glad the goats made up and are friends again!"
@@ -194,31 +194,31 @@ include "header.mgs";
 	self direction = south;
 }
 
-"show_dialog-goat-demo_map" {
+show_dialog_goat_demo_map {
 	show dialog { SELF "Baaahhh!" };
 }
 
-"show_dialog-cleo1-demo_map" {
+show_dialog_cleo1_demo_map {
 	show dialog {
 		Cat "Meowrrow."
 		Cleo "Oh, you don't say!"
 		Cat "Meow!"
 		Cleo "He didn't!"
 	};
-	self on_interact = "show_dialog-cleo2";
+	self on_interact = show_dialog_cleo2;
 }
 
-"show_dialog-cleo2-demo_map" {
+show_dialog_cleo2_demo_map {
 	show dialog {
 		Cat "Meowwowow."
 		Cleo "That's what I've been saying this whole time!"
 		Cat "Meowwrrrr!"
 		Cleo "Oh, I know!"
 	};
-	self on_interact = "show_dialog-cleo1-demo_map";
+	self on_interact = show_dialog_cleo1_demo_map;
 }
 
-"show_dialog-cat-demo_map" {
+show_dialog_cat_demo_map {
 	show dialog {
 		PLAYER "Hey there, cat!"
 		Cat "...."
@@ -227,7 +227,7 @@ include "header.mgs";
 	};
 }
 
-"show_dialog-smith-demo_map" {
+show_dialog_smith_demo_map {
 	copy!(face_player)
 	show dialog {
 		SELF "I came here on a blacksmithing scholarship, but there's not much blacksmithing to do at the moment."
@@ -235,78 +235,78 @@ include "header.mgs";
 	};
 }
 
-"check_if_player_is_goat_high-demo_map" {
-	if (player intersects geometry "high") {
-		entity "goat1" on_tick = "move_goat1_to_low-demo_map";
-		entity "goat2" on_tick = "move_goat2_to_low-demo_map";
-		goto "check_if_player_is_goat_low-demo_map";
+check_if_player_is_goat_high_demo_map {
+	if (player intersects geometry high) {
+		entity goat1 on_tick = move_goat1_to_low_demo_map;
+		entity goat2 on_tick = move_goat2_to_low_demo_map;
+		goto check_if_player_is_goat_low_demo_map;
 	}
 }
 
-"check_if_player_is_goat_low-demo_map" {
-	if (player intersects geometry "low") {
-		entity "goat1" on_tick = "move_goat1_to_high-demo_map";
-		entity "goat2" on_tick = "move_goat2_to_high-demo_map";
-		goto "check_if_player_is_goat_high-demo_map";
+check_if_player_is_goat_low_demo_map {
+	if (player intersects geometry low) {
+		entity goat1 on_tick = move_goat1_to_high_demo_map;
+		entity goat2 on_tick = move_goat2_to_high_demo_map;
+		goto check_if_player_is_goat_high_demo_map;
 	}
 }
 
-"move_goat1_to_low-demo_map" {
-	entity "goat1" position -> geometry "low1" origin over 600ms;
-	entity "goat1" position -> geometry "low1" length over 2000ms forever;
+move_goat1_to_low_demo_map {
+	entity goat1 position -> geometry low1 origin over 600ms;
+	entity goat1 position -> geometry low1 length over 2000ms forever;
 }
 
-"move_goat2_to_low-demo_map" {
-	entity "goat2" position -> geometry "low2" origin over 733ms;
-	entity "goat2" position -> geometry "low2" length over 2266ms forever;
+move_goat2_to_low_demo_map {
+	entity goat2 position -> geometry low2 origin over 733ms;
+	entity goat2 position -> geometry low2 length over 2266ms forever;
 }
 
-"move_goat1_to_high-demo_map" {
-	entity "goat1" position -> geometry "high1" origin over 600ms;
-	entity "goat1" position -> geometry "high1" length over 2000ms forever;
+move_goat1_to_high_demo_map {
+	entity goat1 position -> geometry high1 origin over 600ms;
+	entity goat1 position -> geometry high1 length over 2000ms forever;
 }
 
-"move_goat2_to_high-demo_map" {
-	entity "goat2" position -> geometry "high2" origin over 733ms;
-	entity "goat2" position -> geometry "high2" length over 2266ms forever;
+move_goat2_to_high_demo_map {
+	entity goat2 position -> geometry high2 origin over 733ms;
+	entity goat2 position -> geometry high2 length over 2266ms forever;
 }
 
-"loop_on_path_30s-demo_map" {
+loop_on_path_30s_demo_map {
 	self position -> geometry "%ENTITY_PATH%" length over 20000ms forever;
 }
 
-"loop_on_path_10s-demo_map" {
+loop_on_path_10s_demo_map {
 	self position -> geometry "%ENTITY_PATH%" length over 6666ms forever;
 }
 
-"loop_on_path_3s-demo_map" {
+loop_on_path_3s_demo_map {
 	self position -> geometry "%ENTITY_PATH%" length over 2000ms forever;
 }
 
 // Chaos fish
-"show_dialog-demo-end-dream-q" {
+show_dialog_demo_end_dream_q {
 	show dialog {
 		SELF
 		portrait goldfish
 		"End this dream?"
-		> "Yes (save and quit)" = "demo-end-dream-yes-save"
-		> "Yes (quit without saving)" = "demo-end-dream-yes"
-		> "No (continue dream)" = "demo-end-dream-no"
+		> "Yes (save and quit)" = demo_end_dream_yes_save
+		> "Yes (quit without saving)" = demo_end_dream_yes
+		> "No (continue dream)" = demo_end_dream_no
 	};
 }
-"demo-end-dream-yes" {
-	load map "main_menu";
+demo_end_dream_yes {
+	load map main_menu;
 }
-"demo-end-dream-yes-save" {
+demo_end_dream_yes_save {
 	save slot;
-	load map "main_menu";
+	load map main_menu;
 }
-"demo-end-dream-no" {
-	self on_interact = "show_dialog-demo-end-dream-q";
+demo_end_dream_no {
+	self on_interact = show_dialog_demo_end_dream_q;
 }
 
 // Unused (from original prerelease demo; did not get plugged in properly)
- dialog "dialog-max3-demo_map" {
+ dialog dialog_max3_demo_map {
 	PLAYER "Not much of a market for fashion here, I would've thought."
 	"Best of luck, Max Swagger!"
 }

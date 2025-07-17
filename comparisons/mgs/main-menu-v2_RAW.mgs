@@ -1,4 +1,4 @@
-on_load-main_menu {
+on_load_main_menu {
    current_chapter = 0;
    command colors = command-colors;
    command colors + bg = command_colors_bg;
@@ -7,18 +7,18 @@ on_load-main_menu {
    if (debug_mode) { goto index 7; }
    goto index 99;
    command debug = debug;
-   command hub = debug-hub;
+   command hub = debug_hub;
    command honk = system_bell;
-   command bob = debug-bob;
-   command bob2 = debug-bob2;
-   command bob3 = debug-bob3;
+   command bob = debug_bob;
+   command bob2 = debug_bob2;
+   command bob3 = debug_bob3;
    command simon = debug_menu_simon;
-   command king = debug-king;
-   command ch2 = menu-chapter_select-2;
+   command king = debug_king;
+   command ch2 = menu_chapter_select_2;
    command rtfm = command-rtfm;
    command buffer + test = debug_buffertest;
    command boot = ch2_bootup;
-   command post = debug-post;
+   command post = debug_post;
    command skip + 1 = debug_jump_to_round1;
    command skip + 2 = debug_jump_to_round2;
    command skip + 3 = debug_jump_to_round3;
@@ -100,7 +100,7 @@ on_load-main_menu {
    goto index 99;
 }
 
-debug-post {
+debug_post {
    ch2_wizard_backstory = true;
    serial_control = true;
    ch2_has_artifact = true;
@@ -410,7 +410,7 @@ debug_menu_simon {
    goto index 79;
 }
 
-debug-hub {
+debug_hub {
    load map warp_zone;
 }
 
@@ -418,20 +418,20 @@ system_bell {
    show serial_dialog main_menu.mgs:91:2;
 }
 
-debug-bob {
+debug_bob {
    ch2_has_artifact = true;
    ch2_has_map = true;
    load map ch2-bobsclub;
 }
 
-debug-bob2 {
+debug_bob2 {
    warp_state = warping;
    ch2_has_artifact = true;
    ch2_has_map = true;
    load map ch2-bobsclub-basement;
 }
 
-debug-bob3 {
+debug_bob3 {
    warp_state = warping;
    ch2_has_artifact = true;
    ch2_has_map = true;
@@ -439,7 +439,7 @@ debug-bob3 {
    load map ch2-bobsclub-basement;
 }
 
-debug-king {
+debug_king {
    serial_control = true;
    ch2_has_artifact = true;
    hex_control = true;
@@ -602,31 +602,31 @@ debug-king {
    load map ch2-castle-13;
 }
 
-on_tick-button-to-skip {
-   if (button undefined pressed) { goto script handler-skip-splash; }
+on_tick_button_to_skip {
+   if (button undefined pressed) { goto script handler_skip_splash; }
 }
 
-handler-skip-splash {
-   map on_tick = main_menu-fade_in;
+handler_skip_splash {
+   map on_tick = main_menu_fade_in;
    goto null_script;
 }
 
-on_tick-main_menu {
-   goto on_tick-splash;
+on_tick_main_menu {
+   goto on_tick_splash;
 }
 
-on_tick-splash {
+on_tick_splash {
    hex_control = false;
-   if (warp_state == \"from-game\") { goto script main_menu-fade_in; }
+   if (warp_state == \"from-game\") { goto script main_menu_fade_in; }
    camera = geometry \"dc801-center\";
    camera fade in -> #000000 over 800ms;
    wait 2900ms;
    camera fade out -> #000000 over 800ms;
    player on_tick = null_script;
-   goto main_menu-fade_in;
+   goto main_menu_fade_in;
 }
 
-main_menu-fade_in {
+main_menu_fade_in {
    hex_control = false;
    player on_tick = null_script;
    camera = geometry \"menu-center\";
@@ -639,139 +639,139 @@ main_menu {
    show dialog main_menu.mgs:165:2;
 }
 
-menu-credits-choice {
+menu_credits_choice {
    show dialog main_menu.mgs:179:2;
 }
 
-menu-credits {
+menu_credits {
    credits_from_menu = true;
    load map credits;
 }
 
-menu-credits2 {
+menu_credits2 {
    credits_from_menu = true;
    load map credits2;
 }
 
-menu-bling-mode {
+menu_bling_mode {
    show dialog main_menu.mgs:201:2;
 }
 
-menu-bling-dc801-showcase {
+menu_bling_dc801_showcase {
    show dialog main_menu.mgs:213:2;
 }
 
-menu-play_game {
+menu_play_game {
    show dialog main_menu.mgs:227:2;
 }
 
-menu-erase_save {
+menu_erase_save {
    show dialog main_menu.mgs:241:2;
 }
 
-menu-erase_save-0 {
+menu_erase_save_0 {
    erase slot 0;
-   goto menu-play_game;
+   goto menu_play_game;
 }
 
-menu-erase_save-1 {
+menu_erase_save_1 {
    erase slot 1;
-   goto menu-play_game;
+   goto menu_play_game;
 }
 
-menu-erase_save-2 {
+menu_erase_save_2 {
    erase slot 2;
-   goto menu-play_game;
+   goto menu_play_game;
 }
 
-menu-load_game {
+menu_load_game {
    show dialog main_menu.mgs:268:2;
 }
 
-menu-load_game-0 {
+menu_load_game_0 {
    load slot 0;
-   slot-number = 0;
-   goto menu-chapter_select-q;
+   slot_number = 0;
+   goto menu_chapter_select_q;
 }
 
-menu-load_game-1 {
+menu_load_game_1 {
    load slot 1;
-   slot-number = 1;
-   goto menu-chapter_select-q;
+   slot_number = 1;
+   goto menu_chapter_select_q;
 }
 
-menu-load_game-2 {
+menu_load_game_2 {
    load slot 2;
-   slot-number = 2;
-   goto menu-chapter_select-q;
+   slot_number = 2;
+   goto menu_chapter_select_q;
 }
 
-menu-new_game {
+menu_new_game {
    show dialog main_menu.mgs:297:2;
 }
 
-menu-new_game-0 {
+menu_new_game_0 {
    erase slot 0;
-   slot-number = 0;
-   goto menu-player-name-q;
+   slot_number = 0;
+   goto menu_player_name_q;
 }
 
-menu-new_game-1 {
+menu_new_game_1 {
    erase slot 1;
-   slot-number = 1;
-   goto menu-player-name-q;
+   slot_number = 1;
+   goto menu_player_name_q;
 }
 
-menu-new_game-2 {
+menu_new_game_2 {
    erase slot 2;
-   slot-number = 2;
-   goto menu-player-name-q;
+   slot_number = 2;
+   goto menu_player_name_q;
 }
 
-menu-player-name-q {
+menu_player_name_q {
    show dialog main_menu.mgs:333:2;
 }
 
-menu-player-name-preset1 {
+menu_player_name_preset1 {
    player name = Red;
-   goto menu-player-name-confirm;
+   goto menu_player_name_confirm;
 }
 
-menu-player-name-preset2 {
+menu_player_name_preset2 {
    player name = Bubbles;
-   goto menu-player-name-confirm;
+   goto menu_player_name_confirm;
 }
 
-menu-player-name-preset3 {
+menu_player_name_preset3 {
    player name = Black Mage;
-   goto menu-player-name-confirm;
+   goto menu_player_name_confirm;
 }
 
-menu-player-name-confirm {
+menu_player_name_confirm {
    show dialog main_menu.mgs:357:2;
 }
 
-menu-player-name-random {
-   random-name-count ?= 20;
-   if (random-name-count == 1) { goto index 22; }
-   if (random-name-count == 2) { goto index 24; }
-   if (random-name-count == 3) { goto index 26; }
-   if (random-name-count == 4) { goto index 28; }
-   if (random-name-count == 5) { goto index 30; }
-   if (random-name-count == 6) { goto index 32; }
-   if (random-name-count == 7) { goto index 34; }
-   if (random-name-count == 8) { goto index 36; }
-   if (random-name-count == 9) { goto index 38; }
-   if (random-name-count == 10) { goto index 40; }
-   if (random-name-count == 11) { goto index 42; }
-   if (random-name-count == 12) { goto index 44; }
-   if (random-name-count == 13) { goto index 46; }
-   if (random-name-count == 14) { goto index 48; }
-   if (random-name-count == 15) { goto index 50; }
-   if (random-name-count == 16) { goto index 52; }
-   if (random-name-count == 17) { goto index 54; }
-   if (random-name-count == 18) { goto index 56; }
-   if (random-name-count == 19) { goto index 58; }
+menu_player_name_random {
+   random_name_count ?= 20;
+   if (random_name_count == 1) { goto index 22; }
+   if (random_name_count == 2) { goto index 24; }
+   if (random_name_count == 3) { goto index 26; }
+   if (random_name_count == 4) { goto index 28; }
+   if (random_name_count == 5) { goto index 30; }
+   if (random_name_count == 6) { goto index 32; }
+   if (random_name_count == 7) { goto index 34; }
+   if (random_name_count == 8) { goto index 36; }
+   if (random_name_count == 9) { goto index 38; }
+   if (random_name_count == 10) { goto index 40; }
+   if (random_name_count == 11) { goto index 42; }
+   if (random_name_count == 12) { goto index 44; }
+   if (random_name_count == 13) { goto index 46; }
+   if (random_name_count == 14) { goto index 48; }
+   if (random_name_count == 15) { goto index 50; }
+   if (random_name_count == 16) { goto index 52; }
+   if (random_name_count == 17) { goto index 54; }
+   if (random_name_count == 18) { goto index 56; }
+   if (random_name_count == 19) { goto index 58; }
    player name = Bub;
    goto index 60;
    player name = Chara;
@@ -815,17 +815,17 @@ menu-player-name-random {
    show dialog main_menu.mgs:412:2;
 }
 
-menu-player-name-reset {
+menu_player_name_reset {
    player name = Bub;
-   goto menu-player-name-q;
+   goto menu_player_name_q;
 }
 
-start-new-game-with-name {
+start_new_game_with_name {
    save slot;
-   goto menu-chapter_select-q;
+   goto menu_chapter_select_q;
 }
 
-menu-chapter_select-q {
+menu_chapter_select_q {
    ch1_storyflags_tally = 0;
    if (storyflag-catwork) { goto index 3; }
    goto index 5;
@@ -915,29 +915,29 @@ menu-chapter_select-q {
    show dialog main_menu.mgs:438:2;
 }
 
-menu-chapter_select-1 {
+menu_chapter_select_1 {
    current_chapter = 1;
    load map main;
 }
 
-menu-chapter_select-2-check {
+menu_chapter_select_2_check {
    if (ch1_finished) { goto index 5; }
    if (warned_ch1_incomplete) { goto index 5; }
    warned_ch1_incomplete = true;
    show dialog main_menu.mgs:459:3;
    goto index 7;
-   goto menu-chapter_select-2;
+   goto menu_chapter_select_2;
    goto index 7;
 }
 
-menu-chapter_select-2 {
+menu_chapter_select_2 {
    current_chapter = 2;
    if (!ch2_cutseen_birthday) { goto index 3; }
    goto index 5;
    load map ch2-magehouse-birthday;
    goto index 5;
    warp_state = raw_game_load-ch2;
-   if (playersave-room == 1) { goto index 9; }
+   if (playersave_room == 1) { goto index 9; }
    load map ch2-town;
    goto index 15;
    if (ch2_storyflag_round >= 5) { goto index 12; }
@@ -948,36 +948,36 @@ menu-chapter_select-2 {
    goto index 15;
 }
 
-menu-save_game {
+menu_save_game {
    show dialog main_menu.mgs:485:2;
 }
 
-menu-save_game-yes {
-   playersave-x = player x;
-   playersave-y = player y;
-   playersave-room = ch2_in_room;
+menu_save_game_yes {
+   playersave_x = player x;
+   playersave_y = player y;
+   playersave_room = ch2_in_room;
    if (player direction == north) { goto index 8; }
    if (player direction == east) { goto index 10; }
    if (player direction == south) { goto index 12; }
    if (player direction == west) { goto index 14; }
    goto index 16;
-   playersave-dir = 0;
+   playersave_dir = 0;
    goto index 16;
-   playersave-dir = 1;
+   playersave_dir = 1;
    goto index 16;
-   playersave-dir = 2;
+   playersave_dir = 2;
    goto index 16;
-   playersave-dir = 3;
+   playersave_dir = 3;
    goto index 16;
    save slot;
-   self on_interact = menu-save_game;
+   self on_interact = menu_save_game;
 }
 
-menu-save_game-no {
-   self on_interact = menu-save_game;
+menu_save_game_no {
+   self on_interact = menu_save_game;
 }
 
-menu-save_game-main_menu {
+menu_save_game_main_menu {
    warp_state = from-game;
    load map main_menu;
 }

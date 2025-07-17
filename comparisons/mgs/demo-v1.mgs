@@ -1,8 +1,8 @@
 include!("header.mgs")
 
-show_dialog-timewarp {
+show_dialog_timewarp {
 	register rtfm -> command-rtfm;
-	if (flag demo-cutseen-timewarp is false) {
+	if (flag demo_cutseen_timewarp is false) {
 		fade out camera to #000000 over 1ms;
 		wait 200ms;
 		turn player control off;
@@ -19,13 +19,13 @@ show_dialog-timewarp {
 			"This has got to be a dream."
 		}
 		turn player control on;
-		set flag demo-cutseen-timewarp to true;
+		set flag demo_cutseen_timewarp to true;
 	}
 	turn hex control on;
 }
 
-show_dialog-bob-first-demo_map {
-	if (flag demo-bob-backstory is false) {
+show_dialog_bob_first_demo_map {
+	if (flag demo_bob_backstory is false) {
 		show dialog {
 			SELF "Name's Bob."
 			"Stone Cold Bob Austin."
@@ -40,8 +40,8 @@ show_dialog-bob-first-demo_map {
 			SELF "Why?\nWhy is it Bobs only?"
 			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
 		}
-		set flag demo-bob-backstory to true;
-	} else if (flag demo-bob-notimplemented is true) {
+		set flag demo_bob_backstory to true;
+	} else if (flag demo_bob_notimplemented is true) {
 		show dialog {
 			SELF "So, what's your name, then?"
 			PLAYER "The door doesn't work! What does it matter what my name is?"
@@ -86,18 +86,18 @@ show_dialog-bob-first-demo_map {
 			SELF "Not my job. My only job is to keep everyone out who's not named Bob."
 		}
 		turn entity Bob south;
-		set flag demo-bob-notimplemented to true;
+		set flag demo_bob_notimplemented to true;
 	}
 }
 
-show_dialog-sheep-demo_map {
+show_dialog_sheep_demo_map {
 	show dialog { SELF "...." }
 }
-show_dialog-dsheep-demo_map {
+show_dialog_dsheep_demo_map {
 	show dialog { SELF "...?" }
 }
 
-show_dialog-max-demo_map {
+show_dialog_max_demo_map {
 	copy face_player;
 	show dialog {
 		SELF "Ah, a citizen!"
@@ -131,7 +131,7 @@ show_dialog-max-demo_map {
 	teleport entity "%SELF%" to geometry hiding;
 }
 
-show_dialog-timmy-demo_map {
+show_dialog_timmy_demo_map {
 	copy interrupt_walk;
 	show dialog {
 		SELF "I'm practicing for my triathlon!"
@@ -143,7 +143,7 @@ show_dialog-timmy-demo_map {
 	copy resume_walk;
 }
 
-show_dialog-kid-demo_map {
+show_dialog_kid_demo_map {
 	copy interrupt_walk;
 	show dialog {
 		SELF "I'm gonna be a Blitzball when I grow up!"
@@ -151,13 +151,13 @@ show_dialog-kid-demo_map {
 	copy resume_walk;
 }
 
-show_dialog-goose-demo_map {
+show_dialog_goose_demo_map {
 	show dialog {
 		SELF "Honk!"
 	}
 }
 
-show_dialog-beatrice-demo_map {
+show_dialog_beatrice_demo_map {
 	turn player control off;
 	copy face_player;
 	show dialog {
@@ -176,7 +176,7 @@ show_dialog-beatrice-demo_map {
 	turn entity "%SELF%" south;
 }
 
-show_dialog-trekkie-demo_map {
+show_dialog_trekkie_demo_map {
 	copy face_player;
 	show dialog {
 		SELF "Me heard you will soon have a birthday!"
@@ -186,7 +186,7 @@ show_dialog-trekkie-demo_map {
 	}
 }
 
-show_dialog-verthandi-demo_map {
+show_dialog_verthandi_demo_map {
 	copy face_player;
 	show dialog {
 		SELF "I'm so glad the goats made up and are friends again!"
@@ -194,31 +194,31 @@ show_dialog-verthandi-demo_map {
 	turn entity "%SELF%" south;
 }
 
-show_dialog-goat-demo_map {
+show_dialog_goat_demo_map {
 	show dialog { SELF "Baaahhh!" }
 }
 
-show_dialog-cleo1-demo_map {
+show_dialog_cleo1_demo_map {
 	show dialog {
 		Cat "Meowrrow."
 		Cleo "Oh, you don't say!"
 		Cat "Meow!"
 		Cleo "He didn't!"
 	}
-	set entity "%SELF%" on_interact to show_dialog-cleo2;
+	set entity "%SELF%" on_interact to show_dialog_cleo2;
 }
 
-show_dialog-cleo2-demo_map {
+show_dialog_cleo2_demo_map {
 	show dialog {
 		Cat "Meowwowow."
 		Cleo "That's what I've been saying this whole time!"
 		Cat "Meowwrrrr!"
 		Cleo "Oh, I know!"
 	}
-	set entity "%SELF%" on_interact to show_dialog-cleo1-demo_map;
+	set entity "%SELF%" on_interact to show_dialog_cleo1_demo_map;
 }
 
-show_dialog-cat-demo_map {
+show_dialog_cat_demo_map {
 	show dialog {
 		PLAYER "Hey there, cat!"
 		Cat "...."
@@ -227,7 +227,7 @@ show_dialog-cat-demo_map {
 	}
 }
 
-show_dialog-smith-demo_map {
+show_dialog_smith_demo_map {
 	copy face_player;
 	show dialog {
 		SELF "I came here on a blacksmithing scholarship, but there's not much blacksmithing to do at the moment."
@@ -235,78 +235,78 @@ show_dialog-smith-demo_map {
 	}
 }
 
-check_if_player_is_goat_high-demo_map {
+check_if_player_is_goat_high_demo_map {
 	if (entity "%PLAYER%" is inside geometry high) {
-		set entity goat1 on_tick to move_goat1_to_low-demo_map;
-		set entity goat2 on_tick to move_goat2_to_low-demo_map;
-		goto check_if_player_is_goat_low-demo_map;
+		set entity goat1 on_tick to move_goat1_to_low_demo_map;
+		set entity goat2 on_tick to move_goat2_to_low_demo_map;
+		goto check_if_player_is_goat_low_demo_map;
 	}
 }
 
-check_if_player_is_goat_low-demo_map {
+check_if_player_is_goat_low_demo_map {
 	if (entity "%PLAYER%" is inside geometry low) {
-		set entity goat1 on_tick to move_goat1_to_high-demo_map;
-		set entity goat2 on_tick to move_goat2_to_high-demo_map;
-		goto check_if_player_is_goat_high-demo_map;
+		set entity goat1 on_tick to move_goat1_to_high_demo_map;
+		set entity goat2 on_tick to move_goat2_to_high_demo_map;
+		goto check_if_player_is_goat_high_demo_map;
 	}
 }
 
-move_goat1_to_low-demo_map {
+move_goat1_to_low_demo_map {
 	walk entity goat1 to geometry low1 over 600ms;
 	loop entity goat1 along geometry low1 over 2000ms;
 }
 
-move_goat2_to_low-demo_map {
+move_goat2_to_low_demo_map {
 	walk entity goat2 to geometry low2 over 733ms;
 	loop entity goat2 along geometry low2 over 2266ms;
 }
 
-move_goat1_to_high-demo_map {
+move_goat1_to_high_demo_map {
 	walk entity goat1 to geometry high1 over 600ms;
 	loop entity goat1 along geometry high1 over 2000ms;
 }
 
-move_goat2_to_high-demo_map {
+move_goat2_to_high_demo_map {
 	walk entity goat2 to geometry high2 over 733ms;
 	loop entity goat2 along geometry high2 over 2266ms;
 }
 
-loop_on_path_30s-demo_map {
+loop_on_path_30s_demo_map {
 	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 20000ms;
 }
 
-loop_on_path_10s-demo_map {
+loop_on_path_10s_demo_map {
 	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 6666ms;
 }
 
-loop_on_path_3s-demo_map {
+loop_on_path_3s_demo_map {
 	loop entity "%SELF%" along geometry "%ENTITY_PATH%" over 2000ms;
 }
 
 // Chaos fish
-show_dialog-demo-end-dream-q {
+show_dialog_demo_end_dream_q {
 	show dialog {
 		SELF
 		portrait goldfish
 		"End this dream?"
-		> "Yes (save and quit)" : goto "demo-end-dream-yes-save"
-		> "Yes (quit without saving)" : goto "demo-end-dream-yes"
-		> "No (continue dream)" : goto "demo-end-dream-no"
+		> "Yes (save and quit)" : goto "demo_end_dream_yes_save"
+		> "Yes (quit without saving)" : goto "demo_end_dream_yes"
+		> "No (continue dream)" : goto "demo_end_dream_no"
 	}
 }
-demo-end-dream-yes {
+demo_end_dream_yes {
 	load map main_menu;
 }
-demo-end-dream-yes-save {
+demo_end_dream_yes_save {
 	save slot;
 	load map main_menu;
 }
-demo-end-dream-no {
-	set entity "%SELF%" on_interact to show_dialog-demo-end-dream-q;
+demo_end_dream_no {
+	set entity "%SELF%" on_interact to show_dialog_demo_end_dream_q;
 }
 
 // Unused (from original prerelease demo; did not get plugged in properly)
-dialog dialog-max3-demo_map {
+dialog dialog_max3_demo_map {
 	PLAYER "Not much of a market for fashion here, I would've thought."
 	"Best of luck, Max Swagger!"
 }

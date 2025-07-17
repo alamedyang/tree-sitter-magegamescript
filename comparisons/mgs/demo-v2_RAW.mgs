@@ -1,6 +1,6 @@
-"show_dialog-timewarp" {
+"show_dialog_timewarp" {
    command "rtfm" = "command_rtfm";
-   if (!"demo-cutseen-timewarp") { goto index 3; }
+   if (!"demo_cutseen_timewarp") { goto index 3; }
    goto index 13;
    camera fade out -> #000000 over 1ms;
    wait 200ms;
@@ -10,14 +10,14 @@
    camera fade in -> #000000 over 2000ms;
    show dialog demo.mgs:13:3;
    player_control = true;
-   "demo-cutseen-timewarp" = true;
+   "demo_cutseen_timewarp" = true;
    goto index 13;
    hex_control = true;
 }
 
-"show_dialog-bob-first-demo_map" {
-   if (!"demo-bob-backstory") { goto index 24; }
-   if ("demo-bob-notimplemented") { goto index 27; }
+"show_dialog_bob_first_demo_map" {
+   if (!"demo_bob_backstory") { goto index 24; }
+   if ("demo_bob_notimplemented") { goto index 27; }
    show dialog demo.mgs:49:3;
    if (player name != "Bob") { goto index 5; }
    goto index 8;
@@ -38,24 +38,24 @@
    entity "Bob" direction = "west";
    show dialog demo.mgs:78:3;
    entity "Bob" direction = "south";
-   "demo-bob-notimplemented" = true;
+   "demo_bob_notimplemented" = true;
    goto index 29;
    show dialog demo.mgs:27:3;
-   "demo-bob-backstory" = true;
+   "demo_bob_backstory" = true;
    goto index 29;
    show dialog demo.mgs:43:3;
    goto index 29;
 }
 
-"show_dialog-sheep-demo_map" {
+"show_dialog_sheep_demo_map" {
    show dialog demo.mgs:92:2;
 }
 
-"show_dialog-dsheep-demo_map" {
+"show_dialog_dsheep_demo_map" {
    show dialog demo.mgs:95:2;
 }
 
-"show_dialog-max-demo_map" {
+"show_dialog_max_demo_map" {
    self direction = player;
    show dialog demo.mgs:100:2;
    player_control = false;
@@ -70,7 +70,7 @@
    self position = geometry "hiding";
 }
 
-"show_dialog-timmy-demo_map" {
+"show_dialog_timmy_demo_map" {
    "captured_animation" = self current_animation;
    self current_animation = 0;
    pause self on_tick;
@@ -106,7 +106,7 @@
    goto index 33;
 }
 
-"show_dialog-kid-demo_map" {
+"show_dialog_kid_demo_map" {
    "captured_animation" = self current_animation;
    self current_animation = 0;
    pause self on_tick;
@@ -142,11 +142,11 @@
    goto index 33;
 }
 
-"show_dialog-goose-demo_map" {
+"show_dialog_goose_demo_map" {
    show dialog demo.mgs:153:2;
 }
 
-"show_dialog-beatrice-demo_map" {
+"show_dialog_beatrice_demo_map" {
    player_control = false;
    self direction = player;
    show dialog demo.mgs:161:2;
@@ -160,98 +160,98 @@
    self direction = "south";
 }
 
-"show_dialog-trekkie-demo_map" {
+"show_dialog_trekkie_demo_map" {
    self direction = player;
    show dialog demo.mgs:179:2;
 }
 
-"show_dialog-verthandi-demo_map" {
+"show_dialog_verthandi_demo_map" {
    self direction = player;
    show dialog demo.mgs:189:2;
    self direction = "south";
 }
 
-"show_dialog-goat-demo_map" {
+"show_dialog_goat_demo_map" {
    show dialog demo.mgs:196:2;
 }
 
-"show_dialog-cleo1-demo_map" {
+"show_dialog_cleo1_demo_map" {
    show dialog demo.mgs:200:2;
-   self on_interact = "show_dialog-cleo2";
+   self on_interact = "show_dialog_cleo2";
 }
 
-"show_dialog-cat-demo_map" {
+"show_dialog_cat_demo_map" {
    show dialog demo.mgs:220:2;
 }
 
-"show_dialog-smith-demo_map" {
+"show_dialog_smith_demo_map" {
    self direction = player;
    show dialog demo.mgs:230:2;
 }
 
-"check_if_player_is_goat_high-demo_map" {
+"check_if_player_is_goat_high_demo_map" {
    if (player intersects geometry "high") { goto index 2; }
    goto index 6;
-   entity "goat1" on_tick = "move_goat1_to_low-demo_map";
-   entity "goat2" on_tick = "move_goat2_to_low-demo_map";
-   goto "check_if_player_is_goat_low-demo_map";
+   entity "goat1" on_tick = "move_goat1_to_low_demo_map";
+   entity "goat2" on_tick = "move_goat2_to_low_demo_map";
+   goto "check_if_player_is_goat_low_demo_map";
    goto index 6;
 }
 
-"check_if_player_is_goat_low-demo_map" {
+"check_if_player_is_goat_low_demo_map" {
    if (player intersects geometry "low") { goto index 2; }
    goto index 6;
-   entity "goat1" on_tick = "move_goat1_to_high-demo_map";
-   entity "goat2" on_tick = "move_goat2_to_high-demo_map";
-   goto "check_if_player_is_goat_high-demo_map";
+   entity "goat1" on_tick = "move_goat1_to_high_demo_map";
+   entity "goat2" on_tick = "move_goat2_to_high_demo_map";
+   goto "check_if_player_is_goat_high_demo_map";
    goto index 6;
 }
 
-"move_goat1_to_low-demo_map" {
+"move_goat1_to_low_demo_map" {
    entity "goat1" position -> geometry "low1" origin over 600ms;
    entity "goat1" position -> geometry "low1" length over 2000ms forever;
 }
 
-"move_goat2_to_low-demo_map" {
+"move_goat2_to_low_demo_map" {
    entity "goat2" position -> geometry "low2" origin over 733ms;
    entity "goat2" position -> geometry "low2" length over 2266ms forever;
 }
 
-"move_goat1_to_high-demo_map" {
+"move_goat1_to_high_demo_map" {
    entity "goat1" position -> geometry "high1" origin over 600ms;
    entity "goat1" position -> geometry "high1" length over 2000ms forever;
 }
 
-"move_goat2_to_high-demo_map" {
+"move_goat2_to_high_demo_map" {
    entity "goat2" position -> geometry "high2" origin over 733ms;
    entity "goat2" position -> geometry "high2" length over 2266ms forever;
 }
 
-"loop_on_path_30s-demo_map" {
+"loop_on_path_30s_demo_map" {
    self position -> geometry "%ENTITY_PATH%" length over 20000ms forever;
 }
 
-"loop_on_path_10s-demo_map" {
+"loop_on_path_10s_demo_map" {
    self position -> geometry "%ENTITY_PATH%" length over 6666ms forever;
 }
 
-"loop_on_path_3s-demo_map" {
+"loop_on_path_3s_demo_map" {
    self position -> geometry "%ENTITY_PATH%" length over 2000ms forever;
 }
 
-"show_dialog-demo-end-dream-q" {
+"show_dialog_demo_end_dream_q" {
    show dialog demo.mgs:286:2;
 }
 
-"demo-end-dream-yes" {
+"demo_end_dream_yes" {
    load map "main_menu";
 }
 
-"demo-end-dream-yes-save" {
+"demo_end_dream_yes_save" {
    save slot;
    load map "main_menu";
 }
 
-"demo-end-dream-no" {
-   self on_interact = "show_dialog-demo-end-dream-q";
+"demo_end_dream_no" {
+   self on_interact = "show_dialog_demo_end_dream_q";
 }

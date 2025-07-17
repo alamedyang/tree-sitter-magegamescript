@@ -1,6 +1,6 @@
 include!("header.mgs")
 
-on_load-main_menu {
+on_load_main_menu {
 	mutate current_chapter = 0;
 	copy register_colors;
 
@@ -19,18 +19,18 @@ on_load-main_menu {
 	/* DEBUG QUICK STUFFS */
 	if (debug mode is on) {
 		register debug -> debug;
-		register hub -> debug-hub;
+		register hub -> debug_hub;
 		register honk -> system_bell;
-		register bob -> debug-bob;
-		register bob2 -> debug-bob2;
-		register bob3 -> debug-bob3;
+		register bob -> debug_bob;
+		register bob2 -> debug_bob2;
+		register bob3 -> debug_bob3;
 		register simon -> debug_menu_simon;
-		register king -> debug-king;
-		register ch2 -> menu-chapter_select-2;
+		register king -> debug_king;
+		register ch2 -> menu_chapter_select_2;
 		register rtfm -> command-rtfm;
 		register buffer + test -> debug_buffertest;
 		register boot -> ch2_bootup;
-		register post -> debug-post;
+		register post -> debug_post;
 		// register cutbug -> ch2_toot_step3_end2;
 		register skip + "1" -> debug_jump_to_round1;
 		register skip + "2" -> debug_jump_to_round2;
@@ -63,7 +63,7 @@ on_load-main_menu {
 }
 
 /* DEBUGSSSS */
-debug-post {
+debug_post {
 	set flag ch2_wizard_backstory to true;
 	copy debug_set_flags_to_round4;
 	set flag ch2_seen_room_99 to true;
@@ -86,7 +86,7 @@ debug_menu_simon {
 	mutate ch2_storyflag_round = 2;
 	copy warp_ch2_31 // this has a load_map in it
 }
-debug-hub {
+debug_hub {
 	load map warp_zone;
 }
 system_bell {
@@ -94,25 +94,25 @@ system_bell {
 		"Honk!"
 	}
 }
-debug-bob {
+debug_bob {
 	set flag ch2_has_artifact to true;
 	set flag ch2_has_map to true;
 	load map ch2-bobsclub;
 }
-debug-bob2 {
+debug_bob2 {
 	set warp state to warping;
 	set flag ch2_has_artifact to true;
 	set flag ch2_has_map to true;
 	load map ch2-bobsclub-basement;
 }
-debug-bob3 {
+debug_bob3 {
 	set warp state to warping;
 	set flag ch2_has_artifact to true;
 	set flag ch2_has_map to true;
 	set flag ch2_cutseen_bob_party to true;
 	load map ch2-bobsclub-basement;
 }
-debug-king {
+debug_king {
 	copy debug_set_flags_to_round3;
 	set flag ch2_cutseen_castle13 to true;
 	set flag ch2_cutseen_castle14 to true;
@@ -129,30 +129,30 @@ debug {
 /* ---------- INTRO SPLASH ---------- */
 
 // entity listens for a button press, and changes the map's on_tick to the menu itself
-on_tick-button-to-skip {
-	if button ANY then goto handler-skip-splash;
+on_tick_button_to_skip {
+	if button ANY then goto handler_skip_splash;
 }
-handler-skip-splash {
-	set map on_tick to main_menu-fade_in;
+handler_skip_splash {
+	set map on_tick to main_menu_fade_in;
 	goto null_script;
 }
 
 // map script shows the splash, and can be interrupted by the handler above; otherwise it continues to the menu itself
-on_tick-main_menu {
-	goto on_tick-splash;
+on_tick_main_menu {
+	goto on_tick_splash;
 }
-on_tick-splash {
+on_tick_splash {
 	turn hex control off;
-	if warp state is from-game then goto main_menu-fade_in;
+	if warp state is from-game then goto main_menu_fade_in;
 	teleport camera to geometry dc801-center;
 	fade in camera from #000000 over 800ms;
 	wait 2900ms;
 	fade out camera to #000000 over 800ms;
 	set entity "%PLAYER%" on_tick to null_script;
-	goto main_menu-fade_in;
+	goto main_menu_fade_in;
 }
 
-main_menu-fade_in {
+main_menu_fade_in {
 	turn hex control off;
 	set entity "%PLAYER%" on_tick to null_script;
 	teleport camera to geometry menu-center;
@@ -168,159 +168,159 @@ main_menu {
 		name " "
 		border_tileset menu
 		"CHOOSE YOUR FATE"
-		> "Play Game" : menu-play_game
-		> "Play Demo" : load_map-demo_map
-		> "Bling Mode" : menu-bling-mode
-		> "Credits" : menu-credits-choice
+		> "Play Game" : menu_play_game
+		> "Play Demo" : load_map_demo_map
+		> "Bling Mode" : menu_bling_mode
+		> "Credits" : menu_credits_choice
 	}
 }
 
 /* ---------- CREDITS ---------- */
 
-menu-credits-choice {
+menu_credits_choice {
 	show dialog {
 		name " "
 		border_tileset menu
 		"CREDITS"
-		> "Chapter 1 credits" : menu-credits
-		> "Chapter 2 credits" : menu-credits2
+		> "Chapter 1 credits" : menu_credits
+		> "Chapter 2 credits" : menu_credits2
 		> "Back" : main_menu
 	}
 }
 
-menu-credits {
+menu_credits {
 	set flag credits_from_menu to true;
 	load map credits;
 }
-menu-credits2 {
+menu_credits2 {
 	set flag credits_from_menu to true;
 	load map credits2;
 }
 
 /* ---------- BLING MODE ---------- */
 
-menu-bling-mode {
+menu_bling_mode {
 	show dialog {
 		name " "
 		border_tileset menu
 		"SAVE YOUR SCREEN"
-		> "DC801 showcase" : menu-bling-dc801-showcase
-		> "Flying \"Toasters\"" : start_bling-flying-toasters
-		> "QR Codes" : start_bling-qr
+		> "DC801 showcase" : menu_bling_dc801_showcase
+		> "Flying \"Toasters\"" : start_bling_flying_toasters
+		> "QR Codes" : start_bling_qr
 		> "Back" : main_menu
 	}
 }
 
-menu-bling-dc801-showcase {
+menu_bling_dc801_showcase {
 	show dialog {
 		name " "
 		border_tileset menu
 		"DC801 SHOWCASE"
-		> "Auto mode" : start_bling-rotate-auto
-		> "Manual mode" : start_bling-rotate-manual
-		> "Back" : menu-bling-mode
+		> "Auto mode" : start_bling_rotate_auto
+		> "Manual mode" : start_bling_rotate_manual
+		> "Back" : menu_bling_mode
 	}
 }
   //---------------------------------//
  /* ---------- PLAY GAME ---------- */
 //---------------------------------//
 
-menu-play_game {
+menu_play_game {
 	show dialog {
 		name " "
 		border_tileset menu
 		"PLAY GAME"
-		> "Load Game" : menu-load_game
-		> "New Game" : menu-new_game
-		> "Erase Save" : menu-erase_save
+		> "Load Game" : menu_load_game
+		> "New Game" : menu_new_game
+		> "Erase Save" : menu_erase_save
 		> "Back" : main_menu
 	}
 }
 
 /* ---------- ERASE SAVE ---------- */
 
-menu-erase_save {
+menu_erase_save {
 	show dialog {
 		name " "
 		border_tileset menu
 		"BOOM TIME!"
-		> "Erase slot 0" : menu-erase_save-0
-		> "Erase slot 1" : menu-erase_save-1
-		> "Erase slot 2" : menu-erase_save-2
-		> "Back" : menu-play_game
+		> "Erase slot 0" : menu_erase_save_0
+		> "Erase slot 1" : menu_erase_save_1
+		> "Erase slot 2" : menu_erase_save_2
+		> "Back" : menu_play_game
 	}
 }
 
-menu-erase_save-0 {
+menu_erase_save_0 {
 	erase slot 0;
-	goto menu-play_game;
+	goto menu_play_game;
 }
-menu-erase_save-1 {
+menu_erase_save_1 {
 	erase slot 1;
-	goto menu-play_game;
+	goto menu_play_game;
 }
-menu-erase_save-2 {
+menu_erase_save_2 {
 	erase slot 2;
-	goto menu-play_game;
+	goto menu_play_game;
 }
 
 /* ---------- LOAD GAME ---------- */
 
-menu-load_game {
+menu_load_game {
 	show dialog {
 		name " "
 		border_tileset menu
 		"LOAD GAME"
-		> "Slot 0" : menu-load_game-0
-		> "Slot 1" : menu-load_game-1
-		> "Slot 2" : menu-load_game-2
-		> "Back" : menu-play_game
+		> "Slot 0" : menu_load_game_0
+		> "Slot 1" : menu_load_game_1
+		> "Slot 2" : menu_load_game_2
+		> "Back" : menu_play_game
 	}
 }
-menu-load_game-0 {
+menu_load_game_0 {
 	load slot 0;
-	mutate slot-number = 0;
-	goto menu-chapter_select-q;
+	mutate slot_number = 0;
+	goto menu_chapter_select_q;
 }
-menu-load_game-1 {
+menu_load_game_1 {
 	load slot 1;
-	mutate slot-number = 1;
-	goto menu-chapter_select-q;
+	mutate slot_number = 1;
+	goto menu_chapter_select_q;
 }
-menu-load_game-2 {
+menu_load_game_2 {
 	load slot 2;
-	mutate slot-number = 2;
-	goto menu-chapter_select-q;
+	mutate slot_number = 2;
+	goto menu_chapter_select_q;
 }
 
 /* ---------- NEW GAME ---------- */
 
-menu-new_game {
+menu_new_game {
 	show dialog {
 		name " "
 		border_tileset menu
 		"NEW GAME"
-		> "Slot 0" : menu-new_game-0
-		> "Slot 1" : menu-new_game-1
-		> "Slot 2" : menu-new_game-2
-		> "Back" : menu-play_game
+		> "Slot 0" : menu_new_game_0
+		> "Slot 1" : menu_new_game_1
+		> "Slot 2" : menu_new_game_2
+		> "Back" : menu_play_game
 	}
 }
 
-menu-new_game-0 {
+menu_new_game_0 {
 	erase slot 0;
-	mutate slot-number = 0;
-	goto menu-player-name-q;
+	mutate slot_number = 0;
+	goto menu_player_name_q;
 }
-menu-new_game-1 {
+menu_new_game_1 {
 	erase slot 1;
-	mutate slot-number = 1;
-	goto menu-player-name-q;
+	mutate slot_number = 1;
+	goto menu_player_name_q;
 }
-menu-new_game-2 {
+menu_new_game_2 {
 	erase slot 2;
-	mutate slot-number = 2;
-	goto menu-player-name-q;
+	mutate slot_number = 2;
+	goto menu_player_name_q;
 }
 
 // Set player name
@@ -331,82 +331,82 @@ const! (
 	$preset3 = "Black Mage"
 )
 
-menu-player-name-q {
+menu_player_name_q {
 	show dialog {
 		name " "
 		border_tileset menu
 		"NEW GAME: Pick your name."
-		> $preset1 : menu-player-name-preset1
-		> $preset2 : menu-player-name-preset2
-		> $preset3 : menu-player-name-preset3
-		> "Gimme something random" : menu-player-name-random
+		> $preset1 : menu_player_name_preset1
+		> $preset2 : menu_player_name_preset2
+		> $preset3 : menu_player_name_preset3
+		> "Gimme something random" : menu_player_name_random
 	}
 }
 
-menu-player-name-preset1 {
+menu_player_name_preset1 {
 	set entity "%PLAYER%" name to $preset1;
-	goto menu-player-name-confirm;
+	goto menu_player_name_confirm;
 }
-menu-player-name-preset2 {
+menu_player_name_preset2 {
 	set entity "%PLAYER%" name to $preset2;
-	goto menu-player-name-confirm;
+	goto menu_player_name_confirm;
 }
-menu-player-name-preset3 {
+menu_player_name_preset3 {
 	set entity "%PLAYER%" name to $preset3;
-	goto menu-player-name-confirm;
+	goto menu_player_name_confirm;
 }
-menu-player-name-confirm {
+menu_player_name_confirm {
 	show dialog {
 		name " "
 		border_tileset menu
 		"Your name is %PLAYER%?"
-		> "Yes" : start-new-game-with-name
-		> "No" : menu-player-name-reset
+		> "Yes" : start_new_game_with_name
+		> "No" : menu_player_name_reset
 	}
 }
 
 // Random
 
-menu-player-name-random {
-	mutate random-name-count ? 20;
+menu_player_name_random {
+	mutate random_name_count ? 20;
 	// The RNG operation returns a value range from 0 to (value - 1). In 17, Out 0~16. In 5, Out 0~4. It's like this because there's a non-zero chance that you're using this value to index into an array, like below.
-	if (variable random-name-count is 1) {
+	if (variable random_name_count is 1) {
 		set entity "%PLAYER%" name to Chara;
-	} else if (variable random-name-count is 2) {
+	} else if (variable random_name_count is 2) {
 		set entity "%PLAYER%" name to Buster;
-	} else if (variable random-name-count is 3) {
+	} else if (variable random_name_count is 3) {
 		set entity "%PLAYER%" name to Tidus;
-	} else if (variable random-name-count is 4) {
+	} else if (variable random_name_count is 4) {
 		set entity "%PLAYER%" name to Frisk;
-	} else if (variable random-name-count is 5) {
+	} else if (variable random_name_count is 5) {
 		set entity "%PLAYER%" name to Farnsworth;
-	} else if (variable random-name-count is 6) {
+	} else if (variable random_name_count is 6) {
 		set entity "%PLAYER%" name to Cloud;
-	} else if (variable random-name-count is 7) {
+	} else if (variable random_name_count is 7) {
 		set entity "%PLAYER%" name to Ash;
-	} else if (variable random-name-count is 8) {
+	} else if (variable random_name_count is 8) {
 		set entity "%PLAYER%" name to Crono;
-	} else if (variable random-name-count is 9) {
+	} else if (variable random_name_count is 9) {
 		set entity "%PLAYER%" name to Terra;
-	} else if (variable random-name-count is 10) {
+	} else if (variable random_name_count is 10) {
 		set entity "%PLAYER%" name to Kremit;
-	} else if (variable random-name-count is 11) {
+	} else if (variable random_name_count is 11) {
 		set entity "%PLAYER%" name to Zidane;
-	} else if (variable random-name-count is 12) {
+	} else if (variable random_name_count is 12) {
 		set entity "%PLAYER%" name to Cecil;
-	} else if (variable random-name-count is 13) {
+	} else if (variable random_name_count is 13) {
 		set entity "%PLAYER%" name to Squall;
-	} else if (variable random-name-count is 14) {
+	} else if (variable random_name_count is 14) {
 		set entity "%PLAYER%" name to Roxas;
-	} else if (variable random-name-count is 15) {
+	} else if (variable random_name_count is 15) {
 		set entity "%PLAYER%" name to "Steamed Hams";
-	} else if (variable random-name-count is 16) {
+	} else if (variable random_name_count is 16) {
 		set entity "%PLAYER%" name to Spy;
-	} else if (variable random-name-count is 17) {
+	} else if (variable random_name_count is 17) {
 		set entity "%PLAYER%" name to "Tom Honks";
-	} else if (variable random-name-count is 18) {
+	} else if (variable random_name_count is 18) {
 		set entity "%PLAYER%" name to VeeVee;
-	} else if (variable random-name-count is 19) {
+	} else if (variable random_name_count is 19) {
 		set entity "%PLAYER%" name to XDDCC;
 	} else { // if it's 0 or any other value (the default):
 		set entity "%PLAYER%" name to Bub;
@@ -415,66 +415,66 @@ menu-player-name-random {
 		name " "
 		border_tileset menu
 		"Your name is %PLAYER%?"
-		> "Reroll random name" : menu-player-name-random
-		> "Yes" : start-new-game-with-name
-		> "No" : menu-player-name-reset
+		> "Reroll random name" : menu_player_name_random
+		> "Yes" : start_new_game_with_name
+		> "No" : menu_player_name_reset
 	}
 }
-menu-player-name-reset {
+menu_player_name_reset {
 	set entity "%PLAYER%" name to Bub;
-	goto menu-player-name-q;
+	goto menu_player_name_q;
 }
 
 // Start new game with name
 
-start-new-game-with-name {
+start_new_game_with_name {
 	save slot;
-	goto menu-chapter_select-q;
+	goto menu_chapter_select_q;
 }
 
 /* ---------- CHOOSING A CHAPTER ---------- */
 
-menu-chapter_select-q {
+menu_chapter_select_q {
 	copy ch1_count_flags;
 	copy ch2_count_flags;
 	show dialog {
 		name " "
 		border_tileset menu
-		"PLAY (slot $slot-number$: \"%PLAYER%\")"
-		> "Chapter 1 ($ch1_storyflags_tally$/11)" : menu-chapter_select-1
-		> "Chapter 2 ($ch2_storyflags_tally$/10)" : menu-chapter_select-2-check
-		> "Back" : menu-play_game
+		"PLAY (slot $slot_number$: \"%PLAYER%\")"
+		> "Chapter 1 ($ch1_storyflags_tally$/11)" : menu_chapter_select_1
+		> "Chapter 2 ($ch2_storyflags_tally$/10)" : menu_chapter_select_2_check
+		> "Back" : menu_play_game
 	}
 }
 
-menu-chapter_select-1 {
+menu_chapter_select_1 {
 	mutate current_chapter = 1;
 	load map main;
 }
 
-menu-chapter_select-2-check {
+menu_chapter_select_2_check {
 	if (flag ch1_finished is true || flag warned_ch1_incomplete is true) {
 		// passthrough
-		goto menu-chapter_select-2;
+		goto menu_chapter_select_2;
 	} else {
 		set flag warned_ch1_incomplete to true;
 		show dialog {
 			name " "
 			border_tileset menu
 			"Chapter 1 is unfinished!"
-			> "Play chapter 2 anyway" : menu-chapter_select-2
-			> "Never mind" : menu-chapter_select-q
+			> "Play chapter 2 anyway" : menu_chapter_select_2
+			> "Never mind" : menu_chapter_select_q
 		}
 	}
 }
 
-menu-chapter_select-2 {
+menu_chapter_select_2 {
 	mutate current_chapter = 2;
 	if (flag ch2_cutseen_birthday is false) {
 		load map ch2-magehouse-birthday;
 	}
 	set warp state to raw_game_load-ch2;
-	if (variable playersave-room is 1) {
+	if (variable playersave_room is 1) {
 		copy ch2_load_castle_1_special;
 	} else {
 		load map ch2-town;
@@ -483,26 +483,26 @@ menu-chapter_select-2 {
 
 /* ---------- SAVE THE GAME ---------- */
 
-menu-save_game {
+menu_save_game {
 	show dialog {
 		name "Save Game"
 		border_tileset codec
 		portrait floppy
 		"Would you like to save your progress?"
-		> "Yes" : menu-save_game-yes
-		> "No" : menu-save_game-no
-		> "Return to Main Menu" : menu-save_game-main_menu
+		> "Yes" : menu_save_game_yes
+		> "No" : menu_save_game_no
+		> "Return to Main Menu" : menu_save_game_main_menu
 	}
 }
-menu-save_game-yes {
+menu_save_game_yes {
 	copy capture_player_state;
 	save slot;
-	set entity "%SELF%" on_interact to menu-save_game;
+	set entity "%SELF%" on_interact to menu_save_game;
 }
-menu-save_game-no {
-	set entity "%SELF%" on_interact to menu-save_game;
+menu_save_game_no {
+	set entity "%SELF%" on_interact to menu_save_game;
 }
-menu-save_game-main_menu {
+menu_save_game_main_menu {
 	set warp state to from-game;
 	load map main_menu;
 }

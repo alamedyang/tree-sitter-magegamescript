@@ -15527,20 +15527,20 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes (save and quit)',
-					script: 'demo-end-dream-yes-save',
+					script: 'demo_end_dream_yes_save',
 				},
 				{
 					label: 'Yes (quit without saving)',
-					script: 'demo-end-dream-yes',
+					script: 'demo_end_dream_yes',
 				},
 				{
 					label: 'No (continue dream)',
-					script: 'demo-end-dream-no',
+					script: 'demo_end_dream_no',
 				},
 			],
 		},
 	],
-	'dialog-max3-demo_map': [
+	dialog_max3_demo_map: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -15560,19 +15560,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Play Game',
-					script: 'menu-play_game',
+					script: 'menu_play_game',
 				},
 				{
 					label: 'Play Demo',
-					script: 'load_map-demo_map',
+					script: 'load_map_demo_map',
 				},
 				{
 					label: 'Bling Mode',
-					script: 'menu-bling-mode',
+					script: 'menu_bling_mode',
 				},
 				{
 					label: 'Credits',
-					script: 'menu-credits-choice',
+					script: 'menu_credits_choice',
 				},
 			],
 		},
@@ -15587,11 +15587,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Chapter 1 credits',
-					script: 'menu-credits',
+					script: 'menu_credits',
 				},
 				{
 					label: 'Chapter 2 credits',
-					script: 'menu-credits2',
+					script: 'menu_credits2',
 				},
 				{
 					label: 'Back',
@@ -15610,15 +15610,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'DC801 showcase',
-					script: 'menu-bling-dc801-showcase',
+					script: 'menu_bling_dc801_showcase',
 				},
 				{
 					label: 'Flying "Toasters"',
-					script: 'start_bling-flying-toasters',
+					script: 'start_bling_flying_toasters',
 				},
 				{
 					label: 'QR Codes',
-					script: 'start_bling-qr',
+					script: 'start_bling_qr',
 				},
 				{
 					label: 'Back',
@@ -15637,15 +15637,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Auto mode',
-					script: 'start_bling-rotate-auto',
+					script: 'start_bling_rotate_auto',
 				},
 				{
 					label: 'Manual mode',
-					script: 'start_bling-rotate-manual',
+					script: 'start_bling_rotate_manual',
 				},
 				{
 					label: 'Back',
-					script: 'menu-bling-mode',
+					script: 'menu_bling_mode',
 				},
 			],
 		},
@@ -15660,15 +15660,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Load Game',
-					script: 'menu-load_game',
+					script: 'menu_load_game',
 				},
 				{
 					label: 'New Game',
-					script: 'menu-new_game',
+					script: 'menu_new_game',
 				},
 				{
 					label: 'Erase Save',
-					script: 'menu-erase_save',
+					script: 'menu_erase_save',
 				},
 				{
 					label: 'Back',
@@ -15687,19 +15687,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Erase slot 0',
-					script: 'menu-erase_save-0',
+					script: 'menu_erase_save_0',
 				},
 				{
 					label: 'Erase slot 1',
-					script: 'menu-erase_save-1',
+					script: 'menu_erase_save_1',
 				},
 				{
 					label: 'Erase slot 2',
-					script: 'menu-erase_save-2',
+					script: 'menu_erase_save_2',
 				},
 				{
 					label: 'Back',
-					script: 'menu-play_game',
+					script: 'menu_play_game',
 				},
 			],
 		},
@@ -15714,19 +15714,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Slot 0',
-					script: 'menu-load_game-0',
+					script: 'menu_load_game_0',
 				},
 				{
 					label: 'Slot 1',
-					script: 'menu-load_game-1',
+					script: 'menu_load_game_1',
 				},
 				{
 					label: 'Slot 2',
-					script: 'menu-load_game-2',
+					script: 'menu_load_game_2',
 				},
 				{
 					label: 'Back',
-					script: 'menu-play_game',
+					script: 'menu_play_game',
 				},
 			],
 		},
@@ -15741,19 +15741,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Slot 0',
-					script: 'menu-new_game-0',
+					script: 'menu_new_game_0',
 				},
 				{
 					label: 'Slot 1',
-					script: 'menu-new_game-1',
+					script: 'menu_new_game_1',
 				},
 				{
 					label: 'Slot 2',
-					script: 'menu-new_game-2',
+					script: 'menu_new_game_2',
 				},
 				{
 					label: 'Back',
-					script: 'menu-play_game',
+					script: 'menu_play_game',
 				},
 			],
 		},
@@ -15768,19 +15768,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Red',
-					script: 'menu-player-name-preset1',
+					script: 'menu_player_name_preset1',
 				},
 				{
 					label: 'Bubbles',
-					script: 'menu-player-name-preset2',
+					script: 'menu_player_name_preset2',
 				},
 				{
 					label: 'Black Mage',
-					script: 'menu-player-name-preset3',
+					script: 'menu_player_name_preset3',
 				},
 				{
 					label: 'Gimme something random',
-					script: 'menu-player-name-random',
+					script: 'menu_player_name_random',
 				},
 			],
 		},
@@ -15795,11 +15795,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'start-new-game-with-name',
+					script: 'start_new_game_with_name',
 				},
 				{
 					label: 'No',
-					script: 'menu-player-name-reset',
+					script: 'menu_player_name_reset',
 				},
 			],
 		},
@@ -15814,15 +15814,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Reroll random name',
-					script: 'menu-player-name-random',
+					script: 'menu_player_name_random',
 				},
 				{
 					label: 'Yes',
-					script: 'start-new-game-with-name',
+					script: 'start_new_game_with_name',
 				},
 				{
 					label: 'No',
-					script: 'menu-player-name-reset',
+					script: 'menu_player_name_reset',
 				},
 			],
 		},
@@ -15832,20 +15832,20 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			name: ' ',
 			alignment: 'BOTTOM_LEFT',
 			border_tileset: 'menu',
-			messages: ['PLAY (slot $slot-number$: "%PLAYER%")'],
+			messages: ['PLAY (slot $slot_number$: "%PLAYER%")'],
 			response_type: 'SELECT_FROM_SHORT_LIST',
 			options: [
 				{
 					label: 'Chapter 1 ($ch1_storyflags_tally$/11)',
-					script: 'menu-chapter_select-1',
+					script: 'menu_chapter_select_1',
 				},
 				{
 					label: 'Chapter 2 ($ch2_storyflags_tally$/10)',
-					script: 'menu-chapter_select-2-check',
+					script: 'menu_chapter_select_2_check',
 				},
 				{
 					label: 'Back',
-					script: 'menu-play_game',
+					script: 'menu_play_game',
 				},
 			],
 		},
@@ -15860,11 +15860,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Play chapter 2 anyway',
-					script: 'menu-chapter_select-2',
+					script: 'menu_chapter_select_2',
 				},
 				{
 					label: 'Never mind',
-					script: 'menu-chapter_select-q',
+					script: 'menu_chapter_select_q',
 				},
 			],
 		},
@@ -15880,15 +15880,15 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'menu-save_game-yes',
+					script: 'menu_save_game_yes',
 				},
 				{
 					label: 'No',
-					script: 'menu-save_game-no',
+					script: 'menu_save_game_no',
 				},
 				{
 					label: 'Return to Main Menu',
-					script: 'menu-save_game-main_menu',
+					script: 'menu_save_game_main_menu',
 				},
 			],
 		},
@@ -16088,7 +16088,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'DO NOT PLAY',
-					script: 'restart-wopr',
+					script: 'restart_wopr',
 				},
 			],
 		},
