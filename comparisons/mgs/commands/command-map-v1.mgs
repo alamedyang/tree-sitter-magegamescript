@@ -3,13 +3,13 @@ include!("header.mgs")
 // REGISTER
 
 register_map {
-	register man + map -> man-map;
+	register man + map -> man_map;
 	register map -> command-map;
 }
 
 // MAN PAGE
 
-man-map {
+man_map {
 	show serial dialog spacer;
 	show serial dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - MAP</>"
@@ -27,10 +27,10 @@ command-map {
 	show serial dialog {
 		" "
 	}
-	goto draw-ch2-serial-map;
+	goto draw_ch2_serial_map;
 }
 
-draw-ch2-serial-map-footer {
+draw_ch2_serial_map_footer {
 	concat serial dialog {
 		"\nCurrent location: <c>"
 	}

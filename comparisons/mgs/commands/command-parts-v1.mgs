@@ -3,9 +3,9 @@ include!("header.mgs")
 // REGISTER
 
 register_parts {
-	register man + parts -> man-parts;
+	register man + parts -> man_parts;
 	register parts -> command-parts;
-	register parts fail -> command-parts-fail;
+	register parts fail -> command_parts_fail;
 
 	// if (variable ch2_storyflag_round is >= 1) {
 		copy register_parts1;
@@ -21,44 +21,44 @@ register_parts {
 	// }
 }
 register_parts1 {
-	register parts + "MONITOR" -> command-parts-monitor;
-	register parts + "HEAT SINK" -> command-parts-heatsink;
-	register parts + "HEATSINK" -> command-parts-heatsink;
-	register parts + "POWER SUPPLY" -> command-parts-powersupply;
-	register parts + "POWERSUPPLY" -> command-parts-powersupply;
+	register parts + "MONITOR" -> command_parts_monitor;
+	register parts + "HEAT SINK" -> command_parts_heatsink;
+	register parts + "HEATSINK" -> command_parts_heatsink;
+	register parts + "POWER SUPPLY" -> command_parts_powersupply;
+	register parts + "POWERSUPPLY" -> command_parts_powersupply;
 }
 register_parts2 {
-	register parts + "KEYBOARD" -> command-parts-keyboard;
-	register parts + "MOUSE" -> command-parts-mouse;
-	register parts + "HARD DRIVE" -> command-parts-harddrive;
-	register parts + "HARDDRIVE" -> command-parts-harddrive;
-	register parts + "HARD DISK" -> command-parts-harddrive;
-	register parts + "HARDDISK" -> command-parts-harddrive;
-	register parts + "HDD" -> command-parts-harddrive;
-	register parts + "PLATE" -> command-parts-plate;
-	register parts + "DINNER PLATE" -> command-parts-plate;
-	register parts + "NEEDLE" -> command-parts-needle;
-	register parts + "PHONOGRAPH NEEDLE" -> command-parts-needle;
+	register parts + "KEYBOARD" -> command_parts_keyboard;
+	register parts + "MOUSE" -> command_parts_mouse;
+	register parts + "HARD DRIVE" -> command_parts_harddrive;
+	register parts + "HARDDRIVE" -> command_parts_harddrive;
+	register parts + "HARD DISK" -> command_parts_harddrive;
+	register parts + "HARDDISK" -> command_parts_harddrive;
+	register parts + "HDD" -> command_parts_harddrive;
+	register parts + "PLATE" -> command_parts_plate;
+	register parts + "DINNER PLATE" -> command_parts_plate;
+	register parts + "NEEDLE" -> command_parts_needle;
+	register parts + "PHONOGRAPH NEEDLE" -> command_parts_needle;
 }
 register_parts3 {
-	register parts + "RAM CHIPS" -> command-parts-ramchips;
-	register parts + "RAMCHIPS" -> command-parts-ramchips;
-	register parts + "RAM" -> command-parts-ramchips;
-	register parts + "CLOCK" -> command-parts-clock;
-	register parts + "CPU" -> command-parts-cpu;
-	register parts + "GOLDFISH" -> command-parts-goldfish;
-	register parts + "ABACUS" -> command-parts-abacus;
+	register parts + "RAM CHIPS" -> command_parts_ramchips;
+	register parts + "RAMCHIPS" -> command_parts_ramchips;
+	register parts + "RAM" -> command_parts_ramchips;
+	register parts + "CLOCK" -> command_parts_clock;
+	register parts + "CPU" -> command_parts_cpu;
+	register parts + "GOLDFISH" -> command_parts_goldfish;
+	register parts + "ABACUS" -> command_parts_abacus;
 }
 register_parts4 {
-	register parts + "MAINFRAME OS" -> command-parts-os;
-	register parts + "MAINFRAMEOS" -> command-parts-os;
-	register parts + "OS" -> command-parts-os;
-	register parts + "OPERATINGSYSTEM" -> command-parts-os;
+	register parts + "MAINFRAME OS" -> command_parts_os;
+	register parts + "MAINFRAMEOS" -> command_parts_os;
+	register parts + "OS" -> command_parts_os;
+	register parts + "OPERATINGSYSTEM" -> command_parts_os;
 }
 
 // MAN PAGE
 
-man-parts {
+man_parts {
 	show serial dialog spacer;
 	show serial dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - PARTS</>"
@@ -70,7 +70,7 @@ man-parts {
 }
 
 // COMMAND
-command-parts-fail {
+command_parts_fail {
 	if (
 		flag ch2_ring_zero_enabled_in_castle is true // the artifact is full power
 		|| variable ch2_in_room is not 0 // OR you're in the castle
@@ -81,10 +81,10 @@ command-parts-fail {
 			"<m>LAMBDA</>: Not sure what you mean. Want to ask about one of these instead?"
 			" "
 		}
-		goto command-parts-print;
+		goto command_parts_print;
 	} else {
 		// otherwise, \`parts\` cannot reach Lambda
-		copy ch2-wireless-error;
+		copy ch2_wireless_error;
 	}
 
 }
@@ -100,13 +100,13 @@ command-parts {
 			"<c>PARTS LIST</>"
 			" "
 		}
-		goto command-parts-print;
+		goto command_parts_print;
 	} else {
 		// otherwise, \`parts\` cannot reach Lambda
-		copy ch2-wireless-error;
+		copy ch2_wireless_error;
 	}
 }
-command-parts-print {
+command_parts_print {
 	if (variable ch2_storyflag_round is == 1) {
 		goto label one;
 	} else if (variable ch2_storyflag_round is == 2) {
@@ -262,25 +262,25 @@ ch2_describe_cpu { show serial dialog ch2_describe_cpu; }
 ch2_describe_goldfish { show serial dialog ch2_describe_goldfish; }
 ch2_describe_abacus { show serial dialog ch2_describe_abacus; }
 
-command-parts-ahead {
+command_parts_ahead {
 	show serial dialog spacer;
 	show serial dialog {
 		"<m>LAMBDA</>: Hold on! Don't get ahead of yourself, haha.... For now just focus on the below:"
 		" "
 }
-	goto command-parts-print;
+	goto command_parts_print;
 }
-command-parts-ahead-confused {
+command_parts_ahead_confused {
 	show serial dialog spacer;
 	show serial dialog {
 		"<m>LAMBDA</>: I don't know if that will be of any use, but... want to ask about something else?"
 	}
-	goto command-parts-print;
+	goto command_parts_print;
 }
 
 // ROUND ONE: normal
 
-command-parts-monitor {
+command_parts_monitor {
 	show serial dialog spacer;
 	if (flag ch2_installed_monitor is true) {
 		show serial dialog { "<m>LAMBDA</>: You've got the monitor all set up already. If it looks broken, it's only because the mainframe can't boot up yet." }
@@ -292,7 +292,7 @@ command-parts-monitor {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-heatsink {
+command_parts_heatsink {
 	show serial dialog spacer;
 	if (flag ch2_installed_heatsink is true) {
 		show serial dialog { "<m>LAMBDA</>: You've got the heat sink ready to go, but you'll need to install the CPU first, so, uh, you can just leave it there for the moment." }
@@ -304,7 +304,7 @@ command-parts-heatsink {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-powersupply {
+command_parts_powersupply {
 	show serial dialog spacer;
 	if (flag ch2_installed_powersupply is true) {
 		show serial dialog { "<m>LAMBDA</>: The power supply is in place already. Notice, though, that it's got a bunch of smaller wires coming off of it -- you'll need to plug other components into those later. Everything is keyed, so it should be obvious how everything should be plugged when the time comes." }
@@ -319,9 +319,9 @@ command-parts-powersupply {
 
 // ROUND TWO: abstract
 
-command-parts-keyboard {
+command_parts_keyboard {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_keyboard is true) {
@@ -334,9 +334,9 @@ command-parts-keyboard {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-mouse {
+command_parts_mouse {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_mouse is true) {
@@ -349,9 +349,9 @@ command-parts-mouse {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-harddrive {
+command_parts_harddrive {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_harddrive is true) {
@@ -367,9 +367,9 @@ command-parts-harddrive {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-plate {
+command_parts_plate {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead-confused;
+		goto command_parts_ahead_confused;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_plate is true) {
@@ -386,9 +386,9 @@ command-parts-plate {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-needle {
+command_parts_needle {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead-confused;
+		goto command_parts_ahead_confused;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_needle is true) {
@@ -405,9 +405,9 @@ command-parts-needle {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-ramchips {
+command_parts_ramchips {
 	if (variable ch2_storyflag_round is < 2) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_ramchips is true) {
@@ -423,9 +423,9 @@ command-parts-ramchips {
 
 // ROUND THREE: desperate
 
-command-parts-clock {
+command_parts_clock {
 	if (variable ch2_storyflag_round is < 3) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_clock is true) {
@@ -438,9 +438,9 @@ command-parts-clock {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-cpu {
+command_parts_cpu {
 	if (variable ch2_storyflag_round is < 3) {
-		goto command-parts-ahead;
+		goto command_parts_ahead;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_cpu is true) {
@@ -453,9 +453,9 @@ command-parts-cpu {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-goldfish {
+command_parts_goldfish {
 	if (variable ch2_storyflag_round is < 3) {
-		goto command-parts-ahead-confused;
+		goto command_parts_ahead_confused;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_goldfish is true) {
@@ -472,9 +472,9 @@ command-parts-goldfish {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-abacus {
+command_parts_abacus {
 	if (variable ch2_storyflag_round is < 3) {
-		goto command-parts-ahead-confused;
+		goto command_parts_ahead_confused;
 	}
 	show serial dialog spacer;
 	if (flag ch2_installed_abacus is true) {
@@ -491,7 +491,7 @@ command-parts-abacus {
 	show serial dialog {" "}
 	show serial dialog lambda_over;
 }
-command-parts-os {
+command_parts_os {
 	show serial dialog spacer;
 	if (variable ch2_storyflag_round is < 4) {
 		show serial dialog { "<m>LAMBDA</>: The operating system isn't quite ready yet. Sorry. Keep working on the hardware and I'll keep working on getting the OS ready for you." }

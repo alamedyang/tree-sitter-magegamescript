@@ -5,7 +5,7 @@ serial_dialog "space" {" "}
 serial_dialog "dot" {"."}
 serial_dialog "player" {"<c>@</>"}
 serial_dialog "item" {"<g>?</>"}
-"draw-ch2-serial-map" {
+"draw_ch2_serial_map" {
 	serial_control = off;
 
 	// ROW 0
@@ -659,5 +659,5 @@ serial_dialog "item" {"<g>?</>"}
 	// ROW 16
 	concat serial_dialog {"-------------------------------"};
 	concat serial_dialog "newline";
-	goto "draw-ch2-serial-map-footer";
+	goto "draw_ch2_serial_map_footer";
 }

@@ -2,24 +2,24 @@ include "header.mgs";
 
 // REGISTER
 
-"register_inventory" {
-	command "man" + "inventory" = "man-inventory";
-	command "inventory" = "command-inventory";
-	alias "i" = "inventory";
-	alias "examine" = "look";
-	alias "x" = "look";
+register_inventory {
+	command man + inventory = man_inventory;
+	command inventory = command_inventory;
+	alias i = inventory;
+	alias examine = look;
+	alias x = look;
 }
 
 // MAN PAGE
 
-"man-inventory" {
+man_inventory {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - INVENTORY</>"
 		" "
 		"Use this command to see what items you are currently carrying. This command may also be triggered with the abbreviation <c>I</>."
 	};
-	if ("ch2_parts_round_2_backstory") {
+	if (ch2_parts_round_2_backstory) {
 		show serial_dialog {
 			" "
 			"Some items may be combined at one of the solder stations in the castle workshop."
@@ -29,129 +29,129 @@ include "header.mgs";
 
 // COMMAND
 
-"command-inventory" {
+command_inventory {
 	// set the `count-inventory` flag "first"; if true, don't print anything! just count!
-	"ch2-count-inventory" = 0;
-	if (!"only-count-inventory") {
+	ch2_count_inventory = 0;
+	if (!"only_count_inventory") { // why does this one need to be quoted?? TODOTODO
 		show serial_dialog spacer;
 		show serial_dialog {
 			"<c>INVENTORY:</>"
 		};
 	}
 	// normal
-	if ("ch2_carrying_cactuscooler") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_cactuscooler) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	can of Cactus Cooler" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_heatsink") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_heatsink) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	heat sink" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_powersupply") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_powersupply) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	power supply" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_monitor") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_monitor) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	monitor" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
 	// abstract
-	if ("ch2_carrying_harddrive") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_harddrive) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	hard drive" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_plate") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_plate) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	dinner plate" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_needle") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_needle) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	phonograph needle" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_keyboard") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_keyboard) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	keyboard" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_mouse") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_mouse) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	mouse" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
 	// desperate
-	if ("ch2_carrying_ramchips") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_ramchips) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	ramchips" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_clock") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_clock) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	clock" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_cpu") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_cpu) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	cpu" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_goldfish") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_goldfish) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	goldfish" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_manual") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_manual) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	calculator manual" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
-	if ("ch2_carrying_abacus") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_abacus) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	abacus" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
 	// final
-	if ("ch2_carrying_mainframeos") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_mainframeos) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	mainframe OS CD" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
 	// mini-rake quest
-	if ("ch2_carrying_minirake_99") {
-		if (!"only-count-inventory") {
+	if (ch2_carrying_minirake_99) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	mini rake" };
 		}
-		"ch2-count-inventory" += 1;
+		ch2_count_inventory += 1;
 	}
 	// wrapup:
-	if ("ch2-count-inventory" == 0) {
-		if (!"only-count-inventory") {
+	if (ch2_count_inventory == 0) {
+		if (!only_count_inventory) {
 			show serial_dialog { "	(nothing)" };
 		}
 	}
-	"only-count-inventory" = false;
-	"ch2-counted-inventory" = "ch2-count-inventory"*1;
-	"ch2-count-inventory" = 0;
+	only_count_inventory = false;
+	ch2_counted_inventory = ch2_count_inventory*1;
+	ch2_count_inventory = 0;
 }

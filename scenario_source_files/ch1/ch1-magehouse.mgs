@@ -4,7 +4,7 @@ include "header.mgs";
 
 "on_load-magehouse" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	"debug-mode" = true;
 	// doc: this is legacy debug mode stuff -- used to hide/show exas with a save flag

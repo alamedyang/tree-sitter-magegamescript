@@ -5,17 +5,17 @@ include!("header.mgs")
 register_manual {
 	// the default set
 	register man -> command-man;
-	register man + man -> man-man;
-	register man + look -> man-look;
-	register man + go -> man-go;
-	register man + help -> man-help;
-	register man + rtfm -> man-rtfm;
-	register man fail -> man-fail;
+	register man + man -> man_man;
+	register man + look -> man_look;
+	register man + go -> man_go;
+	register man + help -> man_help;
+	register man + rtfm -> man_rtfm;
+	register man fail -> man_fail;
 }
 
 // MAN PAGE
 
-man-man {
+man_man {
 	show serial dialog spacer;
 	show serial dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - MAN</>"
@@ -28,7 +28,7 @@ man-man {
 
 // FAIL
 
-man-fail {
+man_fail {
 	show serial dialog spacer;
 	show serial dialog {
 		"<bold>MAN PAGE NOT FOUND!</> There is no documentation for that command, or that command does not exist."
@@ -53,14 +53,14 @@ command-man {
 		|| variable ch2_in_room is not 0 // OR you're in the castle
 	) {
 		// `man` works normally
-		goto command-man-normal;
+		goto command_man_normal;
 	} else {
 		// otherwise, `man` cannot reach Lambda
-		copy ch2-wireless-error;
+		copy ch2_wireless_error;
 	}
 }
 
-ch2-wireless-error {
+ch2_wireless_error {
 	show serial dialog spacer;
 	show serial dialog {
 		"<bold><r>ERROR</>: <bold>lambda-talk</> timed out"
@@ -71,7 +71,7 @@ ch2-wireless-error {
 	}
 }
 
-command-man-normal {
+command_man_normal {
 	if (flag ch2_cutseen_bert_secret is true) {
 		if (flag ch2_lambda_bert_backstory is false) {
 			goto ch2_bert_secret_lambda_intro;
@@ -91,7 +91,7 @@ command-man-normal {
 	}
 	
 	if (flag ch2_toot_done is true) {
-		goto command-man-normal-convo;
+		goto command_man_normal_convo;
 	}
 
 	// You're talking to Lambda over serial for the first time:
@@ -101,7 +101,7 @@ command-man-normal {
 
 /* ---------- LAMBDA NORMAL CONVO ---------- */
 
-command-man-normal-convo {
+command_man_normal_convo {
 	show serial dialog spacer;
 	show serial dialog {
 		"<m>LAMBDA</>: What do you want to know?"
@@ -165,7 +165,7 @@ ch2_lambda_topic_parts_q {
 		"(Ask about:)"
 		# "Parts list" : ch2_lambda_topic_parts_list
 		# "Installing parts" : ch2_lambda_topic_parts_installation
-		# "(Go back)" : command-man-normal-convo
+		# "(Go back)" : command_man_normal_convo
 	}
 }
 ch2_lambda_topic_parts_list {
@@ -204,7 +204,7 @@ ch2_lambda_topic_artifact_q {
 		show serial dialog {
 		"(Ask about:)"
 		# "Magic words (Commands)" : ch2_lambda_topic_artifact_words
-		# "(Go back)" : command-man-normal-convo
+		# "(Go back)" : command_man_normal_convo
 	}
 }
 
@@ -237,7 +237,7 @@ ch2_lambda_topic_mainframe_q {
 		# "Why did you break it?" : ch2_lambda_mainframe_broken
 		# "How broken is it?" : ch2_lambda_mainframe_broken_1
 		# "How do we fix it?" : ch2_lambda_mainframe_fix_1
-		# "(Go back)" : command-man-normal-convo
+		# "(Go back)" : command_man_normal_convo
 	}
 }
 
@@ -321,7 +321,7 @@ ch2_lambda_topic_castle_q {
 		"(Ask about:)"
 		# "Whose castle is this?" : ch2_lambda_castle_who
 		# "The earthquake caused damage?" : ch2_lambda_castle_damage
-		# "(Go back)" : command-man-normal-convo
+		# "(Go back)" : command_man_normal_convo
 	}
 }
 
@@ -437,10 +437,10 @@ ch2_lambda_topic_person_q {
 		
 		// admin
 
-		_ "BACK" : command-man-normal-convo
-		_ "Q" : command-man-normal-convo
-		_ "QUIT" : command-man-normal-convo
-		_ "STOP" : command-man-normal-convo
+		_ "BACK" : command_man_normal_convo
+		_ "Q" : command_man_normal_convo
+		_ "QUIT" : command_man_normal_convo
+		_ "STOP" : command_man_normal_convo
 	}
 	show serial dialog spacer;
 	show serial dialog {
@@ -599,11 +599,11 @@ ch2_lambda_person_alvin {
 		"<c>YOU</>: Tell me about Alvin."
 		" "
 	}
-	if (flag band-backstory is false) {
+	if (flag band_backstory is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Alvin? Oh, you mean the Alvin from the band \"1023 MB.\" Oh yeah, they were supposed to play tonight in the grand hall."
 		}
-		set flag band-backstory to true;
+		set flag band_backstory to true;
 	} else {
 		show serial dialog {
 			"<m>LAMBDA</>: Alvin? Oh, you mean the Alvin from the band \"1023 MB.\""
@@ -620,11 +620,11 @@ ch2_lambda_person_theodore {
 		"<c>YOU</>: Tell me about Theodore."
 		" "
 	}
-	if (flag band-backstory is false) {
+	if (flag band_backstory is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Theodore? Oh, you mean the Theodore from the band \"1023 MB.\" Oh yeah, they were supposed to play tonight in the grand hall."
 		}
-		set flag band-backstory to true;
+		set flag band_backstory to true;
 	} else {
 		show serial dialog {
 			"<m>LAMBDA</>: Theodore? Oh, you mean the Theodore from the band \"1023 MB.\""
@@ -641,11 +641,11 @@ ch2_lambda_person_simon {
 		"<c>YOU</>: Tell me about Simon."
 		" "
 	}
-	if (flag band-backstory is false) {
+	if (flag band_backstory is false) {
 		show serial dialog {
 			"<m>LAMBDA</>: Simon? Oh, you mean the Simon from the band \"1023 MB.\" Oh yeah, they were supposed to play tonight in the grand hall."
 		}
-		set flag band-backstory to true;
+		set flag band_backstory to true;
 	} else {
 		show serial dialog {
 			"<m>LAMBDA</>: Simon? Oh, you mean the Simon from the band \"1023 MB.\""
@@ -1196,7 +1196,7 @@ ch2_lambda_person_lambda_name_followup_bigbad {
 		"<m>LAMBDA</>: Probably. Good insight."
 		"\tIn his case, though, I think he likes the mystique, too."
 	}
-	set flag hackbook-backstory to true; // otherwise, the mage will realize he doesn't know the Big Bad's name when the "Town History" book is read, despite realizing it here with Lambda
+	set flag hackbook_backstory to true; // otherwise, the mage will realize he doesn't know the Big Bad's name when the "Town History" book is read, despite realizing it here with Lambda
 	goto ch2_lambda_person_lambda_name_followup;
 }
 ch2_lambda_person_lambda_name_followup_nickname {
@@ -1322,7 +1322,7 @@ ch2_lambda_bert_q {
 }
 
 ch2_lambda_bert_like {
-	set flag ch2-lambdabert-q1 to true;
+	set flag ch2_lambdabert_q1 to true;
 	show serial dialog spacer;
 	show serial dialog {
 		"<c>YOU</>: What is Bert like?"
@@ -1337,7 +1337,7 @@ ch2_lambda_bert_like {
 	goto ch2_lambda_bert_autocontinue_check;
 }
 ch2_lambda_bert_mentioned {
-	set flag ch2-lambdabert-q2 to true;
+	set flag ch2_lambdabert_q2 to true;
 	if (flag ch2_cutseen_castle99 is false) {
 		show serial dialog spacer;
 		show serial dialog {
@@ -1363,7 +1363,7 @@ ch2_lambda_bert_mentioned {
 	}
 }
 ch2_lambda_bert_door {
-	set flag ch2-lambdabert-q3 to true;
+	set flag ch2_lambdabert_q3 to true;
 	show serial dialog spacer;
 	show serial dialog {
 		"<c>YOU</>: What did Bert mean by 'back door?'"
@@ -1378,7 +1378,7 @@ ch2_lambda_bert_door {
 }
 
 ch2_lambda_bert_message {
-	set flag ch2-lambdabert-q4 to true;
+	set flag ch2_lambdabert_q4 to true;
 	show serial dialog spacer;
 	show serial dialog {
 		"<c>YOU</>: Do you know if Bert left a message yet?"
@@ -1399,10 +1399,10 @@ ch2_lambda_bert_message {
 ch2_lambda_bert_autocontinue_check {
 	if (
 		flag ch2_parts_round_2_backstory is true
-		|| flag ch2-lambdabert-q1 is false
-		|| flag ch2-lambdabert-q2 is false
-		|| flag ch2-lambdabert-q3 is false
-		|| flag ch2-lambdabert-q4 is false
+		|| flag ch2_lambdabert_q1 is false
+		|| flag ch2_lambdabert_q2 is false
+		|| flag ch2_lambdabert_q3 is false
+		|| flag ch2_lambdabert_q4 is false
 	) {
 		goto ch2_lambda_bert_q;
 	} else {

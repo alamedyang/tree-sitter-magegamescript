@@ -26,7 +26,7 @@ debug_set_flags_to_round0 {
 	turn serial control on;
 	set flag ch2_has_artifact to true;
 	turn hex control on;
-	mutate current-chapter = 2;
+	mutate current_chapter = 2;
 	set flag ch2_cutseen_birthday to true;
 	// debug!("<y>debug_set_flags_to_round0")
 }

@@ -1,7 +1,7 @@
 include "header.mgs";
 
 "show_dialog-timewarp" {
-	command "rtfm" = "command-rtfm";
+	command "rtfm" = "command_rtfm";
 	if (!"demo-cutseen-timewarp") {
 		camera fade out -> #000000 over 1ms;
 		wait 200ms;

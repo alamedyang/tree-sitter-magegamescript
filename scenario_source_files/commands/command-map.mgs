@@ -2,14 +2,14 @@ include "header.mgs";
 
 // REGISTER
 
-"register_map" {
-	command "man" + "map" = "man-map";
-	command "map" = "command-map";
+register_map {
+	command man + map = man_map;
+	command map = command_map;
 }
 
 // MAN PAGE
 
-"man-map" {
+man_map {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - MAP</>"
@@ -22,15 +22,15 @@ include "header.mgs";
 
 // COMMAND
 
-"command-map" {
+command_map {
 	// normal stuff
 	show serial_dialog {
 		" "
 	};
-	goto "draw-ch2-serial-map";
+	goto draw_ch2_serial_map;
 }
 
-"draw-ch2-serial-map-footer" {
+draw_ch2_serial_map_footer {
 	concat serial_dialog {
 		"\nCurrent location: <c>"
 	};

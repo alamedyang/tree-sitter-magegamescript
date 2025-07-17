@@ -1,5 +1,5 @@
 "show_dialog-timewarp" {
-   command "rtfm" = "command-rtfm";
+   command "rtfm" = "command_rtfm";
    if (!"demo-cutseen-timewarp") { goto index 3; }
    goto index 13;
    camera fade out -> #000000 over 1ms;

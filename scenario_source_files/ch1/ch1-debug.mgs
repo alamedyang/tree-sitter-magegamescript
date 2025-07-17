@@ -233,14 +233,14 @@ include "header.mgs";
 	"bea-sequel-branch" = true;
 	"bobsclub-entered" = true;
 	"glitch-lesson" = true;
-	"wopr-backdoor-found" = true;
+	"wopr_backdoor_found" = true;
 }
 
 "set-misc-flags-false" {
 	"bobsclub-entered" = false;
 	"bea-sequel-branch" = false;
 	"glitch-lesson" = false;
-	"wopr-backdoor-found" = false;
+	"wopr_backdoor_found" = false;
 }
 
 "set-begunthegame-flags-true" {
@@ -291,7 +291,7 @@ include "header.mgs";
 	"shepherd-backstory" = true;
 	"max-backstory" = true;
 	"trekkie-backstory" = true;
-	"hackbook-backstory" = true;
+	"hackbook_backstory" = true;
 	"smith-backstory" = true;
 	"verthandi-backstory" = true;
 	"marta-backstory" = true;
@@ -310,7 +310,7 @@ include "header.mgs";
 	"shepherd-backstory" = false;
 	"max-backstory" = false;
 	"trekkie-backstory" = false;
-	"hackbook-backstory" = false;
+	"hackbook_backstory" = false;
 	"smith-backstory" = false;
 	"verthandi-backstory" = false;
 	"marta-backstory" = false;

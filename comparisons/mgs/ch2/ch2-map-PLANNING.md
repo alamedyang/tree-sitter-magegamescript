@@ -436,9 +436,9 @@ For each item: (Copy existing pattern wherever these are found)
     2. Add a new substep to script `ch2_toot_step_5X`
 5. In file `commands/command-parts.mgs`
     1. Make script `ch2_describe_ITEM`: `show serial dialog ch2_describe_ITEM`
-    2. Make script `command-parts-ITEM` (copy an existing)
+    2. Make script `command_parts_ITEM` (copy an existing)
     3. Add to `command-parts` (using flag `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
-    4. Add to script `command-parts-q` (if multiple words, add a no-spaces option, too)
+    4. Add to script `command_parts_q` (if multiple words, add a no-spaces option, too)
 
 Other notes:
 

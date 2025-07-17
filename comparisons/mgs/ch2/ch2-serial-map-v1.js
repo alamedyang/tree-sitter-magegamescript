@@ -450,11 +450,11 @@ var makeNatlangMap = function (lispish) {
 				`serial dialog dot {"."}`,
 				`serial dialog player {"<${specialCharStyles['@']}>@</>"}`,
 				`serial dialog item {"<${specialCharStyles['?']}>?</>"}`,
-				`draw-ch2-serial-map {`,
+				`draw_ch2_serial_map {`,
 				`	turn serial control off;`,
 			],
 			lispish.map(makeNatlangMapRow),
-			[`	goto draw-ch2-serial-map-footer;`, `}`],
+			[`	goto draw_ch2_serial_map_footer;`, `}`],
 		)
 		.join('\n');
 	return ret.replace(/\\(?!n)/g, '\\\\');

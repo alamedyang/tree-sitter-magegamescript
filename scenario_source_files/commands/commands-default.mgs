@@ -1,6 +1,6 @@
 include "header.mgs";
 
-"man-look" {
+man_look {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - LOOK</>"
@@ -13,7 +13,7 @@ include "header.mgs";
 	};
 }
 
-"man-go" {
+man_go {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - GO</>"
@@ -24,7 +24,7 @@ include "header.mgs";
 	};
 }
 
-"man-help" {
+"man_help" {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - HELP</>"

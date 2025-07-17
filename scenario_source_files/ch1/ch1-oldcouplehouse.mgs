@@ -19,7 +19,7 @@ include "header.mgs";
 
 "on_load-oldcouplehouse" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	if ("bea-sequel-branch") {
 		if (!"storyflag-bea2") {

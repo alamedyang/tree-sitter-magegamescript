@@ -164,7 +164,7 @@ add serial_dialog settings {
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "secret",
-			"script": "command-secret"
+			"script": "command_secret"
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
@@ -218,7 +218,7 @@ add serial_dialog settings {
 		"Unregistered Command: 'secret'!"
 	};
 }
-"command-secret" {
+"command_secret" {
 	show serial_dialog "serial_dialog-command-secret" {
 		"Yes, there's a secret, but what animal is secret?"
 	};
@@ -377,13 +377,13 @@ serial_dialog "concat-end" {
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND",
 			"command": "moon",
 			"is_fail": true,
-			"script": "command-map-moon-fail"
+			"script": "command_map_moon_fail"
 		},
 		{
 			"action": "REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT",
 			"command": "moon",
 			"argument": "moon",
-			"script": "command-map-moon-moon"
+			"script": "command_map_moon_moon"
 		}
 	]
 	show serial_dialog "serial_dialog-go_register_moon" {
@@ -395,13 +395,13 @@ serial_dialog "concat-end" {
 		"What would you like to moon?"
 	};
 }
-"command-map-moon-fail" {
-	show serial_dialog "serial_dialog-command-map-moon-fail" {
+"command_map_moon_fail" {
+	show serial_dialog "serial_dialog-command_map_moon_fail" {
 		"You cannot moon that."
 	};
 }
-"command-map-moon-moon" {
-	show serial_dialog "serial_dialog-command-map-moon-moon" {
+"command_map_moon_moon" {
+	show serial_dialog "serial_dialog-command_map_moon_moon" {
 		"You mooned the moon. It blushes."
 	};
 }

@@ -1,14 +1,14 @@
 include!("header.mgs")
 
 on_load-main_menu {
-	mutate current-chapter = 0;
+	mutate current_chapter = 0;
 	copy register_colors;
 
 	// todo: write commentary
 
 	// copy register_commentary
 	// if (flag ch1-commentary-notice is false) {
-	// 	set flag serial-commentary to true
+	// 	set flag serial_commentary to true
 	// 	show serial dialog {
 	// 		" "
 	// 		"<c><bold>Serial commentary</> <c>is available for chapter 1!</> (This is on by default.) To enable or disable this commentary, type <c>COMMENTARY ON</> or <c>COMMENTARY OFF</> at the main menu."
@@ -81,10 +81,10 @@ debug_menu_simon {
 	turn serial control on;
 	set flag ch2_has_artifact to true;
 	turn hex control on;
-	mutate current-chapter = 2;
+	mutate current_chapter = 2;
 	copy debug_finish_toot;
 	mutate ch2_storyflag_round = 2;
-	copy warp-ch2-31 // this has a load_map in it
+	copy warp_ch2_31 // this has a load_map in it
 }
 debug-hub {
 	load map warp_zone;
@@ -448,7 +448,7 @@ menu-chapter_select-q {
 }
 
 menu-chapter_select-1 {
-	mutate current-chapter = 1;
+	mutate current_chapter = 1;
 	load map main;
 }
 
@@ -469,7 +469,7 @@ menu-chapter_select-2-check {
 }
 
 menu-chapter_select-2 {
-	mutate current-chapter = 2;
+	mutate current_chapter = 2;
 	if (flag ch2_cutseen_birthday is false) {
 		load map ch2-magehouse-birthday;
 	}

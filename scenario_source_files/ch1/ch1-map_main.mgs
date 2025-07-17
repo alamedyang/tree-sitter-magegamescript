@@ -21,7 +21,7 @@ add dialog settings {
 
 "on_load-map-main" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	// if you haven't started ch1 yet
 	if (!begunthegame) {

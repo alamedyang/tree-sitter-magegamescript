@@ -2,13 +2,13 @@ include "header.mgs";
 
 // REGISTER
 
-"register_rtfm" {
-	command "rtfm" = "command-rtfm";
+register_rtfm {
+	command rtfm = command_rtfm;
 }
 
 // MAN PAGE
 
-"man-rtfm" {
+man_rtfm {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<c><bold>MGE GENERAL COMMANDS MANUAL - RTFM</>"
@@ -21,7 +21,7 @@ include "header.mgs";
 
 // COMMAND
 
-"command-rtfm" {
+command_rtfm {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><cyan>RTFM!</> Hex editor docs! Read which book?"
@@ -36,60 +36,60 @@ include "header.mgs";
 		"\tC: <r>Book Origins</>"
 		"\tD: <r>Red Letters</>"
 		"\tQ: QUIT"
-		_ "1" = "serial-entities1"
-		_ "2" = "serial-entities2"
-		_ "3" = "serial-entities3"
-		_ "4" = "serial-entities4"
-		_ "5" = "serial-hexediting"
-		_ "6" = "serial-hexediting2"
-		_ "a" = "serial-bitsbytes"
-		_ "b" = "serial-math"
-		_ "c" = "serial-bookorigins"
-		_ "d" = "serial-redletters"
-		_ "q" = "command-rtfm-quit"
-		_ "quit" = "command-rtfm-quit"
+		_ "1" = serial_entities1
+		_ "2" = serial_entities2
+		_ "3" = serial_entities3
+		_ "4" = serial_entities4
+		_ "5" = serial_hexediting
+		_ "6" = serial_hexediting2
+		_ "a" = serial_bitsbytes
+		_ "b" = serial_math
+		_ "c" = serial_bookorigins
+		_ "d" = serial_redletters
+		_ "q" = command_rtfm_quit
+		_ "quit" = command_rtfm_quit
 	};
-	goto "command-rtfm-invalid";
+	goto command_rtfm_invalid;
 }
 
-"command-rtfm-another" {
+command_rtfm_another {
 	show serial_dialog {
 		" "
 		"<bold><c>RTFM:</><bold> Read another? (Y/N) (or type a book id: 1-6, A-D)"
-		_ "1" = "serial-entities1"
-		_ "2" = "serial-entities2"
-		_ "3" = "serial-entities3"
-		_ "4" = "serial-entities4"
-		_ "5" = "serial-hexediting"
-		_ "6" = "serial-hexediting2"
-		_ "a" = "serial-bitsbytes"
-		_ "b" = "serial-math"
-		_ "c" = "serial-bookorigins"
-		_ "d" = "serial-redletters"
-		_ "q" = "command-rtfm-quit"
-		_ "quit" = "command-rtfm-quit"
-		_ "n" = "command-rtfm-quit"
-		_ "no" = "command-rtfm-quit"
-		_ "y" = "command-rtfm"
-		_ "yes" = "command-rtfm"
+		_ "1" = serial_entities1
+		_ "2" = serial_entities2
+		_ "3" = serial_entities3
+		_ "4" = serial_entities4
+		_ "5" = serial_hexediting
+		_ "6" = serial_hexediting2
+		_ "a" = serial_bitsbytes
+		_ "b" = serial_math
+		_ "c" = serial_bookorigins
+		_ "d" = serial_redletters
+		_ "q" = command_rtfm_quit
+		_ "quit" = command_rtfm_quit
+		_ "n" = command_rtfm_quit
+		_ "no" = command_rtfm_quit
+		_ "y" = command_rtfm
+		_ "yes" = command_rtfm
 	};
-	goto "command-rtfm-invalid";
+	goto command_rtfm_invalid;
 }
-"command-rtfm-invalid" {
+command_rtfm_invalid {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"Invalid book id! Restarting...."
 	};
-	goto "command-rtfm";
+	goto command_rtfm;
 }
-"command-rtfm-quit" {
+command_rtfm_quit {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><cyan>RTFM!</> Thanks for reading!"
 	};
 }
 
-"serial-entities1" {
+serial_entities1 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #1 - ENTITIES 1</>"
@@ -101,10 +101,10 @@ include "header.mgs";
 		"\tAfter the name, the next four bytes (<m>Y</>) are the entity's position in the world, two bytes for X and two bytes for Y."
 		"\tThe position of each byte within each pair is backwards relative to what seems to us to be logical -- and from what we understand, a Mr. N. Dian is to blame."
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-entities2" {
+serial_entities2 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #2 - ENTITIES 2</>"
@@ -119,10 +119,10 @@ include "header.mgs";
 		"\tThe second pair (<m>B</>) appears to do nothing the vast majority of the time, but occasionally it changes the entity's appearance in odd ways -- it's almost as if certain entities exist in a series along a parallel dimension, and we can simply choose which dimension is realized."
 		"\tAgain, all two-byte pairs are backwards in their manifestation. We are preparing a strongly-worded letter to Mr. N. Dian."
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-entities3" {
+serial_entities3 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #3 - ENTITIES 3</>"
@@ -134,10 +134,10 @@ include "header.mgs";
 		"\tThe next byte (<g>Z</>) first appeared only to represent the cardinal direction the entity is facing, but we have discovered a secret:"
 		"\tIf this byte is considered not as a unit but instead as a series of 8 bits, then the largest bit toggles a bizarre disruption in appearance, which we have found useful to cause great alarm and panic among our less-enlightened neighbors."
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-entities4" {
+serial_entities4 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #4 - ENTITIES 4</>"
@@ -148,10 +148,10 @@ include "header.mgs";
 		"\tThe function of the final pair (<m>Y</>) escapes us, at least for the moment."
 		"\tThere may yet be undiscovered secrets, and the world may yet change around us, rendering invalid the structure we have already mapped. But we will endeavor to continue our research."
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-hexediting" {
+serial_hexediting {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #5 - HEX EDITS 1</>"
@@ -162,10 +162,10 @@ include "header.mgs";
 		"\tBoth <c>triangle</> and <m>X</> thus provide convenient ways of altering data, but when outside the hex editor, we must rely on the standard methods:"
 		"\tPressing the bit buttons while the correct operator (XOR, ADD, SUB) is selected."
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-hexediting2" {
+serial_hexediting2 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><g>RTFM #6 - HEX EDITS 2</>"
@@ -178,10 +178,10 @@ include "header.mgs";
 		" "
 		"(...The last page appears to be missing!)"
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-bitsbytes" {
+serial_bitsbytes {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><b>RTFM #A - BITS & BYTES</>"
@@ -191,10 +191,10 @@ include "header.mgs";
 		" "
 		"(There's more text here, but it's dry and uninteresting. Your eyes glaze over....)"
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-math" {
+serial_math {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><b>RTFM #B - MATH</>"
@@ -203,10 +203,10 @@ include "header.mgs";
 		"\tIn which case, think of XOR as a toggle on a single bit."
 		"\tIt's like each byte is actually eight boolean switches! Amazing!"
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-bookorigins" {
+serial_bookorigins {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>RTFM #C - BOOK ORIGINS</>"
@@ -219,10 +219,10 @@ include "header.mgs";
 		"\t<m>Alfonso</>: Then perhaps the <r>Big Bad</> was not the first mage to have Ring Zero. Perhaps he will not be the last."
 		"\t<m>Bert</>: Or is there more than one ring?"
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }
 
-"serial-redletters" {
+serial_redletters {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"<bold><r>RTFM #D - RED LETTERS</>"
@@ -234,5 +234,5 @@ include "header.mgs";
 		"\t<m>Alfonso</>: What else might it mean by 'red letters,' then? Perhaps... when a mage becomes a hacker, it IS a red-letter day!"
 		"\t<m>Jackob</>: Or perhaps the phrase 'red letters' is a red herring!"
 	};
-	goto "command-rtfm-another";
+	goto command_rtfm_another;
 }

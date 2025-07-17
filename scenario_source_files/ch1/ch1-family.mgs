@@ -28,7 +28,7 @@ include "header.mgs";
 
 "on_load-family" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	if ("storyflag-sportskid") {
 		entity "Kid" type = "blitzball";

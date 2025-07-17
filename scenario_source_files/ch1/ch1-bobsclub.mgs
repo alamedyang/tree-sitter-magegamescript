@@ -4,7 +4,7 @@ include "header.mgs";
 
 "on_load-bobsclub1" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	if (!"storyflag-bobmoss") {
 		entity "Bob Moss" position = geometry "bobsclub-hidingplace";

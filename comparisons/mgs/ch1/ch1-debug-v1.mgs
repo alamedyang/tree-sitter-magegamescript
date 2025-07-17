@@ -233,14 +233,14 @@ set-misc-flags-true {
 	set flag bea-sequel-branch to true;
 	set flag bobsclub-entered to true;
 	set flag glitch-lesson to true;
-	set flag wopr-backdoor-found to true;
+	set flag wopr_backdoor_found to true;
 }
 
 set-misc-flags-false {
 	set flag bobsclub-entered to false;
 	set flag bea-sequel-branch to false;
 	set flag glitch-lesson to false;
-	set flag wopr-backdoor-found to false;
+	set flag wopr_backdoor_found to false;
 }
 
 set-begunthegame-flags-true {
@@ -291,7 +291,7 @@ set-backstory-flags-true {
 	set flag shepherd-backstory to true;
 	set flag max-backstory to true;
 	set flag trekkie-backstory to true;
-	set flag hackbook-backstory to true;
+	set flag hackbook_backstory to true;
 	set flag smith-backstory to true;
 	set flag verthandi-backstory to true;
 	set flag marta-backstory to true;
@@ -310,7 +310,7 @@ set-backstory-flags-false {
 	set flag shepherd-backstory to false;
 	set flag max-backstory to false;
 	set flag trekkie-backstory to false;
-	set flag hackbook-backstory to false;
+	set flag hackbook_backstory to false;
 	set flag smith-backstory to false;
 	set flag verthandi-backstory to false;
 	set flag marta-backstory to false;

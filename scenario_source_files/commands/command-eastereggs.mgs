@@ -2,11 +2,11 @@ include "header.mgs";
 
 // REGISTER
 
-"register_eastereggs" {
-	command "plover" = "command-plover";
-	command "xyzzy" = "command-xyzzy";
-	command "plugh" = "command-plugh";
-	command "fum" = "command-fum";
+register_eastereggs {
+	command plover = command_plover;
+	command xyzzy = command_xyzzy;
+	command plugh = command_plugh;
+	command fum = command_fum;
 	hide command plover;
 	hide command xyzzy;
 	hide command plugh;
@@ -15,7 +15,7 @@ include "header.mgs";
 
 // COMMAND
 
-"command-plover" {
+command_plover {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -51,21 +51,21 @@ include "header.mgs";
 	};
 }
 
-"command-xyzzy" {
+command_xyzzy {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You hex a decimal. It looks surprised."
 	};
 }
 
-"command-plugh" {
+command_plugh {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"Bless you."
 	};
 }
 
-"command-fum" {
+command_fum {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"While I've never actually made a mistake, there have been a few, let's call 'em \"stnanks,\" that could be worthy of a do-over."

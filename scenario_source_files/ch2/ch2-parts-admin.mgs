@@ -26,7 +26,7 @@ include "header.mgs";
 	serial_control = on;
 	"ch2_has_artifact" = true;
 	hex_control = on;
-	"current-chapter" = 2;
+	"current_chapter" = 2;
 	ch2_cutseen_birthday = true;
 	// debug!("<y>debug_set_flags_to_round0")
 }

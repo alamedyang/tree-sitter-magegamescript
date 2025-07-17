@@ -1,14 +1,14 @@
 include "header.mgs";
 
 "on_load-main_menu" {
-	"current-chapter" = 0;
+	"current_chapter" = 0;
 	copy!("register_colors")
 
 	// todo: write commentary
 
 	// copy!("register_commentary")
 	// if (!ch1-commentary-notice) {
-	// 	serial-commentary = true;
+	// 	serial_commentary = true;
 	// 	show serial dialog {
 	// 		" "
 	// 		"<c><bold>Serial commentary</> <c>is available for chapter 1!</> (This is on by default.) To enable or disable this commentary, type <c>COMMENTARY ON</> or <c>COMMENTARY OFF</> at the main menu."
@@ -27,7 +27,7 @@ include "header.mgs";
 		command simon = "debug_menu_simon";
 		command king = "debug-king";
 		command ch2 = "menu-chapter_select-2";
-		command rtfm = "command-rtfm";
+		command rtfm = "command_rtfm";
 		command buffer + "test" = "debug_buffertest";
 		command boot = "ch2_bootup";
 		command post = "debug-post";
@@ -82,10 +82,10 @@ include "header.mgs";
 	serial_control = true;
 	"ch2_has_artifact" = true;
 	hex_control = true;
-	"current-chapter" = 2;
+	"current_chapter" = 2;
 	copy!("debug_finish_toot")
 	"ch2_storyflag_round" = 2;
-	copy!("warp-ch2-31") // this has a load_map in it
+	copy!("warp_ch2_31") // this has a load_map in it
 }
 
 "debug-hub" {
@@ -489,7 +489,7 @@ include "header.mgs";
 }
 
 "menu-chapter_select-1" {
-	"current-chapter" = 1;
+	"current_chapter" = 1;
 	load map "main";
 }
 
@@ -510,7 +510,7 @@ include "header.mgs";
 }
 
 "menu-chapter_select-2" {
-	"current-chapter" = 2;
+	"current_chapter" = 2;
 	if (!ch2_cutseen_birthday) {
 		load map "ch2-magehouse-birthday";
 	}

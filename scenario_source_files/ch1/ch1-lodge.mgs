@@ -7,7 +7,7 @@ include "header.mgs";
 // zigzag time!
 "on_load-lodge" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	if (!"tuesday-walkedup") {
 		entity "Aunt Zippy" animation_frame = 3;

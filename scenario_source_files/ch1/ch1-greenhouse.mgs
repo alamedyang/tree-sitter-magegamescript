@@ -2,7 +2,7 @@ include "header.mgs";
 
 "on_load-greenhouse" {
 	if ("tuesdayd") {
-		command "rtfm" = "command-rtfm";
+		command "rtfm" = "command_rtfm";
 	}
 	if ("storyflag-trekkie") {
 		copy!("ch1-ethernettle-restore")

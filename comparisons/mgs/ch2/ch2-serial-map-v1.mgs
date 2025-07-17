@@ -3,7 +3,7 @@ serial dialog space {" "}
 serial dialog dot {"."}
 serial dialog player {"<c>@</>"}
 serial dialog item {"<g>?</>"}
-draw-ch2-serial-map {
+draw_ch2_serial_map {
 	turn serial control off;
 
 	// ROW 0
@@ -657,5 +657,5 @@ draw-ch2-serial-map {
 	// ROW 16
 	concat serial dialog {"-------------------------------"}
 	concat serial dialog newline;
-	goto draw-ch2-serial-map-footer;
+	goto draw_ch2_serial_map_footer;
 }
