@@ -4,7 +4,7 @@ add dialog settings {
 	label SELF { entity "%SELF%" alignment BR }
 }
 
-"show_dialog-wisdom" {
+"show_dialog_wisdom" {
 	show dialog {
 		SELF alignment BL
 		"Ah, hello little %PLAYER%.\nHave you come to me seeking wisdom?"
@@ -31,7 +31,7 @@ add dialog settings {
 	};
 }
 
-"show_dialog-strong_bad" {
+"show_dialog_strong_bad" {
 	show dialog {
 		SELF "I was told that Fhqwhgads would be here.\nHave you seen him?\nI don't know who it is,\nbut it probably is Fhqwhgads."
 
@@ -42,7 +42,7 @@ add dialog settings {
 	};
 }
 
-"show_dialog-bender" {
+"show_dialog_bender" {
 	show dialog {
 		PLAYER "Hey, robot, could you make me a smoothie?"
 
@@ -57,7 +57,7 @@ add dialog settings {
 	};
 }
 
-"show_dialog-trekkie" {
+"show_dialog_trekkie" {
 	show dialog {
 		SELF "Oh no! All me AOL free trial hours have expired! Me need to get back on INTERNET!"
 
@@ -67,7 +67,7 @@ add dialog settings {
 	};
 }
 
-"show_dialog-pipscat" {
+"show_dialog_pipscat" {
 	show dialog {
 		SELF "You know, %Strong Bad% and %Bender% are having a feud. It would be more awesome if they teamed up - %Bender% is some kinda robot."
 	};
@@ -107,14 +107,14 @@ add dialog settings {
 
 "check_save_flag-bobs_not_on_fire" {
 	if ("No two Bobs are not on fire") {
-		goto "show_dialog-thanks_for_setting_bob_on_fire";
+		goto "show_dialog_thanks_for_setting_bob_on_fire";
 	}
 	show dialog {
 		SELF "%Bob%, AKA \"Stone Cold %Bob% Austin\"\nis cold. Would you please warm him up?"
 	};
 }
 
-"show_dialog-thanks_for_setting_bob_on_fire" {
+"show_dialog_thanks_for_setting_bob_on_fire" {
 	show dialog {
 		SELF "Thank for warming %Bob% up?\nI mean, there were other ways to do it,\nbut that works I guess..."
 	};
@@ -153,7 +153,7 @@ add dialog settings {
 	entity "Bert" on_interact = test_camera_follow_bert;
 }
 
-"show_dialog-lots_of_text" {
+"show_dialog_lots_of_text" {
 	show dialog {
 		SELF "How long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################\nHow long can the text go? ################"
 	};

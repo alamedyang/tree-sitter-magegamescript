@@ -2,18 +2,18 @@ include!("header.mgs")
 
 /* ---------- on_tick ---------- */
 
-billy-glitchwatch {
+billy_glitchwatch {
 	if entity Billy is not glitched then goto billy_now_unglitched;
 }
 billy_now_unglitched {
-	set flag billy-unglitched to true;
+	set flag billy_unglitched to true;
 	goto null_script;
 }
-kid-glitchwatch {
+kid_glitchwatch {
 	if entity Kid is not glitched then goto kid_now_unglitched;
 }
 kid_now_unglitched {
-	set flag kid-unglitched to true;
+	set flag kid_unglitched to true;
 	goto null_script;
 }
 
@@ -54,21 +54,21 @@ move_kid_to_high {
 
 /* ---------- dialog: glitched lesson ---------- */
 
-show_dialog-verthandi-glitched {
-	if flag glitch-lesson is true then goto show_dialog-verthandi-glitched-q
+show_dialog_verthandi_glitched {
+	if flag glitch_lesson is true then goto show_dialog_verthandi_glitched_q
 	show dialog {
 		SELF "Oh! It looks like you would like a lesson on glitched entities! Please allow me to explain."
 	}
-	goto show_dialog-verthandi-glitched-lesson;
+	goto show_dialog_verthandi_glitched_lesson;
 }
-show_dialog-verthandi-glitched-q {
+show_dialog_verthandi_glitched_q {
 	show dialog {
 		SELF "Would you like to hear the lesson again?"
-		> "Yes" : goto "show_dialog-verthandi-glitched-lesson"
-		> "No" : goto "show_dialog-verthandi-glitched-s"
+		> "Yes" : goto "show_dialog_verthandi_glitched_lesson"
+		> "No" : goto "show_dialog_verthandi_glitched_s"
 	}
 }
-show_dialog-verthandi-glitched-lesson {
+show_dialog_verthandi_glitched_lesson {
 	show dialog {
 		SELF "Ring Zero provides you access to our world's superficial state, but there is also a deeper state you cannot see, nor control."
 		"Our physical appearance is only superficial, and our deeper soul remembers our true identities, even if our superficial apperance has changed."
@@ -78,39 +78,39 @@ show_dialog-verthandi-glitched-lesson {
 		"That's why I'm not worried about being glitched! I know that my body and soul are still connected, and I will return to normal soon!"
 		"I hope this explanation was enlightening!"
 	}
-	set flag glitch-lesson to true;
-	goto show_dialog-verthandi-wrapup;
+	set flag glitch_lesson to true;
+	goto show_dialog_verthandi_wrapup;
 }
-show_dialog-verthandi-glitched-s {
+show_dialog_verthandi_glitched_s {
 	show dialog { SELF "I might be glitched for now, but my soul is quite unharmed! My appearance will return to normal soon." }
-	goto show_dialog-verthandi-wrapup;
+	goto show_dialog_verthandi_wrapup;
 }
 
 /* ---------- dialog: other ---------- */
 
 
-show_dialog-verthandi-start {
+show_dialog_verthandi_start {
 	copy face_player;
 	if (entity "%SELF%" is glitched) {
-		goto show_dialog-verthandi-glitched; // JUMP
+		goto show_dialog_verthandi_glitched; // JUMP
 	}
-	if (flag storyflag-verthandi is true) {
+	if (flag storyflag_verthandi is true) {
 		show dialog { SELF "Thank you for everything you've done!" }
 	} else {
 		// find unglitch count
 		mutate unglitch_count = 0;
-		if (flag goldfish-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag timmy-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag fountain-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag lodge_cat-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag billy-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag kid-unglitched is true) { mutate unglitch_count + 1; }
-		if (flag main_hamster-unglitched is true) { mutate unglitch_count + 1; }
+		if (flag goldfish_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag timmy_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag fountain_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag lodge_cat_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag billy_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag kid_unglitched is true) { mutate unglitch_count + 1; }
+		if (flag main_hamster_unglitched is true) { mutate unglitch_count + 1; }
 		mutate total_glitches = 7;
 		mutate total_glitches - unglitch_count;
 		// use unglitch count
 		if (variable total_glitches is 0) {
-			if (flag verthandi-backstory is false) {
+			if (flag verthandi_backstory is false) {
 				show dialog {
 					SELF "Oh! It appears you've already restored everyone that was glitched!"
 					"How wonderful! I can't thank you enough!"
@@ -121,24 +121,24 @@ show_dialog-verthandi-start {
 					"Oh, thank you, %PLAYER%!"
 				}
 			}
-			copy calculate-hint-tracking-series;
-			if (variable hint-tracking-check is 11) {
-				copy set-hint-none;
+			copy calculate_hint_tracking_series;
+			if (variable hint_tracking_check is 11) {
+				copy set_hint_none;
 			}
-			set flag storyflag-verthandi to true;
-			set flag goats-both-unglitched to true;
-		} else if (flag verthandi-backstory is true) {
-			if (flag goats-both-unglitched is true) {
+			set flag storyflag_verthandi to true;
+			set flag goats_both_unglitched to true;
+		} else if (flag verthandi_backstory is true) {
+			if (flag goats_both_unglitched is true) {
 				if (variable total_glitches is 1) {
 					show dialog { SELF "I hear one more glitched soul that needs help!" }
 				} else {
 					show dialog { SELF "I can hear the cries of $total_glitches$ glitched souls...." }
 				}
-				if (flag timmy-unglitched is false || flag lodge_cat-unglitched is false) {
+				if (flag timmy_unglitched is false || flag lodge_cat_unglitched is false) {
 					show dialog { SELF "Perhaps... somewhere in the library?" }
-				} else if (flag main_hamster-unglitched is false || flag fountain-unglitched is false) {
+				} else if (flag main_hamster_unglitched is false || flag fountain_unglitched is false) {
 					show dialog { SELF "Perhaps... somewhere outdoors?" }
-				} else if (flag goldfish-unglitched is false) {
+				} else if (flag goldfish_unglitched is false) {
 					show dialog { SELF "Perhaps... somewhere in your home?" }
 				}
 			} else if (entity Billy is glitched || entity Kid is glitched) {
@@ -148,9 +148,9 @@ show_dialog-verthandi-start {
 					SELF "You've restored the baby goats! Oh, thank you!"
 					"But I still hear cries for help elsewhere in town. Please, can you help?"
 				}
-				set flag goats-both-unglitched to true;
+				set flag goats_both_unglitched to true;
 			}
-			copy set-hint-glitch;
+			copy set_hint_glitch;
 		} else {
 			show dialog {
 				SELF "Some time ago, the Big Bad brought chaos to this place."
@@ -167,29 +167,29 @@ show_dialog-verthandi-start {
 					SELF "These dear baby goats are back to normal, but I still hear cries for help elsewhere in town."
 					"There is more to unglitch! Please, will you set things right?"
 				}
-				set flag goats-both-unglitched to true;
+				set flag goats_both_unglitched to true;
 			}
-			set flag verthandi-backstory to true;
-			copy set-hint-glitch;
+			set flag verthandi_backstory to true;
+			copy set_hint_glitch;
 		}
 	}
-	goto show_dialog-verthandi-wrapup;
+	goto show_dialog_verthandi_wrapup;
 }
 
-show_dialog-verthandi-wrapup {
+show_dialog_verthandi_wrapup {
 	turn entity Verthandi toward entity Kid;
 	// RESET
-	set entity "%SELF%" on_interact to show_dialog-verthandi-start;
+	set entity "%SELF%" on_interact to show_dialog_verthandi_start;
 }
 
-show_dialog-goat {
+show_dialog_goat {
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "ba15456`-------++++++gf\n+++++-//==========/*8901ikg" }
 	} else {
 		show dialog { SELF "Baaahhh!" }
 	}
-	if (flag goats-both-unglitched is false) {
-		copy set-hint-glitch;
+	if (flag goats_both_unglitched is false) {
+		copy set_hint_glitch;
 	}
-	set entity "%SELF%" on_interact to show_dialog-goat;
+	set entity "%SELF%" on_interact to show_dialog_goat;
 }

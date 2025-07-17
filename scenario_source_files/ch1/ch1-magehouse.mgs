@@ -2,18 +2,18 @@ include "header.mgs";
 
 // on_load scripts
 
-"on_load-magehouse" {
-	if ("tuesdayd") {
-		command "rtfm" = "command_rtfm";
+on_load_magehouse {
+	if (tuesdayd) {
+		command rtfm = command_rtfm;
 	}
-	"debug-mode" = true;
+	debug_mode = true;
 	// doc: this is legacy debug mode stuff -- used to hide/show exas with a save flag
 	// if this flag isn't set to true, the exas will be whisked away
-	if ("goldfish-unglitched") {
+	if (goldfish_unglitched) {
 		entity "Mr. Tickles" glitched = false;
 	}
 	if (!goodmorning) {
-		player position = geometry "wakeup_spot";
+		player position = geometry wakeup_spot;
 		player direction = south;
 		hex_control = off;
 		hex_clipboard = off;
@@ -23,46 +23,46 @@ include "header.mgs";
 
 // on_tick scripts
 
-"on_tick-magehouse" {
+on_tick_magehouse {
 	if (player intersects geometry "door-magehouse") {
-		goto "leave-magehouse";
+		goto leave_magehouse;
 	}
 	if (!goodmorning) {
-		goto "bedroom-door-watch";
+		goto bedroom_door_watch;
 	}
 }
-"leave-magehouse" {
-	warp_state = "exit_from-magehouse";
-	load map "main";
+leave_magehouse {
+	warp_state = exit_from_magehouse;
+	load map main;
 }
-"bedroom-door-watch" {
+bedroom_door_watch {
 	if (player intersects geometry "bedroom-door") {
-		goto "goodmorning-cutscene";
+		goto goodmorning_cutscene;
 	}
 }
 
-"goldfish-glitchwatch" {
+goldfish_glitchwatch {
 	if (!self glitched) {
-		goto "goldfish_now_unglitched";
+		goto goldfish_now_unglitched;
 	}
 }
-"goldfish_now_unglitched" {
-	"goldfish-unglitched" = true;
+goldfish_now_unglitched {
+	goldfish_unglitched = true;
 	goto null_script;
 }
 
 /* ---------- CHOREOGRAPHY ---------- */
 
-"zippy-arriving" {
+zippy_arriving {
 	entity "Aunt Zippy" position -> geometry "zippy-arrive" length over 1700ms;
 	goto null_script;
 }
-"zappy-arriving" {
+zappy_arriving {
 	entity "Uncle Zappy" position -> geometry "zappy-arrive" length over 1400ms;
 	goto null_script;
 }
 
-"freak-out" {
+freak_out {
 	self direction = south;
 	wait 500ms; /**/ self direction = west; 
 	wait 200ms; /**/ self direction = south; 
@@ -75,7 +75,7 @@ include "header.mgs";
 	wait 200ms;
 }
 
-"goodmorning-cutscene" {
+goodmorning_cutscene {
 	player_control = off;
 	player current_animation = 0;
 	player direction = west;
@@ -84,8 +84,8 @@ include "header.mgs";
 		entity "Uncle Zappy" "Oh good! They're awake!"
 	};
 	// doc: Is that PLAYER I hear?
-	entity "Uncle Zappy" on_tick = "zappy-arriving";
-	entity "Aunt Zippy" on_tick = "zippy-arriving";
+	entity "Uncle Zappy" on_tick = zappy_arriving;
+	entity "Aunt Zippy" on_tick = zippy_arriving;
 	wait 400ms; /**/ camera -> geometry "morning-camera" origin over 1000ms;
 	wait 600ms; /**/ show dialog {
 		PLAYER "Oh! Uncle Zappy! Aunt Zippy!"
@@ -97,7 +97,7 @@ include "header.mgs";
 	wait 200ms; /**/ show dialog {
 		PLAYER "(OH GOD IT'S TUESDAY!)"
 	};
-	wait 200ms; /**/ player on_tick = "freak-out";
+	wait 200ms; /**/ player on_tick = freak_out;
 	wait 200ms; /**/ show dialog {
 		entity "Aunt Zippy" "Don't worry! We weren't about to let you miss it!"
 	};
@@ -123,22 +123,22 @@ include "header.mgs";
 	};
 	camera -> player position over 399ms;
 	wait 1ms;
-	entity "Uncle Zappy" on_tick = "zappy-leaving";
-	entity "Aunt Zippy" on_tick = "zippy-leaving";
+	entity "Uncle Zappy" on_tick = zappy_leaving;
+	entity "Aunt Zippy" on_tick = zippy_leaving;
 	goodmorning = true;
 	player_control = on;
 	// RESET (jump to top)
-	goto "on_tick-magehouse";
+	goto on_tick_magehouse;
 }
 
-"zippy-leaving" {
+zippy_leaving {
 	entity "Aunt Zippy" position -> geometry "zippy-leave" origin over 300ms;
 	entity "Aunt Zippy" position -> geometry "zippy-leave" length over 1800ms;
 	entity "Aunt Zippy" position = geometry "magehouse-hidingplace";
-	entity "Cake" on_interact = "show_dialog-cake-nozappy";
+	entity Cake on_interact = show_dialog_cake_nozappy;
 	goto null_script;
 }
-"zappy-leaving" {
+zappy_leaving {
 	wait 200ms;
 	entity "Uncle Zappy" position -> geometry "zappy-leave" origin over 300ms;
 	entity "Uncle Zappy" position -> geometry "zappy-leave" length over 2100ms;
@@ -146,48 +146,48 @@ include "header.mgs";
 	goto null_script;
 }
 
-"mage-to-lodge" {
+mage_to_lodge {
 	player_control = off;
 	player position -> geometry "morning-walk-mage" length over 10300ms;
-	load map "lodge";
+	load map lodge;
 	player_control = on;
 }
-"zippy-to-lodge" {
-	entity "Ram" position -> geometry "morning-walk-zippy" length over 10200ms;
-	entity "Ram" position = geometry "catwalk-hide";
+zippy_to_lodge {
+	entity Ram position -> geometry "morning-walk-zippy" length over 10200ms;
+	entity Ram position = geometry "catwalk-hide";
 	goto null_script;
 }
-"zappy-to-lodge" {
-	entity "Helga" position -> geometry "morning-walk-zappy" length over 9800ms;
-	entity "Helga" position = geometry "catwalk-hide";
+zappy_to_lodge {
+	entity Helga position -> geometry "morning-walk-zappy" length over 9800ms;
+	entity Helga position = geometry "catwalk-hide";
 	goto null_script;
 }
-"walk-to-lodge" {
+walk_to_lodge {
 	player_control = off;
-	entity "Verthandi" position = geometry "catwalk-hide";
-	entity "Marta" position = geometry "catwalk-hide";
-	entity "Cleo" on_tick = null_script;
-	entity "Cleo" position = geometry "catwalk-hide";
-	entity "Shepherd" position = geometry "catwalk-hide";
+	entity Verthandi position = geometry "catwalk-hide";
+	entity Marta position = geometry "catwalk-hide";
+	entity Cleo on_tick = null_script;
+	entity Cleo position = geometry "catwalk-hide";
+	entity Shepherd position = geometry "catwalk-hide";
 	entity "Max Swagger" position = geometry "catwalk-hide";
-	entity "Alfonso" position = geometry "catwalk-hide";
-	entity "Bert" position = geometry "catwalk-hide";
-	entity "Jackob" position = geometry "catwalk-hide";
-	entity "Helga" position = geometry "morning-walk-zappy";
-	entity "Ram" position = geometry "morning-walk-zippy";
-	entity "Helga" type = "lightning_boy2"; // Uncle Zappy
-	entity "Ram" type = "lightning_boy"; // Aunt Zippy
-	entity "Helga" direction = north;
-	entity "Ram" direction = north;
+	entity Alfonso position = geometry "catwalk-hide";
+	entity Bert position = geometry "catwalk-hide";
+	entity Jackob position = geometry "catwalk-hide";
+	entity Helga position = geometry "morning-walk-zappy";
+	entity Ram position = geometry "morning-walk-zippy";
+	entity Helga type = lightning_boy2; // Uncle Zappy
+	entity Ram type = lightning_boy; // Aunt Zippy
+	entity Helga direction = north;
+	entity Ram direction = north;
 	player position -> geometry "enter_from-magehouse" length over 300ms;
-	wait 400ms; /**/ entity "Helga" on_tick = "zappy-to-lodge";
-	wait 200ms; /**/ entity "Ram" on_tick = "zippy-to-lodge";
-	wait 400ms; /**/ player on_tick = "mage-to-lodge";
-	"walked-to-lodge" = true;
+	wait 400ms; /**/ entity Helga on_tick = zappy_to_lodge;
+	wait 200ms; /**/ entity Ram on_tick = zippy_to_lodge;
+	wait 400ms; /**/ player on_tick = mage_to_lodge;
+	walked_to_lodge = true;
 }
 
 /* ---------- DIALOG ---------- */
-"show_dialog-zappy-start" {
+show_dialog_zappy_start {
 	if (self glitched) {
 		show dialog {
 			SELF "Abj V srry rkgen mnccl!"
@@ -200,7 +200,7 @@ include "header.mgs";
 	}
 }
 
-"show_dialog-zippy-start" {
+show_dialog_zippy_start {
 	if (self glitched) {
 		show dialog { SELF "Jbj, guvf srryf ernyyl jrveq! Vg erzvaqf zr bs guvf bar gvzr va pbyyrtr...." };
 	} else {
@@ -209,7 +209,7 @@ include "header.mgs";
 	}
 }
 
-"show_dialog-goldfish" {
+show_dialog_goldfish {
 	show dialog {
 		PLAYER "Good morning, %Mr. Tickles%!"
 	};
@@ -223,15 +223,15 @@ include "header.mgs";
 			SELF portrait goldfish "(srrq zr guerr unzf)"
 			PLAYER "Good ol' glitched-out fish."
 		};
-		if (!"goldfish-unglitched") {
-			if ("ring-acquired") {
-				copy!("set-hint-glitch")
+		if (!goldfish_unglitched) {
+			if (ring_acquired) {
+				copy!(set_hint_glitch)
 			}
 		}
 	}
 }
 
-"show_dialog-magejournal" {
+show_dialog_magejournal {
 	show dialog {
 		entity "Mage Journal" portrait journal
 		"Dear Diary,"
@@ -241,7 +241,7 @@ include "header.mgs";
 		"I just hope I don't make a mess of anything. The town is already messed up enough from the Big Bad's hacks."
 	};
 }
-"show_dialog-magefacts" {
+show_dialog_magefacts {
 	show dialog {
 		entity "Mage Facts" portrait journal
 		"Mage Facts Magazine, issue 28."
@@ -250,31 +250,31 @@ include "header.mgs";
 		"What say you about triangle, Mage Facts Magazine?"
 	};
 }
-"show_dialog-magebox" {
+show_dialog_magebox {
 	show dialog {
 		PLAYER "I can't even remember what's in that box. Comics? Amiibos? Otomatones?"
 	};
 }
-"show_dialog-microwave-magehouse" {
+show_dialog_microwave_magehouse {
 	show dialog {
 		PLAYER "Whoops! I think this volcano bakemeat is a bit overdone."
 	};
 }
 
-"show_dialog-cake" {
+show_dialog_cake {
 	show dialog {
 		PLAYER "Is that cake for me?"
 		entity "Uncle Zappy" "It's for tonight! Happy birthday, %PLAYER%!"
 	};
 }
-"show_dialog-cake-nozappy" {
+show_dialog_cake_nozappy {
 	show dialog {
 		PLAYER "Is that my birthday cake?"
 		"Oh, it looks delicious!"
 	};
 }
 
-"show_dialog-sink" {
+show_dialog_sink {
 	show dialog {
 		PLAYER "Gotta keep my hands washed!"
 	};
@@ -282,86 +282,86 @@ include "header.mgs";
 
 /* ---------- DEBUG ---------- */
 
-"debug_walk_to_lodge_q" {
+debug_walk_to_lodge_q {
 	self direction = player;
 	show dialog {
 		SELF "Go on a morning walk?"
-		> "Yes" = "debug_walk_to_lodge"
-		> "No" = "debug_walk_to_lodge_no"
+		> "Yes" = debug_walk_to_lodge
+		> "No" = debug_walk_to_lodge_no
 	};
 }
 
-"debug_walk_to_lodge" {
-	copy!("walk-to-lodge")
+debug_walk_to_lodge {
+	copy!(walk_to_lodge)
 }
 
-"debug_walk_to_lodge_no" {
-	self on_interact = "debug_walk_to_lodge_q";
+debug_walk_to_lodge_no {
+	self on_interact = debug_walk_to_lodge_q;
 }
 
-"debug_goodmorning_q" {
+debug_goodmorning_q {
 	self direction = player;
 	show dialog {
 		SELF "Start the beginning cutscene?"
-		> "Yes (just the magehouse and exterior)" = "debug-goodmorning"
-		> "Yes (also the lodge stuff)" = "debug_goodmorning_plus"
-		> "No" = "debug_goodmorning_no"
+		> "Yes (just the magehouse and exterior)" = debug_goodmorning
+		> "Yes (also the lodge stuff)" = debug_goodmorning_plus
+		> "No" = debug_goodmorning_no
 	};
 }
 
-"debug-goodmorning" {
-	show dialog "dialog-debug-goodmorning" { // reused below
+debug_goodmorning {
+	show dialog dialog_debug_goodmorning { // reused below
 		SELF "Walk through the doorway to begin cutscene."
 	};
 	hex_control = off;
-	copy!("set-goodmorning-flags-false")
-	map on_tick = "on_tick-magehouse";
+	copy!(set_goodmorning_flags_false)
+	map on_tick = on_tick_magehouse;
 }
 
-"debug_goodmorning_plus" {
-	show dialog "dialog-debug-goodmorning";
+debug_goodmorning_plus {
+	show dialog dialog_debug_goodmorning;
 	hex_control = off;
-	copy!("set-goodmorning-flags-false")
-	"ring-acquired" = false;
-	"hide-lodge-crowd" = false;
-	"hide-lodge-crowd-mini" = false;
+	copy!(set_goodmorning_flags_false)
+	ring_acquired = false;
+	hide_lodge_crowd = false;
+	hide_lodge_crowd_mini = false;
 	tuesdayd = false;
-	"hintman-explanation" = false;
-	map on_tick = "on_tick-magehouse";
+	hintman_explanation = false;
+	map on_tick = on_tick_magehouse;
 }
 
-"debug_goodmorning_no" {
-	self on_interact = "debug_goodmorning_q";
+debug_goodmorning_no {
+	self on_interact = debug_goodmorning_q;
 }
 
-"debug_everything_q" {
+debug_everything_q {
 	show dialog {
 		SELF "DEBUG EVERYTHING"
-		> "Turn debug mode on" = "debug_everything_on"
-		> "Go to debug map hub" = "debug_hub_go"
-		> "Never mind" = "debug_everything_off"
+		> "Turn debug mode on" = debug_everything_on
+		> "Go to debug map hub" = debug_hub_go
+		> "Never mind" = debug_everything_off
 	};
 }
 
-"debug_everything_on" {
-	"debug-mode" = true;
+debug_everything_on {
+	debug_mode = true;
 	hex_control = on;
-	copy!("set-goodmorning-flags-true")
-	"tuesday-walkedup" = true;
-	"hintman-explanation" = true;
-	map on_tick = "on_tick-magehouse";
-	entity "Debug Exa" position = geometry "debug_exa_spot";
+	copy!(set_goodmorning_flags_true)
+	tuesday_walkedup = true;
+	hintman_explanation = true;
+	map on_tick = on_tick_magehouse;
+	entity "Debug Exa" position = geometry debug_exa_spot;
 	show dialog {
 		SELF "Debug mode on."
 	};
-	self on_interact = "debug_everything_q";
+	self on_interact = debug_everything_q;
 }
 
-"debug_everything_off" {
+debug_everything_off {
 	show dialog { SELF "Never mind."};
-	self on_interact = "debug_everything_q";
+	self on_interact = debug_everything_q;
 }
 
-dialog "dialog-goodmorning-wake" { // lol what is this?
+dialog dialog_goodmorning_wake { // lol what is this?
 	PLAYER "Ahh, what a good night's sleep!"
 }

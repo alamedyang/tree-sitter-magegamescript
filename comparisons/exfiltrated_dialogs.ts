@@ -1453,7 +1453,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Head inside quick, now.'],
 		},
 	],
-	'show_dialog-bobrock-start-AGAIN': [
+	show_dialog_bobrock_start_AGAIN: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -2086,7 +2086,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['How do I put the sheep back inside their\npen?'],
 		},
 	],
-	'dialog-jackob-hint-shepherd2': [
+	dialog_jackob_hint_shepherd2: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -2912,7 +2912,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'roll-credits',
+					script: 'roll_credits',
 				},
 				{
 					label: 'No',
@@ -2935,7 +2935,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ["Stb N'r ns fstymjw inrjsxnts!"],
 		},
 	],
-	'dialog-kid-ball': [
+	dialog_kid_ball: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -2993,11 +2993,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'show_dialog-verthandi-glitched-lesson',
+					script: 'show_dialog_verthandi_glitched_lesson',
 				},
 				{
 					label: 'No',
-					script: 'show_dialog-verthandi-glitched-s',
+					script: 'show_dialog_verthandi_glitched_s',
 				},
 			],
 		},
@@ -3367,11 +3367,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch1-debug-ethernettle',
+					script: 'ch1_debug_ethernettle',
 				},
 				{
 					label: 'No',
-					script: 'ch1-debug_ethernettle_no',
+					script: 'ch1_debug_ethernettle_no',
 				},
 			],
 		},
@@ -4074,7 +4074,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ["There's this weird extra page in my book!"],
 		},
 	],
-	'dialog-sportsbook': [
+	dialog_sportsbook: [
 		{
 			entity: '%SELF%',
 			alignment: 'TOP_LEFT',
@@ -4220,7 +4220,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 				},
 				{
 					label: 'Teleport to secret room (with cutscene)',
-					script: 'enter-secretroom-with-guaranteed-cutscene',
+					script: 'enter_secretroom_with_guaranteed_cutscene',
 				},
 				{
 					label: 'No',
@@ -4229,14 +4229,14 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'dialog-artifacts-touch': [
+	dialog_artifacts_touch: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
 			messages: ['All artifacts touched.'],
 		},
 	],
-	'dialog-debug_touch_artifacts': [
+	dialog_debug_touch_artifacts: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -4487,7 +4487,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes (just the magehouse and exterior)',
-					script: 'debug-goodmorning',
+					script: 'debug_goodmorning',
 				},
 				{
 					label: 'Yes (also the lodge stuff)',
@@ -4500,7 +4500,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'dialog-debug-goodmorning': [
+	dialog_debug_goodmorning: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -4543,7 +4543,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Never mind.'],
 		},
 	],
-	'dialog-goodmorning-wake': [
+	dialog_goodmorning_wake: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -4832,7 +4832,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'dialog-timmy': [
+	dialog_timmy: [
 		{
 			entity: 'Timmy',
 			alignment: 'BOTTOM_LEFT',
@@ -4852,7 +4852,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['...?', 'No?'],
 		},
 	],
-	'dialog-dsheep': [
+	dialog_dsheep: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -5372,7 +5372,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Nothing changed.'],
 		},
 	],
-	'dialog-bea-mandud-s': [
+	dialog_bea_mandud_s: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',
@@ -5539,7 +5539,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ['Creepy.'],
 		},
 	],
-	'dialog-hackbook-creepy-hint': [
+	dialog_hackbook_creepy_hint: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -5856,7 +5856,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'dialog-sheep': [
+	dialog_sheep: [
 		{
 			entity: '%SELF%',
 			alignment: 'BOTTOM_LEFT',

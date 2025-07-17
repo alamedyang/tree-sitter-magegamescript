@@ -2,14 +2,14 @@ include!("header.mgs")
 
 // on_load scripts
 
-on_load-magehouse {
+on_load_magehouse {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
-	set flag debug-mode to true;
+	set flag debug_mode to true;
 	// doc: this is legacy debug mode stuff -- used to hide/show exas with a save flag
 	// if this flag isn't set to true, the exas will be whisked away
-	if (flag goldfish-unglitched is true) {
+	if (flag goldfish_unglitched is true) {
 		make entity "Mr. Tickles" unglitched;
 	}
 	if (flag goodmorning is false) {
@@ -23,38 +23,38 @@ on_load-magehouse {
 
 // on_tick scripts
 
-on_tick-magehouse {
-	if entity "%PLAYER%" is inside geometry door-magehouse then goto leave-magehouse
-	if flag goodmorning is false then goto bedroom-door-watch
+on_tick_magehouse {
+	if entity "%PLAYER%" is inside geometry door-magehouse then goto leave_magehouse
+	if flag goodmorning is false then goto bedroom_door_watch
 }
-leave-magehouse {
-	set warp state to exit_from-magehouse;
+leave_magehouse {
+	set warp state to exit_from_magehouse;
 	load map main;
 }
-bedroom-door-watch {
-	if entity "%PLAYER%" is inside geometry bedroom-door then goto goodmorning-cutscene
+bedroom_door_watch {
+	if entity "%PLAYER%" is inside geometry bedroom-door then goto goodmorning_cutscene
 }
 
-goldfish-glitchwatch {
+goldfish_glitchwatch {
 	if entity "%SELF%" is not glitched then goto goldfish_now_unglitched
 }
 goldfish_now_unglitched {
-	set flag goldfish-unglitched to true;
+	set flag goldfish_unglitched to true;
 	goto null_script;
 }
 
 /* ---------- CHOREOGRAPHY ---------- */
 
-zippy-arriving {
+zippy_arriving {
 	walk entity "Aunt Zippy" along geometry zippy-arrive over 1700ms;
 	goto null_script;
 }
-zappy-arriving {
+zappy_arriving {
 	walk entity "Uncle Zappy" along geometry zappy-arrive over 1400ms;
 	goto null_script;
 }
 
-freak-out {
+freak_out {
 	turn entity "%SELF%" south;
 	wait 500ms; /**/ turn entity "%SELF%" west; 
 	wait 200ms; /**/ turn entity "%SELF%" south; 
@@ -67,7 +67,7 @@ freak-out {
 	wait 200ms;
 }
 
-goodmorning-cutscene {
+goodmorning_cutscene {
 	turn player control off;
 	set entity "%PLAYER%" current_animation to 0;
 	turn entity "%PLAYER%" west;
@@ -76,8 +76,8 @@ goodmorning-cutscene {
 		entity "Uncle Zappy" "Oh good! They're awake!"
 	}
 	// doc: Is that PLAYER I hear?
-	set entity "Uncle Zappy" on_tick to zappy-arriving;
-	set entity "Aunt Zippy" on_tick to zippy-arriving;
+	set entity "Uncle Zappy" on_tick to zappy_arriving;
+	set entity "Aunt Zippy" on_tick to zippy_arriving;
 	wait 400ms; /**/ pan camera to geometry morning-camera over 1000ms;
 	wait 600ms; /**/ show dialog {
 		PLAYER "Oh! Uncle Zappy! Aunt Zippy!"
@@ -89,7 +89,7 @@ goodmorning-cutscene {
 	wait 200ms; /**/ show dialog {
 		PLAYER "(OH GOD IT'S TUESDAY!)"
 	}
-	wait 200ms; /**/ set entity "%PLAYER%" on_tick to freak-out;
+	wait 200ms; /**/ set entity "%PLAYER%" on_tick to freak_out;
 	wait 200ms; /**/ show dialog {
 		entity "Aunt Zippy" "Don't worry! We weren't about to let you miss it!"
 	}
@@ -115,22 +115,22 @@ goodmorning-cutscene {
 	}
 	pan camera to entity "%PLAYER%" over 399ms;
 	wait 1ms;
-	set entity "Uncle Zappy" on_tick to zappy-leaving;
-	set entity "Aunt Zippy" on_tick to zippy-leaving;
+	set entity "Uncle Zappy" on_tick to zappy_leaving;
+	set entity "Aunt Zippy" on_tick to zippy_leaving;
 	set flag goodmorning to true;
 	turn player control on;
 	// RESET (jump to top)
-	goto on_tick-magehouse;
+	goto on_tick_magehouse;
 }
 
-zippy-leaving {
+zippy_leaving {
 	walk entity "Aunt Zippy" to geometry zippy-leave over 300ms;
 	walk entity "Aunt Zippy" along geometry zippy-leave over 1800ms;
 	teleport entity "Aunt Zippy" to geometry magehouse-hidingplace;
-	set entity Cake on_interact to show_dialog-cake-nozappy;
+	set entity Cake on_interact to show_dialog_cake_nozappy;
 	goto null_script;
 }
-zappy-leaving {
+zappy_leaving {
 	wait 200ms;
 	walk entity "Uncle Zappy" to geometry zappy-leave over 300ms;
 	walk entity "Uncle Zappy" along geometry zappy-leave over 2100ms;
@@ -138,23 +138,23 @@ zappy-leaving {
 	goto null_script;
 }
 
-mage-to-lodge {
+mage_to_lodge {
 	turn player control off;
 	walk entity "%PLAYER%" along geometry morning-walk-mage over 10300ms;
 	load map lodge;
 	turn player control on;
 }
-zippy-to-lodge {
+zippy_to_lodge {
 	walk entity Ram along geometry morning-walk-zippy over 10200ms;
 	teleport entity Ram to geometry catwalk-hide;
 	goto null_script;
 }
-zappy-to-lodge {
+zappy_to_lodge {
 	walk entity Helga along geometry morning-walk-zappy over 9800ms;
 	teleport entity Helga to geometry catwalk-hide;
 	goto null_script;
 }
-walk-to-lodge {
+walk_to_lodge {
 	turn player control off;
 	teleport entity Verthandi to geometry catwalk-hide;
 	teleport entity Marta to geometry catwalk-hide;
@@ -172,14 +172,14 @@ walk-to-lodge {
 	turn entity Helga north;
 	turn entity Ram north;
 	walk entity "%PLAYER%" along geometry enter_from-magehouse over 300ms;
-	wait 400ms; /**/ set entity Helga on_tick to zappy-to-lodge;
-	wait 200ms; /**/ set entity Ram on_tick to zippy-to-lodge;
-	wait 400ms; /**/ set entity "%PLAYER%" on_tick to mage-to-lodge;
-	set flag walked-to-lodge to true;
+	wait 400ms; /**/ set entity Helga on_tick to zappy_to_lodge;
+	wait 200ms; /**/ set entity Ram on_tick to zippy_to_lodge;
+	wait 400ms; /**/ set entity "%PLAYER%" on_tick to mage_to_lodge;
+	set flag walked_to_lodge to true;
 }
 
 /* ---------- DIALOG ---------- */
-show_dialog-zappy-start {
+show_dialog_zappy_start {
 	if (entity "%SELF%" is glitched) {
 		show dialog {
 			SELF "Abj V srry rkgen mnccl!"
@@ -192,7 +192,7 @@ show_dialog-zappy-start {
 	}
 }
 
-show_dialog-zippy-start {
+show_dialog_zippy_start {
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Jbj, guvf srryf ernyyl jrveq! Vg erzvaqf zr bs guvf bar gvzr va pbyyrtr...." }
 	} else {
@@ -201,7 +201,7 @@ show_dialog-zippy-start {
 	}
 }
 
-show_dialog-goldfish {
+show_dialog_goldfish {
 	show dialog {
 		PLAYER "Good morning, %Mr. Tickles%!"
 	}
@@ -215,15 +215,15 @@ show_dialog-goldfish {
 			SELF portrait goldfish "(srrq zr guerr unzf)"
 			PLAYER "Good ol' glitched-out fish."
 		}
-		if (flag goldfish-unglitched is false) {
-			if (flag ring-acquired is true) {
-				copy set-hint-glitch;
+		if (flag goldfish_unglitched is false) {
+			if (flag ring_acquired is true) {
+				copy set_hint_glitch;
 			}
 		}
 	}
 }
 
-show_dialog-magejournal {
+show_dialog_magejournal {
 	show dialog {
 		entity "Mage Journal" portrait journal
 		"Dear Diary,"
@@ -233,7 +233,7 @@ show_dialog-magejournal {
 		"I just hope I don't make a mess of anything. The town is already messed up enough from the Big Bad's hacks."
 	}
 }
-show_dialog-magefacts {
+show_dialog_magefacts {
 	show dialog {
 		entity "Mage Facts" portrait journal
 		"Mage Facts Magazine, issue 28."
@@ -242,31 +242,31 @@ show_dialog-magefacts {
 		"What say you about triangle, Mage Facts Magazine?"
 	}
 }
-show_dialog-magebox {
+show_dialog_magebox {
 	show dialog {
 		PLAYER "I can't even remember what's in that box. Comics? Amiibos? Otomatones?"
 	}
 }
-show_dialog-microwave-magehouse {
+show_dialog_microwave_magehouse {
 	show dialog {
 		PLAYER "Whoops! I think this volcano bakemeat is a bit overdone."
 	}
 }
 
-show_dialog-cake {
+show_dialog_cake {
 	show dialog {
 		PLAYER "Is that cake for me?"
 		entity "Uncle Zappy" "It's for tonight! Happy birthday, %PLAYER%!"
 	}
 }
-show_dialog-cake-nozappy {
+show_dialog_cake_nozappy {
 	show dialog {
 		PLAYER "Is that my birthday cake?"
 		"Oh, it looks delicious!"
 	}
 }
 
-show_dialog-sink {
+show_dialog_sink {
 	show dialog {
 		PLAYER "Gotta keep my hands washed!"
 	}
@@ -284,7 +284,7 @@ debug_walk_to_lodge_q {
 }
 
 debug_walk_to_lodge {
-	copy walk-to-lodge;
+	copy walk_to_lodge;
 }
 
 debug_walk_to_lodge_no {
@@ -295,31 +295,31 @@ debug_goodmorning_q {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		SELF "Start the beginning cutscene?"
-		> "Yes (just the magehouse and exterior)" : goto "debug-goodmorning"
+		> "Yes (just the magehouse and exterior)" : goto "debug_goodmorning"
 		> "Yes (also the lodge stuff)" : goto "debug_goodmorning_plus"
 		> "No" : goto "debug_goodmorning_no"
 	}
 }
 
-debug-goodmorning {
-	show dialog dialog-debug-goodmorning { // reused below
+debug_goodmorning {
+	show dialog dialog_debug_goodmorning { // reused below
 		SELF "Walk through the doorway to begin cutscene."
 	}
 	turn hex control off;
-	copy set-goodmorning-flags-false;
-	set map on_tick to on_tick-magehouse;
+	copy set_goodmorning_flags_false;
+	set map on_tick to on_tick_magehouse;
 }
 
 debug_goodmorning_plus {
-	show dialog dialog-debug-goodmorning;
+	show dialog dialog_debug_goodmorning;
 	turn hex control off;
-	copy set-goodmorning-flags-false;
-	set flag ring-acquired to false;
-	set flag hide-lodge-crowd to false;
-	set flag hide-lodge-crowd-mini to false;
+	copy set_goodmorning_flags_false;
+	set flag ring_acquired to false;
+	set flag hide_lodge_crowd to false;
+	set flag hide_lodge_crowd_mini to false;
 	set flag tuesdayd to false;
-	set flag hintman-explanation to false;
-	set map on_tick to on_tick-magehouse;
+	set flag hintman_explanation to false;
+	set map on_tick to on_tick_magehouse;
 }
 
 debug_goodmorning_no {
@@ -336,12 +336,12 @@ debug_everything_q {
 }
 
 debug_everything_on {
-	set flag debug-mode to true;
+	set flag debug_mode to true;
 	turn hex control on;
-	copy set-goodmorning-flags-true;
-	set flag tuesday-walkedup to true;
-	set flag hintman-explanation to true;
-	set map on_tick to on_tick-magehouse;
+	copy set_goodmorning_flags_true;
+	set flag tuesday_walkedup to true;
+	set flag hintman_explanation to true;
+	set map on_tick to on_tick_magehouse;
 	teleport entity "Debug Exa" to geometry debug_exa_spot;
 	show dialog {
 		SELF "Debug mode on."

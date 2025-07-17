@@ -1,30 +1,30 @@
 include!("header.mgs")
 
-on_load-greenhouse {
+on_load_greenhouse {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
-	if (flag storyflag-trekkie is true) {
-		copy script ch1-ethernettle-restore;
+	if (flag storyflag_trekkie is true) {
+		copy script ch1_ethernettle_restore;
 	}
 }
 
-on_tick-greenhouse {
-	if entity "%PLAYER%" is inside geometry door-greenhouse then goto leave-greenhouse;
-	if entity EtherNettle1 is not inside geometry EtherNettle1Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle2 is not inside geometry EtherNettle2Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle3 is not inside geometry EtherNettle3Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle4 is not inside geometry EtherNettle4Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle5 is not inside geometry EtherNettle5Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle6 is not inside geometry EtherNettle6Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle7 is not inside geometry EtherNettle7Origin then goto show_dialog-no_uproot_ethernettle;
-	if entity EtherNettle8 is not inside geometry EtherNettle8Origin then goto show_dialog-no_uproot_ethernettle;
+on_tick_greenhouse {
+	if entity "%PLAYER%" is inside geometry door-greenhouse then goto leave_greenhouse;
+	if entity EtherNettle1 is not inside geometry EtherNettle1Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle2 is not inside geometry EtherNettle2Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle3 is not inside geometry EtherNettle3Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle4 is not inside geometry EtherNettle4Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle5 is not inside geometry EtherNettle5Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle6 is not inside geometry EtherNettle6Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle7 is not inside geometry EtherNettle7Origin then goto show_dialog_no_uproot_ethernettle;
+	if entity EtherNettle8 is not inside geometry EtherNettle8Origin then goto show_dialog_no_uproot_ethernettle;
 }
-leave-greenhouse {
-	set warp state to exit_from-greenhouse;
+leave_greenhouse {
+	set warp state to exit_from_greenhouse;
 	load map main;
 }
-show_dialog-no_uproot_ethernettle {
+show_dialog_no_uproot_ethernettle {
 	show dialog {
 		Trekkie "Me sorry, but Ether Nettle cannot be uprooted, %PLAYER%!"
 	}
@@ -36,10 +36,10 @@ show_dialog-no_uproot_ethernettle {
 	teleport entity EtherNettle6 to geometry EtherNettle6Origin;
 	teleport entity EtherNettle7 to geometry EtherNettle7Origin;
 	teleport entity EtherNettle8 to geometry EtherNettle8Origin;
-	goto on_tick-greenhouse;
+	goto on_tick_greenhouse;
 }
 
-ch1-ethernettle-restore {
+ch1_ethernettle_restore {
 	set entity EtherNettle1 secondary_id to 3;
 	set entity EtherNettle2 secondary_id to 2;
 	set entity EtherNettle3 secondary_id to 7;
@@ -51,29 +51,29 @@ ch1-ethernettle-restore {
 	set entity Modem current_animation to 4; // modem working animation
 }
 
-show_dialog-ethernet {
+show_dialog_ethernet {
 	show dialog { PLAYER "Now that's a neat-looking pile of cable." }
 }
-show_dialog-tumbleweed {
+show_dialog_tumbleweed {
 	show dialog { PLAYER "Oof. I'd hate to have to untangle this!" }
 }
-show_dialog-mulch {
+show_dialog_mulch {
 	show dialog { PLAYER "Oh, I thought this was flour, but it's actually mulch." }
 }
-show_dialog-modem {
+show_dialog_modem {
 	show dialog { PLAYER "What does this thing do? Just light up?" }
 }
-show_dialog-greenhouse-barrel {
+show_dialog_greenhouse_barrel {
 	show dialog { PLAYER "What's in here? Water?" }
 }
 
-show_dialog-trekkie-start {
+show_dialog_trekkie_start {
 	copy script clear_own_tick;
 	copy script face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" }
-	} else if (flag storyflag-trekkie is true) {
-		copy ch1-greenhouse-trekkie-aftermath;
+	} else if (flag storyflag_trekkie is true) {
+		copy ch1_greenhouse_trekkie_aftermath;
 	} else if (
 		entity EtherNettle1 secondary_id is not 3 // orange-white
 		|| entity EtherNettle2 secondary_id is not 2 // orange
@@ -84,22 +84,22 @@ show_dialog-trekkie-start {
 		|| entity EtherNettle7 secondary_id is not 5 // brown-white
 		|| entity EtherNettle8 secondary_id is not 4 // brown
 	) {
-		if (flag trekkie-backstory is true) {
-			copy ch1-greenhouse-trekkie-backstory-reminder;
+		if (flag trekkie_backstory is true) {
+			copy ch1_greenhouse_trekkie_backstory_reminder;
 		} else {
-			copy ch1-greenhouse-trekkie-backstory-cutscene;
+			copy ch1_greenhouse_trekkie_backstory_cutscene;
 		}
 	} else {
-		copy ch1-greenhouse-modem-turning-on-cutscene;
-		if (variable hint-tracking-check is 7) {
-			copy script set-hint-none;
+		copy ch1_greenhouse_modem_turning_on_cutscene;
+		if (variable hint_tracking_check is 7) {
+			copy script set_hint_none;
 			// ^^ if the hint series is the same, reset hint
 		}
 	}
-	set entity "%SELF%" on_interact to show_dialog-trekkie-start;
+	set entity "%SELF%" on_interact to show_dialog_trekkie_start;
 }
 
-ch1-greenhouse-trekkie-backstory-cutscene {
+ch1_greenhouse_trekkie_backstory_cutscene {
 	show dialog {
 		SELF "Me want to wish you a happy birthday, %PLAYER%."
 		PLAYER "Aww, gee, thanks, Farmer %Trekkie%!"
@@ -136,23 +136,23 @@ ch1-greenhouse-trekkie-backstory-cutscene {
 		"Probably."
 		SELF "%PLAYER% has new magic zeroed ring. Maybe %PLAYER% can change flower colors!"
 	}
-	copy script set-hint-trekkie;
-	set flag trekkie-backstory to true;
+	copy script set_hint_trekkie;
+	set flag trekkie_backstory to true;
 	copy script set_tick_watch_player;
 	turn player control on;
 }
 
-ch1-greenhouse-trekkie-backstory-reminder {
+ch1_greenhouse_trekkie_backstory_reminder {
 	copy script face_player;
 	show dialog {
 		SELF "Me can't remember Ether Nettle color order. Me need internet to check!"
 		"But me do remember orange stripey is first!"
 	}
-	copy script set-hint-trekkie;
+	copy script set_hint_trekkie;
 	copy script set_tick_watch_player;
 }
 
-ch1-greenhouse-modem-turning-on-cutscene {
+ch1_greenhouse_modem_turning_on_cutscene {
 	turn entity "%SELF%" toward entity Modem;
 	turn entity "%PLAYER%" toward entity Modem;
 	turn player control off;
@@ -199,12 +199,12 @@ ch1-greenhouse-modem-turning-on-cutscene {
 		PLAYER "Sounds great, %Trekkie%."
 	}
 	turn entity "%SELF%" toward geometry Computer
-	set flag storyflag-trekkie to true;
-	copy script calculate-hint-tracking-series;
+	set flag storyflag_trekkie to true;
+	copy script calculate_hint_tracking_series;
 	turn player control on;
 }
 
-ch1-greenhouse-trekkie-aftermath {
+ch1_greenhouse_trekkie_aftermath {
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	show dialog {
 		PLAYER "So, %Trekkie%.... What's the internet for, anyway?"
@@ -221,23 +221,23 @@ debug_ethernet_puzzle_q {
 	show dialog {
 		SELF
 		"Restore Ether Nettle?"
-		> "Yes" : goto "ch1-debug-ethernettle"
-		> "No" : goto "ch1-debug_ethernettle_no"
+		> "Yes" : goto "ch1_debug_ethernettle"
+		> "No" : goto "ch1_debug_ethernettle_no"
 	}
 }
-ch1-debug_ethernettle_no {
+ch1_debug_ethernettle_no {
 	show dialog { SELF "Wanna do it the hard way, huh? Suit yourself." }
 	set entity "%SELF%" on_interact to debug_ethernet_puzzle_q;
 }
-ch1-debug-ethernettle {
-	copy script ch1-ethernettle-restore;
+ch1_debug_ethernettle {
+	copy script ch1_ethernettle_restore;
 	set entity Modem current_animation to 0; // the modem still won't until you speak to Trekkie
 	copy script face_player;
 	show dialog { SELF "Ether Nettle restored." }
 	set entity "%SELF%" on_interact to debug_ethernet_puzzle_q;
 }
 
-show_dialog-ethernettle-start {
+show_dialog_ethernettle_start {
 	if (entity "%SELF%" secondary_id is 3) {
 		show dialog { PLAYER "White-orange." }
 	} else if (entity "%SELF%" secondary_id is 2) {
@@ -255,5 +255,5 @@ show_dialog-ethernettle-start {
 	} else if (entity "%SELF%" secondary_id is 4) {
 		show dialog { PLAYER "Brown." }
 	}
-	set entity "%SELF%" on_interact to show_dialog-ethernettle-start;
+	set entity "%SELF%" on_interact to show_dialog_ethernettle_start;
 }

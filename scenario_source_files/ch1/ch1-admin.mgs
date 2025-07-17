@@ -1,36 +1,36 @@
-"ch1_count_flags" {
-	"ch1_storyflags_tally" = 0;
-	if ("storyflag-catwork") {
-		"ch1_storyflags_tally" += 1;
+ch1_count_flags {
+	ch1_storyflags_tally = 0;
+	if (storyflag_catwork) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-shepherd") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_shepherd) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-bender") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_bender) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-baker") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_baker) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-bobmoss") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_bobmoss) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-bea1") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_bea1) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-trekkie") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_trekkie) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-sportskid") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_sportskid) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-verthandi") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_verthandi) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-bea2") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_bea2) {
+		ch1_storyflags_tally += 1;
 	}
-	if ("storyflag-rake") {
-		"ch1_storyflags_tally" += 1;
+	if (storyflag_rake) {
+		ch1_storyflags_tally += 1;
 	}
 }

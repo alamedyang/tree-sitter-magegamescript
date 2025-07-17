@@ -89,7 +89,7 @@ on_load_ch2_town {
 	turn player control off;
 	if (warp state is raw_game_load-ch2) {
 		copy restore_player_state;
-	} else if (warp state is exit_from-credits) {
+	} else if (warp state is exit_from_credits) {
 		teleport entity "%PLAYER%" to geometry from-credits-spot;
 		fade in camera from #000000 over 800ms;
 	} else if (warp state is walk_from-east) {

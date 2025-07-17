@@ -6,20 +6,20 @@ settings for dialog {
 
 /* ---------- on_load scripts ---------- */
 
-rake-in-lake {
+rake_in_lake {
 	teleport entity Rake to geometry rake-lake-point;
 }
-sheep-in-pen {
+sheep_in_pen {
 	teleport entity Baa to geometry baa_point;
 	teleport entity Ram to geometry ram_point;
 	teleport entity Ewe to geometry ewe_point;
 	teleport entity Helga to geometry helga_point;
 }
-bender-happybutt {
+bender_happybutt {
 	set entity Bender type to bender;
 }
 
-on_load-map-main {
+on_load_map_main {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
@@ -32,132 +32,132 @@ on_load-map-main {
 	}
 	// assuming you have ring zero
 	turn hex control on;
-	if (flag storyflag-bobmoss is true) {
+	if (flag storyflag_bobmoss is true) {
 		teleport entity "Bob Moss" to geometry catwalk-hide;
 	} 
-	if (flag storyflag-rake is true) {
-		copy rake-in-lake;
-		set entity Goose on_interact to honk-to-make_rake_float;
+	if (flag storyflag_rake is true) {
+		copy rake_in_lake;
+		set entity Goose on_interact to honk_to_make_rake_float;
 	}
-	if (flag billy-unglitched is true) {
+	if (flag billy_unglitched is true) {
 		make entity Billy unglitched;
 	}
-	if (flag kid-unglitched is true) {
+	if (flag kid_unglitched is true) {
 		make entity Kid unglitched;
 	}
-	if (flag fountain-unglitched is true) {
+	if (flag fountain_unglitched is true) {
 		make entity Fountain unglitched;
 	}
-	if (flag main_hamster-unglitched is true) {
+	if (flag main_hamster_unglitched is true) {
 		make entity Hamster unglitched;
 	}
-	if (flag storyflag-shepherd is true) {
-		copy sheep-in-pen;
+	if (flag storyflag_shepherd is true) {
+		copy sheep_in_pen;
 	}
-	if (flag storyflag-bender is true) {
-		copy bender-happybutt;
+	if (flag storyflag_bender is true) {
+		copy bender_happybutt;
 	}
-	if (flag walked-to-lodge is false) {
-		goto walk-to-lodge;
+	if (flag walked_to_lodge is false) {
+		goto walk_to_lodge;
 	}
 	turn player control off;
-	if (flag hintman-explanation is false) {
+	if (flag hintman_explanation is false) {
 		walk entity "%PLAYER%" along geometry enter_from-lodge over 400ms; 
-		copy hintman-cutscene // see script-elders.json for this
-		set flag hintman-explanation to true;
+		copy hintman_cutscene // see script-elders.json for this
+		set flag hintman_explanation to true;
 	} else if (warp state is enter_from_east) {
 		walk entity "%PLAYER%" along geometry enter_from_east over 1000ms; 
 	} else if (warp state is enter_from_west) {
 		walk entity "%PLAYER%" along geometry enter_from_west over 1000ms; 
-	} else if (warp state is exit_from-bobsclub) {
+	} else if (warp state is exit_from_bobsclub) {
 		walk entity "%PLAYER%" along geometry enter_from-bobsclub over 200ms; 
-	} else if (warp state is exit_from-bakery) {
+	} else if (warp state is exit_from_bakery) {
 		walk entity "%PLAYER%" along geometry enter_from-bakery over 200ms; 
-	} else if (warp state is exit_from-lodge) {
+	} else if (warp state is exit_from_lodge) {
 		walk entity "%PLAYER%" along geometry enter_from-lodge over 200ms; 
-	} else if (warp state is exit_from-greenhouse) {
+	} else if (warp state is exit_from_greenhouse) {
 		walk entity "%PLAYER%" along geometry enter_from-greenhouse over 200ms; 
-	} else if (warp state is exit_from-magehouse) {
+	} else if (warp state is exit_from_magehouse) {
 		walk entity "%PLAYER%" along geometry enter_from-magehouse over 200ms; 
-	} else if (warp state is exit_from-oldcouplehouse) {
+	} else if (warp state is exit_from_oldcouplehouse) {
 		walk entity "%PLAYER%" along geometry enter_from-oldcouplehouse over 200ms; 
-	} else if (warp state is exit_from-family) {
+	} else if (warp state is exit_from_family) {
 		walk entity "%PLAYER%" along geometry enter_from-family over 200ms; 
-	} else if (warp state is exit_from-woprhouse) {
+	} else if (warp state is exit_from_woprhouse) {
 		walk entity "%PLAYER%" along geometry enter_from-woprhouse over 200ms; 
-	} else if (warp state is exit_from-credits) {
+	} else if (warp state is exit_from_credits) {
 		teleport entity "%PLAYER%" to geometry from-credits-spot;
 		fade in camera from #000000 over 800ms;
 		turn player control on;
 		if flag ch1_finished is false then goto null_script;
-		if flag storyflag-catwork is false then goto null_script;
-		if flag storyflag-shepherd is false then goto null_script;
-		if flag storyflag-bender is false then goto null_script;
-		if flag storyflag-baker is false then goto null_script;
-		if flag storyflag-bobmoss is false then goto null_script;
-		if flag storyflag-bea1 is false then goto null_script;
-		if flag storyflag-trekkie is false then goto null_script;
-		if flag storyflag-sportskid is false then goto null_script;
-		if flag storyflag-bea2 is false then goto null_script;
-		if flag storyflag-rake is false then goto null_script;
-		if flag storyflag-verthandi is false then goto null_script;
-		if flag demobonus-jackob-informed is true then goto null_script;
+		if flag storyflag_catwork is false then goto null_script;
+		if flag storyflag_shepherd is false then goto null_script;
+		if flag storyflag_bender is false then goto null_script;
+		if flag storyflag_baker is false then goto null_script;
+		if flag storyflag_bobmoss is false then goto null_script;
+		if flag storyflag_bea1 is false then goto null_script;
+		if flag storyflag_trekkie is false then goto null_script;
+		if flag storyflag_sportskid is false then goto null_script;
+		if flag storyflag_bea2 is false then goto null_script;
+		if flag storyflag_rake is false then goto null_script;
+		if flag storyflag_verthandi is false then goto null_script;
+		if flag demobonus_jackob_informed is true then goto null_script;
 		set flag demobonus to true;
 		// ^^ set now because all story flags and credits confirmed true; use this flag for same check hereafter
 		show dialog {
 			Jackob "While you were gone, I saw an odd flash of light coming from the library."
 			"You might want to investigate."
 		}
-		set flag demobonus-jackob-informed to true;
+		set flag demobonus_jackob_informed to true;
 	}
 	turn player control on;
 }
 
 /* ---------- on_tick scripts ---------- */
 
-yabbo-journey {
+yabbo_journey {
 	walk entity "%SELF%" along geometry "%ENTITY_PATH%" over 22000ms; 
 }
 
 // watchers
 
-fountain-glitchwatch {
+fountain_glitchwatch {
 	if entity "%SELF%" is not glitched then goto fountain_now_unglitched;
 }
 fountain_now_unglitched {
-	set flag fountain-unglitched to true;
+	set flag fountain_unglitched to true;
 	goto null_script;
 }
-hamster-glitchwatch {
+hamster_glitchwatch {
 	if entity "%SELF%" is not glitched then goto hamster_now_unglitched;
 }
 hamster_now_unglitched {
-	set flag main_hamster-unglitched to true;
+	set flag main_hamster_unglitched to true;
 	goto null_script;
 }
-cat-watch {
-	if entity Cat is not inside geometry cat-watch-box then goto cat-rescue-protocol;
+cat_watch {
+	if entity Cat is not inside geometry cat_watch-box then goto cat_rescue_protocol;
 }
-cat-rescue-protocol {
+cat_rescue_protocol {
 	teleport entity Cat to geometry cat-rescue-path;
 	walk entity Cat along geometry cat-rescue-path over 800ms; 
-	copy cat-and-cleo-convo-turn;
-	set entity Cat on_tick to cat-watch;
+	copy cat_and_cleo_convo_turn;
+	set entity Cat on_tick to cat_watch;
 }
-cleo-watch {
-	if entity Cleo is not inside geometry cleo-watch-box then goto cleo-rescue-protocol;
-	// WARNING!! if you change who is watching, change who to null_script for the walk-to-lodge cutscene!!!
+cleo_watch {
+	if entity Cleo is not inside geometry cleo_watch-box then goto cleo_rescue_protocol;
+	// WARNING!! if you change who is watching, change who to null_script for the walk_to_lodge cutscene!!!
 }
-cleo-rescue-protocol {
+cleo_rescue_protocol {
 	teleport entity Cleo to geometry cleo-rescue-path;
 	walk entity Cleo along geometry cleo-rescue-path over 800ms; 
-	copy cat-and-cleo-convo-turn;
-	set entity Cleo on_tick to cleo-watch;
+	copy cat_and_cleo_convo_turn;
+	set entity Cleo on_tick to cleo_watch;
 }
 
 // map loading scripts
 
-on_tick-main {
+on_tick_main {
 	if entity "%PLAYER%" is inside geometry door-bakery-entrance then goto load_map_bakery;
 	if entity "%PLAYER%" is inside geometry door-family-entrance then goto load_map_family;
 	if entity "%PLAYER%" is inside geometry door-greenhouse-entrance then goto load_map_greenhouse;
@@ -165,8 +165,8 @@ on_tick-main {
 	if entity "%PLAYER%" is inside geometry door-lodge-entrance then goto load_map_lodge;
 	if entity "%PLAYER%" is inside geometry door-oldcouplehouse-entrance then goto load_map_oldcouplehouse;
 	if entity "%PLAYER%" is inside geometry door-woprhouse-entrance then goto load_map_woprhouse;
-	if entity "%PLAYER%" is inside geometry door_to-town-east then goto wrap_from-west;
-	if entity "%PLAYER%" is inside geometry door_to-town-west then goto wrap_from-east;
+	if entity "%PLAYER%" is inside geometry door_to-town-east then goto wrap_from_west;
+	if entity "%PLAYER%" is inside geometry door_to-town-west then goto wrap_from_east;
 }
 
 load_map_bakery { load map bakery; }
@@ -177,36 +177,36 @@ load_map_lodge { load map lodge; }
 load_map_family { load map family; }
 load_map_woprhouse { load map woprhouse; }
 
-wrap_from-west {
-	set entity "%PLAYER%" on_tick to on_tick-wrap_into-west;
+wrap_from_west {
+	set entity "%PLAYER%" on_tick to on_tick_wrap_into_west;
 	fade out camera to #000000 over 600ms; 
-	set entity "%PLAYER%" on_tick to on_tick-wrap_from-west;
+	set entity "%PLAYER%" on_tick to on_tick_wrap_from_west;
 	fade in camera from #000000 over 600ms; 
-	goto on_tick-main;
+	goto on_tick_main;
 }
-on_tick-wrap_into-west {
+on_tick_wrap_into_west {
 	turn player control off;
 	walk entity "%PLAYER%" to geometry exit_to-west over 3500ms; 
 	goto null_script;
 }
-on_tick-wrap_from-west {
+on_tick_wrap_from_west {
 	walk entity "%PLAYER%" along geometry enter_from_east over 600ms; 
 	turn player control on;
 	goto null_script;
 }
-wrap_from-east {
-	set entity "%PLAYER%" on_tick to on_tick-wrap_into-east;
+wrap_from_east {
+	set entity "%PLAYER%" on_tick to on_tick_wrap_into_east;
 	fade out camera to #000000 over 600ms; 
-	set entity "%PLAYER%" on_tick to on_tick-wrap_from-east;
+	set entity "%PLAYER%" on_tick to on_tick_wrap_from_east;
 	fade in camera from #000000 over 600ms; 
-	goto on_tick-main;
+	goto on_tick_main;
 }
-on_tick-wrap_into-east {
+on_tick_wrap_into_east {
 	turn player control off;
 	walk entity "%PLAYER%" to geometry exit_to-east over 3500ms; 
 	goto null_script;
 }
-on_tick-wrap_from-east {
+on_tick_wrap_from_east {
 	walk entity "%PLAYER%" along geometry enter_from_west over 600ms; 
 	turn player control on;
 	goto null_script;
@@ -214,8 +214,8 @@ on_tick-wrap_from-east {
 
 /* ---------- dialog ---------- */
 
-show_dialog-yabbo {
-	set entity "%PLAYER%" on_tick to yabbo-watch;
+show_dialog_yabbo {
+	set entity "%PLAYER%" on_tick to yabbo_watch;
 	show dialog {
 		SELF "I found infinity! Take a butcher's!"
 		// Butcher's hook = look
@@ -224,28 +224,28 @@ show_dialog-yabbo {
 	}
 	set entity "%PLAYER%" on_tick to null_script;
 }
-yabbo-watch {
+yabbo_watch {
 	turn entity "%PLAYER%" toward entity "Yabbo Mongo";
 }
-show_dialog-construction {
+show_dialog_construction {
 	show dialog {
 		name Construction "UNDER CONSTRUCTION"
 		PLAYER "Guess I'll come back later. Next year, perhaps."
 	}
 }
-show_dialog-messageboard {
+show_dialog_messageboard {
 	show dialog {
 		name MessageBoard
 		portrait parchment
 		"If you've been the victim of a hack, come join us at our weekly hacked citizen support group, Friday nights at 6pm in the library."
 	}
 }
-show_dialog-safety-skyler {
+show_dialog_safety_skyler {
 	show dialog {
 		PLAYER "Safety Skyler says:\n\"Remember to wear eye protection!\""
 	}
 }
-fountain-interact {
+fountain_interact {
 	if (entity "%SELF%" is not glitched) {
 		show dialog {
 			PLAYER "This is fountain is awesome! I've always wanted to see it un-glitched!"
@@ -256,37 +256,37 @@ fountain-interact {
 			"I just need to figure out how...."
 		}
 	}
-	set entity "%SELF%" on_interact to fountain-interact;
+	set entity "%SELF%" on_interact to fountain_interact;
 }
 
 /* ---------- cat and cleo ---------- */
 
-turn-padding-start {
+turn_padding_start {
 	turn player control off;
 	wait 200ms;
 }
-turn-padding-end {
+turn_padding_end {
 	wait 0ms;
 	turn player control on;
 }
 
-cat-and-cleo-convo-turn {
+cat_and_cleo_convo_turn {
 	turn entity Cleo toward entity Cat;
 	turn entity Cat toward entity Cleo;
 }
 
-cat-and-cleo-convo-turn-player {
-	copy turn-padding-start;
+cat_and_cleo_convo_turn_player {
+	copy turn_padding_start;
 	turn entity Cleo toward entity "%PLAYER%";
 	turn entity Cat toward entity "%PLAYER%";
-	copy turn-padding-end;
+	copy turn_padding_end;
 }
 
-show_dialog-cleo1 {
+show_dialog_cleo1 {
 	if (entity "%SELF%" is glitched) {
 		show dialog { Cleo "Uzz, V srry n ovg shaal." }
 	} else {
-		copy cat-and-cleo-convo-turn;
+		copy cat_and_cleo_convo_turn;
 		show dialog {
 			Cat "Meowrrow."
 			Cleo "Oh, you don't say!"
@@ -301,7 +301,7 @@ show_dialog_cleo2 {
 	if (entity "%SELF%" is glitched) {
 		show dialog { Cleo "Uzz, V srry n ovg shaal." }
 	} else {
-		copy cat-and-cleo-convo-turn;
+		copy cat_and_cleo_convo_turn;
 		show dialog {
 			Cat "Meowwowow."
 			Cleo "That's what I've been saying this whole time!"
@@ -309,19 +309,19 @@ show_dialog_cleo2 {
 			Cleo "Oh, I know!"
 		}
 	}
-	set entity Cleo on_interact to show_dialog-cleo1;
+	set entity Cleo on_interact to show_dialog_cleo1;
 }
 
-show_dialog-cat {
+show_dialog_cat {
 	if (entity "%SELF%" is glitched) {
 		show dialog { Cat "...." }
-	} else if (variable hint-tracking is 61 || variable hint-tracking is 62) {
+	} else if (variable hint_tracking is 61 || variable hint_tracking is 62) {
 		show dialog {
 			PLAYER alignment TR
 			"Excuse me. I'm looking for the cat boss. Is that you?"
 		}
-		copy turn-padding-start;
-		copy cat-and-cleo-convo-turn-player;
+		copy turn_padding_start;
+		copy cat_and_cleo_convo_turn_player;
 		show dialog {
 			Cat "...."
 			Cleo "Cat boss?"
@@ -343,37 +343,37 @@ show_dialog-cat {
 				"But... where else am I gonna find a white cat?"
 			}
 		}
-		copy cat-and-cleo-convo-turn;
-		copy turn-padding-end;
-		copy set-hint-max-from-cleo;
-		set flag white-cat to true;
+		copy cat_and_cleo_convo_turn;
+		copy turn_padding_end;
+		copy set_hint_max_from_cleo;
+		set flag white_cat to true;
 	} else { // normal conversation
 		show dialog {
 			PLAYER alignment TR "Hey there, cat!"
 		}
-		copy turn-padding-start;
-		copy cat-and-cleo-convo-turn-player;
+		copy turn_padding_start;
+		copy cat_and_cleo_convo_turn_player;
 		show dialog {
 			Cat "...."
 			Cleo "Excuse me, but we were in the middle of a conversation."
 			PLAYER alignment TR "Oh, sorry. Carry on."
 		}
-		copy cat-and-cleo-convo-turn;
-		copy turn-padding-end;
+		copy cat_and_cleo_convo_turn;
+		copy turn_padding_end;
 	}
-	set entity "%SELF%" on_interact to show_dialog-cat;
+	set entity "%SELF%" on_interact to show_dialog_cat;
 }
 
-show_dialog-hamster-start {
+show_dialog_hamster_start {
 	copy face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog {
 			SELF "Mxqj'i jxyi? Q mehbtmytu iybysed ixehjqwu?!"
 		}
-		if (flag main_hamster-unglitched is false) {
-			copy set-hint-glitch;
+		if (flag main_hamster_unglitched is false) {
+			copy set_hint_glitch;
 		}
-	} else if (flag hamster-endstory is true) {
+	} else if (flag hamster_endstory is true) {
 		show dialog {
 			SELF "Did you know that all electronics are powered by angry pixies?"
 			"The trick is to keep the pixies angry. If the pixies aren't angry, then they start to get complacent, and that's when your battery dies!"
@@ -384,12 +384,12 @@ show_dialog-hamster-start {
 			SELF "Ah, that's better."
 			"It was real rough wrangling angry pixies with discombobulated pixel hands."
 		}
-		set flag hamster-endstory to true;
+		set flag hamster_endstory to true;
 	}
-	set entity "%SELF%" on_interact to show_dialog-hamster-start;
+	set entity "%SELF%" on_interact to show_dialog_hamster_start;
 }
 
-show_dialog-marta-start {
+show_dialog_marta_start {
 	turn entity Marta toward entity "%PLAYER%";
 	if (entity "%SELF%" is glitched) {
 		show dialog {
@@ -399,7 +399,7 @@ show_dialog-marta-start {
 		show dialog {
 			SELF "...." "That's cheating."
 		}
-	} else if (flag marta-backstory is false) {
+	} else if (flag marta_backstory is false) {
 		show dialog {
 			SELF "It's true. I can fly. It's not a trick."
 			"I had my TUESDAY a few years ago, and this\nbroom chose me."
@@ -408,22 +408,22 @@ show_dialog-marta-start {
 			PLAYER "That's still pretty cool!"
 			SELF "It helps me deliver newspapers, I guess.\nCan't fix much else around here."
 		}
-		set flag marta-backstory to true;
+		set flag marta_backstory to true;
 	} else {
 		show dialog {
 			SELF "Good luck."
 		}
 	}
-	set entity "%SELF%" on_interact to show_dialog-marta-start;
+	set entity "%SELF%" on_interact to show_dialog_marta_start;
 }
 
-dialog dialog-timmy {
+dialog dialog_timmy {
 	Timmy "I'm practicing for my triathlon!"
 	"Running is my weakest event, so I'm working hard to improve my time!"
 	PLAYER "Don't you need legs to run?"
 	Timmy "...?"
 	"No?"
 }
-dialog dialog-dsheep {
+dialog dialog_dsheep {
 	SELF "...?"
 }

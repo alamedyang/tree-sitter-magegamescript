@@ -89,7 +89,7 @@ on_load_ch2_town {
 	player_control = off;
 	if (warp_state == "raw_game_load-ch2") {
 		copy!(restore_player_state)
-	} else if (warp_state == "exit_from-credits") {
+	} else if (warp_state == "exit_from_credits") {
 		player position = geometry "from-credits-spot";
 		camera fade in -> #000000 over 800ms;
 	} else if (warp_state == "walk_from-east") {

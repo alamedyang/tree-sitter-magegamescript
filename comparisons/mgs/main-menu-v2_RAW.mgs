@@ -827,47 +827,47 @@ start_new_game_with_name {
 
 menu_chapter_select_q {
    ch1_storyflags_tally = 0;
-   if (storyflag-catwork) { goto index 3; }
+   if (storyflag_catwork) { goto index 3; }
    goto index 5;
    ch1_storyflags_tally += 1;
    goto index 5;
-   if (storyflag-shepherd) { goto index 7; }
+   if (storyflag_shepherd) { goto index 7; }
    goto index 9;
    ch1_storyflags_tally += 1;
    goto index 9;
-   if (storyflag-bender) { goto index 11; }
+   if (storyflag_bender) { goto index 11; }
    goto index 13;
    ch1_storyflags_tally += 1;
    goto index 13;
-   if (storyflag-baker) { goto index 15; }
+   if (storyflag_baker) { goto index 15; }
    goto index 17;
    ch1_storyflags_tally += 1;
    goto index 17;
-   if (storyflag-bobmoss) { goto index 19; }
+   if (storyflag_bobmoss) { goto index 19; }
    goto index 21;
    ch1_storyflags_tally += 1;
    goto index 21;
-   if (storyflag-bea1) { goto index 23; }
+   if (storyflag_bea1) { goto index 23; }
    goto index 25;
    ch1_storyflags_tally += 1;
    goto index 25;
-   if (storyflag-trekkie) { goto index 27; }
+   if (storyflag_trekkie) { goto index 27; }
    goto index 29;
    ch1_storyflags_tally += 1;
    goto index 29;
-   if (storyflag-sportskid) { goto index 31; }
+   if (storyflag_sportskid) { goto index 31; }
    goto index 33;
    ch1_storyflags_tally += 1;
    goto index 33;
-   if (storyflag-verthandi) { goto index 35; }
+   if (storyflag_verthandi) { goto index 35; }
    goto index 37;
    ch1_storyflags_tally += 1;
    goto index 37;
-   if (storyflag-bea2) { goto index 39; }
+   if (storyflag_bea2) { goto index 39; }
    goto index 41;
    ch1_storyflags_tally += 1;
    goto index 41;
-   if (storyflag-rake) { goto index 43; }
+   if (storyflag_rake) { goto index 43; }
    goto index 45;
    ch1_storyflags_tally += 1;
    goto index 45;
