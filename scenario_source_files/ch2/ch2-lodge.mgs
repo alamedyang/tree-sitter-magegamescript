@@ -53,7 +53,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-lodge" {
+"on_load_ch2_lodge" {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>LIBRARY</>..." };
@@ -94,7 +94,7 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-lodge" {
+"on_tick_ch2_lodge" {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-lodge";
 		load map "ch2-town";
@@ -118,11 +118,11 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-lodge-south" {
+"on_go_ch2_lodge_south" {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
-"on_go-ch2-lodge-north" {
+"on_go_ch2_lodge_north" {
 	copy!(warping_out_fade_out)
 	load map "ch2-lodge-rtfm";
 }
@@ -223,7 +223,7 @@ $bookcount = 4;
 }
 
 "ch2-goose-library" {
-	if (!"ch2-has-artifact") {
+	if (!"ch2_has_artifact") {
 		show dialog {
 			SELF "Honk!"
 		};

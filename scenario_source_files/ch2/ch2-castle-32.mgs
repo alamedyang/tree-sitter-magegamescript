@@ -313,7 +313,7 @@ $walkspeed = 200ms;
 				entity "Sea Moss" "Oh, I'll help you out. Come here."
 			};
 			if (!player intersects geometry "vending-watchbox") {
-				player on_tick = "ch2-walk-to-vend-short";
+				player on_tick = "ch2_walk_to_vend_short";
 			} else {
 				player on_tick = "ch2-watch-seamoss";
 			}
@@ -415,7 +415,7 @@ $walkspeed = 200ms;
 	goto null_script;
 }
 
-"ch2-walk-to-vend-short" {
+"ch2_walk_to_vend_short" {
 	wait 700ms;
 	player position -> geometry "vending-watch" origin over 500ms;
 	wait 200ms;

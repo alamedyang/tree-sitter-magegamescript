@@ -66,7 +66,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-lodge-rtfm" {
+"on_load_ch2_lodge_rtfm" {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>RTFM ROOM</>..." };
@@ -86,7 +86,7 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-lodge-rtfm" {
+"on_tick_ch2_lodge_rtfm" {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-north";
 		load map "ch2-lodge";
@@ -95,7 +95,7 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-lodge-rtfm-south" {
+"on_go_ch2_lodge_rtfm_south" {
 	copy!(warping_out_fade_out)
 	load map "ch2-lodge";
 }

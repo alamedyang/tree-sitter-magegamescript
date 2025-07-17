@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look_ch2_castle_34" {
+look_ch2_castle_34 {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>CASTLE PANTRY</>."
@@ -11,7 +11,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_snakebox" {
+look_ch2_snakebox {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -19,7 +19,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_winerack" {
+look_ch2_winerack {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -27,7 +27,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_pantryshelf" {
+look_ch2_pantryshelf {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -35,7 +35,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_dishshelf" {
+look_ch2_dishshelf {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -43,7 +43,7 @@ include "header.mgs";
 	};
 }
 
-"look_ch2_clara" {
+look_ch2_clara {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -53,7 +53,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load_ch2_castle_34" {
+on_load_ch2_castle_34 {
 	// ch2 room state
 	ch2_in_room = 34;
 
@@ -73,35 +73,35 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick_ch2_castle_34" {
+on_tick_ch2_castle_34 {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-northeast";
 		copy!(ch2_load_castle_32_special)
 	}
 }
 
-"tick-ch2-clara" {
+tick_ch2_clara {
 	wait 13s;
-	self position -> geometry "walk1" origin over 600ms;
+	self position -> geometry walk1 origin over 600ms;
 	wait 5s;
 	self direction = west;
 	wait 9s;
 	self direction = south;
 	wait 5s;
-	self position -> geometry "walk2" origin over 600ms;
+	self position -> geometry walk2 origin over 600ms;
 	wait 4s;
 	self direction = west;
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit_ch2_castle_34" { // sanitize ch2 room state
+on_exit_ch2_castle_34 { // sanitize ch2 room state
 	ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-"on_go_castle_34_south" {
+on_go_castle_34_south {
 	copy!(on_exit_ch2_castle_34)
 	copy!(warping_out_fade_out)
 	copy!(ch2_load_castle_32_special)
@@ -109,21 +109,17 @@ include "header.mgs";
 
 /* ---------- ENTITIES ---------- */
 
-"snake_box-interact" {
+snake_box_interact {
 	show dialog {
 		PLAYER "Snake, is that you?"
-		name "Solid Snek" portrait "codec-snek" border_tileset "codec"
+		name "Solid Snek" portrait "codec-snek" border_tileset codec
 		"There's no snake here. Check a different box. Just not this one."
 		PLAYER "But this is the only talking box here."
 	};
 }
 
-"interact_ch2_pantryfridge" {
-	if (
-		!"ch2_want_cactuscooler"
-		|| "ch2_carrying_cactuscooler"
-		|| "ch2_cactuscooler_delivered"
-	) {
+interact_ch2_pantryfridge {
+	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered ) {
 		show dialog {
 			PLAYER "Meats and fruits and vegetables... oh my."
 		};
@@ -133,12 +129,8 @@ include "header.mgs";
 		};
 	}
 }
-"interact_ch2_pantryshelf" {
-	if (
-		!"ch2_want_cactuscooler"
-		|| "ch2_carrying_cactuscooler"
-		|| "ch2_cactuscooler_delivered"
-	) {
+interact_ch2_pantryshelf {
+	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered ) {
 		show dialog {
 		PLAYER "Looks like a lot of dry and canned goods."
 		};
@@ -148,21 +140,21 @@ include "header.mgs";
 		};
 	}
 }
-"ch2-iron-content" {
+ch2_iron_content {
 	pause entity Clara on_tick;
-	entity "Clara" direction = player;
-	player direction = entity "Clara";
+	entity Clara direction = player;
+	player direction = entity Clara;
 	show dialog {
 		PLAYER "Yeah, so I need a plate with high iron content. For reasons."
 		Clara "I mean... I guess there's the fancy orange ones from Hanoi. Oranges, browns, and reds are almost always an iron oxide glaze."
 		PLAYER "Orange plates from Hanoi. Okay. Where are they?"
 		Clara "Well, you're not gonna like this, but... you see that jukebox in the corner?"
 	};
-	player direction = entity "PlateMover90";
+	player direction = entity PlateMover90;
 	show dialog {
 		PLAYER "Yeah."
 	};
-	if ("ch2_plate_firstlook") {
+	if (ch2_plate_firstlook) {
 		show dialog {
 			Clara "Well, the plates are in there."
 			PLAYER "The PlateMover 9000?"
@@ -171,9 +163,9 @@ include "header.mgs";
 		show dialog {
 			Clara "Well, that thing is a PlateMover 9000. The plates are in there."
 		};
-		"ch2_plate_firstlook" = true;
+		ch2_plate_firstlook = true;
 	}
-	player direction = entity "Clara";
+	player direction = entity Clara;
 	show dialog {
 		PLAYER "...Why?"
 		Clara "Don't ask me. It's part of this \"automated catering\" party gimmick my boss has been developing."
@@ -189,14 +181,11 @@ include "header.mgs";
 		PLAYER "Oh, no."
 		Clara "Yeah, so... go on up to the PlateMover 9000 and... uh, good luck."
 	};
-	"ch2_jukebox_backstory" = true;
+	ch2_jukebox_backstory = true;
 	unpause entity Clara on_tick;
 }
-"interact_ch2_dishshelf" {
-	if (
-		"ch2_jukebox_backstory"
-		|| "ch2_storyflag_round" < 2
-	) {
+interact_ch2_dishshelf {
+	if (ch2_jukebox_backstory || ch2_storyflag_round < 2) {
 		show dialog {
 			PLAYER "Plates, cups, and tablecloths. How many place settings is this?"
 		};
@@ -205,14 +194,14 @@ include "header.mgs";
 			PLAYER "Hmm. How do I tell which plates have high iron content?"
 		};
 		pause entity Clara on_tick;
-		entity "Clara" direction = player;
+		entity Clara direction = player;
 		show dialog {
 			Clara "You need to tell what now?"
 		};
-		copy!("ch2-iron-content")
+		copy!(ch2_iron_content)
 	}
 }
-"interact_ch2_winerack" {
+interact_ch2_winerack {
 	show dialog {
 		PLAYER "Is this just bottles of wine? It all looks very fancy."
 	};
@@ -224,35 +213,31 @@ New around here  .     .        X     .
 Cactus Cooler    .     X        .     X
 */
 
-"interact_ch2_clara" {
-	if ("ch2_storyflag_round" < 2) {
+interact_ch2_clara {
+	if (ch2_storyflag_round < 2) {
 		copy!(interrupt_walk)
-		if (!"ch2_clara_backstory") {
+		if (!ch2_clara_backstory) {
 			show dialog {
 				SELF "Holy crap -- a new person!"
 				PLAYER "Yup, that's me."
 			};
 		}
-		if (
-			!"ch2_want_cactuscooler"
-			|| "ch2_carrying_cactuscooler"
-			|| "ch2_cactuscooler_delivered"
-		) {
-			if (!"ch2_clara_backstory") {
+		if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered) {
+			if (!ch2_clara_backstory) {
 				// just so it doesn't take this branch the first time:
-				"ch2_clara_backstory" = true;
+				ch2_clara_backstory = true;
 			} else {
 				show dialog { SELF "I'm new around here. I gotta say, this has been an interesting first week of work." };
 			}
 		} else {
-			"ch2_clara_backstory" = true;
-			show dialog "ch2-clara-soda" { // reused
+			ch2_clara_backstory = true;
+			show dialog ch2_clara_soda { // reused
 				PLAYER "So... I'm looking for some Cactus Cooler. It's this rare kind of soda...."
 				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
 			};
 		}
-		copy!("resume_walk")
-	} else if ("ch2_jukebox_backstory") {
+		copy!(resume_walk)
+	} else if (ch2_jukebox_backstory) {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
 			"We could have kept those plates on some normal shelf, but my boss wanted \"technological novelty\" for his project."
@@ -260,16 +245,16 @@ Cactus Cooler    .     X        .     X
 			"...Sorry for rambling. It's a pet peeve for me, is all."
 		};
 	} else {
-		copy!("ch2-iron-content")
-		"ch2_jukebox_backstory" = true;
+		copy!(ch2_iron_content)
+		ch2_jukebox_backstory = true;
 	}
 }
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
 
-"ch2_touch_plate" {
-	if ("ch2_storyflag_round" < 2) {
-		if (!"ch2_plate_firstlook") {
+ch2_touch_plate {
+	if (ch2_storyflag_round < 2) {
+		if (!ch2_plate_firstlook) {
 			show dialog {
 				PLAYER "This thing is a PlateMover 90?"
 				Clara "Oh, it's actually a PlateMover 9000. It's so old, the last few numbers have worn off."
@@ -277,15 +262,15 @@ Cactus Cooler    .     X        .     X
 				PLAYER "It looks like a jukebox."
 				Clara "It acts like a jukebox."
 			};
-			"ch2_plate_firstlook" = true;
+			ch2_plate_firstlook = true;
 		}
-	} else if (!"ch2_jukebox_backstory") {
+	} else if (!ch2_jukebox_backstory) {
 		show dialog {
 			PLAYER "There are plates in here, but... how do I know which ones have high iron content?"
 		};
 		pause entity Clara on_tick;
-		entity "Clara" direction = player;
-		player direction = entity "Clara";
+		entity Clara direction = player;
+		player direction = entity Clara;
 		show dialog {
 			Clara "High iron content?"
 			PLAYER "Yeah, so I need a plate with high iron content. For reasons."
@@ -296,12 +281,12 @@ Cactus Cooler    .     X        .     X
 			Clara "Sorry."
 			"So... I don't know where the tokens are kept, and my boss is out of town. So unless there's a token in there already...."
 		};
-		player direction = entity "PlateMover90";
+		player direction = entity PlateMover90;
 		show dialog {
 			PLAYER "Looks like there is."
 			Clara "Oh, good. So it can dispense one plate, but only one. You needed a plate with high iron content?"
 		};
-		player direction = entity "Clara";
+		player direction = entity Clara;
 		show dialog {
 			PLAYER "Yeah. I need to combine it with a phonograph needle to approximate a hard drive."
 			Clara "You need a plate that'll match the size of a 12\" vinyl record?"
@@ -313,11 +298,11 @@ Cactus Cooler    .     X        .     X
 			PLAYER "Oh, no."
 			Clara "Yeah, so... uh, good luck with that."
 		};
-		"ch2_jukebox_backstory" = true;
+		ch2_jukebox_backstory = true;
 		unpause entity Clara on_tick;
 	} else if (
-		"ch2_carrying_plate"
-		|| "ch2_installed_plate"
+		ch2_carrying_plate
+		|| ch2_installed_plate
 	) {
 		show dialog {
 			PLAYER "A jukebox seems like a really bad way to manage dishes."
@@ -327,19 +312,19 @@ Cactus Cooler    .     X        .     X
 		show dialog {
 			PLAYER "Well, let's try to get that #6 plate out of there."
 		};
-		copy!("start-hanoi")
+		copy!(start_hanoi)
 	}
 }
-"won_hanoi_get_plate" {
+won_hanoi_get_plate {
 	copy!(ch2_pickup_plate)
 	show dialog {
 		PLAYER "Aha! I got plate #6!"
 	};
-	if ("hanoi_move_count" == 33) {
+	if (hanoi_move_count == 33) {
 		show dialog {
 			Clara "Sweet. And it looks like you did it super efficiently, too. Nice!"
 		};
-	} else if ("hanoi_move_count" == 69) {
+	} else if (hanoi_move_count == 69) {
 		show dialog {
 			Clara "Nice."
 		};

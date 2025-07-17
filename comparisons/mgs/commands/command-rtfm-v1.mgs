@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-rtfm {
+register_rtfm {
 	register rtfm -> command-rtfm;
 }
 

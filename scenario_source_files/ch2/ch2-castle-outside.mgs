@@ -20,7 +20,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-castle-outside" {
+"on_load_ch2_castle_outside" {
 	player_control = off;
 	if (!"ch2-full-escort-cutseen") {
 		// todo: cutscene: leading you inside
@@ -48,7 +48,7 @@ include "header.mgs";
 		player position -> geometry "walk_from-north" length over 200ms;
 	} else if (warp_state == "walk_from-east") {
 		player path = "walk_from-east";
-		player on_tick = "on_tick-ch2-town-walkfadein";
+		player on_tick = "on_tick_ch2_town_walkfadein";
 			// borrowing this from town scripts
 		camera fade in -> #000000 over 400ms;
 	} else if (warp_state == "ch2-ending") {
@@ -58,17 +58,17 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-castle-outside" {
+"on_tick_ch2_castle_outside" {
 	if (player intersects geometry "north-hitbox") {
-		copy!("on_exit-ch2-castle-outside")
+		copy!("on_exit_ch2_castleoutside")
 		warp_state = "walk_from-south";
 		copy!(ch2_load_castle_1_special)
 	}
 	if (player intersects geometry "east-hitbox") {
-		copy!("on_exit-ch2-castle-outside")
+		copy!("on_exit_ch2_castleoutside")
 		warp_state = "walk_from-west";
 		player path = "east-point";
-		player on_tick = "on_tick-ch2-town-walkfadeout";
+		player on_tick = "on_tick_ch2_town_walkfadeout";
 			// borrowing this from town scripts
 		camera fade out -> #000000 over 500ms;
 		load map "ch2-town";
@@ -77,19 +77,19 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-castle-outside" {
+"on_exit_ch2_castleoutside" {
 	// universal behavior
 }
 
 // SERIAL: go
 
 "on_go-castle-outside-north" {
-	copy!("on_exit-ch2-castle-outside")
+	copy!("on_exit_ch2_castleoutside")
 	copy!(warping_out_fade_out)
 	copy!(ch2_load_castle_1_special)
 }
 "on_go-castle-outside-east" {
-	copy!("on_exit-ch2-castle-outside")
+	copy!("on_exit_ch2_castleoutside")
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }

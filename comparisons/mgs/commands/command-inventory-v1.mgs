@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-inventory {
+register_inventory {
 	register man + inventory -> man-inventory;
 	register inventory -> command-inventory;
 	register alias i = inventory;
@@ -19,7 +19,7 @@ man-inventory {
 		" "
 		"Use this command to see what items you are currently carrying. This command may also be triggered with the abbreviation <c>I</>."
 	}
-	if (flag ch2-parts-round-2-backstory is true) {
+	if (flag ch2_parts_round_2_backstory is true) {
 		show serial dialog {
 			" "
 			"Some items may be combined at one of the solder stations in the castle workshop."

@@ -125,7 +125,7 @@ on_load_ch2_castle_99 {
 
 	// Check if rake has been obtained
 	if (flag ch2_carrying_minirake_99 is true) {
-		copy ch2-minirake-99-hide;
+		copy ch2_minirake_99_hide;
 	}
 	
 	// initialize everything
@@ -134,7 +134,7 @@ on_load_ch2_castle_99 {
 	// check if you do the cutscene or not
 	if (flag ch2_cutseen_castle99 is false) {
 		if (debug mode is on) {
-			register skip -> ch2-skip-99
+			register skip -> ch2_skip_99
 			show serial dialog {
 				" "
 				"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -144,40 +144,40 @@ on_load_ch2_castle_99 {
 	}
 }
 
-ch2-skip-99 {
-	set flag ch2-map-mainframeos to false;
+ch2_skip_99 {
+	set flag ch2_map_mainframeos to false;
 	set flag ch2_carrying_mainframeos to true;
 	set flag ch2_cutseen_castle99 to true;
 	copy ch2_load_castle_1_special;
 }
 
-ch2-lambda-shving_on-tickversion {
+ch2_lambda_shving_on_tickversion {
 	play entity Lambda animation $toTransparent once;
 	set entity Lambda current_animation to $transparent;
 	goto null_script;
 }
-ch2-lambda-shving_off-tickversion {
+ch2_lambda_shving_off_tickversion {
 	play entity Lambda animation $toOpaque once;
 	set entity Lambda current_animation to $opaque;
 	goto null_script;
 }
-ch2-lambda-lower {
+ch2_lambda_lower {
 	play entity Lambda animation $lowering once;
 	set entity Lambda current_animation to $lowered;
 }
-ch2-lambda-lower-tickversion {
-	copy ch2-lambda-lower;
+ch2_lambda_lower_tickversion {
+	copy ch2_lambda_lower;
 	goto null_script;
 }
-ch2-lambda-raise {
+ch2_lambda_raise {
 	play entity Lambda animation $raising once;
 	set entity Lambda current_animation to $opaque;
 }
-ch2-lambda-raise-tickversion {
-	copy ch2-lambda-raise;
+ch2_lambda_raise_tickversion {
+	copy ch2_lambda_raise;
 	goto null_script;
 }
-ch2-lambda-walkup {
+ch2_lambda_walkup {
 	wait 200ms;
 	walk entity Lambda to geometry lambda-walk-line1 over 200ms;
 	set entity Lambda current_animation to $opaque;
@@ -194,7 +194,7 @@ ch2_cutscene_castle99 {
 	wait 200ms;
 	turn entity "%PLAYER%" north;
 	wait 700ms;
-	copy ch2-lambda-raise;
+	copy ch2_lambda_raise;
 	wait 1100ms;
 	walk entity Lambda to geometry lambda-walk-line over 800ms;
 	set entity Lambda current_animation to $opaque;
@@ -206,18 +206,18 @@ ch2_cutscene_castle99 {
 		Lambda "So... welcome, %PLAYER%. I'm Lambda."
 	}
 	wait 400ms;
-	copy ch2-lambda-lower;
+	copy ch2_lambda_lower;
 	wait 100ms;
 	show dialog {
 		Lambda emote $opaque_lowered "Oh, I guess you already knew that."
 		"Sorry, I...."
 	}
 	wait 600ms;
-	copy ch2-lambda-raise;
+	copy ch2_lambda_raise;
 	show dialog {
 		Lambda "Anyway, what you probably didn't know is that I'm...."
 	}
-	set entity Lambda on_tick to ch2-lambda-shving_on-tickversion;
+	set entity Lambda on_tick to ch2_lambda_shving_on_tickversion;
 	show dialog {
 		Lambda emote $transparent_serious "...I'm one of the village elders."
 		PLAYER "!!"
@@ -249,7 +249,7 @@ ch2_cutscene_castle99 {
 		Lambda emote $opaque_lowered_almost  "I wiped their memories of me, but I didn't think I would lose my own memories of them, too!"
 	}
 	turn entity Lambda west;
-	set entity Lambda on_tick to ch2-lambda-lower-tickversion;
+	set entity Lambda on_tick to ch2_lambda_lower_tickversion;
 	show dialog {
 		Lambda emote $opaque_lowered "How could I forget what how fun it was to try to build wacky projects with my friends? Teaching, learning, getting to know someone better...."
 		"Even the individual people! I'd forgotten how funny -- and insightful -- Sea Moss is."
@@ -257,12 +257,12 @@ ch2_cutscene_castle99 {
 		"Gregory, Mr. Watt, Jean-Paul, even the king... all these people I used to spend time with...."
 	}
 	turn entity Lambda south;
-	set entity Lambda on_tick to ch2-lambda-raise-tickversion;
+	set entity Lambda on_tick to ch2_lambda_raise_tickversion;
 	show dialog {
 		Lambda emote $opaque_lowered_almost "These problems everyone has been having lately -- if I hadn't cut everyone off from the castle mainframe, and if I hadn't cut myself off from them...."
 		"Most of those problems wouldn't have happened. Hell, maybe none of them would have happened."
 	}
-	set entity Lambda on_tick to ch2-lambda-walkup;
+	set entity Lambda on_tick to ch2_lambda_walkup;
 	show dialog {
 		Lambda emote $opaque_lowered_almost  "I've been suffering. But I've been selfish, too, thinking that by closing doors and letting my friends live their lives without me, I was protecting them."
 		"I was holding onto my pain like it was concrete proof I was doing the right thing."
@@ -271,7 +271,7 @@ ch2_cutscene_castle99 {
 		Lambda "But I was wrong, wasn't I?"
 	}
 	walk entity Lambda to geometry lambda-walk-line2 over 500ms;
-	set entity Lambda on_tick to ch2-lambda-shving_on-tickversion;
+	set entity Lambda on_tick to ch2_lambda_shving_on_tickversion;
 	show dialog {
 		Lambda emote $transparent_serious "It's better to be connected to people. However dangerous things might become, it's better to face those dangers together."
 		"Don't you think?"
@@ -285,7 +285,7 @@ ch2_cutscene_castle99_dangeryes {
 		PLAYER "Yeah, better to face danger together."
 		Lambda emote $transparent_grin "Yeah!"
 	}
-	set entity Lambda on_tick to ch2-lambda-shving_off-tickversion;
+	set entity Lambda on_tick to ch2_lambda_shving_off_tickversion;
 	show dialog {
 		Lambda emote $opaque_lowered_almost "So, um, to that end -- here, take this."
 	}
@@ -295,7 +295,7 @@ ch2_cutscene_castle99_dangeridk {
 	show dialog {
 		PLAYER "I don't know."
 	}
-	set entity Lambda on_tick to ch2-lambda-shving_off-tickversion;
+	set entity Lambda on_tick to ch2_lambda_shving_off_tickversion;
 	show dialog {
 		Lambda "Yeah, I guess things are pretty complicated, aren't they?"
 		Lambda "So, um, anyway -- here, take this."
@@ -364,7 +364,7 @@ ch2_cutscene_castle99_continue {
 	}
 	turn entity Lambda north;
 	turn player control on;
-	set flag ch2-map-mainframeos to false;
+	set flag ch2_map_mainframeos to false;
 	set flag ch2_carrying_mainframeos to true;
 	set flag ch2_cutseen_castle99 to true;
 }
@@ -450,14 +450,14 @@ interact_ch2_minirake_99 {
 		PLAYER alignment TL "(Lambda seems to have been using this rake to help keep his laundry together.)"
 		"(I hope he doesn't mind me borrowing it.)"
 	}
-	copy ch2-minirake-99-hide;
+	copy ch2_minirake_99_hide;
 	set flag ch2_carrying_minirake_99 to true;
 	show dialog {
 		name "" alignment TL "(You picked up the mini rake!)"
 	}
 }
 
-ch2-minirake-99-hide {
+ch2_minirake_99_hide {
 	teleport entity "clothes rake" to geometry hiding-spot;
 	set entity "clothes rake" name to " ";
 	set entity "clothes rake" on_interact to null_script;

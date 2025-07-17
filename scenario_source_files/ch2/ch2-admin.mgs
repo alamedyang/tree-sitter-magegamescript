@@ -47,7 +47,7 @@ $goto_round_5 = 10;
 	show dialog "mainframe-working" { name "" "(Nothing left to install. The computer is humming and buzzing along, and Aurelius seems to be doing okay.)" };
 }
 "interact_ch2_mainframe" {
-	if ("ch2-wait-for-hat-touch") {
+	if ("ch2_wait_for_hat_touch") {
 		player direction = entity "Wizard";
 		entity "Wizard" direction = player;
 		show dialog {
@@ -59,19 +59,19 @@ $goto_round_5 = 10;
 		};
 		return;
 	} else if ("ch2_carrying_mainframeos") {
-		copy!("ch2-install-wizard")
+		copy!("ch2_install_wizard")
 		return;
 	} else if ("ch2_installed_mainframeos") {
 		show dialog "mainframe-working"; // references above
 		return;
-	} else if (!"ch2-toot-done") {
+	} else if (!"ch2_toot_done") {
 		show dialog { PLAYER "What is this hunk of junk?" };
 		return;
 	}
 	temp = false;
 	// wizard comes up if down
 	if (entity "Wizard" current_animation == 0) { // WIZARD IS DOWN
-		entity "Wizard" on_tick = "tick-ch2-wizard-ascend-and-watch";
+		entity "Wizard" on_tick = "tick_ch2_wizard_ascend_and_watch";
 	}
 	// normal
 	if (!ch2_installed_heatsink) {
@@ -81,7 +81,7 @@ $goto_round_5 = 10;
 				"(Or you would, but you can't install it until the CPU is in place. You set it aside for now.)"
 			};
 			temp = true;
-			copy!("ch2-install-heatsink")
+			copy!("ch2_install_heatsink")
 		}
 	}
 	if (!ch2_installed_powersupply) {
@@ -91,7 +91,7 @@ $goto_round_5 = 10;
 				"(2 kW may be overkill, but better safe than sorry.)"
 			};
 			temp = true;
-			copy!("ch2-install-powersupply")
+			copy!("ch2_install_powersupply")
 		}
 	}
 	if (!ch2_installed_monitor) {
@@ -101,7 +101,7 @@ $goto_round_5 = 10;
 				"(...Or rather, it's now plugged into the back. That one was easy!)"
 			};
 			temp = true;
-			copy!("ch2-install-monitor")
+			copy!("ch2_install_monitor")
 		}
 	}
 	// abstract
@@ -112,7 +112,7 @@ $goto_round_5 = 10;
 				"(What's the read head going to be? Will this work?!)"
 			};
 			temp = true;
-			copy!("ch2-install-harddrive")
+			copy!("ch2_install_harddrive")
 		}
 	}
 	if (!ch2_installed_keyboard) {
@@ -122,7 +122,7 @@ $goto_round_5 = 10;
 				"(Good thing the keytar can connect over USB, or this wouldn't have worked.)"
 			};
 			temp = true;
-			copy!("ch2-install-keyboard")
+			copy!("ch2_install_keyboard")
 		}
 	}
 	if (!ch2_installed_mouse) {
@@ -132,7 +132,7 @@ $goto_round_5 = 10;
 				"(...Or at least, installing the dongle.)"
 			};
 			temp = true;
-			copy!("ch2-install-mouse")
+			copy!("ch2_install_mouse")
 		}
 	}
 	// desperate
@@ -143,7 +143,7 @@ $goto_round_5 = 10;
 				"(The RAM chips went in with a terrifying SNAP, but they seem snug now. You better wash your hands, though.)"
 			};
 			temp = true;
-			copy!("ch2-install-ramchips")
+			copy!("ch2_install_ramchips")
 		}
 	}
 	if (!ch2_installed_clock) {
@@ -153,7 +153,7 @@ $goto_round_5 = 10;
 				"(Somehow, that enormous, analog relic works great for a system clock.)"
 			};
 			temp = true;
-			copy!("ch2-install-clock")
+			copy!("ch2_install_clock")
 		}
 	}
 	if (!ch2_installed_cpu) {
@@ -163,7 +163,7 @@ $goto_round_5 = 10;
 				"(Now the mainframe can compute! And... blow bubbles?)"
 			};
 			temp = true;
-			copy!("ch2-install-cpu")
+			copy!("ch2_install_cpu")
 		}
 	}
 	// final
@@ -194,7 +194,7 @@ $goto_round_5 = 10;
 	wait 200ms;
 	show serial_dialog spacer;
 	show serial_dialog { " (DING)" };
-	"ch2-lambda-paging" = true;
+	"ch2_lambda_paging" = true;
 	ch2_cutseen_bert_secret = true;
 	"ch2_storyflag_round" = 2;
 	wait 900ms;
@@ -228,7 +228,7 @@ $goto_round_5 = 10;
 		" (DING)"
 	};
 	ch2_cutseen_bert_message = true;
-	"ch2-lambda-paging" = true;
+	"ch2_lambda_paging" = true;
 	"ch2_storyflag_round" = 3;
 	wait 700ms;
 	show dialog {
@@ -246,7 +246,7 @@ $goto_round_5 = 10;
 		" (DING)"
 	};
 	ch2_cutseen_last_parts_done = true;
-	"ch2-lambda-paging" = true;
+	"ch2_lambda_paging" = true;
 	"ch2_storyflag_round" = 4;
 	wait 700ms;
 	show dialog {
@@ -263,7 +263,7 @@ $goto_round_5 = 10;
 
 // DEBUG
 
-"register-storyflag" {
+"register_storyflag" {
 	command "storyflag" = "ch2-debug-storyflag";
 	command "storyflag" + "0" = "debug_map_flags_for_round0";
 	command "storyflag" + "1" = "debug_map_flags_for_round1";
@@ -290,50 +290,50 @@ $goto_round_5 = 10;
 }
 
 "debug_map_flags_for_round0" {
-	copy!("ch2-take_off_map-round1")
-	copy!("ch2-take_off_map-round2")
-	copy!("ch2-take_off_map-round3")
-	copy!("ch2-take_off_map-round4")
+	copy!("ch2_take_off_map_round1")
+	copy!("ch2_take_off_map_round2")
+	copy!("ch2_take_off_map_round3")
+	copy!("ch2_take_off_map_round4")
 	"ch2_storyflag_round" = 0;
 	// copy ch2-debug_storyflag_log;
 }
 "debug_map_flags_for_round1" {
-	copy!("ch2-put_on_map-round1")
-	copy!("ch2-take_off_map-round2")
-	copy!("ch2-take_off_map-round3")
-	copy!("ch2-take_off_map-round4")
+	copy!("ch2_put_on_map_round1")
+	copy!("ch2_take_off_map_round2")
+	copy!("ch2_take_off_map_round3")
+	copy!("ch2_take_off_map_round4")
 	"ch2_storyflag_round" = 1;
 	// copy ch2-debug_storyflag_log;
 }
 "debug_map_flags_for_round2" {
-	copy!("ch2-take_off_map-round1")
-	copy!("ch2-put_on_map-round2")
-	copy!("ch2-take_off_map-round3")
-	copy!("ch2-take_off_map-round4")
+	copy!("ch2_take_off_map_round1")
+	copy!("ch2_put_on_map_round2")
+	copy!("ch2_take_off_map_round3")
+	copy!("ch2_take_off_map_round4")
 	"ch2_storyflag_round" = 2;
 	// copy ch2-debug_storyflag_log;
 }
 "debug_map_flags_for_round3" {
-	copy!("ch2-take_off_map-round1")
-	copy!("ch2-take_off_map-round2")
-	copy!("ch2-put_on_map-round3")
-	copy!("ch2-take_off_map-round4")
+	copy!("ch2_take_off_map_round1")
+	copy!("ch2_take_off_map_round2")
+	copy!("ch2_put_on_map_round3")
+	copy!("ch2_take_off_map_round4")
 	"ch2_storyflag_round" = 3;
 	// copy ch2-debug_storyflag_log;
 }
 "debug_map_flags_for_round4" {
-	copy!("ch2-take_off_map-round1")
-	copy!("ch2-take_off_map-round2")
-	copy!("ch2-take_off_map-round3")
-	copy!("ch2-put_on_map-round4")
+	copy!("ch2_take_off_map_round1")
+	copy!("ch2_take_off_map_round2")
+	copy!("ch2_take_off_map_round3")
+	copy!("ch2_put_on_map_round4")
 	"ch2_storyflag_round" = 4;
 	// copy ch2-debug_storyflag_log;
 }
 "debug_map_flags_for_round5" {
-	copy!("ch2-take_off_map-round1")
-	copy!("ch2-take_off_map-round2")
-	copy!("ch2-take_off_map-round3")
-	copy!("ch2-take_off_map-round4")
+	copy!("ch2_take_off_map_round1")
+	copy!("ch2_take_off_map_round2")
+	copy!("ch2_take_off_map_round3")
+	copy!("ch2_take_off_map_round4")
 	"ch2_storyflag_round" = 5;
 	ch2_cutseen_castle99 = true;
 	// copy ch2-debug_storyflag_log;
@@ -350,26 +350,26 @@ $time = 200ms;
 	if (serial_dialog open) {
 		// solid light while in a serial_dialog (interactable)
 		light LED_USB = on;
-	} else if ("ch2-lambda-paging") {
+	} else if ("ch2_lambda_paging") {
 		// blinking light while Lambda wants to talk to you
-		if ("ch2-lambda-paging-pulsar") {
-			"ch2-lambda-paging-pulsar" = false;
+		if ("ch2_lambda_paging_pulsar") {
+			"ch2_lambda_paging_pulsar" = false;
 			light LED_USB = off;
 		} else {
-			"ch2-lambda-paging-pulsar" = true;
+			"ch2_lambda_paging_pulsar" = true;
 			light LED_USB = on;
 		}
 		wait $time;
 	} else if ("ch2-mousegame") {
 		// if "ch2-mousegame", turn off and wait for it to be false before resuming above behavior
-		goto "ch2-serial-light-manager-mouse";
+		goto "ch2_serial_light_manager_mouse";
 	} else {
 		// no light otherwise
 		light LED_USB = off;
 	}
 }
 
-"ch2-serial-light-manager-mouse" {
+"ch2_serial_light_manager_mouse" {
 	if (!"ch2-mousegame") {
 		goto "ch2-serial-light-manager";
 	}
@@ -457,7 +457,7 @@ $time = 200ms;
 	load map "ch2-castle-34";
 }
 
-"ch2-player-spawn-click-protection" {
+"ch2_player_spawn_click_protection" {
 	// this bit is so you can load your save, it can do restore_player_state, but not immediately click the floppy again (todo: Maybe this counts as a bug; maybe really fix it?)
 	if (warp_state == "raw_game_load-ch2") {
 		player_control = off;

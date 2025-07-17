@@ -78,7 +78,7 @@ look_ch2_cake {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-magehouse {
+on_load_ch2_magehouse {
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>YOUR HOUSE</>..." }
@@ -102,7 +102,7 @@ on_load-ch2-magehouse {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-magehouse {
+on_tick_ch2_magehouse {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		set warp state to walk_from-magehouse;
 		load map ch2-town;
@@ -111,7 +111,7 @@ on_tick-ch2-magehouse {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_go-ch2-magehouse-south {
+on_go_ch2_magehouse_south {
 	copy warping_out_fade_out;
 	load map ch2-town;
 }

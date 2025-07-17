@@ -70,7 +70,7 @@ look_ch2_pizza {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-bobsclub-basement {
+on_load_ch2_bobsclub_basement {
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>BOB'S CLUB BASEMENT</>..." }
@@ -78,7 +78,7 @@ on_load-ch2-bobsclub-basement {
 		teleport camera to geometry gasp-spot;
 	} else {
 		teleport entity "Guardian Bob" to geometry bob-walk2;
-		set entity "Guardian Bob" on_tick to loiter-slow;
+		set entity "Guardian Bob" on_tick to loiter_slow;
 	}
 	copy ch2_map_init;
 	register look + bob -> look_ch2_bob;
@@ -89,7 +89,7 @@ on_load-ch2-bobsclub-basement {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-bobsclub-basement {
+on_tick_ch2_bobsclub_basement {
 	goto null_script;
 }
 
@@ -199,7 +199,7 @@ on_tick_turn_right_and_up_kinda {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_go-ch2-bobsclub-basement-stairs {
+on_go_ch2_bobsclub_basement_stairs {
 	copy warping_out_fade_out;
 	load map ch2-bobsclub;
 }
@@ -320,12 +320,12 @@ ch2_cutscene_bob_party {
 	set flag ch2_cutseen_bob_party to true;
 	wait 150ms;
 	walk entity "Guardian Bob" to geometry bob-walk2 over 800ms;
-	set entity "Guardian Bob" on_tick to loiter-slow;
+	set entity "Guardian Bob" on_tick to loiter_slow;
 	make camera follow entity "%PLAYER%";
 	turn player control on;
 }
 
-loiter-slow {
+loiter_slow {
 	turn entity "%SELF%" south;
 	wait 3s;
 	turn entity "%SELF%" east;

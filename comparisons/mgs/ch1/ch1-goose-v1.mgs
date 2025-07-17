@@ -48,16 +48,16 @@ goose-misison-rake-on-rake-point {
 honk {
 	play entity Goose animation 2 thrice;
 }
-honk-to-make-rake-float {
+honk-to-make_rake_float {
 	turn entity Goose toward entity Rake;
 	wait 200ms; /**/ set entity Goose current_animation to 2;
-	wait 600ms; /**/ set entity Goose on_tick to make-rake-float;
+	wait 600ms; /**/ set entity Goose on_tick to make_rake_float;
 	wait 3000ms; /**/ set entity Goose current_animation to 0;
 }
 
 // drifting rake
 
-make-rake-float { // on_tick
+make_rake_float { // on_tick
 	set entity Rake on_tick to rake-drift-south;
 	wait 600ms; /**/ set entity Rake on_tick to rake-drift-west;
 	wait 600ms; /**/ set entity Rake on_tick to rake-drift-south;

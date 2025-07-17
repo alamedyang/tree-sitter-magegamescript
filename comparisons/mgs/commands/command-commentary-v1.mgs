@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-commentary {
+register_commentary {
 	register commentary -> command-commentary-solo;
 	register commentary + on -> command-commentary-on;
 	register commentary + off -> command-commentary-off;

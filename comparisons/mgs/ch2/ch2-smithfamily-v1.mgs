@@ -29,7 +29,7 @@ look_ch2_smith {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-smithfamily {
+on_load_ch2_smithfamily {
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>SMITH'S HOUSE</>..." }
@@ -39,7 +39,7 @@ on_load-ch2-smithfamily {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-smithfamily {
+on_tick_ch2_smithfamily {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		set warp state to walk_from-smithfamily;
 		load map ch2-town;
@@ -48,7 +48,7 @@ on_tick-ch2-smithfamily {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_go-ch2-smithfamily-south {
+on_go_ch2_smithfamily_south {
 	copy warping_out_fade_out;
 	load map ch2-town;
 }

@@ -132,11 +132,11 @@ on_load_ch2_castle_1_postgame {
 		teleport entity "%PLAYER%" to geometry walk_from-south;
 	}
 	copy ch2_map_init;
-	copy ch2-player-spawn-click-protection;
+	copy ch2_player_spawn_click_protection;
 }
 
 on_load_ch2_castle_1 {
-	if warp state is "ch2 ending" then goto ch2-castle-1-ending;
+	if warp state is "ch2 ending" then goto ch2_castle_1_ending;
 	// ch2 room state
 	mutate ch2_in_room = 1;
 	set flag ch2_seen_room_1 to true;
@@ -155,7 +155,7 @@ on_load_ch2_castle_1 {
 		set entity "Wizard" on_interact to interact_ch2_wizard_mainframedone;
 		set entity "Wizard" current_animation to 3; // head poking up
 	}
-	if (flag ch2-has-artifact is true) {
+	if (flag ch2_has_artifact is true) {
 		set entity Artifact on_tick to yeet;
 	}
 	if (warp state is raw_game_load-ch2) {
@@ -172,23 +172,23 @@ on_load_ch2_castle_1 {
 
 	// DEBUG
 	if (debug mode is on) {
-		register credits -> debug-ch2-credits;
+		register credits -> debug_ch2_credits;
 		register toot -> debug_finish_toot;
-		register walk -> debug-walk;
+		register walk -> debug_walk;
 		register get + monitor -> ch2_pickup_monitor;
 		register get + heatsink -> ch2_pickup_heatsink;
 		register get + cactuscooler -> ch2_pickup_cactuscooler;
 		register get + powersupply -> ch2_pickup_powersupply;
 		register get + keyboard -> ch2_pickup_keyboard;
 		register get + mouse -> ch2_pickup_mouse;
-		register get + harddrive -> ch2-solder-harddrive;
+		register get + harddrive -> ch2_solder_harddrive;
 		register get + plate -> ch2_pickup_plate;
 		register get + needle -> ch2_pickup_needle;
 		register get + ramchips -> ch2_pickup_ramchips;
 		register get + clock -> ch2_pickup_clock;
 		register get + goldfish -> ch2_pickup_goldfish;
 		register get + abacus -> ch2_pickup_abacus;
-		register get + cpu -> ch2-solder-cpu;
+		register get + cpu -> ch2_solder_cpu;
 		register round + "1" -> debug_get_items_for_round1;
 		register round + "2" -> debug_get_items_for_round2;
 		register round + "3" -> debug_get_items_for_round3;
@@ -203,43 +203,43 @@ on_load_ch2_castle_1 {
 		}
 	}
 	// END DEBUG
-	copy ch2-player-spawn-click-protection;
+	copy ch2_player_spawn_click_protection;
 }
 debug_finish_toot {
 	mutate ch2_storyflag_round = 1;
-	set flag ch2-has-map to true;
-	set flag ch2-has-artifact to true;
-	copy register-map;
-	copy register-parts;
-	copy ch2-put_on_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-take_off_map-round4;
-	set flag ch2-toot-done to true;
+	set flag ch2_has_map to true;
+	set flag ch2_has_artifact to true;
+	copy register_map;
+	copy register_parts;
+	copy ch2_put_on_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_take_off_map_round4;
+	set flag ch2_toot_done to true;
 }
 
-debug-walk {
+debug_walk {
 	teleport entity Artifact to geometry artifact-look;
 	set entity Artifact type to artifact;
 	set entity Artifact current_animation to 0;
-	set entity "XA" on_interact to ch2-artifact-walk;
+	set entity "XA" on_interact to ch2_artifact_walk;
 }
-tick-artifact-open {
+tick_artifact_open {
 	play entity Artifact animation 2 once;
 	set entity Artifact current_animation to 3;
 	goto null_script;
 }
-ch2-camera-to-artifact {
+ch2_camera_to_artifact {
 	pan camera to geometry artifact-get over 1200ms;
 	goto null_script;
 }
-ch2-artifact-walk {
+ch2_artifact_walk {
 	turn player control off; // temp (take out of final)
 	wait 70ms;
-	set entity XA on_tick to ch2-camera-to-artifact;
+	set entity XA on_tick to ch2_camera_to_artifact;
 	wait 500ms;
 	// a dumbwaiter-esque thing opens
-	set entity Artifact on_tick to tick-artifact-open;
+	set entity Artifact on_tick to tick_artifact_open;
 	wait 400ms;
 	turn entity "%PLAYER%" toward geometry artifact-look;
 	wait 1700ms;
@@ -273,7 +273,7 @@ ch2-artifact-walk {
 	set entity Artifact on_tick to yeet;
 	// remove artifact
 	wait 100ms;
-	set entity XA on_tick to ch2-camera-from-artifact;
+	set entity XA on_tick to ch2_camera_from_artifact;
 	wait 200ms;
 	walk entity "%PLAYER%" to geometry artifact-approach over 600ms;
 	wait 300ms;
@@ -302,7 +302,7 @@ ch2-artifact-walk {
 	fade in camera from $calc over 800ms;
 	turn entity "%PLAYER%" south;
 }
-ch2-camera-from-artifact {
+ch2_camera_from_artifact {
 	pan camera to entity "%PLAYER%" over 300ms;
 	goto null_script;
 }
@@ -328,8 +328,8 @@ on_tick_ch2_castle_1 {
 		set warp state to walk_from-north;
 		load map ch2-castle-outside;
 	}
-	if (flag ch2-wait-for-hat-touch is true) {
-		// show serial dialog {"if (flag ch2-wait-for-hat-touch is true) {"}
+	if (flag ch2_wait_for_hat_touch is true) {
+		// show serial dialog {"if (flag ch2_wait_for_hat_touch is true) {"}
 		goto on_tick_ch2_castle_1_hexwait1;
 	}
 	// if there's a dialog open currently, don't do anything! But...
@@ -339,19 +339,19 @@ on_tick_ch2_castle_1 {
 		if (flag ch2_ring_zero_enabled_in_castle is false) {
 			if (button HAX) { // You're attempting to use Ring Zero and...
 				// ...you've been told Ring Zero won't work
-				if (flag ch2-toot-done is true) {
+				if (flag ch2_toot_done is true) {
 					show dialog {
 						PLAYER "Oh, yeah. Ring Zero won't work in in the castle until I fix the mainframe."
 					}
 				}
 				// ...you've discovered Ring Zero won't work
-				else if (flag ch2-hax-attempted is true) {
+				else if (flag ch2_hax_attempted is true) {
 					show dialog {
 						PLAYER "Why doesn't Ring Zero work?"
 					}
 				}
 				// ...you've tried the door already
-				else if (flag ch2-door-attempted is true) {
+				else if (flag ch2_door_attempted is true) {
 					show dialog {
 						PLAYER "Weird. I can't get Ring Zero to work, either."
 					}
@@ -362,29 +362,29 @@ on_tick_ch2_castle_1 {
 						PLAYER "Weird. I can't get Ring Zero to work."
 					}
 				}
-				set flag ch2-hax-attempted to true;
+				set flag ch2_hax_attempted to true;
 			}
 		}
 	}
 }
 
 on_tick_ch2_castle_1_hexwait1 {
-	copy on_tick_ch2_castle_1_hexwait-protec;
+	copy on_tick_ch2_castle_1_hexwait_protec;
 	if (button HAX) {
 		goto on_tick_ch2_castle_1_hexwait2;
 	}
 }
 on_tick_ch2_castle_1_hexwait2 {
-	copy on_tick_ch2_castle_1_hexwait-protec;
+	copy on_tick_ch2_castle_1_hexwait_protec;
 	if (button HAX) {
-		set flag ch2-wait-for-hat-touch to false;
-		set entity "%PLAYER%" on_tick to ch2-install-wizard-resume;
+		set flag ch2_wait_for_hat_touch to false;
+		set entity "%PLAYER%" on_tick to ch2_install_wizard_resume;
 		goto on_tick_ch2_castle_1;
 	}
 }
-on_tick_ch2_castle_1_hexwait-protec {
+on_tick_ch2_castle_1_hexwait_protec {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
-		copy ch2-wait-for-hat-touch-message;
+		copy ch2_wait_for_hat_touch_message;
 		turn player control off;
 		walk entity "%PLAYER%" to geometry walk_from-south over 200ms;
 		turn player control on;
@@ -394,15 +394,15 @@ on_tick_ch2_castle_1_hexwait-protec {
 /* ---------- EXIT STUFF ---------- */
 
 on_exit_ch2_castle_1 { // sanitize ch2 room state
-	if (flag ch2-wait-for-hat-touch is true) {
-		goto ch2-wait-for-hat-touch-message;
+	if (flag ch2_wait_for_hat_touch is true) {
+		goto ch2_wait_for_hat_touch_message;
 	}
 	mutate ch2_in_room = 0;
 }
 
 // SERIAL: go
 
-on_go_ch2-notyet {
+on_go_ch2_notyet {
 	show serial dialog spacer;
 	show serial dialog {
 		"(You better finish your conversation with Lambda before attempting to <c>GO</> anywhere....)"
@@ -412,8 +412,8 @@ on_go_ch2-notyet {
 }
 
 on_go_castle_1_north {
-	if (flag ch2-toot-done is false) {
-		goto on_go_ch2-notyet;
+	if (flag ch2_toot_done is false) {
+		goto on_go_ch2_notyet;
 	} else {
 		copy on_exit_ch2_castle_1;
 		copy warping_out_fade_out;
@@ -422,8 +422,8 @@ on_go_castle_1_north {
 }
 
 on_go_castle_1_south {
-	if (flag ch2-toot-done is false) {
-		goto on_go_ch2-notyet;
+	if (flag ch2_toot_done is false) {
+		goto on_go_ch2_notyet;
 	} else {
 		copy on_exit_ch2_castle_1;
 		copy warping_out_fade_out;
@@ -433,15 +433,15 @@ on_go_castle_1_south {
 
 /* ---------- TUTORIAL ROOM STUFF ---------- */
 
-ch2-attempt-door-check {
-	if (flag ch2-toot-done is true) {
+ch2_attempt_door_check {
+	if (flag ch2_toot_done is true) {
 		// you've been told some doors won't work
 		show dialog {
 			PLAYER "Oh, yeah. With the debris blocking the doors, I'll need the serial console to move between rooms."
 		}
-	} else if (flag ch2-door-attempted is false) {
+	} else if (flag ch2_door_attempted is false) {
 		// you've already discovered the doors don't work
-		if (flag ch2-hax-attempted is true) {
+		if (flag ch2_hax_attempted is true) {
 			show dialog {
 				PLAYER "And the castle doors are blocked? This is going to be a short quest."
 			}
@@ -450,7 +450,7 @@ ch2-attempt-door-check {
 				PLAYER "The castle doors are blocked? This is going to be a short quest."
 			}
 		}
-		set flag ch2-door-attempted to true;
+		set flag ch2_door_attempted to true;
 	} else {
 		// being obnoxious now :3
 		if (variable ch2-pretoot-door-attempts is 0) {
@@ -483,23 +483,23 @@ ch2-attempt-door-check {
 // 4: descend
 // 5: ascend
 
-ch2-wizard-ascend {
+ch2_wizard_ascend {
 	turn player control off;
 	play entity Wizard animation 5 once;
 	set entity Wizard current_animation to 3;
 	turn player control on;
 }
-tick-ch2-wizard-ascend-and-watch-with-check {
+tick_ch2_wizard_ascend_and_watch_with_check {
 	if (entity Wizard current_animation is 0) { // WIZARD IS DOWN
-		// show serial dialog {"DEBUG: Wizard is down! Switching on_tick to to 'tick-ch2-wizard-ascend-and-watch'"}
-		goto tick-ch2-wizard-ascend-and-watch;
+		// show serial dialog {"DEBUG: Wizard is down! Switching on_tick to to 'tick_ch2_wizard_ascend_and_watch'"}
+		goto tick_ch2_wizard_ascend_and_watch;
 	} else {
 		// show serial dialog {"DEBUG: Wizard is not <bold>strictly</> down..."}
 		set entity Wizard current_animation to 3;
 	}
 	set entity Wizard on_tick to face_player;
 }
-tick-ch2-wizard-ascend-and-watch {
+tick_ch2_wizard_ascend_and_watch {
 	// show serial dialog {"\t'play entity Wizard animation 5 once'"}
 	play entity Wizard animation 5 once;
 	// show serial dialog {"\t'set entity Wizard current_animation to 3'"}
@@ -507,7 +507,7 @@ tick-ch2-wizard-ascend-and-watch {
 	// show serial dialog {"\t'set entity Wizard on_tick to face_player'"}
 	set entity Wizard on_tick to face_player;
 }
-ch2-wizard-descend {
+ch2_wizard_descend {
 	turn player control off;
 	play entity Wizard animation 4 once;
 	set entity Wizard current_animation to 0;
@@ -517,20 +517,20 @@ ch2-wizard-descend {
 interact_ch2_wizard {
 	if (entity "%SELF%" current_animation is 0) { // WIZARD IS DOWN
 		// go up
-		copy script ch2-wizard-ascend;
+		copy script ch2_wizard_ascend;
 		// wizard is up now
 	} else { // WIZARD IS UP (but should go down)
-		if (flag ch2-toot-done is false) {
+		if (flag ch2_toot_done is false) {
 			show dialog { SELF "Bye." }
-			copy script ch2-wizard-descend;
+			copy script ch2_wizard_descend;
 			return;
 		}
 	}
 	// wizard is up now and can talk normally
-	if (flag ch2-toot-done is false) {// pre-toot version
+	if (flag ch2_toot_done is false) {// pre-toot version
 		show dialog { SELF "Hi." }
 	}
-	else if (flag ch2-wait-for-hat-touch is true) {
+	else if (flag ch2_wait_for_hat_touch is true) {
 		turn entity "%PLAYER%" toward entity Wizard;
 		turn entity Wizard toward entity "%PLAYER%";
 		show dialog {
@@ -541,13 +541,13 @@ interact_ch2_wizard {
 			"But there must be some kind of shiny copper surface on your whatsit, right? Try touching it with your finger. That's probably how it's done."
 		}
 	}
-	else if (flag ch2-lambda-paging is true) {
+	else if (flag ch2_lambda_paging is true) {
 		show dialog {
 			SELF "Looks like whats-his-name is paging you. Better answer him on the terminal."
 		}
 	}
 	else if (flag ch2_carrying_mainframeos is true) {
-		copy ch2-install-wizard;
+		copy ch2_install_wizard;
 	}
 	else {
 		if (flag ch2_wizard_backstory is false) {
@@ -590,13 +590,13 @@ interact_ch2_wizard {
 						"Later, gator."
 					}
 				}
-				copy script ch2-wizard-descend;
+				copy script ch2_wizard_descend;
 			}
 		}
 	}
 }
 
-ch2-spin-wizard {
+ch2_spin_wizard {
 	turn player control off;
 	wait 100ms;
 	rotate entity Wizard 1;
@@ -610,7 +610,7 @@ ch2-spin-wizard {
 	turn player control on;
 }
 
-ch2-install-wizard {
+ch2_install_wizard {
 	turn serial control off;
 	turn player control off;
 	show dialog {
@@ -619,7 +619,7 @@ ch2-install-wizard {
 		PLAYER "I wouldn't have it any other way."
 	}
 	set entity Wizard on_tick to null_script;
-	copy ch2-spin-wizard;
+	copy ch2_spin_wizard;
 	show dialog {
 		Wizard "Awesome!"
 		"First off, what's it on? A thumb drive? Floppy?"
@@ -680,18 +680,18 @@ ch2-install-wizard {
 		Wizard "Oh well. Guess that's how things are gonna play out. Not much fun for me though. Guess I still helped, technically."
 	}
 	turn entity Wizard east;
-	set entity "%PLAYER%" on_tick to ch2-wait-for-boot;
-	copy ch2-bootup;
+	set entity "%PLAYER%" on_tick to ch2_wait_for_boot;
+	copy ch2_bootup;
 	turn serial control off;
 	turn player control off;
 	wait 1200ms;
 	show dialog {
 		Wizard "Hey hey! There you go!"
 	}
-	// goto ch2-install-wizard2;
-	goto ch2-install-wizard-resume2;
+	// goto ch2_install_wizard2;
+	goto ch2_install_wizard_resume2;
 }
-ch2-install-wizard2 {
+ch2_install_wizard2 {
 	set entity Wizard on_tick to face_player;
 	wait 300ms;
 	fade out camera to #FFDD00 over 600ms;
@@ -717,29 +717,29 @@ ch2-install-wizard2 {
 		// show serial dialog {"debug mode is on; no need to enable hex control;"}
 	}
 	// show serial dialog {"turn hex control on;"}
-	set flag ch2-wait-for-hat-touch to true;
-	// show serial dialog {"set flag ch2-wait-for-hat-touch to true;"}
-	copy ch2-install-mainframeos;
-	// show serial dialog {"copy ch2-install-mainframeos;"}
+	set flag ch2_wait_for_hat_touch to true;
+	// show serial dialog {"set flag ch2_wait_for_hat_touch to true;"}
+	copy ch2_install_mainframeos;
+	// show serial dialog {"copy ch2_install_mainframeos;"}
 }
-ch2-ending-fadein {
+ch2_ending_fadein {
 	fade in camera from #000000 over 500ms;
 }
-ch2-ending-fadeout {
+ch2_ending_fadeout {
 	wait 100ms;
 	fade out camera to #000000 over 500ms;
 }
-ch2-install-wizard-resume {
+ch2_install_wizard_resume {
 	show dialog {
 		PLAYER "Hey! It works!"
 		Wizard "Looks like the castle's core services are gonna come back online on their own. I guess that'll make it a breeze to clean everything up, eh?"
 	}
-	goto ch2-castle-1-ending2;
-	// goto ch2-install-wizard-resume2;
+	goto ch2_castle_1_ending2;
+	// goto ch2_install_wizard_resume2;
 }
-ch2-install-wizard-resume2 {
+ch2_install_wizard_resume2 {
 	set warp state to "ch2 ending";
-	copy ch2-ending-fadeout;
+	copy ch2_ending_fadeout;
 	load map ch2-castle-21;
 }
 ch2_castle_21_ending {
@@ -749,7 +749,7 @@ ch2_castle_21_ending {
 	teleport entity "%PLAYER%" to geometry hiding-spot;
 	set entity abacus on_tick to yeet;
 	turn entity Jean-Paul south;
-	copy ch2-ending-fadein;
+	copy ch2_ending_fadein;
 	wait 800ms;
 	show dialog {
 		Frankie alignment TL "...Oh!"
@@ -758,7 +758,7 @@ ch2_castle_21_ending {
 	turn entity Jean-Paul toward entity Frankie;
 	wait 400ms;
 	turn entity Jean-Paul south;
-	copy ch2-ending-fadeout;
+	copy ch2_ending_fadeout;
 	load map ch2-castle-22;
 }
 ch2_castle_22_ending {
@@ -767,77 +767,77 @@ ch2_castle_22_ending {
 	teleport camera to geometry warp-spot;
 	teleport entity "%PLAYER%" to geometry hiding-spot;
 	set entity "Power Supply" on_tick to yeet;
-	copy ch2-ending-fadein;
+	copy ch2_ending_fadein;
 	wait 800ms;
 	show dialog {
 		entity "C. K. Watt" alignment TR "Aha, we got core services coming back up. Finally."
 	}
-	copy ch2-ending-fadeout;
+	copy ch2_ending_fadeout;
 	load map ch2-castle-13;
 }
-sebastian-to-three {
+sebastian_to_three {
 	walk entity Sebastian to geometry end-sebastian3 over 800ms;
 }
-ch2-castle-13-ending {
+ch2_castle_13_ending {
 	turn player control off;
 	turn serial control off;
 	teleport camera to geometry camera-spot3;
-	copy ch2-ending-fadein;
+	copy ch2_ending_fadein;
 	wait 800ms;
 	show dialog {
 		Templeton "Did you hear that? Something changed."
 		Sebastian "Ah, yessss! The mana boosters have spun up!"
 		"Step aside, Your Majesty. I'll handle this."
 	}
-	set entity Sebastian on_tick to sebastian-to-three;
+	set entity Sebastian on_tick to sebastian_to_three;
 	wait 200ms;
-	copy ch2-ending-fadeout;
+	copy ch2_ending_fadeout;
 	copy ch2_load_castle_1_special;
 }
 
-ch2-player-exit {
+ch2_player_exit {
 	walk entity "%PLAYER%" along geometry exit-line over 2000ms;
 }
-ch2-castle-1-ending {
+ch2_castle_1_ending {
 	turn player control off;
 	turn serial control off;
 	make camera follow entity "%PLAYER%";
 	teleport entity "%PLAYER%" to geometry mainframe-look-spot;
 	turn entity "%PLAYER%" south;
 	set entity Wizard current_animation to 3;
-	copy ch2-ending-fadein;
+	copy ch2_ending_fadein;
 	wait 300ms;
-	// goto ch2-castle-1-ending2;
-	goto ch2-install-wizard2;
+	// goto ch2_castle_1_ending2;
+	goto ch2_install_wizard2;
 }
-ch2-castle-1-ending2 {
+ch2_castle_1_ending2 {
 	show dialog {
 		PLAYER "Awesome! I'll go tell the village elders I've got the artifact fully working."
 		"We're one step closer to facing the Big Bad!"
 	}
 	mutate ch2_storyflag_round = 5;
 	turn player control off;
-	set entity XA on_tick to ch2-player-exit;
+	set entity XA on_tick to ch2_player_exit;
 	set warp state to ch2-ending;
 	fade out camera to #000000 over 1500ms;
-	set flag credits-from-menu to false;
+	set flag credits_from_menu to false;
 	load map ch2-castle-outside;
 }
-debug-ch2-credits {
+debug_ch2_credits {
 	mutate ch2_storyflag_round = 5;
 	turn player control off;
 	fade out camera to #000000 over 1500ms;
-	set flag credits-from-menu to false;
+	set flag credits_from_menu to false;
 	load map credits2;
 }
 
-ch2-wait-for-hat-touch-message {
+ch2_wait_for_hat_touch_message {
 	show dialog {
 		PLAYER "(Hang on. First I should check whether Ring Zero is working in here. What was it again? \"Touch the hat on the PCB\"?)"
 	}
 }
 
-ch2-wait-for-boot {
+ch2_wait_for_boot {
 	wait 500ms;
 	turn entity "%PLAYER%" east;
 	wait 1600ms;
@@ -850,7 +850,7 @@ ch2-wait-for-boot {
 const!(
 	$dot = 300ms
 )
-ch2-bootup-mgs2 {
+ch2_bootup_mgs2 {
 	show serial dialog {
 		"Loading MGZ" // several seconds
 		" "
@@ -1063,7 +1063,7 @@ ch2-bootup-mgs2 {
 		"Kernel 6.2.38"//2f
 	}
 }
-ch2-bootup-solaris {
+ch2_bootup_solaris {
 	// show serial dialog {
 	// 	"Welcome to GibBIOS v1.1 built on Aug 8 2024 10:11"
 	// 	"Trying disk:a..."
@@ -1160,7 +1160,7 @@ ch2-bootup-solaris {
 	}
 	turn serial control on;
 }
-ch2-bootup {
+ch2_bootup {
 	// turn serial control off;
 	// show serial dialog spacer;
 	// ^^ moved from here to the other place, but this is what it was fyi
@@ -1279,10 +1279,10 @@ interact_ch2_wizard_mainframedone {
 }
 
 interact_ch2_xa {
-	if (flag ch2-toot-done is true) {
-		goto ch2-terminal-setup-check;
+	if (flag ch2_toot_done is true) {
+		goto ch2_terminal_setup_check;
 	} else {
-		if (flag ch2-has-artifact is false) {
+		if (flag ch2_has_artifact is false) {
 			turn player control off;
 			show dialog {
 				name "???" border_tileset codec
@@ -1312,7 +1312,7 @@ interact_ch2_xa {
 				"I, um, don't know why the village elders would have changed their minds about this, but...."
 				"Well, you're welcome to the castle artifact. It's over there, just to your left, inside the pillar."
 			}
-			copy ch2-artifact-walk
+			copy ch2_artifact_walk
 			wait 300ms;
 			show dialog {
 				PLAYER "That was easy. I thought there would be a quest or something. Puzzles, at least."
@@ -1342,7 +1342,7 @@ interact_ch2_xa {
 				Lambda "Well, um... this is all very complicated. I need to be sure that this isn't a trap."
 				"If it helps, I don't think you're the Big Bad. He would have caused more mischief in that room, even with Ring Zero disabled."
 			}
-			if (flag ch2-hax-attempted is true) {
+			if (flag ch2_hax_attempted is true) {
 				show dialog {
 					PLAYER "Yeah, about that... why won't Ring Zero work in here?"
 				}
@@ -1358,7 +1358,7 @@ interact_ch2_xa {
 				"You know what? There's a lot to explain, and it might be easier to chat with the artifact. Let's set it up."
 			}
 			turn player control on;
-			set flag ch2-has-artifact to true;
+			set flag ch2_has_artifact to true;
 		} else {
 			show dialog {
 				Lambda "Let's get the artifact set up. I can help walk you through it."
@@ -1366,15 +1366,15 @@ interact_ch2_xa {
 		}
 		show dialog {
 			Lambda "Er, that is, do you want help?"
-			> "Yes, please!" : ch2-terminal-setup-start
-			> "No, thanks." : ch2-terminal-setup-nevermind
+			> "Yes, please!" : ch2_terminal_setup_start
+			> "No, thanks." : ch2_terminal_setup_nevermind
 		}
 	}
 }
 /* ---------- XA SERIAL CONSOLE WALKTHROUGH ---------- */
 
-ch2-terminal-setup-check {
-	if (flag ch2-wait-for-hat-touch is true) {
+ch2_terminal_setup_check {
+	if (flag ch2_wait_for_hat_touch is true) {
 		show dialog {
 			PLAYER "How do I work Ring Zero again?"
 			Lambda "Hmm? What's that? Did you say something?"
@@ -1385,24 +1385,24 @@ ch2-terminal-setup-check {
 	} else {
 		show dialog {
 			Lambda "Need help getting the terminal working?"
-			> "Yes" : ch2-terminal-setup-start
-			> "No" : ch2-terminal-setup-nevermind
+			> "Yes" : ch2_terminal_setup_start
+			> "No" : ch2_terminal_setup_nevermind
 		}
 	}
 }
 
-ch2-terminal-setup-nevermind {
-	if (flag ch2-toot-done is false) {
+ch2_terminal_setup_nevermind {
+	if (flag ch2_toot_done is false) {
 		show dialog {
 			Lambda "Ah, okay! Um, if you change your mind, speak to XA again and I'll walk you through everything."
 		}
-		copy register-manual;
-		set flag can-interrupt-dialog to true;
+		copy register_manual;
+		set flag can_interrupt_dialog to true;
 		turn serial control on;
 		show dialog {
 			Lambda "To finish our conversation, type \"MAN\" into the console."
 		}
-		set flag can-interrupt-dialog to false;
+		set flag can_interrupt_dialog to false;
 		if (serial dialog is closed) {
 			show serial dialog spacer;
 			show serial dialog {
@@ -1410,66 +1410,66 @@ ch2-terminal-setup-nevermind {
 			}
 		}
 	} else {
-		set flag can-interrupt-dialog to true;
+		set flag can_interrupt_dialog to true;
 		show dialog {
 			Lambda "Ah, okay. Carry on!\n\nAlso, remember you can speak to me in the console with the command \"MAN\"."
 		}
-		set flag can-interrupt-dialog to false;
+		set flag can_interrupt_dialog to false;
 	}
-	set entity "%SELF%" on_interact to ch2-terminal-setup-check;
+	set entity "%SELF%" on_interact to ch2_terminal_setup_check;
 }
 
-ch2-terminal-setup-start {
+ch2_terminal_setup_start {
 	show dialog {
 		Lambda "First, plug the artifact into your computer. (Or, if it's plugged in but not working, try flipping the cable the other direction, or try another USB port.)"
 	}
-	goto ch2-terminal-plugged-check;
+	goto ch2_terminal_plugged_check;
 }
 
-ch2-terminal-plugged-check {
+ch2_terminal_plugged_check {
 	show dialog {
 		Lambda "Is the artifact plugged in now?"
-		> "Yes" : ch2-terminal-plugged-yes
-		> "No" : ch2-terminal-plugged-no
-		> "I'm on the web" : ch2-terminal-plugged-web
-		> "Never mind" : ch2-terminal-setup-nevermind
+		> "Yes" : ch2_terminal_plugged_yes
+		> "No" : ch2_terminal_plugged_no
+		> "I'm on the web" : ch2_terminal_plugged_web
+		> "Never mind" : ch2_terminal_setup_nevermind
 	}
 }
 
-ch2-terminal-plugged-no {
+ch2_terminal_plugged_no {
 	show dialog {
 		Lambda "Well, this won't exactly work wirelessly. You're going to have to find a USB-C cable somewhere, so, um...."
 	}
-	goto ch2-terminal-plugged-check;
+	goto ch2_terminal_plugged_check;
 }
 
-ch2-terminal-plugged-web {
+ch2_terminal_plugged_web {
 	show dialog {
 		Lambda "Oh, then you're all set already! Your console will be to the right (or directly below) the game screen, in your browser window."
 		"Click \"Toggle Console\" if you don't see a console at all."
 		"Note that you may have to click between the game screen and the console depending on what you want to be doing. Clicking gives focus to what you clicked on."
 	}
-	goto ch2-terminal-message-test;
-	set entity "%SELF%" on_interact to ch2-terminal-plugged-check;
+	goto ch2_terminal_message_test;
+	set entity "%SELF%" on_interact to ch2_terminal_plugged_check;
 }
 
-ch2-terminal-plugged-yes {
+ch2_terminal_plugged_yes {
 	show dialog {
 		Lambda "Excellent! Well, from here we have two choices."
 	}
-	goto ch2-terminal-plugged-yes2;
+	goto ch2_terminal_plugged_yes2;
 }
-ch2-terminal-plugged-yes2 {
+ch2_terminal_plugged_yes2 {
 	show dialog {
 		Lambda "You could connect the old fashioned way, via a terminal program. The exact program will vary by system: PuTTY, picocom, etc. Just set the baud to 115200."
 		"But for a super-easy one-size-fits-all method, visit the following website in a Chrome-based browser:\n\ngooglechromelabs.github.io/serial-terminal"
 		"Click \"Connect\" and choose your device from the list. (Try switching API modes if you're having trouble getting a list to appear.)"
 		"This might not work well on a phone, by the way, and it definitely won't work on iOS."
 		"Um, do you need to hear all that again?"
-		> "Yes, say that all again" : ch2-terminal-plugged-yes2
-		> "No, I'm good" : ch2-terminal-message-test
+		> "Yes, say that all again" : ch2_terminal_plugged_yes2
+		> "No, I'm good" : ch2_terminal_message_test
 	}
-	goto ch2-terminal-message-test;
+	goto ch2_terminal_message_test;
 }
 /*
 on Windows 10:
@@ -1499,7 +1499,7 @@ ls /dev/serial/by-id/
 picocom /dev/serial/by-id/(ONE OF THE DEVICES FROM THE LIST ABOVE)
 */
 
-ch2-terminal-message-test {
+ch2_terminal_message_test {
 	show dialog {
 		Lambda "Let's test the serial connection."
 	}
@@ -1509,27 +1509,27 @@ ch2-terminal-message-test {
 	}
 	show dialog {
 		Lambda "Did you see my serial message?"
-		> "Yes" : ch2-terminal-message-test-success
-		> "No" : ch2-terminal-message-test-fail
+		> "Yes" : ch2_terminal_message_test_success
+		> "No" : ch2_terminal_message_test_fail
 	}
 }
 
-ch2-terminal-message-test-fail {
+ch2_terminal_message_test_fail {
 	show dialog {
 		Lambda "Hmm. Well, um, let's go over the steps again."
 	}
-	goto ch2-terminal-setup-start;
+	goto ch2_terminal_setup_start;
 }
 
-ch2-terminal-message-test-success {
-	if (flag ch2-toot-done is false) {
-		copy register-manual;
-		set flag can-interrupt-dialog to true;
+ch2_terminal_message_test_success {
+	if (flag ch2_toot_done is false) {
+		copy register_manual;
+		set flag can_interrupt_dialog to true;
 		turn serial control on;
 		show dialog {
 			Lambda "Excellent! Let's continue our conversation using the terminal. Type \"MAN\" into the console to get things started."
 		}
-		set flag can-interrupt-dialog to false;
+		set flag can_interrupt_dialog to false;
 		if (serial dialog is closed) {
 			show serial dialog spacer;
 			show serial dialog {
@@ -1541,5 +1541,5 @@ ch2-terminal-message-test-success {
 			Lambda "Excellent! You're all set!"
 		}
 	}
-	set entity "%SELF%" on_interact to ch2-terminal-setup-check;
+	set entity "%SELF%" on_interact to ch2_terminal_setup_check;
 }

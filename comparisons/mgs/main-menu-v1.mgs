@@ -2,11 +2,11 @@ include!("header.mgs")
 
 on_load-main_menu {
 	mutate current-chapter = 0;
-	copy register-colors;
+	copy register_colors;
 
 	// todo: write commentary
 
-	// copy register-commentary
+	// copy register_commentary
 	// if (flag ch1-commentary-notice is false) {
 	// 	set flag serial-commentary to true
 	// 	show serial dialog {
@@ -29,15 +29,15 @@ on_load-main_menu {
 		register ch2 -> menu-chapter_select-2;
 		register rtfm -> command-rtfm;
 		register buffer + test -> debug-buffertest;
-		register boot -> ch2-bootup;
+		register boot -> ch2_bootup;
 		register post -> debug-post;
-		// register cutbug -> ch2-toot-step3-end2;
+		// register cutbug -> ch2_toot_step3_end2;
 		register skip + "1" -> debug_jump_to_round1;
 		register skip + "2" -> debug_jump_to_round2;
 		register skip + "3" -> debug_jump_to_round3;
 		register skip + "4" -> debug_jump_to_round4;
-		copy register-warp;
-		copy register-storyflag;
+		copy register_warp;
+		copy register_storyflag;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> main menu only:"
@@ -67,19 +67,19 @@ debug-post {
 	set flag ch2_wizard_backstory to true;
 	copy debug_set_flags_to_round4;
 	set flag ch2_seen_room_99 to true;
-	set flag ch2-map-mainframeos to false;
+	set flag ch2_map_mainframeos to false;
 	set flag ch2_carrying_mainframeos to true;
 	set flag ch2_cutseen_castle99 to true;
-	copy ch2-install-mainframeos;
+	copy ch2_install_mainframeos;
 	set flag ch2_ring_zero_enabled_in_castle to true;
 	mutate ch2_storyflag_round = 5;
-	set flag credits-from-menu to false;
+	set flag credits_from_menu to false;
 	set warp state to ch2-ending;
 	load map ch2-castle-outside;
 }
 debug_menu_simon {
 	turn serial control on;
-	set flag ch2-has-artifact to true;
+	set flag ch2_has_artifact to true;
 	turn hex control on;
 	mutate current-chapter = 2;
 	copy debug_finish_toot;
@@ -95,20 +95,20 @@ system_bell {
 	}
 }
 debug-bob {
-	set flag ch2-has-artifact to true;
-	set flag ch2-has-map to true;
+	set flag ch2_has_artifact to true;
+	set flag ch2_has_map to true;
 	load map ch2-bobsclub;
 }
 debug-bob2 {
 	set warp state to warping;
-	set flag ch2-has-artifact to true;
-	set flag ch2-has-map to true;
+	set flag ch2_has_artifact to true;
+	set flag ch2_has_map to true;
 	load map ch2-bobsclub-basement;
 }
 debug-bob3 {
 	set warp state to warping;
-	set flag ch2-has-artifact to true;
-	set flag ch2-has-map to true;
+	set flag ch2_has_artifact to true;
+	set flag ch2_has_map to true;
 	set flag ch2_cutseen_bob_party to true;
 	load map ch2-bobsclub-basement;
 }
@@ -189,11 +189,11 @@ menu-credits-choice {
 }
 
 menu-credits {
-	set flag credits-from-menu to true;
+	set flag credits_from_menu to true;
 	load map credits;
 }
 menu-credits2 {
-	set flag credits-from-menu to true;
+	set flag credits_from_menu to true;
 	load map credits2;
 }
 

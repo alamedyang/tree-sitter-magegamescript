@@ -1,6 +1,6 @@
 include "header.mgs";
 
-"ch2-wizard-stomp" {
+"ch2_wizard_stomp" {
 	wait 1800ms;
 	self animation -> 2 once;
 }
@@ -16,7 +16,7 @@ include "header.mgs";
 	self direction = south;
 	wait 800ms;
 }
-"on_tick-ch2-credits" {
+"on_tick_ch2_credits" {
 	hex_control = off;
 	serial_control = off;
 	player_control = on;
@@ -40,7 +40,7 @@ include "header.mgs";
 	player_control = on;
 	if (
 		warp_state == "ch2-ending"
-		|| !"credits-from-menu" // todo: is this redundant with warp state? Maybe manage warp state better?
+		|| !"credits_from_menu" // todo: is this redundant with warp state? Maybe manage warp state better?
 	) {
 		copy!(ch2_load_castle_1_special)
 	} else {
@@ -85,11 +85,11 @@ $panicked = 5;
 "jackob-watch-lambda-actor" {
 	entity Jackob direction = entity $Lambda;
 }
-"ch2-lambda-lower-actor" {
+"ch2_lambda_lower_actor" {
 	entity $Lambda animation -> $lowering once;
 	entity $Lambda current_animation = $lowered;
 }
-"ch2-lambda-raise-actor" {
+"ch2_lambda_raise_actor" {
 	entity $Lambda animation -> $raising once;
 	entity $Lambda current_animation = $opaque;
 }
@@ -111,7 +111,7 @@ $panicked = 5;
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
 	goto null_script;
 }
-"ch2-elder-ending-walkin-end" {
+"ch2_elder_ending_walkin_end" {
 	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
 	self on_tick = yeet;
 	goto null_script;
@@ -240,7 +240,7 @@ $panicked = 5;
 		PLAYER "Why do you and the Big Bad both have the power to make people forget things, Lambda?"
 	};
 	entity $Lambda direction += 1;
-	copy!("ch2-lambda-lower-actor")
+	copy!("ch2_lambda_lower_actor")
 	wait 1400ms;
 	show dialog {
 		Lambda emote $panicked "The Big Bad? Oh, dear. Oh, no."
@@ -324,14 +324,14 @@ $panicked = 5;
 	show dialog {
 		Alfonso "I don't know if I can trust you, Lambda."
 	};
-	copy!("ch2-lambda-lower-actor")
+	copy!("ch2_lambda_lower_actor")
 	show dialog {
 		Lambda emote $opaque_lowered "I-I know. It's part of having skills like mine, I think."
 		Alfonso "No, it's because you literally manipulated our minds."
 		"We're supposed to just believe that you're one of us? Or trust you after you've done something like that?"
 		Lambda emote $opaque_lowered "...."
 	};
-	copy!("ch2-lambda-raise-actor")
+	copy!("ch2_lambda_raise_actor")
 	show dialog {
 		Lambda emote $opaque_lowered_almost "If it means anything, I've been trying to make things right."
 		PLAYER "It's true. He helped me fix the serial artifact."
@@ -354,16 +354,16 @@ $panicked = 5;
 	};
 	entity Alfonso path = "alfonso-walkout";
 	entity Jackob path = "jackob-walkout";
-	entity Alfonso on_tick = "ch2-elder-ending-walkin-end";
+	entity Alfonso on_tick = "ch2_elder_ending_walkin_end";
 	wait 100ms;
-	entity Jackob on_tick = "ch2-elder-ending-walkin-end";
+	entity Jackob on_tick = "ch2_elder_ending_walkin_end";
 	show dialog {
 		Alfonso "Never mind that! You must remember what you've forgotten, Jackob! Hurry!"
 		name "Jackob" portrait village_elder // in case he's yeeted before this card comes up
 		"Don't rush me! You're making it worse!"
 	};
 	wait 1100ms;
-	copy!("ch2-lambda-lower-actor")
+	copy!("ch2_lambda_lower_actor")
 	entity $Lambda direction = south;
 	wait 200ms;
 	player on_tick = "player-watch-lambda-actor";
@@ -393,7 +393,7 @@ $panicked = 5;
 	show dialog {
 		Lambda "Good luck with everything, %PLAYER%."
 	};
-	entity $Lambda on_tick = "ch2-lambda-walkout";
+	entity $Lambda on_tick = "ch2_lambda_walkout";
 	ch2_cutseen_secret_ending = true;
 	wait 800ms;
 	player on_tick = null_script;
@@ -401,7 +401,7 @@ $panicked = 5;
 	load map "credits2";
 }
 
-"ch2-lambda-walkout" {
+"ch2_lambda_walkout" {
 	entity $Lambda position -> geometry "lambda9" origin over 2600ms;
 	entity $Lambda on_tick = yeet;
 }

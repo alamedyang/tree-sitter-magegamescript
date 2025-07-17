@@ -427,22 +427,22 @@ For each item: (Copy existing pattern wherever these are found)
         - `set entity ENTITY name to " "`
     3. Make script `ch2_touch_ITEM`
         - (Copy existing pattern)
-    4. Make script `ch2-install-ITEM`
+    4. Make script `ch2_install_ITEM`
         - `set flag ch2-carrying-ITEM to false`
         - `set flag ch2-installed-ITEM to true`
     5. Make script `look-ITEM`
 4. In file `ch2/ch2-serial-toot.mgs`
-    1. Make serial dialog `ch2-describe-ITEM`
-    2. Add a new substep to script `ch2-toot-step-5X`
+    1. Make serial dialog `ch2_describe_ITEM`
+    2. Add a new substep to script `ch2_toot_step_5X`
 5. In file `commands/command-parts.mgs`
-    1. Make script `ch2-describe-ITEM`: `show serial dialog ch2-describe-ITEM`
+    1. Make script `ch2_describe_ITEM`: `show serial dialog ch2_describe_ITEM`
     2. Make script `command-parts-ITEM` (copy an existing)
     3. Add to `command-parts` (using flag `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
     4. Add to script `command-parts-q` (if multiple words, add a no-spaces option, too)
 
 Other notes:
 
-- `ch2-hide-X` concerns moving the entity itself around the physical game map; `ch2-pickup-X` and `ch2-install-X` concern setting flags to make the item appear on the ASCII serial map, serial inventory list, etc.
+- `ch2-hide-X` concerns moving the entity itself around the physical game map; `ch2-pickup-X` and `ch2_install_X` concern setting flags to make the item appear on the ASCII serial map, serial inventory list, etc.
 
 ## Puzzles to implement
 

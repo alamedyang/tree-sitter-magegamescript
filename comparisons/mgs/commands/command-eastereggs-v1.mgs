@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-eastereggs {
+register_eastereggs {
 	register plover -> command-plover;
 	register xyzzy -> command-xyzzy;
 	register plugh -> command-plugh;

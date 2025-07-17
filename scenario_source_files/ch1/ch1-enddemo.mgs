@@ -254,7 +254,7 @@ include "header.mgs";
 	camera fade out -> #000000 over 1200ms;
 	warp_state = "exit_from-credits";
 	hex_control = on;
-	if ("credits-from-menu") {
+	if ("credits_from_menu") {
 		load map "main_menu";
 	}
 	load map "main";
@@ -270,7 +270,7 @@ include "header.mgs";
 }
 
 "roll-credits" {
-	"credits-from-menu" = false;
+	"credits_from_menu" = false;
 	load map "credits";
 }
 

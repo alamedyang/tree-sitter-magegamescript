@@ -2,7 +2,7 @@ include "header.mgs";
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look_ch2_town" {
+look_ch2_town {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked around the <c>TOWN</>."
@@ -13,18 +13,18 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"ch2-setup-alfonso-verthandi" {
-	entity "Alfonso" position = geometry "alfonso-verthandi-spot";
-	entity "Alfonso" direction = west;
-	entity "Verthandi" direction = east;
-	entity "Alfonso" on_interact = "interact_ch2_alfonso_verthandi";
-	entity "Verthandi" on_interact = "interact_ch2_alfonso_verthandi";
+ch2_setup_alfonso_verthandi {
+	entity Alfonso position = geometry "alfonso-verthandi-spot";
+	entity Alfonso direction = west;
+	entity Verthandi direction = east;
+	entity Alfonso on_interact = interact_ch2_alfonso_verthandi;
+	entity Verthandi on_interact = interact_ch2_alfonso_verthandi;
 }
 
-"on_load-ch2-town" {
+on_load_ch2_town {
 	// cutscene interrupt:
 	if (warp_state == "cutscene-escort") {
-		goto "ch2-escort-cutscene";
+		goto ch2_escort_cutscene;
 	}
 
 	// entrance text
@@ -32,57 +32,57 @@ include "header.mgs";
 	show serial_dialog { "Entering <bold>TOWN</>..." };
 	// sending entities to their places
 	// elders
-	entity "Bert" on_tick = yeet; // always hiding
-	if ("ch2_storyflag_round" < 5) {
-		entity "Jackob" on_tick = yeet; // always hiding before end
-		if ("ch2_storyflag_round" == 2) {
-			copy!("ch2-setup-alfonso-verthandi")
+	entity Bert on_tick = yeet; // always hiding
+	if (ch2_storyflag_round < 5) {
+		entity Jackob on_tick = yeet; // always hiding before end
+		if (ch2_storyflag_round == 2) {
+			copy!(ch2_setup_alfonso_verthandi)
 		} else {
-			entity "Alfonso" on_tick = yeet;
+			entity Alfonso on_tick = yeet;
 		}
 	}
 	// shepherd
 	if (
-		"ch2_storyflag_round" == 1
-		|| "ch2_storyflag_round" == 2
+		ch2_storyflag_round == 1
+		|| ch2_storyflag_round == 2
 	) {
-		entity "Shepherd" position = geometry "shepherd2";
-		entity "Shepherd" direction = east;
-		entity "Shepherd" on_tick = null_script;
+		entity Shepherd position = geometry shepherd2;
+		entity Shepherd direction = east;
+		entity Shepherd on_tick = null_script;
 	} else if (
-		"ch2_storyflag_round" == 3
-		|| "ch2_storyflag_round" == 4
+		ch2_storyflag_round == 3
+		|| ch2_storyflag_round == 4
 	) {
-		entity "Shepherd" position = geometry "shepherd1";
+		entity Shepherd position = geometry shepherd1;
 	}
 	// verthandi
-	if ("ch2_storyflag_round" == 0) {
-		entity "Verthandi" position = geometry "verthandi1";
-		entity "Verthandi" direction = west;
+	if (ch2_storyflag_round == 0) {
+		entity Verthandi position = geometry verthandi1;
+		entity Verthandi direction = west;
 	} else if (
-		"ch2_storyflag_round" == 3
-		|| "ch2_storyflag_round" == 4
+		ch2_storyflag_round == 3
+		|| ch2_storyflag_round == 4
 	) {
-		entity "Verthandi" position = geometry "verthandi2";
-		entity "Verthandi" direction = north;
+		entity Verthandi position = geometry verthandi2;
+		entity Verthandi direction = north;
 	}
 	// marta
 	if (
-		"ch2_storyflag_round" == 1
-		|| "ch2_storyflag_round" == 2
+		ch2_storyflag_round == 1
+		|| ch2_storyflag_round == 2
 	) {
-		entity "Marta" position = geometry "marta1";
-		entity "Marta" direction = west;
+		entity Marta position = geometry marta1;
+		entity Marta direction = west;
 	} else if (
-		"ch2_storyflag_round" == 3
-		|| "ch2_storyflag_round" == 4
+		ch2_storyflag_round == 3
+		|| ch2_storyflag_round == 4
 	) {
-		entity "Marta" position = geometry "marta2";
-		entity "Marta" direction = south;
+		entity Marta position = geometry marta2;
+		entity Marta direction = south;
 	}
 	// delmar
-	if ("ch2-delmar-in-house") {
-		entity "Delmar" on_tick = yeet;
+	if (ch2_delmar_in_house) {
+		entity Delmar on_tick = yeet;
 	}
 
 	// walking out of doorways:
@@ -94,11 +94,11 @@ include "header.mgs";
 		camera fade in -> #000000 over 800ms;
 	} else if (warp_state == "walk_from-east") {
 		player path = "walk_from-east"
-		player on_tick = "on_tick-ch2-town-walkfadein";
+		player on_tick = on_tick_ch2_town_walkfadein;
 		camera fade in -> #000000 over 400ms;
 	} else if (warp_state == "walk_from-west") {
 		player path = "walk_from-west";
-		player on_tick = "on_tick-ch2-town-walkfadein";
+		player on_tick = on_tick_ch2_town_walkfadein;
 		camera fade in -> #000000 over 400ms;
 	} else if (warp_state == "walk_from-bobsclub") {
 		player position -> geometry "walk_from-bobsclub" length over 200ms;
@@ -121,8 +121,8 @@ include "header.mgs";
 	}
 	copy!(ch2_map_init)
 	if (debug_mode) {
-		command "cutbug" = "cutbug";
-		command "cutbug" + "auto" = "cutbug-auto";
+		command cutbug = cutbug;
+		command cutbug + auto = cutbug_auto;
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> town</>"
@@ -130,14 +130,14 @@ include "header.mgs";
 			"<y>></> <c>CUTBUG AUTO</>: run cutbugs 0-1030"
 		};
 	}
-	copy!("ch2-player-spawn-click-protection")
+	copy!(ch2_player_spawn_click_protection)
 }
 
 /* ---------- ON_TICK ---------- */
 
 // map loading scripts
 
-"on_tick-ch2-town" {
+on_tick_ch2_town {
 	if (player intersects geometry "door-bakery") {
 		warp_state = "ch2-town";
 		load map "ch2-bakery";
@@ -168,30 +168,30 @@ include "header.mgs";
 	}
 	if (player intersects geometry "door-woprhouse") {
 		warp_state = "ch2-town";
-		load map "woprhouse"; // both chapters use the same map
+		load map woprhouse; // both chapters use the same map
 	}
 	if (player intersects geometry "east-hitbox") {
 		player path = "east-point";
 		warp_state = "walk_from-west";
-		player on_tick = "on_tick-ch2-town-walkfadeout";
+		player on_tick = on_tick_ch2_town_walkfadeout;
 		camera fade out -> #000000 over 500ms;
 		load map "ch2-town";
 	}
 	if (player intersects geometry "west-hitbox") {
 		player path = "west-point";
 		warp_state = "walk_from-east";
-		player on_tick = "on_tick-ch2-town-walkfadeout";
+		player on_tick = on_tick_ch2_town_walkfadeout;
 		camera fade out -> #000000 over 500ms;
 		load map "ch2-castle-outside";
 	}
 }
 
-"on_tick-ch2-town-walkfadeout" {
+on_tick_ch2_town_walkfadeout {
 	player_control = off;
 	player position -> geometry "%ENTITY_PATH%" origin over 3500ms;
 	goto null_script;
 }
-"on_tick-ch2-town-walkfadein" {
+on_tick_ch2_town_walkfadein {
 	player position -> geometry "%ENTITY_PATH%" length over 500ms;
 	player_control = on;
 	goto null_script;
@@ -199,86 +199,86 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_exit-ch2-town" {
+on_exit_ch2_town {
 	// universal behavior
 }
 
-"on_go-ch2-town-west" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_west {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-castle-outside";
 }
-"on_go-ch2-town-home" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_home {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-magehouse";
 }
-"on_go-ch2-town-bakery" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_bakery {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-bakery";
 }
-"on_go-ch2-town-library" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_library {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-lodge";
 }
-"on_go-ch2-town-greenhouse" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_greenhouse {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-greenhouse";
 }
-"on_go-ch2-town-wopr" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_wopr {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
-	load map "woprhouse"; // both chapters use the same map
+	load map woprhouse; // both chapters use the same map
 }
-"on_go-ch2-town-beatrice" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_beatrice {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-oldcouplehouse";
 }
-"on_go-ch2-town-smith" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_smith {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-smithfamily";
 }
-"on_go-ch2-town-bobsclub" {
-	copy!("on_exit-ch2-town")
+on_go_ch2_town_bobsclub {
+	copy!(on_exit_ch2_town)
 	copy!(warping_out_fade_out)
 	load map "ch2-bobsclub";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"look_ch2_townsign" {
+look_ch2_townsign {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA worn wooden sign featuring the words \"to King Gibson's palace\" -- but \"palace\" is crossed out, and \"castle\" is scrawled above it."
 	};
 }
-"look_ch2_lakesign" {
+look_ch2_lakesign {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tA worn wooden sign that says \"LINQ PARKING.\""
 	};
 }
-"interact_ch2_townsign" {
+interact_ch2_townsign {
 	show dialog {
 		PLAYER "\"To King Gibson's castle.\" Oh, but it looks like it used to say \"To King Gibson's palace.\" I wonder why they changed it."
 	};
 }
-"interact_ch2_lakesign" {
+interact_ch2_lakesign {
 	show dialog {
 		name "" "LINQ PARKING"
 	};
 }
-"interact_ch2_rake" {
-	entity "Marta" on_tick = "make-rake-float";
+interact_ch2_rake {
+	entity Marta on_tick = make_rake_float;
 }
-"interact_ch2_yabbomongo" {
+interact_ch2_yabbomongo {
 	copy!(face_player)
 	show dialog {
 		SELF "Oi, I'm bummed out! The circle of infinity is broken!"
@@ -286,9 +286,9 @@ include "header.mgs";
 	};
 }
 
-"interact_ch2_marta" {
+interact_ch2_marta {
 	copy!(face_player)
-	if ("ch2_storyflag_round" == 0) {
+	if (ch2_storyflag_round == 0) {
 		show dialog {
 			SELF "Oh! You're heading out west, to the castle in the mountain?"
 			PLAYER "Yeah, the serial castle."
@@ -299,7 +299,7 @@ include "header.mgs";
 			PLAYER "It's okay, I'll face a spooky old castle to protect the town, even if it is a little creepy."
 			SELF "You'll do great. Good luck."
 		};
-	} else if ("ch2_storyflag_round" <= 2) {
+	} else if (ch2_storyflag_round <= 2) {
 		show dialog {
 			SELF "How's it going over there? Learning anything about computers?"
 			PLAYER "I guess so. I'm starting to build one, anyway."
@@ -307,7 +307,7 @@ include "header.mgs";
 			SELF "That's okay. I'm glad you found a mentor to help you learn and do these things. It's a great jump start to learning a new skill."
 			PLAYER "I suppose so."
 		};
-	} else if ("ch2_storyflag_round" <= 4) {
+	} else if (ch2_storyflag_round <= 4) {
 		show dialog {
 			PLAYER "Hey, %SELF%, I'm looking for Bert. Have you seen him?"
 			SELF "Here and there, but not for a while. Do you need him for something?"
@@ -323,12 +323,12 @@ include "header.mgs";
 			"In all seriousness, way to go, %PLAYER%!"
 		};
 	}
-	self on_interact = "interact_ch2_marta";
+	self on_interact = interact_ch2_marta;
 }
 
-"interact_ch2_shepherd" {
+interact_ch2_shepherd {
 	copy!(face_player)
-	if ("ch2_storyflag_round" == 0) {
+	if (ch2_storyflag_round == 0) {
 		show dialog {
 			SELF "So, um, I don't really know what's so special about cereal."
 			"Like, is the artifact a prize from inside a cereal box?"
@@ -337,12 +337,12 @@ include "header.mgs";
 			PLAYER "No, it's \"serial,\" like... well, I don't know what it's like, but it's not breakfast."
 			SELF "Huh, well, I don't really get it, but good luck in the castle."
 		};
-	} else if ("ch2_storyflag_round" <= 2) {
+	} else if (ch2_storyflag_round <= 2) {
 		show dialog {
 			SELF "You know, it's the weirdest thing, but I could've sworn there were only four sheep before."
 		};
 		self direction = east;
-	} else if ("ch2_storyflag_round" <= 4) {
+	} else if (ch2_storyflag_round <= 4) {
 		show dialog {
 			PLAYER "Hey, have you seen Bert recently?"
 			SELF "I saw him coming in and out of the library a few times."
@@ -358,27 +358,27 @@ include "header.mgs";
 			SELF "Hey, I heard you built a computer or something. That's so cool! Way to go!"
 		};
 	}
-	self on_interact = "interact_ch2_shepherd";
+	self on_interact = interact_ch2_shepherd;
 }
 
-"interact_ch2_delmar_town" {
+interact_ch2_delmar_town {
 	copy!(face_player)
 	show dialog { SELF alignment TL "...." };
 	self direction += 2;
 }
-"interact_ch2_verthandi" {
+interact_ch2_verthandi {
 	copy!(interrupt_walk)
-	if ("ch2_storyflag_round" == 0) {
+	if (ch2_storyflag_round == 0) {
 		show dialog {
 			SELF "Oh! You're doing the castle today, aren't you?"
 			"I believe in you, %PLAYER%!"
 		};
-	} else if ("ch2_storyflag_round" <= 2) {
+	} else if (ch2_storyflag_round <= 2) {
 		show dialog {
 			SELF "Hello, %PLAYER%. I hope you're making friends and learning all sorts of wonderful things."
 			PLAYER "Thank you. I'm doing my best."
 		};
-	} else if ("ch2_storyflag_round" <= 4) {
+	} else if (ch2_storyflag_round <= 4) {
 		show dialog {
 			PLAYER "Excuse me, Miss %Verthandi%, but have you seen Bert recently?"
 			SELF "No, I haven't, I'm afraid. Though... oh."
@@ -402,30 +402,30 @@ include "header.mgs";
 			SELF "Oh, how wonderful, %PLAYER%! I knew you could do it! Well done!"
 		};
 	}
-	copy!("resume_walk")
+	copy!(resume_walk)
 }
 
-"interact_ch2_alfonso_verthandi" {
-	entity "Alfonso" direction = player;
-	entity "Verthandi" direction = player;
+interact_ch2_alfonso_verthandi {
+	entity Alfonso direction = player;
+	entity Verthandi direction = player;
 	show dialog {
 		Alfonso "You know, miss Verthandi here is very knowledgeable about the nature of reality and our relationship to our digital environment."
 	};
-	entity "Verthandi" direction = entity "Alfonso";
+	entity Verthandi direction = entity Alfonso;
 	show dialog {
 		Verthandi "Oh, you're too kind! I am only a hobbyist when it comes to such topics. There is always more to learn."
 	};
-	entity "Verthandi" direction = player;
+	entity Verthandi direction = player;
 	show dialog {
 		Alfonso "In any case, we are brainstorming things we might do to help you on your quest."
 		Verthandi "We will at least wish you luck!"
 	};
-	entity "Alfonso" direction = entity "Verthandi";
-	entity "Verthandi" direction = entity "Alfonso";
+	entity Alfonso direction = entity Verthandi;
+	entity Verthandi direction = entity Alfonso;
 }
 
-"interact_ch2_jackob_end" {
-	if ("ch2_storyflag_round" < 5) {
+interact_ch2_jackob_end {
+	if (ch2_storyflag_round < 5) {
 		goto null_script;
 	}
 	copy!(face_player)
@@ -451,8 +451,8 @@ include "header.mgs";
 	};
 }
 
-"interact_ch2_alfonso_end" {
-	if ("ch2_storyflag_round" < 5) {
+interact_ch2_alfonso_end {
+	if (ch2_storyflag_round < 5) {
 		goto null_script;
 	}
 	copy!(face_player)
@@ -463,10 +463,10 @@ include "header.mgs";
 	};
 }
 
-"interact_ch2_cleo" {
-	entity "Cleo" direction = player;
-	entity "Cat" direction = player;
-	show dialog "ch2-catpuddle" { // reused
+interact_ch2_cleo {
+	entity Cleo direction = player;
+	entity Cat direction = player;
+	show dialog ch2_catpuddle { // reused
 		Cleo "Hey there, %PLAYER%."
 		"Sorry, can't chat now. The cat had a really bad day."
 		Cat "Meow."
@@ -475,32 +475,32 @@ include "header.mgs";
 		PLAYER "Aw, I'm so sorry. That's rough."
 		Cat "Meow!"
 	};
-	entity "Cleo" direction = entity "Cat";
-	entity "Cat" direction = entity "Cleo";
+	entity Cleo direction = entity Cat;
+	entity Cat direction = entity Cleo;
 }
 
-"interact_ch2_cat" {
+interact_ch2_cat {
 	copy!(face_player)
-	show dialog "ch2-catpuddle";
-	self direction = entity "Cleo";
+	show dialog ch2_catpuddle;
+	self direction = entity Cleo;
 }
 
-"interact_ch2_hamster" {
+interact_ch2_hamster {
 	copy!(face_player)
-	if ("ch2-hamstertalk" == 0) {
+	if (ch2_hamstertalk== 0) {
 		show dialog {
 			SELF "Ohhh... the wheel is still spinning, but the hamster is dead."
 		};
-		"ch2-hamstertalk" = 1;
-	} else if ("ch2-hamstertalk" == 1) {
+		ch2_hamstertalk = 1;
+	} else if (ch2_hamstertalk == 1) {
 		show dialog {
 			SELF "I demand more asbestos!"
 		};
-		"ch2-hamstertalk" = 2;
-	} else if ("ch2-hamstertalk" == 2) {
+		ch2_hamstertalk = 2;
+	} else if (ch2_hamstertalk == 2) {
 		show dialog {
 			SELF "Fungible."
 		};
-		"ch2-hamstertalk" = 0;
+		ch2_hamstertalk = 0;
 	}
 }

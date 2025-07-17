@@ -1,3 +1,5 @@
+// CAUTION -- This file is (was) auto-generated
+
 serial_dialog "newline" {"\n"}
 serial_dialog "space" {" "}
 serial_dialog "dot" {"."}
@@ -42,7 +44,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-mainframeos") {
+	if ("ch2_map_mainframeos") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_99) {
@@ -87,7 +89,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-clock") {
+	if ("ch2_map_clock") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_14) {
@@ -183,7 +185,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-map-mouse") {
+	if ("ch2_map_mouse") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_33) {
@@ -215,7 +217,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-plate") {
+	if ("ch2_map_plate") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_34) {
@@ -259,7 +261,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"  "};
 	}
-	if ("ch2-map-goldfish") {
+	if ("ch2_map_goldfish") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_13) {
@@ -309,7 +311,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {"   "};
 	}
-	if ("ch2-map-heatsink") {
+	if ("ch2_map_heatsink") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_23) {
@@ -381,8 +383,8 @@ serial_dialog "item" {"<g>?</>"}
 		concat serial_dialog {"     "};
 	}
 	concat serial_dialog {"   |"};
-	if ("ch2-map-manual") {
-		if ("ch2-map-seamoss") {
+	if ("ch2_map_manual") {
+		if ("ch2_map_seamoss") {
 			concat serial_dialog {"   <g>?</> Look for <m>Frankie's</>"};
 		}
 	}
@@ -404,7 +406,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-powersupply") {
+	if ("ch2_map_powersupply") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_22) {
@@ -433,7 +435,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-needle") {
+	if ("ch2_map_needle") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_12) {
@@ -466,7 +468,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-map-keyboard") {
+	if ("ch2_map_keyboard") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_31) {
@@ -481,8 +483,8 @@ serial_dialog "item" {"<g>?</>"}
 		concat serial_dialog {"   "};
 	}
 	concat serial_dialog {"   |"};
-	if ("ch2-map-manual") {
-		if ("ch2-map-seamoss") {
+	if ("ch2_map_manual") {
+		if ("ch2_map_seamoss") {
 			concat serial_dialog {"   <m>calculator manual</>"};
 		}
 	}
@@ -521,8 +523,8 @@ serial_dialog "item" {"<g>?</>"}
 		concat serial_dialog {"         "};
 	}
 	concat serial_dialog {"   |"};
-	if ("ch2-map-manual") {
-		if ("ch2-map-seamoss") {
+	if ("ch2_map_manual") {
+		if ("ch2_map_seamoss") {
 			concat serial_dialog {"   in the library in town."};
 		}
 	}
@@ -549,7 +551,7 @@ serial_dialog "item" {"<g>?</>"}
 	} else {
 		concat serial_dialog {" "};
 	}
-	if ("ch2-map-abacus" || "ch2-map-ramchips" || "ch2-map-solder") {
+	if ("ch2_map_abacus" || "ch2_map_ramchips" || "ch2_map_solder") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_21) {
@@ -582,7 +584,7 @@ serial_dialog "item" {"<g>?</>"}
 			concat serial_dialog "space";
 		}
 	}
-	if ("ch2-map-monitor") {
+	if ("ch2_map_monitor") {
 		concat serial_dialog "item";
 	} else {
 		if (ch2_seen_room_11) {
@@ -607,13 +609,13 @@ serial_dialog "item" {"<g>?</>"}
 		concat serial_dialog {"       "};
 	}
 	concat serial_dialog {"----+----          |"};
-	if ("ch2-map-cactuscooler-castle") {
+	if ("ch2_map_cactuscooler_castle") {
 		concat serial_dialog {"   <g>?</> Look for <m>Cactus Cooler</>"};
-	} else if ("ch2-map-cactuscooler-bobaustin") {
+	} else if ("ch2_map_cactuscooler_bobaustin") {
 		concat serial_dialog {"   <g>?</> Ask <m>Stone Cold Bob Austin</>"};
-	} else if ("ch2-map-seamoss") {
+	} else if ("ch2_map_seamoss") {
 		concat serial_dialog {"   <g>?</> Look for <m>Sea Moss</>"};
-	} else if ("ch2-map-manual") {
+	} else if ("ch2_map_manual") {
 		concat serial_dialog {"   <g>?</> Look for <m>Frankie's</>"};
 	}
 	concat serial_dialog "newline";
@@ -630,26 +632,26 @@ serial_dialog "item" {"<g>?</>"}
 		}
 	}
 	concat serial_dialog {"...|          |"};
-	if ("ch2-map-cactuscooler-castle") {
+	if ("ch2_map_cactuscooler_castle") {
 		concat serial_dialog {"   somewhere they keep"};
-	} else if ("ch2-map-cactuscooler-bobaustin") {
+	} else if ("ch2_map_cactuscooler_bobaustin") {
 		concat serial_dialog {"   about Cactus Cooler; he brings"};
-	} else if ("ch2-map-seamoss") {
+	} else if ("ch2_map_seamoss") {
 		concat serial_dialog {"   somewhere in the east wing"};
-	} else if ("ch2-map-manual") {
+	} else if ("ch2_map_manual") {
 		concat serial_dialog {"   <m>calculator manual</>"};
 	}
 	concat serial_dialog "newline";
 
 	// ROW 15
 	concat serial_dialog {"|          ----+----          |"};
-	if ("ch2-map-cactuscooler-castle") {
+	if ("ch2_map_cactuscooler_castle") {
 		concat serial_dialog {"   refreshments or drinks."};
-	} else if ("ch2-map-cactuscooler-bobaustin") {
+	} else if ("ch2_map_cactuscooler_bobaustin") {
 		concat serial_dialog {"   loads to all his parties."};
-	} else if ("ch2-map-seamoss") {
+	} else if ("ch2_map_seamoss") {
 		concat serial_dialog {"   of the castle."};
-	} else if ("ch2-map-manual") {
+	} else if ("ch2_map_manual") {
 		concat serial_dialog {"   in the library in town."};
 	}
 	concat serial_dialog "newline";

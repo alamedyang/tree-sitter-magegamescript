@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-map {
+register_map {
 	register man + map -> man-map;
 	register map -> command-map;
 }

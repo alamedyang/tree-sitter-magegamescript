@@ -37,7 +37,7 @@ on_load-map-main {
 	} 
 	if (flag storyflag-rake is true) {
 		copy rake-in-lake;
-		set entity Goose on_interact to honk-to-make-rake-float;
+		set entity Goose on_interact to honk-to-make_rake_float;
 	}
 	if (flag billy-unglitched is true) {
 		make entity Billy unglitched;

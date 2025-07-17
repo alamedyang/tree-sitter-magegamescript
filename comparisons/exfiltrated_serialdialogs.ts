@@ -1130,7 +1130,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Should I go back and fetch him?',
-				script: 'ch2-bert-secret-lambda-intro2',
+				script: 'ch2_bert_secret_lambda_intro2',
 			},
 		],
 		name: 'ch2-castle-1-bert.mgs:98:2',
@@ -5236,9 +5236,9 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: [' ', '------------', ' '],
 		name: 'spacer',
 	},
-	'lambda-over': {
+	lambda_over: {
 		messages: ['\u001b[1mlambda-talk\u001b[0m: connection closed successfully'],
-		name: 'lambda-over',
+		name: 'lambda_over',
 	},
 	'ch2-common.mgs:133:4': {
 		messages: [
@@ -5733,90 +5733,90 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		messages: ["Entering \u001b[1mBEATRICE'S HOUSE\u001b[0m..."],
 		name: 'ch2-oldcouplehouse.mgs:33:2',
 	},
-	'ch2-describe-monitor': {
+	ch2_describe_monitor: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: You'll need a computer \u001b[35mMONITOR\u001b[0m if you want to see\nanything the computer is doing. I'm pretty sure there's a\n\u001b[35mmonitor in the next room of the castle\u001b[0m that no one is using.\nBe sure to take its video cable and power cable, too.",
 		],
-		name: 'ch2-describe-monitor',
+		name: 'ch2_describe_monitor',
 	},
-	'ch2-describe-heatsink': {
+	ch2_describe_heatsink: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: The mainframe generates so much heat we'll need a\n\u001b[35mHEAT SINK\u001b[0m -- or any means of drawing heat away from the CPU.\nThe \u001b[35mpower plant guys\u001b[0m can probably help you out on that\nfront.",
 		],
-		name: 'ch2-describe-heatsink',
+		name: 'ch2_describe_heatsink',
 	},
-	'ch2-describe-powersupply': {
+	ch2_describe_powersupply: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: The mainframe will need a \u001b[35mPOWER SUPPLY\u001b[0m to turn AC\npower from the wall into DC power. We'll need the kind that\ngoes on the inside of a computer enclosure. According to the\ncastle's inventory sheets, the \u001b[35mserver room\u001b[0m has a bunch\nextra. I'm sure they'd let you take one.",
 		],
-		name: 'ch2-describe-powersupply',
+		name: 'ch2_describe_powersupply',
 	},
-	'ch2-describe-keyboard': {
+	ch2_describe_keyboard: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: You're definitely going to need a \u001b[35mKEYBOARD\u001b[0m.\nFortunately the \u001b[35mband in the Great Hall\u001b[0m has one they're not\nexactly using. Okay, it's not QWERTY or DVORAK so much as it\nis a twelve-tone scale, but I think it'll work as an input\ndevice. Better than nothing, anyway.",
 		],
-		name: 'ch2-describe-keyboard',
+		name: 'ch2_describe_keyboard',
 	},
-	'ch2-describe-mouse': {
+	ch2_describe_mouse: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: To be honest, you don't need a \u001b[35mMOUSE\u001b[0m to use a\ncomputer, but a lot of people prefer not to use the keyboard\nalone. I think it might be nice for you to have if you're\nnot used to a terminal.",
 			"    Mice might be hard to come by, though, so if I were you,\nI'd \u001b[35mask a cat to fetch one\u001b[0m for you.",
 		],
-		name: 'ch2-describe-mouse',
+		name: 'ch2_describe_mouse',
 	},
-	'ch2-describe-harddrive': {
+	ch2_describe_harddrive: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: As I said before, to make a \u001b[35mHARD DRIVE\u001b[0m we'll need\ntwo things:",
 			'    First, a \u001b[35mPLATE\u001b[0m. But not just any plate -- we need a\nplate with high iron content in its glaze. \u001b[35mAsk the kitchen\n\u001b[35mstaff\u001b[0m if they have a plate like that.',
 			"    Next, a \u001b[35mNEEDLE\u001b[0m, like a record player needle. There's a\n\u001b[35mphonograph player somewhere in the central wing\u001b[0m of the\ncastle. That might be your best bet.",
 		],
-		name: 'ch2-describe-harddrive',
+		name: 'ch2_describe_harddrive',
 	},
-	'ch2-describe-plate': {
+	ch2_describe_plate: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: To build a \u001b[35mhard drive\u001b[0m, we'll need a \u001b[35mPLATE\u001b[0m. But not\njust any plate -- we need a plate with high iron content in\nits glaze. \u001b[35mAsk the kitchen staff\u001b[0m if they have a plate like\nthat.",
 		],
-		name: 'ch2-describe-plate',
+		name: 'ch2_describe_plate',
 	},
-	'ch2-describe-needle': {
+	ch2_describe_needle: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: To build a \u001b[35mhard drive\u001b[0m, we'll need a \u001b[35mNEEDLE\u001b[0m, like a\nrecord player needle. There's a \u001b[35mphonograph player somewhere\n\u001b[35min the central wing\u001b[0m of the castle. That might be your best\nbet.",
 		],
-		name: 'ch2-describe-needle',
+		name: 'ch2_describe_needle',
 	},
-	'ch2-describe-clock': {
+	ch2_describe_clock: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: We'll need a \u001b[35mCLOCK\u001b[0m to keep all the computer parts\ncoordinated. Normally CPU clocks are very tiny quartz\ncrystals, which are shaped to oscillate at a specific\nrate....",
 			'    In our case... well, I know \u001b[35mKing Gibson has a nice\n\u001b[35mgrandfather clock in his bedroom\u001b[0m. Maybe ask him if you can\nuse it.',
 		],
-		name: 'ch2-describe-clock',
+		name: 'ch2_describe_clock',
 	},
-	'ch2-describe-cpu': {
+	ch2_describe_cpu: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: The \u001b[35mCPU\u001b[0m is like the brain of the computer. There\naren't any spare lying around, but we can approximate one.",
 			"    We'll need something to act as the \u001b[1mregister file\u001b[0m -- that\nis, the place the CPU keeps the very small set values that a\nprogram modifies with each instruction. An \u001b[35mABACUS\u001b[0m should\nwork well for this. Looks like \u001b[35mFrankie in the \u001b[35mworkshop\u001b[0m has\none.",
 			"    For the rest, we'll need a volunteer who is very small\nand will make decisions very consistently. The best\ncandidate is \u001b[35mAurelius\u001b[0m, the \u001b[35mGOLDFISH\u001b[0m in the \u001b[35mthrone room\u001b[0m. Just\nmake sure he understands what he's getting into.",
 			'    Once you have both, \u001b[35msolder them together\u001b[0m in the\nworkshop.',
 		],
-		name: 'ch2-describe-cpu',
+		name: 'ch2_describe_cpu',
 	},
-	'ch2-describe-goldfish': {
+	ch2_describe_goldfish: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: To make a CPU, we'll need a volunteer to act as the\ninterpretor and executor of program data. We'll need someone\nwe can trust will make decisions very consistently, as well\nas someone very small. The only one around here that fits\nthe bill is the \u001b[35mKing's regent, Aurelius\u001b[0m. He's the \u001b[35mGOLDFISH\u001b[0m\nin the \u001b[35mthrone room\u001b[0m.",
 		],
-		name: 'ch2-describe-goldfish',
+		name: 'ch2_describe_goldfish',
 	},
-	'ch2-describe-abacus': {
+	ch2_describe_abacus: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: To make a CPU, we'll need something to act as the\n\u001b[1mregister file\u001b[0m -- that is, the place the CPU keeps the very\nsmall set of values that a program modifies with each\ninstruction. An \u001b[35mABACUS\u001b[0m should work well for this. Looks like\n\u001b[35mFrankie in the \u001b[35mworkshop\u001b[0m has one.",
 		],
-		name: 'ch2-describe-abacus',
+		name: 'ch2_describe_abacus',
 	},
-	'ch2-describe-ramchips': {
+	ch2_describe_ramchips: {
 		messages: [
 			"\u001b[35mLAMBDA\u001b[0m: For \u001b[35mRAM\u001b[0m... I'll admit I'm at a complete loss. I'm\nfinding nothing in the inventory sheets that might work. But\n\u001b[35mask the hardware guys in the \u001b[35mworkshop\u001b[0m. Those guys know their\nstuff, and I trust them to come up with something.",
 		],
-		name: 'ch2-describe-ramchips',
+		name: 'ch2_describe_ramchips',
 	},
 	'ch2-parts-list.mgs:67:2': {
 		messages: ['\u001b[36mYOU\u001b[0m: Really? Around here? Parts like what?', ' '],
@@ -5827,7 +5827,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'What else?',
-				script: 'ch2-toot-step5b',
+				script: 'ch2_toot_step5b',
 			},
 		],
 		name: 'ch2-parts-list.mgs:72:2',
@@ -5841,7 +5841,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Then what?',
-				script: 'ch2-toot-step5c',
+				script: 'ch2_toot_step5c',
 			},
 		],
 		name: 'ch2-parts-list.mgs:84:2',
@@ -5855,7 +5855,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Anything else?',
-				script: 'ch2-toot-step5e',
+				script: 'ch2_toot_step5e',
 			},
 		],
 		name: 'ch2-parts-list.mgs:96:2',
@@ -5877,11 +5877,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Let's do it!",
-				script: 'ch2-toot-step99-end',
+				script: 'ch2_toot_step99_end',
 			},
 			{
 				label: 'Actually, I had a different question.',
-				script: 'ch2-toot-step99-continue',
+				script: 'ch2_toot_step99_continue',
 			},
 		],
 		name: 'ch2-parts-list.mgs:125:2',
@@ -5917,7 +5917,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Abstract?',
-				script: 'ch2-lambda-round-2-parts2',
+				script: 'ch2_lambda_round_2_parts2',
 			},
 		],
 		name: 'ch2-parts-list.mgs:165:2',
@@ -5933,7 +5933,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: '...What?',
-				script: 'ch2-lambda-round-2-parts3',
+				script: 'ch2_lambda_round_2_parts3',
 			},
 		],
 		name: 'ch2-parts-list.mgs:175:2',
@@ -5953,7 +5953,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Is this really going to work?',
-				script: 'ch2-lambda-round-2-parts4',
+				script: 'ch2_lambda_round_2_parts4',
 			},
 		],
 		name: 'ch2-parts-list.mgs:187:2',
@@ -5968,7 +5968,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Okay, so what's the new parts list?",
-				script: 'ch2-lambda-round-2-parts5a',
+				script: 'ch2_lambda_round_2_parts5a',
 			},
 		],
 		name: 'ch2-parts-list.mgs:203:2',
@@ -5982,7 +5982,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Then what?',
-				script: 'ch2-lambda-round-2-parts5b',
+				script: 'ch2_lambda_round_2_parts5b',
 			},
 		],
 		name: 'ch2-parts-list.mgs:219:2',
@@ -5996,7 +5996,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Okay, and then?',
-				script: 'ch2-lambda-round-2-parts5c',
+				script: 'ch2_lambda_round_2_parts5c',
 			},
 		],
 		name: 'ch2-parts-list.mgs:233:2',
@@ -6016,7 +6016,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Anything else?',
-				script: 'ch2-lambda-round-2-parts5d',
+				script: 'ch2_lambda_round_2_parts5d',
 			},
 		],
 		name: 'ch2-parts-list.mgs:249:2',
@@ -6039,11 +6039,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Does that mean we're almost done?",
-				script: 'ch2-bert-message-lambda-intro1a',
+				script: 'ch2_bert_message_lambda_intro1a',
 			},
 			{
 				label: 'Wait! What about Bert?',
-				script: 'ch2-bert-message-lambda-intro1b',
+				script: 'ch2_bert_message_lambda_intro1b',
 			},
 		],
 		name: 'ch2-parts-list.mgs:276:2',
@@ -6062,7 +6062,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Okay....',
-				script: 'ch2-bert-message-lambda-intro2',
+				script: 'ch2_bert_message_lambda_intro2',
 			},
 		],
 		name: 'ch2-parts-list.mgs:293:2',
@@ -6083,7 +6083,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'In what way?',
-				script: 'ch2-lambda-round-3-parts2',
+				script: 'ch2_lambda_round_3_parts2',
 			},
 		],
 		name: 'ch2-parts-list.mgs:311:2',
@@ -6100,7 +6100,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Volunteer?',
-				script: 'ch2-lambda-round-3-parts2b',
+				script: 'ch2_lambda_round_3_parts2b',
 			},
 		],
 		name: 'ch2-parts-list.mgs:321:2',
@@ -6116,7 +6116,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Will he be okay in the meantime?',
-				script: 'ch2-lambda-round-3-parts2c',
+				script: 'ch2_lambda_round_3_parts2c',
 			},
 		],
 		name: 'ch2-parts-list.mgs:333:2',
@@ -6132,7 +6132,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "He's a goldfish. Won't soldering him cook him?",
-				script: 'ch2-lambda-round-3-parts2d',
+				script: 'ch2_lambda_round_3_parts2d',
 			},
 		],
 		name: 'ch2-parts-list.mgs:344:2',
@@ -6147,7 +6147,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'All right. What else?',
-				script: 'ch2-lambda-round-3-parts3',
+				script: 'ch2_lambda_round_3_parts3',
 			},
 		],
 		name: 'ch2-parts-list.mgs:355:2',
@@ -6161,7 +6161,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Anything else?',
-				script: 'ch2-lambda-round-3-parts4',
+				script: 'ch2_lambda_round_3_parts4',
 			},
 		],
 		name: 'ch2-parts-list.mgs:370:2',
@@ -6175,7 +6175,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'And then?',
-				script: 'ch2-lambda-round-3-parts5',
+				script: 'ch2_lambda_round_3_parts5',
 			},
 		],
 		name: 'ch2-parts-list.mgs:383:2',
@@ -6199,7 +6199,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Pick it up? Can't you drop it off?",
-				script: 'ch2-lambda-round-4b',
+				script: 'ch2_lambda_round_4b',
 			},
 		],
 		name: 'ch2-parts-list.mgs:407:2',
@@ -6215,7 +6215,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'No entrances? How am I supposed to get there?',
-				script: 'ch2-lambda-round-4c',
+				script: 'ch2_lambda_round_4c',
 			},
 		],
 		name: 'ch2-parts-list.mgs:415:2',
@@ -6231,7 +6231,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "But can't you warp out here? Why do I need to come to you?",
-				script: 'ch2-lambda-round-4d',
+				script: 'ch2_lambda_round_4d',
 			},
 		],
 		name: 'ch2-parts-list.mgs:426:2',
@@ -7093,8 +7093,8 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 	'ch2-serial-toot.mgs:18:3': {
 		messages: [
 			"\u001b[31mDEBUG>\u001b[0m: Welp, you've done something strange!",
-			"    Variable 'ch2-toot-level' is $ch2-toot-level$",
-			"    Script: 'ch2-toot-check'",
+			"    Variable 'ch2_toot_level' is $ch2_toot_level$",
+			"    Script: 'ch2_toot_check'",
 		],
 		name: 'ch2-serial-toot.mgs:18:3',
 	},
@@ -7114,11 +7114,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Okay, I'll try.",
-				script: 'ch2-toot-step1-okay',
+				script: 'ch2_toot_step1_okay',
 			},
 			{
 				label: 'Make me.',
-				script: 'ch2-toot-step1-notokay',
+				script: 'ch2_toot_step1_notokay',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:50:2',
@@ -7150,16 +7150,16 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 	'ch2-serial-toot.mgs:93:2': {
 		messages: ['(Type \u001b[36mYES\u001b[0m or \u001b[36mNO\u001b[0m)'],
 		text_options: {
-			SURE: 'ch2-toot-step2-yes-extra',
-			YEAH: 'ch2-toot-step2-yes-extra',
-			YAH: 'ch2-toot-step2-yes-extra',
-			YA: 'ch2-toot-step2-yes-extra',
-			YES: 'ch2-toot-step2-yes',
-			YE: 'ch2-toot-step2-yes-extra',
-			Y: 'ch2-toot-step2-yes-extra',
-			NAH: 'ch2-toot-step2-no-extra',
-			NO: 'ch2-toot-step2-no',
-			N: 'ch2-toot-step2-no-extra',
+			SURE: 'ch2_toot_step2_yes_extra',
+			YEAH: 'ch2_toot_step2_yes_extra',
+			YAH: 'ch2_toot_step2_yes_extra',
+			YA: 'ch2_toot_step2_yes_extra',
+			YES: 'ch2_toot_step2_yes',
+			YE: 'ch2_toot_step2_yes_extra',
+			Y: 'ch2_toot_step2_yes_extra',
+			NAH: 'ch2_toot_step2_no_extra',
+			NO: 'ch2_toot_step2_no',
+			N: 'ch2_toot_step2_no_extra',
 		},
 		name: 'ch2-serial-toot.mgs:93:2',
 	},
@@ -7207,11 +7207,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: '"Magic words?" Neat!',
-				script: 'ch2-toot-step3-magic',
+				script: 'ch2_toot_step3_magic',
 			},
 			{
 				label: '"Magic words?" That\'s a bit ridiculous.',
-				script: 'ch2-toot-step3-nomagic',
+				script: 'ch2_toot_step3_nomagic',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:157:2',
@@ -7252,7 +7252,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Wait, I thought \u001b[36mMAN\u001b[0m was how I talk to \u001b[1myou\u001b[0m.',
-				script: 'ch2-toot-step3-end2',
+				script: 'ch2_toot_step3_end2',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:204:2',
@@ -7273,7 +7273,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'How do we fix the mainframe?',
-				script: 'ch2-toot-step4a',
+				script: 'ch2_toot_step4a',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:224:2',
@@ -7288,11 +7288,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "But I don't know how to build a computer!",
-				script: 'ch2-toot-step4b-noob',
+				script: 'ch2_toot_step4b_noob',
 			},
 			{
 				label: "This'll be a cinch!",
-				script: 'ch2-toot-step4b-pro',
+				script: 'ch2_toot_step4b_pro',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:233:2',
@@ -7307,7 +7307,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Really?',
-				script: 'ch2-toot-step5a',
+				script: 'ch2_toot_step5a',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:245:2',
@@ -7322,7 +7322,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Really?',
-				script: 'ch2-toot-step5a',
+				script: 'ch2_toot_step5a',
 			},
 		],
 		name: 'ch2-serial-toot.mgs:256:2',
@@ -7726,27 +7726,27 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Parts',
-				script: 'ch2-lambda-topic-parts',
+				script: 'ch2_lambda_topic_parts',
 			},
 			{
 				label: 'Using the artifact',
-				script: 'ch2-lambda-topic-artifact',
+				script: 'ch2_lambda_topic_artifact',
 			},
 			{
 				label: 'The mainframe',
-				script: 'ch2-lambda-topic-mainframe',
+				script: 'ch2_lambda_topic_mainframe',
 			},
 			{
 				label: 'The castle',
-				script: 'ch2-lambda-topic-castle',
+				script: 'ch2_lambda_topic_castle',
 			},
 			{
 				label: 'Someone specific',
-				script: 'ch2-lambda-topic-person-start',
+				script: 'ch2_lambda_topic_person_start',
 			},
 			{
 				label: '(Quit)',
-				script: 'ch2-lambda-ishouldgo',
+				script: 'ch2_lambda_ishouldgo',
 			},
 		],
 		name: 'command-man.mgs:119:2',
@@ -7756,23 +7756,23 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Using the artifact',
-				script: 'ch2-lambda-topic-artifact',
+				script: 'ch2_lambda_topic_artifact',
 			},
 			{
 				label: 'The mainframe',
-				script: 'ch2-lambda-topic-mainframe',
+				script: 'ch2_lambda_topic_mainframe',
 			},
 			{
 				label: 'The castle',
-				script: 'ch2-lambda-topic-castle',
+				script: 'ch2_lambda_topic_castle',
 			},
 			{
 				label: 'Someone specific',
-				script: 'ch2-lambda-topic-person-start',
+				script: 'ch2_lambda_topic_person_start',
 			},
 			{
 				label: '(Quit)',
-				script: 'ch2-lambda-ishouldgo',
+				script: 'ch2_lambda_ishouldgo',
 			},
 		],
 		name: 'command-man.mgs:130:2',
@@ -7795,11 +7795,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Parts list',
-				script: 'ch2-lambda-topic-parts-list',
+				script: 'ch2_lambda_topic_parts_list',
 			},
 			{
 				label: 'Installing parts',
-				script: 'ch2-lambda-topic-parts-installation',
+				script: 'ch2_lambda_topic_parts_installation',
 			},
 			{
 				label: '(Go back)',
@@ -7835,7 +7835,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Magic words (Commands)',
-				script: 'ch2-lambda-topic-artifact-words',
+				script: 'ch2_lambda_topic_artifact_words',
 			},
 			{
 				label: '(Go back)',
@@ -7863,15 +7863,15 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Why did you break it?',
-				script: 'ch2-lambda-mainframe-broken',
+				script: 'ch2_lambda_mainframe_broken',
 			},
 			{
 				label: 'How broken is it?',
-				script: 'ch2-lambda-mainframe-broken-1',
+				script: 'ch2_lambda_mainframe_broken_1',
 			},
 			{
 				label: 'How do we fix it?',
-				script: 'ch2-lambda-mainframe-fix-1',
+				script: 'ch2_lambda_mainframe_fix_1',
 			},
 			{
 				label: '(Go back)',
@@ -7900,11 +7900,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Thorough. Nice!',
-				script: 'ch2-lambda-mainframe-broken-2',
+				script: 'ch2_lambda_mainframe_broken_2',
 			},
 			{
 				label: 'Was that necessary?',
-				script: 'ch2-lambda-mainframe-broken-2',
+				script: 'ch2_lambda_mainframe_broken_2',
 			},
 		],
 		name: 'command-man.mgs:256:2',
@@ -7956,11 +7956,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Whose castle is this?',
-				script: 'ch2-lambda-castle-who',
+				script: 'ch2_lambda_castle_who',
 			},
 			{
 				label: 'The earthquake caused damage?',
-				script: 'ch2-lambda-castle-damage',
+				script: 'ch2_lambda_castle_damage',
 			},
 			{
 				label: '(Go back)',
@@ -7999,58 +7999,58 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 	'command-man.mgs:367:2': {
 		messages: ['(Type a name, or type \u001b[36mBACK\u001b[0m to go back)'],
 		text_options: {
-			WIZARD: 'ch2-lambda-person-wizard',
-			RACCOON: 'ch2-lambda-person-raccoon',
-			KURO: 'ch2-lambda-person-kuro',
-			CONCIERGE: 'ch2-lambda-person-concierge',
-			'THE CONCIERGE': 'ch2-lambda-person-concierge',
-			TEMPLETON: 'ch2-lambda-person-templeton',
-			SEBASTIAN: 'ch2-lambda-person-sebastian',
-			'THE GOLDFISH': 'ch2-lambda-person-goldfish',
-			GOLDFISH: 'ch2-lambda-person-goldfish',
-			AURELIUS: 'ch2-lambda-person-aurelius',
-			KING: 'ch2-lambda-person-kinggibson',
-			'THE KING': 'ch2-lambda-person-kinggibson',
-			GIBSON: 'ch2-lambda-person-kinggibson',
-			'KING GIBSON': 'ch2-lambda-person-kinggibson',
-			ALVIN: 'ch2-lambda-person-alvin',
-			SIMON: 'ch2-lambda-person-simon',
-			THEODORE: 'ch2-lambda-person-theodore',
-			'SEA MOSS': 'ch2-lambda-person-seamoss',
-			GLORIA: 'ch2-lambda-person-gloria',
-			SAMSON: 'ch2-lambda-person-samson',
-			GREGORY: 'ch2-lambda-person-gregory',
-			'THE CAT': 'ch2-lambda-person-the-cat',
-			'A CAT': 'ch2-lambda-person-a-cat',
-			CAT: 'ch2-lambda-person-a-cat',
-			CLARA: 'ch2-lambda-person-clara',
-			JEANPAUL: 'ch2-lambda-person-jeanpaul',
-			'JEAN PAUL': 'ch2-lambda-person-jeanpaul',
-			'JEAN-PAUL': 'ch2-lambda-person-jeanpaul',
-			FRANKIE: 'ch2-lambda-person-frankie',
-			SCUZZY: 'ch2-lambda-person-scuzzy',
-			'C K WATT': 'ch2-lambda-person-ckwatt',
-			CKWATT: 'ch2-lambda-person-ckwatt',
-			ROCCO: 'ch2-lambda-person-rocco',
-			TRACY: 'ch2-lambda-person-tracy',
-			HELVETICA: 'ch2-lambda-person-helvetica',
-			BOB: 'ch2-lambda-person-bob',
-			'MARATHON BOB': 'ch2-lambda-person-marathonbob',
-			'GUARDIAN BOB': 'ch2-lambda-person-guardianbob',
-			'SOLID SNEK': 'ch2-lambda-person-solidsnek',
-			ME: 'ch2-lambda-person-player',
-			'BLACK MAGE': 'ch2-lambda-person-player',
-			MAGE: 'ch2-lambda-person-player',
-			YOU: 'ch2-lambda-person-lambda',
-			LAMBDA: 'ch2-lambda-person-lambda',
-			'THE BIG BAD': 'ch2-lambda-person-big-bad',
-			'BIG BAD': 'ch2-lambda-person-big-bad',
-			ALFONSO: 'ch2-lambda-person-alfonso',
-			JACKOB: 'ch2-lambda-person-jackob',
-			BERT: 'ch2-lambda-person-bert',
-			XA: 'ch2-lambda-person-xa',
-			XB: 'ch2-lambda-person-xb',
-			XC: 'ch2-lambda-person-xc',
+			WIZARD: 'ch2_lambda_person_wizard',
+			RACCOON: 'ch2_lambda_person_raccoon',
+			KURO: 'ch2_lambda_person_kuro',
+			CONCIERGE: 'ch2_lambda_person_concierge',
+			'THE CONCIERGE': 'ch2_lambda_person_concierge',
+			TEMPLETON: 'ch2_lambda_person_templeton',
+			SEBASTIAN: 'ch2_lambda_person_sebastian',
+			'THE GOLDFISH': 'ch2_lambda_person_goldfish',
+			GOLDFISH: 'ch2_lambda_person_goldfish',
+			AURELIUS: 'ch2_lambda_person_aurelius',
+			KING: 'ch2_lambda_person_kinggibson',
+			'THE KING': 'ch2_lambda_person_kinggibson',
+			GIBSON: 'ch2_lambda_person_kinggibson',
+			'KING GIBSON': 'ch2_lambda_person_kinggibson',
+			ALVIN: 'ch2_lambda_person_alvin',
+			SIMON: 'ch2_lambda_person_simon',
+			THEODORE: 'ch2_lambda_person_theodore',
+			'SEA MOSS': 'ch2_lambda_person_seamoss',
+			GLORIA: 'ch2_lambda_person_gloria',
+			SAMSON: 'ch2_lambda_person_samson',
+			GREGORY: 'ch2_lambda_person_gregory',
+			'THE CAT': 'ch2_lambda_person_the_cat',
+			'A CAT': 'ch2_lambda_person_a_cat',
+			CAT: 'ch2_lambda_person_a_cat',
+			CLARA: 'ch2_lambda_person_clara',
+			JEANPAUL: 'ch2_lambda_person_jeanpaul',
+			'JEAN PAUL': 'ch2_lambda_person_jeanpaul',
+			'JEAN-PAUL': 'ch2_lambda_person_jeanpaul',
+			FRANKIE: 'ch2_lambda_person_frankie',
+			SCUZZY: 'ch2_lambda_person_scuzzy',
+			'C K WATT': 'ch2_lambda_person_ckwatt',
+			CKWATT: 'ch2_lambda_person_ckwatt',
+			ROCCO: 'ch2_lambda_person_rocco',
+			TRACY: 'ch2_lambda_person_tracy',
+			HELVETICA: 'ch2_lambda_person_helvetica',
+			BOB: 'ch2_lambda_person_bob',
+			'MARATHON BOB': 'ch2_lambda_person_marathonbob',
+			'GUARDIAN BOB': 'ch2_lambda_person_guardianbob',
+			'SOLID SNEK': 'ch2_lambda_person_solidsnek',
+			ME: 'ch2_lambda_person_player',
+			'BLACK MAGE': 'ch2_lambda_person_player',
+			MAGE: 'ch2_lambda_person_player',
+			YOU: 'ch2_lambda_person_lambda',
+			LAMBDA: 'ch2_lambda_person_lambda',
+			'THE BIG BAD': 'ch2_lambda_person_big_bad',
+			'BIG BAD': 'ch2_lambda_person_big_bad',
+			ALFONSO: 'ch2_lambda_person_alfonso',
+			JACKOB: 'ch2_lambda_person_jackob',
+			BERT: 'ch2_lambda_person_bert',
+			XA: 'ch2_lambda_person_xa',
+			XB: 'ch2_lambda_person_xb',
+			XC: 'ch2_lambda_person_xc',
 			BACK: 'command-man-normal-convo',
 			Q: 'command-man-normal-convo',
 			QUIT: 'command-man-normal-convo',
@@ -8542,7 +8542,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "How did you know I'm wearing a hat?",
-				script: 'ch2-lambda-person-player-2',
+				script: 'ch2_lambda_person_player_2',
 			},
 		],
 		name: 'command-man.mgs:992:2',
@@ -8557,11 +8557,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "Cameras? That's creepy!",
-				script: 'ch2-lambda-person-player-2a',
+				script: 'ch2_lambda_person_player_2a',
 			},
 			{
 				label: "Cameras? That's sensible.",
-				script: 'ch2-lambda-person-player-2b',
+				script: 'ch2_lambda_person_player_2b',
 			},
 		],
 		name: 'command-man.mgs:1004:2',
@@ -8584,11 +8584,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "It's not that invasive.",
-				script: 'ch2-lambda-person-player-3b',
+				script: 'ch2_lambda_person_player_3b',
 			},
 			{
 				label: "Okay, maybe it's a little invasive.",
-				script: 'ch2-lambda-person-player-3a',
+				script: 'ch2_lambda_person_player_3a',
 			},
 		],
 		name: 'command-man.mgs:1024:2',
@@ -8622,15 +8622,15 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'Where are you?',
-				script: 'ch2-lambda-person-lambda-where',
+				script: 'ch2_lambda_person_lambda_where',
 			},
 			{
 				label: "What's your real name?",
-				script: 'ch2-lambda-person-lambda-name',
+				script: 'ch2_lambda_person_lambda_name',
 			},
 			{
 				label: '(Go back)',
-				script: 'ch2-lambda-topic-person-start',
+				script: 'ch2_lambda_topic_person_start',
 			},
 		],
 		name: 'command-man.mgs:1065:2',
@@ -8678,11 +8678,11 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "You're kidding, right?",
-				script: 'ch2-lambda-person-lambda-name-2a',
+				script: 'ch2_lambda_person_lambda_name_2a',
 			},
 			{
 				label: 'How could you forget your own name? What happened?',
-				script: 'ch2-lambda-person-lambda-name-2b',
+				script: 'ch2_lambda_person_lambda_name_2b',
 			},
 		],
 		name: 'command-man.mgs:1104:2',
@@ -8722,7 +8722,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'What? But why?',
-				script: 'ch2-lambda-person-lambda-name-3',
+				script: 'ch2_lambda_person_lambda_name_3',
 			},
 		],
 		name: 'command-man.mgs:1136:3',
@@ -8748,23 +8748,23 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'What else was severed?',
-				script: 'ch2-lambda-person-lambda-name-followup-severed',
+				script: 'ch2_lambda_person_lambda_name_followup_severed',
 			},
 			{
 				label: "Is that why the Big Bad doesn't have a name?",
-				script: 'ch2-lambda-person-lambda-name-followup-bigbad',
+				script: 'ch2_lambda_person_lambda_name_followup_bigbad',
 			},
 			{
 				label: 'Does a nickname not count as a name?',
-				script: 'ch2-lambda-person-lambda-name-followup-nickname',
+				script: 'ch2_lambda_person_lambda_name_followup_nickname',
 			},
 			{
 				label: 'Why "Lambda" though?',
-				script: 'ch2-lambda-person-lambda-name-followup-lambda',
+				script: 'ch2_lambda_person_lambda_name_followup_lambda',
 			},
 			{
 				label: '(Go back)',
-				script: 'ch2-lambda-person-lambda-q',
+				script: 'ch2_lambda_person_lambda_q',
 			},
 		],
 		name: 'command-man.mgs:1167:2',
@@ -8817,7 +8817,7 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: "You're making it sound like you knew him.",
-				script: 'ch2-lambda-person-big-bad2',
+				script: 'ch2_lambda_person_big_bad2',
 			},
 		],
 		name: 'command-man.mgs:1227:2',
@@ -8887,23 +8887,23 @@ export const serialDialogs: Record<string, EncoderSerialDialog> = {
 		options: [
 			{
 				label: 'What is Bert like?',
-				script: 'ch2-lambda-bert-like',
+				script: 'ch2_lambda_bert_like',
 			},
 			{
 				label: "Bert's never mentioned you.",
-				script: 'ch2-lambda-bert-mentioned',
+				script: 'ch2_lambda_bert_mentioned',
 			},
 			{
 				label: "What did he mean by 'back door?'",
-				script: 'ch2-lambda-bert-door',
+				script: 'ch2_lambda_bert_door',
 			},
 			{
 				label: 'Do you know if Bert left a message yet?',
-				script: 'ch2-lambda-bert-message',
+				script: 'ch2_lambda_bert_message',
 			},
 			{
 				label: '(Quit)',
-				script: 'ch2-lambda-bert-quit',
+				script: 'ch2_lambda_bert_quit',
 			},
 		],
 		name: 'command-man.mgs:1311:2',

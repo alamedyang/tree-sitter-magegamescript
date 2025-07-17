@@ -136,7 +136,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-greenhouse" {
+"on_load_ch2_greenhouse" {
 	command "look" + "ethernettles" = "look_ch2_ethernettles";
 	// entrance text
 	show serial_dialog spacer;
@@ -180,7 +180,7 @@ include "header.mgs";
 	"EtherNettle8" = entity "EtherNettle8" primary_id;
 }
 
-"on_tick-ch2-greenhouse" {
+"on_tick_ch2_greenhouse" {
 	// ethernettle interference checks
 	// todo: Make these into functions in the individual Ether Nettle's on_tick when you get functions!
 	if (
@@ -262,7 +262,7 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-greenhouse-south" {
+"on_go_ch2_greenhouse_south" {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }

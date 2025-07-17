@@ -59,7 +59,7 @@ on_load_ch2_castle_13 {
 		entity "King Gibson" position = geometry "king-examine1";
 		entity Sebastian position = geometry "end-sebastian";
 		entity Templeton position = geometry "end-templeton1";
-		goto "ch2-castle-13-ending";
+		goto "ch2_castle_13_ending";
 	}
 	// ch2 room state
 	ch2_in_room = 13;

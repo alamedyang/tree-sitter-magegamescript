@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-warp {
+register_warp {
 	// NOTE: No need to branch any of these (WOPR excepting); you only get warping powers when the castle has been entirely explored
 
 	register warp -> command-warp;
@@ -153,15 +153,15 @@ command-warp {
 // common
 
 warp-common {
-	if (flag ch2-wait-for-hat-touch is true) {
-		goto ch2-wait-for-hat-touch-message;
+	if (flag ch2_wait_for_hat_touch is true) {
+		goto ch2_wait_for_hat_touch_message;
 	}
 	// all warps will fail before the computer is ok
 	// if you're PHYSICALLY OUTSIDE the castle
 	if (flag ch2_ring_zero_enabled_in_castle is false) {
 		if (debug mode is off) {
 			if (variable ch2_in_room is 0) {
-				goto warp-ch2-town-check-fail-message;
+				goto warp-ch2_town_check_fail_message;
 			}
 		}
 	}
@@ -234,12 +234,12 @@ warp-ch2-town-destination-check {
 	// if your DESTINATION is outside the castle
 	if (flag ch2_ring_zero_enabled_in_castle is false) {
 		if (debug mode is off) {
-			goto warp-ch2-town-check-fail-message;
+			goto warp-ch2_town_check_fail_message;
 		}
 	}
 }
 
-warp-ch2-town-check-fail-message {
+warp-ch2_town_check_fail_message {
 	show serial dialog spacer;
 	show serial dialog {
 		"<bold><r>ERROR</>: <bold>warp-assistant</> timed out"

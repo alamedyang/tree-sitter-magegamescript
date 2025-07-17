@@ -29,12 +29,12 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-oldcouplehouse" {
+"on_load_ch2_oldcouplehouse" {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BEATRICE'S HOUSE</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
-	if (!"ch2-delmar-in-house") {
+	if (!"ch2_delmar_in_house") {
 		entity "Delmar" on_tick = yeet;
 	} else {
 		if (!"ch2-delmar-is-man") {
@@ -52,7 +52,7 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-oldcouplehouse" {
+"on_tick_ch2_oldcouplehouse" {
 	if (player intersects geometry "south-hitbox") {
 		goto "on_walk-ch2-oldcouplehouse-south";
 	}
@@ -111,7 +111,7 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-oldcouplehouse-south" {
+"on_go_ch2_oldcouplehouse_south" {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
@@ -169,7 +169,7 @@ include "header.mgs";
 		};
 		player_control = off;
 		camera fade out -> #000000 over 300ms;
-		"ch2-delmar-in-house" = true;
+		"ch2_delmar_in_house" = true;
 		// undo yeet
 		entity "Delmar" position = geometry "delmar-point";
 		entity "Delmar" on_look = "look_ch2_delmar";

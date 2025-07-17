@@ -1,3 +1,5 @@
+// CAUTION -- This file is (was) auto-generated
+
 $close = 1; $repeat = 2; $hit = 3; $miss = 4; $cheat = 5;
 // target words
 $album = 1; $analog = 2; $audio = 3; $aux = 4; $bass = 5; $beat = 6; $bpm = 7; $broadcast = 8; $cassette = 9; $chiptune = 10; $codec = 11; $compact = 12; $frequency = 13; $headphones = 14; $hifi = 15; $laser = 16; $lofi = 17; $media = 18; $microphone = 19; $midi = 20; $mixing = 21; $music = 22; $phonograph = 23; $radio = 24; $recording = 25; $rhythm = 26; $sequencer = 27; $song = 28; $soundtrack = 29; $speakers = 30; $stereo = 31; $stream = 32; $subwoofer = 33; $surround = 34; $synthesizer = 35; $tape = 36; $treble = 37; $vinyl = 38; $vocoder = 39; $volume = 40;

@@ -13,7 +13,7 @@ look_ch2_town {
 
 /* ---------- ON_LOAD ---------- */
 
-ch2-setup-alfonso-verthandi {
+ch2_setup_alfonso_verthandi {
 	teleport entity Alfonso to geometry alfonso-verthandi-spot;
 	turn entity Alfonso west;
 	turn entity Verthandi east;
@@ -21,10 +21,10 @@ ch2-setup-alfonso-verthandi {
 	set entity Verthandi on_interact to interact_ch2_alfonso_verthandi;
 }
 
-on_load-ch2-town {
+on_load_ch2_town {
 	// cutscene interrupt:
 	if (warp state is cutscene-escort) {
-		goto ch2-escort-cutscene;
+		goto ch2_escort_cutscene;
 	}
 
 	// entrance text
@@ -36,7 +36,7 @@ on_load-ch2-town {
 	if (variable ch2_storyflag_round is < 5) {
 		set entity Jackob on_tick to yeet; // always hiding before end
 		if (variable ch2_storyflag_round is 2) {
-			copy ch2-setup-alfonso-verthandi;
+			copy ch2_setup_alfonso_verthandi;
 		} else {
 			set entity Alfonso on_tick to yeet;
 		}
@@ -81,7 +81,7 @@ on_load-ch2-town {
 		turn entity Marta south;
 	}
 	// delmar
-	if (flag ch2-delmar-in-house is true) {
+	if (flag ch2_delmar_in_house is true) {
 		set entity Delmar on_tick to yeet;
 	}
 
@@ -94,11 +94,11 @@ on_load-ch2-town {
 		fade in camera from #000000 over 800ms;
 	} else if (warp state is walk_from-east) {
 		set entity "%PLAYER%" path to walk_from-east
-		set entity "%PLAYER%" on_tick to on_tick-ch2-town-walkfadein;
+		set entity "%PLAYER%" on_tick to on_tick_ch2_town_walkfadein;
 		fade in camera from #000000 over 400ms;
 	} else if (warp state is walk_from-west) {
 		set entity "%PLAYER%" path to walk_from-west;
-		set entity "%PLAYER%" on_tick to on_tick-ch2-town-walkfadein;
+		set entity "%PLAYER%" on_tick to on_tick_ch2_town_walkfadein;
 		fade in camera from #000000 over 400ms;
 	} else if (warp state is walk_from-bobsclub) {
 		walk entity "%PLAYER%" along geometry walk_from-bobsclub over 200ms;
@@ -122,7 +122,7 @@ on_load-ch2-town {
 	copy ch2_map_init;
 	if (debug mode is true) {
 		register cutbug -> cutbug;
-		register cutbug + auto -> cutbug-auto;
+		register cutbug + auto -> cutbug_auto;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> town</>"
@@ -130,14 +130,14 @@ on_load-ch2-town {
 			"<y>></> <c>CUTBUG AUTO</>: run cutbugs 0-1030"
 		}
 	}
-	copy ch2-player-spawn-click-protection;
+	copy ch2_player_spawn_click_protection;
 }
 
 /* ---------- ON_TICK ---------- */
 
 // map loading scripts
 
-on_tick-ch2-town {
+on_tick_ch2_town {
 	if (entity "%PLAYER%" is inside geometry door-bakery) {
 		set warp state to ch2-town;
 		load map ch2-bakery;
@@ -173,25 +173,25 @@ on_tick-ch2-town {
 	if (entity "%PLAYER%" is inside geometry east-hitbox) {
 		set entity "%PLAYER%" path to east-point;
 		set warp state to walk_from-west;
-		set entity "%PLAYER%" on_tick to on_tick-ch2-town-walkfadeout;
+		set entity "%PLAYER%" on_tick to on_tick_ch2_town_walkfadeout;
 		fade out camera to #000000 over 500ms;
 		load map ch2-town;
 	}
 	if (entity "%PLAYER%" is inside geometry west-hitbox) {
 		set entity "%PLAYER%" path to west-point;
 		set warp state to walk_from-east;
-		set entity "%PLAYER%" on_tick to on_tick-ch2-town-walkfadeout;
+		set entity "%PLAYER%" on_tick to on_tick_ch2_town_walkfadeout;
 		fade out camera to #000000 over 500ms;
 		load map ch2-castle-outside;
 	}
 }
 
-on_tick-ch2-town-walkfadeout {
+on_tick_ch2_town_walkfadeout {
 	turn player control off;
 	walk entity "%PLAYER%" to geometry "%ENTITY_PATH%" over 3500ms;
 	goto null_script;
 }
-on_tick-ch2-town-walkfadein {
+on_tick_ch2_town_walkfadein {
 	walk entity "%PLAYER%" along geometry "%ENTITY_PATH%" over 500ms;
 	turn player control on;
 	goto null_script;
@@ -199,52 +199,52 @@ on_tick-ch2-town-walkfadein {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_exit-ch2-town {
+on_exit_ch2_town {
 	// universal behavior
 }
 
-on_go-ch2-town-west {
-	copy on_exit-ch2-town;
+on_go_ch2_town_west {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-castle-outside;
 }
-on_go-ch2-town-home {
-	copy on_exit-ch2-town;
+on_go_ch2_town_home {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-magehouse;
 }
-on_go-ch2-town-bakery {
-	copy on_exit-ch2-town;
+on_go_ch2_town_bakery {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-bakery;
 }
-on_go-ch2-town-library {
-	copy on_exit-ch2-town;
+on_go_ch2_town_library {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-lodge;
 }
-on_go-ch2-town-greenhouse {
-	copy on_exit-ch2-town;
+on_go_ch2_town_greenhouse {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-greenhouse;
 }
-on_go-ch2-town-wopr {
-	copy on_exit-ch2-town;
+on_go_ch2_town_wopr {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map woprhouse; // both chapters use the same map
 }
-on_go-ch2-town-beatrice {
-	copy on_exit-ch2-town;
+on_go_ch2_town_beatrice {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-oldcouplehouse;
 }
-on_go-ch2-town-smith {
-	copy on_exit-ch2-town;
+on_go_ch2_town_smith {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-smithfamily;
 }
-on_go-ch2-town-bobsclub {
-	copy on_exit-ch2-town;
+on_go_ch2_town_bobsclub {
+	copy on_exit_ch2_town;
 	copy warping_out_fade_out;
 	load map ch2-bobsclub;
 }
@@ -276,7 +276,7 @@ interact_ch2_lakesign {
 	}
 }
 interact_ch2_rake {
-	set entity Marta on_tick to make-rake-float;
+	set entity Marta on_tick to make_rake_float;
 }
 interact_ch2_yabbomongo {
 	copy face_player;
@@ -466,7 +466,7 @@ interact_ch2_alfonso_end {
 interact_ch2_cleo {
 	turn entity Cleo toward entity "%PLAYER%";
 	turn entity Cat toward entity "%PLAYER%";
-	show dialog ch2-catpuddle { // reused
+	show dialog ch2_catpuddle { // reused
 		Cleo "Hey there, %PLAYER%."
 		"Sorry, can't chat now. The cat had a really bad day."
 		Cat "Meow."
@@ -481,26 +481,26 @@ interact_ch2_cleo {
 
 interact_ch2_cat {
 	copy face_player;
-	show dialog ch2-catpuddle;
+	show dialog ch2_catpuddle;
 	turn entity "%SELF%" toward entity Cleo;
 }
 
 interact_ch2_hamster {
 	copy face_player;
-	if (variable ch2-hamstertalk is 0) {
+	if (variable ch2_hamstertalk is 0) {
 		show dialog {
 			SELF "Ohhh... the wheel is still spinning, but the hamster is dead."
 		}
-		mutate ch2-hamstertalk = 1;
-	} else if (variable ch2-hamstertalk is 1) {
+		mutate ch2_hamstertalk = 1;
+	} else if (variable ch2_hamstertalk is 1) {
 		show dialog {
 			SELF "I demand more asbestos!"
 		}
-		mutate ch2-hamstertalk = 2;
-	} else if (variable ch2-hamstertalk is 2) {
+		mutate ch2_hamstertalk = 2;
+	} else if (variable ch2_hamstertalk is 2) {
 		show dialog {
 			SELF "Fungible."
 		}
-		mutate ch2-hamstertalk = 0;
+		mutate ch2_hamstertalk = 0;
 	}
 }

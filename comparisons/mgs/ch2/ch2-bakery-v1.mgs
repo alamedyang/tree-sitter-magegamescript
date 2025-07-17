@@ -21,7 +21,7 @@ look_ch2_baker {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-bakery {
+on_load_ch2_bakery {
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>BAKERY</>..." }
@@ -50,17 +50,17 @@ on_load-ch2-bakery {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-bakery {
+on_tick_ch2_bakery {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		set warp state to walk_from-bakery;
 		load map ch2-town;
 	}
-	set map on_tick to on_tick-ch2-bakery;
+	set map on_tick to on_tick_ch2_bakery;
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-on_go-ch2-bakery-south {
+on_go_ch2_bakery_south {
 	copy warping_out_fade_out;
 	load map ch2-town;
 }

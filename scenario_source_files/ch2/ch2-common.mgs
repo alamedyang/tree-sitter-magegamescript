@@ -5,7 +5,7 @@ serial_dialog "spacer" {
 	"------------"
 	" "
 }
-serial_dialog "lambda-over" {
+serial_dialog "lambda_over" {
 	// check if there's a blank line just before using this dialog (there should be one)
 	"<bold>lambda-talk</>: connection closed successfully"
 }
@@ -18,7 +18,7 @@ serial_dialog "lambda-over" {
 	interrupt3 = false; // OwO
 	"tempvar" = 0;
 	"tempvar2" = 0;
-	"can-interrupt-dialog" = false;
+	"can_interrupt_dialog" = false;
 }
 "ch2_map_init_hex" {
 	if (
@@ -42,82 +42,82 @@ serial_dialog "lambda-over" {
 	}
 }
 "ch2_map_init_serial" {
-	if (!"ch2-has-artifact") { // no artifact at all
+	if (!"ch2_has_artifact") { // no artifact at all
 		serial_control = off;
 	} else { // you have the artifact
 		serial_control = on;
-		copy!("register-rtfm")
-		copy!("register-inventory")
-		copy!("register-manual")
-		copy!("register-eastereggs")
+		copy!("register_rtfm")
+		copy!("register_inventory")
+		copy!("register_manual")
+		copy!("register_eastereggs")
 		alias "h" = "help";
 		alias "l" = "look";
 	}
-	if ("ch2-has-map") {
-		copy!("register-map")
+	if ("ch2_has_map") {
+		copy!("register_map")
 	}
 	if (debug_mode) {
-		copy!("register-storyflag")
-		copy!("register-warp")
+		copy!("register_storyflag")
+		copy!("register_warp")
 		serial_control = on;
-	} else if ("ch2-warp-granted") {
-		copy!("register-warp")
+	} else if ("ch2_warp_granted") {
+		copy!("register_warp")
 	}
 	if ("ch2_storyflag_round" > 0) {
 		if ("ch2_storyflag_round" < 5) {
-			copy!("register-parts")
+			copy!("register_parts")
 		}
 	}
 }
 "ch2_map_init_inventory_look" {
 	if ("ch2_carrying_monitor") {
-		command "look" + "monitor" = "look-monitor";
+		command "look" + "monitor" = "look_monitor";
 	}
 	if ("ch2_carrying_heatsink") {
-		command "look" + "heat sink" = "look-heatsink";
+		command "look" + "heat sink" = "look_heatsink";
 	}
 	if ("ch2_carrying_cactuscooler") {
-		command "look" + "cactus cooler" = "look-cactuscooler";
+		command "look" + "cactus cooler" = "look_cactuscooler";
 	}
 	if ("ch2_carrying_powersupply") {
-		command "look" + "power supply" = "look-powersupply";
+		command "look" + "power supply" = "look_powersupply";
 	}
 	if ("ch2_carrying_keyboard") {
-		command "look" + "keyboard" = "look-keyboard";
+		command "look" + "keyboard" = "look_keyboard";
 	}
 	if ("ch2_carrying_mouse") {
-		command "look" + "mouse" = "look-mouse";
+		command "look" + "mouse" = "look_mouse";
 	}
 	if ("ch2_carrying_harddrive") {
-		command "look" + "hard drive" = "look-harddrive";
+		command "look" + "hard drive" = "look_harddrive";
 	}
 	if ("ch2_carrying_plate") {
-		command "look" + "plate" = "look-plate";
+		command "look" + "plate" = "look_plate";
 	}
 	if ("ch2_carrying_needle") {
-		command "look" + "needle" = "look-needle";
+		command "look" + "needle" = "look_needle";
 	}
 	if ("ch2_carrying_ramchips") {
-		command "look" + "ram chip" = "look-ramchips";
-		command "look" + "ram" = "look-ramchips";
+		command "look" + "ram chip" = "look_ramchips";
+		command "look" + "ram" = "look_ramchips";
 	}
 	if ("ch2_carrying_clock") {
-		command "look" + "clock" = "look-clock";
+		command "look" + "clock" = "look_clock";
 	}
 	if ("ch2_carrying_cpu") {
-		command "look" + "cpu" = "look-cpu";
+		command "look" + "cpu" = "look_cpu";
 	}
 	if ("ch2_carrying_goldfish") {
-		command "look" + "goldfish" = "look-goldfish";
+		command "look" + "goldfish" = "look_goldfish";
 	}
 	if ("ch2_carrying_manual") {
-		command "look" + "manual" = "look-manual";
+		command "look" + "manual" = "look_manual";
 	}
 	if ("ch2_carrying_abacus") {
-		command "look" + "abacus" = "look-abacus";
+		command "look" + "abacus" = "look_abacus";
 	}
 	if ("ch2_carrying_mainframeos") {
-		command "look" + "mainframeos" = "look-mainframeos";
+		command "look" + "mainframeos" = "look_mainframeos";
 	}
 }
 "ch2_map_init_serial_debug_message" {

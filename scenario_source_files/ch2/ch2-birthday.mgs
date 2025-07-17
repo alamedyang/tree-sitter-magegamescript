@@ -4,12 +4,12 @@ include "header.mgs";
 
 // NON-DEBUG
 
-"on_load-ch2-magehouse-birthday" {
+on_load_ch2_magehouse_birthday {
 	hex_control = on;
 	player_control = off;
 	if (debug_mode) {
 		serial_control = on;
-		command "skip" = "cutscene-ch2-birthday-exit"; // this shows up twice if put first in the script O.o
+		command skip = cutscene_ch2_birthday_exit; // this shows up twice if put first in the script O.o
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -48,7 +48,7 @@ include "header.mgs";
 		ZIPPY "All right, everyone! Dig in!"
 	};
 	camera fade out -> #000000 over 500ms;
-	entity "Cake" current_animation = 4;
+	entity Cake current_animation = 4;
 	show dialog {
 		name " "
 		border_tileset menu
@@ -96,9 +96,9 @@ include "header.mgs";
 	};
 	camera fade out -> #000000 over 1200ms;
 	wait 200ms;
-	goto "cutscene-ch2-birthday-exit";
+	goto cutscene_ch2_birthday_exit;
 }
-"cutscene-ch2-birthday-exit" {
+cutscene_ch2_birthday_exit {
 	ch2_cutseen_birthday = true;
 	warp_state = "cutscene-escort";
 	load map "ch2-town";
@@ -107,14 +107,14 @@ include "header.mgs";
 /* --- CUTSCENE: Birthday (elders) --- */
 
 // helper scripts
-"gossip-right-down" {
+gossip_right_down {
 	wait 600ms;
 	self direction = east;
 	wait 800ms;
 	self direction = south;
 	wait 400ms;
 }
-"gossip-left-and-right-down" {
+gossip_left_and_right_down {
 	self direction = west;
 	wait 600ms;
 	self direction = south;
@@ -122,7 +122,7 @@ include "header.mgs";
 	self direction = east;
 	wait 360ms;
 }
-"gossip-left-down" {
+gossip_left_down {
 	wait 200ms;
 	self direction = south;
 	wait 500ms;
@@ -131,10 +131,10 @@ include "header.mgs";
 }
 
 // cutscene
-"ch2-escort-cutscene" {
+ch2_escort_cutscene {
 	if (debug_mode) {
 		serial_control = on;
-		command "skip" = "cutscene-ch2-escort-exit";
+		command skip = cutscene_ch2_escort_exit;
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -145,12 +145,12 @@ include "header.mgs";
 	camera fade out -> #000000 over 0ms;
 	player_control = off;
 	hex_editor = closed;
-	entity "Alfonso" position = geometry "birthday-alfonso";
-	entity "Bert" position = geometry "birthday-bert";
-	entity "Jackob" position = geometry "birthday-jackob";
-	entity "Alfonso" direction = north;
-	entity "Bert" direction = north;
-	entity "Jackob" direction = north;
+	entity Alfonso position = geometry "birthday-alfonso";
+	entity Bert position = geometry "birthday-bert";
+	entity Jackob position = geometry "birthday-jackob";
+	entity Alfonso direction = north;
+	entity Bert direction = north;
+	entity Jackob direction = north;
 	camera = geometry "escort-camera";
 	camera fade in -> #000000 over 1000ms;
 	player direction = south;
@@ -166,7 +166,7 @@ include "header.mgs";
 		PLAYER "Yeah. I mean, no. I mean...."
 	};
 	wait 150ms;
-	player on_tick = "look_left_and_right_fast";
+	player on_tick = look_left_and_right_fast;
 	wait 300ms;
 	show dialog {
 		PLAYER "Wait, weren't you supposed to bring me a book this morning? A book about the cereal castle?"
@@ -189,7 +189,7 @@ include "header.mgs";
 		Alfonso "You have demonstrated incredible competence with what you've already done with Ring Zero, so we are confident you can work your way through the castle on your own."
 	};
 	wait 100ms;
-	player on_tick = "look_left_and_right_fast";
+	player on_tick = look_left_and_right_fast;
 	wait 200ms;
 	show dialog {
 		PLAYER "On my own? You aren't coming inside with me?"
@@ -202,20 +202,20 @@ include "header.mgs";
 		PLAYER "\"Should?\""
 	};
 	wait 150ms;
-	entity "Alfonso" direction = south;
+	entity Alfonso direction = south;
 	wait 500ms;
 	show dialog {
 		Alfonso "If I remember correctly...."
 		PLAYER "You don't know? What kind of wise old men are you?"
 		Jackob "We'll certainly see, won't we?"
 	};
-	entity "Alfonso" direction = player;
+	entity Alfonso direction = player;
 	show dialog {
 		PLAYER "That book... what did it say? Can you give me a summary at least?"
 	};
-	entity "Jackob" on_tick = "gossip-right-down";
-	entity "Alfonso" on_tick = "gossip-left-and-right-down";
-	entity "Bert" on_tick = "gossip-left-down";
+	entity Jackob on_tick = gossip_right_down;
+	entity Alfonso on_tick = gossip_left_and_right_down;
+	entity Bert on_tick = gossip_left_down;
 	wait 200ms;
 	show dialog {
 		Jackob "I must have read it once...."
@@ -223,15 +223,15 @@ include "header.mgs";
 		Bert "I don't know."
 	};
 	wait 500ms;
-	entity "Alfonso" on_tick = null_script;
-	entity "Jackob" on_tick = null_script;
-	entity "Bert" on_tick = null_script;
+	entity Alfonso on_tick = null_script;
+	entity Jackob on_tick = null_script;
+	entity Bert on_tick = null_script;
 	wait 100ms;
-	entity "Alfonso" direction = north;
+	entity Alfonso direction = north;
 	wait 50ms;
-	entity "Bert" direction = north;
+	entity Bert direction = north;
 	wait 40ms;
-	entity "Jackob" direction = north;
+	entity Jackob direction = north;
 	show dialog {
 		Jackob "I can't remember."
 		Alfonso "Something about rooms... and magic words...."
@@ -255,20 +255,20 @@ include "header.mgs";
 		Alfonso "Yes! And that is why you must hurry!"
 		PLAYER "All right. Let's not waste any more time."
 	};
-	"ch2-escort-cutscene" = true;
+	ch2_escort_cutscene = true;
 	wait 160ms;
-	entity "Jackob" on_tick = "birthday-march-on-own-path";
+	entity Jackob on_tick = birthday_march_on_own_path;
 	wait 180ms;
-	entity "Alfonso" on_tick = "birthday-march-on-own-path";
+	entity Alfonso on_tick = birthday_march_on_own_path;
 	wait 90ms;
-	entity "Bert" on_tick = "birthday-march-on-own-path";
-	player on_tick = "birthday-march-on-own-path-player";
+	entity Bert on_tick = birthday_march_on_own_path;
+	player on_tick = birthday_march_on_own_path_player;
 }
-"birthday-march-on-own-path" {
+birthday_march_on_own_path {
 	self position -> geometry "%ENTITY_PATH%" length over 2400ms;
-	goto "yeet";
+	goto yeet;
 }
-"birthday-march-on-own-path-player" {
+birthday_march_on_own_path_player {
 	wait 300ms;
 	player position -> geometry "hesitation-point" origin over 300ms;
 	wait 600ms;
@@ -280,14 +280,14 @@ include "header.mgs";
 	show dialog {
 		PLAYER "All right. Take a deep breath.\nYou can do it, %PLAYER%."
 	};
-	warp_state = "none";
-	entity "Jackob" on_tick = yeet;
-	entity "Alfonso" on_tick = yeet;
-	entity "Bert" on_tick = yeet;
+	warp_state = none;
+	entity Jackob on_tick = yeet;
+	entity Alfonso on_tick = yeet;
+	entity Bert on_tick = yeet;
 	player_control = on;
 	goto null_script;
 }
-"cutscene-ch2-escort-exit" {
+cutscene_ch2_escort_exit {
 	warp_state = "walk_from-east";
 	load map "ch2-castle-outside";
 }

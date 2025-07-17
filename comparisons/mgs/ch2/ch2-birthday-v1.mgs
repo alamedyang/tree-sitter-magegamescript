@@ -4,12 +4,12 @@ include!("header.mgs")
 
 // NON-DEBUG
 
-on_load-ch2-magehouse-birthday {
+on_load_ch2_magehouse_birthday {
 	turn hex control on;
 	turn player control off;
 	if (debug mode is on) {
 		turn serial control on;
-		register skip -> cutscene-ch2-birthday-exit; // this shows up twice if put first in the script O.o
+		register skip -> cutscene_ch2_birthday_exit; // this shows up twice if put first in the script O.o
 		show serial dialog {
 			" "
 			"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -96,9 +96,9 @@ on_load-ch2-magehouse-birthday {
 	}
 	fade out camera to #000000 over 1200ms;
 	wait 200ms;
-	goto cutscene-ch2-birthday-exit;
+	goto cutscene_ch2_birthday_exit;
 }
-cutscene-ch2-birthday-exit {
+cutscene_ch2_birthday_exit {
 	set flag ch2_cutseen_birthday to true;
 	set warp state to cutscene-escort;
 	load map ch2-town;
@@ -107,14 +107,14 @@ cutscene-ch2-birthday-exit {
 /* --- CUTSCENE: Birthday (elders) --- */
 
 // helper scripts
-gossip-right-down {
+gossip_right_down {
 	wait 600ms;
 	turn entity "%SELF%" east;
 	wait 800ms;
 	turn entity "%SELF%" south;
 	wait 400ms;
 }
-gossip-left-and-right-down {
+gossip_left_and_right_down {
 	turn entity "%SELF%" west;
 	wait 600ms;
 	turn entity "%SELF%" south;
@@ -122,7 +122,7 @@ gossip-left-and-right-down {
 	turn entity "%SELF%" east;
 	wait 360ms;
 }
-gossip-left-down {
+gossip_left_down {
 	wait 200ms;
 	turn entity "%SELF%" south;
 	wait 500ms;
@@ -131,10 +131,10 @@ gossip-left-down {
 }
 
 // cutscene
-ch2-escort-cutscene {
+ch2_escort_cutscene {
 	if (debug mode is on) {
 		turn serial control on;
-		register skip -> cutscene-ch2-escort-exit;
+		register skip -> cutscene_ch2_escort_exit;
 		show serial dialog {
 			" "
 			"<y>DEBUG></> <c>SKIP</>: skip this cutscene"
@@ -213,9 +213,9 @@ ch2-escort-cutscene {
 	show dialog {
 		PLAYER "That book... what did it say? Can you give me a summary at least?"
 	}
-	set entity Jackob on_tick to gossip-right-down;
-	set entity Alfonso on_tick to gossip-left-and-right-down;
-	set entity Bert on_tick to gossip-left-down;
+	set entity Jackob on_tick to gossip_right_down;
+	set entity Alfonso on_tick to gossip_left_and_right_down;
+	set entity Bert on_tick to gossip_left_down;
 	wait 200ms;
 	show dialog {
 		Jackob "I must have read it once...."
@@ -255,20 +255,20 @@ ch2-escort-cutscene {
 		Alfonso "Yes! And that is why you must hurry!"
 		PLAYER "All right. Let's not waste any more time."
 	}
-	set flag ch2-escort-cutscene to true;
+	set flag ch2_escort_cutscene to true;
 	wait 160ms;
-	set entity Jackob on_tick to birthday-march-on-own-path;
+	set entity Jackob on_tick to birthday_march_on_own_path;
 	wait 180ms;
-	set entity Alfonso on_tick to birthday-march-on-own-path;
+	set entity Alfonso on_tick to birthday_march_on_own_path;
 	wait 90ms;
-	set entity Bert on_tick to birthday-march-on-own-path;
-	set entity "%PLAYER%" on_tick to birthday-march-on-own-path-player;
+	set entity Bert on_tick to birthday_march_on_own_path;
+	set entity "%PLAYER%" on_tick to birthday_march_on_own_path_player;
 }
-birthday-march-on-own-path {
+birthday_march_on_own_path {
 	walk entity "%SELF%" along geometry "%ENTITY_PATH%" over 2400ms;
 	goto yeet;
 }
-birthday-march-on-own-path-player {
+birthday_march_on_own_path_player {
 	wait 300ms;
 	walk entity "%PLAYER%" to geometry hesitation-point over 300ms;
 	wait 600ms;
@@ -287,7 +287,7 @@ birthday-march-on-own-path-player {
 	turn player control on;
 	goto null_script;
 }
-cutscene-ch2-escort-exit {
+cutscene_ch2_escort_exit {
 	set warp state to walk_from-east;
 	load map ch2-castle-outside;
 }

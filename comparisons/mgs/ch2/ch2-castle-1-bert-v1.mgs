@@ -18,8 +18,8 @@ ch2_cutscene_bert_secret {
 	set entity "%PLAYER%" on_tick to watch-bert;
 	wait 400ms;
 	// the below is unnecessary if this cutscene is triggered via normal means; cannot use a zigzag here, though, since this script is run with COPY_SCRIPT
-	// you can't trigger the "stuck on animation 5" with this, though, since you can't feasibly get to this part of the script before the Wiz is all the way ascended anyway. (Hitting `tick-ch2-wizard-ascend-and-watch-with-check` when it's in progress breaks things!)
-	set entity Wizard on_tick to tick-ch2-wizard-ascend-and-watch-with-check;
+	// you can't trigger the "stuck on animation 5" with this, though, since you can't feasibly get to this part of the script before the Wiz is all the way ascended anyway. (Hitting `tick_ch2_wizard_ascend_and_watch_with_check` when it's in progress breaks things!)
+	set entity Wizard on_tick to tick_ch2_wizard_ascend_and_watch_with_check;
 	walk entity Bert along geometry bert-spot over 1200ms;
 	wait 100ms;
 	turn entity Bert toward entity "%PLAYER%";
@@ -69,7 +69,7 @@ ch2_cutscene_bert_secret {
 	set flag interrupt to true;
 }
 
-ch2-bert-secret-lambda-intro {
+ch2_bert_secret_lambda_intro {
 	show serial dialog spacer;
 	if (flag interrupt is true) {
 		show serial dialog {
@@ -100,10 +100,10 @@ ch2-bert-secret-lambda-intro {
 	show serial dialog {
 		"\tAw, man. The two of us? We go way back!"
 		" "
-		# "Should I go back and fetch him?" : ch2-bert-secret-lambda-intro2
+		# "Should I go back and fetch him?" : ch2_bert_secret_lambda_intro2
 	}
 }
-ch2-bert-secret-lambda-intro2 {
+ch2_bert_secret_lambda_intro2 {
 	show serial dialog spacer;
 	show serial dialog {
 		"<c>YOU</>: Should I go back and fetch him? Let you talk to him?"
@@ -113,7 +113,7 @@ ch2-bert-secret-lambda-intro2 {
 		" "
 		"<c>YOU</>: Wow, you know Bert, huh?"
 	}
-	set flag ch2-lambda-bert-backstory to true;
+	set flag ch2_lambda_bert_backstory to true;
 	mutate CALLBACK = 1;
-	goto ch2-lambda-bert-q;
+	goto ch2_lambda_bert_q;
 }

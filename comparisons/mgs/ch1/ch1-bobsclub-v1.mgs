@@ -257,7 +257,7 @@ show_dialog-balloonbox {
 	}
 }
 show_dialog-fridge {
-	set flag ch1-found-cactuscooler to true;
+	set flag ch1_found_cactuscooler to true;
 	show dialog {
 		PLAYER "Wow. There's literally nothing but cans of Cactus Cooler in here."
 	}

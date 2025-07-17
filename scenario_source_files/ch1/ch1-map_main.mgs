@@ -37,7 +37,7 @@ add dialog settings {
 	} 
 	if ("storyflag-rake") {
 		copy!("rake-in-lake")
-		entity "Goose" on_interact = "honk-to-make-rake-float";
+		entity "Goose" on_interact = "honk-to-make_rake_float";
 	}
 	if ("billy-unglitched") {
 		entity "Billy" glitched = false;

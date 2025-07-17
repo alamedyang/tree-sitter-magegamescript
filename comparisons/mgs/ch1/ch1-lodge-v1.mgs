@@ -176,17 +176,17 @@ spin-around-fast {
 	wait 200ms; /**/ turn entity "%SELF%" north;
 }
 lodge-murmur {
-	set entity Cleo on_tick to gossip-down-player;
-	set entity Baker on_tick to gossip-up-player;
+	set entity Cleo on_tick to gossip_down_player;
+	set entity Baker on_tick to gossip_up_player;
 	set entity Beatrice on_tick to null_script;
 	turn entity Beatrice toward entity "%PLAYER%";
-	set entity Shepherd on_tick to gossip-left-player;
-	set entity Trekkie on_tick to gossip-right-player;
-	set entity Marta on_tick to gossip-left-player;
-	set entity "Max Swagger" on_tick to gossip-right-player;
-	set entity Smith on_tick to gossip-left-player;
-	set entity Verthandi on_tick to gossip-up-player;
-	set entity "Aunt Zippy" on_tick to gossip-down-player;
+	set entity Shepherd on_tick to gossip_left_player;
+	set entity Trekkie on_tick to gossip_right_player;
+	set entity Marta on_tick to gossip_left_player;
+	set entity "Max Swagger" on_tick to gossip_right_player;
+	set entity Smith on_tick to gossip_left_player;
+	set entity Verthandi on_tick to gossip_up_player;
+	set entity "Aunt Zippy" on_tick to gossip_down_player;
 	set entity "Uncle Zappy" on_tick to null_script;
 	turn entity "Uncle Zappy" toward entity "%PLAYER%";
 }
@@ -214,23 +214,23 @@ lodge-un-murmur {
 	set entity "Uncle Zappy" on_tick to null_script;
 	turn entity "Uncle Zappy" toward entity "%PLAYER%";
 }
-gossip-left-player {
+gossip_left_player {
 	wait 200ms; /**/ turn entity "%SELF%" west;
 	wait 350ms; /**/ turn entity "%SELF%" toward entity "%PLAYER%";
 	wait 350ms;
 }
-gossip-right-player {
+gossip_right_player {
 	wait 300ms; /**/ turn entity "%SELF%" east;
 	wait 400ms; /**/ turn entity "%SELF%" toward entity "%PLAYER%";
 	wait 200ms;
 }
-gossip-up-player {
+gossip_up_player {
 	turn entity "%SELF%" north;
 	wait 300ms;
 	turn entity "%SELF%" toward entity "%PLAYER%";
 	wait 600ms;
 }
-gossip-down-player {
+gossip_down_player {
 	wait 100ms; /**/ turn entity "%SELF%" south;
 	wait 250ms; /**/ turn entity "%SELF%" toward entity "%PLAYER%";
 	wait 550ms;

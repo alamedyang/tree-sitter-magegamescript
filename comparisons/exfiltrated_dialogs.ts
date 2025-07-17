@@ -7908,11 +7908,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes, please!',
-					script: 'ch2-terminal-setup-start',
+					script: 'ch2_terminal_setup_start',
 				},
 				{
 					label: 'No, thanks.',
-					script: 'ch2-terminal-setup-nevermind',
+					script: 'ch2_terminal_setup_nevermind',
 				},
 			],
 		},
@@ -7929,11 +7929,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-terminal-setup-start',
+					script: 'ch2_terminal_setup_start',
 				},
 				{
 					label: 'No',
-					script: 'ch2-terminal-setup-nevermind',
+					script: 'ch2_terminal_setup_nevermind',
 				},
 			],
 		},
@@ -8029,19 +8029,19 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-terminal-plugged-yes',
+					script: 'ch2_terminal_plugged_yes',
 				},
 				{
 					label: 'No',
-					script: 'ch2-terminal-plugged-no',
+					script: 'ch2_terminal_plugged_no',
 				},
 				{
 					label: "I'm on the web",
-					script: 'ch2-terminal-plugged-web',
+					script: 'ch2_terminal_plugged_web',
 				},
 				{
 					label: 'Never mind',
-					script: 'ch2-terminal-setup-nevermind',
+					script: 'ch2_terminal_setup_nevermind',
 				},
 			],
 		},
@@ -8100,11 +8100,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes, say that all again',
-					script: 'ch2-terminal-plugged-yes2',
+					script: 'ch2_terminal_plugged_yes2',
 				},
 				{
 					label: "No, I'm good",
-					script: 'ch2-terminal-message-test',
+					script: 'ch2_terminal_message_test',
 				},
 			],
 		},
@@ -8131,11 +8131,11 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			options: [
 				{
 					label: 'Yes',
-					script: 'ch2-terminal-message-test-success',
+					script: 'ch2_terminal_message_test_success',
 				},
 				{
 					label: 'No',
-					script: 'ch2-terminal-message-test-fail',
+					script: 'ch2_terminal_message_test_fail',
 				},
 			],
 		},
@@ -12617,7 +12617,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			messages: ["Yup, that's me."],
 		},
 	],
-	'ch2-clara-soda': [
+	ch2_clara_soda: [
 		{
 			entity: '%PLAYER%',
 			alignment: 'BOTTOM_RIGHT',
@@ -15051,7 +15051,7 @@ export const dialogs: Record<string, EncoderDialog[]> = {
 			],
 		},
 	],
-	'ch2-catpuddle': [
+	ch2_catpuddle: [
 		{
 			entity: 'Cleo',
 			alignment: 'BOTTOM_LEFT',

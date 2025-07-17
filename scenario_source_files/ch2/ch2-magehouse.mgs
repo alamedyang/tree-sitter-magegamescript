@@ -78,7 +78,7 @@ include "header.mgs";
 
 /* ---------- ON_LOAD ---------- */
 
-"on_load-ch2-magehouse" {
+"on_load_ch2_magehouse" {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>YOUR HOUSE</>..." };
@@ -102,7 +102,7 @@ include "header.mgs";
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-magehouse" {
+"on_tick_ch2_magehouse" {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-magehouse";
 		load map "ch2-town";
@@ -111,7 +111,7 @@ include "header.mgs";
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-magehouse-south" {
+"on_go_ch2_magehouse_south" {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }

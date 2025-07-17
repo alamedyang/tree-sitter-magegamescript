@@ -35,16 +35,16 @@ look_ch2_keypad {
 
 /* ---------- ON_LOAD ---------- */
 
-ch2-gibson-scramble {
-	copy variable ch2-gibson-x from entity "King Gibson" x;
-	if (flag ch2-gibson-pos-odd is true) {
-		mutate ch2-gibson-x + 1;
-		set flag ch2-gibson-pos-odd to false;
+ch2_gibson_scramble {
+	copy variable ch2_gibson_x from entity "King Gibson" x;
+	if (flag ch2_gibson_pos_odd is true) {
+		mutate ch2_gibson_x + 1;
+		set flag ch2_gibson_pos_odd to false;
 	} else {
-		mutate ch2-gibson-x - 1;
-		set flag ch2-gibson-pos-odd to true;
+		mutate ch2_gibson_x - 1;
+		set flag ch2_gibson_pos_odd to true;
 	}
-	copy variable ch2-gibson-x into entity "King Gibson" x;
+	copy variable ch2_gibson_x into entity "King Gibson" x;
 	wait 50ms;
 }
 
@@ -91,7 +91,7 @@ on_load_ch2_castle_14 {
 			show dialog {
 				KING emote 1 "?"
 			}
-			set entity "King Gibson" on_tick to ch2-gibson-scramble;
+			set entity "King Gibson" on_tick to ch2_gibson_scramble;
 			set entity "King Gibson" current_animation to 3;
 			show dialog {
 				KING emote 2 "!!!"

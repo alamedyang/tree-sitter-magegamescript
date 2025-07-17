@@ -29,12 +29,12 @@ look_ch2_beatrice {
 
 /* ---------- ON_LOAD ---------- */
 
-on_load-ch2-oldcouplehouse {
+on_load_ch2_oldcouplehouse {
 	// entrance text
 	show serial dialog spacer;
 	show serial dialog { "Entering <bold>BEATRICE'S HOUSE</>..." }
 	// do unique stuff first (but turn serial / player control off first, if you do)
-	if (flag ch2-delmar-in-house is false) {
+	if (flag ch2_delmar_in_house is false) {
 		set entity Delmar on_tick to yeet;
 	} else {
 		if (flag ch2-delmar-is-man is false) {
@@ -52,7 +52,7 @@ on_load-ch2-oldcouplehouse {
 
 /* ---------- ON_TICK ---------- */
 
-on_tick-ch2-oldcouplehouse {
+on_tick_ch2_oldcouplehouse {
 	if (entity "%PLAYER%" is inside geometry south-hitbox) {
 		goto on_walk-ch2-oldcouplehouse-south;
 	}
@@ -111,7 +111,7 @@ ch2_cutscene_delmar_reconnect {
 
 /* ---------- EXIT STUFF ---------- */
 
-on_go-ch2-oldcouplehouse-south {
+on_go_ch2_oldcouplehouse_south {
 	copy warping_out_fade_out;
 	load map ch2-town;
 }
@@ -169,7 +169,7 @@ interact_ch2_beatrice {
 		}
 		turn player control off;
 		fade out camera to #000000 over 300ms;
-		set flag ch2-delmar-in-house to true;
+		set flag ch2_delmar_in_house to true;
 		// undo yeet
 		teleport entity Delmar to geometry delmar-point;
 		set entity Delmar on_look to look_ch2_delmar;

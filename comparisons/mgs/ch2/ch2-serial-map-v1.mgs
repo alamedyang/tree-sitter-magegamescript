@@ -42,7 +42,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-mainframeos is true) {
+	if (flag ch2_map_mainframeos is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_99 is true) {
@@ -87,7 +87,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-clock is true) {
+	if (flag ch2_map_clock is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_14 is true) {
@@ -183,7 +183,7 @@ draw-ch2-serial-map {
 	} else {
 		concat serial dialog {" "}
 	}
-	if (flag ch2-map-mouse is true) {
+	if (flag ch2_map_mouse is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_33 is true) {
@@ -215,7 +215,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-plate is true) {
+	if (flag ch2_map_plate is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_34 is true) {
@@ -259,7 +259,7 @@ draw-ch2-serial-map {
 	} else {
 		concat serial dialog {"  "}
 	}
-	if (flag ch2-map-goldfish is true) {
+	if (flag ch2_map_goldfish is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_13 is true) {
@@ -309,7 +309,7 @@ draw-ch2-serial-map {
 	} else {
 		concat serial dialog {"   "}
 	}
-	if (flag ch2-map-heatsink is true) {
+	if (flag ch2_map_heatsink is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_23 is true) {
@@ -381,8 +381,8 @@ draw-ch2-serial-map {
 		concat serial dialog {"     "}
 	}
 	concat serial dialog {"   |"}
-	if (flag ch2-map-manual is true) {
-		if (flag ch2-map-seamoss is true) {
+	if (flag ch2_map_manual is true) {
+		if (flag ch2_map_seamoss is true) {
 			concat serial dialog {"   <g>?</> Look for <m>Frankie's</>"}
 		}
 	}
@@ -404,7 +404,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-powersupply is true) {
+	if (flag ch2_map_powersupply is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_22 is true) {
@@ -433,7 +433,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-needle is true) {
+	if (flag ch2_map_needle is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_12 is true) {
@@ -466,7 +466,7 @@ draw-ch2-serial-map {
 	} else {
 		concat serial dialog {" "}
 	}
-	if (flag ch2-map-keyboard is true) {
+	if (flag ch2_map_keyboard is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_31 is true) {
@@ -481,8 +481,8 @@ draw-ch2-serial-map {
 		concat serial dialog {"   "}
 	}
 	concat serial dialog {"   |"}
-	if (flag ch2-map-manual is true) {
-		if (flag ch2-map-seamoss is true) {
+	if (flag ch2_map_manual is true) {
+		if (flag ch2_map_seamoss is true) {
 			concat serial dialog {"   <m>calculator manual</>"}
 		}
 	}
@@ -521,8 +521,8 @@ draw-ch2-serial-map {
 		concat serial dialog {"         "}
 	}
 	concat serial dialog {"   |"}
-	if (flag ch2-map-manual is true) {
-		if (flag ch2-map-seamoss is true) {
+	if (flag ch2_map_manual is true) {
+		if (flag ch2_map_seamoss is true) {
 			concat serial dialog {"   in the library in town."}
 		}
 	}
@@ -549,7 +549,7 @@ draw-ch2-serial-map {
 	} else {
 		concat serial dialog {" "}
 	}
-	if (flag ch2-map-abacus is true || flag ch2-map-ramchips is true || flag ch2-map-solder is true) {
+	if (flag ch2_map_abacus is true || flag ch2_map_ramchips is true || flag ch2_map_solder is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_21 is true) {
@@ -582,7 +582,7 @@ draw-ch2-serial-map {
 			concat serial dialog space;
 		}
 	}
-	if (flag ch2-map-monitor is true) {
+	if (flag ch2_map_monitor is true) {
 		concat serial dialog item;
 	} else {
 		if (flag ch2_seen_room_11 is true) {
@@ -607,13 +607,13 @@ draw-ch2-serial-map {
 		concat serial dialog {"       "}
 	}
 	concat serial dialog {"----+----          |"}
-	if (flag ch2-map-cactuscooler-castle is true) {
+	if (flag ch2_map_cactuscooler_castle is true) {
 		concat serial dialog {"   <g>?</> Look for <m>Cactus Cooler</>"}
-	} else if (flag ch2-map-cactuscooler-bobaustin is true) {
+	} else if (flag ch2_map_cactuscooler_bobaustin is true) {
 		concat serial dialog {"   <g>?</> Ask <m>Stone Cold Bob Austin</>"}
-	} else if (flag ch2-map-seamoss is true) {
+	} else if (flag ch2_map_seamoss is true) {
 		concat serial dialog {"   <g>?</> Look for <m>Sea Moss</>"}
-	} else if (flag ch2-map-manual is true) {
+	} else if (flag ch2_map_manual is true) {
 		concat serial dialog {"   <g>?</> Look for <m>Frankie's</>"}
 	}
 	concat serial dialog newline;
@@ -630,26 +630,26 @@ draw-ch2-serial-map {
 		}
 	}
 	concat serial dialog {"...|          |"}
-	if (flag ch2-map-cactuscooler-castle is true) {
+	if (flag ch2_map_cactuscooler_castle is true) {
 		concat serial dialog {"   somewhere they keep"}
-	} else if (flag ch2-map-cactuscooler-bobaustin is true) {
+	} else if (flag ch2_map_cactuscooler_bobaustin is true) {
 		concat serial dialog {"   about Cactus Cooler; he brings"}
-	} else if (flag ch2-map-seamoss is true) {
+	} else if (flag ch2_map_seamoss is true) {
 		concat serial dialog {"   somewhere in the east wing"}
-	} else if (flag ch2-map-manual is true) {
+	} else if (flag ch2_map_manual is true) {
 		concat serial dialog {"   <m>calculator manual</>"}
 	}
 	concat serial dialog newline;
 
 	// ROW 15
 	concat serial dialog {"|          ----+----          |"}
-	if (flag ch2-map-cactuscooler-castle is true) {
+	if (flag ch2_map_cactuscooler_castle is true) {
 		concat serial dialog {"   refreshments or drinks."}
-	} else if (flag ch2-map-cactuscooler-bobaustin is true) {
+	} else if (flag ch2_map_cactuscooler_bobaustin is true) {
 		concat serial dialog {"   loads to all his parties."}
-	} else if (flag ch2-map-seamoss is true) {
+	} else if (flag ch2_map_seamoss is true) {
 		concat serial dialog {"   of the castle."}
-	} else if (flag ch2-map-manual is true) {
+	} else if (flag ch2_map_manual is true) {
 		concat serial dialog {"   in the library in town."}
 	}
 	concat serial dialog newline;

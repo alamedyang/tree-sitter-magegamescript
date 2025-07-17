@@ -49,7 +49,7 @@ interact_ch2_mainframe_end {
 	show dialog mainframe-working { name "" "(Nothing left to install. The computer is humming and buzzing along, and Aurelius seems to be doing okay.)" }
 }
 interact_ch2_mainframe {
-	if (flag ch2-wait-for-hat-touch is true) {
+	if (flag ch2_wait_for_hat_touch is true) {
 		turn entity "%PLAYER%" toward entity Wizard;
 		turn entity Wizard toward entity "%PLAYER%";
 		show dialog {
@@ -61,19 +61,19 @@ interact_ch2_mainframe {
 		}
 		return;
 	} else if (flag ch2_carrying_mainframeos is true) {
-		copy ch2-install-wizard;
+		copy ch2_install_wizard;
 		return;
 	} else if (flag ch2_installed_mainframeos is true) {
 		show dialog mainframe-working; // references above
 		return;
-	} else if (flag ch2-toot-done is false) {
+	} else if (flag ch2_toot_done is false) {
 		show dialog { PLAYER "What is this hunk of junk?" }
 		return;
 	}
 	set flag temp to false;
 	// wizard comes up if down
 	if (entity Wizard current_animation is 0) { // WIZARD IS DOWN
-		set entity Wizard on_tick to tick-ch2-wizard-ascend-and-watch;
+		set entity Wizard on_tick to tick_ch2_wizard_ascend_and_watch;
 	}
 	// normal
 	if (flag ch2_installed_heatsink is false) {
@@ -83,7 +83,7 @@ interact_ch2_mainframe {
 				"(Or you would, but you can't install it until the CPU is in place. You set it aside for now.)"
 			}
 			set flag temp to true;
-			copy ch2-install-heatsink;
+			copy ch2_install_heatsink;
 		}
 	}
 	if (flag ch2_installed_powersupply is false) {
@@ -93,7 +93,7 @@ interact_ch2_mainframe {
 				"(2 kW may be overkill, but better safe than sorry.)"
 			}
 			set flag temp to true;
-			copy ch2-install-powersupply;
+			copy ch2_install_powersupply;
 		}
 	}
 	if (flag ch2_installed_monitor is false) {
@@ -103,7 +103,7 @@ interact_ch2_mainframe {
 				"(...Or rather, it's now plugged into the back. That one was easy!)"
 			}
 			set flag temp to true;
-			copy ch2-install-monitor;
+			copy ch2_install_monitor;
 		}
 	}
 	// abstract
@@ -114,7 +114,7 @@ interact_ch2_mainframe {
 				"(What's the read head going to be? Will this work?!)"
 			}
 			set flag temp to true;
-			copy ch2-install-harddrive;
+			copy ch2_install_harddrive;
 		}
 	}
 	if (flag ch2_installed_keyboard is false) {
@@ -124,7 +124,7 @@ interact_ch2_mainframe {
 				"(Good thing the keytar can connect over USB, or this wouldn't have worked.)"
 			}
 			set flag temp to true;
-			copy ch2-install-keyboard;
+			copy ch2_install_keyboard;
 		}
 	}
 	if (flag ch2_installed_mouse is false) {
@@ -134,7 +134,7 @@ interact_ch2_mainframe {
 				"(...Or at least, installing the dongle.)"
 			}
 			set flag temp to true;
-			copy ch2-install-mouse;
+			copy ch2_install_mouse;
 		}
 	}
 	// desperate
@@ -145,7 +145,7 @@ interact_ch2_mainframe {
 				"(The RAM chips went in with a terrifying SNAP, but they seem snug now. You better wash your hands, though.)"
 			}
 			set flag temp to true;
-			copy ch2-install-ramchips;
+			copy ch2_install_ramchips;
 		}
 	}
 	if (flag ch2_installed_clock is false) {
@@ -155,7 +155,7 @@ interact_ch2_mainframe {
 				"(Somehow, that enormous, analog relic works great for a system clock.)"
 			}
 			set flag temp to true;
-			copy ch2-install-clock;
+			copy ch2_install_clock;
 		}
 	}
 	if (flag ch2_installed_cpu is false) {
@@ -165,7 +165,7 @@ interact_ch2_mainframe {
 				"(Now the mainframe can compute! And... blow bubbles?)"
 			}
 			set flag temp to true;
-			copy ch2-install-cpu;
+			copy ch2_install_cpu;
 		}
 	}
 	// final
@@ -196,7 +196,7 @@ ch2-start-round-2 {
 	wait 200ms;
 	show serial dialog spacer;
 	show serial dialog { " (DING)" }
-	set flag ch2-lambda-paging to true;
+	set flag ch2_lambda_paging to true;
 	set flag ch2_cutseen_bert_secret to true;
 	mutate ch2_storyflag_round = 2;
 	wait 900ms;
@@ -230,7 +230,7 @@ ch2-start-round-3 {
 		" (DING)"
 	}
 	set flag ch2_cutseen_bert_message to true;
-	set flag ch2-lambda-paging to true;
+	set flag ch2_lambda_paging to true;
 	mutate ch2_storyflag_round = 3;
 	wait 700ms;
 	show dialog {
@@ -248,7 +248,7 @@ ch2-start-round-4 {
 		" (DING)"
 	}
 	set flag ch2_cutseen_last_parts_done to true;
-	set flag ch2-lambda-paging to true;
+	set flag ch2_lambda_paging to true;
 	mutate ch2_storyflag_round = 4;
 	wait 700ms;
 	show dialog {
@@ -265,7 +265,7 @@ ch2-start-round-4 {
 
 // DEBUG
 
-register-storyflag {
+register_storyflag {
 	register storyflag -> ch2-debug-storyflag;
 	register storyflag + "0" -> debug_map_flags_for_round0;
 	register storyflag + "1" -> debug_map_flags_for_round1;
@@ -292,50 +292,50 @@ ch2-debug-storyflag {
 }
 
 debug_map_flags_for_round0 {
-	copy ch2-take_off_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-take_off_map-round4;
+	copy ch2_take_off_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 0;
 	// copy ch2-debug_storyflag_log;
 }
 debug_map_flags_for_round1 {
-	copy ch2-put_on_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-take_off_map-round4;
+	copy ch2_put_on_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 1;
 	// copy ch2-debug_storyflag_log;
 }
 debug_map_flags_for_round2 {
-	copy ch2-take_off_map-round1;
-	copy ch2-put_on_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-take_off_map-round4;
+	copy ch2_take_off_map_round1;
+	copy ch2_put_on_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 2;
 	// copy ch2-debug_storyflag_log;
 }
 debug_map_flags_for_round3 {
-	copy ch2-take_off_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-put_on_map-round3;
-	copy ch2-take_off_map-round4;
+	copy ch2_take_off_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_put_on_map_round3;
+	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 3;
 	// copy ch2-debug_storyflag_log;
 }
 debug_map_flags_for_round4 {
-	copy ch2-take_off_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-put_on_map-round4;
+	copy ch2_take_off_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_put_on_map_round4;
 	mutate ch2_storyflag_round = 4;
 	// copy ch2-debug_storyflag_log;
 }
 debug_map_flags_for_round5 {
-	copy ch2-take_off_map-round1;
-	copy ch2-take_off_map-round2;
-	copy ch2-take_off_map-round3;
-	copy ch2-take_off_map-round4;
+	copy ch2_take_off_map_round1;
+	copy ch2_take_off_map_round2;
+	copy ch2_take_off_map_round3;
+	copy ch2_take_off_map_round4;
 	mutate ch2_storyflag_round = 5;
 	set flag ch2_cutseen_castle99 to true;
 	// copy ch2-debug_storyflag_log;
@@ -352,26 +352,26 @@ ch2-serial-light-manager {
 	if (serial dialog is open) {
 		// solid light while in a serial dialog (interactable)
 		turn light LED_USB on;
-	} else if (flag ch2-lambda-paging is true) {
+	} else if (flag ch2_lambda_paging is true) {
 		// blinking light while Lambda wants to talk to you
-		if (flag ch2-lambda-paging-pulsar is true) {
-			set flag ch2-lambda-paging-pulsar to false;
+		if (flag ch2_lambda_paging_pulsar is true) {
+			set flag ch2_lambda_paging_pulsar to false;
 			turn light LED_USB off;
 		} else {
-			set flag ch2-lambda-paging-pulsar to true;
+			set flag ch2_lambda_paging_pulsar to true;
 			turn light LED_USB on;
 		}
 		wait $time;
 	} else if (flag ch2-mousegame is true) {
 		// if flag ch2-mousegame is true, turn off and wait for it to be false before resuming above behavior
-		goto ch2-serial-light-manager-mouse;
+		goto ch2_serial_light_manager_mouse;
 	} else {
 		// no light otherwise
 		turn light LED_USB off;
 	}
 }
 
-ch2-serial-light-manager-mouse {
+ch2_serial_light_manager_mouse {
 	if (flag ch2-mousegame is false) {
 		goto ch2-serial-light-manager;
 	}
@@ -459,7 +459,7 @@ ch2_load_castle_34_special {
 	load map ch2-castle-34;
 }
 
-ch2-player-spawn-click-protection {
+ch2_player_spawn_click_protection {
 	// this bit is so you can load your save, it can do restore_player_state, but not immediately click the floppy again (todo: Maybe this counts as a bug; maybe really fix it?)
 	if (warp state is raw_game_load-ch2) {
 		turn player control off;

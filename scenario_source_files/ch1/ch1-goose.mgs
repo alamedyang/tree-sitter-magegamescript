@@ -58,16 +58,16 @@ include "header.mgs";
 "honk" {
 	entity "Goose" animation -> 2 thrice;
 }
-"honk-to-make-rake-float" {
+"honk-to-make_rake_float" {
 	entity "Goose" direction = entity "Rake";
 	wait 200ms; /**/ entity "Goose" current_animation = 2;
-	wait 600ms; /**/ entity "Goose" on_tick = "make-rake-float";
+	wait 600ms; /**/ entity "Goose" on_tick = "make_rake_float";
 	wait 3000ms; /**/ entity "Goose" current_animation = 0;
 }
 
 // drifting rake
 
-"make-rake-float" { // on_tick
+"make_rake_float" { // on_tick
 	entity "Rake" on_tick = "rake-drift-south";
 	wait 600ms; /**/ entity "Rake" on_tick = "rake-drift-west";
 	wait 600ms; /**/ entity "Rake" on_tick = "rake-drift-south";

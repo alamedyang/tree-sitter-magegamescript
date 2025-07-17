@@ -2,7 +2,7 @@ include!("header.mgs")
 
 // REGISTER
 
-register-colors {
+register_colors {
 	register colors -> command-colors;
 	register colors + bg -> command-colors-bg;
 	register colors + bold -> command-colors-bold;

@@ -204,34 +204,34 @@ var paths = {
 };
 
 var flagConditions = {
-	11: ['ch2-map-monitor'],
-	12: ['ch2-map-needle'],
-	13: ['ch2-map-goldfish'],
-	14: ['ch2-map-clock'],
-	21: ['ch2-map-abacus', 'ch2-map-ramchips', 'ch2-map-solder'],
-	22: ['ch2-map-powersupply'],
-	23: ['ch2-map-heatsink'],
-	31: ['ch2-map-keyboard'],
-	33: ['ch2-map-mouse'],
-	34: ['ch2-map-plate'],
-	99: ['ch2-map-mainframeos'],
+	11: ['ch2_map_monitor'],
+	12: ['ch2_map_needle'],
+	13: ['ch2_map_goldfish'],
+	14: ['ch2_map_clock'],
+	21: ['ch2_map_abacus', 'ch2_map_ramchips', 'ch2_map_solder'],
+	22: ['ch2_map_powersupply'],
+	23: ['ch2_map_heatsink'],
+	31: ['ch2_map_keyboard'],
+	33: ['ch2_map_mouse'],
+	34: ['ch2_map_plate'],
+	99: ['ch2_map_mainframeos'],
 };
 
 var startMessageAtRow = 13;
 var messagePadding = '   ';
 var messages = {
-	'ch2-map-cactuscooler-castle': [
+	ch2_map_cactuscooler_castle: [
 		'Look for <m>Cactus Cooler</>',
 		'somewhere they keep',
 		'refreshments or drinks.',
 	],
-	'ch2-map-cactuscooler-bobaustin': [
+	ch2_map_cactuscooler_bobaustin: [
 		'Ask <m>Stone Cold Bob Austin</>',
 		'about Cactus Cooler; he brings',
 		'loads to all his parties.',
 	],
-	'ch2-map-seamoss': ['Look for <m>Sea Moss</>', 'somewhere in the east wing', 'of the castle.'],
-	'ch2-map-manual': [
+	ch2_map_seamoss: ['Look for <m>Sea Moss</>', 'somewhere in the east wing', 'of the castle.'],
+	ch2_map_manual: [
 		"Look for <m>Frankie's</>",
 		'<m>calculator manual</>',
 		'in the library in town.',
@@ -466,13 +466,13 @@ var natlangOutput = makeNatlangMap(lispish);
 var bodgeRows = [10, 11, 12]; // the row *after* the insertion (for find/replace)
 bodgeRows.forEach(function (item, i) {
 	var find = `concat serial dialog newline;\n\n\t// ROW ${item}`;
-	var insert = messages['ch2-map-manual'][i];
+	var insert = messages['ch2_map_manual'][i];
 	if (i === 0) {
 		insert = '<g>?</> ' + insert;
 	}
 	var replace =
-		`if (flag ch2-map-manual is true) {
-		if (flag ch2-map-seamoss is true) {
+		`if (flag ch2_map_manual is true) {
+		if (flag ch2_map_seamoss is true) {
 			concat serial dialog {"   ${insert}"}
 		}
 	}\n\t` + find;

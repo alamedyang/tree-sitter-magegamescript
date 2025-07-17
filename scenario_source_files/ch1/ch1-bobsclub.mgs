@@ -262,7 +262,7 @@ include "header.mgs";
 	};
 }
 "show_dialog-fridge" {
-	"ch1-found-cactuscooler" = true;
+	"ch1_found_cactuscooler" = true;
 	show dialog {
 		PLAYER "Wow. There's literally nothing but cans of Cactus Cooler in here."
 	};

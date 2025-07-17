@@ -7,7 +7,7 @@ $fridge = 3;
 
 /* ---------- LOOK SCRIPTS ---------- */
 
-"look_ch2_bobsclub" {
+look_ch2_bobsclub {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You look around at the <m><bold>Bob's Club</>."
@@ -16,7 +16,7 @@ $fridge = 3;
 	};
 }
 
-"look_ch2_bobbarstool" {
+look_ch2_bobbarstool {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -24,7 +24,7 @@ $fridge = 3;
 	};
 }
 
-"look_ch2_bobglasses" {
+look_ch2_bobglasses {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at <m>%SELF%</>."
@@ -39,21 +39,21 @@ $fridge = 3;
 		};
 	}
 }
-"look_ch2_bobsbox" {
+look_ch2_bobsbox {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's still sealed. The sides are bulging, as though it was packed tightly with something."
 	};
 }
-"look_ch2_bobsbarrel" {
+look_ch2_bobsbarrel {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"It's not marked, though you always assumed barrels like this would contain ale or beer or something. You suppose it could just as easily contain oyster crackers."
 	};
 }
-"look_ch2_bobcountertop" {
+look_ch2_bobcountertop {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -61,21 +61,21 @@ $fridge = 3;
 	};
 }
 
-"look_ch2_bobcupboard" {
+look_ch2_bobcupboard {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tGlass tumblers are packed together in lines on each shelf. None are missing; there are no gaps."
 	};
 }
-"look_ch2_bobsink" {
+look_ch2_bobsink {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
 		"\tThere's splashes of water -- and an emaciated ice cube -- near the drain. Someone has used the sink recently."
 	};
 }
-"look_ch2_bobfridge" {
+look_ch2_bobfridge {
 	show serial_dialog spacer;
 	show serial_dialog {
 		"You looked at the <m>%SELF%</>."
@@ -86,27 +86,27 @@ $fridge = 3;
 /* ---------- ON_LOAD ---------- */
 
 // DEBUG
-"find-cc" { "ch1-found-cactuscooler" = true; }
-"unfind-cc" { "ch1-found-cactuscooler" = false; }
-"want-cc" { "ch2_want_cactuscooler" = true; }
-"unwant-cc" { "ch2_want_cactuscooler" = false; }
-"basement" { ch2_cutseen_bob_party = true; }
-"unbasement" { ch2_cutseen_bob_party = false; }
-"toot" {
-	"ch2-toot-done" = true;
-	copy!("register-parts")
+find_cc { ch1_found_cactuscooler = true; }
+unfind_cc { ch1_found_cactuscooler = false; }
+want_cc { ch2_want_cactuscooler = true; }
+unwant_cc { ch2_want_cactuscooler = false; }
+basement { ch2_cutseen_bob_party = true; }
+unbasement { ch2_cutseen_bob_party = false; }
+toot {
+	ch2_toot_done = true;
+	copy!(register_parts)
 }
-"untoot" {
-	"ch2-toot-done" = false;
-	delete command "parts" ;
+untoot {
+	ch2_toot_done = false;
+	delete command parts ;
 }
-"reset" {
+reset {
 	ch2_carrying_cactuscooler = false;
-	"ch2_want_cactuscooler" = false;
-	"ch1-found-cactuscooler" = false;
+	ch2_want_cactuscooler = false;
+	ch1_found_cactuscooler = false;
 	ch2_cutseen_bob_party = false;
-	"ch2-toot-done" = false;
-	"ch2-rattle-count" = 0;
+	ch2_toot_done = false;
+	ch2_rattle_count = 0;
 	show serial_dialog {
 		"RESET"
 	};
@@ -114,28 +114,28 @@ $fridge = 3;
 
 // END DEBUG
 
-"on_load-ch2-bobsclub" {
+on_load_ch2_bobsclub {
 	// entrance text
 	show serial_dialog spacer;
 	show serial_dialog { "Entering <bold>BOB'S CLUB</>..." };
 	// do unique stuff first (but player_control = serial / off first, if you do)
-	"ch2-rattle-count" = 0;
+	ch2_rattle_count = 0;
 	
 	copy!(ch2_map_init)
 
 	// DEBUG
 	if (debug_mode) {
-		command "find" + "cc" = "find-cc";
-		command "unfind" + "cc" = "unfind-cc";
-		command "want" + "cc" = "want-cc";
-		command "unwant" + "cc" = "unwant-cc";
-		command "basement" = "basement";
-		command "unbasement" = "unbasement";
-		command "toot" = "toot";
-		command "untoot" = "untoot";
-		command "carry" + "cc" = "ch2_pickup_cactuscooler";
-		command "uncarry" + "cc" = "ch2-unpickup-cactuscooler";
-		command "reset" = "reset";
+		command find + cc = find_cc;
+		command unfind + cc = unfind_cc;
+		command want + cc = want_cc;
+		command unwant + cc = unwant_cc;
+		command basement = basement;
+		command unbasement = unbasement;
+		command toot = toot;
+		command untoot = untoot;
+		command carry + cc = ch2_pickup_cactuscooler;
+		command uncarry + cc = ch2_unpickup_cactuscooler;
+		command reset = reset;
 		show serial_dialog {
 			" "
 			"<y>DEBUG></> Bob's Club</>"
@@ -157,27 +157,27 @@ $fridge = 3;
 	// Have NOT been in the basement
 	if (!ch2_cutseen_bob_party) {
 		player_control = off;
-		if (warp_state != "warped") {
+		if (warp_state != warped) {
 			player position -> geometry "walk-spot" origin over 400ms;
 		}
 		wait 220ms;
 		// Intro words
-		if (!"ch2-saw-emptybobroom") {
-			player on_tick = "look_left_and_right_fast";
+		if (!ch2_saw_emptybobroom) {
+			player on_tick = look_left_and_right_fast;
 			show dialog {
 				PLAYER "Huh? That's weird. Where did everyone go?"
 				"And what's that muffled thumping noise?"
 			};
-			"ch2-saw-emptybobroom" = true;
+			ch2_saw_emptybobroom = true;
 		} else {
 			show dialog {
 				PLAYER "Huh. Still empty... apart from that muffled thumping noise."
 			};
 		}
-		copy!("player-look-down")
+		copy!(player_look_down)
 		// CC followup
-		if ("ch2_want_cactuscooler") { // You KNOW you need CC
-			if ("ch1-found-cactuscooler") {
+		if (ch2_want_cactuscooler) { // You KNOW you need CC
+			if (ch1_found_cactuscooler) {
 				show dialog {
 					PLAYER "At least I can grab some Cactus Cooler while I'm here. I know I saw some in the fridge yesterday."
 				};
@@ -196,16 +196,16 @@ $fridge = 3;
 		player_control = on;
 	}
 	else { // You HAVE been in the basement
-		if ("ch2_want_cactuscooler") { // If you know you need CC
+		if (ch2_want_cactuscooler) { // If you know you need CC
 			if ( // You've already collected the CC
-				"ch2_carrying_cactuscooler"
-				|| "ch2_cactuscooler_delivered"
+				ch2_carrying_cactuscooler
+				|| ch2_cactuscooler_delivered
 			) {
 				// DO NOTHING
 			}
 			else {
 				// REMIND THEM TO GET IT!
-				if ("ch1-found-cactuscooler") {
+				if (ch1_found_cactuscooler) {
 					show dialog {
 						PLAYER "Oh, yeah. I found Cactus Cooler in the fridge here yesterday. I should grab some while I'm here."
 					};
@@ -222,28 +222,28 @@ $fridge = 3;
 
 /* ---------- ON_TICK ---------- */
 
-"on_tick-ch2-bobsclub" {
+on_tick_ch2_bobsclub {
 	if (player intersects geometry "south-hitbox") {
 		warp_state = "walk_from-bobsclub";
 		load map "ch2-town";
 	}
-	map on_tick = "on_tick-ch2-bobsclub"; // reset
+	map on_tick = on_tick_ch2_bobsclub; // reset
 }
 
 /* ---------- EXIT STUFF ---------- */
 
-"on_go-ch2-bobsclub-stairs" {
+on_go_ch2_bobsclub_stairs {
 	copy!(warping_out_fade_out)
 	load map "ch2-bobsclub-basement";
 }
-"on_go-ch2-bobsclub-south" {
+on_go_ch2_bobsclub_south {
 	copy!(warping_out_fade_out)
 	load map "ch2-town";
 }
 
 /* ---------- ENTITIES ---------- */
 
-"interact_ch2_bobbox" {
+interact_ch2_bobbox {
 	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "It's a box of unfilled balloons. There used to be a ton more of them though."
@@ -255,7 +255,7 @@ $fridge = 3;
 		};
 	}
 }
-"interact_ch2_bobbarstool" {
+interact_ch2_bobbarstool {
 	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "Only one stool for the whole bar? Where's the rest?"
@@ -267,12 +267,12 @@ $fridge = 3;
 		};
 	}
 }
-"interact_ch2_bobbarrel" {
+interact_ch2_bobbarrel {
 	show dialog {
 		PLAYER "A beer keg maybe?"
 	};
 }
-"interact_ch2_bobcountertop" {
+interact_ch2_bobcountertop {
 	if (!ch2_cutseen_bob_party) {
 		show dialog {
 			PLAYER "I KNOW there used to be bottles by the sink! Where did everything go?"
@@ -282,35 +282,35 @@ $fridge = 3;
 
 // CALLBACK (ish) STUFF
 
-"interact_ch2_bobcupboard" {
-	if (!"ch2-touched-bobcupboard") {
+interact_ch2_bobcupboard {
+	if (!ch2_touched_bobcupboard) {
 		show dialog {
 			PLAYER "Those are some hardy-looking glasses and tumblers."
 		};
-		"ch2-touched-bobcupboard" = true;
+		ch2_touched_bobcupboard = true;
 	}
 	else {
 		show dialog {
 			PLAYER "Yup, still glasses and tumblers in there."
 		};
 	}
-	copy!("ch2-bobrattling")
+	copy!(ch2_bobrattling)
 }
-"interact_ch2_bobglasses" {
+interact_ch2_bobglasses {
 	show dialog {
 		PLAYER "These glasses look super fancy."
 	};
-	copy!("ch2-bobrattling")
+	copy!(ch2_bobrattling)
 }
-"interact_ch2_bobfridge" {
+interact_ch2_bobfridge {
 	if ( // You've already collected the CC
-		"ch2_carrying_cactuscooler"
-		|| "ch2_cactuscooler_delivered"
+		ch2_carrying_cactuscooler
+		|| ch2_cactuscooler_delivered
 	) {
 		show dialog { PLAYER "Nothing in here." };
 	}
 	else {
-		if (!"ch1-found-cactuscooler") {
+		if (!ch1_found_cactuscooler) {
 			show dialog {
 				PLAYER "I would have thought there'd be some soda in here, but nothing. Not even a box of baking soda."
 			};
@@ -321,29 +321,29 @@ $fridge = 3;
 			};
 		}
 	}
-	copy!("ch2-bobrattling")
+	copy!(ch2_bobrattling)
 }
 
-"player-look-down" {
+player_look_down {
 	player on_tick = null_script;
 	player direction = south;
 }
 
-"ch2-bobrattling" { // Hint that there's more inside the building
+ch2_bobrattling { // Hint that there's more inside the building
 	if (!ch2_cutseen_bob_party) {
-		player on_tick = "look_left_and_right_fast";
+		player on_tick = look_left_and_right_fast;
 		// naive only
-		if ("ch2-rattle-count" == 0) {
+		if (ch2_rattle_count == 0) {
 			show dialog {
 				PLAYER "...Jeez, that weird thumping is actually rattling the shelves! Is that... music? Loud music?"
 			};
-			copy!("player-look-down")
+			copy!(player_look_down)
 			show dialog {
 				PLAYER "Where the heck is it coming from? This is the only room in the building!"
 				"...Right?"
 			};
 		}
-		else if ("ch2-rattle-count" == 1) {
+		else if (ch2_rattle_count == 1) {
 			show dialog {
 				PLAYER "...Okay, that thumping is DEFINITELY music. I think the bass just dropped."
 			};
@@ -351,45 +351,45 @@ $fridge = 3;
 				PLAYER "It sounds like the speaker is nearby, like just beyond a wall. But the only exit to this room is the main entrance."
 			};
 		}
-		else if ("ch2-rattle-count" == 2) {
+		else if (ch2_rattle_count == 2) {
 			show dialog {
 				PLAYER "...Wow, I think what I'm hearing is actually dubstep. It's muffled, but it's so loud it must be practically next door."
 			};
-			copy!("player-look-down")
+			copy!(player_look_down)
 			show dialog {
 				PLAYER "Is it under the floor or something? I keeping looking but there aren't any stairs!"
 			};
 		}
 		// you have the artifact and can get more specific hints
-		else if ("ch2-rattle-count" == 3) {
+		else if (ch2_rattle_count == 3) {
 			show dialog {
 				PLAYER "...Okay, that music is starting to get on my nerves. But where..."
 			};
-			copy!("player-look-down")
+			copy!(player_look_down)
 			show dialog {
 				PLAYER "...Oh, that's right! The artifact can identify the exits for each room!"
 				"I wonder if it could show me the way to a secret room."
 				"...With secret dubstep."
 			};
 		}
-		else if ("ch2-rattle-count" == 4) {
-			copy!("player-look-down")
+		else if (ch2_rattle_count == 4) {
+			copy!(player_look_down)
 			show dialog {
 				PLAYER "...Ah, that's right, I remember now. I can use the artifact to LOOK around the room. Maybe I can find the source of the music that way."
 			};
 		}
 		else {
-			copy!("player-look-down")
+			copy!(player_look_down)
 			show dialog {
 				PLAYER "...But enough distractions. I should use the LOOK command in the serial console to discover any secret doors."
 			};
 		}
-		copy!("player-look-down")
+		copy!(player_look_down)
 
 		// advance the count
-		"ch2-rattle-count" += 1;
-		if (!"ch2-toot-done") {
-			"ch2-rattle-count" %= 3;
+		ch2_rattle_count += 1;
+		if (!ch2_toot_done) {
+			ch2_rattle_count %= 3;
 		}
 	}
 }

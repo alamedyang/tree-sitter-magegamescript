@@ -2,7 +2,7 @@ include "header.mgs";
 
 // REGISTER
 
-"register-eastereggs" {
+"register_eastereggs" {
 	command "plover" = "command-plover";
 	command "xyzzy" = "command-xyzzy";
 	command "plugh" = "command-plugh";

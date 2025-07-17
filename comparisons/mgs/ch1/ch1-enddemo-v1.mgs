@@ -254,7 +254,7 @@ on_tick-credits {
 	fade out camera to #000000 over 1200ms;
 	set warp state to exit_from-credits;
 	turn hex control on;
-	if (flag credits-from-menu is true) {
+	if (flag credits_from_menu is true) {
 		load map main_menu;
 	}
 	load map main;
@@ -270,7 +270,7 @@ debug_roll_credits_q {
 }
 
 roll-credits {
-	set flag credits-from-menu to false;
+	set flag credits_from_menu to false;
 	load map credits;
 }
 

@@ -1,6 +1,6 @@
 include!("header.mgs")
 
-cutbug-auto {
+cutbug_auto {
     turn player control off;
     set entity "%PLAYER%" y to 0;
     for (mutate j = 0; variable i is < 1030; mutate j + 1) {
