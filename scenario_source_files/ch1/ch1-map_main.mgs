@@ -32,10 +32,10 @@ on_load_map_main {
 	}
 	// assuming you have ring zero
 	hex_control = on;
-	if (storyflag_bobmoss) {
+	if (bobmoss_quest_done) {
 		entity "Bob Moss" position = geometry "catwalk-hide";
 	} 
-	if (storyflag_rake) {
+	if (rake_quest_done) {
 		copy!(rake_in_lake)
 		entity Goose on_interact = honk_to_make_rake_float;
 	}
@@ -51,10 +51,10 @@ on_load_map_main {
 	if (main_hamster_unglitched) {
 		entity Hamster glitched = false;
 	}
-	if (storyflag_shepherd) {
+	if (shepherd_quest_done) {
 		copy!(sheep_in_pen)
 	}
-	if (storyflag_bender) {
+	if (bender_quest_done) {
 		copy!(bender_happybutt)
 	}
 	if (!walked_to_lodge) {
@@ -92,37 +92,37 @@ on_load_map_main {
 		if (!ch1_finished) {
 			goto null_script;
 		}
-		if (!storyflag_catwork) {
+		if (!catwork_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_shepherd) {
+		if (!shepherd_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_bender) {
+		if (!bender_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_baker) {
+		if (!baker_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_bobmoss) {
+		if (!bobmoss_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_bea1) {
+		if (!bea1_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_trekkie) {
+		if (!trekkie_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_sportskid) {
+		if (!sportskid_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_bea2) {
+		if (!bea2_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_rake) {
+		if (!rake_quest_done) {
 			goto null_script;
 		}
-		if (!storyflag_verthandi) {
+		if (!verthandi_quest_done) {
 			goto null_script;
 		}
 		if (demobonus_jackob_informed) {

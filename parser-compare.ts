@@ -29,6 +29,7 @@ import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import * as TYPES from './parser-bytecode-info.ts';
 import { ansiTags } from './parser-utilities.js';
+import { compareNonlinearScripts } from './parser-adventure.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -400,47 +401,47 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 	// chunks that
 	let jumpTos: number[] = [];
 	const sequence: string[] = [];
-	while (!exploredBranchPoints.has(pos)) {
+	while (pos < cs.OOB + 1) {
 		while (pos < cs.OOB + 1) {
 			const line = lines[pos];
 			if (line === undefined) {
-				// console.log('NO MORE LINES!');
+				console.log('NO MORE LINES!');
 				jumpTos = [cs.OOB];
 				break;
 			}
-			// console.log(`Looking at line [${pos}]: ${line}`);
+			console.log(`Looking at line [${pos}]: ${line}`);
 			if (cs.rejoins.has(pos) && pos !== topPos) {
 				jumpTos = [pos];
 				break;
 			}
 			const analysis = analyzeLine(line);
-			// console.log(`   > TYPE: ${analysis.type}`);
+			console.log(`   > TYPE: ${analysis.type}`);
 			if (analysis.type === 'line') {
-				// console.log(`   > DO: push to seen lines`);
+				console.log(`   > DO: push to seen lines`);
 				sequence.push(analysis.line);
 				pos += 1;
 				continue;
 			}
 			if (analysis.type === 'comment') {
-				// console.log(`   > DO: ignore`);
+				console.log(`   > DO: ignore`);
 				pos += 1;
 				continue;
 			}
 			if (analysis.type === 'label') {
-				// console.log(`   > DO: break the sequence`);
+				console.log(`   > DO: break the sequence`);
 				pos += 1;
 				jumpTos = [pos];
 				break;
 			}
 			if (analysis.type === 'load-map') {
-				// console.log(`   > DO: jump to OOB (${cs.OOB})`);
+				console.log(`   > DO: jump to OOB (${cs.OOB})`);
 				pos += 1;
 				sequence.push(analysis.line);
 				jumpTos = [cs.OOB];
 				break;
 			}
 			if (analysis.type === 'goto-script') {
-				// console.log(`   > DO: jump to OOB (${cs.OOB})`);
+				console.log(`   > DO: jump to OOB (${cs.OOB})`);
 				sequence.push(`goto script "${analysis.value}"`);
 				jumpTos = [cs.OOB];
 				break;
@@ -448,14 +449,14 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 			if (analysis.type === 'goto-index') {
 				if (typeof analysis.value !== 'number') throw new Error('TS broke it');
 				pos = analysis.value;
-				// console.log(`   > DO: jump to new pos (${pos})`);
+				console.log(`   > DO: jump to new pos (${pos})`);
 				jumpTos = [pos];
 				break;
 			}
 			if (analysis.type === 'goto-label') {
 				if (typeof analysis.value !== 'string') throw new Error('TS broke it');
 				pos = cs.registry[analysis.value];
-				// console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
+				console.log(`   > DO: jump to new pos (${pos}, via label ${analysis.value})`);
 				if (pos === undefined)
 					throw new Error('No registered index for label ' + analysis.value);
 				jumpTos = [pos];
@@ -464,7 +465,7 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 			if (analysis.type === 'if-then-goto-script') {
 				// must do both cases separately, as sometimes the goto is split from the check
 				// Let's just get rid of the deadend early?
-				// console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
+				console.log(`   > DO: PROBABLY SOMETHING FANCY (TODO)`);
 				const deadendFrom = cs.OOB + Math.random(); // oh dear
 				if (typeof analysis.value !== 'string') throw new Error('unreachable');
 				lines[deadendFrom] = analysis.value; // !! is this gonna work??
@@ -479,9 +480,9 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 				pos += 1;
 				const jumpPos = cs.registry[analysis.value];
 				jumpTos = [pos, jumpPos];
-				// console.log(
-				// 	`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
-				// );
+				console.log(
+					`   > DO: split to next line (${pos}) and jump point (${jumpPos}, via label ${analysis.value})`,
+				);
 				break;
 			}
 			if (analysis.type === 'if-then-goto-index') {
@@ -490,7 +491,7 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 				pos += 1;
 				const jumpPos = analysis.value;
 				jumpTos = [pos, jumpPos];
-				// console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
+				console.log(`   > DO: split to next line (${pos}) and jump point (${jumpPos})`);
 				break;
 			}
 		}
@@ -501,7 +502,8 @@ const chooseYourOwnAdventure = (cs: AdventureCrawlState, _pos: number) => {
 			sequence: sequence.slice(),
 		};
 		if (fromIndicies[insert.from]) {
-			throw new Error('already something starting from index ' + insert.from);
+			break;
+			// throw new Error('already something starting from index ' + insert.from);
 		}
 		fromIndicies[insert.from] = insert;
 		jumpTos.forEach((to) => {
@@ -537,12 +539,15 @@ const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
 const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
-	let oldActions = oldPost[scriptName];
-	let newActions = p.scripts[scriptName].actions;
-	if (!oldActions) {
-		oldActions = oldPre[scriptName];
-		newActions = p.scripts[scriptName].preActions;
-	}
+	// let oldActions = oldPost[scriptName];
+	// let newActions = p.scripts[scriptName].actions;
+	// if (!oldActions) {
+	// oldActions = oldPre[scriptName];
+	// newActions = p.scripts[scriptName].preActions;
+	// }
+	const oldActions = oldPre[scriptName];
+	const newActions = p.scripts[scriptName].preActions;
+
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
 	if (
@@ -560,9 +565,12 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 			};
 		}
 	}
-	const oldAdventure = startAdventure(oldPrint.split('\n').slice(1, -1), oldActions);
-	const newAdventure = startAdventure(newPrint.split('\n').slice(1, -1), newActions);
-	const compared = compareAdventures(oldAdventure, newAdventure);
+	console.log('COMPARING ' + scriptName);
+	const compared = compareNonlinearScripts(oldPrint, newPrint);
+	console.log('...result: ' + compared);
+	// const oldAdventure = startAdventure(oldPrint.split('\n').slice(1, -1), oldActions);
+	// const newAdventure = startAdventure(newPrint.split('\n').slice(1, -1), newActions);
+	// const compared = compareAdventures(oldAdventure, newAdventure);
 	if (compared) {
 		// Exact copies when you follow their if-else branches.
 		// (Line ordering might be different.)

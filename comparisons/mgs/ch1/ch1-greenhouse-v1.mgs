@@ -4,7 +4,7 @@ on_load_greenhouse {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
-	if (flag storyflag_trekkie is true) {
+	if (flag trekkie_quest_done is true) {
 		copy script ch1_ethernettle_restore;
 	}
 }
@@ -72,7 +72,7 @@ show_dialog_trekkie_start {
 	copy script face_player;
 	if (entity "%SELF%" is glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" }
-	} else if (flag storyflag_trekkie is true) {
+	} else if (flag trekkie_quest_done is true) {
 		copy ch1_greenhouse_trekkie_aftermath;
 	} else if (
 		entity EtherNettle1 secondary_id is not 3 // orange-white
@@ -199,7 +199,7 @@ ch1_greenhouse_modem_turning_on_cutscene {
 		PLAYER "Sounds great, %Trekkie%."
 	}
 	turn entity "%SELF%" toward geometry Computer
-	set flag storyflag_trekkie to true;
+	set flag trekkie_quest_done to true;
 	copy script calculate_hint_tracking_series;
 	turn player control on;
 }

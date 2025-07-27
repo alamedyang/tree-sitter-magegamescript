@@ -7,6 +7,13 @@
 		{
 			"type": "node",
 			"request": "launch",
+			"name": "Adventure",
+			"skipFiles": ["<node_internals>/**"],
+			"program": "${workspaceFolder}/parser-adventure.ts"
+		},
+		{
+			"type": "node",
+			"request": "launch",
 			"name": "Tests",
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${workspaceFolder}/parser-tests.js"

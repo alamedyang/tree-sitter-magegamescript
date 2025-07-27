@@ -9,7 +9,7 @@ on_tick_goose_mission {
 	if entity Rake is not inside geometry lake then goto on_tick_goose_mission_rake_out_of_lake;
 	turn entity Goose south;
 	set entity Goose current_animation to 0;
-	set flag storyflag_rake to true;
+	set flag rake_quest_done to true;
 	copy calculate_hint_tracking_series;
 	if (variable hint_tracking_check is 10) {
 		// if the hint series is the currently goose, reset hint
@@ -96,7 +96,7 @@ show_dialog_goose_generic {
 
 show_dialog_goose_mad {
 	show dialog { SELF "Honk!" }
-	if (flag storyflag_rake is false) {
+	if (flag rake_quest_done is false) {
 		copy set_hint_goose;
 	}
 	// RESET

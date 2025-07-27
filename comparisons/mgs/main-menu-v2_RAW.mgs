@@ -827,47 +827,47 @@ start_new_game_with_name {
 
 menu_chapter_select_q {
    ch1_storyflags_tally = 0;
-   if (storyflag_catwork) { goto index 3; }
+   if (catwork_quest_done) { goto index 3; }
    goto index 5;
    ch1_storyflags_tally += 1;
    goto index 5;
-   if (storyflag_shepherd) { goto index 7; }
+   if (shepherd_quest_done) { goto index 7; }
    goto index 9;
    ch1_storyflags_tally += 1;
    goto index 9;
-   if (storyflag_bender) { goto index 11; }
+   if (bender_quest_done) { goto index 11; }
    goto index 13;
    ch1_storyflags_tally += 1;
    goto index 13;
-   if (storyflag_baker) { goto index 15; }
+   if (baker_quest_done) { goto index 15; }
    goto index 17;
    ch1_storyflags_tally += 1;
    goto index 17;
-   if (storyflag_bobmoss) { goto index 19; }
+   if (bobmoss_quest_done) { goto index 19; }
    goto index 21;
    ch1_storyflags_tally += 1;
    goto index 21;
-   if (storyflag_bea1) { goto index 23; }
+   if (bea1_quest_done) { goto index 23; }
    goto index 25;
    ch1_storyflags_tally += 1;
    goto index 25;
-   if (storyflag_trekkie) { goto index 27; }
+   if (trekkie_quest_done) { goto index 27; }
    goto index 29;
    ch1_storyflags_tally += 1;
    goto index 29;
-   if (storyflag_sportskid) { goto index 31; }
+   if (sportskid_quest_done) { goto index 31; }
    goto index 33;
    ch1_storyflags_tally += 1;
    goto index 33;
-   if (storyflag_verthandi) { goto index 35; }
+   if (verthandi_quest_done) { goto index 35; }
    goto index 37;
    ch1_storyflags_tally += 1;
    goto index 37;
-   if (storyflag_bea2) { goto index 39; }
+   if (bea2_quest_done) { goto index 39; }
    goto index 41;
    ch1_storyflags_tally += 1;
    goto index 41;
-   if (storyflag_rake) { goto index 43; }
+   if (rake_quest_done) { goto index 43; }
    goto index 45;
    ch1_storyflags_tally += 1;
    goto index 45;

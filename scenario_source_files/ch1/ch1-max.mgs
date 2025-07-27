@@ -4,7 +4,7 @@ include "header.mgs";
 // no zigzagging!
 
 felix_loiter {
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		goto hiding_cat;
 	}
 	self direction = south;
@@ -13,7 +13,7 @@ felix_loiter {
 	wait 1200ms;
 }
 deut_loiter {
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		goto hiding_cat;
 	}
 	self direction = west;
@@ -22,7 +22,7 @@ deut_loiter {
 	wait 2400ms;
 }
 bmurray_loiter {
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		goto hiding_cat;
 	}
 	self direction = south;
@@ -31,7 +31,7 @@ bmurray_loiter {
 	wait 1000ms;
 }
 maru_loiter {
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		goto hiding_cat;
 	}
 	self direction = west;
@@ -54,7 +54,7 @@ cat_walking_to_work {
 }
 
 on_tick_max_neutral {
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		goto null_script;
 	}
 	if (player type == pipscat) {
@@ -125,7 +125,7 @@ send_cats_to_work {
 		"Brilliant! Now things can finally move forward!"
 	};
 	player_control = on;
-	storyflag_catwork = true;
+	catwork_quest_done = true;
 	entity "Max Swagger" animation -> 5 once;
 	entity "Max Swagger" current_animation = 0;
 	copy!(calculate_hint_tracking_series)
@@ -200,7 +200,7 @@ show_dialog_max_start {
 		show dialog {
 			SELF "Azr. Vm jvbyzl aolyl'k il huvaoly jvtwspjhapvu!"
 		};
-	} else if (storyflag_catwork) {
+	} else if (catwork_quest_done) {
 		copy!(face_player)
 		show dialog {
 			entity "Max Swagger"

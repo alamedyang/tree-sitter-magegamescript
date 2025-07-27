@@ -94,7 +94,7 @@ show_dialog_verthandi_start {
 	if (entity "%SELF%" is glitched) {
 		goto show_dialog_verthandi_glitched; // JUMP
 	}
-	if (flag storyflag_verthandi is true) {
+	if (flag verthandi_quest_done is true) {
 		show dialog { SELF "Thank you for everything you've done!" }
 	} else {
 		// find unglitch count
@@ -125,7 +125,7 @@ show_dialog_verthandi_start {
 			if (variable hint_tracking_check is 11) {
 				copy set_hint_none;
 			}
-			set flag storyflag_verthandi to true;
+			set flag verthandi_quest_done to true;
 			set flag goats_both_unglitched to true;
 		} else if (flag verthandi_backstory is true) {
 			if (flag goats_both_unglitched is true) {

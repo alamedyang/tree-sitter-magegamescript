@@ -4,7 +4,7 @@ show_dialog_shepherd_start {
 	copy face_player;
 	if (entity "%SELF%" is glitched) { // if he's glitched
 		show dialog { SELF "Jubn, jung'f tbvat ba?!" }
-	} else if (flag storyflag_shepherd is true) { // if you've solved the puzzle already
+	} else if (flag shepherd_quest_done is true) { // if you've solved the puzzle already
 		show dialog { SELF "Thanks a million! I owe you one!" }
 	} else if (
 		entity Baa is not inside geometry sheep-pen
@@ -50,7 +50,7 @@ show_dialog_shepherd_start {
 			}
 			set flag shepherd_backstory to true; // (because you talked to him at all)
 		}
-		set flag storyflag_shepherd to true;
+		set flag shepherd_quest_done to true;
 		copy calculate_hint_tracking_series;
 		if (variable hint_tracking_check is 1) {
 			// if the hint series is the same, reset hint
@@ -101,7 +101,7 @@ turn_right_and_left {
 }
 
 show_dialog_shepherd_ending {
-	set flag storyflag_shepherd to true;
+	set flag shepherd_quest_done to true;
 	set flag shepherd_backstory to true;
 	copy calculate_hint_tracking_series;
 	if (variable hint_tracking_check is 1) {

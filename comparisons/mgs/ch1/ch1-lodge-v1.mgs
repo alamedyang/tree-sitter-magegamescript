@@ -826,11 +826,11 @@ show_dialog_lodge_cat {
 			copy set_hint_glitch;
 		}
 	} else if (
-		flag storyflag_catwork is true
+		flag catwork_quest_done is true
 		|| flag white_cat is false
 	) {
 		show dialog { SELF "...." }
-	} else { // if storyflag_catwork is TRUE && flag white_cat is TRUE
+	} else { // if catwork_quest_done is TRUE && flag white_cat is TRUE
 		turn player control off;
 		// thumbs up:
 		play entity Cat animation 3 once;

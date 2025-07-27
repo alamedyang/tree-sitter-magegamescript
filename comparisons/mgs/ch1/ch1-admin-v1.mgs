@@ -1,36 +1,36 @@
 ch1_count_flags {
 	mutate ch1_storyflags_tally = 0;
-	if (flag storyflag_catwork is true) {
+	if (flag catwork_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_shepherd is true) {
+	if (flag shepherd_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_bender is true) {
+	if (flag bender_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_baker is true) {
+	if (flag baker_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_bobmoss is true) {
+	if (flag bobmoss_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_bea1 is true) {
+	if (flag bea1_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_trekkie is true) {
+	if (flag trekkie_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_sportskid is true) {
+	if (flag sportskid_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_verthandi is true) {
+	if (flag verthandi_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_bea2 is true) {
+	if (flag bea2_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
-	if (flag storyflag_rake is true) {
+	if (flag rake_quest_done is true) {
 		mutate ch1_storyflags_tally + 1;
 	}
 }

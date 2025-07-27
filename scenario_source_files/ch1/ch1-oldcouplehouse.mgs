@@ -9,7 +9,7 @@ on_tick_oldcouplehouse {
 }
 leave_oldcouplehouse {
 	warp_state = exit_from_oldcouplehouse;
-	if (storyflag_bea1) {
+	if (bea1_quest_done) {
 		bea_sequel_branch = true;
 	}
 	load map main;
@@ -22,7 +22,7 @@ on_load_oldcouplehouse {
 		command rtfm = command_rtfm;
 	}
 	if (bea_sequel_branch) {
-		if (!storyflag_bea2) {
+		if (!bea2_quest_done) {
 			copy!(make_delmar_man)
 		}
 	}
@@ -50,7 +50,7 @@ show_dialog_delmar {
 			"Oh, yeah. The important thing was that I had an onion on my belt, which was the style at the time."
 			"They didn't have any white onions, because of the war. The only thing you could get was those big yellow ones...."
 		};
-	} else if (storyflag_bea1) {
+	} else if (bea1_quest_done) {
 		show dialog {
 			Delmar "Huh? What's goin' on? What'd I miss?"
 		};
@@ -100,7 +100,7 @@ slow_stare_at_player {
 // part 1
 
 show_dialog_bea_part1 {
-	if (!storyflag_bea1) { // you did NOT beat part1
+	if (!bea1_quest_done) { // you did NOT beat part1
 		if (entity Delmar type == old_man) { // win condition met
 			// currently no backstory/!backstory difference
 			player_control = off;
@@ -118,7 +118,7 @@ show_dialog_bea_part1 {
 				copy!(set_hint_none)
 			}
 			bea1_backstory = true;
-			storyflag_bea1 = true;
+			bea1_quest_done = true;
 		} else { // win condition NOT met
 			if (!bea1_backstory) { // you did NOT hear the backstory
 				if (entity Delmar type == sheep || entity Delmar type == helga) { // is sheep
@@ -182,7 +182,7 @@ show_dialog_bea_part1 {
 // part 2
 
 show_dialog_bea_part2 {
-	if (!storyflag_bea2) { // !part2won
+	if (!bea2_quest_done) { // !part2won
 		if (entity Delmar type == sheep || entity Delmar type == helga) {
 			if (!bea2_backstory) {
 				show dialog {
@@ -202,7 +202,7 @@ show_dialog_bea_part2 {
 				copy!(set_hint_none)
 			}
 			bea2_backstory = true;
-			storyflag_bea2 = true;
+			bea2_quest_done = true;
 		} else { // not a sheep
 			if (entity Delmar type == old_man) {
 				if (!bea2_backstory) {
@@ -286,7 +286,7 @@ debug_bea_sequel_q {
 }
 debug_bea_sequel_man {
 	bea_sequel_branch = true;
-	storyflag_bea1 = true;
+	bea1_quest_done = true;
 	bea1_backstory = true;
 	entity Delmar type = old_man;
 	copy!(set_hint_none)
@@ -296,7 +296,7 @@ debug_bea_sequel_man {
 }
 debug_bea_sequel_noman {
 	bea_sequel_branch = true;
-	storyflag_bea1 = true;
+	bea1_quest_done = true;
 	bea1_backstory = true;
 	copy!(set_hint_none)
 	show dialog { SELF "Sequel branch activated, and Delmar left alone." };

@@ -14,7 +14,7 @@ kid_ballwatch {
 	if entity Kid type is blitzball then goto kid_now_ball;
 }
 kid_now_ball {
-	set flag storyflag_sportskid to true;
+	set flag sportskid_quest_done to true;
 	copy calculate_hint_tracking_series;
 	if (variable hint_tracking_check is 8) {
 		copy set_hint_none;
@@ -26,7 +26,7 @@ on_load_family {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
-	if (flag storyflag_sportskid is true) {
+	if (flag sportskid_quest_done is true) {
 		set entity Kid type to blitzball;
 	}
 }

@@ -32,10 +32,10 @@ on_load_map_main {
 	}
 	// assuming you have ring zero
 	turn hex control on;
-	if (flag storyflag_bobmoss is true) {
+	if (flag bobmoss_quest_done is true) {
 		teleport entity "Bob Moss" to geometry catwalk-hide;
 	} 
-	if (flag storyflag_rake is true) {
+	if (flag rake_quest_done is true) {
 		copy rake_in_lake;
 		set entity Goose on_interact to honk_to_make_rake_float;
 	}
@@ -51,10 +51,10 @@ on_load_map_main {
 	if (flag main_hamster_unglitched is true) {
 		make entity Hamster unglitched;
 	}
-	if (flag storyflag_shepherd is true) {
+	if (flag shepherd_quest_done is true) {
 		copy sheep_in_pen;
 	}
-	if (flag storyflag_bender is true) {
+	if (flag bender_quest_done is true) {
 		copy bender_happybutt;
 	}
 	if (flag walked_to_lodge is false) {
@@ -90,17 +90,17 @@ on_load_map_main {
 		fade in camera from #000000 over 800ms;
 		turn player control on;
 		if flag ch1_finished is false then goto null_script;
-		if flag storyflag_catwork is false then goto null_script;
-		if flag storyflag_shepherd is false then goto null_script;
-		if flag storyflag_bender is false then goto null_script;
-		if flag storyflag_baker is false then goto null_script;
-		if flag storyflag_bobmoss is false then goto null_script;
-		if flag storyflag_bea1 is false then goto null_script;
-		if flag storyflag_trekkie is false then goto null_script;
-		if flag storyflag_sportskid is false then goto null_script;
-		if flag storyflag_bea2 is false then goto null_script;
-		if flag storyflag_rake is false then goto null_script;
-		if flag storyflag_verthandi is false then goto null_script;
+		if flag catwork_quest_done is false then goto null_script;
+		if flag shepherd_quest_done is false then goto null_script;
+		if flag bender_quest_done is false then goto null_script;
+		if flag baker_quest_done is false then goto null_script;
+		if flag bobmoss_quest_done is false then goto null_script;
+		if flag bea1_quest_done is false then goto null_script;
+		if flag trekkie_quest_done is false then goto null_script;
+		if flag sportskid_quest_done is false then goto null_script;
+		if flag bea2_quest_done is false then goto null_script;
+		if flag rake_quest_done is false then goto null_script;
+		if flag verthandi_quest_done is false then goto null_script;
 		if flag demobonus_jackob_informed is true then goto null_script;
 		set flag demobonus to true;
 		// ^^ set now because all story flags and credits confirmed true; use this flag for same check hereafter

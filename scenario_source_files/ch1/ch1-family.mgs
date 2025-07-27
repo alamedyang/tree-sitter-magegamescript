@@ -18,7 +18,7 @@ kid_ballwatch {
 	}
 }
 kid_now_ball {
-	storyflag_sportskid = true;
+	sportskid_quest_done = true;
 	copy!(calculate_hint_tracking_series)
 	if (hint_tracking_check == 8) {
 		copy!(set_hint_none)
@@ -30,7 +30,7 @@ on_load_family {
 	if (tuesdayd) {
 		command rtfm = command_rtfm;
 	}
-	if (storyflag_sportskid) {
+	if (sportskid_quest_done) {
 		entity Kid type = blitzball;
 	}
 }
@@ -61,9 +61,7 @@ show_dialog_smith {
 		show dialog { SELF "Naa, ptl matm lttz itgxxk, hk lxz ytnem itgxxk?" };
 	} else {
 		entity Smith direction = player;
-		if (smith_backstory) {
-			show dialog { SELF "Real talk, don't eat memory leek soup. It'll mess with your head." };
-		} else {
+		if (!smith_backstory) {
 			show dialog {
 				SELF "What's for dinner?"
 				"Memory leek soup!"
@@ -71,6 +69,8 @@ show_dialog_smith {
 				"...Nah, just kidding. It's saag paneer."
 			};
 			smith_backstory = true;
+		} else {
+			show dialog { SELF "Real talk, don't eat memory leek soup. It'll mess with your head." };
 		}
 		entity Smith direction = east;
 	}

@@ -3186,7 +3186,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 89',
 		},
@@ -3214,7 +3214,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 167',
 		},
@@ -3242,7 +3242,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 243',
 		},
@@ -3270,7 +3270,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 318',
 		},
@@ -3298,7 +3298,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 395',
 		},
@@ -3326,7 +3326,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 469',
 		},
@@ -3354,7 +3354,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 546',
 		},
@@ -3382,7 +3382,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 625',
 		},
@@ -3410,7 +3410,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 704',
 		},
@@ -3438,7 +3438,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 778',
 		},
@@ -3466,7 +3466,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 852',
 		},
@@ -3538,7 +3538,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2147',
 		},
@@ -3745,7 +3745,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			bool_value: true,
 		},
 		{
@@ -4026,7 +4026,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 898',
 		},
@@ -4607,7 +4607,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6371',
 		},
@@ -4629,7 +4629,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			bool_value: true,
 		},
 		{
@@ -5014,7 +5014,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 12639',
 		},
@@ -5195,7 +5195,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 14198',
 		},
@@ -5261,7 +5261,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			bool_value: true,
 		},
 		{
@@ -5854,114 +5854,114 @@ export const idk: Record<string, TYPES.Action[]> = {
 	set_story_flags_true: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			bool_value: true,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			bool_value: true,
 		},
 	],
 	set_story_flags_false: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			bool_value: false,
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			bool_value: false,
 		},
 	],
@@ -6571,67 +6571,67 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 2994',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3235',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3454',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3739',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3955',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4215',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4430',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4654',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 4875',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5089',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 5332',
 		},
@@ -9184,7 +9184,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	kid_now_ball: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			bool_value: true,
 		},
 		{
@@ -9255,7 +9255,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1342',
 		},
@@ -9661,7 +9661,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 4044',
 		},
@@ -10019,7 +10019,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			bool_value: true,
 		},
 		{
@@ -10328,7 +10328,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			bool_value: true,
 		},
 		{
@@ -10627,7 +10627,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3823',
 		},
@@ -10717,7 +10717,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 867',
 		},
@@ -10961,7 +10961,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 3761',
 		},
@@ -11410,7 +11410,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			bool_value: true,
 		},
 		{
@@ -14626,7 +14626,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 28038',
 		},
@@ -16379,7 +16379,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1563',
 		},
@@ -16406,7 +16406,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1658',
 		},
@@ -16545,7 +16545,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2084',
 		},
@@ -16571,7 +16571,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2146',
 		},
@@ -16890,67 +16890,67 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bender',
+			save_flag: 'bender_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_baker',
+			save_flag: 'baker_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bobmoss',
+			save_flag: 'bobmoss_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_trekkie',
+			save_flag: 'trekkie_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_sportskid',
+			save_flag: 'sportskid_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_rake',
+			save_flag: 'rake_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_verthandi',
+			save_flag: 'verthandi_quest_done',
 			expected_bool: false,
 			success_script: 'null_script',
 		},
@@ -17858,7 +17858,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	felix_loiter: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			success_script: 'hiding_cat',
 		},
@@ -17893,7 +17893,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	deut_loiter: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			success_script: 'hiding_cat',
 		},
@@ -17928,7 +17928,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	bmurray_loiter: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			success_script: 'hiding_cat',
 		},
@@ -17963,7 +17963,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	maru_loiter: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			success_script: 'hiding_cat',
 		},
@@ -18041,7 +18041,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	on_tick_max_neutral: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			success_script: 'null_script',
 		},
@@ -18233,7 +18233,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			bool_value: true,
 		},
 		{
@@ -18548,7 +18548,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_catwork',
+			save_flag: 'catwork_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 6115',
 		},
@@ -18788,7 +18788,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 1014',
 		},
@@ -18863,7 +18863,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 1289',
 		},
@@ -18935,7 +18935,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 2336',
 		},
@@ -19125,7 +19125,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	show_dialog_bea_part1: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 3369',
 		},
@@ -19390,7 +19390,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			bool_value: true,
 		},
 		{
@@ -19418,7 +19418,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	show_dialog_bea_part2: [
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			expected_bool: false,
 			jump_index: 'bodyStart ZIGZAG 6484',
 		},
@@ -19673,7 +19673,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea2',
+			save_flag: 'bea2_quest_done',
 			bool_value: true,
 		},
 		{
@@ -19758,7 +19758,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			bool_value: true,
 		},
 		{
@@ -19797,7 +19797,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_bea1',
+			save_flag: 'bea1_quest_done',
 			bool_value: true,
 		},
 		{
@@ -20580,7 +20580,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'CHECK_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			expected_bool: true,
 			jump_index: 'bodyStart ZIGZAG 941',
 		},
@@ -20649,7 +20649,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			bool_value: true,
 		},
 		{
@@ -20908,7 +20908,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	show_dialog_shepherd_ending: [
 		{
 			action: 'SET_SAVE_FLAG',
-			save_flag: 'storyflag_shepherd',
+			save_flag: 'shepherd_quest_done',
 			bool_value: true,
 		},
 		{

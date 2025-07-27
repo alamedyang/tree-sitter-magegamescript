@@ -104,7 +104,7 @@ show_dialog_verthandi_start {
 	if (self glitched) {
 		goto show_dialog_verthandi_glitched; // JUMP
 	}
-	if (storyflag_verthandi) {
+	if (verthandi_quest_done) {
 		show dialog { SELF "Thank you for everything you've done!" };
 	} else {
 		// find unglitch count
@@ -135,7 +135,7 @@ show_dialog_verthandi_start {
 			if (hint_tracking_check == 11) {
 				copy!(set_hint_none)
 			}
-			storyflag_verthandi = true;
+			verthandi_quest_done = true;
 			goats_both_unglitched = true;
 		} else if (verthandi_backstory) {
 			if (goats_both_unglitched) {

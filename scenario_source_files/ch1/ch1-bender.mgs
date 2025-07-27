@@ -45,12 +45,12 @@ show_dialog_bender_start {
 			"I speak binary fluently, kid! A little trick like this won't slow me down!"
 		};
 		return;
-	} 
+	}
 	
 	copy!(set_bender_idle_stop)
 	copy!(face_player)
 
-	if (storyflag_bender) {
+	if (bender_quest_done) {
 		if (entity Bender type == bender) {
 			copy!(bite_my_shiny_metal_ass)
 			show dialog {
@@ -71,7 +71,7 @@ show_dialog_bender_start {
 			copy!(bender_success_backstory)
 		}
 		bender_backstory = true;
-		storyflag_bender = true;
+		bender_quest_done = true;
 		copy!(calculate_hint_tracking_series)
 		if (hint_tracking_check == 5) {
 			copy!(set_hint_none)
@@ -93,7 +93,12 @@ show_dialog_bender_start {
 				SELF "Come on! That doesn't look anything like me, half-assed or full-assed."
 			};
 		}
-	} else if (entity Bender type == bender_sadbutt) {
+		copy!(set_hint_bender)
+		copy!(set_bender_idle_glare_at_you)
+		return;
+	}
+
+	if (entity Bender type == bender_sadbutt) {
 		show dialog {
 			PLAYER "Oh! You look friendly!"
 			SELF "Well, I'm not!"

@@ -1,0 +1,954 @@
+"show_dialog_smith" {
+	if self glitched then goto label bodyStart_ZIGZAG_1935;
+	entity "Smith" direction = player;
+	if "smith_backstory" then goto label bodyStart_ZIGZAG_2102;
+	show dialog "ch1-family.mgs:61:4";
+	"smith_backstory" = true;
+	goto label LABEL_f2379;
+	bodyStart_ZIGZAG_2102:
+	show dialog "ch1-family.mgs:59:4";
+	goto label LABEL_f2379;
+	LABEL_f2379:
+	entity "Smith" direction = "east";
+	goto label LABEL_f2408;
+	bodyStart_ZIGZAG_1935:
+	show dialog "ch1-family.mgs:55:3";
+	goto label LABEL_f2408;
+	LABEL_f2408:
+	self on_interact = "show_dialog_smith";
+}
+
+"command_parts_plate" {
+	if "ch2_storyflag_round" < 2 then goto label bodyStart_ZIGZAG_14565;
+	goto label LABEL_f14605;
+	bodyStart_ZIGZAG_14565:
+	goto script "command_parts_ahead_confused";
+	goto label LABEL_f14605;
+	LABEL_f14605:
+	show serial_dialog "spacer";
+	if "ch2_installed_plate" then goto label bodyStart_ZIGZAG_14674;
+	if "ch2_carrying_plate" then goto label bodyStart_ZIGZAG_14844;
+	copy!("ch2_describe_plate")
+	goto label LABEL_f15377;
+	bodyStart_ZIGZAG_14674:
+	show serial_dialog "command-parts.mgs:374:3";
+	goto label LABEL_f15377;
+	bodyStart_ZIGZAG_14844:
+	if !"ch2_carrying_needle" then goto label bodyStart_ZIGZAG_14887;
+	show serial_dialog "command-parts.mgs:379:4";
+	goto label LABEL_f15337;
+	bodyStart_ZIGZAG_14887:
+	show serial_dialog "command-parts.mgs:377:4";
+	goto label LABEL_f15337;
+	LABEL_f15337:
+	goto label LABEL_f15377;
+	LABEL_f15377:
+	show serial_dialog "command-parts.mgs:384:2";
+	show serial_dialog "lambda_over";
+}
+
+"command_parts_needle" {
+	if "ch2_storyflag_round" < 2 then goto label bodyStart_ZIGZAG_15505;
+	goto label LABEL_f15545;
+	bodyStart_ZIGZAG_15505:
+	goto script "command_parts_ahead_confused";
+	goto label LABEL_f15545;
+	LABEL_f15545:
+	show serial_dialog "spacer";
+	if "ch2_installed_needle" then goto label bodyStart_ZIGZAG_15615;
+	if "ch2_carrying_needle" then goto label bodyStart_ZIGZAG_15793;
+	copy!("ch2_describe_needle")
+	goto label LABEL_f16309;
+	bodyStart_ZIGZAG_15615:
+	show serial_dialog "command-parts.mgs:393:3";
+	goto label LABEL_f16309;
+	bodyStart_ZIGZAG_15793:
+	if !"ch2_carrying_plate" then goto label bodyStart_ZIGZAG_15835;
+	show serial_dialog "command-parts.mgs:398:4";
+	goto label LABEL_f16268;
+	bodyStart_ZIGZAG_15835:
+	show serial_dialog "command-parts.mgs:396:4";
+	goto label LABEL_f16268;
+	LABEL_f16268:
+	goto label LABEL_f16309;
+	LABEL_f16309:
+	show serial_dialog "command-parts.mgs:403:2";
+	show serial_dialog "lambda_over";
+}
+
+"command_parts_abacus" {
+	if "ch2_storyflag_round" < 3 then goto label bodyStart_ZIGZAG_19699;
+	goto label LABEL_f19739;
+	bodyStart_ZIGZAG_19699:
+	goto script "command_parts_ahead_confused";
+	goto label LABEL_f19739;
+	LABEL_f19739:
+	show serial_dialog "spacer";
+	if "ch2_installed_abacus" then goto label bodyStart_ZIGZAG_19809;
+	if "ch2_carrying_abacus" then goto label bodyStart_ZIGZAG_20019;
+	copy!("ch2_describe_abacus")
+	goto label LABEL_f20424;
+	bodyStart_ZIGZAG_19809:
+	show serial_dialog "command-parts.mgs:479:3";
+	goto label LABEL_f20424;
+	bodyStart_ZIGZAG_20019:
+	if !"ch2_carrying_goldfish" then goto label bodyStart_ZIGZAG_20064;
+	show serial_dialog "command-parts.mgs:484:4";
+	goto label LABEL_f20383;
+	bodyStart_ZIGZAG_20064:
+	show serial_dialog "command-parts.mgs:482:4";
+	goto label LABEL_f20383;
+	LABEL_f20383:
+	goto label LABEL_f20424;
+	LABEL_f20424:
+	show serial_dialog "command-parts.mgs:489:2";
+	show serial_dialog "lambda_over";
+}
+
+"command_parts_goldfish" {
+	if "ch2_storyflag_round" < 3 then goto label bodyStart_ZIGZAG_18744;
+	goto label LABEL_f18784;
+	bodyStart_ZIGZAG_18744:
+	goto script "command_parts_ahead_confused";
+	goto label LABEL_f18784;
+	LABEL_f18784:
+	show serial_dialog "spacer";
+	if "ch2_installed_goldfish" then goto label bodyStart_ZIGZAG_18856;
+	if "ch2_carrying_goldfish" then goto label bodyStart_ZIGZAG_19019;
+	copy!("ch2_describe_goldfish")
+	goto label LABEL_f19571;
+	bodyStart_ZIGZAG_18856:
+	show serial_dialog "command-parts.mgs:460:3";
+	goto label LABEL_f19571;
+	bodyStart_ZIGZAG_19019:
+	if !"ch2_carrying_abacus" then goto label bodyStart_ZIGZAG_19062;
+	show serial_dialog "command-parts.mgs:465:4";
+	goto label LABEL_f19528;
+	bodyStart_ZIGZAG_19062:
+	show serial_dialog "command-parts.mgs:463:4";
+	goto label LABEL_f19528;
+	LABEL_f19528:
+	goto label LABEL_f19571;
+	LABEL_f19571:
+	show serial_dialog "command-parts.mgs:470:2";
+	show serial_dialog "lambda_over";
+}
+
+"simon_player_turn_loop_start" {
+	if "i" >= "simon_round" then goto label bodyStart_ZIGZAG_8402;
+	goto label LABEL_f8435;
+	bodyStart_ZIGZAG_8402:
+	goto script "simon_player_turn_end";
+	goto label LABEL_f8435;
+	LABEL_f8435:
+	if "i" == 0 then goto label bodyStart_ZIGZAG_8462;
+	if "i" == 1 then goto label bodyStart_ZIGZAG_8532;
+	if "i" == 2 then goto label bodyStart_ZIGZAG_8602;
+	if "i" == 3 then goto label bodyStart_ZIGZAG_8672;
+	if "i" == 4 then goto label bodyStart_ZIGZAG_8742;
+	if "i" == 5 then goto label bodyStart_ZIGZAG_8812;
+	if "i" == 6 then goto label bodyStart_ZIGZAG_8882;
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8462:
+	"simon_pos_curr" = "simon_pos1";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8532:
+	"simon_pos_curr" = "simon_pos2";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8602:
+	"simon_pos_curr" = "simon_pos3";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8672:
+	"simon_pos_curr" = "simon_pos4";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8742:
+	"simon_pos_curr" = "simon_pos5";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8812:
+	"simon_pos_curr" = "simon_pos6";
+	goto label LABEL_f8920;
+	bodyStart_ZIGZAG_8882:
+	"simon_pos_curr" = "simon_pos7";
+	goto label LABEL_f8920;
+	LABEL_f8920:
+	goto script "simon_player_listen";
+}
+
+"command_man_normal" {
+	if "ch2_cutseen_bert_secret" then goto label bodyStart_ZIGZAG_2679;
+	goto label LABEL_f2866;
+	bodyStart_ZIGZAG_2679:
+	if !"ch2_lambda_bert_backstory" then goto label bodyStart_ZIGZAG_2728;
+	if !"ch2_parts_round_2_backstory" then goto label bodyStart_ZIGZAG_2824;
+	goto label LABEL_f2863;
+	bodyStart_ZIGZAG_2728:
+	goto script "ch2_bert_secret_lambda_intro";
+	goto label LABEL_f2863;
+	bodyStart_ZIGZAG_2824:
+	goto script "ch2_lambda_round_2_parts1";
+	goto label LABEL_f2863;
+	LABEL_f2863:
+	goto label LABEL_f2866;
+	LABEL_f2866:
+	if "ch2_cutseen_bert_message" then goto label bodyStart_ZIGZAG_2912;
+	goto label LABEL_f3009;
+	bodyStart_ZIGZAG_2912:
+	if !"ch2_parts_round_3_backstory" then goto label bodyStart_ZIGZAG_2963;
+	goto label LABEL_f3006;
+	bodyStart_ZIGZAG_2963:
+	goto script "ch2_bert_message_lambda_intro";
+	goto label LABEL_f3006;
+	LABEL_f3006:
+	goto label LABEL_f3009;
+	LABEL_f3009:
+	if "ch2_cutseen_last_parts_done" then goto label bodyStart_ZIGZAG_3058;
+	goto label LABEL_f3144;
+	bodyStart_ZIGZAG_3058:
+	if !"ch2_parts_round_4_backstory" then goto label bodyStart_ZIGZAG_3109;
+	goto label LABEL_f3141;
+	bodyStart_ZIGZAG_3109:
+	goto script "ch2_lambda_round_4";
+	goto label LABEL_f3141;
+	LABEL_f3141:
+	goto label LABEL_f3144;
+	LABEL_f3144:
+	if "ch2_toot_done" then goto label bodyStart_ZIGZAG_3181;
+	goto label LABEL_f3217;
+	bodyStart_ZIGZAG_3181:
+	goto script "command_man_normal_convo";
+	goto label LABEL_f3217;
+	LABEL_f3217:
+	goto script "ch2_toot_check";
+}
+
+"show_dialog_bender_start" {
+	if self glitched then goto label bodyStart_ZIGZAG_1776;
+	copy!("set_bender_idle_stop")
+	copy!("face_player")
+	if "bender_quest_done" then goto label bodyStart_ZIGZAG_2147;
+	if entity "Bender" type == "bender" then goto label bodyStart_ZIGZAG_2613;
+	if "bender_backstory" then goto label bodyStart_ZIGZAG_3186;
+	if entity "Bender" type == "bender_sadbutt" then goto label bodyStart_ZIGZAG_3767;
+	show dialog "ch1-bender.mgs:119:7";
+	goto label LABEL_f5151;
+	bodyStart_ZIGZAG_3767:
+	show dialog "ch1-bender.mgs:93:7";
+	copy!("bite_my_shiny_metal_ass_sad")
+	show dialog "ch1-bender.mgs:98:7";
+	if player type == "bender_sadbutt" then goto label bodyStart_ZIGZAG_4369;
+	if player type == "bender" then goto label bodyStart_ZIGZAG_4369;
+	show dialog "ch1-bender.mgs:109:8";
+	goto label LABEL_f4617;
+	bodyStart_ZIGZAG_4369:
+	show dialog "ch1-bender.mgs:105:8";
+	goto label LABEL_f4617;
+	LABEL_f4617:
+	show dialog "ch1-bender.mgs:114:7";
+	goto label LABEL_f5151;
+	LABEL_f5151:
+	goto label LABEL_f5157;
+	bodyStart_ZIGZAG_3186:
+	if entity "Bender" type == "bender_sadbutt" then goto label bodyStart_ZIGZAG_3267;
+	show dialog "ch1-bender.mgs:87:7";
+	goto label LABEL_f3670;
+	bodyStart_ZIGZAG_3267:
+	copy!("bite_my_shiny_metal_ass_sad")
+	show dialog "ch1-bender.mgs:81:7";
+	goto label LABEL_f3670;
+	LABEL_f3670:
+	goto label LABEL_f5157;
+	LABEL_f5157:
+	"bender_backstory" = true;
+	copy!("set_hint_bender")
+	copy!("set_bender_idle_glare_at_you")
+	goto label LABEL_f5393;
+	bodyStart_ZIGZAG_2613:
+	if !"bender_backstory" then goto label bodyStart_ZIGZAG_2678;
+	copy!("bender_success_backstory")
+	goto label LABEL_f2772;
+	bodyStart_ZIGZAG_2678:
+	copy!("bender_success_no_backstory")
+	goto label LABEL_f2772;
+	LABEL_f2772:
+	"bender_backstory" = true;
+	"bender_quest_done" = true;
+	copy!("calculate_hint_tracking_series")
+	if "hint_tracking_check" == 5 then goto label bodyStart_ZIGZAG_2995;
+	goto label LABEL_f3072;
+	bodyStart_ZIGZAG_2995:
+	copy!("set_hint_none")
+	goto label LABEL_f3072;
+	LABEL_f3072:
+	copy!("set_bender_idle_look_around_randomly")
+	goto label LABEL_f5393;
+	LABEL_f5393:
+	goto label LABEL_f5397;
+	bodyStart_ZIGZAG_2147:
+	if entity "Bender" type == "bender" then goto label bodyStart_ZIGZAG_2196;
+	show dialog "ch1-bender.mgs:58:5";
+	goto label LABEL_f2482;
+	bodyStart_ZIGZAG_2196:
+	copy!("bite_my_shiny_metal_ass")
+	show dialog "ch1-bender.mgs:53:5";
+	goto label LABEL_f2482;
+	LABEL_f2482:
+	copy!("set_bender_idle_look_around_randomly")
+	goto label LABEL_f5397;
+	LABEL_f5397:
+	goto label LABEL_f5400;
+	bodyStart_ZIGZAG_1776:
+	show dialog "ch1-bender.mgs:41:3";
+	goto label LABEL_f5400;
+	LABEL_f5400:
+}
+
+"show_dialog_verthandi_start" {
+	copy!("face_player")
+	if self glitched then goto label bodyStart_ZIGZAG_3954;
+	goto label LABEL_f4003;
+	bodyStart_ZIGZAG_3954:
+	goto script "show_dialog_verthandi_glitched";
+	goto label LABEL_f4003;
+	LABEL_f4003:
+	if "verthandi_quest_done" then goto label bodyStart_ZIGZAG_4044;
+	"unglitch_count" = 0;
+	if "goldfish_unglitched" then goto label bodyStart_ZIGZAG_4213;
+	goto label LABEL_f4241;
+	bodyStart_ZIGZAG_4213:
+	"unglitch_count" += 1;
+	goto label LABEL_f4241;
+	LABEL_f4241:
+	if "timmy_unglitched" then goto label bodyStart_ZIGZAG_4280;
+	goto label LABEL_f4308;
+	bodyStart_ZIGZAG_4280:
+	"unglitch_count" += 1;
+	goto label LABEL_f4308;
+	LABEL_f4308:
+	if "fountain_unglitched" then goto label bodyStart_ZIGZAG_4350;
+	goto label LABEL_f4378;
+	bodyStart_ZIGZAG_4350:
+	"unglitch_count" += 1;
+	goto label LABEL_f4378;
+	LABEL_f4378:
+	if "lodge_cat_unglitched" then goto label bodyStart_ZIGZAG_4421;
+	goto label LABEL_f4449;
+	bodyStart_ZIGZAG_4421:
+	"unglitch_count" += 1;
+	goto label LABEL_f4449;
+	LABEL_f4449:
+	if "billy_unglitched" then goto label bodyStart_ZIGZAG_4488;
+	goto label LABEL_f4516;
+	bodyStart_ZIGZAG_4488:
+	"unglitch_count" += 1;
+	goto label LABEL_f4516;
+	LABEL_f4516:
+	if "kid_unglitched" then goto label bodyStart_ZIGZAG_4553;
+	goto label LABEL_f4581;
+	bodyStart_ZIGZAG_4553:
+	"unglitch_count" += 1;
+	goto label LABEL_f4581;
+	LABEL_f4581:
+	if "main_hamster_unglitched" then goto label bodyStart_ZIGZAG_4627;
+	goto label LABEL_f4655;
+	bodyStart_ZIGZAG_4627:
+	"unglitch_count" += 1;
+	goto label LABEL_f4655;
+	LABEL_f4655:
+	"total_glitches" = 7;
+	"total_glitches" -= "unglitch_count";
+	if "total_glitches" == 0 then goto label bodyStart_ZIGZAG_4787;
+	if "verthandi_backstory" then goto label bodyStart_ZIGZAG_5359;
+	show dialog "ch1-goats.mgs:153:4";
+	if entity "Billy" glitched then goto label bodyStart_ZIGZAG_6701;
+	if entity "Kid" glitched then goto label bodyStart_ZIGZAG_6701;
+	show dialog "ch1-goats.mgs:164:5";
+	"goats_both_unglitched" = true;
+	goto label LABEL_f7253;
+	bodyStart_ZIGZAG_6701:
+	show dialog "ch1-goats.mgs:158:5";
+	goto label LABEL_f7253;
+	LABEL_f7253:
+	"verthandi_backstory" = true;
+	copy!("set_hint_glitch")
+	goto label LABEL_f7323;
+	bodyStart_ZIGZAG_4787:
+	if !"verthandi_backstory" then goto label bodyStart_ZIGZAG_4831;
+	show dialog "ch1-goats.mgs:117:5";
+	goto label LABEL_f5112;
+	bodyStart_ZIGZAG_4831:
+	show dialog "ch1-goats.mgs:112:5";
+	goto label LABEL_f5112;
+	LABEL_f5112:
+	copy!("calculate_hint_tracking_series")
+	if "hint_tracking_check" == 11 then goto label bodyStart_ZIGZAG_5197;
+	goto label LABEL_f5226;
+	bodyStart_ZIGZAG_5197:
+	copy!("set_hint_none")
+	goto label LABEL_f5226;
+	LABEL_f5226:
+	"verthandi_quest_done" = true;
+	"goats_both_unglitched" = true;
+	goto label LABEL_f7323;
+	bodyStart_ZIGZAG_5359:
+	if "goats_both_unglitched" then goto label bodyStart_ZIGZAG_5404;
+	if entity "Billy" glitched then goto label bodyStart_ZIGZAG_6112;
+	if entity "Kid" glitched then goto label bodyStart_ZIGZAG_6112;
+	show dialog "ch1-goats.mgs:145:5";
+	"goats_both_unglitched" = true;
+	goto label LABEL_f6398;
+	bodyStart_ZIGZAG_5404:
+	if "total_glitches" == 1 then goto label bodyStart_ZIGZAG_5444;
+	show dialog "ch1-goats.mgs:133:6";
+	goto label LABEL_f5626;
+	bodyStart_ZIGZAG_5444:
+	show dialog "ch1-goats.mgs:131:6";
+	goto label LABEL_f5626;
+	LABEL_f5626:
+	if !"timmy_unglitched" then goto label bodyStart_ZIGZAG_5706;
+	if !"lodge_cat_unglitched" then goto label bodyStart_ZIGZAG_5706;
+	if !"main_hamster_unglitched" then goto label bodyStart_ZIGZAG_5864;
+	if !"fountain_unglitched" then goto label bodyStart_ZIGZAG_5864;
+	if !"goldfish_unglitched" then goto label bodyStart_ZIGZAG_5975;
+	goto label LABEL_f6044;
+	bodyStart_ZIGZAG_5706:
+	show dialog "ch1-goats.mgs:136:6";
+	goto label LABEL_f6044;
+	bodyStart_ZIGZAG_5864:
+	show dialog "ch1-goats.mgs:138:6";
+	goto label LABEL_f6044;
+	bodyStart_ZIGZAG_5975:
+	show dialog "ch1-goats.mgs:140:6";
+	goto label LABEL_f6044;
+	LABEL_f6044:
+	goto label LABEL_f6398;
+	bodyStart_ZIGZAG_6112:
+	show dialog "ch1-goats.mgs:143:5";
+	goto label LABEL_f6398;
+	LABEL_f6398:
+	copy!("set_hint_glitch")
+	goto label LABEL_f7323;
+	LABEL_f7323:
+	goto label LABEL_f7326;
+	bodyStart_ZIGZAG_4044:
+	show dialog "ch1-goats.mgs:96:3";
+	goto label LABEL_f7326;
+	LABEL_f7326:
+	goto script "show_dialog_verthandi_wrapup";
+}
+
+"on_load_map_main" {
+	if "tuesdayd" then goto label bodyStart_ZIGZAG_1241;
+	goto label LABEL_f1277;
+	bodyStart_ZIGZAG_1241:
+	command "rtfm" = "command_rtfm";
+	goto label LABEL_f1277;
+	LABEL_f1277:
+	if !"begunthegame" then goto label bodyStart_ZIGZAG_1347;
+	goto label LABEL_f1470;
+	bodyStart_ZIGZAG_1347:
+	"begunthegame" = true;
+	hex_control = false;
+	camera fade in -> #000000 over 1ms;
+	load map "magehouse";
+	goto label LABEL_f1470;
+	LABEL_f1470:
+	hex_control = true;
+	if "bobmoss_quest_done" then goto label bodyStart_ZIGZAG_1563;
+	goto label LABEL_f1621;
+	bodyStart_ZIGZAG_1563:
+	entity "Bob Moss" position = geometry "catwalk-hide";
+	goto label LABEL_f1621;
+	LABEL_f1621:
+	if "rake_quest_done" then goto label bodyStart_ZIGZAG_1658;
+	goto label LABEL_f1741;
+	bodyStart_ZIGZAG_1658:
+	copy!("rake_in_lake")
+	entity "Goose" on_interact = "honk_to_make_rake_float";
+	goto label LABEL_f1741;
+	LABEL_f1741:
+	if "billy_unglitched" then goto label bodyStart_ZIGZAG_1779;
+	goto label LABEL_f1814;
+	bodyStart_ZIGZAG_1779:
+	entity "Billy" glitched = false;
+	goto label LABEL_f1814;
+	LABEL_f1814:
+	if "kid_unglitched" then goto label bodyStart_ZIGZAG_1850;
+	goto label LABEL_f1883;
+	bodyStart_ZIGZAG_1850:
+	entity "Kid" glitched = false;
+	goto label LABEL_f1883;
+	LABEL_f1883:
+	if "fountain_unglitched" then goto label bodyStart_ZIGZAG_1924;
+	goto label LABEL_f1962;
+	bodyStart_ZIGZAG_1924:
+	entity "Fountain" glitched = false;
+	goto label LABEL_f1962;
+	LABEL_f1962:
+	if "main_hamster_unglitched" then goto label bodyStart_ZIGZAG_2007;
+	goto label LABEL_f2044;
+	bodyStart_ZIGZAG_2007:
+	entity "Hamster" glitched = false;
+	goto label LABEL_f2044;
+	LABEL_f2044:
+	if "shepherd_quest_done" then goto label bodyStart_ZIGZAG_2084;
+	goto label LABEL_f2108;
+	bodyStart_ZIGZAG_2084:
+	copy!("sheep_in_pen")
+	goto label LABEL_f2108;
+	LABEL_f2108:
+	if "bender_quest_done" then goto label bodyStart_ZIGZAG_2146;
+	goto label LABEL_f2174;
+	bodyStart_ZIGZAG_2146:
+	copy!("bender_happybutt")
+	goto label LABEL_f2174;
+	LABEL_f2174:
+	if !"walked_to_lodge" then goto label bodyStart_ZIGZAG_2212;
+	goto label LABEL_f2237;
+	bodyStart_ZIGZAG_2212:
+	goto script "walk_to_lodge";
+	goto label LABEL_f2237;
+	LABEL_f2237:
+	player_control = false;
+	if !"hintman_explanation" then goto label bodyStart_ZIGZAG_2305;
+	if warp_state == "enter_from_east" then goto label bodyStart_ZIGZAG_2519;
+	if warp_state == "enter_from_west" then goto label bodyStart_ZIGZAG_2634;
+	if warp_state == "exit_from_bobsclub" then goto label bodyStart_ZIGZAG_2752;
+	if warp_state == "exit_from_bakery" then goto label bodyStart_ZIGZAG_2871;
+	if warp_state == "exit_from_lodge" then goto label bodyStart_ZIGZAG_2987;
+	if warp_state == "exit_from_greenhouse" then goto label bodyStart_ZIGZAG_3107;
+	if warp_state == "exit_from_magehouse" then goto label bodyStart_ZIGZAG_3231;
+	if warp_state == "exit_from_oldcouplehouse" then goto label bodyStart_ZIGZAG_3359;
+	if warp_state == "exit_from_family" then goto label bodyStart_ZIGZAG_3484;
+	if warp_state == "exit_from_woprhouse" then goto label bodyStart_ZIGZAG_3604;
+	if warp_state == "exit_from_credits" then goto label bodyStart_ZIGZAG_3725;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2305:
+	player position -> geometry "enter_from-lodge" length over 400ms;
+	copy!("hintman_cutscene")
+	"hintman_explanation" = true;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2519:
+	player position -> geometry "enter_from_east" length over 1000ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2634:
+	player position -> geometry "enter_from_west" length over 1000ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2752:
+	player position -> geometry "enter_from-bobsclub" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2871:
+	player position -> geometry "enter_from-bakery" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_2987:
+	player position -> geometry "enter_from-lodge" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3107:
+	player position -> geometry "enter_from-greenhouse" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3231:
+	player position -> geometry "enter_from-magehouse" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3359:
+	player position -> geometry "enter_from-oldcouplehouse" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3484:
+	player position -> geometry "enter_from-family" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3604:
+	player position -> geometry "enter_from-woprhouse" length over 200ms;
+	goto label LABEL_f4956;
+	bodyStart_ZIGZAG_3725:
+	player position = geometry "from-credits-spot";
+	camera fade in -> #000000 over 800ms;
+	player_control = true;
+	if !"ch1_finished" then goto script "null_script";
+	if !"catwork_quest_done" then goto script "null_script";
+	if !"shepherd_quest_done" then goto script "null_script";
+	if !"bender_quest_done" then goto script "null_script";
+	if !"baker_quest_done" then goto script "null_script";
+	if !"bobmoss_quest_done" then goto script "null_script";
+	if !"bea1_quest_done" then goto script "null_script";
+	if !"trekkie_quest_done" then goto script "null_script";
+	if !"sportskid_quest_done" then goto script "null_script";
+	if !"bea2_quest_done" then goto script "null_script";
+	if !"rake_quest_done" then goto script "null_script";
+	if !"verthandi_quest_done" then goto script "null_script";
+	if "demobonus_jackob_informed" then goto script "null_script";
+	"demobonus" = true;
+	show dialog "ch1-map_main.mgs:106:3";
+	"demobonus_jackob_informed" = true;
+	goto label LABEL_f4956;
+	LABEL_f4956:
+	player_control = true;
+}
+
+"on_load_ch2_town" {
+	if warp_state == "cutscene-escort" then goto label bodyStart_ZIGZAG_1435;
+	goto label LABEL_f1466;
+	bodyStart_ZIGZAG_1435:
+	goto script "ch2_escort_cutscene";
+	goto label LABEL_f1466;
+	LABEL_f1466:
+	show serial_dialog "spacer";
+	show serial_dialog "ch2-town.mgs:30:2";
+	entity "Bert" on_tick = "yeet";
+	if "ch2_storyflag_round" < 5 then goto label bodyStart_ZIGZAG_1708;
+	goto label LABEL_f1910;
+	bodyStart_ZIGZAG_1708:
+	entity "Jackob" on_tick = "yeet";
+	if "ch2_storyflag_round" == 2 then goto label bodyStart_ZIGZAG_1816;
+	entity "Alfonso" on_tick = "yeet";
+	goto label LABEL_f1907;
+	bodyStart_ZIGZAG_1816:
+	copy!("ch2_setup_alfonso_verthandi")
+	goto label LABEL_f1907;
+	LABEL_f1907:
+	goto label LABEL_f1910;
+	LABEL_f1910:
+	if "ch2_storyflag_round" == 1 then goto label bodyStart_ZIGZAG_2009;
+	if "ch2_storyflag_round" == 2 then goto label bodyStart_ZIGZAG_2009;
+	if "ch2_storyflag_round" == 3 then goto label bodyStart_ZIGZAG_2227;
+	if "ch2_storyflag_round" == 4 then goto label bodyStart_ZIGZAG_2227;
+	goto label LABEL_f2280;
+	bodyStart_ZIGZAG_2009:
+	entity "Shepherd" position = geometry "shepherd2";
+	entity "Shepherd" direction = "east";
+	entity "Shepherd" on_tick = "null_script";
+	goto label LABEL_f2280;
+	bodyStart_ZIGZAG_2227:
+	entity "Shepherd" position = geometry "shepherd1";
+	goto label LABEL_f2280;
+	LABEL_f2280:
+	if "ch2_storyflag_round" == 0 then goto label bodyStart_ZIGZAG_2336;
+	if "ch2_storyflag_round" == 3 then goto label bodyStart_ZIGZAG_2511;
+	if "ch2_storyflag_round" == 4 then goto label bodyStart_ZIGZAG_2511;
+	goto label LABEL_f2597;
+	bodyStart_ZIGZAG_2336:
+	entity "Verthandi" position = geometry "verthandi1";
+	entity "Verthandi" direction = "west";
+	goto label LABEL_f2597;
+	bodyStart_ZIGZAG_2511:
+	entity "Verthandi" position = geometry "verthandi2";
+	entity "Verthandi" direction = "north";
+	goto label LABEL_f2597;
+	LABEL_f2597:
+	if "ch2_storyflag_round" == 1 then goto label bodyStart_ZIGZAG_2693;
+	if "ch2_storyflag_round" == 2 then goto label bodyStart_ZIGZAG_2693;
+	if "ch2_storyflag_round" == 3 then goto label bodyStart_ZIGZAG_2856;
+	if "ch2_storyflag_round" == 4 then goto label bodyStart_ZIGZAG_2856;
+	goto label LABEL_f2930;
+	bodyStart_ZIGZAG_2693:
+	entity "Marta" position = geometry "marta1";
+	entity "Marta" direction = "west";
+	goto label LABEL_f2930;
+	bodyStart_ZIGZAG_2856:
+	entity "Marta" position = geometry "marta2";
+	entity "Marta" direction = "south";
+	goto label LABEL_f2930;
+	LABEL_f2930:
+	if "ch2_delmar_in_house" then goto label bodyStart_ZIGZAG_2982;
+	goto label LABEL_f3022;
+	bodyStart_ZIGZAG_2982:
+	entity "Delmar" on_tick = "yeet";
+	goto label LABEL_f3022;
+	LABEL_f3022:
+	player_control = false;
+	if warp_state == "raw_game_load-ch2" then goto label bodyStart_ZIGZAG_3118;
+	if warp_state == "exit_from_credits" then goto label bodyStart_ZIGZAG_3194;
+	if warp_state == "walk_from-east" then goto label bodyStart_ZIGZAG_3340;
+	if warp_state == "walk_from-west" then goto label bodyStart_ZIGZAG_3537;
+	if warp_state == "walk_from-bobsclub" then goto label bodyStart_ZIGZAG_3738;
+	if warp_state == "walk_from-bakery" then goto label bodyStart_ZIGZAG_3855;
+	if warp_state == "walk_from-lodge" then goto label bodyStart_ZIGZAG_3969;
+	if warp_state == "walk_from-greenhouse" then goto label bodyStart_ZIGZAG_4087;
+	if warp_state == "walk_from-magehouse" then goto label bodyStart_ZIGZAG_4209;
+	if warp_state == "walk_from-oldcouplehouse" then goto label bodyStart_ZIGZAG_4335;
+	if warp_state == "walk_from-smithfamily" then goto label bodyStart_ZIGZAG_4463;
+	if warp_state == "walk_from-woprhouse" then goto label bodyStart_ZIGZAG_4586;
+	if warp_state == "walk_from-bobsclub" then goto label bodyStart_ZIGZAG_4706;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3118:
+	copy!("restore_player_state")
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3194:
+	player position = geometry "from-credits-spot";
+	camera fade in -> #000000 over 800ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3340:
+	player path = "walk_from-east";
+	player on_tick = "on_tick_ch2_town_walkfadein";
+	camera fade in -> #000000 over 400ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3537:
+	player path = "walk_from-west";
+	player on_tick = "on_tick_ch2_town_walkfadein";
+	camera fade in -> #000000 over 400ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3738:
+	player position -> geometry "walk_from-bobsclub" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3855:
+	player position -> geometry "walk_from-bakery" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_3969:
+	player position -> geometry "walk_from-lodge" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4087:
+	player position -> geometry "walk_from-greenhouse" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4209:
+	player position -> geometry "walk_from-magehouse" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4335:
+	player position -> geometry "walk_from-oldcouplehouse" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4463:
+	player position -> geometry "walk_from-smithfamily" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4586:
+	player position -> geometry "walk_from-woprhouse" length over 200ms;
+	goto label LABEL_f4780;
+	bodyStart_ZIGZAG_4706:
+	player position -> geometry "walk_from-bobsclub" length over 200ms;
+	goto label LABEL_f4780;
+	LABEL_f4780:
+	copy!("ch2_map_init")
+	if debug_mode then goto label bodyStart_ZIGZAG_4827;
+	goto label LABEL_f5069;
+	bodyStart_ZIGZAG_4827:
+	command "cutbug" = "cutbug";
+	command "cutbug" + "auto" = "cutbug_auto";
+	show serial_dialog "ch2-town.mgs:124:3";
+	goto label LABEL_f5069;
+	LABEL_f5069:
+	copy!("ch2_player_spawn_click_protection")
+}
+
+"command_inventory" {
+	"ch2_count_inventory" = 0;
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_1598;
+	goto label LABEL_f1679;
+	bodyStart_ZIGZAG_1598:
+	show serial_dialog "spacer";
+	show serial_dialog "command-inventory.mgs:35:3";
+	goto label LABEL_f1679;
+	LABEL_f1679:
+	if "ch2_carrying_cactuscooler" then goto label bodyStart_ZIGZAG_1737;
+	goto label LABEL_f1873;
+	bodyStart_ZIGZAG_1737:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_1781;
+	goto label LABEL_f1836;
+	bodyStart_ZIGZAG_1781:
+	show serial_dialog "command-inventory.mgs:42:4";
+	goto label LABEL_f1836;
+	LABEL_f1836:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f1873;
+	LABEL_f1873:
+	if "ch2_carrying_heatsink" then goto label bodyStart_ZIGZAG_1916;
+	goto label LABEL_f2041;
+	bodyStart_ZIGZAG_1916:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_1960;
+	goto label LABEL_f2004;
+	bodyStart_ZIGZAG_1960:
+	show serial_dialog "command-inventory.mgs:48:4";
+	goto label LABEL_f2004;
+	LABEL_f2004:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2041;
+	LABEL_f2041:
+	if "ch2_carrying_powersupply" then goto label bodyStart_ZIGZAG_2087;
+	goto label LABEL_f2215;
+	bodyStart_ZIGZAG_2087:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2131;
+	goto label LABEL_f2178;
+	bodyStart_ZIGZAG_2131:
+	show serial_dialog "command-inventory.mgs:54:4";
+	goto label LABEL_f2178;
+	LABEL_f2178:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2215;
+	LABEL_f2215:
+	if "ch2_carrying_monitor" then goto label bodyStart_ZIGZAG_2257;
+	goto label LABEL_f2380;
+	bodyStart_ZIGZAG_2257:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2301;
+	goto label LABEL_f2343;
+	bodyStart_ZIGZAG_2301:
+	show serial_dialog "command-inventory.mgs:60:4";
+	goto label LABEL_f2343;
+	LABEL_f2343:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2380;
+	LABEL_f2380:
+	if "ch2_carrying_harddrive" then goto label bodyStart_ZIGZAG_2437;
+	goto label LABEL_f2563;
+	bodyStart_ZIGZAG_2437:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2481;
+	goto label LABEL_f2526;
+	bodyStart_ZIGZAG_2481:
+	show serial_dialog "command-inventory.mgs:67:4";
+	goto label LABEL_f2526;
+	LABEL_f2526:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2563;
+	LABEL_f2563:
+	if "ch2_carrying_plate" then goto label bodyStart_ZIGZAG_2603;
+	goto label LABEL_f2731;
+	bodyStart_ZIGZAG_2603:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2647;
+	goto label LABEL_f2694;
+	bodyStart_ZIGZAG_2647:
+	show serial_dialog "command-inventory.mgs:73:4";
+	goto label LABEL_f2694;
+	LABEL_f2694:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2731;
+	LABEL_f2731:
+	if "ch2_carrying_needle" then goto label bodyStart_ZIGZAG_2772;
+	goto label LABEL_f2905;
+	bodyStart_ZIGZAG_2772:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2816;
+	goto label LABEL_f2868;
+	bodyStart_ZIGZAG_2816:
+	show serial_dialog "command-inventory.mgs:79:4";
+	goto label LABEL_f2868;
+	LABEL_f2868:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f2905;
+	LABEL_f2905:
+	if "ch2_carrying_keyboard" then goto label bodyStart_ZIGZAG_2948;
+	goto label LABEL_f3072;
+	bodyStart_ZIGZAG_2948:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_2992;
+	goto label LABEL_f3035;
+	bodyStart_ZIGZAG_2992:
+	show serial_dialog "command-inventory.mgs:85:4";
+	goto label LABEL_f3035;
+	LABEL_f3035:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3072;
+	LABEL_f3072:
+	if "ch2_carrying_mouse" then goto label bodyStart_ZIGZAG_3112;
+	goto label LABEL_f3233;
+	bodyStart_ZIGZAG_3112:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3156;
+	goto label LABEL_f3196;
+	bodyStart_ZIGZAG_3156:
+	show serial_dialog "command-inventory.mgs:91:4";
+	goto label LABEL_f3196;
+	LABEL_f3196:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3233;
+	LABEL_f3233:
+	if "ch2_carrying_ramchips" then goto label bodyStart_ZIGZAG_3290;
+	goto label LABEL_f3414;
+	bodyStart_ZIGZAG_3290:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3334;
+	goto label LABEL_f3377;
+	bodyStart_ZIGZAG_3334:
+	show serial_dialog "command-inventory.mgs:98:4";
+	goto label LABEL_f3377;
+	LABEL_f3377:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3414;
+	LABEL_f3414:
+	if "ch2_carrying_clock" then goto label bodyStart_ZIGZAG_3454;
+	goto label LABEL_f3575;
+	bodyStart_ZIGZAG_3454:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3498;
+	goto label LABEL_f3538;
+	bodyStart_ZIGZAG_3498:
+	show serial_dialog "command-inventory.mgs:104:4";
+	goto label LABEL_f3538;
+	LABEL_f3538:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3575;
+	LABEL_f3575:
+	if "ch2_carrying_cpu" then goto label bodyStart_ZIGZAG_3613;
+	goto label LABEL_f3732;
+	bodyStart_ZIGZAG_3613:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3657;
+	goto label LABEL_f3695;
+	bodyStart_ZIGZAG_3657:
+	show serial_dialog "command-inventory.mgs:110:4";
+	goto label LABEL_f3695;
+	LABEL_f3695:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3732;
+	LABEL_f3732:
+	if "ch2_carrying_goldfish" then goto label bodyStart_ZIGZAG_3775;
+	goto label LABEL_f3899;
+	bodyStart_ZIGZAG_3775:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3819;
+	goto label LABEL_f3862;
+	bodyStart_ZIGZAG_3819:
+	show serial_dialog "command-inventory.mgs:116:4";
+	goto label LABEL_f3862;
+	LABEL_f3862:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f3899;
+	LABEL_f3899:
+	if "ch2_carrying_manual" then goto label bodyStart_ZIGZAG_3940;
+	goto label LABEL_f4073;
+	bodyStart_ZIGZAG_3940:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_3984;
+	goto label LABEL_f4036;
+	bodyStart_ZIGZAG_3984:
+	show serial_dialog "command-inventory.mgs:122:4";
+	goto label LABEL_f4036;
+	LABEL_f4036:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f4073;
+	LABEL_f4073:
+	if "ch2_carrying_abacus" then goto label bodyStart_ZIGZAG_4114;
+	goto label LABEL_f4236;
+	bodyStart_ZIGZAG_4114:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_4158;
+	goto label LABEL_f4199;
+	bodyStart_ZIGZAG_4158:
+	show serial_dialog "command-inventory.mgs:128:4";
+	goto label LABEL_f4199;
+	LABEL_f4199:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f4236;
+	LABEL_f4236:
+	if "ch2_carrying_mainframeos" then goto label bodyStart_ZIGZAG_4292;
+	goto label LABEL_f4423;
+	bodyStart_ZIGZAG_4292:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_4336;
+	goto label LABEL_f4386;
+	bodyStart_ZIGZAG_4336:
+	show serial_dialog "command-inventory.mgs:135:4";
+	goto label LABEL_f4386;
+	LABEL_f4386:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f4423;
+	LABEL_f4423:
+	if "ch2_carrying_minirake_99" then goto label bodyStart_ZIGZAG_4489;
+	goto label LABEL_f4614;
+	bodyStart_ZIGZAG_4489:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_4533;
+	goto label LABEL_f4577;
+	bodyStart_ZIGZAG_4533:
+	show serial_dialog "command-inventory.mgs:142:4";
+	goto label LABEL_f4577;
+	LABEL_f4577:
+	"ch2_count_inventory" += 1;
+	goto label LABEL_f4614;
+	LABEL_f4614:
+	if "ch2_count_inventory" == 0 then goto label bodyStart_ZIGZAG_4668;
+	goto label LABEL_f4759;
+	bodyStart_ZIGZAG_4668:
+	if !"only_count_inventory" then goto label bodyStart_ZIGZAG_4712;
+	goto label LABEL_f4756;
+	bodyStart_ZIGZAG_4712:
+	show serial_dialog "command-inventory.mgs:149:4";
+	goto label LABEL_f4756;
+	LABEL_f4756:
+	goto label LABEL_f4759;
+	LABEL_f4759:
+	"only_count_inventory" = false;
+	"ch2_counted_inventory" = "ch2_count_inventory";
+	"ch2_count_inventory" = 0;
+}

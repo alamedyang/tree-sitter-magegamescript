@@ -6,7 +6,7 @@ on_load_bobsclub1 {
 	if (flag tuesdayd is true) {
 		register rtfm -> command-rtfm;
 	}
-	if (flag storyflag_bobmoss is false) {
+	if (flag bobmoss_quest_done is false) {
 		teleport entity "Bob Moss" to geometry bobsclub-hidingplace;
 		set entity "Bob Moss" name to " ";
 		set entity "Bob Moss" on_interact to null_script;
@@ -196,7 +196,7 @@ show_dialog_baker_start {
 	if (entity "%SELF%" is glitched) { // glitched
 		show dialog { SELF "Qacwk, A kmvvwfdq usf'l kww kljsayzl. A ymwkk A kzgmdv uml tsuc gf lzw usxxawfw." }
 	} else if (flag bobsclub_entered is true) { // !glitched && BobsClub
-		if (flag storyflag_baker is false) { // ...but you haven't brought him the news yet
+		if (flag baker_quest_done is false) { // ...but you haven't brought him the news yet
 			// bring him the news
 			show dialog {
 				SELF "Canceled? The party at the Bobs-Only Club was canceled? For real?"
@@ -206,7 +206,7 @@ show_dialog_baker_start {
 				SELF "Great. Just great. Just as I was putting everything in the oven. Not gonna pay me either, are they?"
 				"Well, thanks for finding out for me. Now I need to find a way to move four dozen B-shaped donuts."
 			}
-			set flag storyflag_baker to true;
+			set flag baker_quest_done to true;
 			copy calculate_hint_tracking_series;
 			if (variable hint_tracking_check is 2) {
 				copy set_hint_none;
@@ -367,7 +367,7 @@ show_dialog_bobsclub_bob {
 			"And it was a long trip, too. I came all the way from the net!"
 			"*sigh*\nOh, well."
 		}
-		if (flag storyflag_bobmoss is false) {
+		if (flag bobmoss_quest_done is false) {
 			turn player control off;
 			wait 120ms;
 			turn player control on;
@@ -416,7 +416,7 @@ show_dialog_bobmoss_start {
 		copy show_dialog_bobmoss_deglitch;
 		set entity "%SELF%" on_interact to show_dialog_bobmoss_start;
 	}
-	if (flag storyflag_bobmoss is true) {
+	if (flag bobmoss_quest_done is true) {
 		goto show_dialog_bobmoss_start_s;
 	}
 	show dialog {
@@ -437,7 +437,7 @@ show_dialog_bobmoss_start {
 	turn player control off;
 	fade out camera to #000000 over 500ms;
 	teleport entity "Bob Moss" to geometry catwalk-hide;
-	set flag storyflag_bobmoss to true;
+	set flag bobmoss_quest_done to true;
 	copy calculate_hint_tracking_series;
 	if (variable hint_tracking_check is 3) {
 		// if the hint series is the same, reset hint

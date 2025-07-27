@@ -174,31 +174,31 @@ set_artifact_flags_false {
 }
 
 set_story_flags_true {
-	set flag storyflag_bender to true;
-	set flag storyflag_baker to true;
-	set flag storyflag_bea1 to true;
-	set flag storyflag_bea2 to true;
-	set flag storyflag_shepherd to true;
-	set flag storyflag_sportskid to true;
-	set flag storyflag_catwork to true;
-	set flag storyflag_trekkie to true;
-	set flag storyflag_rake to true;
-	set flag storyflag_bobmoss to true;
-	set flag storyflag_verthandi to true;
+	set flag bender_quest_done to true;
+	set flag baker_quest_done to true;
+	set flag bea1_quest_done to true;
+	set flag bea2_quest_done to true;
+	set flag shepherd_quest_done to true;
+	set flag sportskid_quest_done to true;
+	set flag catwork_quest_done to true;
+	set flag trekkie_quest_done to true;
+	set flag rake_quest_done to true;
+	set flag bobmoss_quest_done to true;
+	set flag verthandi_quest_done to true;
 }
 
 set_story_flags_false {
-	set flag storyflag_bender to false;
-	set flag storyflag_baker to false;
-	set flag storyflag_bea1 to false;
-	set flag storyflag_bea2 to false;
-	set flag storyflag_shepherd to false;
-	set flag storyflag_sportskid to false;
-	set flag storyflag_catwork to false;
-	set flag storyflag_trekkie to false;
-	set flag storyflag_rake to false;
-	set flag storyflag_bobmoss to false;
-	set flag storyflag_verthandi to false;
+	set flag bender_quest_done to false;
+	set flag baker_quest_done to false;
+	set flag bea1_quest_done to false;
+	set flag bea2_quest_done to false;
+	set flag shepherd_quest_done to false;
+	set flag sportskid_quest_done to false;
+	set flag catwork_quest_done to false;
+	set flag trekkie_quest_done to false;
+	set flag rake_quest_done to false;
+	set flag bobmoss_quest_done to false;
+	set flag verthandi_quest_done to false;
 }
 
 set_goodmorning_flags_false {

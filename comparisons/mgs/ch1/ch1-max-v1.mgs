@@ -4,28 +4,28 @@ include!("header.mgs")
 // no zigzagging!
 
 felix_loiter {
-	if flag storyflag_catwork is true then goto hiding_cat
+	if flag catwork_quest_done is true then goto hiding_cat
 	turn entity "%SELF%" south;
 	wait 2000ms; /**/ turn entity "%SELF%" east;
 	wait 800ms; /**/ turn entity "%SELF%" west;
 	wait 1200ms;
 }
 deut_loiter {
-	if flag storyflag_catwork is true then goto hiding_cat
+	if flag catwork_quest_done is true then goto hiding_cat
 	turn entity "%SELF%" west;
 	wait 900ms; /**/ turn entity "%SELF%" east;
 	wait 900ms; /**/ turn entity "%SELF%" south;
 	wait 2400ms;
 }
 bmurray_loiter {
-	if flag storyflag_catwork is true then goto hiding_cat
+	if flag catwork_quest_done is true then goto hiding_cat
 	turn entity "%SELF%" south;
 	wait 1800ms; /**/ turn entity "%SELF%" north;
 	wait 900ms; /**/ turn entity "%SELF%" east;
 	wait 1000ms;
 }
 maru_loiter {
-	if flag storyflag_catwork is true then goto hiding_cat
+	if flag catwork_quest_done is true then goto hiding_cat
 	turn entity "%SELF%" west;
 	wait 1400ms; /**/ turn entity "%SELF%" south;
 	wait 1800ms; /**/ turn entity "%SELF%" north;
@@ -46,7 +46,7 @@ cat_walking_to_work {
 }
 
 on_tick_max_neutral {
-	if flag storyflag_catwork is true then goto null_script;
+	if flag catwork_quest_done is true then goto null_script;
 	if entity "%PLAYER%" type is pipscat then goto on_tick_max_catwatch;
 	set entity Felix on_tick to felix_loiter;
 	set entity Maru on_tick to maru_loiter;
@@ -99,7 +99,7 @@ send_cats_to_work {
 		"Brilliant! Now things can finally move forward!"
 	}
 	turn player control on;
-	set flag storyflag_catwork to true;
+	set flag catwork_quest_done to true;
 	play entity "Max Swagger" animation 5 once;
 	set entity "Max Swagger" current_animation to 0;
 	copy calculate_hint_tracking_series;
@@ -174,7 +174,7 @@ show_dialog_max_start {
 		show dialog {
 			SELF "Azr. Vm jvbyzl aolyl'k il huvaoly jvtwspjhapvu!"
 		}
-	} else if (flag storyflag_catwork is true) {
+	} else if (flag catwork_quest_done is true) {
 		copy face_player;
 		show dialog {
 			entity "Max Swagger"

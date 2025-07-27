@@ -1,0 +1,803 @@
+"show_dialog_smith" {
+	if self glitched then goto label if_true_527;
+	entity "Smith" direction = player;
+	if !"smith_backstory" then goto label if_true_529;
+	show dialog "ch1-family.mgs-72:3";
+	goto label rendezvous_528;
+	if_true_529:
+	show dialog "ch1-family.mgs-64:3";
+	"smith_backstory" = true;
+	rendezvous_528:
+	entity "Smith" direction = "east";
+	goto label rendezvous_526;
+	if_true_527:
+	show dialog "ch1-family.mgs-60:2";
+	rendezvous_526:
+	self on_interact = "show_dialog_smith";
+	end_of_script_530:
+}
+
+"command_parts_plate" {
+	if "ch2_storyflag_round" < 2 then goto script "command_parts_ahead_confused";
+	show serial_dialog "spacer";
+	if "ch2_installed_plate" then goto label if_true_5094;
+	if "ch2_carrying_plate" then goto label if_true_5095;
+	copy!("ch2_describe_plate")
+	goto label rendezvous_5093;
+	if_true_5095:
+	if !"ch2_carrying_needle" then goto label if_true_5097;
+	show serial_dialog "command-parts.mgs-380:3";
+	goto label rendezvous_5093;
+	if_true_5097:
+	show serial_dialog "command-parts.mgs-378:3";
+	rendezvous_5096:
+	goto label rendezvous_5093;
+	if_true_5094:
+	show serial_dialog "command-parts.mgs-375:2";
+	rendezvous_5093:
+	show serial_dialog "command-parts.mgs-385:1";
+	show serial_dialog "lambda_over";
+	end_of_script_5098:
+}
+
+"command_parts_needle" {
+	if "ch2_storyflag_round" < 2 then goto script "command_parts_ahead_confused";
+	show serial_dialog "spacer";
+	if "ch2_installed_needle" then goto label if_true_5100;
+	if "ch2_carrying_needle" then goto label if_true_5101;
+	copy!("ch2_describe_needle")
+	goto label rendezvous_5099;
+	if_true_5101:
+	if !"ch2_carrying_plate" then goto label if_true_5103;
+	show serial_dialog "command-parts.mgs-399:3";
+	goto label rendezvous_5099;
+	if_true_5103:
+	show serial_dialog "command-parts.mgs-397:3";
+	rendezvous_5102:
+	goto label rendezvous_5099;
+	if_true_5100:
+	show serial_dialog "command-parts.mgs-394:2";
+	rendezvous_5099:
+	show serial_dialog "command-parts.mgs-404:1";
+	show serial_dialog "lambda_over";
+	end_of_script_5104:
+}
+
+"command_parts_abacus" {
+	if "ch2_storyflag_round" < 3 then goto script "command_parts_ahead_confused";
+	show serial_dialog "spacer";
+	if "ch2_installed_abacus" then goto label if_true_5124;
+	if "ch2_carrying_abacus" then goto label if_true_5125;
+	copy!("ch2_describe_abacus")
+	goto label rendezvous_5123;
+	if_true_5125:
+	if !"ch2_carrying_goldfish" then goto label if_true_5127;
+	show serial_dialog "command-parts.mgs-485:3";
+	goto label rendezvous_5123;
+	if_true_5127:
+	show serial_dialog "command-parts.mgs-483:3";
+	rendezvous_5126:
+	goto label rendezvous_5123;
+	if_true_5124:
+	show serial_dialog "command-parts.mgs-480:2";
+	rendezvous_5123:
+	show serial_dialog "command-parts.mgs-490:1";
+	show serial_dialog "lambda_over";
+	end_of_script_5128:
+}
+
+"command_parts_goldfish" {
+	if "ch2_storyflag_round" < 3 then goto script "command_parts_ahead_confused";
+	show serial_dialog "spacer";
+	if "ch2_installed_goldfish" then goto label if_true_5118;
+	if "ch2_carrying_goldfish" then goto label if_true_5119;
+	copy!("ch2_describe_goldfish")
+	goto label rendezvous_5117;
+	if_true_5119:
+	if !"ch2_carrying_abacus" then goto label if_true_5121;
+	show serial_dialog "command-parts.mgs-466:3";
+	goto label rendezvous_5117;
+	if_true_5121:
+	show serial_dialog "command-parts.mgs-464:3";
+	rendezvous_5120:
+	goto label rendezvous_5117;
+	if_true_5118:
+	show serial_dialog "command-parts.mgs-461:2";
+	rendezvous_5117:
+	show serial_dialog "command-parts.mgs-471:1";
+	show serial_dialog "lambda_over";
+	end_of_script_5122:
+}
+
+"simon_player_turn_loop_start" {
+	if "i" >= "simon_round" then goto script "simon_player_turn_end";
+	if "i" == 0 then goto label if_true_2944;
+	if "i" == 1 then goto label if_true_2945;
+	if "i" == 2 then goto label if_true_2946;
+	if "i" == 3 then goto label if_true_2947;
+	if "i" == 4 then goto label if_true_2948;
+	if "i" == 5 then goto label if_true_2949;
+	if "i" == 6 then goto label if_true_2950;
+	goto label rendezvous_2943;
+	if_true_2950:
+	"simon_pos_curr" = "simon_pos7";
+	goto label rendezvous_2943;
+	if_true_2949:
+	"simon_pos_curr" = "simon_pos6";
+	goto label rendezvous_2943;
+	if_true_2948:
+	"simon_pos_curr" = "simon_pos5";
+	goto label rendezvous_2943;
+	if_true_2947:
+	"simon_pos_curr" = "simon_pos4";
+	goto label rendezvous_2943;
+	if_true_2946:
+	"simon_pos_curr" = "simon_pos3";
+	goto label rendezvous_2943;
+	if_true_2945:
+	"simon_pos_curr" = "simon_pos2";
+	goto label rendezvous_2943;
+	if_true_2944:
+	"simon_pos_curr" = "simon_pos1";
+	rendezvous_2943:
+	goto script "simon_player_listen";
+	end_of_script_2951:
+}
+
+"command_man_normal" {
+	if "ch2_cutseen_bert_secret" then goto label if_true_4808;
+	goto label rendezvous_4807;
+	if_true_4808:
+	if !"ch2_lambda_bert_backstory" then goto label if_true_4810;
+	if !"ch2_parts_round_2_backstory" then goto label if_true_4811;
+	goto label rendezvous_4809;
+	if_true_4811:
+	goto script "ch2_lambda_round_2_parts1";
+	goto label rendezvous_4809;
+	if_true_4810:
+	goto script "ch2_bert_secret_lambda_intro";
+	rendezvous_4809:
+	rendezvous_4807:
+	if "ch2_cutseen_bert_message" then goto label if_true_4813;
+	goto label rendezvous_4812;
+	if_true_4813:
+	if !"ch2_parts_round_3_backstory" then goto script "ch2_bert_message_lambda_intro";
+	rendezvous_4812:
+	if "ch2_cutseen_last_parts_done" then goto label if_true_4815;
+	goto label rendezvous_4814;
+	if_true_4815:
+	if !"ch2_parts_round_4_backstory" then goto script "ch2_lambda_round_4";
+	rendezvous_4814:
+	if "ch2_toot_done" then goto script "command_man_normal_convo";
+	goto script "ch2_toot_check";
+	end_of_script_4816:
+}
+
+"show_dialog_bender_start" {
+	if self glitched then goto label if_true_234;
+	goto label rendezvous_233;
+	if_true_234:
+	show dialog "ch1-bender.mgs-42:2";
+	goto label end_of_script_261;
+	rendezvous_233:
+	copy!("set_bender_idle_stop")
+	copy!("face_player")
+	if "bender_quest_done" then goto label if_true_238;
+	goto label rendezvous_237;
+	if_true_238:
+	if entity "Bender" type == "bender" then goto label if_true_240;
+	show dialog "ch1-bender.mgs-60:3";
+	goto label rendezvous_239;
+	if_true_240:
+	copy!("bite_my_shiny_metal_ass")
+	show dialog "ch1-bender.mgs-55:3";
+	rendezvous_239:
+	copy!("set_bender_idle_look_around_randomly")
+	goto label end_of_script_261;
+	rendezvous_237:
+	if entity "Bender" type == "bender" then goto label if_true_246;
+	goto label rendezvous_245;
+	if_true_246:
+	if !"bender_backstory" then goto label if_true_248;
+	copy!("bender_success_backstory")
+	goto label rendezvous_247;
+	if_true_248:
+	copy!("bender_success_no_backstory")
+	rendezvous_247:
+	"bender_backstory" = true;
+	"bender_quest_done" = true;
+	copy!("calculate_hint_tracking_series")
+	if "hint_tracking_check" == 5 then goto label if_true_250;
+	goto label rendezvous_249;
+	if_true_250:
+	copy!("set_hint_none")
+	rendezvous_249:
+	copy!("set_bender_idle_look_around_randomly")
+	goto label end_of_script_261;
+	rendezvous_245:
+	if "bender_backstory" then goto label if_true_254;
+	goto label rendezvous_253;
+	if_true_254:
+	if entity "Bender" type == "bender_sadbutt" then goto label if_true_256;
+	show dialog "ch1-bender.mgs-91:3";
+	goto label rendezvous_255;
+	if_true_256:
+	copy!("bite_my_shiny_metal_ass_sad")
+	show dialog "ch1-bender.mgs-85:3";
+	rendezvous_255:
+	copy!("set_hint_bender")
+	copy!("set_bender_idle_glare_at_you")
+	goto label end_of_script_261;
+	rendezvous_253:
+	if entity "Bender" type == "bender_sadbutt" then goto label if_true_258;
+	show dialog "ch1-bender.mgs-126:2";
+	goto label rendezvous_257;
+	if_true_258:
+	show dialog "ch1-bender.mgs-101:2";
+	copy!("bite_my_shiny_metal_ass_sad")
+	show dialog "ch1-bender.mgs-106:2";
+	if player type == "bender_sadbutt" then goto label if_true_260;
+	if player type == "bender" then goto label if_true_260;
+	show dialog "ch1-bender.mgs-117:3";
+	goto label rendezvous_259;
+	if_true_260:
+	show dialog "ch1-bender.mgs-113:3";
+	rendezvous_259:
+	show dialog "ch1-bender.mgs-121:2";
+	rendezvous_257:
+	"bender_backstory" = true;
+	copy!("set_hint_bender")
+	copy!("set_bender_idle_glare_at_you")
+	end_of_script_261:
+}
+
+"show_dialog_verthandi_start" {
+	copy!("face_player")
+	if self glitched then goto script "show_dialog_verthandi_glitched";
+	if "verthandi_quest_done" then goto label if_true_549;
+	"unglitch_count" = 0;
+	if "goldfish_unglitched" then goto label if_true_551;
+	goto label rendezvous_550;
+	if_true_551:
+	"unglitch_count" += 1;
+	rendezvous_550:
+	if "timmy_unglitched" then goto label if_true_553;
+	goto label rendezvous_552;
+	if_true_553:
+	"unglitch_count" += 1;
+	rendezvous_552:
+	if "fountain_unglitched" then goto label if_true_555;
+	goto label rendezvous_554;
+	if_true_555:
+	"unglitch_count" += 1;
+	rendezvous_554:
+	if "lodge_cat_unglitched" then goto label if_true_557;
+	goto label rendezvous_556;
+	if_true_557:
+	"unglitch_count" += 1;
+	rendezvous_556:
+	if "billy_unglitched" then goto label if_true_559;
+	goto label rendezvous_558;
+	if_true_559:
+	"unglitch_count" += 1;
+	rendezvous_558:
+	if "kid_unglitched" then goto label if_true_561;
+	goto label rendezvous_560;
+	if_true_561:
+	"unglitch_count" += 1;
+	rendezvous_560:
+	if "main_hamster_unglitched" then goto label if_true_563;
+	goto label rendezvous_562;
+	if_true_563:
+	"unglitch_count" += 1;
+	rendezvous_562:
+	"total_glitches" = 7;
+	"total_glitches" -= "unglitch_count";
+	if "total_glitches" == 0 then goto label if_true_565;
+	if "verthandi_backstory" then goto label if_true_570;
+	show dialog "ch1-goats.mgs-164:3";
+	if entity "Billy" glitched then goto label if_true_581;
+	if entity "Kid" glitched then goto label if_true_581;
+	show dialog "ch1-goats.mgs-175:4";
+	"goats_both_unglitched" = true;
+	goto label rendezvous_580;
+	if_true_581:
+	show dialog "ch1-goats.mgs-169:4";
+	rendezvous_580:
+	"verthandi_backstory" = true;
+	copy!("set_hint_glitch")
+	goto label rendezvous_548;
+	if_true_570:
+	if "goats_both_unglitched" then goto label if_true_572;
+	if entity "Billy" glitched then goto label if_true_579;
+	if entity "Kid" glitched then goto label if_true_579;
+	show dialog "ch1-goats.mgs-156:4";
+	"goats_both_unglitched" = true;
+	goto label rendezvous_571;
+	if_true_579:
+	show dialog "ch1-goats.mgs-154:4";
+	goto label rendezvous_571;
+	if_true_572:
+	if "total_glitches" == 1 then goto label if_true_574;
+	show dialog "ch1-goats.mgs-144:5";
+	goto label rendezvous_573;
+	if_true_574:
+	show dialog "ch1-goats.mgs-142:5";
+	rendezvous_573:
+	if !"timmy_unglitched" then goto label if_true_576;
+	if !"lodge_cat_unglitched" then goto label if_true_576;
+	if !"main_hamster_unglitched" then goto label if_true_577;
+	if !"fountain_unglitched" then goto label if_true_577;
+	if !"goldfish_unglitched" then goto label if_true_578;
+	goto label rendezvous_575;
+	if_true_578:
+	show dialog "ch1-goats.mgs-151:5";
+	goto label rendezvous_575;
+	if_true_577:
+	show dialog "ch1-goats.mgs-149:5";
+	goto label rendezvous_575;
+	if_true_576:
+	show dialog "ch1-goats.mgs-147:5";
+	rendezvous_575:
+	rendezvous_571:
+	copy!("set_hint_glitch")
+	goto label rendezvous_548;
+	if_true_565:
+	if !"verthandi_backstory" then goto label if_true_567;
+	show dialog "ch1-goats.mgs-128:4";
+	goto label rendezvous_566;
+	if_true_567:
+	show dialog "ch1-goats.mgs-123:4";
+	rendezvous_566:
+	copy!("calculate_hint_tracking_series")
+	if "hint_tracking_check" == 11 then goto label if_true_569;
+	goto label rendezvous_568;
+	if_true_569:
+	copy!("set_hint_none")
+	rendezvous_568:
+	"verthandi_quest_done" = true;
+	"goats_both_unglitched" = true;
+	rendezvous_564:
+	goto label rendezvous_548;
+	if_true_549:
+	show dialog "ch1-goats.mgs-107:2";
+	rendezvous_548:
+	goto script "show_dialog_verthandi_wrapup";
+	end_of_script_582:
+}
+
+"on_load_map_main" {
+	if "tuesdayd" then goto label if_true_861;
+	goto label rendezvous_860;
+	if_true_861:
+	command "rtfm" = "command_rtfm";
+	rendezvous_860:
+	if !"begunthegame" then goto label if_true_863;
+	goto label rendezvous_862;
+	if_true_863:
+	"begunthegame" = true;
+	hex_control = false;
+	camera fade in -> #000000 over 1ms;
+	load map "magehouse";
+	rendezvous_862:
+	hex_control = true;
+	if "bobmoss_quest_done" then goto label if_true_865;
+	goto label rendezvous_864;
+	if_true_865:
+	entity "Bob Moss" position = geometry "catwalk-hide";
+	rendezvous_864:
+	if "rake_quest_done" then goto label if_true_867;
+	goto label rendezvous_866;
+	if_true_867:
+	copy!("rake_in_lake")
+	entity "Goose" on_interact = "honk_to_make_rake_float";
+	rendezvous_866:
+	if "billy_unglitched" then goto label if_true_869;
+	goto label rendezvous_868;
+	if_true_869:
+	entity "Billy" glitched = false;
+	rendezvous_868:
+	if "kid_unglitched" then goto label if_true_871;
+	goto label rendezvous_870;
+	if_true_871:
+	entity "Kid" glitched = false;
+	rendezvous_870:
+	if "fountain_unglitched" then goto label if_true_873;
+	goto label rendezvous_872;
+	if_true_873:
+	entity "Fountain" glitched = false;
+	rendezvous_872:
+	if "main_hamster_unglitched" then goto label if_true_875;
+	goto label rendezvous_874;
+	if_true_875:
+	entity "Hamster" glitched = false;
+	rendezvous_874:
+	if "shepherd_quest_done" then goto label if_true_877;
+	goto label rendezvous_876;
+	if_true_877:
+	copy!("sheep_in_pen")
+	rendezvous_876:
+	if "bender_quest_done" then goto label if_true_879;
+	goto label rendezvous_878;
+	if_true_879:
+	copy!("bender_happybutt")
+	rendezvous_878:
+	if !"walked_to_lodge" then goto script "walk_to_lodge";
+	player_control = false;
+	if !"hintman_explanation" then goto label if_true_881;
+	if warp_state == "enter_from_east" then goto label if_true_882;
+	if warp_state == "enter_from_west" then goto label if_true_883;
+	if warp_state == "exit_from_bobsclub" then goto label if_true_884;
+	if warp_state == "exit_from_bakery" then goto label if_true_885;
+	if warp_state == "exit_from_lodge" then goto label if_true_886;
+	if warp_state == "exit_from_greenhouse" then goto label if_true_887;
+	if warp_state == "exit_from_magehouse" then goto label if_true_888;
+	if warp_state == "exit_from_oldcouplehouse" then goto label if_true_889;
+	if warp_state == "exit_from_family" then goto label if_true_890;
+	if warp_state == "exit_from_woprhouse" then goto label if_true_891;
+	if warp_state == "exit_from_credits" then goto label if_true_892;
+	goto label rendezvous_880;
+	if_true_892:
+	player position = geometry "from-credits-spot";
+	camera fade in -> #000000 over 800ms;
+	player_control = true;
+	if !"ch1_finished" then goto script "null_script";
+	if !"catwork_quest_done" then goto script "null_script";
+	if !"shepherd_quest_done" then goto script "null_script";
+	if !"bender_quest_done" then goto script "null_script";
+	if !"baker_quest_done" then goto script "null_script";
+	if !"bobmoss_quest_done" then goto script "null_script";
+	if !"bea1_quest_done" then goto script "null_script";
+	if !"trekkie_quest_done" then goto script "null_script";
+	if !"sportskid_quest_done" then goto script "null_script";
+	if !"bea2_quest_done" then goto script "null_script";
+	if !"rake_quest_done" then goto script "null_script";
+	if !"verthandi_quest_done" then goto script "null_script";
+	if "demobonus_jackob_informed" then goto script "null_script";
+	"demobonus" = true;
+	show dialog "ch1-map_main.mgs-132:2";
+	"demobonus_jackob_informed" = true;
+	goto label rendezvous_880;
+	if_true_891:
+	player position -> geometry "enter_from-woprhouse" length over 200ms;
+	goto label rendezvous_880;
+	if_true_890:
+	player position -> geometry "enter_from-family" length over 200ms;
+	goto label rendezvous_880;
+	if_true_889:
+	player position -> geometry "enter_from-oldcouplehouse" length over 200ms;
+	goto label rendezvous_880;
+	if_true_888:
+	player position -> geometry "enter_from-magehouse" length over 200ms;
+	goto label rendezvous_880;
+	if_true_887:
+	player position -> geometry "enter_from-greenhouse" length over 200ms;
+	goto label rendezvous_880;
+	if_true_886:
+	player position -> geometry "enter_from-lodge" length over 200ms;
+	goto label rendezvous_880;
+	if_true_885:
+	player position -> geometry "enter_from-bakery" length over 200ms;
+	goto label rendezvous_880;
+	if_true_884:
+	player position -> geometry "enter_from-bobsclub" length over 200ms;
+	goto label rendezvous_880;
+	if_true_883:
+	player position -> geometry "enter_from_west" length over 1000ms;
+	goto label rendezvous_880;
+	if_true_882:
+	player position -> geometry "enter_from_east" length over 1000ms;
+	goto label rendezvous_880;
+	if_true_881:
+	player position -> geometry "enter_from-lodge" length over 400ms;
+	copy!("hintman_cutscene")
+	"hintman_explanation" = true;
+	rendezvous_880:
+	player_control = true;
+	end_of_script_893:
+}
+
+"on_load_ch2_town" {
+	if warp_state == "cutscene-escort" then goto script "ch2_escort_cutscene";
+	show serial_dialog "spacer";
+	show serial_dialog "ch2-town.mgs-31:1";
+	entity "Bert" on_tick = "yeet";
+	if "ch2_storyflag_round" < 5 then goto label if_true_4530;
+	goto label rendezvous_4529;
+	if_true_4530:
+	entity "Jackob" on_tick = "yeet";
+	if "ch2_storyflag_round" == 2 then goto label if_true_4532;
+	entity "Alfonso" on_tick = "yeet";
+	goto label rendezvous_4531;
+	if_true_4532:
+	copy!("ch2_setup_alfonso_verthandi")
+	rendezvous_4531:
+	rendezvous_4529:
+	if "ch2_storyflag_round" == 1 then goto label if_true_4534;
+	if "ch2_storyflag_round" == 2 then goto label if_true_4534;
+	if "ch2_storyflag_round" == 3 then goto label if_true_4535;
+	if "ch2_storyflag_round" == 4 then goto label if_true_4535;
+	goto label rendezvous_4533;
+	if_true_4535:
+	entity "Shepherd" position = geometry "shepherd1";
+	goto label rendezvous_4533;
+	if_true_4534:
+	entity "Shepherd" position = geometry "shepherd2";
+	entity "Shepherd" direction = "east";
+	entity "Shepherd" on_tick = "null_script";
+	rendezvous_4533:
+	if "ch2_storyflag_round" == 0 then goto label if_true_4537;
+	if "ch2_storyflag_round" == 3 then goto label if_true_4538;
+	if "ch2_storyflag_round" == 4 then goto label if_true_4538;
+	goto label rendezvous_4536;
+	if_true_4538:
+	entity "Verthandi" position = geometry "verthandi2";
+	entity "Verthandi" direction = "north";
+	goto label rendezvous_4536;
+	if_true_4537:
+	entity "Verthandi" position = geometry "verthandi1";
+	entity "Verthandi" direction = "west";
+	rendezvous_4536:
+	if "ch2_storyflag_round" == 1 then goto label if_true_4540;
+	if "ch2_storyflag_round" == 2 then goto label if_true_4540;
+	if "ch2_storyflag_round" == 3 then goto label if_true_4541;
+	if "ch2_storyflag_round" == 4 then goto label if_true_4541;
+	goto label rendezvous_4539;
+	if_true_4541:
+	entity "Marta" position = geometry "marta2";
+	entity "Marta" direction = "south";
+	goto label rendezvous_4539;
+	if_true_4540:
+	entity "Marta" position = geometry "marta1";
+	entity "Marta" direction = "west";
+	rendezvous_4539:
+	if "ch2_delmar_in_house" then goto label if_true_4543;
+	goto label rendezvous_4542;
+	if_true_4543:
+	entity "Delmar" on_tick = "yeet";
+	rendezvous_4542:
+	player_control = false;
+	if warp_state == "raw_game_load-ch2" then goto label if_true_4545;
+	if warp_state == "exit_from_credits" then goto label if_true_4546;
+	if warp_state == "walk_from-east" then goto label if_true_4547;
+	if warp_state == "walk_from-west" then goto label if_true_4548;
+	if warp_state == "walk_from-bobsclub" then goto label if_true_4549;
+	if warp_state == "walk_from-bakery" then goto label if_true_4550;
+	if warp_state == "walk_from-lodge" then goto label if_true_4551;
+	if warp_state == "walk_from-greenhouse" then goto label if_true_4552;
+	if warp_state == "walk_from-magehouse" then goto label if_true_4553;
+	if warp_state == "walk_from-oldcouplehouse" then goto label if_true_4554;
+	if warp_state == "walk_from-smithfamily" then goto label if_true_4555;
+	if warp_state == "walk_from-woprhouse" then goto label if_true_4556;
+	if warp_state == "walk_from-bobsclub" then goto label if_true_4557;
+	goto label rendezvous_4544;
+	if_true_4557:
+	player position -> geometry "walk_from-bobsclub" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4556:
+	player position -> geometry "walk_from-woprhouse" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4555:
+	player position -> geometry "walk_from-smithfamily" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4554:
+	player position -> geometry "walk_from-oldcouplehouse" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4553:
+	player position -> geometry "walk_from-magehouse" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4552:
+	player position -> geometry "walk_from-greenhouse" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4551:
+	player position -> geometry "walk_from-lodge" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4550:
+	player position -> geometry "walk_from-bakery" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4549:
+	player position -> geometry "walk_from-bobsclub" length over 200ms;
+	goto label rendezvous_4544;
+	if_true_4548:
+	player path = "walk_from-west";
+	player on_tick = "on_tick_ch2_town_walkfadein";
+	camera fade in -> #000000 over 400ms;
+	goto label rendezvous_4544;
+	if_true_4547:
+	player path = "walk_from-east";
+	player on_tick = "on_tick_ch2_town_walkfadein";
+	camera fade in -> #000000 over 400ms;
+	goto label rendezvous_4544;
+	if_true_4546:
+	player position = geometry "from-credits-spot";
+	camera fade in -> #000000 over 800ms;
+	goto label rendezvous_4544;
+	if_true_4545:
+	copy!("restore_player_state")
+	rendezvous_4544:
+	copy!("ch2_map_init")
+	if debug_mode then goto label if_true_4559;
+	goto label rendezvous_4558;
+	if_true_4559:
+	command "cutbug" = "cutbug";
+	command "cutbug" + "auto" = "cutbug_auto";
+	show serial_dialog "ch2-town.mgs-125:2";
+	rendezvous_4558:
+	copy!("ch2_player_spawn_click_protection")
+	end_of_script_4560:
+}
+
+"command_inventory" {
+	"ch2_count_inventory" = 0;
+	if !"only_count_inventory" then goto label if_true_4680;
+	goto label rendezvous_4679;
+	if_true_4680:
+	show serial_dialog "spacer";
+	show serial_dialog "command-inventory.mgs-36:2";
+	rendezvous_4679:
+	if "ch2_carrying_cactuscooler" then goto label if_true_4684;
+	goto label rendezvous_4683;
+	if_true_4684:
+	goto label rendezvous_4685;
+	if_true_4686:
+	show serial_dialog "command-inventory.mgs-43:3";
+	rendezvous_4685:
+	"ch2_count_inventory" += 1;
+	rendezvous_4683:
+	if "ch2_carrying_heatsink" then goto label if_true_4690;
+	goto label rendezvous_4689;
+	if_true_4690:
+	goto label rendezvous_4691;
+	if_true_4692:
+	show serial_dialog "command-inventory.mgs-49:3";
+	rendezvous_4691:
+	"ch2_count_inventory" += 1;
+	rendezvous_4689:
+	if "ch2_carrying_powersupply" then goto label if_true_4696;
+	goto label rendezvous_4695;
+	if_true_4696:
+	goto label rendezvous_4697;
+	if_true_4698:
+	show serial_dialog "command-inventory.mgs-55:3";
+	rendezvous_4697:
+	"ch2_count_inventory" += 1;
+	rendezvous_4695:
+	if "ch2_carrying_monitor" then goto label if_true_4702;
+	goto label rendezvous_4701;
+	if_true_4702:
+	goto label rendezvous_4703;
+	if_true_4704:
+	show serial_dialog "command-inventory.mgs-61:3";
+	rendezvous_4703:
+	"ch2_count_inventory" += 1;
+	rendezvous_4701:
+	if "ch2_carrying_harddrive" then goto label if_true_4708;
+	goto label rendezvous_4707;
+	if_true_4708:
+	goto label rendezvous_4709;
+	if_true_4710:
+	show serial_dialog "command-inventory.mgs-68:3";
+	rendezvous_4709:
+	"ch2_count_inventory" += 1;
+	rendezvous_4707:
+	if "ch2_carrying_plate" then goto label if_true_4714;
+	goto label rendezvous_4713;
+	if_true_4714:
+	goto label rendezvous_4715;
+	if_true_4716:
+	show serial_dialog "command-inventory.mgs-74:3";
+	rendezvous_4715:
+	"ch2_count_inventory" += 1;
+	rendezvous_4713:
+	if "ch2_carrying_needle" then goto label if_true_4720;
+	goto label rendezvous_4719;
+	if_true_4720:
+	goto label rendezvous_4721;
+	if_true_4722:
+	show serial_dialog "command-inventory.mgs-80:3";
+	rendezvous_4721:
+	"ch2_count_inventory" += 1;
+	rendezvous_4719:
+	if "ch2_carrying_keyboard" then goto label if_true_4726;
+	goto label rendezvous_4725;
+	if_true_4726:
+	goto label rendezvous_4727;
+	if_true_4728:
+	show serial_dialog "command-inventory.mgs-86:3";
+	rendezvous_4727:
+	"ch2_count_inventory" += 1;
+	rendezvous_4725:
+	if "ch2_carrying_mouse" then goto label if_true_4732;
+	goto label rendezvous_4731;
+	if_true_4732:
+	goto label rendezvous_4733;
+	if_true_4734:
+	show serial_dialog "command-inventory.mgs-92:3";
+	rendezvous_4733:
+	"ch2_count_inventory" += 1;
+	rendezvous_4731:
+	if "ch2_carrying_ramchips" then goto label if_true_4738;
+	goto label rendezvous_4737;
+	if_true_4738:
+	goto label rendezvous_4739;
+	if_true_4740:
+	show serial_dialog "command-inventory.mgs-99:3";
+	rendezvous_4739:
+	"ch2_count_inventory" += 1;
+	rendezvous_4737:
+	if "ch2_carrying_clock" then goto label if_true_4744;
+	goto label rendezvous_4743;
+	if_true_4744:
+	goto label rendezvous_4745;
+	if_true_4746:
+	show serial_dialog "command-inventory.mgs-105:3";
+	rendezvous_4745:
+	"ch2_count_inventory" += 1;
+	rendezvous_4743:
+	if "ch2_carrying_cpu" then goto label if_true_4750;
+	goto label rendezvous_4749;
+	if_true_4750:
+	goto label rendezvous_4751;
+	if_true_4752:
+	show serial_dialog "command-inventory.mgs-111:3";
+	rendezvous_4751:
+	"ch2_count_inventory" += 1;
+	rendezvous_4749:
+	if "ch2_carrying_goldfish" then goto label if_true_4756;
+	goto label rendezvous_4755;
+	if_true_4756:
+	goto label rendezvous_4757;
+	if_true_4758:
+	show serial_dialog "command-inventory.mgs-117:3";
+	rendezvous_4757:
+	"ch2_count_inventory" += 1;
+	rendezvous_4755:
+	if "ch2_carrying_manual" then goto label if_true_4762;
+	goto label rendezvous_4761;
+	if_true_4762:
+	goto label rendezvous_4763;
+	if_true_4764:
+	show serial_dialog "command-inventory.mgs-123:3";
+	rendezvous_4763:
+	"ch2_count_inventory" += 1;
+	rendezvous_4761:
+	if "ch2_carrying_abacus" then goto label if_true_4768;
+	goto label rendezvous_4767;
+	if_true_4768:
+	goto label rendezvous_4769;
+	if_true_4770:
+	show serial_dialog "command-inventory.mgs-129:3";
+	rendezvous_4769:
+	"ch2_count_inventory" += 1;
+	rendezvous_4767:
+	if "ch2_carrying_mainframeos" then goto label if_true_4774;
+	goto label rendezvous_4773;
+	if_true_4774:
+	goto label rendezvous_4775;
+	if_true_4776:
+	show serial_dialog "command-inventory.mgs-136:3";
+	rendezvous_4775:
+	"ch2_count_inventory" += 1;
+	rendezvous_4773:
+	if "ch2_carrying_minirake_99" then goto label if_true_4780;
+	goto label rendezvous_4779;
+	if_true_4780:
+	goto label rendezvous_4781;
+	if_true_4782:
+	show serial_dialog "command-inventory.mgs-143:3";
+	rendezvous_4781:
+	"ch2_count_inventory" += 1;
+	rendezvous_4779:
+	if "ch2_count_inventory" == 0 then goto label if_true_4786;
+	goto label rendezvous_4785;
+	if_true_4786:
+	goto label rendezvous_4787;
+	if_true_4788:
+	show serial_dialog "command-inventory.mgs-150:3";
+	rendezvous_4787:
+	rendezvous_4785:
+	"only_count_inventory" = false;
+	"ch2_counted_inventory" = "ch2_count_inventory";
+	"ch2_count_inventory" = 0;
+	end_of_script_4789:
+}

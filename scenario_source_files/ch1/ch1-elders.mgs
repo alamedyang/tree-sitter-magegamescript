@@ -62,7 +62,7 @@ show_dialog_bert_start {
 	copy!(face_player)
 	show dialog { SELF "Who needs help?" };
 	copy!(calculate_hint_tracking_series) // sets `hint_tracking_check`
-	if (!storyflag_shepherd) {
+	if (!shepherd_quest_done) {
 		show dialog {
 			SELF "The shepherd."
 			"He had one job."
@@ -71,7 +71,7 @@ show_dialog_bert_start {
 			// (NOTE: these are inverted from orig)
 			copy!(set_hint_shepherd_from_bert)
 		}
-	} else if (!storyflag_baker) {
+	} else if (!baker_quest_done) {
 		show dialog {
 			SELF "Baker."
 			"Baker is busy. He has trouble with customer."
@@ -79,14 +79,14 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 2) {
 			copy!(set_hint_baker_from_bert)
 		}
-	} else if (!storyflag_bobmoss) {
+	} else if (!bobmoss_quest_done) {
 		show dialog {
 			SELF "Cousin of Stone Cold Bob Austin."
 			"He is lost. Or is he hiding?"
 		};
 		copy!(set_hint_bobmoss_from_bert)
 		// no need to check for hint series, because this is the advanced hint, not the basic one; always set this
-	} else if (!storyflag_bea1) {
+	} else if (!bea1_quest_done) {
 		show dialog {
 			SELF "Old woman, Beatrice."
 			"She has been sad a long time."
@@ -94,7 +94,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 4) {
 			copy!(set_hint_bea1_from_bert)
 		}
-	} else if (!storyflag_bender) {
+	} else if (!bender_quest_done) {
 		show dialog {
 			SELF "Robot?"
 			"Some kind of robot."
@@ -104,7 +104,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 5) {
 			copy!(set_hint_bender_from_bert)
 		}
-	} else if (!storyflag_catwork) {
+	} else if (!catwork_quest_done) {
 		show dialog {
 			SELF "Max. Purple man."
 			"Max wants his house to be built."
@@ -112,7 +112,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 6) {
 			copy!(set_hint_max_from_bert)
 		}
-	} else if (!storyflag_trekkie) {
+	} else if (!trekkie_quest_done) {
 		show dialog {
 			SELF "Trekkie."
 			"Trekkie works on plants in the glass house."
@@ -120,7 +120,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 7) {
 			copy!(set_hint_trekkie_from_bert)
 		}
-	} else if (!storyflag_sportskid) {
+	} else if (!sportskid_quest_done) {
 		show dialog {
 			SELF "Small child with big dream."
 			"Child lives with father."
@@ -128,7 +128,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 8) {
 			copy!(set_hint_sportskid_from_bert)
 		}
-	} else if (!storyflag_bea2) {
+	} else if (!bea2_quest_done) {
 		show dialog {
 			SELF "Old woman, Beatrice."
 			"Does she know what she wants?"
@@ -136,7 +136,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 9) {
 			copy!(set_hint_bea2_from_bert)
 		}
-	} else if (!storyflag_rake) {
+	} else if (!rake_quest_done) {
 		show dialog {
 			SELF "Goose is mad?"
 			"Goose is always mad."
@@ -145,7 +145,7 @@ show_dialog_bert_start {
 		if (hint_tracking_check != 10) {
 			copy!(set_hint_goose_from_bert)
 		}
-	} else if (!storyflag_verthandi) {
+	} else if (!verthandi_quest_done) {
 		show dialog {
 			SELF"A goddess, mourning for lost souls."
 			"She watches the goats."

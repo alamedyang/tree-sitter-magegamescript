@@ -49,7 +49,7 @@ show_dialog_bender_start {
 		copy set_bender_idle_stop;
 		copy face_player;
 		/* ----- puzzle was solved(?) ----- */
-		if (flag storyflag_bender is true) { // SOLVED
+		if (flag bender_quest_done is true) { // SOLVED
 			if (entity Bender type is bender) { // and he's still bender
 				copy bite_my_shiny_metal_ass;
 				show dialog {
@@ -70,7 +70,7 @@ show_dialog_bender_start {
 				}
 				// You solved the puzzle though! Setting puzzle state:
 				set flag bender_backstory to true;
-				set flag storyflag_bender to true;
+				set flag bender_quest_done to true;
 				copy calculate_hint_tracking_series;
 				if (variable hint_tracking_check is 5) { // if the hint series is the same, reset hint
 					copy set_hint_none;

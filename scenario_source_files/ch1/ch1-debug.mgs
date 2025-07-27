@@ -174,31 +174,31 @@ set_artifact_flags_false {
 }
 
 set_story_flags_true {
-	storyflag_bender = true;
-	storyflag_baker = true;
-	storyflag_bea1 = true;
-	storyflag_bea2 = true;
-	storyflag_shepherd = true;
-	storyflag_sportskid = true;
-	storyflag_catwork = true;
-	storyflag_trekkie = true;
-	storyflag_rake = true;
-	storyflag_bobmoss = true;
-	storyflag_verthandi = true;
+	bender_quest_done = true;
+	baker_quest_done = true;
+	bea1_quest_done = true;
+	bea2_quest_done = true;
+	shepherd_quest_done = true;
+	sportskid_quest_done = true;
+	catwork_quest_done = true;
+	trekkie_quest_done = true;
+	rake_quest_done = true;
+	bobmoss_quest_done = true;
+	verthandi_quest_done = true;
 }
 
 set_story_flags_false {
-	storyflag_bender = false;
-	storyflag_baker = false;
-	storyflag_bea1 = false;
-	storyflag_bea2 = false;
-	storyflag_shepherd = false;
-	storyflag_sportskid = false;
-	storyflag_catwork = false;
-	storyflag_trekkie = false;
-	storyflag_rake = false;
-	storyflag_bobmoss = false;
-	storyflag_verthandi = false;
+	bender_quest_done = false;
+	baker_quest_done = false;
+	bea1_quest_done = false;
+	bea2_quest_done = false;
+	shepherd_quest_done = false;
+	sportskid_quest_done = false;
+	catwork_quest_done = false;
+	trekkie_quest_done = false;
+	rake_quest_done = false;
+	bobmoss_quest_done = false;
+	verthandi_quest_done = false;
 }
 
 set_goodmorning_flags_false {

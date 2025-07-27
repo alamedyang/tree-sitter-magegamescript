@@ -8,7 +8,7 @@ on_tick_oldcouplehouse {
 }
 leave_oldcouplehouse {
 	set warp state to exit_from_oldcouplehouse;
-	if (flag storyflag_bea1 is true) {
+	if (flag bea1_quest_done is true) {
 		set flag bea_sequel_branch to true;
 	}
 	load map main;
@@ -21,7 +21,7 @@ on_load_oldcouplehouse {
 		register rtfm -> command-rtfm;
 	}
 	if (flag bea_sequel_branch is true) {
-		if (flag storyflag_bea2 is false) {
+		if (flag bea2_quest_done is false) {
 			copy make_delmar_man;
 		}
 	}
@@ -49,7 +49,7 @@ show_dialog_delmar {
 			"Oh, yeah. The important thing was that I had an onion on my belt, which was the style at the time."
 			"They didn't have any white onions, because of the war. The only thing you could get was those big yellow ones...."
 		}
-	} else if (flag storyflag_bea1 is true) {
+	} else if (flag bea1_quest_done is true) {
 		show dialog {
 			Delmar "Huh? What's goin' on? What'd I miss?"
 		}
@@ -99,7 +99,7 @@ slow_stare_at_player {
 // part 1
 
 show_dialog_bea_part1 {
-	if (flag storyflag_bea1 is false) { // you did NOT beat part1
+	if (flag bea1_quest_done is false) { // you did NOT beat part1
 		if (entity Delmar type is old_man) { // win condition met
 			// currently no backstory/!backstory difference
 			turn player control off;
@@ -117,7 +117,7 @@ show_dialog_bea_part1 {
 				copy script set_hint_none;
 			}
 			set flag bea1_backstory to true;
-			set flag storyflag_bea1 to true;
+			set flag bea1_quest_done to true;
 		} else { // win condition NOT met
 			if (flag bea1_backstory is false) { // you did NOT hear the backstory
 				if (entity Delmar type is sheep || entity Delmar type is helga) { // is sheep
@@ -181,7 +181,7 @@ show_dialog_bea_part1 {
 // part 2
 
 show_dialog_bea_part2 {
-	if (flag storyflag_bea2 is false) { // !part2won
+	if (flag bea2_quest_done is false) { // !part2won
 		if (entity Delmar type is sheep || entity Delmar type is helga) {
 			if (flag bea2_backstory is false) {
 				show dialog {
@@ -201,7 +201,7 @@ show_dialog_bea_part2 {
 				copy script set_hint_none;
 			}
 			set flag bea2_backstory to true;
-			set flag storyflag_bea2 to true;
+			set flag bea2_quest_done to true;
 		} else { // not a sheep
 			if (entity Delmar type is old_man) {
 				if (flag bea2_backstory is false) {
@@ -281,7 +281,7 @@ debug_bea_sequel_q {
 }
 debug_bea_sequel_man {
 	set flag bea_sequel_branch to true;
-	set flag storyflag_bea1 to true;
+	set flag bea1_quest_done to true;
 	set flag bea1_backstory to true;
 	set entity Delmar type to old_man;
 	copy script set_hint_none;
@@ -291,7 +291,7 @@ debug_bea_sequel_man {
 }
 debug_bea_sequel_noman {
 	set flag bea_sequel_branch to true;
-	set flag storyflag_bea1 to true;
+	set flag bea1_quest_done to true;
 	set flag bea1_backstory to true;
 	copy script set_hint_none;
 	show dialog { SELF "Sequel branch activated, and Delmar left alone." }

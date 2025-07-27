@@ -1,36 +1,36 @@
 ch1_count_flags {
 	ch1_storyflags_tally = 0;
-	if (storyflag_catwork) {
+	if (catwork_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_shepherd) {
+	if (shepherd_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_bender) {
+	if (bender_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_baker) {
+	if (baker_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_bobmoss) {
+	if (bobmoss_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_bea1) {
+	if (bea1_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_trekkie) {
+	if (trekkie_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_sportskid) {
+	if (sportskid_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_verthandi) {
+	if (verthandi_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_bea2) {
+	if (bea2_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
-	if (storyflag_rake) {
+	if (rake_quest_done) {
 		ch1_storyflags_tally += 1;
 	}
 }

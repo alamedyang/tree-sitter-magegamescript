@@ -4,7 +4,7 @@ on_load_greenhouse {
 	if (tuesdayd) {
 		command rtfm = command_rtfm;
 	}
-	if (storyflag_trekkie) {
+	if (trekkie_quest_done) {
 		copy!(ch1_ethernettle_restore)
 	}
 }
@@ -90,7 +90,7 @@ show_dialog_trekkie_start {
 	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "Hu bu. Qvq zr trg n ivehf?" };
-	} else if (storyflag_trekkie) {
+	} else if (trekkie_quest_done) {
 		copy!(ch1_greenhouse_trekkie_aftermath)
 	} else if (
 		entity EtherNettle1 secondary_id != 3 // orange-white
@@ -217,7 +217,7 @@ ch1_greenhouse_modem_turning_on_cutscene {
 		PLAYER "Sounds great, %Trekkie%."
 	};
 	self direction = geometry Computer;
-	storyflag_trekkie = true;
+	trekkie_quest_done = true;
 	copy!(calculate_hint_tracking_series)
 	player_control = on;
 }
