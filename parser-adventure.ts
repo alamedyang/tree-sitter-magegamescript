@@ -182,7 +182,7 @@ const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState
 			continue;
 		}
 		if (analysis.type === 'goto-script') {
-			ret.lines.push(analysis.line);
+			ret.lines.push(String(analysis.line));
 			ret.tos = [lines.length];
 			break;
 		}
@@ -204,14 +204,14 @@ const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState
 			break;
 		}
 		if (analysis.type === 'if-then-goto-script') {
-			const branchTo = lines.length;
+			const branchTo = pos + 0.5;
 			ret.lines.push(analysis.line);
-			ret.tos = [pos + 0.5, branchTo];
-			cs.seenStarts.add(pos + 0.5);
+			ret.tos = [pos + 1, branchTo];
+			cs.seenStarts.add(branchTo);
 			allSegments.push({
-				from: pos + 0.5,
+				from: branchTo,
 				tos: [lines.length],
-				lines: [String(analysis.value)],
+				lines: ['goto script'],
 			});
 			break;
 		}
@@ -337,7 +337,9 @@ const compareFrom = (
 	}
 
 	if (oldFF.type === 'end') {
-		const result = oldFF.seen.join('\n') === newFF.seen.join('\n');
+		oldSeen.push(...oldFF.seen);
+		newSeen.push(...newFF.seen);
+		const result = oldSeen.join('\n') === newSeen.join('\n');
 		oldCache[oldStart] = result;
 		newCache[newStart] = result;
 		return result;

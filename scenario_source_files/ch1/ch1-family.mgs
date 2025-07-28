@@ -61,7 +61,9 @@ show_dialog_smith {
 		show dialog { SELF "Naa, ptl matm lttz itgxxk, hk lxz ytnem itgxxk?" };
 	} else {
 		entity Smith direction = player;
-		if (!smith_backstory) {
+		if (smith_backstory) {
+			show dialog { SELF "Real talk, don't eat memory leek soup. It'll mess with your head." };
+		} else {
 			show dialog {
 				SELF "What's for dinner?"
 				"Memory leek soup!"
@@ -69,8 +71,6 @@ show_dialog_smith {
 				"...Nah, just kidding. It's saag paneer."
 			};
 			smith_backstory = true;
-		} else {
-			show dialog { SELF "Real talk, don't eat memory leek soup. It'll mess with your head." };
 		}
 		entity Smith direction = east;
 	}
