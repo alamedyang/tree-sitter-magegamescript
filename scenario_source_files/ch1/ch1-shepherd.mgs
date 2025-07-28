@@ -2,61 +2,54 @@ include "header.mgs";
 
 show_dialog_shepherd_start {
 	copy!(face_player)
-	if (self glitched) { // if he's glitched
+	if (self glitched) {
 		show dialog { SELF "Jubn, jung'f tbvat ba?!" };
-	} else if (shepherd_quest_done) { // if you've solved the puzzle already
+		return;
+	}
+	if (shepherd_quest_done) {
 		show dialog { SELF "Thanks a million! I owe you one!" };
-	} else if (
-		!entity Baa intersects geometry "sheep-pen"
-		|| !entity Ram intersects geometry "sheep-pen"
-		|| !entity Ewe intersects geometry "sheep-pen"
-		|| !entity Helga intersects geometry "sheep-pen"
-	) { // if at least one of the sheep is NOT in the pen... (& puzzle not solved yet)
-		if (shepherd_backstory) { // ...and you've heard the backstory...
-			if (
-				entity Baa intersects geometry "sheep-pen"
-				|| entity Ram intersects geometry "sheep-pen"
-				|| entity Ewe intersects geometry "sheep-pen"
-				|| entity Helga intersects geometry "sheep-pen"
-			) { // ...and if at least one IS in the pen
-				// give a "cheer"
-				copy!(face_player)
-				show dialog { SELF "Awesome! Don't stop, now!" };
-				copy!(set_hint_shepherd_partial)
-			} else { // ...and they're ALL still outside
-				// give a reminder
-				show dialog { SELF "Can you help a dude out? Put all four sheep back inside the fence?" };
-				copy!(set_hint_shepherd)
-			}
-		} else { // ...if you HAVEN'T heard the backstory...
-			// ...hear the backstory now
-			copy!(show_dialog_shepherd_backstory)
-			copy!(set_hint_shepherd)
-		}
-		shepherd_backstory = true;
-	} else { // all the sheep must be in the pen
-		// you win!
-		if (shepherd_backstory) { // if you've heard the backstory:
-			// standard ending
-			show dialog {
-				SELF "Thanks a million! I owe you one!"
-			};
-		} else {
-			// "surprised" ending
+		return;
+	}
+	if (
+		entity Baa intersects geometry "sheep-pen"
+		&& entity Ram intersects geometry "sheep-pen"
+		&& entity Ewe intersects geometry "sheep-pen"
+		&& entity Helga intersects geometry "sheep-pen"
+	) {
+		if (!shepherd_backstory) {
 			show dialog {
 				SELF "Oh, wow, are the sheep actually back inside the pen? I could've sworn they...."
 				"Hey, did you do that? Did you put them back?"
 				"Wow, thanks a lot! I could've gotten into deep trouble!"
 			};
-			shepherd_backstory = true; // (because you talked to him at all)
+			shepherd_backstory = true;
+		} else {
+			show dialog { SELF "Thanks a million! I owe you one!" };
 		}
 		shepherd_quest_done = true;
 		copy!(calculate_hint_tracking_series)
 		if (hint_tracking_check == 1) {
-			// if the hint series is the same, reset hint
 			copy!(set_hint_none)
 		}
+		return;
 	}
+	if (!shepherd_backstory) {
+		copy!(show_dialog_shepherd_backstory)
+		copy!(set_hint_shepherd)
+	} else if (
+		entity Baa intersects geometry "sheep-pen"
+		|| entity Ram intersects geometry "sheep-pen"
+		|| entity Ewe intersects geometry "sheep-pen"
+		|| entity Helga intersects geometry "sheep-pen"
+	) {
+		copy!(face_player)
+		show dialog { SELF "Awesome! Don't stop, now!" };
+		copy!(set_hint_shepherd_partial)
+	} else {
+		show dialog { SELF "Can you help a dude out? Put all four sheep back inside the fence?" };
+		copy!(set_hint_shepherd)
+	}
+	shepherd_backstory = true;
 }
 
 show_dialog_shepherd_backstory {
@@ -105,7 +98,6 @@ show_dialog_shepherd_ending {
 	shepherd_backstory = true;
 	copy!(calculate_hint_tracking_series)
 	if (hint_tracking_check == 1) {
-		// if the hint series is the same, reset hint
 		copy!(set_hint_none)
 	}
 	entity Shepherd on_interact = show_dialog_shepherd_start;

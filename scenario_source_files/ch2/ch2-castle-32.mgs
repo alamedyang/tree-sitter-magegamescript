@@ -121,7 +121,6 @@ on_load_ch2_castle_32 {
 	command look + "vending machine" = look_ch2_vendingmachine;
 	copy!(ch2_map_init)
 
-	// DEBUG
 	if (debug_mode) {
 		command want + chips = debug_want_chips;
 		show serial_dialog {
@@ -129,7 +128,6 @@ on_load_ch2_castle_32 {
 			"<y>DEBUG></> <c>WANT CHIPS</>"
 		};
 	}
-	// END DEBUG
 }
 
 debug_want_chips {

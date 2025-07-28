@@ -13,7 +13,7 @@ on_load_bobsclub1 {
 		entity "Bob Moss" type = exa;
 	}
 	if (!bobsclub_entered) {
-		goto show_dialog_bobsclub; // JUMP: Bob's club entrance cutscene
+		goto show_dialog_bobsclub;
 	}
 }
 show_dialog_bobsclub {
@@ -271,9 +271,12 @@ show_dialog_fridge {
 // Bob Austin
 show_dialog_bobrock_start {
 	copy!(face_player)
-	if (self glitched) { // glitched
+	if (self glitched) {
 		show dialog { SELF "Sqd'j meha byau jxyi." };
-	} else if (!entity "Bob Austin" intersects geometry bobzone) { // !glitched && !bobzone
+		return;
+	}
+
+	if (!entity "Bob Austin" intersects geometry bobzone) {
 		// teleport him back into bounds
 		player_control = off;
 		copy!(face_player)
@@ -283,7 +286,10 @@ show_dialog_bobrock_start {
 		entity "Bob Austin" direction = south
 		camera fade in -> #000000 over 500ms;
 		player_control = on;
-	} else if (!bobrock_backstory) { // !glitched && bobzone && !backstory
+		return;
+	}
+
+	if (!bobrock_backstory) {
 		show dialog {
 			SELF "Name's Bob."
 			"Stone Cold %Bob Austin%."
@@ -299,7 +305,7 @@ show_dialog_bobrock_start {
 			SELF "Why?\nWhy is it Bobs only?"
 			"Why, it wouldn't be the Bobs-Only Club if I just let anyone in!"
 		};
-		if (baker_backstory) { // optional dialog
+		if (baker_backstory) {
 			show dialog {
 				PLAYER "Well, the baker needs to know whether the club still needs a bunch of B-shaped donuts for tonight."
 				"Do you know if the Bobs still want them? There's gonna be a party tonight, right?"
@@ -312,53 +318,57 @@ show_dialog_bobrock_start {
 		}
 		bobrock_backstory = true;
 		copy!(set_hint_baker)
-	} else { // !glitched && bobzone && backstory
-		show dialog { SELF "So, what's your name then?" };
-		if (player name != Bob) { // you are NOT Bob
-			if (!bobsclub_entered) { // !Bob && !BobsClub
-				show dialog {
-					PLAYER "Um....\nit's %PLAYER%."
-					SELF "Sorry, can't unlock the door for ya.\nBobs only."
-				};
-				copy!(set_hint_baker)
-			} else { // !Bob && BobsClub
-				show dialog show_dialog_bobrock_start_AGAIN { // (reused)
-					PLAYER "We've been through all this before, you know."
-					SELF "Doesn't matter. It's just the rules.\nBobs only."
-				}
-				show dialog {
-					PLAYER "...." "Fine. I guess I'm not getting in, then."
-					SELF "Damn straight."
-				};
-			}
-		} else { // you ARE Bob
-			if (!bobsclub_entered) { // Bob && !BobsClub
-				show dialog {
-					PLAYER "Why, what luck! My name happens to be Bob!"
-					SELF "Nice. Great name. I'll open it on up."
-				};
-			} else { // Bob && BobsClub
-				show dialog show_dialog_bobrock_start_AGAIN; // from above
-				show dialog {
-					PLAYER "Well, my name is Bob! Happy?"
-					SELF "Cool. Great name."
-				};
-			}
-			// Bob Austin unlocks the door:
-			player_control = off;
-			entity "Bob Austin" position -> geometry "%ENTITY_PATH%" origin over 400ms;
-			entity "Bob Austin" direction = geometry "door-bobsclub-entrance"
-			wait 1000ms;
-			entity "Bob Austin" direction = south
-			show dialog {
-				SELF "Head inside quick, now."
-			};
-			player position -> geometry "predoor-bobsclub" origin over 500ms;
-			player position -> geometry "door-bobsclub-entrance" origin over 500ms;
-			player_control = on;
-			load map bobsclub; // JUMP
-		}
+		return;
 	}
+
+	show dialog { SELF "So, what's your name then?" };
+
+	if (player name != Bob) {
+		if (!bobsclub_entered) {
+			show dialog {
+				PLAYER "Um....\nit's %PLAYER%."
+				SELF "Sorry, can't unlock the door for ya.\nBobs only."
+			};
+			copy!(set_hint_baker)
+		} else {
+			show dialog show_dialog_bobrock_start_AGAIN { // (reused)
+				PLAYER "We've been through all this before, you know."
+				SELF "Doesn't matter. It's just the rules.\nBobs only."
+			}
+			show dialog {
+				PLAYER "...." "Fine. I guess I'm not getting in, then."
+				SELF "Damn straight."
+			};
+		}
+		return;
+	}
+
+	if (!bobsclub_entered) {
+		show dialog {
+			PLAYER "Why, what luck! My name happens to be Bob!"
+			SELF "Nice. Great name. I'll open it on up."
+		};
+	} else {
+		show dialog show_dialog_bobrock_start_AGAIN;
+		show dialog {
+			PLAYER "Well, my name is Bob! Happy?"
+			SELF "Cool. Great name."
+		};
+	}
+
+	// Bob Austin unlocks the door:
+	player_control = off;
+	entity "Bob Austin" position -> geometry "%ENTITY_PATH%" origin over 400ms;
+	entity "Bob Austin" direction = geometry "door-bobsclub-entrance"
+	wait 1000ms;
+	entity "Bob Austin" direction = south
+	show dialog {
+		SELF "Head inside quick, now."
+	};
+	player position -> geometry "predoor-bobsclub" origin over 500ms;
+	player position -> geometry "door-bobsclub-entrance" origin over 500ms;
+	player_control = on;
+	load map bobsclub;
 }
 
 // Guardian Bob
@@ -366,24 +376,24 @@ show_dialog_bobsclub_bob {
 	copy!(face_player)
 	if (self glitched) {
 		show dialog { SELF "Gung'f n onq fvta." };
-	} else {
+		return;
+	}
+	show dialog {
+		SELF "They could've told me the party was actually canceled before I made the trip out here."
+		"And it was a long trip, too. I came all the way from the net!"
+		"*sigh*\nOh, well."
+	};
+	if (!bobmoss_quest_done) {
+		player_control = off;
+		wait 120ms;
+		player_control = on;
+		entity "Guardian Bob" on_tick = look_left_and_right_fast;
 		show dialog {
-			SELF "They could've told me the party was actually canceled before I made the trip out here."
-			"And it was a long trip, too. I came all the way from the net!"
-			"*sigh*\nOh, well."
+			SELF "Wait. Weren't there two Bob golems last year?"
 		};
-		if (!bobmoss_quest_done) {
-			player_control = off;
-			wait 120ms;
-			player_control = on;
-			entity "Guardian Bob" on_tick = look_left_and_right_fast;
-			show dialog {
-				SELF "Wait. Weren't there two Bob golems last year?"
-			};
-			copy!(set_hint_bobmoss_from_guardian)
-			entity "Guardian Bob" on_tick = null_script;
-			entity "Guardian Bob" direction = south;
-		}
+		copy!(set_hint_bobmoss_from_guardian)
+		entity "Guardian Bob" on_tick = null_script;
+		entity "Guardian Bob" direction = south;
 	}
 }
 
@@ -391,25 +401,23 @@ show_dialog_bobsclub_bob {
 show_dialog_bobsclub_strongbob {
 	if (self glitched) {
 		show dialog { SELF "fhqwhgadshgnsdhjsdbkhsdabkfabkveybvf" };
+		return;
+	}
+	copy!(face_player)
+	if (!strong_bad_backstory) {
+		show dialog {
+			SELF "Why, hello there, fellow Bob!"
+			PLAYER "Your name is Bob?"
+			SELF "Why, it sure is!"
+			PLAYER "You look an awful lot like Strong Bad to me."
+			SELF "Wha-what? STRONG BAD? Never heard of him. Though he sounds like quite the rugged and handsome gentleman."
+			"The name's Strong BOB! Just lookee here at my fake -- I mean real -- ID!"
+			PLAYER "(This ID clearly belongs to \"Bob Newhart,\" but the word Newhart is crossed out.)"
+			"(I guess Bob out front doesn't have very good eyes.)"
+		};
+		strong_bad_backstory = true;
 	} else {
-		copy!(face_player)
-		if (!strong_bad_backstory) {
-			// hear his backstory
-			show dialog {
-				SELF "Why, hello there, fellow Bob!"
-				PLAYER "Your name is Bob?"
-				SELF "Why, it sure is!"
-				PLAYER "You look an awful lot like Strong Bad to me."
-				SELF "Wha-what? STRONG BAD? Never heard of him. Though he sounds like quite the rugged and handsome gentleman."
-				"The name's Strong BOB! Just lookee here at my fake -- I mean real -- ID!"
-				PLAYER "(This ID clearly belongs to \"Bob Newhart,\" but the word Newhart is crossed out.)"
-				"(I guess Bob out front doesn't have very good eyes.)"
-			};
-			strong_bad_backstory = true;
-		} else {
-			// hear a summary
-			show dialog { SELF "Yessirree! Strong Bob's the name, and partyin's the game!" };
-		}
+		show dialog { SELF "Yessirree! Strong Bob's the name, and partyin's the game!" };
 	}
 }
 
@@ -452,8 +460,6 @@ show_dialog_bobmoss_start {
 	player_control = on;
 }
 show_dialog_bobmoss_start_s {
-	// can't zigzag this without editing the Tiled map... todo later
-	// (What the crap does this mean?? ^^)
 	copy!(face_player)
 	if (self glitched) {
 		copy!(show_dialog_bobmoss_deglitch)

@@ -283,6 +283,7 @@ const fastForward = (cs: AdventureCrawlState, start: number) => {
 				type: 'branch',
 				tos: curr.tos,
 				seen,
+				condition: seen.pop(),
 			};
 		} else {
 			pos = curr.tos[0];
@@ -293,6 +294,46 @@ const fastForward = (cs: AdventureCrawlState, start: number) => {
 		tos: [],
 		seen,
 	};
+};
+
+const invertCondition = (condition: string): string => {
+	const equals = condition.match(/^if (.+) == (.+) then$/);
+	if (equals) {
+		return `if ${equals[1]} != ${equals[2]} then`;
+	}
+	const bang = condition.match(/^if !(.+) then$/);
+	if (bang) {
+		return `if ${bang[1]} then`;
+	}
+	const plain = condition.match(/^if ([_a-zA-Z0-9]+) then$/);
+	if (plain) {
+		return `if !${plain[1]} then`;
+	}
+	const quotes = condition.match(/^if "(.+)" then$/);
+	if (quotes) {
+		return `if !"${quotes[1]}" then`;
+	}
+	const greaterThan = condition.match(/^if (.+) > (.+) then$/);
+	if (greaterThan) {
+		return `if ${greaterThan[1]} <= ${greaterThan[2]} then`;
+	}
+	const greaterThanEq = condition.match(/^if (.+) >= (.+) then$/);
+	if (greaterThanEq) {
+		return `if ${greaterThanEq[1]} < ${greaterThanEq[2]} then`;
+	}
+	const lessThan = condition.match(/^if (.+) < (.+) then$/);
+	if (lessThan) {
+		return `if ${lessThan[1]} >= ${lessThan[2]} then`;
+	}
+	const lessThanEq = condition.match(/^if (.+) <= (.+) then$/);
+	if (lessThanEq) {
+		return `if ${lessThanEq[1]} > ${lessThanEq[2]} then`;
+	}
+	const multiWordBool = condition.match(/^if (.+) then$/);
+	if (multiWordBool) {
+		return `if !${multiWordBool[1]} then`;
+	}
+	throw new Error('unknown inversion needed');
 };
 
 // The "been to" Set is which crossroads you've touched.
@@ -344,7 +385,14 @@ const compareFrom = (
 		oldCache[oldStart] = false;
 		newCache[newStart] = false;
 		const compared = compareTexts(oldSeen.join('\n'), newSeen.join('\n'));
-		console.log(compared.lengthDiff.join('\n'));
+		console.log('\t' + compared.message);
+		if (compared.lengthDiff) {
+			console.log('\t' + compared.lengthDiff.join('\n'));
+		} else {
+			compared.lines?.forEach((line) => {
+				console.log('\t' + line.diff);
+			});
+		}
 		return false;
 	}
 
@@ -359,6 +407,20 @@ const compareFrom = (
 	if (oldFF.type === 'end') {
 		return true;
 	}
+
+	if (oldFF.condition === undefined) throw new Error('Condition missing in old branch');
+	if (newFF.condition === undefined) throw new Error('Condition missing in new branch');
+	if (oldFF.condition !== newFF.condition) {
+		const newInverted = invertCondition(newFF.condition);
+		if (oldFF.condition === newInverted) {
+			newFF.tos.reverse();
+			newFF.condition = newInverted;
+		} else {
+			return false;
+		}
+	}
+	oldSeen.push(oldFF.condition);
+	newSeen.push(newFF.condition);
 
 	// Otherwise compare each branch now.
 	const left = compareFrom(

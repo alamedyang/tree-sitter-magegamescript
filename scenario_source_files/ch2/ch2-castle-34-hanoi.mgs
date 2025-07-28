@@ -303,8 +303,7 @@ draw_hanoi {
 		cursor_grip_height = array3_length *1;
 	}
 	cursor_grip_height += 2;
-	cursor_hinge_height = cursor_grip_height *1;
-	cursor_hinge_height += 1;
+	cursor_hinge_height = cursor_grip_height + 1;
 	// HEADER
 	show serial_dialog {
 		" "

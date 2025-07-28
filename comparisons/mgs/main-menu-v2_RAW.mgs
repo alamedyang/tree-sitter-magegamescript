@@ -401,7 +401,7 @@ debug_menu_simon {
    player_control = false;
    serial_control = false;
    warp_state = warping;
-   player on_tick = spin-quickly;
+   player on_tick = spin_quickly;
    camera fade out -> #000000 over 500ms;
    if (ch2_storyflag_round >= 5) { goto index 77; }
    load map ch2-castle-31;

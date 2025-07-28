@@ -119,7 +119,7 @@ snake_box_interact {
 }
 
 interact_ch2_pantryfridge {
-	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered ) {
+	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered) {
 		show dialog {
 			PLAYER "Meats and fruits and vegetables... oh my."
 		};
@@ -130,7 +130,7 @@ interact_ch2_pantryfridge {
 	}
 }
 interact_ch2_pantryshelf {
-	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered ) {
+	if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered) {
 		show dialog {
 		PLAYER "Looks like a lot of dry and canned goods."
 		};
@@ -154,16 +154,16 @@ ch2_iron_content {
 	show dialog {
 		PLAYER "Yeah."
 	};
-	if (ch2_plate_firstlook) {
-		show dialog {
-			Clara "Well, the plates are in there."
-			PLAYER "The PlateMover 9000?"
-		};
-	} else {
+	if (!ch2_plate_firstlook) {
 		show dialog {
 			Clara "Well, that thing is a PlateMover 9000. The plates are in there."
 		};
 		ch2_plate_firstlook = true;
+	} else {
+		show dialog {
+			Clara "Well, the plates are in there."
+			PLAYER "The PlateMover 9000?"
+		};
 	}
 	player direction = entity Clara;
 	show dialog {
@@ -222,32 +222,34 @@ interact_ch2_clara {
 				PLAYER "Yup, that's me."
 			};
 		}
-		if (!ch2_want_cactuscooler || ch2_carrying_cactuscooler || ch2_cactuscooler_delivered) {
+		if (ch2_want_cactuscooler && !ch2_carrying_cactuscooler && !ch2_cactuscooler_delivered) {
+			ch2_clara_backstory = true;
+			show dialog ch2_clara_soda { // reused
+				PLAYER "So... I'm looking for some Cactus Cooler. It's this rare kind of soda...."
+				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
+			};
+		} else {
 			if (!ch2_clara_backstory) {
 				// just so it doesn't take this branch the first time:
 				ch2_clara_backstory = true;
 			} else {
 				show dialog { SELF "I'm new around here. I gotta say, this has been an interesting first week of work." };
 			}
-		} else {
-			ch2_clara_backstory = true;
-			show dialog ch2_clara_soda { // reused
-				PLAYER "So... I'm looking for some Cactus Cooler. It's this rare kind of soda...."
-				SELF "Rare is right. Never heard of it, so I doubt we have any stocked. Sorry about that."
-			};
 		}
 		copy!(resume_walk)
-	} else if (ch2_jukebox_backstory) {
+		return;
+	}
+	if (ch2_jukebox_backstory) {
 		show dialog {
 			SELF "Jeez, technology sometimes, you know?"
 			"We could have kept those plates on some normal shelf, but my boss wanted \"technological novelty\" for his project."
 			"Technology should empower us, not make normal things harder to do!"
 			"...Sorry for rambling. It's a pet peeve for me, is all."
 		};
-	} else {
-		copy!(ch2_iron_content)
-		ch2_jukebox_backstory = true;
+		return;
 	}
+	copy!(ch2_iron_content)
+	ch2_jukebox_backstory = true;
 }
 
 /* ---------- HARDDRIVE (ADMIN) ---------- */
@@ -317,20 +319,12 @@ ch2_touch_plate {
 }
 won_hanoi_get_plate {
 	copy!(ch2_pickup_plate)
-	show dialog {
-		PLAYER "Aha! I got plate #6!"
-	};
+	show dialog { PLAYER "Aha! I got plate #6!" };
 	if (hanoi_move_count == 33) {
-		show dialog {
-			Clara "Sweet. And it looks like you did it super efficiently, too. Nice!"
-		};
+		show dialog { Clara "Sweet. And it looks like you did it super efficiently, too. Nice!" };
 	} else if (hanoi_move_count == 69) {
-		show dialog {
-			Clara "Nice."
-		};
+		show dialog { Clara "Nice." };
 	} else {
-		show dialog {
-			Clara "Sweet."
-		};
+		show dialog { Clara "Sweet." };
 	}
 }

@@ -144,7 +144,7 @@ ch2_map_init_serial_debug_message {
 
 ch2_map_init_warp_in {
 	if (warp state is warping) {
-		copy warping-in-fade-in;
+		copy warping_in_fade_in;
 	}
 	turn player control on;
 }
@@ -166,7 +166,7 @@ ch2_map_init {
 
 /* ---------- ON_WARP & ON_GO ANIMATION ---------- */
 
-spin-quickly {
+spin_quickly {
 	rotate entity "%SELF%" -1;
 	wait 150ms;
 }
@@ -175,13 +175,13 @@ warping_out_fade_out {
 	turn player control off;
 	turn serial control off;
 	set warp state to warping;
-	set entity "%PLAYER%" on_tick to spin-quickly;
+	set entity "%PLAYER%" on_tick to spin_quickly;
 	fade out camera to #000000 over 500ms;
 }
 
-warping-in-fade-in {
+warping_in_fade_in {
 	teleport entity "%PLAYER%" to geometry warp-spot;
-	set entity "%PLAYER%" on_tick to spin-quickly;
+	set entity "%PLAYER%" on_tick to spin_quickly;
 	fade in camera from #000000 over 300ms;
 	set entity "%PLAYER%" on_tick to null_script;
 	turn entity "%PLAYER%" south;

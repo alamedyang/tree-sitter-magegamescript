@@ -52,27 +52,32 @@ on_load_lodge {
 empty_lodge {
 	copy!(empty_lodge_mini)
 	// just in case I didn't catch all the 'empty_lodge' scripts and need the rest to happen, too
-	entity Cleo position = geometry "lodge-hidingplace";
-	entity Shepherd position = geometry "lodge-hidingplace";
-	entity Beatrice position = geometry "lodge-hidingplace";
-	entity Baker position = geometry "lodge-hidingplace";
-	entity Trekkie position = geometry "lodge-hidingplace";
-	entity Marta position = geometry "lodge-hidingplace";
-	entity "Max Swagger" position = geometry "lodge-hidingplace";
-	entity Smith position = geometry "lodge-hidingplace";
-	entity Verthandi position = geometry "lodge-hidingplace";
-	entity "Uncle Zappy" position = geometry "lodge-hidingplace";
-	entity "Aunt Zippy" position = geometry "lodge-hidingplace";
-	entity "Goose  " position = geometry "lodge-hidingplace";
-	entity "Goose " position = geometry "lodge-hidingplace";
+	[
+		entity Cleo position,
+		entity Shepherd position,
+		entity Beatrice position,
+		entity Baker position,
+		entity Trekkie position,
+		entity Marta position,
+		entity "Max Swagger" position,
+		entity Smith position,
+		entity Verthandi position,
+		entity "Uncle Zappy" position,
+		entity "Aunt Zippy" position,
+		entity "Goose  " position,
+		entity "Goose " position,
+	] = geometry "lodge-hidingplace";
 }
 empty_lodge_mini {
 	entity Bookcase position = geometry "lodge-hidingplace";
 	copy!(skip_artifacts)
 	copy!(deaden_artifacts)
-	entity Jackob position = geometry "lodge-hidingplace";
-	entity Alfonso position = geometry "lodge-hidingplace";
-	entity Bert position = geometry "lodge-hidingplace";
+	[
+		entity Jackob position,
+		entity Alfonso position,
+		entity Bert position,
+	] = geometry "lodge-hidingplace";
+
 }
 
 /*-----------------*/

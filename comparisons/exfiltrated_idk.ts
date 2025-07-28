@@ -70958,7 +70958,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		},
 		{
 			action: 'COPY_SCRIPT',
-			script: 'warping-in-fade-in',
+			script: 'warping_in_fade_in',
 		},
 		{
 			action: 'GOTO_ACTION_INDEX',
@@ -71031,7 +71031,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			value: 'LABEL f5017',
 		},
 	],
-	'spin-quickly': [
+	spin_quickly: [
 		{
 			action: 'SET_ENTITY_DIRECTION_RELATIVE',
 			entity: '%SELF%',
@@ -71058,7 +71058,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'spin-quickly',
+			script: 'spin_quickly',
 		},
 		{
 			action: 'SCREEN_FADE_OUT',
@@ -71066,7 +71066,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 			duration: 500,
 		},
 	],
-	'warping-in-fade-in': [
+	warping_in_fade_in: [
 		{
 			action: 'TELEPORT_ENTITY_TO_GEOMETRY',
 			entity: '%PLAYER%',
@@ -71075,7 +71075,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			action: 'SET_ENTITY_TICK_SCRIPT',
 			entity: '%PLAYER%',
-			script: 'spin-quickly',
+			script: 'spin_quickly',
 		},
 		{
 			action: 'SCREEN_FADE_IN',

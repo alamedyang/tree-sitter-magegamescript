@@ -12,31 +12,20 @@ cutbug_auto {
 
 cutbug {
     qty = player y;
-    // qty %= 256;
     show serial_dialog spacer;
     concat serial_dialog {
         "<c>CUTBUG!</> "
     };
     if (qty < 10) {
-        concat serial_dialog {
-            "000"
-        };
+        concat serial_dialog { "000" };
     } else if (qty < 100) {
-        concat serial_dialog {
-            "00"
-        };
+        concat serial_dialog { "00" };
     } else if (qty < 1000) {
-        concat serial_dialog {
-            "0"
-        };
+        concat serial_dialog { "0" };
     }
-    concat serial_dialog {
-        "$qty$\n"
-    };
+    concat serial_dialog { "$qty$\n" };
     for (i = 0; i <= qty; i += 1) {
-        print:
-        mod = i *1;
-        mod %= 16;
+        mod = i % 16;
         if (mod == 0) {
             concat serial_dialog { "\n" };
         } else if (mod == 1) {
