@@ -515,7 +515,7 @@ interact_ch2_goose {
 			PLAYER "I guess the goose likes me."
 			Goose "Honk!"
 		};
-	} else if (!ch2_carrying_minirake99) {
+	} else if (!ch2_carrying_minirake_99) {
 	    show dialog {
 			name "" "(An image of the goose honking atop a mountain of rakes floods your mind.)"
 			PLAYER "Did the goose just..."

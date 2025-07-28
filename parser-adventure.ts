@@ -1,3 +1,5 @@
+import { compareTexts } from './parser-tests.js';
+
 const getLabelRegistery = (lines: string[]) => {
 	const registry: Record<string, number> = {};
 	lines.forEach((line, i) => {
@@ -293,6 +295,9 @@ const fastForward = (cs: AdventureCrawlState, start: number) => {
 	};
 };
 
+// The "been to" Set is which crossroads you've touched.
+// They don't necessarily have a result yet, so they
+// should be kept separate from the result cache.
 const compareFrom = (
 	oldCS: AdventureCrawlState,
 	newCS: AdventureCrawlState,
@@ -305,46 +310,57 @@ const compareFrom = (
 	oldBeenTo: Set<number>,
 	newBeenTo: Set<number>,
 ) => {
+	// If either crossroad is known to be false beyond, hand it back up.
 	if (oldCache[oldStart] === false) return false;
 	if (newCache[newStart] === false) return false;
 
+	// If both crossroads are known to be true beyond, hand it back up.
 	if (oldCache[oldStart] === true && newCache[newStart]) return true;
-	// if (oldCache[oldStart] === true) throw new Error('lopsided true');
-	// if (newCache[newStart] === true) throw new Error('lopsided true');
+	// Shouldn't have only one of them being true, but break just in case.
+	if (oldCache[oldStart] === true) throw new Error('lopsided true');
+	if (newCache[newStart] === true) throw new Error('lopsided true');
 
+	// If these crossroad are ones we've touched before,
+	// but there's no result yet, it's an infinite loop,
+	// like in a `for` loop. This counts as a termination.
 	if (oldBeenTo.has(oldStart) && newBeenTo.has(newStart)) {
-		// infinite loop!
 		return true;
 	}
 
+	// We're officially evaluating these crossroads now.
 	oldBeenTo.add(oldStart);
 	newBeenTo.add(newStart);
 
+	// Look ahead to the next crossroads.
+	const oldFF = fastForward(oldCS, oldStart);
+	const newFF = fastForward(newCS, newStart);
+	// Add the next batch of actions to what we've seen.
+	oldSeen.push(...oldFF.seen);
+	newSeen.push(...newFF.seen);
+
+	// If our collected actions don't match, it's false.
 	const result = oldSeen.join('\n') === newSeen.join('\n');
 	if (result === false) {
 		oldCache[oldStart] = false;
 		newCache[newStart] = false;
+		const compared = compareTexts(oldSeen.join('\n'), newSeen.join('\n'));
+		console.log(compared.lengthDiff.join('\n'));
 		return false;
 	}
 
-	const oldFF = fastForward(oldCS, oldStart);
-	const newFF = fastForward(newCS, newStart);
-
+	// If the next crossroads' types don't match, it's false.
 	if (oldFF.type !== newFF.type) {
 		oldCache[oldStart] = false;
 		newCache[newStart] = false;
 		return false;
 	}
 
+	// If it's terminating here, we win.
 	if (oldFF.type === 'end') {
-		oldSeen.push(...oldFF.seen);
-		newSeen.push(...newFF.seen);
-		const result = oldSeen.join('\n') === newSeen.join('\n');
-		oldCache[oldStart] = result;
-		newCache[newStart] = result;
-		return result;
+		return true;
 	}
 
+	// Otherwise compare each branch now.
 	const left = compareFrom(
 		oldCS,
 		newCS,
@@ -369,7 +385,8 @@ const compareFrom = (
 		oldBeenTo,
 		newBeenTo,
 	);
-	return left && right;
+	// If they're both good, we're good.
+	return left === true && right === true;
 };
 
 /*

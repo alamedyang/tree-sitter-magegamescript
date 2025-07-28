@@ -58,7 +58,7 @@ export default grammar({
 		comment_text: () => repeat1(token(/.|\n|\r/)),
 		line_comment: () => token(repeat1(seq('//', repeat(/[^\n]/)))),
 
-		BOOL: () => token(prec(1, /true|false|on|off|open|closed|up|down/)),
+		BOOL: () => token(choice('true', 'false', 'on', 'off', 'open', 'closed', 'up', 'down')),
 		BAREWORD: () => token(/[_a-zA-Z][_a-zA-Z0-9]*/),
 		QUOTED_STRING: () => token(/"(?:[^"\\]|\\.)*"/),
 		STRING: ($) => choice($.QUOTED_STRING, $.BAREWORD),
@@ -76,13 +76,12 @@ export default grammar({
 		quantity_suffix: () => token.immediate(/x/),
 		QUANTITY: ($) =>
 			choice(
-				token(prec(1, choice('once', 'twice', 'thrice'))),
+				token(choice('once', 'twice', 'thrice')),
 				prec.right(
 					seq(field('NUMBER', $.NUMBER), optional(field('suffix', $.quantity_suffix))),
 				),
 			),
-		COLOR: () =>
-			token(prec(1, /white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}/)),
+		COLOR: () => token(/white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}/),
 		CONSTANT: () => token(/\$[_a-zA-Z0-9]+/),
 		CONSTANT_VALUE: ($) =>
 			choice(

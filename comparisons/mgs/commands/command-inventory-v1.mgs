@@ -4,7 +4,7 @@ include!("header.mgs")
 
 register_inventory {
 	register man + inventory -> man_inventory;
-	register inventory -> command-inventory;
+	register inventory -> command_inventory;
 	register alias i = inventory;
 	register alias examine = look;
 	register alias x = look;
@@ -29,7 +29,7 @@ man_inventory {
 
 // COMMAND
 
-command-inventory {
+command_inventory {
 	// set the `count-inventory` flag first; if true, don't print anything! just count!
 	mutate ch2_count_inventory = 0;
 	if (flag only_count_inventory is false) {

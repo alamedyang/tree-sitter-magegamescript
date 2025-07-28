@@ -417,19 +417,19 @@ For each item: (Copy existing pattern wherever these are found)
 
 1. Put entity on a map (`ENTITY`) and set `on_interact` = `ch2_touch_ITEM`
 2. In file `ch2/ch2-admin.mgs`:
-    1. Script `command-inventory` — Add serial dialog `\tITEM` display check (using flag `ch2-carrying-ITEM`)
+    1. Script `command_inventory` — Add serial dialog `\tITEM` display check (using flag `ch2_carrying_ITEM`)
     2. Script `ch2_count_flags` — Add tally logic check (using flag `ch2-installed-ITEM`)
-    3. Script `interact_ch2_mainframe` — Add installation dialog (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
+    3. Script `interact_ch2_mainframe` — Add installation dialog (using flags `ch2_installed_ITEM` and `ch2_carrying_ITEM`)
 3. In script file for the map room:
-    1. Room's `on_load` — Add entity hide behavior (using flags `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
-    2. Make script `ch2-hide-ITEM`
+    1. Room's `on_load` — Add entity hide behavior (using flags `ch2_installed_ITEM` and `ch2_carrying_ITEM`)
+    2. Make script `ch2_hide_ITEM`
         - `teleport entity ENTITY to geometry hiding-spot`
         - `set entity ENTITY name to " "`
     3. Make script `ch2_touch_ITEM`
         - (Copy existing pattern)
     4. Make script `ch2_install_ITEM`
-        - `set flag ch2-carrying-ITEM to false`
-        - `set flag ch2-installed-ITEM to true`
+        - `set flag ch2_carrying_ITEM to false`
+        - `set flag ch2_installed_ITEM to true`
     5. Make script `look-ITEM`
 4. In file `ch2/ch2-serial-toot.mgs`
     1. Make serial dialog `ch2_describe_ITEM`
@@ -437,12 +437,12 @@ For each item: (Copy existing pattern wherever these are found)
 5. In file `commands/command-parts.mgs`
     1. Make script `ch2_describe_ITEM`: `show serial dialog ch2_describe_ITEM`
     2. Make script `command_parts_ITEM` (copy an existing)
-    3. Add to `command-parts` (using flag `ch2-installed-ITEM` and `ch2-carrying-ITEM`)
+    3. Add to `command-parts` (using flag `ch2_installed_ITEM` and `ch2_carrying_ITEM`)
     4. Add to script `command_parts_q` (if multiple words, add a no-spaces option, too)
 
 Other notes:
 
-- `ch2-hide-X` concerns moving the entity itself around the physical game map; `ch2-pickup-X` and `ch2_install_X` concern setting flags to make the item appear on the ASCII serial map, serial inventory list, etc.
+- `ch2_hide_X` concerns moving the entity itself around the physical game map; `ch2_pickup_X` and `ch2_install_X` concern setting flags to make the item appear on the ASCII serial map, serial inventory list, etc.
 
 ## Puzzles to implement
 

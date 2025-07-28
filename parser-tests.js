@@ -1457,7 +1457,7 @@ const makeTextUniform = (text) =>
 		.trim()
 		.replace(/[\t ]+/g, ' ')
 		.replace(/\/\/.*?[\n$]/g, '');
-const compareTexts = (_found, _expected, fileName, thingName) => {
+export const compareTexts = (_found, _expected, fileName, thingName) => {
 	const foundLines = makeTextUniform(_found)
 		.replaceAll('+=', '+\n=')
 		.replaceAll('-=', '-\n=')

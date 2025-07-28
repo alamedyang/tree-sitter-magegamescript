@@ -69,12 +69,41 @@
     "BOOL": {
       "type": "TOKEN",
       "content": {
-        "type": "PREC",
-        "value": 1,
-        "content": {
-          "type": "PATTERN",
-          "value": "true|false|on|off|open|closed|up|down"
-        }
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "true"
+          },
+          {
+            "type": "STRING",
+            "value": "false"
+          },
+          {
+            "type": "STRING",
+            "value": "on"
+          },
+          {
+            "type": "STRING",
+            "value": "off"
+          },
+          {
+            "type": "STRING",
+            "value": "open"
+          },
+          {
+            "type": "STRING",
+            "value": "closed"
+          },
+          {
+            "type": "STRING",
+            "value": "up"
+          },
+          {
+            "type": "STRING",
+            "value": "down"
+          }
+        ]
       }
     },
     "BAREWORD": {
@@ -204,25 +233,21 @@
         {
           "type": "TOKEN",
           "content": {
-            "type": "PREC",
-            "value": 1,
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "STRING",
-                  "value": "once"
-                },
-                {
-                  "type": "STRING",
-                  "value": "twice"
-                },
-                {
-                  "type": "STRING",
-                  "value": "thrice"
-                }
-              ]
-            }
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "once"
+              },
+              {
+                "type": "STRING",
+                "value": "twice"
+              },
+              {
+                "type": "STRING",
+                "value": "thrice"
+              }
+            ]
           }
         },
         {
@@ -263,12 +288,8 @@
     "COLOR": {
       "type": "TOKEN",
       "content": {
-        "type": "PREC",
-        "value": 1,
-        "content": {
-          "type": "PATTERN",
-          "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}"
-        }
+        "type": "PATTERN",
+        "value": "white|black|red|green|blue|magenta|cyan|yellow|#[0-9A-Fa-f]{3,6}"
       }
     },
     "CONSTANT": {
