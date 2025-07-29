@@ -25,79 +25,63 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		// for printing fancy messages:
 		errors: [],
 		warnings: [],
-		errorCount: 0,
-		warningCount: 0,
 
 		// provides the label suffix, then advances counter:
 		advanceGotoSuffix: () => ++p.gotoSuffixValue,
 		getGotoSuffix: () => p.gotoSuffixValue,
-		newError: (v) => {
-			p.errors.push(v);
-			p.errorCount += 1;
-		},
-		newWarning: (v) => {
-			p.warnings.push(v);
-			p.warningCount += 1;
-		},
 
-		// for adding a file's data to the project's
+		newError: (v) => p.errors.push(v),
+		newWarning: (v) => p.warnings.push(v),
+
+		// for adding a file's data to the project
 
 		addScript: (data, fileName) => {
-			const scriptName = data.scriptName;
-			data.rawNodes = data.actions;
+			const name = data.scriptName;
+			data.rawNodes = data.actions; // making a backup of actions
 			// finalize actions
 			const finalizedActions = [];
 			data.rawNodes.forEach((node) => {
-				if (!node.mathlang) {
-					finalizedActions.push(node);
-				} else if (node.mathlang === 'dialog_definition') {
-					// (sometimes these are inside a script body)
+				if (node.mathlang === 'dialog_definition') {
 					p.addDialog(node, fileName);
 				} else if (node.mathlang === 'serial_dialog_definition') {
-					// (sometimes these are inside a script body)
 					p.addSerialDialog(node, fileName);
-				} else if (node.mathlang === 'copy_script') {
-					finalizedActions.push(node);
-					// done as a separate layer
 				} else {
 					finalizedActions.push(node);
 				}
 			});
 			data.actions = flattenGotos(finalizedActions.flat());
-			// put it in the project
-			if (!p.scripts[scriptName]) {
+			// put script in the project
+			if (!p.scripts[name]) {
 				// if not registered yet, add it
-				p.scripts[scriptName] = data;
+				p.scripts[name] = data;
 			} else {
 				// if it's a duplicate, make an array for all the ones we find
-				if (!p.scripts[scriptName].duplicates) {
-					p.scripts[scriptName].duplicates = [p.scripts[scriptName]];
+				if (!p.scripts[name].duplicates) {
+					p.scripts[name].duplicates = [p.scripts[name]];
 				}
-				p.scripts[scriptName].duplicates.push(data);
+				p.scripts[name].duplicates.push(data);
 			}
 		},
 		addDialog: (data) => {
-			const dialogName = data.dialogName;
-			if (!p.dialogs[dialogName]) {
-				p.dialogs[dialogName] = data;
+			const name = data.dialogName;
+			if (!p.dialogs[name]) {
+				p.dialogs[name] = data;
 			} else {
-				if (!p.dialogs[dialogName].duplicates) {
-					p.dialogs[dialogName].duplicates = [p.dialogs[dialogName]];
+				if (!p.dialogs[name].duplicates) {
+					p.dialogs[name].duplicates = [p.dialogs[name]];
 				}
-				p.dialogs[dialogName].duplicates.push(data);
+				p.dialogs[name].duplicates.push(data);
 			}
 		},
 		addSerialDialog: (data) => {
-			const serialDialogName = data.serialDialogName;
-			if (!p.serialDialogs[serialDialogName]) {
-				p.serialDialogs[serialDialogName] = data;
+			const name = data.serialDialogName;
+			if (!p.serialDialogs[name]) {
+				p.serialDialogs[name] = data;
 			} else {
-				if (!p.serialDialogs[serialDialogName].duplicates) {
-					p.serialDialogs[serialDialogName].duplicates = [
-						p.serialDialogs[serialDialogName],
-					];
+				if (!p.serialDialogs[name].duplicates) {
+					p.serialDialogs[name].duplicates = [p.serialDialogs[name]];
 				}
-				p.serialDialogs[serialDialogName].duplicates.push(data);
+				p.serialDialogs[name].duplicates.push(data);
 			}
 		},
 
@@ -115,6 +99,9 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 								node: dupe.debug.node.firstNamedChild,
 							})),
 						});
+						entry.duplicates.forEach((dupe) => {
+							p.fileMap[dupe.fileName].parsed.errorCount += 1;
+						});
 					}
 				});
 			});
@@ -122,9 +109,9 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		copyScriptOne: (scriptName) => {
 			const finalActions = [];
 			const scriptData = p.scripts[scriptName];
-			// one node might produce multiple nodes, so this needs to be .forEach() and not .map()
+			// one node can become multiple nodes, so this needs to be .forEach() and not .map()
 			scriptData.actions.forEach((action) => {
-				// not copy script
+				// not copy script, easy
 				if (action.mathlang !== 'copy_script' && action.action !== 'COPY_SCRIPT') {
 					finalActions.push(action);
 					return;
@@ -225,7 +212,6 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					} else if (currAction.mathlang === 'label_definition') {
 						registry[currAction.label] = commentlessIndex;
 						actions[i] = newComment(`'${currAction.label}':`);
-						// commentlessIndex -= 1;
 					} else {
 						commentlessIndex += 1;
 					}
@@ -248,9 +234,9 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 							param = 'action_index';
 						}
 						action.comment = `goto label '${action.label}'`;
+						action[param] = jump_index;
 						delete action.label;
 						delete action.mathlang;
-						action[param] = jump_index;
 					}
 				});
 			});
@@ -259,28 +245,20 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		// fancy console location printing for all collected problems
 		printProblems: () => {
 			const messages = [];
-			const errCount = p.errorCount;
-			const warnCount = p.warningCount;
+			const errCount = p.errors.length;
+			const warnCount = p.warnings.length;
 			if (errCount) {
-				messages.push(
-					`${ansi.red}` +
-						`${errCount} error` +
-						`${errCount !== 1 ? 's' : ''}` +
-						`${ansi.reset}`,
-				);
+				const s = errCount !== 1 ? 's' : '';
+				messages.push(ansi.red + `${errCount} error${s}` + ansi.reset);
 			}
 			if (warnCount) {
-				messages.push(
-					`${ansi.yellow}` +
-						`${warnCount} warning` +
-						`${warnCount !== 1 ? 's' : ''}` +
-						`${ansi.reset}`,
-				);
+				const s = warnCount !== 1 ? 's' : '';
+				messages.push(ansi.yellow + `${warnCount} warning${s}` + ansi.reset);
 			}
-			if (messages.length === 0) {
-				console.log(`All your project's MGS files parsed with no issues!`);
-			} else {
+			if (messages.length) {
 				console.log(`Issues found: ${messages.join(', ')}`);
+			} else {
+				console.log(`All your project's MGS files parsed with no issues!`);
 			}
 			p.warnings.forEach((message) => {
 				const str =
@@ -303,8 +281,6 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			let document = ast.rootNode;
 			// file crawl state
 			const f = makeFileState(p, fileName);
-			if (document.isError) {
-			}
 			let catastrophicErrorReported = false;
 			const nodes = document.namedChildren
 				.map((node) => {
@@ -339,7 +315,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					}
 				})
 				.flat()
-				.filter((v) => v); // catastrophic errors are undefined nodes
+				.filter((v) => v); // catastrophic errors are undefined
 			f.nodes = nodes;
 			// add parsed file to the pile
 			fileMap[fileName].parsed = f;

@@ -61,7 +61,6 @@ export const parseProject = async (fileMap, scenarioData) => {
 	const Lang = await Language.load(wasmPath);
 	parser.setLanguage(Lang);
 
-	// my the-rest-of-the-owl
 	const p = makeProjectState(parser, fileMap, scenarioData);
 	// parse each file
 	Object.keys(fileMap).forEach((fileName) => {

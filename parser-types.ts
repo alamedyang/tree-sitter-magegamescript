@@ -280,8 +280,6 @@ export type ProjectState = {
 	serialDialogs: Record<string, MathlangSerialDialogDefinition>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];
-	errorCount: number;
-	warningCount: number;
 	advanceGotoSuffix: () => number;
 	getGotoSuffix: () => number;
 	newError: (error: MGSMessage) => void;

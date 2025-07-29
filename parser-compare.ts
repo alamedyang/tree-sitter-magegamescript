@@ -101,9 +101,7 @@ const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
 			};
 		}
 	}
-	console.log('COMPARING ' + scriptName);
 	const compared = compareNonlinearScripts(oldPrint, newPrint);
-	console.log('...result: ' + compared);
 	if (compared) {
 		return {
 			type: 'functional',

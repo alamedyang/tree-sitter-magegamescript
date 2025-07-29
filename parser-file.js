@@ -3,17 +3,15 @@ import { ansiTags as ansi } from './parser-utilities.js';
 export const makeFileState = (p, fileName) => {
 	// file crawl state
 	const f = {
-		// project crawl state, because we need to reach in sometimes
-		// and we do NOT want to pass it around separately!
-		p,
+		p, // project state, because we need to reach in sometimes
 		fileName,
 
 		// compile-time constants,
 		// substituted for their registered token value as they are encounted
 		constants: {},
 
-		// dialog and serial dialog settings,
-		// into the (serial) dialogs as the latter are encountered
+		// dialog and serial dialog settings, applied to the (s)dialogs as we go
+		// (adding a setting later means only later (s)dialogs will be affected)
 		settings: {
 			default: {},
 			entity: {},
@@ -21,15 +19,18 @@ export const makeFileState = (p, fileName) => {
 			serial: {},
 		},
 
-		// these are root level nodes like script definitions, settings definitions, etc
+		// root level nodes like script definitions, settings definitions, etc
 		nodes: [],
 
 		// some warnings/errors are at the file level, but others are not encountered until all files are mushed together; this count only concerns the former
 		errorCount: 0,
 		warningCount: 0,
+		// errors involving multiple files (duplicate definitions) are detected later, so their count is added later
 
-		// local errors/warnings will add the filename here for sanity's sake (rather than needing to be added each time there's an error)
-		// errors made this way should only be concerned with the original file itself, and so the crawl state's filename should be correct in all cases
+		// local errors/warnings will add the filename here for sanity's sake
+		// (rather than needing to be added each time there's an error)
+		// errors made this way should only be concerned with the original file itself,
+		// and so the crawl state's filename should be correct in all cases
 		newError: (message) => {
 			message.locations.forEach((v) => {
 				// only put on a filename if one was not provided in the locations entry
@@ -47,7 +48,7 @@ export const makeFileState = (p, fileName) => {
 			f.warningCount += 1;
 		},
 
-		// add a new file's crawl state to ours (overriding existing values)
+		// add a new file's crawl state to ours (overriding existing values) (i.e. `include`)
 		includeFile: (newName) => {
 			// Push ifs up! Don't call this function unless you know the file is parsed already
 			const newFile = p.fileMap[newName].parsed;
@@ -91,16 +92,14 @@ export const makeFileState = (p, fileName) => {
 
 		// log an individual file's parse status
 		printableMessageInformation: () => {
-			const errCount = f.errorCount;
-			const warnCount = f.warningCount;
-			if (errCount === 0 && warnCount === 0) {
+			if (f.errorCount === 0 && f.warningCount === 0) {
 				return `(${ansi.green}OK${ansi.reset})`;
 			}
-			const errMessage = errCount
-				? `${ansi.red}${errCount} error${errCount === 1 ? '' : 's'}${ansi.reset}`
+			const errMessage = f.errorCount
+				? `${ansi.red}${f.errorCount} error${f.errorCount === 1 ? '' : 's'}${ansi.reset}`
 				: `0 errors`;
-			const warnMessage = warnCount
-				? `${ansi.yellow}${warnCount} warning${warnCount === 1 ? '' : 's'}${ansi.reset}`
+			const warnMessage = f.warningCount
+				? `${ansi.yellow}${f.warningCount} warning${f.warningCount === 1 ? '' : 's'}${ansi.reset}`
 				: `0 warnings`;
 			const ret = [errMessage, warnMessage].join(', ');
 			return `(${ret})`;

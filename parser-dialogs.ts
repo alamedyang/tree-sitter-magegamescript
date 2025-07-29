@@ -2,6 +2,9 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.js';
 
+const DIALOG_WRAP = 42;
+const SERIAL_DIALOG_WRAP = 80;
+
 // Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
 
 const tagsToAnsiEscapes = (str: string) => {
@@ -19,16 +22,16 @@ const countCharLength = (str: string) => {
 	let length = 0;
 	let remainder = str;
 	while (remainder.length) {
-		const percent = remainder.match(/^%.*%/); // entity name
-		if (percent) {
+		const percents = remainder.match(/^%.*%/); // entity name
+		if (percents) {
 			length += 12;
-			remainder = remainder.slice(percent[0].length);
+			remainder = remainder.slice(percents[0].length);
 			continue;
 		}
-		const dollar = remainder.match(/^\$.*\$/); // variable (int) value
-		if (dollar) {
+		const dollars = remainder.match(/^\$.*\$/); // variable (int) value
+		if (dollars) {
 			length += 5;
-			remainder = remainder.slice(dollar[0].length);
+			remainder = remainder.slice(dollars[0].length);
 			continue;
 		}
 		const esc = remainder.match(/^\\./);
@@ -83,7 +86,8 @@ const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = fals
 			if (!chunk) break;
 			const spaces = chunk.groups?.spaces;
 			const word = chunk.groups?.word;
-			if (spaces === undefined || word === undefined) throw new Error('TS FR');
+			if (spaces === undefined || word === undefined)
+				throw new Error('Empty text wrap segment in: ' + line);
 			const spacesLength = spaces.length;
 			const wordLength = countCharLength(word);
 			const potentialLength = insertLength + wordLength + spacesLength;
@@ -119,20 +123,23 @@ const ansiWrapBodge = (arr: string[]) => {
 				pos += 4;
 				continue;
 			}
-			const tag = line[pos] + line.slice(pos + 1).match(/\[\d+m/);
-			wrappedTags.add(tag);
-			pos += tag.length;
-			continue;
+			const suffix = line.slice(pos + 1).match(/\[\d+m/);
+			if (suffix) {
+				const tag = line[pos] + suffix;
+				wrappedTags.add(tag);
+				pos += tag.length;
+				continue;
+			}
+			pos += 1;
 		}
 		return prevTags + line;
 	});
 	return bodged;
 };
 
-const defaultWrap = 80;
 export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.SerialDialogInfo) => {
 	const serialDialogSettings: TYPES.SerialDialogSettings = {
-		wrap: defaultWrap,
+		wrap: SERIAL_DIALOG_WRAP,
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
@@ -152,7 +159,7 @@ export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.Serial
 			if (option.optionType === 'options') {
 				option.label = tagsToAnsiEscapes(option.label);
 			}
-			option.label = wrapText(option.label, serialDialogSettings.wrap || defaultWrap);
+			option.label = wrapText(option.label, serialDialogSettings.wrap || SERIAL_DIALOG_WRAP);
 			if (option.optionType !== firstOptionType) {
 				const node = option.debug.firstChild;
 				if (!node) throw new Error('TS');
@@ -204,7 +211,7 @@ export const buildDialogFromInfo = (
 		specificSettings.entity = ident.value;
 	}
 	const dialogSettings = {
-		wrap: 42,
+		wrap: DIALOG_WRAP,
 		alignment: 'BOTTOM_LEFT',
 		...f.settings.default, // global default settings
 		...specificSettings, // global specific settings
