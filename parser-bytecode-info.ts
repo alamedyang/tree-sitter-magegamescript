@@ -806,9 +806,9 @@ export type Action =
 
 /* ----------------------------------- non TypeScript stuff ----------------------------------- */
 
-const JUMP_SPECIAL_FIELDS = ['success_script', 'label', 'jump_index'];
+const JUMP_SPECIAL_FIELDS: string[] = ['success_script', 'label', 'jump_index'];
 // copy pastad from encoder
-const actionFields = {
+const actionFields: Record<string, string[]> = {
 	NULL_ACTION: [],
 	CHECK_ENTITY_NAME: ['JUMP_SPECIAL_FIELDS', 'string', 'entity', 'expected_bool'],
 	CHECK_ENTITY_X: ['JUMP_SPECIAL_FIELDS', 'expected_u2', 'entity', 'expected_bool'],

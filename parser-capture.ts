@@ -5,6 +5,9 @@ import {
 	type CoordinateIdentifier,
 	type MovableIdentifier,
 	type MathlangSerialDialogParameter,
+	type MathlangStringCheckable,
+	type MathlangNumberCheckableEquality,
+	type MathlangBoolGetable,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -335,10 +338,10 @@ const captureFns = {
 			entity: captureForFieldName(f, node, 'entity_identifier'),
 		};
 	},
-	bool_getable: (f: FileState, node: TreeSitterNode) => {
+	bool_getable: (f: FileState, node: TreeSitterNode): MathlangBoolGetable => {
 		// PART OF BOOL EXPRESSIONS
 		const type = textForFieldName(f, node, 'type');
-		const ret = {
+		const ret: MathlangBoolGetable = {
 			mathlang: 'bool_getable',
 			debug: {
 				node,
@@ -393,8 +396,8 @@ const captureFns = {
 		ret[param] = ret[param] === undefined ? true : ret[param];
 		return ret;
 	},
-	string_checkable: (f: FileState, node: TreeSitterNode) => {
-		const ret = {
+	string_checkable: (f: FileState, node: TreeSitterNode): MathlangStringCheckable => {
+		const ret: MathlangStringCheckable = {
 			mathlang: 'string_checkable',
 			entity: '',
 			property: '',
@@ -448,13 +451,15 @@ const captureFns = {
 					action: 'CHECK_WARP_STATE',
 					stringLabel: 'string',
 				};
-			} else {
-				throw new Error(`this shouldn't happen`);
 			}
 		}
+		throw new Error(`unreachable`);
 	},
-	number_checkable_equality: (f: FileState, node: TreeSitterNode) => {
-		const ret = {
+	number_checkable_equality: (
+		f: FileState,
+		node: TreeSitterNode,
+	): MathlangNumberCheckableEquality => {
+		const ret: MathlangNumberCheckableEquality = {
 			mathlang: 'number_checkable_equality',
 			entity: '',
 			property: '',

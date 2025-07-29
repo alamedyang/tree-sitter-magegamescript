@@ -7,6 +7,7 @@ import {
 } from './parser-bytecode-info.ts';
 import {
 	isNodeAction,
+	type BoolBinaryExpression,
 	type AnyNode,
 	type Dialog,
 	type FileMap,
@@ -20,6 +21,7 @@ import {
 	type MGSLocation,
 	type MGSMessage,
 	type SerialDialog,
+	type MathlangCondition,
 } from './parser-types.ts';
 
 export const verbose = false;
@@ -170,9 +172,24 @@ export const autoIdentifierName = (f: FileState, node: Node): string => {
 // ------------------------ CONDITIONS ------------------------ //
 
 // todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
-export const expandCondition = (f: FileState, node: Node, condition, ifLabel: string) => {
+export const expandCondition = (
+	f: FileState,
+	node: Node,
+	condition: MathlangCondition,
+	ifLabel: string,
+): AnyNode[] => {
 	// TODO: typeof `condition`?
 	// typeof return value?
+	if (condition === true) {
+		return [gotoLabel(f, node, ifLabel)];
+	} else if (condition === false) {
+		return [];
+	}
+	if (typeof condition === 'string') {
+		const action = checkFlag(f, node, condition, ifLabel, true);
+		action.mathlang = 'if_branch_goto_label';
+		return [action];
+	}
 	if (
 		condition.mathlang === 'bool_getable' ||
 		condition.mathlang === 'bool_comparison' ||
@@ -185,16 +202,6 @@ export const expandCondition = (f: FileState, node: Node, condition, ifLabel: st
 			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
 		};
-		return [action];
-	}
-	if (condition === true) {
-		return [gotoLabel(f, node, ifLabel)];
-	} else if (condition === false) {
-		return [];
-	}
-	if (typeof condition === 'string') {
-		const action = checkFlag(f, node, condition, ifLabel, true);
-		action.mathlang = 'if_branch_goto_label';
 		return [action];
 	}
 	if (condition.mathlang !== 'bool_binary_expression') {
@@ -231,33 +238,39 @@ export const expandCondition = (f: FileState, node: Node, condition, ifLabel: st
 	}
 	// todo: if any of these are == bool literal, they can be simplified
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAs = {
+	const expandAs: BoolBinaryExpression = {
 		mathlang: 'bool_binary_expression',
 		debug: {
-			node: condition.node,
+			node: condition.debug.node,
 			fileName: f.fileName,
 		},
 		op: '||',
 		lhs: {
 			mathlang: 'bool_binary_expression',
 			debug: {
-				node: condition.node,
+				node: condition.debug.node,
 				fileName: f.fileName,
 			},
 			op: '&&',
 			lhs,
 			rhs,
+			lhsNode: condition.lhsNode,
+			rhsNode: condition.rhsNode,
 		},
 		rhs: {
 			mathlang: 'bool_binary_expression',
 			debug: {
-				node: condition.node,
+				node: condition.debug.node,
 				fileName: f.fileName,
 			},
 			op: '&&',
 			lhs: invert(f, condition.lhsNode, lhs),
 			rhs: invert(f, condition.rhsNode, rhs),
+			lhsNode: condition.lhsNode,
+			rhsNode: condition.rhsNode,
 		},
+		lhsNode: condition.lhsNode,
+		rhsNode: condition.rhsNode,
 	};
 	return expandCondition(f, node, expandAs, ifLabel);
 };
@@ -289,7 +302,7 @@ export const simpleBranchMaker = (
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-export const invert = (f: FileState, node: Node, boolExp) => {
+export const invert = (f: FileState, node: Node, boolExp: MathlangCondition): MathlangCondition => {
 	// TODO: typeof `boolExp`
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
@@ -303,6 +316,7 @@ export const invert = (f: FileState, node: Node, boolExp) => {
 		boolExp.op = inverseOpMap[boolExp.op];
 		return boolExp;
 	}
+	if (!boolExp.action) throw new Error('should be string');
 	const param = getBoolFieldForAction(boolExp.action);
 	if (!param) throw new Error('param name not found');
 	boolExp[param] = !boolExp[param];
@@ -462,7 +476,6 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 		}
 	});
 	actions.forEach((action: AnyNode) => {
-		// TODO: tune this so ts stops crying
 		if (!isNodeAction(action) && action.mathlang === 'goto_label') {
 			if (!action.label) {
 				throw new Error('NO LABEL');

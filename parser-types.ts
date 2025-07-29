@@ -13,6 +13,12 @@ export type MathlangNode =
 	| MathlangBoolComparison
 	| MathlangAddDialogSettings
 	| MathlangAddSerialDialogSettings
+	| IfBranchGotoLabel
+	| BoolBinaryExpression
+	| MathlangBoolGetable
+	| MathlangBoolComparison
+	| MathlangStringCheckable
+	| MathlangNumberCheckableEquality
 	| MathlangDialogOption
 	| MathlangSerialDialogOption
 	| MathlangDialog
@@ -239,7 +245,85 @@ export type IntBinaryExpression = {
 	rhs: unknown;
 	op: string;
 };
+export type BoolBinaryExpression = {
+	mathlang: 'bool_binary_expression';
+	debug: TYPES.MGSDebug;
+	op: string;
+	lhs: MathlangCondition;
+	rhs: MathlangCondition;
+	lhsNode: TreeSitterNode;
+	rhsNode: TreeSitterNode;
+};
+export type MathlangCondition =
+	| BoolBinaryExpression
+	| MathlangBoolGetable
+	| MathlangBoolComparison
+	| MathlangStringCheckable
+	| MathlangNumberCheckableEquality
+	| TYPES.CHECK_SAVE_FLAG
+	| boolean
+	| string;
 
+export type IfBranchGotoLabel = {
+	expected_bool: boolean;
+	mathlang: 'if_branch_goto_label';
+	label?: string;
+	debug: TYPES.MGSDebug;
+	action: string;
+	entity: string;
+	geometry?: string;
+	value?: string;
+	state?: string;
+	button_id?: string;
+	save_flag?: string;
+	property?: string;
+	stringLabel?: string;
+	variable?: string;
+	comparison?: string;
+	numberLabel?: string;
+};
+export type MathlangStringCheckable = {
+	mathlang: 'string_checkable';
+	entity: string;
+	property: string;
+	expected_bool?: boolean;
+	action?:
+		| 'CHECK_ENTITY_TICK_SCRIPT'
+		| 'CHECK_ENTITY_LOOK_SCRIPT'
+		| 'CHECK_ENTITY_INTERACT_SCRIPT'
+		| 'CHECK_ENTITY_NAME'
+		| 'CHECK_ENTITY_PATH'
+		| 'CHECK_ENTITY_TYPE'
+		| 'CHECK_WARP_STATE';
+	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
+};
+export type MathlangNumberCheckableEquality = {
+	mathlang: 'number_checkable_equality';
+	entity: string;
+	property: string;
+	expected_bool?: boolean;
+	action?:
+		| 'CHECK_ENTITY_X'
+		| 'CHECK_ENTITY_Y'
+		| 'CHECK_ENTITY_PRIMARY_ID'
+		| 'CHECK_ENTITY_SECONDARY_ID'
+		| 'CHECK_ENTITY_PRIMARY_ID_TYPE'
+		| 'CHECK_ENTITY_CURRENT_ANIMATION'
+		| 'CHECK_ENTITY_CURRENT_FRAME';
+	numberLabel?: 'expected_u2' | 'expected_byte';
+};
+export type MathlangBoolGetable = {
+	mathlang: 'bool_getable';
+	debug: TYPES.MGSDebug;
+	action: string;
+	entity: string;
+	geometry: string;
+	value: string;
+	state: string;
+	button_id: string;
+	expected_bool?: boolean;
+	save_flag: string;
+};
 export type Constant = {
 	value: MGSValue;
 	debug: TYPES.MGSDebug;

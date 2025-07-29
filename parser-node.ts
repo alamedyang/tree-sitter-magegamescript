@@ -33,6 +33,7 @@ import {
 	type MGSMessage,
 	type MathlangAddDialogSettings,
 	type MathlangSerialDialogParameter,
+	type MathlangSequence,
 } from './parser-types.ts';
 import { Node } from 'web-tree-sitter';
 
@@ -562,7 +563,7 @@ const nodeFns = {
 		];
 		return newSequence(f, node, steps, 'do-while sequence');
 	},
-	for_block: (f: FileState, node: Node) => {
+	for_block: (f: FileState, node: Node): MathlangSequence => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `for condition #${n}`;
 		const bodyL = `for body #${n}`;
@@ -639,10 +640,12 @@ const nodeFns = {
 				return action ? [gotoLabel(f, node, label)] : [];
 			}
 			action.mathlang = 'if_branch_goto_label';
-			return {
-				...action,
-				label,
-			};
+			return [
+				{
+					...action,
+					label,
+				},
+			];
 		}
 		throw new Error('Unreachable?');
 	},
