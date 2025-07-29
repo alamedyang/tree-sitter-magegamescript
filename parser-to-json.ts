@@ -1,14 +1,9 @@
 import * as TYPES from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
-import { inverseOpMap } from './parser-utilities.js';
+import { inverseOpMap } from './parser-utilities.ts';
 
-type AnyNode = TYPES.Action | MATHLANG.MathlangNode;
-export const isNodeAction = (node: TYPES.Action | MATHLANG.MathlangNode): node is TYPES.Action => {
-	return (node as TYPES.Action).action !== undefined;
-};
-
-const printAction = (data: AnyNode) => {
-	const isAction = isNodeAction(data);
+const printAction = (data: MATHLANG.AnyNode) => {
+	const isAction = MATHLANG.isNodeAction(data);
 	if (!isAction && data.mathlang === 'comment') {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;

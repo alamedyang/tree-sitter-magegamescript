@@ -3,10 +3,12 @@ import * as TYPES from './parser-bytecode-info.ts';
 
 export type MGSValue = string | boolean | number;
 export type MathlangNode =
+	| MathlangSequence
 	| MathlangDialogDefinition
 	| MathlangSerialDialogDefinition
 	| MathlangScriptDefinition
 	| MathlangConstantDefinition
+	| MathlangLabelDefinition
 	| MathlangIncludeDefinition
 	| MathlangBoolComparison
 	| MathlangAddDialogSettings
@@ -18,9 +20,25 @@ export type MathlangNode =
 	| MathlangJSON
 	| MathlangComment
 	| MathlangReturnStatement
+	| MathlangContinueStatement
+	| MathlangBreakStatement
 	| MathlangGotoLabel
 	| MathlangCopyMacro;
 
+export type GenericActionish = Record<
+	string,
+	boolean | number | string | TYPES.MGSDebug | Record<string, unknown>
+>;
+export type AnyNode = TYPES.Action | MathlangNode;
+export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
+	return (node as TYPES.Action).action !== undefined;
+};
+export type MathlangSequence = {
+	mathlang: 'sequence';
+	type: string;
+	steps: AnyNode[];
+	debug: TYPES.MGSDebug;
+};
 export type MathlangDialogDefinition = {
 	mathlang: 'dialog_definition';
 	dialogName: string;
@@ -103,6 +121,11 @@ export type MathlangConstantDefinition = {
 	value: string | boolean | number;
 	debug: TYPES.MGSDebug;
 };
+export type MathlangLabelDefinition = {
+	mathlang: 'label_definition';
+	label: string;
+	debug?: TYPES.MGSDebug;
+};
 export type MathlangIncludeDefinition = {
 	mathlang: 'include_macro';
 	value: string;
@@ -122,11 +145,18 @@ export type MathlangAddDialogSettings = {
 	mathlang: 'add_dialog_settings_target';
 	type: string;
 	debug: TYPES.MGSDebug;
+	target?: string;
+	parameters?: Record<string, MGSValue>;
 };
 export type MathlangAddSerialDialogSettings = {
 	mathlang: 'add_serial_dialog_settings_target';
 	parameters: Record<string, MGSValue>;
 	debug: TYPES.MGSDebug;
+};
+export type MathlangSerialDialogParameter = {
+	mathlang: 'serial_dialog_parameter';
+	property: string;
+	value: MGSValue;
 };
 export type MathlangDialogOption = {
 	mathlang: 'dialog_option';
@@ -160,16 +190,24 @@ export type MathlangJSON = {
 export type MathlangComment = {
 	mathlang: 'comment';
 	comment: string;
-	debug: TYPES.MGSDebug;
+	debug?: TYPES.MGSDebug;
 };
 export type MathlangReturnStatement = {
 	mathlang: 'return_statement';
 	debug: TYPES.MGSDebug;
 };
+export type MathlangContinueStatement = {
+	mathlang: 'continue_statement';
+	debug: TYPES.MGSDebug;
+};
+export type MathlangBreakStatement = {
+	mathlang: 'break_statement';
+	debug: TYPES.MGSDebug;
+};
 export type MathlangGotoLabel = {
 	mathlang: 'goto_label';
 	label: string;
-	debug: TYPES.MGSDebug;
+	debug?: TYPES.MGSDebug;
 };
 export type MathlangCopyMacro = {
 	mathlang: 'copy_script';
@@ -248,6 +286,7 @@ type FileMapEntry = {
 	name: string;
 	text: Promise<unknown>;
 	type: string;
+	parsed?: boolean;
 };
 type addScriptArgs = {
 	mathlang: 'script_definition';
@@ -271,9 +310,10 @@ type addSerialDialogArgs = {
 	serialDialogs: SerialDialog;
 	fileName: string;
 };
+export type FileMap = Record<string, FileMapEntry>;
 export type ProjectState = {
 	parser: Parser;
-	fileMap: Record<string, FileMapEntry>;
+	fileMap: FileMap;
 	gotoSuffixValue: number;
 	scripts: Record<string, Script>;
 	dialogs: Record<string, Dialog[]>;

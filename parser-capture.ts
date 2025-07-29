@@ -4,6 +4,7 @@ import {
 	type FileState,
 	type CoordinateIdentifier,
 	type MovableIdentifier,
+	type MathlangSerialDialogParameter,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -11,7 +12,7 @@ import {
 	reportErrorNodes,
 	invert,
 	inverseOpMap,
-} from './parser-utilities.js';
+} from './parser-utilities.ts';
 
 const opIntoStringMap: Record<string, string> = {
 	'=': 'SET',
@@ -163,7 +164,10 @@ const captureFns = {
 			value,
 		};
 	},
-	serial_dialog_parameter: (f: FileState, node: TreeSitterNode) => {
+	serial_dialog_parameter: (
+		f: FileState,
+		node: TreeSitterNode,
+	): MathlangSerialDialogParameter => {
 		const property = textForFieldName(f, node, 'property');
 		const value = captureForFieldName(f, node, 'value');
 		return {

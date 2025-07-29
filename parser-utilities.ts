@@ -1,7 +1,29 @@
-import { getBoolFieldForAction } from './parser-bytecode-info.ts';
+import { Node } from 'web-tree-sitter';
+import {
+	getBoolFieldForAction,
+	type SHOW_SERIAL_DIALOG,
+	type SHOW_DIALOG,
+	type CHECK_SAVE_FLAG,
+} from './parser-bytecode-info.ts';
+import {
+	isNodeAction,
+	type AnyNode,
+	type Dialog,
+	type FileMap,
+	type FileState,
+	type MathlangComment,
+	type MathlangDialogDefinition,
+	type MathlangGotoLabel,
+	type MathlangLabelDefinition,
+	type MathlangSequence,
+	type MathlangSerialDialogDefinition,
+	type MGSLocation,
+	type MGSMessage,
+	type SerialDialog,
+} from './parser-types.ts';
 
-export let verbose = false;
-export const debugLog = (message) => {
+export const verbose = false;
+export const debugLog = (message: string) => {
 	if (verbose) console.log(message);
 };
 export const ansiTags = {
@@ -51,27 +73,29 @@ export const ansiTags = {
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
 
 const TEMP = '__TEMP_';
-const temporaries = [];
+const temporaries: string[] = [];
 let temporaryStep = 0;
-export const newTemporary = (value) => {
+export const newTemporary = (value?: string): string => {
 	if (temporaries.length === 0 && value !== undefined) {
 		temporaries.unshift(value);
 	} else {
 		temporaries.unshift(TEMP + temporaryStep);
 		temporaryStep += 1;
 	}
-	return temporaries[0];
+	return temporaries[0] || '';
 };
-export const dropTemporary = () => {
+export const dropTemporary = (): string => {
 	temporaryStep -= 1;
 	temporaryStep = temporaryStep < 0 ? 0 : temporaryStep;
-	return temporaries.shift();
+	return temporaries.shift() || '';
 };
-export const quickTemporary = () => {
+export const quickTemporary = (): string => {
 	newTemporary();
 	return dropTemporary();
 };
-export const latestTemporary = () => temporaries[0];
+export const latestTemporary = (): string => temporaries[0];
+
+// ------------------------ GENERIC ------------------------ //
 
 export const inverseOpMap = {
 	'<': '>=',
@@ -83,9 +107,10 @@ export const inverseOpMap = {
 	'&&': '||',
 	'||': '&&',
 };
-export const reportMissingChildNodes = (f, node) => {
-	const missingNodes = node.children.filter((child) => child.isMissing);
+export const reportMissingChildNodes = (f: FileState, node: Node): (Node | null)[] => {
+	const missingNodes = node.children.filter((child) => child?.isMissing);
 	missingNodes.forEach((missingChild) => {
+		if (!missingChild) throw new Error('TS');
 		f.newError({
 			locations: [{ node: missingChild }],
 			message: `missing token: ${missingChild.type}`,
@@ -93,9 +118,10 @@ export const reportMissingChildNodes = (f, node) => {
 	});
 	return missingNodes;
 };
-export const reportErrorNodes = (f, node) => {
-	const errorNodes = node.namedChildren.filter((child) => child.type === 'ERROR');
+export const reportErrorNodes = (f: FileState, node: Node): (Node | null)[] => {
+	const errorNodes = node.namedChildren.filter((child) => !child || child.type === 'ERROR');
 	errorNodes.forEach((errorNode) => {
+		if (!errorNode) throw new Error('TS');
 		f.newError({
 			locations: [{ node: errorNode }],
 			message: 'syntax error',
@@ -104,21 +130,26 @@ export const reportErrorNodes = (f, node) => {
 	return errorNodes;
 };
 
-const getPrintableLocationData = (fileMap, location) => {
-	const fileName = location.fileName;
-	const allLines = fileMap[fileName].fileText.split('\n');
-	let row = location.node.startPosition.row;
-	let col = location.node.startPosition.column;
-	let endRow = location.node.endPosition.row;
-	let endCol = location.node.endPosition.column;
-	const line = allLines[row].replaceAll('\t', ' ');
+const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): string => {
+	const fileName = location.fileName || '';
+	const fileText = fileMap[fileName].fileText();
+	const allLines = fileText.split('\n');
+	const row = location.node.startPosition.row;
+	const col = location.node.startPosition.column;
+	const endRow = location.node.endPosition.row;
+	const endCol = location.node.endPosition.column;
+	const line = allLines[row].replace(/\t/g, ' ');
 	const squigglySize = row === endRow ? endCol - col : allLines[row].length - col;
 	const arrow = '~'.repeat(col) + '^'.repeat(squigglySize);
 	const message = `╓-${fileName} ${row}:${col}\n` + '║ ' + `${line}\n` + '╙~' + arrow;
 	return message;
 };
 
-export const makeMessagePrintable = (fileMap, prefix, item) => {
+export const makeMessagePrintable = (
+	fileMap: FileMap,
+	prefix: string,
+	item: MGSMessage,
+): string => {
 	let message =
 		`${prefix}: ${item.message}\n` +
 		item.locations
@@ -131,11 +162,17 @@ export const makeMessagePrintable = (fileMap, prefix, item) => {
 	}
 	return message + '\n';
 };
-export const autoIdentifierName = (f, node) => {
+
+export const autoIdentifierName = (f: FileState, node: Node): string => {
 	return f.fileName + '-' + node.startPosition.row + ':' + node.startPosition.column;
 };
+
+// ------------------------ CONDITIONS ------------------------ //
+
 // todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
-export const expandCondition = (f, node, condition, ifLabel) => {
+export const expandCondition = (f: FileState, node: Node, condition, ifLabel: string) => {
+	// TODO: typeof `condition`?
+	// typeof return value?
 	if (
 		condition.mathlang === 'bool_getable' ||
 		condition.mathlang === 'bool_comparison' ||
@@ -218,14 +255,20 @@ export const expandCondition = (f, node, condition, ifLabel) => {
 				fileName: f.fileName,
 			},
 			op: '&&',
-			lhs: invert(lhs),
-			rhs: invert(rhs),
+			lhs: invert(f, condition.lhsNode, lhs),
+			rhs: invert(f, condition.rhsNode, rhs),
 		},
 	};
 	return expandCondition(f, node, expandAs, ifLabel);
 };
 
-export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) => {
+export const simpleBranchMaker = (
+	f: FileState,
+	node: Node,
+	_branchAction: AnyNode,
+	_ifBody: AnyNode[],
+	_elseBody: AnyNode[],
+) => {
 	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
 	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.advanceGotoSuffix();
@@ -235,7 +278,7 @@ export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) =>
 		..._branchAction,
 		label: ifLabel,
 	};
-	const steps = [
+	const steps: AnyNode[] = [
 		branchAction,
 		...elseBody,
 		{ mathlang: 'goto_label', label: rendezvousLabel },
@@ -246,7 +289,8 @@ export const simpleBranchMaker = (f, node, _branchAction, _ifBody, _elseBody) =>
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-export const invert = (f, node, boolExp) => {
+export const invert = (f: FileState, node: Node, boolExp) => {
+	// TODO: typeof `boolExp`
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
 		return checkFlag(f, node, boolExp, '', false);
@@ -260,11 +304,12 @@ export const invert = (f, node, boolExp) => {
 		return boolExp;
 	}
 	const param = getBoolFieldForAction(boolExp.action);
+	if (!param) throw new Error('param name not found');
 	boolExp[param] = !boolExp[param];
 	return boolExp;
 };
 
-export const label = (f, node, label) => ({
+export const label = (f: FileState, node: Node, label: string): MathlangLabelDefinition => ({
 	mathlang: 'label_definition',
 	label,
 	debug: {
@@ -272,7 +317,7 @@ export const label = (f, node, label) => ({
 		fileName: f.fileName,
 	},
 });
-export const gotoLabel = (f, node, label) => ({
+export const gotoLabel = (f: FileState, node: Node, label: string): MathlangGotoLabel => ({
 	mathlang: 'goto_label',
 	label,
 	debug: {
@@ -280,16 +325,21 @@ export const gotoLabel = (f, node, label) => ({
 		fileName: f.fileName,
 	},
 });
-export const newComment = (comment) => ({ mathlang: 'comment', comment });
-export const newSequence = (f, node, steps, _type) => {
-	const type = _type || 'generic_sequence';
+export const newComment = (comment: string): MathlangComment => ({ mathlang: 'comment', comment });
+export const newSequence = (
+	f: FileState,
+	node: Node,
+	steps: AnyNode[],
+	type: string = 'generic_sequence',
+): MathlangSequence => {
 	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
-	steps.unshift(newComment(`${type}: ${comment}`));
-	const flatSteps = [];
+	const mathlangComment: MathlangComment = newComment(`${type}: ${comment}`);
+	steps.unshift(mathlangComment);
+	const flatSteps: AnyNode[] = [];
 	steps
 		.filter((v) => v !== null) // might not need this anymore
 		.forEach((v) => {
-			if (v.mathlang === 'sequence') {
+			if (!isNodeAction(v) && v.mathlang === 'sequence') {
 				flatSteps.push(...v.steps);
 			} else {
 				flatSteps.push(v);
@@ -305,7 +355,12 @@ export const newSequence = (f, node, steps, _type) => {
 		},
 	};
 };
-export const newDialog = (f, node, dialogName, dialogs) => ({
+export const newDialog = (
+	f: FileState,
+	node: Node,
+	dialogName: string,
+	dialogs: Dialog[],
+): MathlangDialogDefinition => ({
 	mathlang: 'dialog_definition',
 	dialogName,
 	dialogs,
@@ -314,7 +369,7 @@ export const newDialog = (f, node, dialogName, dialogs) => ({
 		fileName: f.fileName,
 	},
 });
-export const showDialog = (f, node, name) => ({
+export const showDialog = (f: FileState, node: Node, name: string): SHOW_DIALOG => ({
 	action: 'SHOW_DIALOG',
 	dialog: name,
 	debug: {
@@ -322,16 +377,26 @@ export const showDialog = (f, node, name) => ({
 		fileName: f.fileName,
 	},
 });
-export const newSerialDialog = (f, node, serialDialogName, serialDialog) => ({
+export const newSerialDialog = (
+	f: FileState,
+	node: Node,
+	dialogName: string,
+	serialDialog: SerialDialog,
+): MathlangSerialDialogDefinition => ({
 	mathlang: 'serial_dialog_definition',
-	serialDialogName,
+	dialogName,
 	serialDialog,
 	debug: {
 		node,
 		fileName: f.fileName,
 	},
 });
-export const showSerialDialog = (f, node, name, isConcat) => ({
+export const showSerialDialog = (
+	f: FileState,
+	node: Node,
+	name: string,
+	isConcat?: boolean,
+): SHOW_SERIAL_DIALOG => ({
 	action: 'SHOW_SERIAL_DIALOG',
 	disable_newline: isConcat,
 	serial_dialog: name,
@@ -340,7 +405,13 @@ export const showSerialDialog = (f, node, name, isConcat) => ({
 		fileName: f.fileName,
 	},
 });
-const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
+const checkFlag = (
+	f: FileState,
+	node: Node,
+	save_flag: string,
+	gotoLabel: string,
+	expected_bool: boolean,
+): CHECK_SAVE_FLAG => {
 	return {
 		mathlang: 'bool_getable',
 		action: 'CHECK_SAVE_FLAG',
@@ -355,13 +426,16 @@ const checkFlag = (f, node, save_flag, gotoLabel, expected_bool) => {
 	};
 };
 
-export const flattenGotos = (actions) => {
+export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 	// const before = printScript('_', actions).split('\n');
 	// A goto label followed by the same label definition can be removed
 	for (let i = 0; i < actions.length; i++) {
 		const action = actions[i];
 		const next = actions[i + 1];
 		if (
+			!isNodeAction(action) &&
+			next &&
+			!isNodeAction(next) &&
 			action.mathlang === 'goto_label' &&
 			next?.mathlang === 'label_definition' &&
 			next?.label === action.label
@@ -376,10 +450,10 @@ export const flattenGotos = (actions) => {
 	// If a label definition is followed by a goto for a different label,
 	// then the previous label registration can be replaced with following goto value
 	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
-	actions.forEach((action, i) => {
-		if (action.mathlang === 'label_definition') {
+	actions.forEach((action: AnyNode, i: number) => {
+		if (!isNodeAction(action) && action.mathlang === 'label_definition') {
 			const next = actions[i + 1];
-			if (next?.mathlang === 'goto_label') {
+			if (next && !isNodeAction(next) && next.mathlang === 'goto_label') {
 				if (!next.label) {
 					throw new Error('NO LABEL');
 				}
@@ -387,8 +461,9 @@ export const flattenGotos = (actions) => {
 			}
 		}
 	});
-	actions.forEach((action) => {
-		if (action.mathlang?.includes('label') && action.mathlang !== 'label_definition') {
+	actions.forEach((action: AnyNode) => {
+		// TODO: tune this so ts stops crying
+		if (!isNodeAction(action) && action.mathlang === 'goto_label') {
 			if (!action.label) {
 				throw new Error('NO LABEL');
 			}
@@ -398,7 +473,5 @@ export const flattenGotos = (actions) => {
 			}
 		}
 	});
-	// const after = printScript('_', actions).split('\n');
-	// console.log(before, after);
 	return actions;
 };

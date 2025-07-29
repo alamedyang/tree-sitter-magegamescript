@@ -27,7 +27,7 @@ import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 import { makeMap, parseProject } from './parser.js';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
-import { ansiTags } from './parser-utilities.js';
+import { ansiTags } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {

@@ -1,6 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-types.ts';
-import { ansiTags as ansi } from './parser-utilities.js';
+import { ansiTags as ansi } from './parser-utilities.ts';
 
 const DIALOG_WRAP = 42;
 const SERIAL_DIALOG_WRAP = 80;
@@ -187,7 +187,7 @@ export const buildDialogFromInfo = (
 	f: TYPES.FileState,
 	info: TYPES.DialogInfo,
 	messageNodes: TreeSitterNode[],
-) => {
+): TYPES.Dialog => {
 	const ident = info.identifier;
 	let found = false;
 	let specificSettings: TYPES.DialogSettings = {};

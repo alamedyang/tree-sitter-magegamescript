@@ -3,9 +3,9 @@ import {
 	flattenGotos,
 	newComment,
 	ansiTags as ansi,
-} from './parser-utilities.js';
+} from './parser-utilities.ts';
 import { makeFileState } from './parser-file.js';
-import { handleNode } from './parser-node.js';
+import { handleNode } from './parser-node.ts';
 
 export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 	// project crawl state
@@ -74,7 +74,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			}
 		},
 		addSerialDialog: (data) => {
-			const name = data.serialDialogName;
+			const name = data.serialDialogName || data.dialogName; // TODO :|
 			if (!p.serialDialogs[name]) {
 				p.serialDialogs[name] = data;
 			} else {

@@ -1,6 +1,12 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { handleCapture, grammarTypeForFieldName } from './parser-capture.ts';
-import { type Action, type MGSDebug, getBoolFieldForAction } from './parser-bytecode-info.ts';
+import {
+	type Action,
+	type MGSDebug,
+	type CHECK_SAVE_FLAG,
+	type SET_SAVE_FLAG,
+	getBoolFieldForAction,
+} from './parser-bytecode-info.ts';
 import {
 	type FileState,
 	type MathlangDialogDefinition,
@@ -9,7 +15,10 @@ import {
 	type CoordinateIdentifier,
 	type MGSMessage,
 	type IntGetable,
+	type MathlangSequence,
+	type AnyNode,
 	isIntGetable,
+	type GenericActionish,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -27,8 +36,8 @@ import {
 	quickTemporary,
 	latestTemporary,
 	newComment,
-} from './parser-utilities.js';
-import { handleNode } from './parser-node.js';
+} from './parser-utilities.ts';
+import { handleNode } from './parser-node.ts';
 
 const opIntoStringMap = {
 	'=': 'SET',
@@ -73,6 +82,7 @@ const flattenIntBinaryExpression = (exp, steps) => {
 		}
 	} else if (rhs.entity) {
 		const temp = quickTemporary();
+		if (!temp) throw new Error('TS why');
 		steps.push(
 			copyEntityFieldIntoVar(rhs.entity, rhs.field, temp),
 			changeVarByVar(temporary, temp, op),
@@ -89,7 +99,12 @@ const flattenIntBinaryExpression = (exp, steps) => {
 
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
-const actionSetBoolMaker = (f: FileState, _rhsRaw, _lhs, backupNode?: TreeSitterNode) => {
+const actionSetBoolMaker = (
+	f: FileState,
+	_rhsRaw,
+	_lhs,
+	backupNode?: TreeSitterNode,
+): MathlangSequence => {
 	// get the action JSON for the LHS
 	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
@@ -169,7 +184,7 @@ const spreadValues = (
 		return [commonFields];
 	}
 	// but spread action into multiple variants
-	const ret: Record<string, number | boolean | string | MGSDebug>[] = [];
+	const ret: GenericActionish[] = [];
 	for (let i = 0; i < spreadSize; i++) {
 		const insert = { ...commonFields };
 		Object.keys(fieldsToSpread).forEach((fieldName) => {
@@ -195,8 +210,10 @@ type FieldToSpread = {
 	node: TreeSitterNode;
 	captures: boolean[] | string[] | number[];
 };
-type GenericActionish = Record<string, boolean | number | string | MGSDebug>;
-export const handleAction = (f: FileState, node: TreeSitterNode) => {
+export const handleAction = (
+	f: FileState,
+	node: TreeSitterNode,
+): (GenericActionish | AnyNode)[] => {
 	if (!node) throw new Error('Missing node');
 	// ->[]
 	// Cyclic dependency bodge
@@ -267,8 +284,9 @@ export const handleAction = (f: FileState, node: TreeSitterNode) => {
 };
 
 // Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
-const actionFns = {
-	action_show_dialog: (f: FileState, node: TreeSitterNode) => {
+type ActionFn = (f: FileState, node: TreeSitterNode, isConcat?: boolean) => AnyNode[];
+const actionFns: Record<string, ActionFn> = {
+	action_show_dialog: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
@@ -281,9 +299,13 @@ const actionFns = {
 		}
 		return [shownDialog];
 	},
-	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode) =>
+	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode): AnyNode[] =>
 		actionFns.action_show_serial_dialog(f, node, true),
-	action_show_serial_dialog: (f: FileState, node: TreeSitterNode, isConcat: boolean = false) => {
+	action_show_serial_dialog: (
+		f: FileState,
+		node: TreeSitterNode,
+		isConcat: boolean = false,
+	): AnyNode[] => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
@@ -1086,13 +1108,13 @@ const actionData: Record<string, actionDataEntry> = {
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-const setVarToValue = (variable: string, value: number) => ({
+const setVarToValue = (variable: string, value: number): Action => ({
 	action: 'MUTATE_VARIABLE',
 	operation: 'SET',
 	value,
 	variable,
 });
-const setVarToVar = (variable: string, source: string) => {
+const setVarToVar = (variable: string, source: string): AnyNode => {
 	if (variable === source)
 		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
 	return {
@@ -1102,18 +1124,18 @@ const setVarToVar = (variable: string, source: string) => {
 		variable,
 	};
 };
-const changeVarByValue = (variable: string, value: number, op: string): Action | MathlangNode => {
+const changeVarByValue = (variable: string, value: number, op: string): AnyNode => {
 	if (op === '+' && value === 0) {
-		return newComment('This action was optimized out (+ 0)') as MathlangNode;
+		return newComment('This action was optimized out (+ 0)');
 	}
 	if (op === '*' && value === 1) {
-		return newComment('This action was optimized out (* 1)') as MathlangNode;
+		return newComment('This action was optimized out (* 1)');
 	}
 	if (op === '/' && value === 1) {
-		return newComment('This action was optimized out (/ 1)') as MathlangNode;
+		return newComment('This action was optimized out (/ 1)');
 	}
 	if (op === '-' && value === 0) {
-		return newComment('This action was optimized out (- 0)') as MathlangNode;
+		return newComment('This action was optimized out (- 0)');
 	}
 	return {
 		action: 'MUTATE_VARIABLE',
@@ -1142,12 +1164,12 @@ const copyEntityFieldIntoVar = (entity: string, field: string, variable: string)
 	inbound: true,
 	variable,
 });
-const setFlag = (save_flag: string, bool_value: boolean): Action => ({
+const setFlag = (save_flag: string, bool_value: boolean): SET_SAVE_FLAG => ({
 	action: 'SET_SAVE_FLAG',
 	bool_value,
 	save_flag,
 });
-const checkFlag = (save_flag: string, expected_bool: boolean) => ({
+const checkFlag = (save_flag: string, expected_bool: boolean): CHECK_SAVE_FLAG => ({
 	mathlang: 'bool_getable',
 	action: 'CHECK_SAVE_FLAG',
 	expected_bool,
@@ -1159,13 +1181,13 @@ const setFlagToFlag = (
 	save_flag: string,
 	source: string,
 	invert?: boolean,
-) => {
+): MathlangSequence => {
 	const action = setFlag(save_flag, true);
 	return simpleBranchMaker(
 		f,
 		node,
 		checkFlag(source, !invert),
-		{ ...action, bool_value: true }, // if true
-		{ ...action, bool_value: false }, // if false
+		[{ ...action, bool_value: true }], // if true
+		[{ ...action, bool_value: false }], // if false
 	);
 };

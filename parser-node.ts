@@ -11,7 +11,8 @@ import {
 	showSerialDialog,
 	newTemporary,
 	dropTemporary,
-} from './parser-utilities.js';
+	autoIdentifierName,
+} from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
 
@@ -22,6 +23,18 @@ import {
 	capturesForFieldName,
 } from './parser-capture.ts';
 import { handleAction } from './parser-actions.ts';
+import {
+	isNodeAction,
+	type MathlangBoolComparison,
+	type MathlangCopyMacro,
+	type AnyNode,
+	type FileState,
+	type MathlangLabelDefinition,
+	type MGSMessage,
+	type MathlangAddDialogSettings,
+	type MathlangSerialDialogParameter,
+} from './parser-types.ts';
+import { Node } from 'web-tree-sitter';
 
 export const handleNode = (f, node) => {
 	// ->[]
@@ -60,15 +73,15 @@ const nodeFns = {
 	line_comment: () => [],
 	block_comment: () => [],
 	semicolon: () => [],
-	ERROR: (f, node) => {
-		const err = {
+	ERROR: (f: FileState, node: Node) => {
+		const err: MGSMessage = {
 			locations: [{ node }],
 			message: 'syntax error',
 		};
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
 		// (This is only for nodes so malformed that tree-sitter can't tell what it is)
-		if (node.namedChildren.some((v) => v.grammarType === 'over_time_operator')) {
+		if (node.namedChildren.some((v) => v?.grammarType === 'over_time_operator')) {
 			err.message = `malformed 'do over time' expression`;
 			err.footer =
 				`should take the form '@movable -> @coordinate over @duration [forever];'\n` +
@@ -78,20 +91,19 @@ const nodeFns = {
 		f.newError(err);
 		return [];
 	},
-	script_definition: (f, node) => {
+	script_definition: (f: FileState, node: Node) => {
 		const name = captureForFieldName(f, node, 'script_name');
-		const rawActions = node.lastChild.namedChildren // error nodes are caught above
-			.map((v) => {
-				const ret = handleNode(f, v);
-				return ret;
-			})
+		// error nodes are caught above
+		const rawActions: AnyNode[] = (node.lastChild?.namedChildren || [])
+			.map((v) => handleNode(f, v))
 			.flat();
-		const actions = [];
+		const actions: AnyNode[] = [];
 		// flatten sequences
 		rawActions.forEach((raw) => {
-			if (raw.mathlang === 'sequence') {
+			if (!isNodeAction(raw) && raw.mathlang === 'sequence') {
 				raw.steps.forEach((step) => actions.push(step));
-			} else if (raw.mathlang === 'json_literal') {
+			} else if (!isNodeAction(raw) && raw.mathlang === 'json_literal') {
+				if (!Array.isArray(raw.json)) throw new Error('JSON should be []');
 				raw.json.forEach((obj) => actions.push(obj));
 			} else {
 				actions.push(raw);
@@ -100,10 +112,16 @@ const nodeFns = {
 		// add auto return destination
 		// (this should be done prior to copy!(), but after flattening sequences)
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
-		actions.push(label(f, node.lastChild, returnLabel));
+		const lastChild = node.lastChild;
+		if (!lastChild) throw new Error('should be a node');
+		const labelAction: MathlangLabelDefinition = label(f, lastChild, returnLabel);
+		actions.push(labelAction);
 		actions.forEach((action, i) => {
+			if (isNodeAction(action)) {
+				return;
+			}
 			if (action.mathlang === 'return_statement') {
-				actions[i] = gotoLabel(f, action.debug, returnLabel);
+				actions[i] = gotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
 		return [
@@ -118,7 +136,7 @@ const nodeFns = {
 			},
 		];
 	},
-	constant_assignment: (f, node) => {
+	constant_assignment: (f: FileState, node: Node) => {
 		const label = textForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
 		f.constants = f.constants || {};
@@ -147,7 +165,7 @@ const nodeFns = {
 			},
 		];
 	},
-	include_macro: (f, node) => {
+	include_macro: (f: FileState, node: Node) => {
 		// TODO: ~~handle~~ prevent recursive references
 		const fileName = captureForFieldName(f, node, 'fileName');
 		const prerequesites = Array.isArray(fileName) ? fileName : [fileName];
@@ -172,11 +190,12 @@ const nodeFns = {
 			},
 		];
 	},
-	rand_macro: (f, node) => {
-		const horizontal = [];
+	rand_macro: (f: FileState, node: Node) => {
+		const horizontal: AnyNode[][] = [];
 		let multipleCount = -Infinity;
-		node.namedChildren.forEach((node) => {
-			const handled = handleNode(f, node);
+		node.namedChildren.forEach((innerNode) => {
+			if (!innerNode) throw new Error('TS');
+			const handled: AnyNode[] = handleNode(f, innerNode);
 			const len = handled.length;
 			if (len === 0) return; // empties are ignored
 			horizontal.push(handled);
@@ -185,12 +204,12 @@ const nodeFns = {
 			if (multipleCount === -Infinity) multipleCount = len;
 			if (multipleCount !== len) {
 				f.newError({
-					locations: [{ node }],
+					locations: [{ node: innerNode }],
 					message: `spreads inside rand!() must contain same number of items`,
 				});
 			}
 		});
-		const vertical = [];
+		const vertical: AnyNode[][] = [];
 		for (let i = 0; i < multipleCount; i++) {
 			const insert = horizontal.map((unit) => {
 				return unit[i % unit.length];
@@ -199,7 +218,7 @@ const nodeFns = {
 		}
 		// put the slices into a sequence
 		const temporary = newTemporary();
-		const steps = [
+		const steps: AnyNode[] = [
 			{
 				action: 'MUTATE_VARIABLE',
 				operation: 'RNG',
@@ -207,12 +226,12 @@ const nodeFns = {
 				variable: temporary,
 			},
 		];
-		let bottomSteps = [];
+		let bottomSteps: AnyNode[] = [];
 		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
 		vertical.forEach((body, i) => {
 			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
-			const condition = {
+			const condition: MathlangBoolComparison = {
 				mathlang: 'bool_comparison',
 				action: 'CHECK_VARIABLE',
 				variable: temporary,
@@ -227,7 +246,11 @@ const nodeFns = {
 			};
 			steps.push(condition);
 			// add bottom half
-			const bottomInsert = [label(f, node, ifL), ...body, gotoLabel(f, node, rendezvousL)];
+			const bottomInsert: AnyNode[] = [
+				label(f, node, ifL),
+				...body,
+				gotoLabel(f, node, rendezvousL),
+			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		dropTemporary();
@@ -254,7 +277,7 @@ const nodeFns = {
 	add_dialog_settings_target: (f, node) => {
 		let settingsTarget;
 		const type = textForFieldName(f, node, 'type');
-		const ret = {
+		const ret: MathlangAddDialogSettings = {
 			mathlang: 'add_dialog_settings_target',
 			type,
 			debug: {
@@ -288,8 +311,12 @@ const nodeFns = {
 		ret.parameters = parameters;
 		return [ret];
 	},
-	add_serial_dialog_settings: (f, node) => {
-		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
+	add_serial_dialog_settings: (f: FileState, node: Node) => {
+		const parameters: MathlangSerialDialogParameter[] = capturesForFieldName(
+			f,
+			node,
+			'serial_dialog_parameter',
+		);
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
@@ -374,7 +401,7 @@ const nodeFns = {
 			messages: capturesForFieldName(f, node, 'serial_message'),
 			options,
 		};
-		const serialDialog = buildSerialDialogFromInfo(f, info, node);
+		const serialDialog = buildSerialDialogFromInfo(f, info);
 		return [serialDialog];
 	},
 	dialog: (f, node) => {
@@ -397,13 +424,11 @@ const nodeFns = {
 		const dialogs = buildDialogFromInfo(f, info, messageN);
 		return [
 			{
-				mathlang: 'dialog',
-				info,
+				...dialogs,
 				debug: {
 					node,
 					fileName: f.fileName,
 				},
-				...dialogs,
 			},
 		];
 	},
@@ -432,7 +457,7 @@ const nodeFns = {
 			},
 		];
 	},
-	copy_macro: (f, node) => [
+	copy_macro: (f: FileState, node: Node): MathlangCopyMacro[] => [
 		{
 			mathlang: 'copy_script',
 			script: captureForFieldName(f, node, 'script'),
@@ -442,9 +467,9 @@ const nodeFns = {
 			},
 		},
 	],
-	debug_macro: (f, node) => {
-		const ret = [];
-		let name;
+	debug_macro: (f: FileState, node: Node) => {
+		const ret: AnyNode[] = [];
+		let name = '';
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode) {
 			const serialDialog = handleNode(f, serialDialogNode).flat();
@@ -456,15 +481,16 @@ const nodeFns = {
 		const action = simpleBranchMaker(
 			f,
 			node,
-			{ action: 'CHECK_DEBUG_MODE' },
-			showSerialDialog(f, node, name),
+			{ action: 'CHECK_DEBUG_MODE', expected_bool: true },
+			[showSerialDialog(f, node, name)],
 			[],
 		);
 		ret.push(action);
 		return ret;
 	},
-	looping_block: (f, node, printGotoLabel) => {
+	looping_block: (f: FileState, node: Node, printGotoLabel: string) => {
 		return node.namedChildren.map((v) => {
+			if (!v) throw new Error('TS');
 			const handled = handleNode(f, v);
 			if (handled.mathlang === 'continue_statement') {
 				return gotoLabel(f, v, `while condition #${printGotoLabel}`);
@@ -474,14 +500,16 @@ const nodeFns = {
 			return handled;
 		});
 	},
-	while_block: (f, node) => {
+	while_block: (f: FileState, node: Node) => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `while condition #${n}`;
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
 		const conditionN = node.childForFieldName('condition');
+		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
 		const bodyN = node.childForFieldName('body');
+		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
@@ -504,14 +532,16 @@ const nodeFns = {
 		];
 		return newSequence(f, node, steps, 'while sequence');
 	},
-	do_while_block: (f, node) => {
+	do_while_block: (f: FileState, node: Node) => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `do while condition #${n}`;
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
 		const conditionN = node.childForFieldName('condition');
+		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
 		const bodyN = node.childForFieldName('body');
+		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
@@ -532,27 +562,30 @@ const nodeFns = {
 		];
 		return newSequence(f, node, steps, 'do-while sequence');
 	},
-	for_block: (f, node) => {
+	for_block: (f: FileState, node: Node) => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `for condition #${n}`;
 		const bodyL = `for body #${n}`;
 		const rendezvousL = `for rendezvous #${n}`;
 		const continueL = `for continue #${n}`;
 		const conditionN = node.childForFieldName('condition');
+		if (!conditionN) throw new Error('TS');
 		const bodyN = node.childForFieldName('body');
+		if (!bodyN) throw new Error('TS');
 		const incrementerN = node.childForFieldName('incrementer');
-		const body = handleNode(f, bodyN)
+		if (!incrementerN) throw new Error('TS');
+		const body: AnyNode[] = handleNode(f, bodyN)
 			.flat()
-			.map((v) => {
-				if (v.mathlang === 'continue_statement') {
+			.map((v: AnyNode) => {
+				if (!isNodeAction(v) && v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, continueL);
-				} else if (v.mathlang === 'break_statement') {
+				} else if (!isNodeAction(v) && v.mathlang === 'break_statement') {
 					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
-		const steps = [
+		const steps: AnyNode[] = [
 			...handleNode(f, node.childForFieldName('initializer')),
 			label(f, conditionN, conditionL),
 			...expandCondition(f, conditionN, handleCapture(f, conditionN), bodyL),
@@ -566,12 +599,12 @@ const nodeFns = {
 		];
 		return newSequence(f, node, steps, 'for sequence');
 	},
-	if_single: (f, node) => {
+	if_single: (f: FileState, node: Node): AnyNode | AnyNode[] => {
 		const conditionN = node.childForFieldName('condition');
 		let action = handleCapture(f, conditionN);
 		// condition.mathlang = 'if_single';
 		const type = textForFieldName(f, node, 'type');
-		let isBool = typeof action === 'boolean';
+		const isBool = typeof action === 'boolean';
 		if (typeof action === 'string') {
 			action = {
 				mathlang: 'bool_getable',
@@ -611,14 +644,19 @@ const nodeFns = {
 				label,
 			};
 		}
+		throw new Error('Unreachable?');
 	},
-	if_chain: (f, node) => {
+	if_chain: (f: FileState, node: Node) => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeN = node.childForFieldName('else_block');
+		if (!ifs) throw new Error('I know, I got it');
 		if (ifs.length === 1 && !elzeN) {
-			const conditionN = ifs[0].childForFieldName('condition');
+			const ifsZero = ifs[0];
+			if (!ifsZero) throw new Error('srsly');
+			const conditionN = ifsZero.childForFieldName('condition');
 			let condition = handleCapture(f, conditionN);
-			const bodyN = ifs[0].childForFieldName('body');
+			const bodyN = ifsZero.childForFieldName('body');
+			if (!bodyN) throw new Error('srsly');
 			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
 			if (body.length === 1 && (condition.action || typeof condition === 'string')) {
 				if (body[0].action === 'RUN_SCRIPT') {
@@ -648,22 +686,29 @@ const nodeFns = {
 				}
 			}
 		}
-		const rendezvousL = `rendezvous #${f.p.advanceGotoSuffix()}`;
-		const steps = [];
-		let bottomSteps = [];
+		const rendezvousL: string = `rendezvous #${f.p.advanceGotoSuffix()}`;
+		const steps: AnyNode[] = [];
+		let bottomSteps: AnyNode[] = [];
 		ifs.forEach((iff) => {
+			if (!iff) throw new Error('TS');
 			const ifL = `if true #${f.p.advanceGotoSuffix()}`;
 			const conditionN = iff.childForFieldName('condition');
+			if (!conditionN) throw new Error('TS');
 			const condition = handleCapture(f, conditionN);
 			const bodyN = iff.childForFieldName('body');
+			if (!bodyN) throw new Error('TS');
 			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
 			// add top half
 			expandCondition(f, conditionN, condition, ifL).forEach((v) => steps.push(v));
 			// add bottom half
-			const bottomInsert = [label(f, bodyN, ifL), ...body, gotoLabel(f, bodyN, rendezvousL)];
+			const bottomInsert: AnyNode[] = [
+				label(f, bodyN, ifL),
+				...body,
+				gotoLabel(f, bodyN, rendezvousL),
+			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
-		if (elzeN) {
+		if (elzeN && elzeN.lastChild) {
 			steps.push(
 				...elzeN.lastChild.namedChildren.map((v) => handleNode(f, v)).flat(),
 				// gotoLabel(f, node, rendezvousLabel),

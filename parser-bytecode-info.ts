@@ -165,9 +165,11 @@ export type CHECK_ENTITY_PATH = {
 	debug?: MGSDebug;
 };
 export type CHECK_SAVE_FLAG = {
+	mathlang?: 'bool_getable' | 'if_branch_goto_label'; // TODO: what
 	action: 'CHECK_SAVE_FLAG';
 	success_script?: string;
 	label?: string;
+	value?: string;
 	jump_index?: number | string;
 	save_flag: string;
 	expected_bool: boolean;
