@@ -45,7 +45,6 @@ const printAction = (data: MATHLANG.AnyNode) => {
 };
 
 const mathlang = {
-	if_branch_goto_label: (data: MATHLANG.IfBranchGotoLabel) => `${printGotoSegment(data)};`,
 	goto_label: (data) => `${printGotoSegment(data)};`,
 	label_definition: (data: MATHLANG.MathlangGotoLabel) => {
 		if (!data.label) throw new Error('cannot print label without label');

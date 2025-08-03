@@ -634,7 +634,6 @@ const nodeFns = {
 			if (isBool) {
 				return action ? [gotoLabel(f, node, label)] : [];
 			}
-			action.mathlang = 'if_branch_goto_label';
 			return [
 				{
 					...action,
@@ -679,7 +678,6 @@ const nodeFns = {
 						};
 					}
 					condition.label = body[0].label;
-					condition.mathlang = 'if_branch_goto_label';
 					return condition;
 				}
 			}

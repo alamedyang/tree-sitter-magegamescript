@@ -602,7 +602,7 @@ export type CHECK_ENTITY_PATH = {
 	debug?: MGSDebug;
 };
 export type CHECK_SAVE_FLAG = {
-	mathlang?: 'bool_getable' | 'if_branch_goto_label'; // TODO: what
+	mathlang?: 'bool_getable';
 	action: 'CHECK_SAVE_FLAG';
 	success_script?: string;
 	label?: string;

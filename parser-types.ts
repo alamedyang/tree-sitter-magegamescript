@@ -4,7 +4,6 @@ import * as TYPES from './parser-bytecode-info.ts';
 export type MGSValue = string | boolean | number;
 
 export type Intermediate =
-	| IfBranchGotoLabel
 	| BoolBinaryExpression
 	| MathlangBoolGetable
 	| MathlangBoolComparison
@@ -172,25 +171,6 @@ export type MathlangCondition =
 	| boolean
 	| string;
 
-export type IfBranchGotoLabel = {
-	expected_bool: boolean;
-	mathlang: 'if_branch_goto_label';
-	label?: string;
-	debug: TYPES.MGSDebug;
-	action?: string;
-	entity: string;
-	geometry?: string;
-	value?: string;
-	state?: string;
-	button_id?: string;
-	save_flag?: string;
-	property?: string;
-	stringLabel?: string;
-	variable?: string;
-	comparison?: string;
-	numberLabel?: string;
-	comment?: string;
-};
 export type MathlangStringCheckable = {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
@@ -398,7 +378,6 @@ export const hasSearchAndReplace = (node: AnyNode): boolean => {
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
-	| IfBranchGotoLabel
 	| MathlangGotoLabel
 	| MathlangBoolGetable
 	| MathlangBoolComparison
@@ -409,7 +388,6 @@ export const doesMathlangHaveLabelToChangeToIndex = (
 	node: AnyNode,
 ): node is MathlangNodeWithLabel => {
 	if (isNodeAction(node)) return false;
-	if (node.mathlang === 'if_branch_goto_label') return true;
 	if (node.mathlang === 'goto_label') return true;
 	if (node.mathlang === 'bool_getable') return true;
 	if (node.mathlang === 'bool_comparison') return true;

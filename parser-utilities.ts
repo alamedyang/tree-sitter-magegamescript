@@ -185,7 +185,6 @@ export const expandCondition = (
 	}
 	if (typeof condition === 'string') {
 		const action = checkFlag(f, node, condition, ifLabel, true);
-		action.mathlang = 'if_branch_goto_label';
 		return [action];
 	}
 	if (
@@ -197,7 +196,6 @@ export const expandCondition = (
 		const action = {
 			...condition,
 			expected_bool: condition.expected_bool === undefined ? true : condition.expected_bool,
-			mathlang: 'if_branch_goto_label',
 			label: ifLabel,
 		};
 		return [action];
