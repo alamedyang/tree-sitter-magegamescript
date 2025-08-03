@@ -1,11 +1,18 @@
-import { Node as TreeSitterNode } from 'web-tree-sitter';
+import { Node } from 'web-tree-sitter';
 
+// For intermediate data types and MGS-specific nodes
 export type MGSDebug = {
-	node: TreeSitterNode;
+	node: Node;
 	data?: Record<string, unknown>;
 	fileName?: string;
 	comment?: string;
 };
+
+// ---------------------------------- ACTUAL BYTECODE JSON ---------------------------------- \\
+
+// Todo: might not need the "debug" stuff; if actual action, errors would be reported at generation.
+// No need to keep tree sitter nodes around, perhaps?
+
 export type NULL_ACTION = {
 	action: 'NULL_ACTION';
 	debug?: MGSDebug;
@@ -804,10 +811,11 @@ export type Action =
 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
 	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
 
-/* ----------------------------------- non TypeScript stuff ----------------------------------- */
+// ----------------------------------- non TypeScript stuff ----------------------------------- \\
 
 const JUMP_SPECIAL_FIELDS: string[] = ['success_script', 'label', 'jump_index'];
 // copy pastad from encoder
+
 const actionFields: Record<string, string[]> = {
 	NULL_ACTION: [],
 	CHECK_ENTITY_NAME: ['JUMP_SPECIAL_FIELDS', 'string', 'entity', 'expected_bool'],

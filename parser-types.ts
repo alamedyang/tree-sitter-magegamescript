@@ -1,18 +1,10 @@
 import { Parser, Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
+import { type FileState } from './parser-file.ts';
 
 export type MGSValue = string | boolean | number;
-export type MathlangNode =
-	| MathlangSequence
-	| MathlangDialogDefinition
-	| MathlangSerialDialogDefinition
-	| MathlangScriptDefinition
-	| MathlangConstantDefinition
-	| MathlangLabelDefinition
-	| MathlangIncludeDefinition
-	| MathlangBoolComparison
-	| MathlangAddDialogSettings
-	| MathlangAddSerialDialogSettings
+
+export type Intermediate =
 	| IfBranchGotoLabel
 	| BoolBinaryExpression
 	| MathlangBoolGetable
@@ -22,12 +14,24 @@ export type MathlangNode =
 	| MathlangDialogOption
 	| MathlangSerialDialogOption
 	| MathlangDialog
-	| MathlangSerialDialog
-	| MathlangJSON
-	| MathlangComment
-	| MathlangReturnStatement
-	| MathlangContinueStatement
-	| MathlangBreakStatement
+	| MathlangSerialDialog;
+
+export type MathlangNode =
+	| Intermediate
+	| MathlangSequence
+	| DialogDefinitionNode
+	| SerialDialogDefinitionNode
+	| ScriptDefinitionNode
+	| ConstantDefinitionNode
+	| IncludeNode
+	| AddDialogSettingsNode
+	| AddSerialDialogSettingsNode
+	| LabelDefinitionNode
+	| JSONNode
+	| CommentNode
+	| ReturnStatement
+	| ContinueStatement
+	| BreakStatement
 	| MathlangGotoLabel
 	| MathlangCopyMacro;
 
@@ -39,25 +43,9 @@ export type AnyNode = TYPES.Action | MathlangNode;
 export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
 	return (node as TYPES.Action).action !== undefined;
 };
-export type MathlangSequence = {
-	mathlang: 'sequence';
-	type: string;
-	steps: AnyNode[];
-	debug: TYPES.MGSDebug;
-};
-export type MathlangDialogDefinition = {
-	mathlang: 'dialog_definition';
-	dialogName: string;
-	dialogs: Dialog[];
-	debug: TYPES.MGSDebug;
-};
-export type Dialog = DialogSettings & {
-	mathlang: 'dialog';
-	info: DialogInfo; // for debugging
-	messages: string[];
-	response_type?: 'SELECT_FROM_SHORT_LIST';
-	options?: DialogOption[];
-};
+
+// --------------------- intermediates, used to make final nodes --------------------- \\
+
 export type DialogInfo = {
 	identifier: DialogIdentifier;
 	settings: DialogSettings;
@@ -85,14 +73,6 @@ export type DialogOption = {
 	debug: TreeSitterNode;
 	fileName: string;
 };
-export type SerialDialog = {
-	// TODO fix all of these
-	mathlang: 'serial_dialog';
-	info: SerialDialogInfo; // for debugging
-	messages: string[];
-	options?: SerialDialogOption[];
-	text_options?: SerialDialogOption[];
-};
 export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
 	messages: string[];
@@ -109,34 +89,6 @@ export type SerialDialogOption = {
 	debug: TreeSitterNode;
 	fileName: string;
 };
-export type MathlangSerialDialogDefinition = {
-	mathlang: 'serial_dialog_definition';
-	dialogName: string;
-	serialDialog: SerialDialog;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangScriptDefinition = {
-	mathlang: 'script_definition';
-	scriptName: string;
-	actions: TYPES.Action[];
-	debug: TYPES.MGSDebug;
-};
-export type MathlangConstantDefinition = {
-	mathlang: 'constant_assignment';
-	label: string;
-	value: string | boolean | number;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangLabelDefinition = {
-	mathlang: 'label_definition';
-	label: string;
-	debug?: TYPES.MGSDebug;
-};
-export type MathlangIncludeDefinition = {
-	mathlang: 'include_macro';
-	value: string;
-	debug: TYPES.MGSDebug;
-};
 export type MathlangBoolComparison = {
 	mathlang: 'bool_comparison';
 	action: 'CHECK_VARIABLE';
@@ -145,18 +97,6 @@ export type MathlangBoolComparison = {
 	comparison: '==';
 	expected_bool: boolean;
 	label: string;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangAddDialogSettings = {
-	mathlang: 'add_dialog_settings_target';
-	type: string;
-	debug: TYPES.MGSDebug;
-	target?: string;
-	parameters?: Record<string, MGSValue>;
-};
-export type MathlangAddSerialDialogSettings = {
-	mathlang: 'add_serial_dialog_settings_target';
-	parameters: Record<string, MGSValue>;
 	debug: TYPES.MGSDebug;
 };
 export type MathlangSerialDialogParameter = {
@@ -186,38 +126,6 @@ export type MathlangDialog = {
 export type MathlangSerialDialog = {
 	mathlang: 'serial_dialog';
 	serialDialog: SerialDialog;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangJSON = {
-	mathlang: 'json_literal';
-	json: JSON;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangComment = {
-	mathlang: 'comment';
-	comment: string;
-	debug?: TYPES.MGSDebug;
-};
-export type MathlangReturnStatement = {
-	mathlang: 'return_statement';
-	debug: TYPES.MGSDebug;
-};
-export type MathlangContinueStatement = {
-	mathlang: 'continue_statement';
-	debug: TYPES.MGSDebug;
-};
-export type MathlangBreakStatement = {
-	mathlang: 'break_statement';
-	debug: TYPES.MGSDebug;
-};
-export type MathlangGotoLabel = {
-	mathlang: 'goto_label';
-	label: string;
-	debug?: TYPES.MGSDebug;
-};
-export type MathlangCopyMacro = {
-	mathlang: 'copy_script';
-	script: string;
 	debug: TYPES.MGSDebug;
 };
 export type MovableIdentifier = {
@@ -324,28 +232,123 @@ export type MathlangBoolGetable = {
 	expected_bool?: boolean;
 	save_flag: string;
 };
+
+// --------------------- final nodes that aren't actions --------------------- \\
+
+// needs to be one unit of thing for reasons, but still contain than one thing
+export type MathlangSequence = {
+	mathlang: 'sequence';
+	type: string;
+	steps: AnyNode[];
+	debug: TYPES.MGSDebug;
+};
+export type AddDialogSettingsNode = {
+	mathlang: 'add_dialog_settings_target';
+	type: string;
+	debug: TYPES.MGSDebug;
+	target?: string;
+	parameters?: Record<string, MGSValue>;
+};
+// todo: not used?
+export type AddSerialDialogSettingsNode = {
+	mathlang: 'add_serial_dialog_settings_target';
+	parameters: Record<string, MGSValue>;
+	debug: TYPES.MGSDebug;
+};
+
+export type DialogDefinitionNode = {
+	mathlang: 'dialog_definition';
+	dialogName: string;
+	dialogs: Dialog[];
+	debug: TYPES.MGSDebug;
+};
+export type SerialDialogDefinitionNode = {
+	mathlang: 'serial_dialog_definition';
+	dialogName: string;
+	serialDialog: SerialDialog;
+	debug: TYPES.MGSDebug;
+};
+// todo: not used?
+export type ScriptDefinitionNode = {
+	mathlang: 'script_definition';
+	scriptName: string;
+	actions: TYPES.Action[];
+	debug: TYPES.MGSDebug;
+};
+//todo: not used?
+export type ConstantDefinitionNode = {
+	mathlang: 'constant_assignment';
+	label: string;
+	value: string | boolean | number;
+	debug: TYPES.MGSDebug;
+};
+export type LabelDefinitionNode = {
+	mathlang: 'label_definition';
+	label: string;
+	debug?: TYPES.MGSDebug;
+};
+//todo: not used?
+export type IncludeNode = {
+	mathlang: 'include_macro';
+	value: string;
+	debug: TYPES.MGSDebug;
+};
+export type Dialog = DialogSettings & {
+	mathlang: 'dialog';
+	info: DialogInfo; // for debugging(?)
+	messages: string[];
+	response_type?: 'SELECT_FROM_SHORT_LIST';
+	options?: DialogOption[];
+};
+export type SerialDialog = {
+	// TODO fix all of these
+	mathlang: 'serial_dialog';
+	info: SerialDialogInfo; // for debugging
+	messages: string[];
+	options?: SerialDialogOption[];
+	text_options?: SerialDialogOption[];
+};
+
+// todo: not used?
+export type JSONNode = {
+	mathlang: 'json_literal';
+	json: JSON;
+	debug: TYPES.MGSDebug;
+};
+export type CommentNode = {
+	mathlang: 'comment';
+	comment: string;
+	debug?: TYPES.MGSDebug;
+};
+export type ReturnStatement = {
+	mathlang: 'return_statement';
+	debug: TYPES.MGSDebug;
+};
+export type ContinueStatement = {
+	mathlang: 'continue_statement';
+	debug: TYPES.MGSDebug;
+};
+export type BreakStatement = {
+	mathlang: 'break_statement';
+	debug: TYPES.MGSDebug;
+};
+export type MathlangGotoLabel = {
+	mathlang: 'goto_label';
+	label: string;
+	debug?: TYPES.MGSDebug;
+};
+export type MathlangCopyMacro = {
+	mathlang: 'copy_script';
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+// todo: not used?
 export type Constant = {
 	value: MGSValue;
 	debug: TYPES.MGSDebug;
 };
-export type FileState = {
-	p: ProjectState;
-	fileName: string;
-	constants: Record<string, Constant>;
-	settings: {
-		default: DialogSettings;
-		entity: DialogSettings;
-		label: DialogSettings;
-		serial: SerialDialogSettings;
-	};
-	nodes: Record<string, MathlangNode | TYPES.Action>[];
-	errorCount: number;
-	warningCount: number;
-	newError: (message: MGSMessage) => void;
-	newWarning: (message: MGSMessage) => void;
-	includeFile: (newName: string) => void;
-	printableMessageInformation: () => string;
-};
+
+// --------------------- idk --------------------- \\
 
 export type MGSLocation = {
 	node: TreeSitterNode;
@@ -353,6 +356,7 @@ export type MGSLocation = {
 };
 
 export type MGSMessage = {
+	// error or warning
 	locations: MGSLocation[];
 	message: string;
 	footer?: string;
@@ -370,7 +374,7 @@ type FileMapEntry = {
 	name: string;
 	text: Promise<unknown>;
 	type: string;
-	parsed?: boolean;
+	parsed?: FileState;
 };
 type addScriptArgs = {
 	mathlang: 'script_definition';
@@ -401,7 +405,7 @@ export type ProjectState = {
 	gotoSuffixValue: number;
 	scripts: Record<string, Script>;
 	dialogs: Record<string, Dialog[]>;
-	serialDialogs: Record<string, MathlangSerialDialogDefinition>;
+	serialDialogs: Record<string, SerialDialogDefinitionNode>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];
 	advanceGotoSuffix: () => number;

@@ -28,14 +28,14 @@ import {
 	type MathlangBoolComparison,
 	type MathlangCopyMacro,
 	type AnyNode,
-	type FileState,
-	type MathlangLabelDefinition,
+	type LabelDefinitionNode,
 	type MGSMessage,
-	type MathlangAddDialogSettings,
+	type AddDialogSettingsNode,
 	type MathlangSerialDialogParameter,
 	type MathlangSequence,
 } from './parser-types.ts';
 import { Node } from 'web-tree-sitter';
+import { type FileState } from './parser-file.ts';
 
 export const handleNode = (f, node) => {
 	// ->[]
@@ -115,7 +115,7 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('should be a node');
-		const labelAction: MathlangLabelDefinition = label(f, lastChild, returnLabel);
+		const labelAction: LabelDefinitionNode = label(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		actions.forEach((action, i) => {
 			if (isNodeAction(action)) {
@@ -278,7 +278,7 @@ const nodeFns = {
 	add_dialog_settings_target: (f, node) => {
 		let settingsTarget;
 		const type = textForFieldName(f, node, 'type');
-		const ret: MathlangAddDialogSettings = {
+		const ret: AddDialogSettingsNode = {
 			mathlang: 'add_dialog_settings_target',
 			type,
 			debug: {

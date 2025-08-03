@@ -1,7 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 import {
-	type FileState,
 	type CoordinateIdentifier,
 	type MovableIdentifier,
 	type MathlangSerialDialogParameter,
@@ -16,6 +15,7 @@ import {
 	invert,
 	inverseOpMap,
 } from './parser-utilities.ts';
+import { type FileState } from './parser-file.ts';
 
 const opIntoStringMap: Record<string, string> = {
 	'=': 'SET',

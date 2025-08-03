@@ -1,6 +1,7 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
+import { type FileState } from './parser-file.ts';
 
 const DIALOG_WRAP = 42;
 const SERIAL_DIALOG_WRAP = 80;
@@ -137,7 +138,7 @@ const ansiWrapBodge = (arr: string[]) => {
 	return bodged;
 };
 
-export const buildSerialDialogFromInfo = (f: TYPES.FileState, info: TYPES.SerialDialogInfo) => {
+export const buildSerialDialogFromInfo = (f: FileState, info: TYPES.SerialDialogInfo) => {
 	const serialDialogSettings: TYPES.SerialDialogSettings = {
 		wrap: SERIAL_DIALOG_WRAP,
 		...(f.settings.serial || {}), // global settings
@@ -184,7 +185,7 @@ const longerAlignments = {
 };
 
 export const buildDialogFromInfo = (
-	f: TYPES.FileState,
+	f: FileState,
 	info: TYPES.DialogInfo,
 	messageNodes: TreeSitterNode[],
 ): TYPES.Dialog => {

@@ -1,8 +1,35 @@
+import type {
+	Constant,
+	DialogSettings,
+	MGSMessage,
+	SerialDialogSettings,
+	ProjectState,
+	AnyNode,
+} from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
 
-export const makeFileState = (p, fileName) => {
+export type FileState = {
+	p: ProjectState;
+	fileName: string;
+	constants: Record<string, Constant>;
+	settings: {
+		default: DialogSettings;
+		entity: DialogSettings;
+		label: DialogSettings;
+		serial: SerialDialogSettings;
+	};
+	nodes: AnyNode[];
+	errorCount: number;
+	warningCount: number;
+	newError: (message: MGSMessage) => void;
+	newWarning: (message: MGSMessage) => void;
+	includeFile: (newName: string) => void;
+	printableMessageInformation: () => string;
+};
+
+export const makeFileState = (p: ProjectState, fileName: string) => {
 	// file crawl state
-	const f = {
+	const f: FileState = {
 		p, // project state, because we need to reach in sometimes
 		fileName,
 
@@ -49,9 +76,10 @@ export const makeFileState = (p, fileName) => {
 		},
 
 		// add a new file's crawl state to ours (overriding existing values) (i.e. `include`)
-		includeFile: (newName) => {
+		includeFile: (newName: string) => {
 			// Push ifs up! Don't call this function unless you know the file is parsed already
 			const newFile = p.fileMap[newName].parsed;
+			if (!newFile) throw new Error(`Missing file to include: ${newName}`);
 			// add their constants to us
 			Object.keys(newFile.constants).forEach((constantName) => {
 				if (f.constants[constantName]) {
@@ -60,7 +88,7 @@ export const makeFileState = (p, fileName) => {
 						locations: [
 							{
 								fileName: newFile.fileName,
-								node: newFile.constants[constantName].node,
+								node: newFile.constants[constantName].debug.node,
 							},
 						],
 					});

@@ -1,5 +1,5 @@
 import { colorDifferentStrings } from '../parser-tests.js';
-import { type Dialog, type MathlangDialogDefinition } from '../parser-types.ts';
+import { type Dialog, type DialogDefinitionNode } from '../parser-types.ts';
 
 export type EncoderDialog = {
 	alignment: string;
@@ -151,7 +151,7 @@ export const compareBigDialog = (
 
 export const compareSeriesOfBigDialogs = (
 	expected: EncoderDialog[][],
-	found: MathlangDialogDefinition[],
+	found: DialogDefinitionNode[],
 	fileName: string,
 ): string[] => {
 	if (!found) {

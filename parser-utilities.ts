@@ -11,18 +11,18 @@ import {
 	type AnyNode,
 	type Dialog,
 	type FileMap,
-	type FileState,
-	type MathlangComment,
-	type MathlangDialogDefinition,
+	type CommentNode,
+	type DialogDefinitionNode,
 	type MathlangGotoLabel,
-	type MathlangLabelDefinition,
+	type LabelDefinitionNode,
 	type MathlangSequence,
-	type MathlangSerialDialogDefinition,
+	type SerialDialogDefinitionNode,
 	type MGSLocation,
 	type MGSMessage,
 	type SerialDialog,
 	type MathlangCondition,
 } from './parser-types.ts';
+import { type FileState } from './parser-file.ts';
 
 export const verbose = false;
 export const debugLog = (message: string) => {
@@ -323,7 +323,7 @@ export const invert = (f: FileState, node: Node, boolExp: MathlangCondition): Ma
 	return boolExp;
 };
 
-export const label = (f: FileState, node: Node, label: string): MathlangLabelDefinition => ({
+export const label = (f: FileState, node: Node, label: string): LabelDefinitionNode => ({
 	mathlang: 'label_definition',
 	label,
 	debug: {
@@ -339,7 +339,7 @@ export const gotoLabel = (f: FileState, node: Node, label: string): MathlangGoto
 		fileName: f.fileName,
 	},
 });
-export const newComment = (comment: string): MathlangComment => ({ mathlang: 'comment', comment });
+export const newComment = (comment: string): CommentNode => ({ mathlang: 'comment', comment });
 export const newSequence = (
 	f: FileState,
 	node: Node,
@@ -347,7 +347,7 @@ export const newSequence = (
 	type: string = 'generic_sequence',
 ): MathlangSequence => {
 	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
-	const mathlangComment: MathlangComment = newComment(`${type}: ${comment}`);
+	const mathlangComment: CommentNode = newComment(`${type}: ${comment}`);
 	steps.unshift(mathlangComment);
 	const flatSteps: AnyNode[] = [];
 	steps
@@ -374,7 +374,7 @@ export const newDialog = (
 	node: Node,
 	dialogName: string,
 	dialogs: Dialog[],
-): MathlangDialogDefinition => ({
+): DialogDefinitionNode => ({
 	mathlang: 'dialog_definition',
 	dialogName,
 	dialogs,
@@ -396,7 +396,7 @@ export const newSerialDialog = (
 	node: Node,
 	dialogName: string,
 	serialDialog: SerialDialog,
-): MathlangSerialDialogDefinition => ({
+): SerialDialogDefinitionNode => ({
 	mathlang: 'serial_dialog_definition',
 	dialogName,
 	serialDialog,
@@ -424,14 +424,14 @@ const checkFlag = (
 	node: Node,
 	save_flag: string,
 	gotoLabel: string,
-	expected_bool: boolean,
+	expected_bool: boolean = true,
 ): CHECK_SAVE_FLAG => {
 	return {
 		mathlang: 'bool_getable',
 		action: 'CHECK_SAVE_FLAG',
 		save_flag,
 		value: save_flag,
-		expected_bool: expected_bool !== undefined ? expected_bool : true,
+		expected_bool,
 		label: gotoLabel || 'UNDEFINED LABEL',
 		debug: {
 			node,

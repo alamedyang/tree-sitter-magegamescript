@@ -4,7 +4,7 @@ import {
 	newComment,
 	ansiTags as ansi,
 } from './parser-utilities.ts';
-import { makeFileState } from './parser-file.js';
+import { makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 
 export const makeProjectState = (tsParser, fileMap, scenarioData) => {

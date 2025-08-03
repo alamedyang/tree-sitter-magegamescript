@@ -8,8 +8,7 @@ import {
 	getBoolFieldForAction,
 } from './parser-bytecode-info.ts';
 import {
-	type FileState,
-	type MathlangDialogDefinition,
+	type DialogDefinitionNode,
 	type MathlangNode,
 	type MovableIdentifier,
 	type CoordinateIdentifier,
@@ -38,6 +37,7 @@ import {
 	newComment,
 } from './parser-utilities.ts';
 import { handleNode } from './parser-node.ts';
+import { type FileState } from './parser-file.ts';
 
 const opIntoStringMap = {
 	'=': 'SET',
@@ -294,7 +294,7 @@ const actionFns: Record<string, ActionFn> = {
 			.flat();
 		const shownDialog = showDialog(f, node, name);
 		if (dialogs.length) {
-			const dialogDefinition = newDialog(f, node, name, dialogs) as MathlangDialogDefinition;
+			const dialogDefinition = newDialog(f, node, name, dialogs) as DialogDefinitionNode;
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];

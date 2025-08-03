@@ -250,7 +250,7 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	// Comparing named dialogs
 	const namedDialogDiffs: string[] = [];
 	[...dialogNames].forEach((name) => {
-		const found: MATHLANG.MathlangDialogDefinition = foundDialogsSorted.NAMED[name];
+		const found: MATHLANG.DialogDefinitionNode = foundDialogsSorted.NAMED[name];
 		const expected: EncoderDialog[] = expectedDialogsSorted.NAMED[name];
 		const diffs = compareBigDialog(expected, found.dialogs, 'dialogName', name);
 		namedDialogDiffs.push(...diffs);
@@ -266,7 +266,7 @@ parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
 	const anonymousDialogDiffs: string[] = [];
 	[...dialogFileNames].forEach((name) => {
 		const expected: EncoderDialog[][] = expectedDialogsSorted[name];
-		const found: MATHLANG.MathlangDialogDefinition[] = foundDialogsSorted[name];
+		const found: MATHLANG.DialogDefinitionNode[] = foundDialogsSorted[name];
 		const diffs = compareSeriesOfBigDialogs(expected, found, name);
 		anonymousDialogDiffs.push(...diffs);
 	});
