@@ -10,26 +10,32 @@ export const __dirname = dirname(__filename);
 
 import { debugLog, ansiTags } from './parser-utilities.ts';
 import { printScript } from './parser-to-json.ts';
-import { makeProjectState } from './parser-project.ts';
+import { type FileMap, makeProjectState } from './parser-project.ts';
 import { standardizeAction } from './parser-bytecode-info.ts';
+import {
+	isDialogDefinitionNode,
+	isScriptDefinitionNode,
+	isSerialDialogDefinitionNode,
+	type MathlangNode,
+} from './parser-types.ts';
 
 // /*
 // stolen from the other place
-export const makeMap = (path) => {
+export const makeMap = (path: string) => {
 	let map = {};
 	const files = readdirSync(path, { withFileTypes: true });
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
 		if (file.name === '.DS_Store') continue;
-		let filePath = `${path}/${file.name}`;
+		const filePath = `${path}/${file.name}`;
 		if (file.isDirectory()) {
 			map = {
 				...map,
 				...makeMap(filePath),
 			};
 		} else {
-			let fileBlob = readFileSync(filePath);
-			let type = filePath.split('.').pop();
+			const fileBlob = readFileSync(filePath);
+			const type = filePath.split('.').pop();
 			map[file.name] = {
 				name: file.name,
 				type,
@@ -53,7 +59,7 @@ export const makeMap = (path) => {
 };
 // */
 
-export const parseProject = async (fileMap, scenarioData) => {
+export const parseProject = async (fileMap: FileMap, scenarioData: Record<string, unknown>) => {
 	// tree-sitter
 	await Parser.init();
 	const parser = new Parser();
@@ -77,13 +83,14 @@ export const parseProject = async (fileMap, scenarioData) => {
 	Object.keys(fileMap).forEach((fileName) => {
 		if (!fileName.endsWith('.mgs')) return;
 		const f = fileMap[fileName].parsed;
+		if (!f) throw new Error(`File ${fileName} failed to parse in time (?)`);
 		f.nodes.forEach((node) => {
-			if (node.mathlang === 'script_definition') {
-				p.addScript(node, fileName);
-			} else if (node.mathlang === 'dialog_definition') {
-				p.addDialog(node, fileName);
-			} else if (node.mathlang === 'serial_dialog_definition') {
-				p.addSerialDialog(node, fileName);
+			if (isScriptDefinitionNode(node)) {
+				p.addScript(node);
+			} else if (isDialogDefinitionNode(node)) {
+				p.addDialog(node);
+			} else if (isSerialDialogDefinitionNode(node)) {
+				p.addSerialDialog(node);
 			}
 		});
 		debugLog(
@@ -100,9 +107,9 @@ export const parseProject = async (fileMap, scenarioData) => {
 		const standardizedActions = p.scripts[scriptName].actions
 			.filter(
 				(v) =>
-					v.mathlang !== 'comment' &&
-					v.mathlang !== 'dialog_definition' &&
-					v.mathlang !== 'serial_dialog_definition',
+					(v as MathlangNode).mathlang !== 'comment' &&
+					(v as MathlangNode).mathlang !== 'dialog_definition' &&
+					(v as MathlangNode).mathlang !== 'serial_dialog_definition',
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
 		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);

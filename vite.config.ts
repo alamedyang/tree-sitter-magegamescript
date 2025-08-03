@@ -15,7 +15,7 @@ export default defineConfig({
 	},
 	build: {
 		lib: {
-			entry: resolve(__dirname, 'parser.js'),
+			entry: resolve(__dirname, 'parser.ts'),
 			name: 'MGSParser',
 			// the proper extensions will be added
 			fileName: 'mgs-lib',

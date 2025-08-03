@@ -177,7 +177,7 @@ export type IfBranchGotoLabel = {
 	mathlang: 'if_branch_goto_label';
 	label?: string;
 	debug: TYPES.MGSDebug;
-	action: string;
+	action?: string;
 	entity: string;
 	geometry?: string;
 	value?: string;
@@ -274,6 +274,9 @@ export type DialogDefinitionNode = {
 	debug: TYPES.MGSDebug;
 	duplicates?: DialogDefinitionNode[];
 };
+export const isDialogDefinitionNode = (node: AnyNode): node is DialogDefinitionNode => {
+	return (node as MathlangNode).mathlang === 'dialog_definition';
+};
 export type SerialDialogDefinitionNode = {
 	mathlang: 'serial_dialog_definition';
 	fileName: string;
@@ -282,16 +285,25 @@ export type SerialDialogDefinitionNode = {
 	debug: TYPES.MGSDebug;
 	duplicates?: SerialDialogDefinitionNode[];
 };
+export const isSerialDialogDefinitionNode = (node: AnyNode): node is SerialDialogDefinitionNode => {
+	return (node as MathlangNode).mathlang === 'serial_dialog_definition';
+};
 export type ScriptDefinitionNode = {
 	mathlang: 'script_definition';
 	fileName: string;
 	scriptName: string;
+	prePrint?: string;
+	testPrint?: string;
+	print?: string;
 	rawNodes?: AnyNode[];
 	actions: AnyNode[];
 	debug: TYPES.MGSDebug;
 	preActions?: AnyNode[];
 	duplicates?: ScriptDefinitionNode[];
 	copyScriptResolved?: boolean;
+};
+export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinitionNode => {
+	return (node as MathlangNode).mathlang === 'script_definition';
 };
 //todo: not used?
 export type ConstantDefinitionNode = {

@@ -24,7 +24,7 @@ import {
 // Has scripts the other lacks.
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
-import { makeMap, parseProject } from './parser.js';
+import { makeMap, parseProject } from './parser.ts';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import { ansiTags } from './parser-utilities.ts';

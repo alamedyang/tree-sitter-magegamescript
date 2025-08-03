@@ -1,4 +1,4 @@
-import { parseProject } from './parser.js';
+import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
 
 const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
