@@ -97,6 +97,7 @@ export type MathlangBoolComparison = {
 	expected_bool: boolean;
 	label: string;
 	debug: TYPES.MGSDebug;
+	comment?: string;
 };
 export type MathlangSerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
@@ -188,12 +189,15 @@ export type IfBranchGotoLabel = {
 	variable?: string;
 	comparison?: string;
 	numberLabel?: string;
+	comment?: string;
 };
 export type MathlangStringCheckable = {
 	mathlang: 'string_checkable';
+	debug?: TYPES.MGSDebug;
 	entity: string;
 	property: string;
 	expected_bool?: boolean;
+	label?: string;
 	action?:
 		| 'CHECK_ENTITY_TICK_SCRIPT'
 		| 'CHECK_ENTITY_LOOK_SCRIPT'
@@ -203,12 +207,15 @@ export type MathlangStringCheckable = {
 		| 'CHECK_ENTITY_TYPE'
 		| 'CHECK_WARP_STATE';
 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
+	comment?: string;
 };
 export type MathlangNumberCheckableEquality = {
 	mathlang: 'number_checkable_equality';
+	debug?: TYPES.MGSDebug;
 	entity: string;
 	property: string;
 	expected_bool?: boolean;
+	label?: string;
 	action?:
 		| 'CHECK_ENTITY_X'
 		| 'CHECK_ENTITY_Y'
@@ -218,6 +225,7 @@ export type MathlangNumberCheckableEquality = {
 		| 'CHECK_ENTITY_CURRENT_ANIMATION'
 		| 'CHECK_ENTITY_CURRENT_FRAME';
 	numberLabel?: 'expected_u2' | 'expected_byte';
+	comment?: string;
 };
 export type MathlangBoolGetable = {
 	mathlang: 'bool_getable';
@@ -229,7 +237,9 @@ export type MathlangBoolGetable = {
 	state: string;
 	button_id: string;
 	expected_bool?: boolean;
+	label?: string;
 	save_flag: string;
+	comment?: string;
 };
 
 // --------------------- final nodes that aren't actions --------------------- \\
@@ -295,6 +305,11 @@ export type LabelDefinitionNode = {
 	label: string;
 	debug?: TYPES.MGSDebug;
 };
+export const isLabelDefinition = (node: AnyNode): node is LabelDefinitionNode => {
+	if (isNodeAction(node)) return false;
+	return node.mathlang === 'label_definition';
+};
+
 //todo: not used?
 export type IncludeNode = {
 	mathlang: 'include_macro';
@@ -344,6 +359,7 @@ export type MathlangGotoLabel = {
 	mathlang: 'goto_label';
 	label: string;
 	debug?: TYPES.MGSDebug;
+	comment?: string;
 };
 export type Constant = {
 	value: MGSValue;
@@ -356,25 +372,37 @@ export type MathlangCopyMacro = {
 };
 type CopyScript = MathlangCopyMacro | TYPES.COPY_SCRIPT;
 
-export const isCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
+export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
 	return (
 		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
 		(node as MathlangNode).mathlang === 'copy_script'
 	);
 };
+export const hasSearchAndReplace = (node: AnyNode): boolean => {
+	if (TYPES.isActionCopyScript(node) && node.search_and_replace) return true;
+	return false;
+};
 
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
-export type MathlangNodeWithLabel = MathlangBoolComparison | IfBranchGotoLabel;
-// | MathlangStringCheckable
-// | MathlangNumberCheckableEquality;
+export type MathlangNodeWithLabel =
+	| IfBranchGotoLabel
+	| MathlangGotoLabel
+	| MathlangBoolGetable
+	| MathlangBoolComparison
+	| MathlangStringCheckable
+	| MathlangNumberCheckableEquality;
 
-export const isMathlangWithLabel = (node: AnyNode): node is MathlangNodeWithLabel => {
+export const doesMathlangHaveLabelToChangeToIndex = (
+	node: AnyNode,
+): node is MathlangNodeWithLabel => {
 	if (isNodeAction(node)) return false;
-	if (node.mathlang === 'bool_comparison') return true;
 	if (node.mathlang === 'if_branch_goto_label') return true;
-	// if (node.mathlang === 'string_checkable') return true;
-	// if (node.mathlang === 'number_checkable_equality') return true;
+	if (node.mathlang === 'goto_label') return true;
+	if (node.mathlang === 'bool_getable') return true;
+	if (node.mathlang === 'bool_comparison') return true;
+	if (node.mathlang === 'string_checkable') return true;
+	if (node.mathlang === 'number_checkable_equality') return true;
 	return false;
 };
 

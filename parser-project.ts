@@ -9,15 +9,23 @@ import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
 	type AnyNode,
-	type MathlangNode,
 	type DialogDefinitionNode,
 	type SerialDialogDefinitionNode,
 	type ScriptDefinitionNode,
 	type MGSMessage,
 	isNodeAction,
 	type FileCategory,
-	isCopyScript,
+	isAnyCopyScript,
+	type MathlangNode,
+	hasSearchAndReplace,
+	isLabelDefinition,
+	doesMathlangHaveLabelToChangeToIndex,
 } from './parser-types.ts';
+import {
+	type GOTO_ACTION_INDEX,
+	isActionCopyScript,
+	type MGSDebug,
+} from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -170,7 +178,7 @@ export const makeProjectState = (
 			// one node can become multiple nodes, so this needs to be .forEach() and not .map()
 			scriptData.actions.forEach((action: AnyNode) => {
 				// not copy script, easy
-				if (!isCopyScript(action)) {
+				if (!isAnyCopyScript(action)) {
 					finalActions.push(action);
 					return;
 				}
@@ -204,16 +212,22 @@ export const makeProjectState = (
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedActions: AnyNode[] = p.scripts[action.script].actions.map(
 					(copiedAction) => {
-						return !(copiedAction as MathlangNode).mathlang?.includes('label')
-							? copiedAction
-							: {
-									...copiedAction,
-									label: copiedAction.label + labelSuffix,
-								};
+						if (
+							(doesMathlangHaveLabelToChangeToIndex(copiedAction) &&
+								copiedAction.label) ||
+							isLabelDefinition(copiedAction)
+						) {
+							return {
+								...copiedAction,
+								label: copiedAction.label + labelSuffix,
+							};
+						} else {
+							return copiedAction;
+						}
 					},
 				);
 				// simple copies are mathlang's copy_script and the JSON copy_script without search_and_replace
-				if (!isCopyScript(action) || !action.search_and_replace) {
+				if (!isAnyCopyScript(action) || !hasSearchAndReplace(action)) {
 					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
 					finalActions.push(...copiedActions);
 				} else {
@@ -223,30 +237,35 @@ export const makeProjectState = (
 
 					// Exctract the debugs for later re-insertion
 					const extractedDebugProps = copiedActions.map((copiedAction) => {
-						const debug = copiedAction.debug;
+						const debug: MGSDebug | undefined = copiedAction.debug;
 						if (copiedAction.debug) {
 							delete copiedAction.debug;
 						}
 						return debug;
 					});
 					// Do the search-and-replace
-					let stringActions = JSON.stringify(copiedActions);
-					Object.entries(action.search_and_replace).forEach(([k, v]) => {
-						stringActions = stringActions.replaceAll(k, v);
-					});
-					const objectActions = JSON.parse(stringActions);
+					let stringActions: string = JSON.stringify(copiedActions);
+					const doSearchAndReplace =
+						isActionCopyScript(action) && hasSearchAndReplace(action);
+					if (doSearchAndReplace) {
+						const searchAndReplace: Record<string, string> =
+							action.search_and_replace || {};
+						Object.entries(searchAndReplace).forEach(([k, v]) => {
+							stringActions = stringActions.replace(new RegExp(k, 'g'), v);
+						});
+					}
+					const objectActions: AnyNode[] = JSON.parse(stringActions);
 					// Put the debugs back
 					objectActions.forEach((v, i) => {
-						const debug = extractedDebugProps[i];
+						const debug: MGSDebug | undefined = extractedDebugProps[i];
 						if (debug) {
 							v.debug = debug;
 						}
 					});
-					finalActions.push(
-						newComment(
-							`Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`,
-						),
-					);
+					const comment = doSearchAndReplace
+						? `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`
+						: `Copying: ${action.script} (-${labelSuffix})`;
+					finalActions.push(newComment(comment));
 					finalActions.push(...objectActions);
 				}
 			});
@@ -261,47 +280,49 @@ export const makeProjectState = (
 			});
 		},
 		bakeLabels: () => {
+			// standardizeAction() has happened by now;
+			// no more mathlang: 'copy_script', 'label_definition', 'goto_label', or 'return_statement'
 			Object.keys(p.scripts).forEach((scriptName) => {
 				const scriptData = p.scripts[scriptName];
-				const registry = {};
+				const registry: Record<string, number> = {};
 				const actions = scriptData.actions;
 				let commentlessIndex = 0;
 				for (let i = 0; i < actions.length; i++) {
 					const currAction = actions[i];
 					if (
-						currAction.mathlang === 'comment' ||
-						currAction.mathlang === 'dialog_definition' ||
-						currAction.mathlang === 'serial_dialog_definition'
+						(currAction as MathlangNode).mathlang === 'comment' ||
+						(currAction as MathlangNode).mathlang === 'dialog_definition' ||
+						(currAction as MathlangNode).mathlang === 'serial_dialog_definition'
 					) {
 						continue;
-					} else if (currAction.mathlang === 'label_definition') {
+					} else if (isLabelDefinition(currAction)) {
 						registry[currAction.label] = commentlessIndex;
 						actions[i] = newComment(`'${currAction.label}':`);
 					} else {
 						commentlessIndex += 1;
 					}
 				}
-				actions.forEach((action) => {
-					if (
-						action.mathlang?.includes('label') ||
-						action.mathlang === 'bool_getable' ||
-						action.mathlang === 'bool_comparison' ||
-						action.mathlang === 'string_checkable' ||
-						action.mathlang === 'number_checkable_equality'
-					) {
+				actions.forEach((action, i) => {
+					if (doesMathlangHaveLabelToChangeToIndex(action)) {
+						if (!action.label) throw new Error("should have a label and doesn't");
 						const jump_index = registry[action.label];
 						if (jump_index === undefined) {
-							throw new Error('NOT REGISTERED?');
+							throw new Error(
+								`Jump index not registered for label ${action.label} (in script ${scriptName})`,
+							);
 						}
-						let param = 'jump_index';
+						const param = 'jump_index';
 						if (action.mathlang === 'goto_label') {
-							action.action = 'GOTO_ACTION_INDEX';
-							param = 'action_index';
+							const replacement: GOTO_ACTION_INDEX = {
+								action: 'GOTO_ACTION_INDEX',
+								action_index: jump_index,
+							};
+							actions[i] = replacement;
+						} else {
+							action.comment = `goto label '${action.label}'`;
+							action[param] = jump_index;
+							delete action.label;
 						}
-						action.comment = `goto label '${action.label}'`;
-						action[param] = jump_index;
-						delete action.label;
-						delete action.mathlang;
 					}
 				});
 			});

@@ -10,7 +10,6 @@ import {
 	type BoolBinaryExpression,
 	type AnyNode,
 	type Dialog,
-	type FileMap,
 	type CommentNode,
 	type DialogDefinitionNode,
 	type MathlangGotoLabel,
@@ -23,6 +22,7 @@ import {
 	type MathlangCondition,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
+import { type FileMap } from './parser-project.ts';
 
 export const verbose = false;
 export const debugLog = (message: string) => {
@@ -178,8 +178,6 @@ export const expandCondition = (
 	condition: MathlangCondition,
 	ifLabel: string,
 ): AnyNode[] => {
-	// TODO: typeof `condition`?
-	// typeof return value?
 	if (condition === true) {
 		return [gotoLabel(f, node, ifLabel)];
 	} else if (condition === false) {

@@ -1,9 +1,9 @@
+import { type ProjectState } from './parser-project.ts';
 import type {
 	Constant,
 	DialogSettings,
 	MGSMessage,
 	SerialDialogSettings,
-	ProjectState,
 	AnyNode,
 } from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';

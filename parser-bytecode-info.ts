@@ -34,6 +34,10 @@ export type COPY_SCRIPT = {
 	search_and_replace?: Record<string, string>;
 	debug?: MGSDebug;
 };
+export const isActionCopyScript = (node: AnyNode): node is COPY_SCRIPT => {
+	return (node as Action).action === 'COPY_SCRIPT';
+};
+
 export type BLOCKING_DELAY = {
 	action: 'BLOCKING_DELAY';
 	duration: number;

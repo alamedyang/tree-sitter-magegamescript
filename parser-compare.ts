@@ -29,6 +29,7 @@ import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import { ansiTags } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
+import { type ProjectState } from './parser-project.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -74,7 +75,7 @@ type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const compareScripts = (p: MATHLANG.ProjectState, scriptName: string) => {
+const compareScripts = (p: ProjectState, scriptName: string) => {
 	// let oldActions = oldPost[scriptName];
 	// let newActions = p.scripts[scriptName].actions;
 	// if (!oldActions) {
@@ -135,7 +136,7 @@ const sortSerialDialogs = (
 	});
 	return ret;
 };
-const sortDialogs = (dialogs: Record<string, (EncoderDialog | MATHLANG.Dialog)[]>) => {
+const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDefinitionNode>) => {
 	const ret = {
 		NAMED: {},
 	};
@@ -155,7 +156,7 @@ const sortDialogs = (dialogs: Record<string, (EncoderDialog | MATHLANG.Dialog)[]
 const identical: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
-parseProject(fileMap, {}).then((p: MATHLANG.ProjectState) => {
+parseProject(fileMap, {}).then((p: ProjectState) => {
 	// console.log('PROJECT');
 	// console.log(p);
 
