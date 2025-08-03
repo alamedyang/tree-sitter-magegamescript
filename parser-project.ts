@@ -29,7 +29,7 @@ import {
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
-	fileText: () => string;
+	fileText: string;
 	name: string;
 	text: Promise<unknown>;
 	type: string;
