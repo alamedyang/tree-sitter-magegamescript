@@ -150,6 +150,7 @@ type AdventureCrawlState = {
 	rejoins: Set<number>;
 };
 
+// ユウキリンリン　ゲンキハツラツ :P
 const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState) => {
 	let pos = from;
 	const ret: AdventureSegment = {

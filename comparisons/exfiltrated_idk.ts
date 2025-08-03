@@ -96084,7 +96084,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 		{
 			expected_bool: true,
 			action: 'CHECK_WARP_STATE',
-			string: 'from-game',
+			string: 'from_game',
 			success_script: 'main_menu_fade_in',
 		},
 		{
@@ -96998,7 +96998,7 @@ export const idk: Record<string, TYPES.Action[]> = {
 	menu_save_game_main_menu: [
 		{
 			action: 'SET_WARP_STATE',
-			string: 'from-game',
+			string: 'from_game',
 		},
 		{
 			action: 'LOAD_MAP',

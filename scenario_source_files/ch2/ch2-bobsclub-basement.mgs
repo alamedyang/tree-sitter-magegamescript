@@ -112,7 +112,10 @@ on_tick_turn_right_and_down_kinda {
 }
 
 tick_rand_mini {
-	"rand" ?= 3;
+	// rand!(
+	// 	wait [2s, 3s, 4s];
+	// )
+	"rand" ?= 3; // need quotes; keyword
 	if ("rand" == 2) {
 		wait 2s;
 	} else if ("rand" == 1) {
@@ -122,6 +125,9 @@ tick_rand_mini {
 	}
 }
 tick_rand_broad {
+	// rand!(
+	// 	wait [3s, 9s, 14s];
+	// )
 	"rand" ?= 3;
 	if ("rand" == 2) {
 		wait 3s;

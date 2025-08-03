@@ -134,7 +134,7 @@ export const reportErrorNodes = (f: FileState, node: Node): (Node | null)[] => {
 
 const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): string => {
 	const fileName = location.fileName || '';
-	const fileText = fileMap[fileName].fileText();
+	const fileText = fileMap[fileName].fileText;
 	const allLines = fileText.split('\n');
 	const row = location.node.startPosition.row;
 	const col = location.node.startPosition.column;

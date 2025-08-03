@@ -72,12 +72,9 @@ empty_lodge_mini {
 	entity Bookcase position = geometry "lodge-hidingplace";
 	copy!(skip_artifacts)
 	copy!(deaden_artifacts)
-	[
-		entity Jackob position,
-		entity Alfonso position,
-		entity Bert position,
-	] = geometry "lodge-hidingplace";
-
+	entity Jackob position = geometry "lodge-hidingplace";
+	entity Alfonso position = geometry "lodge-hidingplace";
+	entity Bert position = geometry "lodge-hidingplace";
 }
 
 /*-----------------*/

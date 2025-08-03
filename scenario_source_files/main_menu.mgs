@@ -154,7 +154,7 @@ on_tick_main_menu {
 
 on_tick_splash {
 	hex_control = false;
-	if (warp_state == "from-game") {
+	if (warp_state == "from_game") {
 		goto main_menu_fade_in;
 	}
 	camera = geometry "dc801-center";
@@ -547,6 +547,6 @@ menu_save_game_no {
 }
 
 menu_save_game_main_menu {
-	warp_state = "from-game";
-	load map "main_menu";
+	warp_state = from_game;
+	load map main_menu;
 }

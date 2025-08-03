@@ -166,6 +166,9 @@ on_tick_ch2_castle_32_postgame {
 $walkspeed = 200ms;
 
 ch2_gloria_worry_walk {
+	// rand!(
+	// 	wait [ 400ms, 1100ms, 1500ms, 2200ms ];
+	// )
 	tempvar ?= 4;
 	if (tempvar == 0) {
 		wait 400ms;
@@ -181,6 +184,9 @@ ch2_gloria_worry_walk {
 	if (self path != "worry-walk2") {
 		self path = "worry-walk2";
 	} else {
+		// rand!(
+		// 	self path = "worry-walk1", "worry-walk3" ];
+		// )
 		tempvar ?= 2;
 		if (tempvar == 0) {
 			self path = "worry-walk1"
