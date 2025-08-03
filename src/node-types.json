@@ -2749,6 +2749,10 @@
             "named": false
           },
           {
+            "type": "entity_path",
+            "named": false
+          },
+          {
             "type": "geometry",
             "named": true
           },
@@ -3822,7 +3826,7 @@
     "fields": {
       "geometry": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "BAREWORD",
@@ -3835,6 +3839,20 @@
           {
             "type": "QUOTED_STRING",
             "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "entity_path",
+            "named": false
+          },
+          {
+            "type": "geometry",
+            "named": false
           }
         ]
       }
@@ -5859,6 +5877,10 @@
   },
   {
     "type": "entity",
+    "named": false
+  },
+  {
+    "type": "entity_path",
     "named": false
   },
   {

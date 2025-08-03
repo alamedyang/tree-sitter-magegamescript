@@ -358,7 +358,7 @@ show_dialog_bobrock_start {
 
 	// Bob Austin unlocks the door:
 	player_control = off;
-	entity "Bob Austin" position -> geometry "%ENTITY_PATH%" origin over 400ms;
+	entity "Bob Austin" position -> entity_path origin over 400ms;
 	entity "Bob Austin" direction = geometry "door-bobsclub-entrance"
 	wait 1000ms;
 	entity "Bob Austin" direction = south

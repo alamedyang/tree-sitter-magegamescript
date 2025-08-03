@@ -95,13 +95,13 @@ add dialog settings {
 }
 
 "walk_self_to_path_and_loop" {
-	self position -> geometry "%ENTITY_PATH%" origin over 5000ms;
-	self position -> geometry "%ENTITY_PATH%" length over 10000ms forever;
+	self position -> entity_path origin over 5000ms;
+	self position -> entity_path length over 10000ms forever;
 }
 
 "walk_self_to_path_and_walk" {
-	self position -> geometry "%ENTITY_PATH%" origin over 5000ms;
-	self position -> geometry "%ENTITY_PATH%" length over 10000ms;
+	self position -> entity_path origin over 5000ms;
+	self position -> entity_path length over 10000ms;
 	goto null_script;
 }
 

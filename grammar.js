@@ -505,7 +505,11 @@ export default grammar({
 				field('play_count', $.quantity_expandable),
 			),
 
-		geometry_identifier: ($) => seq('geometry', field('geometry', $.string)),
+		geometry_identifier: ($) =>
+			choice(
+				seq(field('type', 'geometry'), field('geometry', $.string)),
+				field('type', 'entity_path'),
+			),
 		geometry_identifier_expandable: ($) =>
 			seq($.geometry_identifier, $.geometry_identifier_expansion),
 		geometry_identifier_expansion: ($) =>
@@ -554,6 +558,12 @@ export default grammar({
 				seq(field('type', 'player'), 'position'),
 				seq(field('type', 'self'), 'position'),
 				seq(field('type', 'entity'), field('entity', $.string), 'position'),
+				seq(
+					field('type', 'entity_path'),
+					optional(
+						choice(field('polygon_type', $.origin), field('polygon_type', $.length)),
+					),
+				),
 				seq(
 					field('type', $.geometry),
 					field('geometry', $.string),
@@ -1006,8 +1016,8 @@ export default grammar({
 			),
 		direction_target: ($) =>
 			choice(
-				field('entity', $.entity_identifier),
 				field('geometry', $.geometry_identifier),
+				field('entity', $.entity_identifier),
 				field('nsew', $.nsew),
 			),
 		action_set_script: ($) =>
@@ -1042,8 +1052,8 @@ export default grammar({
 				field(
 					'towards',
 					choice(
-						field('entity_identifier', $.entity_identifier),
 						field('geometry_identifier', $.geometry_identifier),
+						field('entity_identifier', $.entity_identifier),
 						field('nsew', $.nsew),
 					),
 				),

@@ -265,7 +265,7 @@ ch2_escort_cutscene {
 	player on_tick = birthday_march_on_own_path_player;
 }
 birthday_march_on_own_path {
-	self position -> geometry "%ENTITY_PATH%" length over 2400ms;
+	self position -> entity_path length over 2400ms;
 	goto yeet;
 }
 birthday_march_on_own_path_player {

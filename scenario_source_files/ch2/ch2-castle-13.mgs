@@ -282,7 +282,7 @@ ch2_cutscene_castle12 {
 }
 
 walk_over_1500 {
-	self position -> geometry "%ENTITY_PATH%" length over 1500ms;
+	self position -> entity_path length over 1500ms;
 	goto null_script;
 }
 ch2_cutscene_kingreturns {

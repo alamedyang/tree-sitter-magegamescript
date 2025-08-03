@@ -62,7 +62,7 @@ show_dialog_bob_first_demo_map {
 			PLAYER "Why, what luck!\nMy name happens to be Bob!"
 			SELF "Nice. Great name.\nI'll unlock the door."
 		};
-		entity Bob position -> geometry "%ENTITY_PATH%" origin over 666ms;
+		entity Bob position -> entity_path origin over 666ms;
 		entity Bob direction = west;
 		wait 666ms;
 		entity Bob direction = south;
@@ -127,7 +127,7 @@ show_dialog_max_demo_map {
 		SELF "Excellent! Then I shall return when the time comes!"
 		"Until that glorious day, farewell!"
 	};
-	self position -> geometry "%ENTITY_PATH%" length over 9000ms;
+	self position -> entity_path length over 9000ms;
 	self position = geometry hiding;
 }
 
@@ -272,15 +272,15 @@ move_goat2_to_high_demo_map {
 }
 
 loop_on_path_30s_demo_map {
-	self position -> geometry "%ENTITY_PATH%" length over 20000ms forever;
+	self position -> entity_path length over 20000ms forever;
 }
 
 loop_on_path_10s_demo_map {
-	self position -> geometry "%ENTITY_PATH%" length over 6666ms forever;
+	self position -> entity_path length over 6666ms forever;
 }
 
 loop_on_path_3s_demo_map {
-	self position -> geometry "%ENTITY_PATH%" length over 2000ms forever;
+	self position -> entity_path length over 2000ms forever;
 }
 
 // Chaos fish

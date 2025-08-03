@@ -108,11 +108,11 @@ player_watch_alfonso {
 	player direction = entity Alfonso;
 }
 ch2_elder_ending_walkin {
-	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
+	self position -> entity_path length over 3000ms;
 	goto null_script;
 }
 ch2_elder_ending_walkin_end {
-	self position -> geometry "%ENTITY_PATH%" length over 3000ms;
+	self position -> entity_path length over 3000ms;
 	self on_tick = yeet;
 	goto null_script;
 }

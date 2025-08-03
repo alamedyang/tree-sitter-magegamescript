@@ -11,19 +11,19 @@ clear_own_tick {
 }
 
 loop_on_path_30s {
-	self position -> geometry "%ENTITY_PATH%" length over 30000ms forever;
+	self position -> entity_path length over 30000ms forever;
 }
 
 loop_on_path_10s {
-	self position -> geometry "%ENTITY_PATH%" length over 10000ms forever;
+	self position -> entity_path length over 10000ms forever;
 }
 
 loop_on_path_3s {
-	self position -> geometry "%ENTITY_PATH%" length over 3000ms forever;
+	self position -> entity_path length over 3000ms forever;
 }
 
 walk_on_path_20s {
-	self position -> geometry "%ENTITY_PATH%" length over 20000ms;
+	self position -> entity_path length over 20000ms;
 	goto null_script;
 }
 

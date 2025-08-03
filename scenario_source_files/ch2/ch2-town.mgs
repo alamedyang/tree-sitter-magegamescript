@@ -188,11 +188,11 @@ on_tick_ch2_town {
 
 on_tick_ch2_town_walkfadeout {
 	player_control = off;
-	player position -> geometry "%ENTITY_PATH%" origin over 3500ms;
+	player position -> entity_path origin over 3500ms;
 	goto null_script;
 }
 on_tick_ch2_town_walkfadein {
-	player position -> geometry "%ENTITY_PATH%" length over 500ms;
+	player position -> entity_path length over 500ms;
 	player_control = on;
 	goto null_script;
 }

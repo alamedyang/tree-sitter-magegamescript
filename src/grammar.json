@@ -3223,18 +3223,35 @@
       ]
     },
     "geometry_identifier": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "STRING",
-          "value": "geometry"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "STRING",
+                "value": "geometry"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "geometry",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string"
+              }
+            }
+          ]
         },
         {
           "type": "FIELD",
-          "name": "geometry",
+          "name": "type",
           "content": {
-            "type": "SYMBOL",
-            "name": "string"
+            "type": "STRING",
+            "value": "entity_path"
           }
         }
       ]
@@ -3528,6 +3545,48 @@
             {
               "type": "STRING",
               "value": "position"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type",
+              "content": {
+                "type": "STRING",
+                "value": "entity_path"
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "polygon_type",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "origin"
+                      }
+                    },
+                    {
+                      "type": "FIELD",
+                      "name": "polygon_type",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "length"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             }
           ]
         },
@@ -6085,18 +6144,18 @@
       "members": [
         {
           "type": "FIELD",
-          "name": "entity",
-          "content": {
-            "type": "SYMBOL",
-            "name": "entity_identifier"
-          }
-        },
-        {
-          "type": "FIELD",
           "name": "geometry",
           "content": {
             "type": "SYMBOL",
             "name": "geometry_identifier"
+          }
+        },
+        {
+          "type": "FIELD",
+          "name": "entity",
+          "content": {
+            "type": "SYMBOL",
+            "name": "entity_identifier"
           }
         },
         {
@@ -6282,18 +6341,18 @@
             "members": [
               {
                 "type": "FIELD",
-                "name": "entity_identifier",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "entity_identifier"
-                }
-              },
-              {
-                "type": "FIELD",
                 "name": "geometry_identifier",
                 "content": {
                   "type": "SYMBOL",
                   "name": "geometry_identifier"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "entity_identifier",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "entity_identifier"
                 }
               },
               {

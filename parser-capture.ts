@@ -187,6 +187,14 @@ const captureFns = {
 			value: '',
 			polygonType: '',
 		};
+		if (type === 'entity_path') {
+			return {
+				...ret,
+				type: 'geometry',
+				value: '%ENTITY_PATH%',
+				polygonType: textForFieldName(f, node, 'polygon_type'),
+			};
+		}
 		if (type === 'geometry') {
 			return {
 				...ret,
@@ -521,8 +529,13 @@ const captureFns = {
 		}
 		return ret;
 	},
-	geometry_identifier: (f: FileState, node: TreeSitterNode) =>
-		captureForFieldName(f, node, 'geometry'),
+	geometry_identifier: (f: FileState, node: TreeSitterNode) => {
+		const type = textForFieldName(f, node, 'type');
+		if (type === 'entity_path') {
+			return '%ENTITY_PATH%';
+		}
+		return captureForFieldName(f, node, 'geometry');
+	},
 	nsew: (f: FileState, node: TreeSitterNode) => node.text, // not used but maybe good for error'd nodes?
 	entity_direction: (f: FileState, node: TreeSitterNode) =>
 		captureForFieldName(f, node, 'entity_identifier'),

@@ -179,7 +179,7 @@ ch2_gloria_worry_walk {
 	} else {
 		wait 2200ms;
 	}
-	self position -> geometry "%ENTITY_PATH%" origin over $walkspeed;
+	self position -> entity_path origin over $walkspeed;
 	self direction = entity Samson;
 	if (self path != "worry-walk2") {
 		self path = "worry-walk2";

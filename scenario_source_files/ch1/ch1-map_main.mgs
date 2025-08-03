@@ -142,7 +142,7 @@ on_load_map_main {
 /* ---------- on_tick scripts ---------- */
 
 yabbo_journey {
-	self position -> geometry "%ENTITY_PATH%" length over 22000ms; 
+	self position -> entity_path length over 22000ms; 
 }
 
 // watchers
