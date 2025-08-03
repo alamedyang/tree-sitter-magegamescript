@@ -1,6 +1,5 @@
-import { Parser, Node as TreeSitterNode } from 'web-tree-sitter';
+import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
-import { type FileState } from './parser-file.ts';
 
 export type MGSValue = string | boolean | number;
 
@@ -256,24 +255,33 @@ export type AddSerialDialogSettingsNode = {
 	debug: TYPES.MGSDebug;
 };
 
+export type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
 export type DialogDefinitionNode = {
 	mathlang: 'dialog_definition';
+	fileName: string;
 	dialogName: string;
 	dialogs: Dialog[];
 	debug: TYPES.MGSDebug;
+	duplicates?: DialogDefinitionNode[];
 };
 export type SerialDialogDefinitionNode = {
 	mathlang: 'serial_dialog_definition';
+	fileName: string;
 	dialogName: string;
 	serialDialog: SerialDialog;
 	debug: TYPES.MGSDebug;
+	duplicates?: SerialDialogDefinitionNode[];
 };
-// todo: not used?
 export type ScriptDefinitionNode = {
 	mathlang: 'script_definition';
+	fileName: string;
 	scriptName: string;
-	actions: TYPES.Action[];
+	rawNodes?: AnyNode[];
+	actions: AnyNode[];
 	debug: TYPES.MGSDebug;
+	preActions?: AnyNode[];
+	duplicates?: ScriptDefinitionNode[];
+	copyScriptResolved?: boolean;
 };
 //todo: not used?
 export type ConstantDefinitionNode = {
@@ -337,15 +345,37 @@ export type MathlangGotoLabel = {
 	label: string;
 	debug?: TYPES.MGSDebug;
 };
+export type Constant = {
+	value: MGSValue;
+	debug: TYPES.MGSDebug;
+};
 export type MathlangCopyMacro = {
 	mathlang: 'copy_script';
 	script: string;
 	debug: TYPES.MGSDebug;
 };
-// todo: not used?
-export type Constant = {
-	value: MGSValue;
-	debug: TYPES.MGSDebug;
+type CopyScript = MathlangCopyMacro | TYPES.COPY_SCRIPT;
+
+export const isCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
+	return (
+		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
+		(node as MathlangNode).mathlang === 'copy_script'
+	);
+};
+
+// --------------------- Mathlang Nodes with labels --------------------- \\
+
+export type MathlangNodeWithLabel = MathlangBoolComparison | IfBranchGotoLabel;
+// | MathlangStringCheckable
+// | MathlangNumberCheckableEquality;
+
+export const isMathlangWithLabel = (node: AnyNode): node is MathlangNodeWithLabel => {
+	if (isNodeAction(node)) return false;
+	if (node.mathlang === 'bool_comparison') return true;
+	if (node.mathlang === 'if_branch_goto_label') return true;
+	// if (node.mathlang === 'string_checkable') return true;
+	// if (node.mathlang === 'number_checkable_equality') return true;
+	return false;
 };
 
 // --------------------- idk --------------------- \\
@@ -360,65 +390,4 @@ export type MGSMessage = {
 	locations: MGSLocation[];
 	message: string;
 	footer?: string;
-};
-export type Script = {
-	actions: TYPES.Action[];
-	preActions: TYPES.Action[];
-	duplicates?: Script[];
-};
-
-type MathlangOrActionNode = TYPES.Action | MathlangNode;
-type FileMapEntry = {
-	arrayBuffer: Promise<unknown>;
-	fileText: () => string;
-	name: string;
-	text: Promise<unknown>;
-	type: string;
-	parsed?: FileState;
-};
-type addScriptArgs = {
-	mathlang: 'script_definition';
-	scriptName: string;
-	rawNodes: MathlangOrActionNode[];
-	actions: MathlangOrActionNode[];
-	debug: TreeSitterNode;
-	fileName: string;
-};
-type addDialogArgs = {
-	mathlang: 'dialog_definition';
-	debug: TreeSitterNode;
-	dialogName: string;
-	dialogs: Dialog[];
-	fileName: string;
-};
-type addSerialDialogArgs = {
-	mathlang: 'serial_dialog_definition';
-	debug: TreeSitterNode;
-	serialDialogName: string;
-	serialDialogs: SerialDialog;
-	fileName: string;
-};
-export type FileMap = Record<string, FileMapEntry>;
-export type ProjectState = {
-	parser: Parser;
-	fileMap: FileMap;
-	gotoSuffixValue: number;
-	scripts: Record<string, Script>;
-	dialogs: Record<string, Dialog[]>;
-	serialDialogs: Record<string, SerialDialogDefinitionNode>;
-	errors: MGSMessage[];
-	warnings: MGSMessage[];
-	advanceGotoSuffix: () => number;
-	getGotoSuffix: () => number;
-	newError: (error: MGSMessage) => void;
-	newWarning: (warning: MGSMessage) => void;
-	addScript: (args: addScriptArgs, fileName: number) => void;
-	addDialog: (args: addDialogArgs) => void;
-	addSerialDialog: (args: addSerialDialogArgs) => void;
-	detectDuplicates: () => void;
-	copyScriptOne: (fileName: string) => void;
-	copyScriptAll: () => void;
-	bakeLabels: () => void;
-	printProblems: () => void;
-	parseFile: (fileName: string) => FileState;
 };

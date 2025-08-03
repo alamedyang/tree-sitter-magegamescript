@@ -187,7 +187,7 @@ const longerAlignments = {
 export const buildDialogFromInfo = (
 	f: FileState,
 	info: TYPES.DialogInfo,
-	messageNodes: TreeSitterNode[],
+	messageNodes: (TreeSitterNode | null)[],
 ): TYPES.Dialog => {
 	const ident = info.identifier;
 	let found = false;
@@ -250,6 +250,7 @@ export const buildDialogFromInfo = (
 			if (lastIndex === i && dialog.options) {
 				warningMessage = `messages before dialog options will collide if more than 1 line`;
 			}
+			if (!messageNodes[i]) throw new Error('brioken.');
 			f.newWarning({
 				locations: [{ node: messageNodes[i] }],
 				message: warningMessage,

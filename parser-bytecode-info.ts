@@ -1,4 +1,5 @@
 import { Node } from 'web-tree-sitter';
+import { isNodeAction, type AnyNode } from './parser-types.ts';
 
 // For intermediate data types and MGS-specific nodes
 export type MGSDebug = {
@@ -22,203 +23,6 @@ export type LABEL = {
 	value: string;
 	debug?: MGSDebug;
 };
-export type CHECK_ENTITY_NAME = {
-	action: 'CHECK_ENTITY_NAME';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	string: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_X = {
-	action: 'CHECK_ENTITY_X';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_u2: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_Y = {
-	action: 'CHECK_ENTITY_Y';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_u2: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_INTERACT_SCRIPT = {
-	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_script: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_TICK_SCRIPT = {
-	action: 'CHECK_ENTITY_TICK_SCRIPT';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_script: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_LOOK_SCRIPT = {
-	action: 'CHECK_ENTITY_LOOK_SCRIPT';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_script: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_TYPE = {
-	action: 'CHECK_ENTITY_TYPE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	entity_type: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_PRIMARY_ID = {
-	action: 'CHECK_ENTITY_PRIMARY_ID';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_u2: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_SECONDARY_ID = {
-	action: 'CHECK_ENTITY_SECONDARY_ID';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_u2: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_PRIMARY_ID_TYPE = {
-	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_byte: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_CURRENT_ANIMATION = {
-	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_byte: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_CURRENT_FRAME = {
-	action: 'CHECK_ENTITY_CURRENT_FRAME';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_byte: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_DIRECTION = {
-	action: 'CHECK_ENTITY_DIRECTION';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	direction: string; // north, south, east, west
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_GLITCHED = {
-	action: 'CHECK_ENTITY_GLITCHED';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	entity: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_ENTITY_PATH = {
-	action: 'CHECK_ENTITY_PATH';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	geometry: string;
-	entity: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_SAVE_FLAG = {
-	mathlang?: 'bool_getable' | 'if_branch_goto_label'; // TODO: what
-	action: 'CHECK_SAVE_FLAG';
-	success_script?: string;
-	label?: string;
-	value?: string;
-	jump_index?: number | string;
-	save_flag: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_IF_ENTITY_IS_IN_GEOMETRY = {
-	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	geometry: string;
-	entity: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_FOR_BUTTON_PRESS = {
-	action: 'CHECK_FOR_BUTTON_PRESS';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	button_id: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_FOR_BUTTON_STATE = {
-	action: 'CHECK_FOR_BUTTON_STATE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	button_id: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_WARP_STATE = {
-	action: 'CHECK_WARP_STATE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	string: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
 export type RUN_SCRIPT = {
 	action: 'RUN_SCRIPT';
 	script: string;
@@ -226,8 +30,7 @@ export type RUN_SCRIPT = {
 };
 export type COPY_SCRIPT = {
 	action: 'COPY_SCRIPT';
-	script?: string;
-	scriptName?: string; //FIX THIS
+	script: string;
 	search_and_replace?: Record<string, string>;
 	debug?: MGSDebug;
 };
@@ -510,28 +313,6 @@ export type COPY_VARIABLE = {
 	inbound: boolean;
 	debug?: MGSDebug;
 };
-export type CHECK_VARIABLE = {
-	action: 'CHECK_VARIABLE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	variable: string;
-	comparison: string;
-	value: number;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_VARIABLES = {
-	action: 'CHECK_VARIABLES';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	variable: string;
-	comparison: string;
-	source: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
 export type SLOT_SAVE = {
 	action: 'SLOT_SAVE';
 	debug?: MGSDebug;
@@ -573,28 +354,10 @@ export type SET_TELEPORT_ENABLED = {
 	bool_value: boolean;
 	debug?: MGSDebug;
 };
-export type CHECK_MAP = {
-	action: 'CHECK_MAP';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	map: string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
 export type SET_BLE_FLAG = {
 	action: 'SET_BLE_FLAG';
 	ble_flag: string | boolean; // idk what this is lol
 	bool_value: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_BLE_FLAG = {
-	action: 'CHECK_BLE_FLAG';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	ble_flag: string | boolean; // idk what this is lol
-	expected_bool: boolean;
 	debug?: MGSDebug;
 };
 export type SET_SERIAL_DIALOG_CONTROL = {
@@ -632,30 +395,6 @@ export type SET_ENTITY_MOVEMENT_RELATIVE = {
 	action: 'SET_ENTITY_MOVEMENT_RELATIVE';
 	relative_direction: number;
 	entity: string;
-	debug?: MGSDebug;
-};
-export type CHECK_DIALOG_OPEN = {
-	action: 'CHECK_DIALOG_OPEN';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_SERIAL_DIALOG_OPEN = {
-	action: 'CHECK_SERIAL_DIALOG_OPEN';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	debug?: MGSDebug;
-};
-export type CHECK_DEBUG_MODE = {
-	action: 'CHECK_DEBUG_MODE';
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
 	debug?: MGSDebug;
 };
 export type CLOSE_DIALOG = {
@@ -707,9 +446,271 @@ export type SET_SERIAL_DIALOG_COMMAND_VISIBILITY = {
 	debug?: MGSDebug;
 };
 
-export type Action =
-	| NULL_ACTION
-	| LABEL
+// CHECK_ACTIONS
+
+export type CHECK_ENTITY_NAME = {
+	action: 'CHECK_ENTITY_NAME';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	string: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_X = {
+	action: 'CHECK_ENTITY_X';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_u2: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_Y = {
+	action: 'CHECK_ENTITY_Y';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_u2: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_INTERACT_SCRIPT = {
+	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_script: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_TICK_SCRIPT = {
+	action: 'CHECK_ENTITY_TICK_SCRIPT';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_script: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_LOOK_SCRIPT = {
+	action: 'CHECK_ENTITY_LOOK_SCRIPT';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_script: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_TYPE = {
+	action: 'CHECK_ENTITY_TYPE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	entity_type: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_PRIMARY_ID = {
+	action: 'CHECK_ENTITY_PRIMARY_ID';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_u2: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_SECONDARY_ID = {
+	action: 'CHECK_ENTITY_SECONDARY_ID';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_u2: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_PRIMARY_ID_TYPE = {
+	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_byte: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_CURRENT_ANIMATION = {
+	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_byte: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_CURRENT_FRAME = {
+	action: 'CHECK_ENTITY_CURRENT_FRAME';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_byte: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_DIRECTION = {
+	action: 'CHECK_ENTITY_DIRECTION';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	direction: string; // north, south, east, west
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_GLITCHED = {
+	action: 'CHECK_ENTITY_GLITCHED';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	entity: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_ENTITY_PATH = {
+	action: 'CHECK_ENTITY_PATH';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	geometry: string;
+	entity: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_SAVE_FLAG = {
+	mathlang?: 'bool_getable' | 'if_branch_goto_label'; // TODO: what
+	action: 'CHECK_SAVE_FLAG';
+	success_script?: string;
+	label?: string;
+	value?: string;
+	jump_index?: number | string;
+	save_flag: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_IF_ENTITY_IS_IN_GEOMETRY = {
+	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	geometry: string;
+	entity: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_FOR_BUTTON_PRESS = {
+	action: 'CHECK_FOR_BUTTON_PRESS';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	button_id: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_FOR_BUTTON_STATE = {
+	action: 'CHECK_FOR_BUTTON_STATE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	button_id: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_WARP_STATE = {
+	action: 'CHECK_WARP_STATE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	string: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_VARIABLE = {
+	action: 'CHECK_VARIABLE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	variable: string;
+	comparison: string;
+	value: number;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_VARIABLES = {
+	action: 'CHECK_VARIABLES';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	variable: string;
+	comparison: string;
+	source: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_MAP = {
+	// TODO: is this even in the engine? O.o
+	action: 'CHECK_MAP';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	map: string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_BLE_FLAG = {
+	action: 'CHECK_BLE_FLAG';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	ble_flag: string | boolean; // idk what this is lol
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_DIALOG_OPEN = {
+	action: 'CHECK_DIALOG_OPEN';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_SERIAL_DIALOG_OPEN = {
+	action: 'CHECK_SERIAL_DIALOG_OPEN';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CHECK_DEBUG_MODE = {
+	action: 'CHECK_DEBUG_MODE';
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	debug?: MGSDebug;
+};
+export type CheckAction =
 	| CHECK_ENTITY_NAME
 	| CHECK_ENTITY_X
 	| CHECK_ENTITY_Y
@@ -730,6 +731,50 @@ export type Action =
 	| CHECK_FOR_BUTTON_PRESS
 	| CHECK_FOR_BUTTON_STATE
 	| CHECK_WARP_STATE
+	| CHECK_VARIABLE
+	| CHECK_VARIABLES
+	| CHECK_MAP
+	| CHECK_BLE_FLAG
+	| CHECK_DIALOG_OPEN
+	| CHECK_SERIAL_DIALOG_OPEN
+	| CHECK_DEBUG_MODE;
+export const isCheckAction = (node: AnyNode): node is CheckAction => {
+	if (!isNodeAction(node)) return false;
+	if (node.action === 'CHECK_ENTITY_NAME') return true;
+	if (node.action === 'CHECK_ENTITY_X') return true;
+	if (node.action === 'CHECK_ENTITY_Y') return true;
+	if (node.action === 'CHECK_ENTITY_INTERACT_SCRIPT') return true;
+	if (node.action === 'CHECK_ENTITY_TICK_SCRIPT') return true;
+	if (node.action === 'CHECK_ENTITY_LOOK_SCRIPT') return true;
+	if (node.action === 'CHECK_ENTITY_TYPE') return true;
+	if (node.action === 'CHECK_ENTITY_PRIMARY_ID') return true;
+	if (node.action === 'CHECK_ENTITY_SECONDARY_ID') return true;
+	if (node.action === 'CHECK_ENTITY_PRIMARY_ID_TYPE') return true;
+	if (node.action === 'CHECK_ENTITY_CURRENT_ANIMATION') return true;
+	if (node.action === 'CHECK_ENTITY_CURRENT_FRAME') return true;
+	if (node.action === 'CHECK_ENTITY_DIRECTION') return true;
+	if (node.action === 'CHECK_ENTITY_GLITCHED') return true;
+	if (node.action === 'CHECK_ENTITY_PATH') return true;
+	if (node.action === 'CHECK_SAVE_FLAG') return true;
+	if (node.action === 'CHECK_IF_ENTITY_IS_IN_GEOMETRY') return true;
+	if (node.action === 'CHECK_FOR_BUTTON_PRESS') return true;
+	if (node.action === 'CHECK_FOR_BUTTON_STATE') return true;
+	if (node.action === 'CHECK_WARP_STATE') return true;
+	if (node.action === 'CHECK_VARIABLE') return true;
+	if (node.action === 'CHECK_VARIABLES') return true;
+	if (node.action === 'CHECK_MAP') return true;
+	if (node.action === 'CHECK_BLE_FLAG') return true;
+	if (node.action === 'CHECK_DIALOG_OPEN') return true;
+	if (node.action === 'CHECK_SERIAL_DIALOG_OPEN') return true;
+	if (node.action === 'CHECK_DEBUG_MODE') return true;
+	return false;
+};
+
+// Super union type
+export type Action =
+	| CheckAction
+	| NULL_ACTION
+	| LABEL
 	| RUN_SCRIPT
 	| COPY_SCRIPT
 	| BLOCKING_DELAY
@@ -779,8 +824,6 @@ export type Action =
 	| MUTATE_VARIABLE
 	| MUTATE_VARIABLES
 	| COPY_VARIABLE
-	| CHECK_VARIABLE
-	| CHECK_VARIABLES
 	| SLOT_SAVE
 	| SLOT_LOAD
 	| SLOT_ERASE
@@ -789,18 +832,13 @@ export type Action =
 	| SET_MAP_LOOK_SCRIPT
 	| SET_ENTITY_LOOK_SCRIPT
 	| SET_TELEPORT_ENABLED
-	| CHECK_MAP
 	| SET_BLE_FLAG
-	| CHECK_BLE_FLAG
 	| SET_SERIAL_DIALOG_CONTROL
 	| REGISTER_SERIAL_DIALOG_COMMAND
 	| REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
 	| UNREGISTER_SERIAL_DIALOG_COMMAND
 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
 	| SET_ENTITY_MOVEMENT_RELATIVE
-	| CHECK_DIALOG_OPEN
-	| CHECK_SERIAL_DIALOG_OPEN
-	| CHECK_DEBUG_MODE
 	| CLOSE_DIALOG
 	| CLOSE_SERIAL_DIALOG
 	| SET_LIGHTS_CONTROL

@@ -10,7 +10,7 @@ export const __dirname = dirname(__filename);
 
 import { debugLog, ansiTags } from './parser-utilities.ts';
 import { printScript } from './parser-to-json.ts';
-import { makeProjectState } from './parser-project.js';
+import { makeProjectState } from './parser-project.ts';
 import { standardizeAction } from './parser-bytecode-info.ts';
 
 // /*

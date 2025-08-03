@@ -376,6 +376,7 @@ export const newDialog = (
 	dialogs: Dialog[],
 ): DialogDefinitionNode => ({
 	mathlang: 'dialog_definition',
+	fileName: f.fileName,
 	dialogName,
 	dialogs,
 	debug: {
@@ -398,6 +399,7 @@ export const newSerialDialog = (
 	serialDialog: SerialDialog,
 ): SerialDialogDefinitionNode => ({
 	mathlang: 'serial_dialog_definition',
+	fileName: f.fileName,
 	dialogName,
 	serialDialog,
 	debug: {

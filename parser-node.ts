@@ -12,6 +12,7 @@ import {
 	newTemporary,
 	dropTemporary,
 	autoIdentifierName,
+	newDialog,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -33,6 +34,7 @@ import {
 	type AddDialogSettingsNode,
 	type MathlangSerialDialogParameter,
 	type MathlangSequence,
+	type DialogInfo,
 } from './parser-types.ts';
 import { Node } from 'web-tree-sitter';
 import { type FileState } from './parser-file.ts';
@@ -128,6 +130,7 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'script_definition',
+				fileName: f.fileName,
 				scriptName: name,
 				actions,
 				debug: {
@@ -259,8 +262,9 @@ const nodeFns = {
 		combined.push(label(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
-	label_definition: (f, node) => label(f, node, textForFieldName(f, node, 'label')),
-	add_dialog_settings: (f, node) => {
+	label_definition: (f: FileState, node: Node) =>
+		label(f, node, textForFieldName(f, node, 'label')),
+	add_dialog_settings: (f: FileState, node: Node) => {
 		const targets = node.namedChildren
 			.map((child) => handleNode(f, child)) // add_dialog_settings_target
 			.flat();
@@ -275,7 +279,7 @@ const nodeFns = {
 			},
 		];
 	},
-	add_dialog_settings_target: (f, node) => {
+	add_dialog_settings_target: (f: FileState, node: Node) => {
 		let settingsTarget;
 		const type = textForFieldName(f, node, 'type');
 		const ret: AddDialogSettingsNode = {
@@ -333,7 +337,7 @@ const nodeFns = {
 		];
 	},
 	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them
-	serial_dialog_option: (f, node) => {
+	serial_dialog_option: (f: FileState, node: Node) => {
 		const optionChar = textForFieldName(f, node, 'option_type');
 		let optionType;
 		if (optionChar === '_') optionType = 'text_options';
@@ -351,7 +355,7 @@ const nodeFns = {
 			},
 		];
 	},
-	dialog_option: (f, node) => {
+	dialog_option: (f: FileState, node: Node) => {
 		return [
 			{
 				mathlang: 'dialog_option',
@@ -364,29 +368,19 @@ const nodeFns = {
 			},
 		];
 	},
-	serial_dialog_definition: (f, node) => {
+	serial_dialog_definition: (f: FileState, node: Node) => {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		const name = captureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialog = handleNode(f, serialDialogNode);
 		return [newSerialDialog(f, node, name, serialDialog[0])];
 	},
-	dialog_definition: (f, node) => {
+	dialog_definition: (f: FileState, node: Node) => {
 		const dialogName = captureForFieldName(f, node, 'dialog_name');
 		const dialogNodes = node.childrenForFieldName('dialog');
 		const dialogs = dialogNodes.map((v) => handleNode(f, v)).flat();
-		return [
-			{
-				mathlang: 'dialog_definition',
-				dialogName,
-				dialogs,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
-			},
-		];
+		return newDialog(f, node, dialogName, dialogs);
 	},
-	serial_dialog: (f, node) => {
+	serial_dialog: (f: FileState, node: Node) => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
 		params.forEach((v) => {
@@ -405,7 +399,7 @@ const nodeFns = {
 		const serialDialog = buildSerialDialogFromInfo(f, info);
 		return [serialDialog];
 	},
-	dialog: (f, node) => {
+	dialog: (f: FileState, node: Node) => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
 		const messageN = node.childrenForFieldName('message');
@@ -416,7 +410,7 @@ const nodeFns = {
 			.childrenForFieldName('dialog_option')
 			.map((v) => handleNode(f, v))
 			.flat();
-		const info = {
+		const info: DialogInfo = {
 			identifier: captureForFieldName(f, node, 'dialog_identifier'),
 			settings,
 			messages: messageN.map((v) => handleCapture(f, v)),
@@ -433,9 +427,10 @@ const nodeFns = {
 			},
 		];
 	},
-	json_literal: (f, node) => {
+	json_literal: (f: FileState, node: Node) => {
 		// todo: do it more by hand so that errors can be reported more accurately?
 		const jsonNode = node.namedChildren[0];
+		if (!jsonNode) throw new Error('json node not found??');
 		const text = jsonNode.text;
 		let parsed = [];
 		try {

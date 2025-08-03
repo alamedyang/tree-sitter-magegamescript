@@ -1,15 +1,65 @@
+import { Parser } from 'web-tree-sitter';
 import {
 	makeMessagePrintable,
 	flattenGotos,
 	newComment,
 	ansiTags as ansi,
 } from './parser-utilities.ts';
-import { makeFileState } from './parser-file.ts';
+import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
+import {
+	type AnyNode,
+	type MathlangNode,
+	type DialogDefinitionNode,
+	type SerialDialogDefinitionNode,
+	type ScriptDefinitionNode,
+	type MGSMessage,
+	isNodeAction,
+	type FileCategory,
+	isCopyScript,
+} from './parser-types.ts';
 
-export const makeProjectState = (tsParser, fileMap, scenarioData) => {
+type FileMapEntry = {
+	arrayBuffer: Promise<unknown>;
+	fileText: () => string;
+	name: string;
+	text: Promise<unknown>;
+	type: string;
+	parsed?: FileState;
+};
+
+export type FileMap = Record<string, FileMapEntry>;
+export type ProjectState = {
+	parser: Parser;
+	fileMap: FileMap;
+	gotoSuffixValue: number;
+	scripts: Record<string, ScriptDefinitionNode>;
+	dialogs: Record<string, DialogDefinitionNode>;
+	serialDialogs: Record<string, SerialDialogDefinitionNode>;
+	errors: MGSMessage[];
+	warnings: MGSMessage[];
+	advanceGotoSuffix: () => number;
+	getGotoSuffix: () => number;
+	newError: (error: MGSMessage) => void;
+	newWarning: (warning: MGSMessage) => void;
+	addScript: (args: ScriptDefinitionNode) => void;
+	addDialog: (args: DialogDefinitionNode) => void;
+	addSerialDialog: (args: SerialDialogDefinitionNode) => void;
+	detectDuplicates: () => void;
+	bakeCopyScriptSingle: (scriptToBake: string) => void;
+	copyScriptAll: () => void;
+	bakeLabels: () => void;
+	printProblems: () => void;
+	parseFile: (fileName: string) => FileState;
+};
+
+export const makeProjectState = (
+	tsParser: Parser,
+	fileMap: FileMap,
+	scenarioData: Record<string, unknown>,
+) => {
 	// project crawl state
-	const p = {
+	const p: ProjectState = {
 		...(scenarioData || {}),
 		parser: tsParser,
 		fileMap,
@@ -35,16 +85,16 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 
 		// for adding a file's data to the project
 
-		addScript: (data, fileName) => {
+		addScript: (data: ScriptDefinitionNode) => {
 			const name = data.scriptName;
 			data.rawNodes = data.actions; // making a backup of actions
 			// finalize actions
-			const finalizedActions = [];
+			const finalizedActions: AnyNode[] = [];
 			data.rawNodes.forEach((node) => {
-				if (node.mathlang === 'dialog_definition') {
-					p.addDialog(node, fileName);
-				} else if (node.mathlang === 'serial_dialog_definition') {
-					p.addSerialDialog(node, fileName);
+				if (!isNodeAction(node) && node.mathlang === 'dialog_definition') {
+					p.addDialog(node);
+				} else if (!isNodeAction(node) && node.mathlang === 'serial_dialog_definition') {
+					p.addSerialDialog(node);
 				} else {
 					finalizedActions.push(node);
 				}
@@ -53,7 +103,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			// put script in the project
 			if (!p.scripts[name]) {
 				// if not registered yet, add it
-				p.scripts[name] = data;
+				p.scripts[name] = { ...data, preActions: [] };
 			} else {
 				// if it's a duplicate, make an array for all the ones we find
 				if (!p.scripts[name].duplicates) {
@@ -62,7 +112,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				p.scripts[name].duplicates.push(data);
 			}
 		},
-		addDialog: (data) => {
+		addDialog: (data: DialogDefinitionNode) => {
 			const name = data.dialogName;
 			if (!p.dialogs[name]) {
 				p.dialogs[name] = data;
@@ -73,8 +123,8 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 				p.dialogs[name].duplicates.push(data);
 			}
 		},
-		addSerialDialog: (data) => {
-			const name = data.serialDialogName || data.dialogName; // TODO :|
+		addSerialDialog: (data: SerialDialogDefinitionNode) => {
+			const name = data.dialogName;
 			if (!p.serialDialogs[name]) {
 				p.serialDialogs[name] = data;
 			} else {
@@ -87,10 +137,16 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 
 		// can only be done after all files in a project are parsed
 		detectDuplicates: () => {
-			['scripts', 'dialogs', 'serialDialogs'].forEach((category) => {
+			const cats: FileCategory[] = ['scripts', 'dialogs', 'serialDialogs'];
+			cats.forEach((category) => {
 				const entries = Object.entries(p[category]);
 				entries.forEach(([name, entry]) => {
-					if (entry.duplicates) {
+					const dupes: (
+						| DialogDefinitionNode
+						| SerialDialogDefinitionNode
+						| ScriptDefinitionNode
+					)[] = entry.duplicates;
+					if (dupes) {
 						// note: one error message, multiple locations
 						p.newError({
 							message: `multiple ${category} with name "${name}"`,
@@ -99,56 +155,65 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 								node: dupe.debug.node.firstNamedChild,
 							})),
 						});
-						entry.duplicates.forEach((dupe) => {
-							p.fileMap[dupe.fileName].parsed.errorCount += 1;
+						dupes.forEach((dupe) => {
+							const file = p.fileMap[dupe.fileName].parsed;
+							if (!file) throw new Error('ts');
+							file.errorCount += 1;
 						});
 					}
 				});
 			});
 		},
-		copyScriptOne: (scriptName) => {
-			const finalActions = [];
+		bakeCopyScriptSingle: (scriptName: string) => {
+			const finalActions: AnyNode[] = [];
 			const scriptData = p.scripts[scriptName];
 			// one node can become multiple nodes, so this needs to be .forEach() and not .map()
-			scriptData.actions.forEach((action) => {
+			scriptData.actions.forEach((action: AnyNode) => {
 				// not copy script, easy
-				if (action.mathlang !== 'copy_script' && action.action !== 'COPY_SCRIPT') {
+				if (!isCopyScript(action)) {
 					finalActions.push(action);
 					return;
 				}
 				// copy script now:
-				if (!p.scripts[action.script]) {
+				const targetScript: string = action.script;
+				if (!p.scripts[targetScript]) {
 					// named script not found; error
+					if (!action.debug)
+						throw new Error(
+							"plain COPY_SCRIPT with missing TreeSitterNode; this shouldn't happen",
+						);
 					p.newError({
 						locations: [
 							{
-								fileName: action.fileName,
+								fileName: scriptData.fileName,
 								node:
 									action.debug.node.childForFieldName('script') ||
 									action.debug.node,
 							},
 						],
-						message: 'no script found by this name',
+						message: 'no script found by the name ' + targetScript,
 					});
 					return;
 				}
 				// if the target script hasn't had its own copyscript pass done yet, do that pass first
 				if (!p.scripts[action.script].copyScriptResolved) {
-					p.copyScriptOne(action.script);
+					p.bakeCopyScriptSingle(action.script);
 				}
 				// no label? just hand it up, it's fine
 				// otherwise alter the copied labels so they don't collide with other copies
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
-				const copiedActions = p.scripts[action.script].actions.map((copiedAction) => {
-					return !copiedAction.mathlang?.includes('label')
-						? copiedAction
-						: {
-								...copiedAction,
-								label: copiedAction.label + labelSuffix,
-							};
-				});
+				const copiedActions: AnyNode[] = p.scripts[action.script].actions.map(
+					(copiedAction) => {
+						return !(copiedAction as MathlangNode).mathlang?.includes('label')
+							? copiedAction
+							: {
+									...copiedAction,
+									label: copiedAction.label + labelSuffix,
+								};
+					},
+				);
 				// simple copies are mathlang's copy_script and the JSON copy_script without search_and_replace
-				if (!action.action === 'COPY_SCRIPT' || !action.search_and_replace) {
+				if (!isCopyScript(action) || !action.search_and_replace) {
 					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
 					finalActions.push(...copiedActions);
 				} else {
@@ -190,8 +255,8 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 		},
 		copyScriptAll: () => {
 			Object.keys(p.scripts).forEach((scriptName) => {
-				if (!p.scripts[scriptName].copyScriptDone) {
-					p.copyScriptOne(scriptName);
+				if (!p.scripts[scriptName].copyScriptResolved) {
+					p.bakeCopyScriptSingle(scriptName);
 				}
 			});
 		},
@@ -244,7 +309,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 
 		// fancy console location printing for all collected problems
 		printProblems: () => {
-			const messages = [];
+			const messages: string[] = [];
 			const errCount = p.errors.length;
 			const warnCount = p.warnings.length;
 			if (errCount) {
@@ -278,7 +343,8 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 			// tree-sitter things
 			const text = fileMap[fileName].fileText;
 			const ast = tsParser.parse(text);
-			let document = ast.rootNode;
+			if (!ast) throw new Error('HAHAHA SOMETHING WENT WRONG BOOOO');
+			const document = ast.rootNode;
 			// file crawl state
 			const f = makeFileState(p, fileName);
 			let catastrophicErrorReported = false;
@@ -287,11 +353,11 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 					if (catastrophicErrorReported) {
 						// Nuke the map()!
 						return;
-					} else if (!node.isError) {
+					} else if (node && !node.isError) {
 						// Normal
 						return handleNode(f, node);
 					} else if (!catastrophicErrorReported) {
-						if (node.text === ';') {
+						if (node?.text === ';') {
 							// semicolons after script definitions or such
 							f.newError({
 								locations: [{ node }],
@@ -300,6 +366,7 @@ export const makeProjectState = (tsParser, fileMap, scenarioData) => {
 						} else {
 							// The first catastrophic error should be the last!
 							// Every node underneath is just wrecked. Nuke it all!
+							if (!node) throw new Error('ts');
 							f.newError({
 								locations: [{ node }],
 								message: `catastrophic syntax error (naive guess: invalid script name)`,
