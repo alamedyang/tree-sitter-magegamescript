@@ -1,4 +1,4 @@
-import { compareTexts } from './parser-tests.js';
+import { compareTexts } from './parser-tests.ts';
 
 const getLabelRegistery = (lines: string[]) => {
 	const registry: Record<string, number> = {};

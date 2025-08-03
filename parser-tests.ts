@@ -1,7 +1,7 @@
 import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
 
-const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
+const actionArrayToScript = (scriptName: string, actionArray, autoAddEOF: boolean = false) => {
 	const ret = [`"${scriptName}" {`, ...actionArray.map((v) => '\t' + v)];
 	if (autoAddEOF) {
 		ret.push(`\tend_of_script_***:`);
@@ -1162,7 +1162,7 @@ const actionTests = {
 			'rendezvous_*C*:',
 		],
 	},
-	branch_on_string_equality_direction: {
+	branch_on_string_equality_path: {
 		input: [
 			'entity Bob glitched = player path == longWalk;',
 			'entity Bob glitched = !(player path == longWalk);',
@@ -1430,8 +1430,8 @@ actionTestNames.forEach((testName) => {
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
-export const colorDifferentStrings = (expected, found) => {
-	const diff = [];
+export const colorDifferentStrings = (expected: string, found: string) => {
+	const diff: string[] = [];
 	const foundChars = found.split('');
 	let colored = false;
 	let pre = '';
@@ -1451,13 +1451,33 @@ export const colorDifferentStrings = (expected, found) => {
 		pre,
 	};
 };
-const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
-const makeTextUniform = (text) =>
+const sanitize = (str: string) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
+
+type IDK = {
+	expected: string;
+	found: string;
+	diff: string;
+	value?: string;
+	fileName: string;
+	lineIndex: number;
+};
+const makeTextUniform = (text: string) =>
 	text
 		.trim()
 		.replace(/[\t ]+/g, ' ')
 		.replace(/\/\/.*?[\n$]/g, '');
-export const compareTexts = (_found, _expected, fileName, thingName) => {
+type ComparedTexts = {
+	status: string;
+	message?: string;
+	lines?: IDK[];
+	lengthDiff?: string[];
+};
+export const compareTexts = (
+	_found: string,
+	_expected: string,
+	fileName?: string,
+	thingName?: string,
+): ComparedTexts => {
 	const foundLines = makeTextUniform(_found)
 		.replaceAll('+=', '+\n=')
 		.replaceAll('-=', '-\n=')
@@ -1485,7 +1505,7 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 			(acc, curr) => Math.max(acc, curr.length),
 			-Infinity,
 		);
-		const flushLines = expectedLines.map((s) => '   ' + s.padEnd(maxLength + 4, ' '));
+		const flushLines: string[] = expectedLines.map((s) => '   ' + s.padEnd(maxLength + 4, ' '));
 		const comboLines = flushLines.map((left, i) => {
 			let right = foundLines[i] || '';
 			if (expectedLines[i] !== right) {
@@ -1504,7 +1524,7 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 			lengthDiff: comboLines,
 		};
 	}
-	const lines = [];
+	const lines: IDK[] = [];
 	const registeredLabels = {};
 	foundLines.forEach((found, i) => {
 		const expected = expectedLines[i];
@@ -1528,7 +1548,7 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 						found,
 						diff,
 						value: capture[1],
-						fileName,
+						fileName: fileName || 'MISSING FILENAME',
 						lineIndex: i,
 					});
 				}
@@ -1578,30 +1598,61 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 	}
 };
 
-const errors = [];
+const errors: CompareError[] = [];
 
 // --------------------------- Other diagnostics ---------------------------
 
+// type SimpleThing = null | string | number | boolean | SimpleThingArray | SimpleThingObject;
+// type SimpleThingArray = SimpleThing[];
+// type SimpleThingObject = Record<string, unknown>;
+
 // Borrowed from an earlier iteration of mathlang
-const simplifyValues = (lh, rh) => {
-	if (lh === null) return simplifyLiteral(lh, rh);
-	if (Array.isArray(lh)) return simplifyArrays(lh, rh);
-	if (typeof lh === 'object') return simplifyObjects(lh, rh);
-	return simplifyLiteral(lh, rh);
+const simplifyValues = (lh: unknown, rh: unknown) => {
+	if (lh === null || lh === undefined) {
+		if (rh !== null || rh === undefined) throw new Error('expected RH to be null');
+		return simplifyLiteral(lh, rh);
+	}
+	if (Array.isArray(lh)) {
+		if (!Array.isArray(rh)) throw new Error('expected RH to be array');
+		return simplifyArrays(lh, rh);
+	}
+	if (typeof lh === 'object') {
+		if (typeof rh !== 'object') throw new Error('expected RH to be object');
+		return simplifyObjects({ ...lh }, { ...rh });
+	}
+	if (typeof lh === 'number') {
+		if (typeof rh !== 'number') throw new Error('expected RH to be number');
+		return simplifyLiteral(lh, rh);
+	}
+	if (typeof lh === 'string') {
+		if (typeof rh !== 'string') throw new Error('expected RH to be string');
+		return simplifyLiteral(lh, rh);
+	}
+	if (typeof lh === 'boolean') {
+		if (typeof rh !== 'boolean') throw new Error('expected RH to be boolean');
+		return simplifyLiteral(lh, rh);
+	}
+	throw new Error('should be unreachable (no types left over?)');
 };
-const simplifyLiteral = (lh, rh) => {
+const simplifyLiteral = (
+	lh: string | number | boolean | null | undefined,
+	rh: string | number | boolean | null | undefined,
+) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
 	const diff =
-		lh === rh ? rh : red + ` (expected ${colorDifferentStrings(rh || '', lh || '').diff})`;
+		lh === rh
+			? rh
+			: red + ` (expected ${colorDifferentStrings(String(rh) || '', String(lh) || '').diff})`;
 	return { lh, rh, diff };
 };
-const simplifyArrays = (origLH = [], origRH = []) => {
-	const newLH = [];
-	const newRH = [];
-	const newDiffs = [];
+const simplifyArrays = (origLH: unknown[] = [], origRH: unknown[] = []) => {
+	const newLH: unknown[] = [];
+	const newRH: unknown[] = [];
+	const newDiffs: unknown[] = [];
 	origLH.forEach((left, i) => {
 		const right = origRH[i];
 		if (Array.isArray(left)) {
+			if (!Array.isArray(right)) throw new Error('expected RH to be array');
 			const { lh, rh, diff } = simplifyArrays(left, right);
 			newLH.push(lh);
 			newRH.push(rh);
@@ -1620,7 +1671,10 @@ const simplifyArrays = (origLH = [], origRH = []) => {
 	});
 	return { lh: newLH, rh: newRH, diff: newDiffs };
 };
-const simplifyObjects = (origLH = {}, origRH = {}) => {
+const simplifyObjects = (
+	origLH: Record<string, unknown> = {},
+	origRH: Record<string, unknown> = {},
+) => {
 	delete origLH.debug;
 	delete origRH.debug;
 	const sortedLH = {};
@@ -1629,32 +1683,51 @@ const simplifyObjects = (origLH = {}, origRH = {}) => {
 	Object.keys(origLH)
 		.sort()
 		.forEach((k) => {
-			if (origLH[k] === null) {
+			if (origLH[k] === null || origLH[k] === undefined) {
+				if (origRH[k] !== null || origRH[k] !== undefined)
+					throw new Error('expected RHS to be null');
 				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
 			} else if (Array.isArray(origLH[k])) {
+				if (!Array.isArray(origRH[k])) throw new Error('expected RH to be array');
 				const { lh, rh, diff } = simplifyArrays(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
+			} else if (typeof origLH[k] === 'number') {
+				if (typeof origRH[k] !== 'number') throw new Error('expected RH to be number');
+				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			} else if (typeof origLH[k] === 'string') {
+				if (typeof origRH[k] !== 'string') throw new Error('expected RH to be string');
+				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
+			} else if (typeof origLH[k] === 'boolean') {
+				if (typeof origRH[k] !== 'boolean') throw new Error('expected RH to be boolean');
+				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
+				sortedLH[k] = lh;
+				sortedRH[k] = rh;
+				sortedDiff[k] = diff;
 			} else if (typeof origLH[k] === 'object') {
+				if (typeof origRH[k] !== 'object') throw new Error('expected RH to be object');
 				const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
 			} else {
-				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-				sortedLH[k] = lh;
-				sortedRH[k] = rh;
-				sortedDiff[k] = diff;
+				throw new Error('unreachable');
 			}
 		});
 	return { lh: sortedLH, rh: sortedRH, diff: sortedDiff };
 };
-const reportObjectDiffs = (expected, found) => {
-	const messages = [];
+const reportObjectDiffs = (expected: unknown, found: unknown): string[] => {
+	const messages: string[] = [];
 	const { lh, rh, diff } = simplifyValues(expected, found);
 	const jsonLeft = JSON.stringify(lh, null, '  ');
 	const jsonRight = JSON.stringify(rh, null, '  ');
@@ -1663,15 +1736,20 @@ const reportObjectDiffs = (expected, found) => {
 			const message = `Found ${JSON.stringify(diff, null, '  ')}`;
 			messages.push(message);
 		} else {
-			const message = `Found ${ansiTags.red}${key}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`;
+			const message = `Found ${ansiTags.red}${jsonRight}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`;
 			messages.push(message);
 		}
 	}
 	return messages.map((s) => s.replaceAll('\\u001b', '\u001b'));
 };
 
-const compareConstants = (fileName, _found, _expected) => {
-	const errors = [];
+type CompareError = { status: string; message: string; type?: string };
+const compareConstants = (
+	fileName: string,
+	_found: Record<string, unknown>,
+	_expected: Record<string, unknown>,
+) => {
+	const errors: CompareError[] = [];
 	const foundKeys = Object.keys(_found);
 	const expectedKeys = Object.keys(_expected);
 	expectedKeys.forEach((k) => {
@@ -1702,8 +1780,8 @@ const compareConstants = (fileName, _found, _expected) => {
 	});
 	return errors;
 };
-const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => {
-	const errors = [];
+const compareDialogs = (fileName: string, dialogName: string, expectedDialogs, foundDialogs) => {
+	const errors: CompareError[] = [];
 	if (expectedDialogs.length !== foundDialogs.length) {
 		return [
 			{
@@ -1737,7 +1815,7 @@ print     |        |   yes   |    yes     |      yes
 Is there a better way?
 */
 
-const doActionTest = (scriptName, actionExpected, actionFound) => {
+const doActionTest = (scriptName: string, actionExpected, actionFound) => {
 	const expected = actionExpected[scriptName];
 	const found = actionFound[scriptName].testPrint;
 	const compared = compareTexts(found, expected, '', scriptName);
@@ -1767,7 +1845,7 @@ const runTests = async () => {
 				const allScripts = result.scripts;
 				fileScriptNames.forEach((scriptName) => {
 					const expected = fileExpectedData.scripts[scriptName].trim();
-					const found = allScripts[scriptName].print.trim();
+					const found = (allScripts[scriptName].print || '').trim();
 					const compared = compareTexts(found, expected, '', scriptName);
 					if (compared.status !== 'success') {
 						errors.push(compared);

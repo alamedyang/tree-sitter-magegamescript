@@ -28,7 +28,7 @@ export const verbose = false;
 export const debugLog = (message: string) => {
 	if (verbose) console.log(message);
 };
-export const ansiTags = {
+export const ansiTags: Record<string, string> = {
 	// styles
 	bold: '\u001B[1m', // aka bright
 	dim: '\u001B[2m', // aka dim
@@ -110,9 +110,10 @@ export const inverseOpMap = {
 	'||': '&&',
 };
 export const reportMissingChildNodes = (f: FileState, node: Node): (Node | null)[] => {
-	const missingNodes = node.children.filter((child) => child?.isMissing);
+	const missingNodes = node.children
+		.filter((v) => v !== null)
+		.filter((child) => child?.isMissing);
 	missingNodes.forEach((missingChild) => {
-		if (!missingChild) throw new Error('TS');
 		f.newError({
 			locations: [{ node: missingChild }],
 			message: `missing token: ${missingChild.type}`,
@@ -121,7 +122,9 @@ export const reportMissingChildNodes = (f: FileState, node: Node): (Node | null)
 	return missingNodes;
 };
 export const reportErrorNodes = (f: FileState, node: Node): (Node | null)[] => {
-	const errorNodes = node.namedChildren.filter((child) => !child || child.type === 'ERROR');
+	const errorNodes = node.children
+		.filter((v) => v !== null)
+		.filter((child) => !child || child.type === 'ERROR');
 	errorNodes.forEach((errorNode) => {
 		if (!errorNode) throw new Error('TS');
 		f.newError({

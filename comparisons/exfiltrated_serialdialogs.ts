@@ -1,4 +1,4 @@
-import { colorDifferentStrings } from '../parser-tests.js';
+import { colorDifferentStrings } from '../parser-tests.ts';
 import { type SerialDialog } from '../parser-types.ts';
 
 export type EncoderSerialDialog = {

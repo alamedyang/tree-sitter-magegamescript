@@ -114,7 +114,7 @@ const printActionFns = {
 	CHECK_ENTITY_LOOK_SCRIPT: (v: TYPES.CHECK_ENTITY_LOOK_SCRIPT) =>
 		printEntityFieldEquality(v, 'on_look', `"${v.expected_script}"`),
 	CHECK_ENTITY_DIRECTION: (v: TYPES.CHECK_ENTITY_DIRECTION) =>
-		printEntityFieldEquality(v, 'direction', `"${v.direction}"`),
+		printEntityFieldEquality(v, 'direction', `${v.direction}`),
 	CHECK_ENTITY_PATH: (v: TYPES.CHECK_ENTITY_PATH) =>
 		printEntityFieldEquality(v, 'path', `"${v.geometry}"`),
 
