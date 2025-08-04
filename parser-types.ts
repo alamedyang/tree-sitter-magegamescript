@@ -2,6 +2,12 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
 
 export type MGSValue = string | boolean | number;
+export const isMGSValue = (v: unknown): v is MGSValue => {
+	if (typeof v === 'string') return true;
+	if (typeof v === 'number') return true;
+	if (typeof v === 'boolean') return true;
+	return false;
+};
 
 export type Intermediate =
 	| BoolBinaryExpression
@@ -13,6 +19,8 @@ export type Intermediate =
 export type MathlangNode =
 	| Intermediate
 	| MathlangSequence
+	| SerialDialog
+	| Dialog
 	| DialogDefinitionNode
 	| SerialDialogDefinitionNode
 	| ScriptDefinitionNode
@@ -21,6 +29,9 @@ export type MathlangNode =
 	| AddDialogSettingsNode
 	| AddSerialDialogSettingsNode
 	| LabelDefinitionNode
+	| AddDialogSettingsTargetNode
+	| SerialDialogOption
+	| DialogOption
 	| JSONNode
 	| CommentNode
 	| ReturnStatement
@@ -60,13 +71,6 @@ export type DialogIdentifier = {
 	type: 'label' | 'entity' | 'name';
 	value: string;
 };
-export type DialogOption = {
-	mathlang: 'dialog_option';
-	label: string;
-	script: string;
-	debug: TreeSitterNode;
-	fileName: string;
-};
 export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
 	messages: string[];
@@ -75,14 +79,7 @@ export type SerialDialogInfo = {
 export type SerialDialogSettings = {
 	wrap?: number;
 };
-export type SerialDialogOption = {
-	mathlang: 'serial_dialog_option';
-	optionType: 'text_options' | 'options';
-	label: string;
-	script: string;
-	debug: TreeSitterNode;
-	fileName: string;
-};
+
 export type MathlangBoolComparison =
 	| MathlangNumberCheckableEquality
 	| MathlangStringCheckable
@@ -93,15 +90,23 @@ export type MathlangBoolComparison =
 			debug?: TYPES.MGSDebug;
 			comment?: string;
 	  });
-export type MathlanglDialogParameter = {
+export type MathlangDialogParameter = {
 	mathlang: 'dialog_parameter';
 	property: string;
 	value: MGSValue;
+};
+export const isMathlangDialogParameter = (v: unknown): v is MathlangDialogParameter => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangDialogParameter).mathlang === 'dialog_parameter';
 };
 export type MathlangSerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
 	property: string;
 	value: MGSValue;
+};
+export const isMathlangSerialDialogParameter = (v: unknown): v is MathlangSerialDialogParameter => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangSerialDialogParameter).mathlang === 'serial_dialog_parameter';
 };
 export type MovableIdentifier = {
 	mathlang: 'movable_identifier';
@@ -234,33 +239,94 @@ export type MathlangSequence = {
 	steps: AnyNode[];
 	debug: TYPES.MGSDebug;
 };
+
+export type ScriptDefinitionNode = {
+	mathlang: 'script_definition';
+	fileName: string;
+	scriptName: string;
+	prePrint?: string;
+	testPrint?: string;
+	print?: string;
+	rawNodes?: AnyNode[];
+	actions: AnyNode[];
+	debug: TYPES.MGSDebug;
+	preActions?: AnyNode[];
+	duplicates?: ScriptDefinitionNode[];
+	copyScriptResolved?: boolean;
+};
+export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinitionNode => {
+	return (node as MathlangNode).mathlang === 'script_definition';
+};
+
+export type ConstantDefinitionNode = {
+	mathlang: 'constant_assignment';
+	label: string;
+	value: string | boolean | number;
+	debug: TYPES.MGSDebug;
+};
+
+export type IncludeNode = {
+	mathlang: 'include_macro';
+	value: string;
+	debug: TYPES.MGSDebug;
+};
+export type LabelDefinitionNode = {
+	mathlang: 'label_definition';
+	label: string;
+	debug?: TYPES.MGSDebug;
+};
+export const isLabelDefinition = (node: AnyNode): node is LabelDefinitionNode => {
+	if (isNodeAction(node)) return false;
+	return node.mathlang === 'label_definition';
+};
+
 export type AddDialogSettingsNode = {
+	mathlang: 'add_dialog_settings';
+	debug: TYPES.MGSDebug;
+	targets: AddDialogSettingsTargetNode[];
+	parameters?: MathlangSerialDialogParameter[];
+};
+export const isAddDialogSettingsNode = (node: AnyNode): node is AddDialogSettingsNode => {
+	return (node as AddDialogSettingsNode).mathlang === 'add_dialog_settings';
+};
+export type AddDialogSettingsTargetNode = {
 	mathlang: 'add_dialog_settings_target';
 	type: string;
 	debug: TYPES.MGSDebug;
 	target?: string;
-	parameters?: MathlangSerialDialogParameter[];
+	parameters?: MathlangDialogParameter[];
+};
+export const isAddDialogSettingsTargetNode = (
+	node: AnyNode,
+): node is AddDialogSettingsTargetNode => {
+	return (node as AddDialogSettingsTargetNode).mathlang === 'add_dialog_settings_target';
 };
 // todo: not used?
 export type AddSerialDialogSettingsNode = {
-	mathlang: 'add_serial_dialog_settings_target';
-	parameters: Record<string, MGSValue>;
+	mathlang: 'add_serial_dialog_settings';
+	parameters: MathlangSerialDialogParameter[];
 	debug: TYPES.MGSDebug;
 };
-
-export type DirectionTarget =
-	| {
-			action: 'SET_ENTITY_DIRECTION';
-			direction: string;
-	  }
-	| {
-			action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
-			target_geometry: string;
-	  }
-	| {
-			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
-			target_entity: string;
-	  };
+export type SerialOptionType = 'text_options' | 'options';
+export type SerialDialogOption = {
+	mathlang: 'serial_dialog_option';
+	optionType: SerialOptionType;
+	label: string;
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+export const isSerialDialogOption = (node: AnyNode): node is SerialDialogOption => {
+	return (node as SerialDialogOption).mathlang === 'serial_dialog_option';
+};
+export type DialogOption = {
+	mathlang: 'dialog_option';
+	label: string;
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+export const isDialogOption = (node: AnyNode): node is DialogOption => {
+	return (node as DialogOption).mathlang === 'dialog_option';
+};
 
 export type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
 export type DialogDefinitionNode = {
@@ -285,52 +351,31 @@ export type SerialDialogDefinitionNode = {
 export const isSerialDialogDefinitionNode = (node: AnyNode): node is SerialDialogDefinitionNode => {
 	return (node as MathlangNode).mathlang === 'serial_dialog_definition';
 };
-export type ScriptDefinitionNode = {
-	mathlang: 'script_definition';
-	fileName: string;
-	scriptName: string;
-	prePrint?: string;
-	testPrint?: string;
-	print?: string;
-	rawNodes?: AnyNode[];
-	actions: AnyNode[];
-	debug: TYPES.MGSDebug;
-	preActions?: AnyNode[];
-	duplicates?: ScriptDefinitionNode[];
-	copyScriptResolved?: boolean;
-};
-export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinitionNode => {
-	return (node as MathlangNode).mathlang === 'script_definition';
-};
-//todo: not used?
-export type ConstantDefinitionNode = {
-	mathlang: 'constant_assignment';
-	label: string;
-	value: string | boolean | number;
-	debug: TYPES.MGSDebug;
-};
-export type LabelDefinitionNode = {
-	mathlang: 'label_definition';
-	label: string;
-	debug?: TYPES.MGSDebug;
-};
-export const isLabelDefinition = (node: AnyNode): node is LabelDefinitionNode => {
-	if (isNodeAction(node)) return false;
-	return node.mathlang === 'label_definition';
-};
 
-//todo: not used?
-export type IncludeNode = {
-	mathlang: 'include_macro';
-	value: string;
-	debug: TYPES.MGSDebug;
-};
+export type DirectionTarget =
+	| {
+			action: 'SET_ENTITY_DIRECTION';
+			direction: string;
+	  }
+	| {
+			action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
+			target_geometry: string;
+	  }
+	| {
+			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
+			target_entity: string;
+	  };
+
 export type Dialog = DialogSettings & {
 	mathlang: 'dialog';
 	info: DialogInfo; // for debugging(?)
 	messages: string[];
 	response_type?: 'SELECT_FROM_SHORT_LIST';
 	options?: DialogOption[];
+	debug?: TYPES.MGSDebug;
+};
+export const isDialog = (v: AnyNode): v is Dialog => {
+	return (v as Dialog).mathlang === 'dialog';
 };
 export type SerialDialog = {
 	// TODO fix all of these
@@ -340,8 +385,10 @@ export type SerialDialog = {
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
 };
+export const isSerialDialog = (v: AnyNode): v is SerialDialog => {
+	return (v as SerialDialog).mathlang === 'serial_dialog';
+};
 
-// todo: not used?
 export type JSONNode = {
 	mathlang: 'json_literal';
 	json: JSON;

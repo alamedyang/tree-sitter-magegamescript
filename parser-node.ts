@@ -37,9 +37,35 @@ import {
 	type MathlangSerialDialogParameter,
 	type MathlangSequence,
 	type DialogInfo,
+	type IncludeNode,
+	type AddDialogSettingsTargetNode,
+	type DialogSettings,
+	type AddSerialDialogSettingsNode,
+	type SerialDialogOption,
+	type SerialOptionType,
+	type DialogOption,
+	type DialogDefinitionNode,
+	type SerialDialogDefinitionNode,
+	type SerialDialogInfo,
+	type SerialDialog,
+	type Dialog,
+	type MathlangDialogParameter,
+	type DialogIdentifier,
+	type ScriptDefinitionNode,
+	isMGSValue,
+	isMathlangDialogParameter,
+	type ConstantDefinitionNode,
+	type JSONNode,
+	isAddDialogSettingsTargetNode,
+	isSerialDialogOption,
+	isDialogOption,
+	type BreakStatement,
+	type ContinueStatement,
+	isSerialDialog,
+	isDialog,
 } from './parser-types.ts';
 
-export const handleNode = (f: FileState, node) => {
+export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	// ->[]
 	debugLog(`handleNode: ${node.grammarType}`);
 
@@ -91,11 +117,15 @@ const nodeFns = {
 		f.newError(err);
 		return [];
 	},
-	script_definition: (f: FileState, node: Node) => {
+	script_definition: (f: FileState, node: Node): [ScriptDefinitionNode] => {
 		const name = captureForFieldName(f, node, 'script_name');
+		if (typeof name !== 'string') throw new Error('need string');
 		// error nodes are caught above
 		const rawActions: AnyNode[] = (node.lastChild?.namedChildren || [])
-			.map((v) => handleNode(f, v))
+			.map((v) => {
+				if (v === null) throw new Error('');
+				return handleNode(f, v);
+			})
 			.flat();
 		const actions: AnyNode[] = [];
 		// flatten sequences
@@ -137,10 +167,11 @@ const nodeFns = {
 			},
 		];
 	},
-	constant_assignment: (f: FileState, node: Node) => {
+	constant_assignment: (f: FileState, node: Node): [ConstantDefinitionNode] => {
 		const label = textForFieldName(f, node, 'label');
 		if (label === undefined) throw new Error('undefined label');
 		const value = captureForFieldName(f, node, 'value');
+		if (!isMGSValue(value)) throw new Error('derp');
 		f.constants = f.constants || {};
 		if (f.constants[label]) {
 			f.newError({
@@ -167,11 +198,14 @@ const nodeFns = {
 			},
 		];
 	},
-	include_macro: (f: FileState, node: Node) => {
+	include_macro: (f: FileState, node: Node): IncludeNode[] => {
 		// TODO: ~~handle~~ prevent recursive references
-		const fileName = captureForFieldName(f, node, 'fileName');
-		const prerequesites = Array.isArray(fileName) ? fileName : [fileName];
-		prerequesites.forEach((prereqName) => {
+		const rawFileNames = captureForFieldName(f, node, 'fileName');
+		const fileNames = Array.isArray(rawFileNames) ? rawFileNames : [rawFileNames];
+		if (!fileNames.every((v) => typeof v === 'string')) {
+			throw new Error('include_macro prerequisites not all strings');
+		}
+		fileNames.forEach((prereqName) => {
 			if (!f.p.fileMap[prereqName].parsed) {
 				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
 				f.p.parseFile(prereqName);
@@ -181,18 +215,16 @@ const nodeFns = {
 			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
 			f.includeFile(prereqName); // incorporate their crawl state into us
 		});
-		return [
-			{
-				mathlang: 'include_macro',
-				value: fileName,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
+		return fileNames.map((fileName: string) => ({
+			mathlang: 'include_macro',
+			value: fileName,
+			debug: {
+				node,
+				fileName: f.fileName,
 			},
-		];
+		}));
 	},
-	rand_macro: (f: FileState, node: Node) => {
+	rand_macro: (f: FileState, node: Node): [MathlangSequence] => {
 		const horizontal: AnyNode[][] = [];
 		let multipleCount = -Infinity;
 		node.namedChildren.forEach((innerNode) => {
@@ -260,15 +292,19 @@ const nodeFns = {
 		combined.push(label(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
-	label_definition: (f: FileState, node: Node) => {
+	label_definition: (f: FileState, node: Node): [LabelDefinitionNode] => {
 		const text = textForFieldName(f, node, 'label');
 		if (text === undefined) throw new Error('undefined label');
-		return label(f, node, text);
+		return [label(f, node, text)];
 	},
-	add_dialog_settings: (f: FileState, node: Node) => {
+	add_dialog_settings: (f: FileState, node: Node): [AddDialogSettingsNode] => {
 		const targets = node.namedChildren
-			.map((child) => handleNode(f, child)) // add_dialog_settings_target
+			.map((child) => {
+				if (child === null) throw new Error('asdf');
+				return handleNode(f, child);
+			})
 			.flat();
+		if (!targets.every(isAddDialogSettingsTargetNode)) throw new Error('');
 		return [
 			{
 				mathlang: 'add_dialog_settings',
@@ -280,11 +316,11 @@ const nodeFns = {
 			},
 		];
 	},
-	add_dialog_settings_target: (f: FileState, node: Node) => {
-		let settingsTarget;
+	add_dialog_settings_target: (f: FileState, node: Node): [AddDialogSettingsTargetNode] => {
+		let settingsTarget: DialogSettings = {};
 		const type = textForFieldName(f, node, 'type');
 		if (type === undefined) throw new Error('undefined type');
-		const ret: AddDialogSettingsNode = {
+		const ret: AddDialogSettingsTargetNode = {
 			mathlang: 'add_dialog_settings_target',
 			type,
 			debug: {
@@ -297,6 +333,7 @@ const nodeFns = {
 			settingsTarget = f.settings.default;
 		} else if (type === 'label' || type === 'entity') {
 			const target = captureForFieldName(f, node, 'target');
+			if (typeof target !== 'string') throw new Error('invalid');
 			if (target !== undefined) {
 				f.settings[type][target] = f.settings[type][target] || {};
 				settingsTarget = f.settings[type][target];
@@ -311,18 +348,18 @@ const nodeFns = {
 			throw new Error(`Unknown dialog settings target type: ${type}`);
 		}
 		// find the settings themselves
-		const parameters: MathlangSerialDialogParameter[] = capturesForFieldName(
-			f,
-			node,
-			'dialog_parameter',
-		);
+		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
+		if (!parameters.every(isMathlangDialogParameter)) {
+			throw new Error('Not every capture is the thing');
+		}
 		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
 		});
 		ret.parameters = parameters;
 		return [ret];
 	},
-	add_serial_dialog_settings: (f: FileState, node: Node) => {
+	add_serial_dialog_settings: (f: FileState, node: Node): [AddSerialDialogSettingsNode] => {
+		// This one is inconsistent with the others?
 		const parameters: MathlangSerialDialogParameter[] = capturesForFieldName(
 			f,
 			node,
@@ -343,17 +380,21 @@ const nodeFns = {
 		];
 	},
 	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them
-	serial_dialog_option: (f: FileState, node: Node) => {
-		const optionChar = textForFieldName(f, node, 'option_type');
-		let optionType;
+	serial_dialog_option: (f: FileState, node: Node): [SerialDialogOption] => {
+		const optionChar = textForFieldName(f, node, 'option_type') || 'ERROR';
+		let optionType: SerialOptionType = 'options';
 		if (optionChar === '_') optionType = 'text_options';
-		else if (optionChar === '#') optionType = 'options';
+		else if (optionChar !== '#') throw new Error('invalid option type');
+		const label = captureForFieldName(f, node, 'label');
+		const script = captureForFieldName(f, node, 'script');
+		if (typeof label !== 'string') throw new Error('not string');
+		if (typeof script !== 'string') throw new Error('not string');
 		return [
 			{
 				mathlang: 'serial_dialog_option',
 				optionType,
-				label: captureForFieldName(f, node, 'label'),
-				script: captureForFieldName(f, node, 'script'),
+				label,
+				script,
 				debug: {
 					node,
 					fileName: f.fileName,
@@ -361,12 +402,16 @@ const nodeFns = {
 			},
 		];
 	},
-	dialog_option: (f: FileState, node: Node) => {
+	dialog_option: (f: FileState, node: Node): [DialogOption] => {
+		const label = captureForFieldName(f, node, 'label');
+		const script = captureForFieldName(f, node, 'script');
+		if (typeof label !== 'string') throw new Error('not string');
+		if (typeof script !== 'string') throw new Error('not string');
 		return [
 			{
 				mathlang: 'dialog_option',
-				label: captureForFieldName(f, node, 'label'),
-				script: captureForFieldName(f, node, 'script'),
+				label,
+				script,
 				debug: {
 					node,
 					fileName: f.fileName,
@@ -374,52 +419,84 @@ const nodeFns = {
 			},
 		];
 	},
-	serial_dialog_definition: (f: FileState, node: Node) => {
+	serial_dialog_definition: (f: FileState, node: Node): [SerialDialogDefinitionNode] => {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
+		if (serialDialogNode === null) throw new Error('node not found');
 		const name = captureForFieldName(f, node, 'serial_dialog_name');
+		if (typeof name !== 'string') throw new Error('need string)');
 		const serialDialog = handleNode(f, serialDialogNode);
+		if (serialDialog.length !== 1) throw new Error('');
+		if (!isSerialDialog(serialDialog[0])) throw new Error('');
 		return [newSerialDialog(f, node, name, serialDialog[0])];
 	},
-	dialog_definition: (f: FileState, node: Node) => {
+	dialog_definition: (f: FileState, node: Node): [DialogDefinitionNode] => {
 		const dialogName = captureForFieldName(f, node, 'dialog_name');
+		if (typeof dialogName !== 'string') throw new Error('need string)');
 		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = dialogNodes.map((v) => handleNode(f, v)).flat();
-		return newDialog(f, node, dialogName, dialogs);
+		const dialogs = dialogNodes
+			.map((v) => {
+				if (v === null) throw new Error('missing node');
+				return handleNode(f, v);
+			})
+			.flat();
+		if (!dialogs.every(isDialog)) throw new Error('');
+		return [newDialog(f, node, dialogName, dialogs)];
 	},
-	serial_dialog: (f: FileState, node: Node) => {
+	serial_dialog: (f: FileState, node: Node): [SerialDialog] => {
 		const settings = {};
-		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
+		const params: MathlangSerialDialogParameter[] = capturesForFieldName(
+			f,
+			node,
+			'serial_dialog_parameter',
+		);
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
 		// TODO: make options more closely resemble final form?
 		const options = node
 			.childrenForFieldName('serial_dialog_option')
-			.map((v) => handleNode(f, v))
+			.map((v) => {
+				if (v === null) throw new Error('missing node');
+				return handleNode(f, v);
+			})
 			.flat();
-		const info = {
+		if (!options.every(isSerialDialogOption)) {
+			throw new Error('invalid option');
+		}
+		const messages = capturesForFieldName(f, node, 'serial_message');
+		if (!messages.every((v) => typeof v === 'string')) throw new Error('Pff');
+		const info: SerialDialogInfo = {
 			settings,
-			messages: capturesForFieldName(f, node, 'serial_message'),
+			messages,
 			options,
 		};
 		const serialDialog = buildSerialDialogFromInfo(f, info);
 		return [serialDialog];
 	},
-	dialog: (f: FileState, node: Node) => {
+	dialog: (f: FileState, node: Node): [Dialog] => {
 		const settings = {};
-		const params = capturesForFieldName(f, node, 'dialog_parameter');
+		const params: MathlangDialogParameter[] = capturesForFieldName(f, node, 'dialog_parameter');
 		const messageN = node.childrenForFieldName('message');
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
 		const options = node
 			.childrenForFieldName('dialog_option')
-			.map((v) => handleNode(f, v))
+			.map((v) => {
+				if (v === null) throw new Error('missing node');
+				return handleNode(f, v);
+			})
 			.flat();
+		if (!options.every(isDialogOption)) {
+			throw new Error('invalid option');
+		}
+		const identifier: DialogIdentifier = captureForFieldName(f, node, 'dialog_identifier');
+		const messages = messageN.map((v) => handleCapture(f, v));
+		if (!messages.every((v) => typeof v === 'string')) throw new Error('Pff');
 		const info: DialogInfo = {
-			identifier: captureForFieldName(f, node, 'dialog_identifier'),
+			identifier,
 			settings,
-			messages: messageN.map((v) => handleCapture(f, v)),
+			messages,
 			options,
 		};
 		const dialogs = buildDialogFromInfo(f, info, messageN);
@@ -433,14 +510,23 @@ const nodeFns = {
 			},
 		];
 	},
-	json_literal: (f: FileState, node: Node) => {
+	json_literal: (f: FileState, node: Node): JSONNode[] => {
 		// todo: do it more by hand so that errors can be reported more accurately?
 		const jsonNode = node.namedChildren[0];
 		if (!jsonNode) throw new Error('json node not found??');
 		const text = jsonNode.text;
-		let parsed = [];
 		try {
-			parsed = JSON.parse(text);
+			const parsed = JSON.parse(text);
+			return [
+				{
+					mathlang: 'json_literal',
+					json: parsed,
+					debug: {
+						node,
+						fileName: f.fileName,
+					},
+				},
+			];
 		} catch {
 			f.newError({
 				locations: [{ node }],
@@ -448,10 +534,15 @@ const nodeFns = {
 				footer: `Generic error. Check trailing commas!`,
 			});
 		}
+		return [];
+	},
+	copy_macro: (f: FileState, node: Node): [MathlangCopyMacro] => {
+		const script = captureForFieldName(f, node, 'script');
+		if (typeof script !== 'string') throw new Error('asdfasdf');
 		return [
 			{
-				mathlang: 'json_literal',
-				json: parsed,
+				mathlang: 'copy_script',
+				script,
 				debug: {
 					node,
 					fileName: f.fileName,
@@ -459,26 +550,19 @@ const nodeFns = {
 			},
 		];
 	},
-	copy_macro: (f: FileState, node: Node): MathlangCopyMacro[] => [
-		{
-			mathlang: 'copy_script',
-			script: captureForFieldName(f, node, 'script'),
-			debug: {
-				node,
-				fileName: f.fileName,
-			},
-		},
-	],
-	debug_macro: (f: FileState, node: Node) => {
+	debug_macro: (f: FileState, node: Node): AnyNode[] => {
 		const ret: AnyNode[] = [];
 		let name = '';
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode) {
 			const serialDialog = handleNode(f, serialDialogNode).flat();
+			if (!isSerialDialog(serialDialog[0])) throw new Error();
 			name = autoIdentifierName(f, node);
-			ret.push(newSerialDialog(f, node, name, serialDialog));
+			ret.push(newSerialDialog(f, node, name, serialDialog[0]));
 		} else {
-			name = captureForFieldName(f, node, 'serial_dialog_name');
+			const capture = captureForFieldName(f, node, 'serial_dialog_name');
+			if (typeof capture !== 'string') throw new Error('come on');
+			name = capture;
 		}
 		const action = simpleBranchMaker(
 			f,
@@ -490,19 +574,22 @@ const nodeFns = {
 		ret.push(action);
 		return ret;
 	},
-	looping_block: (f: FileState, node: Node, printGotoLabel: string) => {
-		return node.namedChildren.map((v) => {
-			if (!v) throw new Error('TS');
-			const handled = handleNode(f, v);
-			if (handled.mathlang === 'continue_statement') {
-				return gotoLabel(f, v, `while condition #${printGotoLabel}`);
-			} else if (handled.mathlang === 'break_statement') {
-				return gotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
-			}
-			return handled;
-		});
+	looping_block: (f: FileState, node: Node, printGotoLabel: string): AnyNode[] => {
+		return node.namedChildren
+			.map((v) => {
+				if (!v) throw new Error('TS');
+				const handled = handleNode(f, v);
+				if (Array.isArray(handled)) return handled;
+				if ((handled as ContinueStatement).mathlang === 'continue_statement') {
+					return gotoLabel(f, v, `while condition #${printGotoLabel}`);
+				} else if ((handled as BreakStatement).mathlang === 'break_statement') {
+					return gotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
+				}
+				return handled;
+			})
+			.flat();
 	},
-	while_block: (f: FileState, node: Node) => {
+	while_block: (f: FileState, node: Node): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `while condition #${n}`;
 		const bodyL = `while body #${n}`;
@@ -515,9 +602,9 @@ const nodeFns = {
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if (v.mathlang === 'continue_statement') {
+				if ((v as ContinueStatement).mathlang === 'continue_statement') {
 					return gotoLabel(f, node, conditionL);
-				} else if (v.mathlang === 'break_statement') {
+				} else if ((v as BreakStatement).mathlang === 'break_statement') {
 					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -532,9 +619,9 @@ const nodeFns = {
 			gotoLabel(f, conditionN, conditionL),
 			label(f, node, rendezvousL),
 		];
-		return newSequence(f, node, steps, 'while sequence');
+		return [newSequence(f, node, steps, 'while sequence')];
 	},
-	do_while_block: (f: FileState, node: Node) => {
+	do_while_block: (f: FileState, node: Node): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `do while condition #${n}`;
 		const bodyL = `do while body #${n}`;
@@ -547,9 +634,9 @@ const nodeFns = {
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if (v.mathlang === 'continue_statement') {
+				if ((v as ContinueStatement).mathlang === 'continue_statement') {
 					return gotoLabel(f, node, conditionL);
-				} else if (v.mathlang === 'break_statement') {
+				} else if ((v as BreakStatement).mathlang === 'break_statement') {
 					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -562,9 +649,9 @@ const nodeFns = {
 			...expandCondition(f, conditionN, condition, bodyL),
 			label(f, node, rendezvousL),
 		];
-		return newSequence(f, node, steps, 'do-while sequence');
+		return [newSequence(f, node, steps, 'do-while sequence')];
 	},
-	for_block: (f: FileState, node: Node): MathlangSequence => {
+	for_block: (f: FileState, node: Node): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `for condition #${n}`;
 		const bodyL = `for body #${n}`;
@@ -587,8 +674,10 @@ const nodeFns = {
 					return v;
 				}
 			});
+		const initializer = node.childForFieldName('initializer');
+		if (initializer === null) throw new Error('missing initializer');
 		const steps: AnyNode[] = [
-			...handleNode(f, node.childForFieldName('initializer')),
+			...handleNode(f, initializer),
 			label(f, conditionN, conditionL),
 			...expandCondition(f, conditionN, handleCapture(f, conditionN), bodyL),
 			gotoLabel(f, node, rendezvousL),
@@ -599,9 +688,9 @@ const nodeFns = {
 			gotoLabel(f, conditionN, conditionL),
 			label(f, node, rendezvousL),
 		];
-		return newSequence(f, node, steps, 'for sequence');
+		return [newSequence(f, node, steps, 'for sequence')];
 	},
-	if_single: (f: FileState, node: Node): AnyNode | AnyNode[] => {
+	if_single: (f: FileState, node: Node): AnyNode[] => {
 		const conditionN = node.childForFieldName('condition');
 		let action = handleCapture(f, conditionN);
 		// condition.mathlang = 'if_single';
@@ -649,7 +738,7 @@ const nodeFns = {
 		}
 		throw new Error('Unreachable?');
 	},
-	if_chain: (f: FileState, node: Node) => {
+	if_chain: (f: FileState, node: Node): [MathlangSequence] => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeN = node.childForFieldName('else_block');
 		if (!ifs) throw new Error('I know, I got it');
@@ -660,9 +749,14 @@ const nodeFns = {
 			let condition = handleCapture(f, conditionN);
 			const bodyN = ifsZero.childForFieldName('body');
 			if (!bodyN) throw new Error('srsly');
-			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
+			const body = bodyN.namedChildren
+				.map((v) => {
+					if (v === null) throw new Error();
+					return handleNode(f, v);
+				})
+				.flat();
 			if (body.length === 1 && (condition.action || typeof condition === 'string')) {
-				if (body[0].action === 'RUN_SCRIPT') {
+				if (isNodeAction(body[0]) && body[0].action === 'RUN_SCRIPT') {
 					if (typeof condition === 'string') {
 						condition = {
 							mathlang: 'bool_getable',
@@ -674,7 +768,7 @@ const nodeFns = {
 					condition.success_script = body[0].script;
 					delete condition.mathlang;
 					return condition;
-				} else if (body[0].mathlang === 'goto_label') {
+				} else if (!isNodeAction(body[0]) && body[0].mathlang === 'goto_label') {
 					if (typeof condition === 'string') {
 						condition = {
 							mathlang: 'bool_getable',
@@ -699,7 +793,12 @@ const nodeFns = {
 			const condition = handleCapture(f, conditionN);
 			const bodyN = iff.childForFieldName('body');
 			if (!bodyN) throw new Error('TS');
-			const body = bodyN.namedChildren.map((v) => handleNode(f, v)).flat();
+			const body = bodyN.namedChildren
+				.map((v) => {
+					if (v === null) throw new Error();
+					return handleNode(f, v);
+				})
+				.flat();
 			// add top half
 			expandCondition(f, conditionN, condition, ifL).forEach((v) => steps.push(v));
 			// add bottom half
@@ -712,14 +811,19 @@ const nodeFns = {
 		});
 		if (elzeN && elzeN.lastChild) {
 			steps.push(
-				...elzeN.lastChild.namedChildren.map((v) => handleNode(f, v)).flat(),
+				...elzeN.lastChild.namedChildren
+					.map((v) => {
+						if (v === null) throw new Error();
+						return handleNode(f, v);
+					})
+					.flat(),
 				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
 		steps.push(gotoLabel(f, node, rendezvousL));
 		const combined = steps.concat(bottomSteps);
 		combined.push(label(f, node, rendezvousL));
-		return newSequence(f, node, combined, 'if sequence');
+		return [newSequence(f, node, combined, 'if sequence')];
 	},
 };
 

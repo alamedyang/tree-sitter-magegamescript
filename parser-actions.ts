@@ -214,10 +214,7 @@ type FieldToSpread = {
 	node: TreeSitterNode;
 	captures: unknown[];
 };
-export const handleAction = (
-	f: FileState,
-	node: TreeSitterNode,
-): (GenericActionish | AnyNode)[] => {
+export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	if (!node) throw new Error('Missing node');
 	// ->[]
 	// Cyclic dependency bodge

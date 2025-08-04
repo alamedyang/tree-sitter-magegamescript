@@ -7,7 +7,6 @@ import {
 import {
 	type CoordinateIdentifier,
 	type MovableIdentifier,
-	type MathlanglDialogParameter,
 	type MathlangSerialDialogParameter,
 	type MathlangStringCheckable,
 	type MathlangNumberCheckableEquality,
