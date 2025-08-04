@@ -1,14 +1,22 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import * as TYPES from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
+import {
+	type Dialog,
+	type DialogInfo,
+	type DialogSettings,
+	type MGSLocation,
+	type SerialDialog,
+	type SerialDialogInfo,
+	type SerialDialogSettings,
+} from './parser-types.ts';
 
 const DIALOG_WRAP = 42;
 const SERIAL_DIALOG_WRAP = 80;
 
 // Linux-sempai says use only red, or red and cyan, and don't use the others; you have no idea whether they're using a dark or light theme, or what their theme is like and some colors WILL NOT show up, depending.
 
-const tagsToAnsiEscapes = (str: string) => {
+const tagsToAnsiEscapes = (str: string): string => {
 	let ret = str;
 	Object.entries(ansi).forEach(([k, v]) => {
 		// TODO: what if you want to actually print <r>?
@@ -19,7 +27,7 @@ const tagsToAnsiEscapes = (str: string) => {
 	return ret;
 };
 
-const countCharLength = (str: string) => {
+const countCharLength = (str: string): number => {
 	let length = 0;
 	let remainder = str;
 	while (remainder.length) {
@@ -109,7 +117,7 @@ const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = fals
 };
 
 // This is for the web build, which does not carry over ansi styles when things are wrapped
-const ansiWrapBodge = (arr: string[]) => {
+const ansiWrapBodge = (arr: string[]): string[] => {
 	let wrappedTags = new Set();
 	const bodged = arr.map((line) => {
 		const prevTags = wrappedTags.size ? [...wrappedTags].join('') : '';
@@ -138,13 +146,13 @@ const ansiWrapBodge = (arr: string[]) => {
 	return bodged;
 };
 
-export const buildSerialDialogFromInfo = (f: FileState, info: TYPES.SerialDialogInfo) => {
-	const serialDialogSettings: TYPES.SerialDialogSettings = {
+export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo): SerialDialog => {
+	const serialDialogSettings: SerialDialogSettings = {
 		wrap: SERIAL_DIALOG_WRAP,
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
-	const serialDialog: TYPES.SerialDialog = {
+	const serialDialog: SerialDialog = {
 		mathlang: 'serial_dialog',
 		info,
 		messages: [],
@@ -155,7 +163,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: TYPES.SerialDialog
 	if (info.options.length > 0) {
 		const firstOptionType = info.options[0].optionType;
 		serialDialog[firstOptionType] = info.options;
-		const warnNodes: TYPES.MGSLocation[] = [];
+		const warnNodes: MGSLocation[] = [];
 		info.options.forEach((option) => {
 			if (option.optionType === 'options') {
 				option.label = tagsToAnsiEscapes(option.label);
@@ -177,7 +185,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: TYPES.SerialDialog
 	return serialDialog;
 };
 
-const longerAlignments = {
+const longerAlignments: Record<string, string> = {
 	BL: 'BOTTOM_LEFT',
 	TL: 'TOP_LEFT',
 	BR: 'BOTTOM_RIGHT',
@@ -186,12 +194,12 @@ const longerAlignments = {
 
 export const buildDialogFromInfo = (
 	f: FileState,
-	info: TYPES.DialogInfo,
+	info: DialogInfo,
 	messageNodes: (TreeSitterNode | null)[],
-): TYPES.Dialog => {
+): Dialog => {
 	const ident = info.identifier;
 	let found = false;
-	let specificSettings: TYPES.DialogSettings = {};
+	let specificSettings: DialogSettings = {};
 	if (ident.type === 'label') {
 		const settingsLookup = f.settings.label[ident.value];
 		if (settingsLookup) {
@@ -222,7 +230,7 @@ export const buildDialogFromInfo = (
 	if (expandedAbbreviation) {
 		dialogSettings.alignment = expandedAbbreviation;
 	}
-	const dialog: TYPES.Dialog = {
+	const dialog: Dialog = {
 		...dialogSettings,
 		mathlang: 'dialog',
 		messages: [],

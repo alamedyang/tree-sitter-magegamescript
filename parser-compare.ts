@@ -75,7 +75,12 @@ type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const compareScripts = (p: ProjectState, scriptName: string) => {
+type ScriptComparison = {
+	type: 'functional' | 'bad' | 'tally';
+	old: string;
+	new: string;
+};
+const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison => {
 	// let oldActions = oldPost[scriptName];
 	// let newActions = p.scripts[scriptName].actions;
 	// if (!oldActions) {
@@ -118,6 +123,7 @@ const compareScripts = (p: ProjectState, scriptName: string) => {
 	}
 };
 
+// TODO: put into types
 const sortSerialDialogs = (
 	dialogs: Record<string, EncoderSerialDialog | MATHLANG.SerialDialog>,
 ) => {
@@ -136,6 +142,7 @@ const sortSerialDialogs = (
 	});
 	return ret;
 };
+// TODO: put into types
 const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDefinitionNode>) => {
 	const ret = {
 		NAMED: {},
@@ -156,7 +163,7 @@ const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDe
 const identical: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
-parseProject(fileMap, {}).then((p: ProjectState) => {
+parseProject(fileMap, {}).then((p: ProjectState): void => {
 	// console.log('PROJECT');
 	// console.log(p);
 

@@ -27,7 +27,7 @@ export type FileState = {
 	printableMessageInformation: () => string;
 };
 
-export const makeFileState = (p: ProjectState, fileName: string) => {
+export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 	// file crawl state
 	const f: FileState = {
 		p, // project state, because we need to reach in sometimes

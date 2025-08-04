@@ -2,7 +2,7 @@ import * as TYPES from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
-const printAction = (data: MATHLANG.AnyNode) => {
+const printAction = (data: MATHLANG.AnyNode): string => {
 	const isAction = MATHLANG.isNodeAction(data);
 	if (!isAction && data.mathlang === 'comment') {
 		const abridged =
@@ -44,6 +44,7 @@ const printAction = (data: MATHLANG.AnyNode) => {
 	throw new Error('Fn needed for ???');
 };
 
+// TODO: data type
 const mathlang = {
 	goto_label: (data) => `${printGotoSegment(data)};`,
 	label_definition: (data: MATHLANG.MathlangGotoLabel) => {
@@ -53,7 +54,8 @@ const mathlang = {
 	copy_script: (data: MATHLANG.MathlangCopyMacro) => `copy!("${data.script}")`,
 };
 
-const printActionFns = {
+// TODO: v type
+const printActionFns: Record<string, (v) => string> = {
 	// Branch on bool equality (==)
 	CHECK_DEBUG_MODE: (v: TYPES.CHECK_DEBUG_MODE) => printCheckAction(v, 'debug_mode', true),
 	CHECK_SERIAL_DIALOG_OPEN: (v: TYPES.CHECK_SERIAL_DIALOG_OPEN) =>
@@ -284,7 +286,7 @@ const printActionFns = {
 	},
 };
 
-const stringIntoOpMap = {
+const stringIntoOpMap: Record<string, string> = {
 	ADD: '+',
 	SUB: '-',
 	MUL: '*',
@@ -296,12 +298,11 @@ const stringIntoOpMap = {
 
 // Auto labels are illegal (contain spaces) on purpose to prevent collisions
 // But that means we don't get round-trip translations unless we sanitze them thus:
-const sanitizeLabel = (label) =>
-	label.includes(' ')
-		? label.replaceAll(' ', '_').replaceAll('-', '_').replaceAll('#', '')
-		: label;
+const sanitizeLabel = (label: string): string =>
+	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
 
-const printGotoSegment = (data) => {
+// TODO: data type is complicated
+const printGotoSegment = (data): string => {
 	if (data.jump_index !== undefined) {
 		if (typeof data.jump_index === 'string') {
 			return `goto label ${sanitizeLabel(data.jump_index)}`;
@@ -312,15 +313,6 @@ const printGotoSegment = (data) => {
 	} else {
 		return `goto label ${sanitizeLabel(data.label)}`;
 	}
-	// if (
-	// 	data.mathlang?.includes('goto_label')
-	// 	|| data.mathlang === 'bool_getable'
-	// 	|| data.mathlang === 'bool_comparison'
-	// 	|| data.mathlang === 'string_checkable'
-	// 	|| data.mathlang === 'number_checkable_equality'
-	// 	|| data.action === 'CHECK_SAVE_FLAG'
-	// ) {
-	// }
 };
 const printCheckAction = (data: TYPES.Action, lhs: string, smartInvert: boolean): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
@@ -329,28 +321,29 @@ const printCheckAction = (data: TYPES.Action, lhs: string, smartInvert: boolean)
 	const goto = printGotoSegment(data);
 	return `if ${bang}${lhs} then ${goto};`;
 };
-const printSetBoolAction = (data: TYPES.Action, lhs: string) => {
+const printSetBoolAction = (data: TYPES.Action, lhs: string): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
 	if (!param) throw new Error('No param for action');
 	return `${lhs} = ${data[param]};`;
 };
-const printDuration = (duration) => duration + 'ms';
-const printGeometry = (geometry) => `geometry "${geometry}"`;
-const printEntityIdentifier = (entity) => {
+const printDuration = (duration: number): string => duration + 'ms';
+const printGeometry = (geometry: string): string => `geometry "${geometry}"`;
+const printEntityIdentifier = (entity: string): string => {
 	if (entity === '%PLAYER%') return 'player';
 	if (entity === '%SELF%') return 'self';
 	if (entity === '%MAP%') return 'map';
 	if (entity === '%CAMERA%') return 'camera';
 	return `entity "${entity}"`;
 };
-const printEntityFieldEquality = (v, param, value) => {
+// todo: types
+const printEntityFieldEquality = (v, param, value: number | string): string => {
 	const lhs = `${printEntityIdentifier(v.entity)} ${param}`;
 	return v.expected_bool
 		? printCheckAction(v, `${lhs} == ${value}`, false)
 		: printCheckAction(v, `${lhs} != ${value}`, false);
 };
 
-export const printScript = (scriptName, actions) => {
+export const printScript = (scriptName: string, actions: MATHLANG.AnyNode[]): string => {
 	const printedActions = actions
 		.map(printAction)
 		.filter((v) => v !== undefined)

@@ -114,7 +114,7 @@ const analyzeLine = (_line: string): LineAnalysis => {
 	};
 };
 
-const calculateRejoins = (lines: string[], registry: Record<string, number>) => {
+const calculateRejoins = (lines: string[], registry: Record<string, number>): Set<number> => {
 	const rejoins: Set<number> = new Set();
 	lines.forEach((line, i) => {
 		const analysis = analyzeLine(line);
@@ -151,7 +151,11 @@ type AdventureCrawlState = {
 };
 
 // ユウキリンリン　ゲンキハツラツ :P
-const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState) => {
+const advanceAdventure = (
+	lines: string[],
+	from: number,
+	cs: AdventureCrawlState,
+): AdventureSegment[] => {
 	let pos = from;
 	const ret: AdventureSegment = {
 		from,
@@ -227,7 +231,7 @@ const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState
 	return allSegments;
 };
 
-const startAdventure = (text: string) => {
+const startAdventure = (text: string): AdventureCrawlState => {
 	const lines = text
 		.split('\n')
 		.map((v) => {
@@ -273,7 +277,13 @@ const startAdventure = (text: string) => {
 	return cs;
 };
 
-const fastForward = (cs: AdventureCrawlState, start: number) => {
+type FastForwardResult = {
+	type: 'branch' | 'end';
+	tos: number[];
+	seen: string[];
+	condition?: string;
+};
+const fastForward = (cs: AdventureCrawlState, start: number): FastForwardResult => {
 	let pos = start;
 	const seen: string[] = [];
 	while (pos < cs.lines.length) {
@@ -351,7 +361,7 @@ const compareFrom = (
 	newSeen: string[],
 	oldBeenTo: Set<number>,
 	newBeenTo: Set<number>,
-) => {
+): boolean => {
 	// If either crossroad is known to be false beyond, hand it back up.
 	if (oldCache[oldStart] === false) return false;
 	if (newCache[newStart] === false) return false;
@@ -374,8 +384,8 @@ const compareFrom = (
 	newBeenTo.add(newStart);
 
 	// Look ahead to the next crossroads.
-	const oldFF = fastForward(oldCS, oldStart);
-	const newFF = fastForward(newCS, newStart);
+	const oldFF: FastForwardResult = fastForward(oldCS, oldStart);
+	const newFF: FastForwardResult = fastForward(newCS, newStart);
 	// Add the next batch of actions to what we've seen.
 	oldSeen.push(...oldFF.seen);
 	newSeen.push(...newFF.seen);
@@ -514,7 +524,7 @@ console.log(compared);
 // 	/*11*/ `end_of_script_1324:`,
 // ];
 
-export const compareNonlinearScripts = (oldText: string, newText: string) => {
+export const compareNonlinearScripts = (oldText: string, newText: string): boolean => {
 	const oldCS = startAdventure(oldText);
 	const newCS = startAdventure(newText);
 	return compareFrom(oldCS, newCS, 0, 0, {}, {}, [], [], new Set(), new Set());

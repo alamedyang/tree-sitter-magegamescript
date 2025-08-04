@@ -77,6 +77,7 @@ const captureFns = {
 	DURATION: (f: FileState, node: TreeSitterNode) => {
 		const suffix = textForFieldName(f, node, 'suffix');
 		const int = textForFieldName(f, node, 'NUMBER');
+		if (int === undefined) throw new Error('missing int');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
@@ -90,6 +91,7 @@ const captureFns = {
 		}
 		const suffix = textForFieldName(f, node, 'suffix');
 		const int = textForFieldName(f, node, 'NUMBER');
+		if (int === undefined) throw new Error('missing int');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
@@ -171,7 +173,7 @@ const captureFns = {
 		f: FileState,
 		node: TreeSitterNode,
 	): MathlangSerialDialogParameter => {
-		const property = textForFieldName(f, node, 'property');
+		const property = textForFieldName(f, node, 'property') || '';
 		const value = captureForFieldName(f, node, 'value');
 		return {
 			mathlang: 'serial_dialog_parameter',
@@ -413,7 +415,7 @@ const captureFns = {
 		const entity = captureForFieldName(f, node, 'entity_identifier');
 		if (entity) {
 			ret.entity = entity;
-			ret.property = textForFieldName(f, node, 'property');
+			ret.property = textForFieldName(f, node, 'property') || '';
 			if (ret.property === 'on_tick') {
 				return {
 					...ret,
@@ -475,7 +477,7 @@ const captureFns = {
 		const entity = captureForFieldName(f, node, 'entity_identifier');
 		if (entity) {
 			ret.entity = entity;
-			ret.property = textForFieldName(f, node, 'property');
+			ret.property = textForFieldName(f, node, 'property') || '';
 			if (ret.property === 'x') {
 				return {
 					...ret,
@@ -568,7 +570,7 @@ const captureFns = {
 		const rhsNode = node.childForFieldName('rhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
 		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = textForFieldName(f, node, 'operator');
+		const op = textForFieldName(f, node, 'operator') || '';
 		const ret = {
 			mathlang: 'bool_comparison',
 			debug: {
@@ -722,20 +724,20 @@ const extractEntityName = (f, node) => {
 };
 
 // Very common node handling behaviors
-export const captureForFieldName = (f, node, fieldName) => {
+export const captureForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return handleCapture(f, captureNode);
 };
-export const capturesForFieldName = (f, node, fieldName) => {
+export const capturesForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string) => {
 	return (node.childrenForFieldName(fieldName) || []).map((v) => handleCapture(f, v)).flat();
 };
-export const textForFieldName = (f, node, fieldName) => {
+export const textForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return captureNode.text;
 };
-export const grammarTypeForFieldName = (f, node, fieldName) => {
+export const grammarTypeForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string) => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
 	return captureNode.grammarType;

@@ -8,11 +8,7 @@ export type Intermediate =
 	| MathlangBoolGetable
 	| MathlangBoolComparison
 	| MathlangStringCheckable
-	| MathlangNumberCheckableEquality
-	| MathlangDialogOption
-	| MathlangSerialDialogOption
-	| MathlangDialog
-	| MathlangSerialDialog;
+	| MathlangNumberCheckableEquality;
 
 export type MathlangNode =
 	| Intermediate
@@ -102,30 +98,6 @@ export type MathlangSerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
 	property: string;
 	value: MGSValue;
-};
-export type MathlangDialogOption = {
-	mathlang: 'dialog_option';
-	label: string;
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangSerialDialogOption = {
-	mathlang: 'serial_dialog_option';
-	optionType: string;
-	label: string;
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-export type MathlangDialog = {
-	mathlang: 'dialog';
-	info: DialogInfo;
-	dialogs: Dialog[];
-	debug: TYPES.MGSDebug;
-};
-export type MathlangSerialDialog = {
-	mathlang: 'serial_dialog';
-	serialDialog: SerialDialog;
-	debug: TYPES.MGSDebug;
 };
 export type MovableIdentifier = {
 	mathlang: 'movable_identifier';
@@ -236,7 +208,7 @@ export type AddDialogSettingsNode = {
 	type: string;
 	debug: TYPES.MGSDebug;
 	target?: string;
-	parameters?: Record<string, MGSValue>;
+	parameters?: MathlangSerialDialogParameter[];
 };
 // todo: not used?
 export type AddSerialDialogSettingsNode = {

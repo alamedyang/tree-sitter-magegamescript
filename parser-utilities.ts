@@ -99,7 +99,7 @@ export const latestTemporary = (): string => temporaries[0];
 
 // ------------------------ GENERIC ------------------------ //
 
-export const inverseOpMap = {
+export const inverseOpMap: Record<string, string> = {
 	'<': '>=',
 	'<=': '>',
 	'>=': '<',
@@ -280,7 +280,7 @@ export const simpleBranchMaker = (
 	_branchAction: AnyNode,
 	_ifBody: AnyNode[],
 	_elseBody: AnyNode[],
-) => {
+): MathlangSequence => {
 	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
 	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.advanceGotoSuffix();

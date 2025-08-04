@@ -1,3 +1,5 @@
+import { Node } from 'web-tree-sitter';
+import { type FileState } from './parser-file.ts';
 import {
 	reportMissingChildNodes,
 	reportErrorNodes,
@@ -36,10 +38,8 @@ import {
 	type MathlangSequence,
 	type DialogInfo,
 } from './parser-types.ts';
-import { Node } from 'web-tree-sitter';
-import { type FileState } from './parser-file.ts';
 
-export const handleNode = (f, node) => {
+export const handleNode = (f: FileState, node) => {
 	// ->[]
 	debugLog(`handleNode: ${node.grammarType}`);
 
@@ -66,9 +66,6 @@ export const handleNode = (f, node) => {
 	const ret = nodeFn(f, node);
 	return ret;
 };
-
-// // Cyclic dependency bodge!
-// handleActionsInit(handleNode);
 
 // These must return an array, because they might produce multiple things (or zero things)
 // NOTICE: The caller should flat() what it receives!
@@ -142,6 +139,7 @@ const nodeFns = {
 	},
 	constant_assignment: (f: FileState, node: Node) => {
 		const label = textForFieldName(f, node, 'label');
+		if (label === undefined) throw new Error('undefined label');
 		const value = captureForFieldName(f, node, 'value');
 		f.constants = f.constants || {};
 		if (f.constants[label]) {
@@ -262,8 +260,11 @@ const nodeFns = {
 		combined.push(label(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
-	label_definition: (f: FileState, node: Node) =>
-		label(f, node, textForFieldName(f, node, 'label')),
+	label_definition: (f: FileState, node: Node) => {
+		const text = textForFieldName(f, node, 'label');
+		if (text === undefined) throw new Error('undefined label');
+		return label(f, node, text);
+	},
 	add_dialog_settings: (f: FileState, node: Node) => {
 		const targets = node.namedChildren
 			.map((child) => handleNode(f, child)) // add_dialog_settings_target
@@ -282,6 +283,7 @@ const nodeFns = {
 	add_dialog_settings_target: (f: FileState, node: Node) => {
 		let settingsTarget;
 		const type = textForFieldName(f, node, 'type');
+		if (type === undefined) throw new Error('undefined type');
 		const ret: AddDialogSettingsNode = {
 			mathlang: 'add_dialog_settings_target',
 			type,
@@ -309,7 +311,11 @@ const nodeFns = {
 			throw new Error(`Unknown dialog settings target type: ${type}`);
 		}
 		// find the settings themselves
-		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
+		const parameters: MathlangSerialDialogParameter[] = capturesForFieldName(
+			f,
+			node,
+			'dialog_parameter',
+		);
 		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
 		});

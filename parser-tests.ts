@@ -1,7 +1,12 @@
 import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
+import { type AnyNode } from './parser-types.ts';
 
-const actionArrayToScript = (scriptName: string, actionArray, autoAddEOF: boolean = false) => {
+const actionArrayToScript = (
+	scriptName: string,
+	actionArray: AnyNode[],
+	autoAddEOF: boolean = false,
+): string => {
 	const ret = [`"${scriptName}" {`, ...actionArray.map((v) => '\t' + v)];
 	if (autoAddEOF) {
 		ret.push(`\tend_of_script_***:`);
@@ -1430,7 +1435,11 @@ actionTestNames.forEach((testName) => {
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
-export const colorDifferentStrings = (expected: string, found: string) => {
+type ColoredDifferentString = {
+	diff: string;
+	pre: string;
+};
+export const colorDifferentStrings = (expected: string, found: string): ColoredDifferentString => {
 	const diff: string[] = [];
 	const foundChars = found.split('');
 	let colored = false;
@@ -1456,7 +1465,7 @@ const sanitize = (str: string) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g,
 type IDK = {
 	expected: string;
 	found: string;
-	diff: string;
+	diff: ColoredDifferentString;
 	value?: string;
 	fileName: string;
 	lineIndex: number;
@@ -1479,22 +1488,22 @@ export const compareTexts = (
 	thingName?: string,
 ): ComparedTexts => {
 	const foundLines = makeTextUniform(_found)
-		.replaceAll('+=', '+\n=')
-		.replaceAll('-=', '-\n=')
-		.replaceAll('*=', '*\n=')
-		.replaceAll('/=', '/\n=')
-		.replaceAll('?=', '?\n=')
-		.replaceAll('%=', '%\n=')
+		.replace(/\+=/g, '+\n=')
+		.replace(/-=/g, '-\n=')
+		.replace(/\*=/g, '*\n=')
+		.replace(/\/=/g, '/\n=')
+		.replace(/\?=/g, '?\n=')
+		.replace(/%=/g, '%\n=')
 		.split(/\n/g)
 		.map((v) => v.trim())
 		.filter((v) => !!v);
 	const expectedLines = makeTextUniform(_expected)
-		.replaceAll('+=', '+\n=')
-		.replaceAll('-=', '-\n=')
-		.replaceAll('*=', '*\n=')
-		.replaceAll('/=', '/\n=')
-		.replaceAll('?=', '?\n=')
-		.replaceAll('%=', '%\n=')
+		.replace(/\+=/g, '+\n=')
+		.replace(/-=/g, '-\n=')
+		.replace(/\*=/g, '*\n=')
+		.replace(/\/=/g, '/\n=')
+		.replace(/\?=/g, '?\n=')
+		.replace(/%=/g, '%\n=')
 		.split(/\n/g)
 		.map((v) => v.trim())
 		.filter((v) => !!v);
@@ -1546,7 +1555,10 @@ export const compareTexts = (
 					lines.push({
 						expected,
 						found,
-						diff,
+						diff: {
+							diff,
+							pre: '',
+						},
 						value: capture[1],
 						fileName: fileName || 'MISSING FILENAME',
 						lineIndex: i,
@@ -1556,21 +1568,21 @@ export const compareTexts = (
 			}
 		}
 		// wild wildcards
-		const clean = sanitize(expected).replaceAll('\\*\\*\\*', '.+?');
+		const clean = sanitize(expected).replace(/\\\*\\\*\\\*/g, '.+?');
 		const regExpected = new RegExp(clean);
 		if (found.match(regExpected)) {
 			return;
 		}
-		if (found.replace(/"|'/g, '') === expected.replaceAll(/"|'/g, '')) {
+		if (found.replace(/"|'/g, '') === expected.replace(/"|'/g, '')) {
 			return;
 		}
 		// or they really are different
-		const diff = colorDifferentStrings(expected, found).diff;
+		const diff: ColoredDifferentString = colorDifferentStrings(expected, found);
 		lines.push({
 			expected,
 			found,
 			diff,
-			fileName,
+			fileName: fileName || 'MISSING FILENAME',
 			lineIndex: i,
 		});
 	});
@@ -1580,13 +1592,13 @@ export const compareTexts = (
 			message: `${thingName}: mismatched lines`,
 			lines: lines.map((v) => {
 				if (v.value) {
-					let registered;
+					let registered: string = '';
 					Object.entries(registeredLabels).forEach(([k, val]) => {
 						if (val === v.value) {
 							registered = k;
 						}
 					});
-					v.diff += ` (${registered})`;
+					v.diff.diff += ` (${registered})`;
 				}
 				return v;
 			}),
@@ -1598,18 +1610,24 @@ export const compareTexts = (
 	}
 };
 
-const errors: CompareError[] = [];
+const errors: ComparedTexts[] = [];
 
 // --------------------------- Other diagnostics ---------------------------
 
-// type SimpleThing = null | string | number | boolean | SimpleThingArray | SimpleThingObject;
-// type SimpleThingArray = SimpleThing[];
-// type SimpleThingObject = Record<string, unknown>;
+type Literal = string | number | boolean | null | undefined;
+const isLiteral = (v: unknown): v is Literal => {
+	if (typeof v === 'string') return true;
+	if (typeof v === 'number') return true;
+	if (typeof v === 'boolean') return true;
+	if (v === null) return true;
+	if (v === undefined) return true;
+	return false;
+};
 
 // Borrowed from an earlier iteration of mathlang
 const simplifyValues = (lh: unknown, rh: unknown) => {
-	if (lh === null || lh === undefined) {
-		if (rh !== null || rh === undefined) throw new Error('expected RH to be null');
+	if (isLiteral(lh)) {
+		if (!isLiteral(rh)) throw new Error('expected RH to be literal');
 		return simplifyLiteral(lh, rh);
 	}
 	if (Array.isArray(lh)) {
@@ -1620,24 +1638,9 @@ const simplifyValues = (lh: unknown, rh: unknown) => {
 		if (typeof rh !== 'object') throw new Error('expected RH to be object');
 		return simplifyObjects({ ...lh }, { ...rh });
 	}
-	if (typeof lh === 'number') {
-		if (typeof rh !== 'number') throw new Error('expected RH to be number');
-		return simplifyLiteral(lh, rh);
-	}
-	if (typeof lh === 'string') {
-		if (typeof rh !== 'string') throw new Error('expected RH to be string');
-		return simplifyLiteral(lh, rh);
-	}
-	if (typeof lh === 'boolean') {
-		if (typeof rh !== 'boolean') throw new Error('expected RH to be boolean');
-		return simplifyLiteral(lh, rh);
-	}
 	throw new Error('should be unreachable (no types left over?)');
 };
-const simplifyLiteral = (
-	lh: string | number | boolean | null | undefined,
-	rh: string | number | boolean | null | undefined,
-) => {
+const simplifyLiteral = (lh: Literal, rh: Literal) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
 	const diff =
 		lh === rh
@@ -1651,22 +1654,28 @@ const simplifyArrays = (origLH: unknown[] = [], origRH: unknown[] = []) => {
 	const newDiffs: unknown[] = [];
 	origLH.forEach((left, i) => {
 		const right = origRH[i];
-		if (Array.isArray(left)) {
+		if (isLiteral(left)) {
+			if (!isLiteral(right)) {
+				throw new Error('expectd RHS to be literal');
+			}
+			const { lh, rh, diff } = simplifyLiteral(left, right);
+			newLH.push(lh);
+			newRH.push(rh);
+			newDiffs.push(diff);
+		} else if (Array.isArray(left)) {
 			if (!Array.isArray(right)) throw new Error('expected RH to be array');
 			const { lh, rh, diff } = simplifyArrays(left, right);
 			newLH.push(lh);
 			newRH.push(rh);
 			newDiffs.push(diff);
 		} else if (typeof left === 'object') {
-			const { lh, rh, diff } = simplifyObjects(left, right);
+			if (typeof right !== 'object') throw new Error('expected RH to be object');
+			const { lh, rh, diff } = simplifyObjects({ ...left }, { ...right });
 			newLH.push(lh);
 			newRH.push(rh);
 			newDiffs.push(diff);
 		} else {
-			const { lh, rh, diff } = simplifyLiteral(left, right);
-			newLH.push(lh);
-			newRH.push(rh);
-			newDiffs.push(diff);
+			throw new Error('unreachable?');
 		}
 	});
 	return { lh: newLH, rh: newRH, diff: newDiffs };
@@ -1683,9 +1692,8 @@ const simplifyObjects = (
 	Object.keys(origLH)
 		.sort()
 		.forEach((k) => {
-			if (origLH[k] === null || origLH[k] === undefined) {
-				if (origRH[k] !== null || origRH[k] !== undefined)
-					throw new Error('expected RHS to be null');
+			if (isLiteral(origLH[k])) {
+				if (!isLiteral(origRH[k])) throw new Error('expected literal');
 				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
@@ -1696,27 +1704,9 @@ const simplifyObjects = (
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
-			} else if (typeof origLH[k] === 'number') {
-				if (typeof origRH[k] !== 'number') throw new Error('expected RH to be number');
-				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-				sortedLH[k] = lh;
-				sortedRH[k] = rh;
-				sortedDiff[k] = diff;
-			} else if (typeof origLH[k] === 'string') {
-				if (typeof origRH[k] !== 'string') throw new Error('expected RH to be string');
-				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-				sortedLH[k] = lh;
-				sortedRH[k] = rh;
-				sortedDiff[k] = diff;
-			} else if (typeof origLH[k] === 'boolean') {
-				if (typeof origRH[k] !== 'boolean') throw new Error('expected RH to be boolean');
-				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-				sortedLH[k] = lh;
-				sortedRH[k] = rh;
-				sortedDiff[k] = diff;
 			} else if (typeof origLH[k] === 'object') {
 				if (typeof origRH[k] !== 'object') throw new Error('expected RH to be object');
-				const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
+				const { lh, rh, diff } = simplifyObjects({ ...origLH[k] }, { ...origRH[k] });
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
@@ -1740,10 +1730,10 @@ const reportObjectDiffs = (expected: unknown, found: unknown): string[] => {
 			messages.push(message);
 		}
 	}
-	return messages.map((s) => s.replaceAll('\\u001b', '\u001b'));
+	return messages.map((s) => s.replace(/\\u001b/g, '\u001b'));
 };
 
-type CompareError = { status: string; message: string; type?: string };
+type CompareError = { status: string; message: string };
 const compareConstants = (
 	fileName: string,
 	_found: Record<string, unknown>,
@@ -1795,7 +1785,7 @@ const compareDialogs = (fileName: string, dialogName: string, expectedDialogs, f
 		const diffs = reportObjectDiffs(expected, found);
 		if (diffs.length) {
 			errors.push({
-				type: 'fail',
+				status: 'fail',
 				message: `${fileName}: dialog "${dialogName}" [${i}] mismatch\n${diffs.join('\n')}`,
 			});
 		}
@@ -1815,7 +1805,7 @@ print     |        |   yes   |    yes     |      yes
 Is there a better way?
 */
 
-const doActionTest = (scriptName: string, actionExpected, actionFound) => {
+const doActionTest = (scriptName: string, actionExpected, actionFound): ComparedTexts | null => {
 	const expected = actionExpected[scriptName];
 	const found = actionFound[scriptName].testPrint;
 	const compared = compareTexts(found, expected, '', scriptName);

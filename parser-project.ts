@@ -65,7 +65,7 @@ export const makeProjectState = (
 	tsParser: Parser,
 	fileMap: FileMap,
 	scenarioData: Record<string, unknown>,
-) => {
+): ProjectState => {
 	// project crawl state
 	const p: ProjectState = {
 		...(scenarioData || {}),

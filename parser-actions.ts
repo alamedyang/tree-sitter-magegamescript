@@ -6,16 +6,20 @@ import {
 	type CHECK_SAVE_FLAG,
 	type SET_SAVE_FLAG,
 	getBoolFieldForAction,
+	type COPY_VARIABLE,
+	type MUTATE_VARIABLE,
+	type MUTATE_VARIABLES,
 } from './parser-bytecode-info.ts';
 import {
+	type AnyNode,
 	type DialogDefinitionNode,
 	type MathlangNode,
+	type CommentNode,
 	type MovableIdentifier,
 	type CoordinateIdentifier,
 	type MGSMessage,
 	type IntGetable,
 	type MathlangSequence,
-	type AnyNode,
 	isIntGetable,
 	type GenericActionish,
 } from './parser-types.ts';
@@ -51,7 +55,7 @@ const opIntoStringMap = {
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 
-const flattenIntBinaryExpression = (exp, steps) => {
+const flattenIntBinaryExpression = (exp, steps: AnyNode[]) => {
 	const temporary = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
@@ -472,6 +476,7 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i) => {
 			const grammarType = grammarTypeForFieldName(f, node, 'rhs');
+			if (grammarType === undefined) throw new Error('undefined grammarType');
 			if (typeof v.lhs !== 'string') throw new Error('TS');
 			if (
 				grammarType === 'ambiguous_identifier_expansion' ||
@@ -1114,7 +1119,7 @@ const setVarToValue = (variable: string, value: number): Action => ({
 	value,
 	variable,
 });
-const setVarToVar = (variable: string, source: string): AnyNode => {
+const setVarToVar = (variable: string, source: string): MUTATE_VARIABLES | CommentNode => {
 	if (variable === source)
 		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
 	return {
@@ -1124,7 +1129,11 @@ const setVarToVar = (variable: string, source: string): AnyNode => {
 		variable,
 	};
 };
-const changeVarByValue = (variable: string, value: number, op: string): AnyNode => {
+const changeVarByValue = (
+	variable: string,
+	value: number,
+	op: string,
+): MUTATE_VARIABLE | CommentNode => {
 	if (op === '+' && value === 0) {
 		return newComment('This action was optimized out (+ 0)');
 	}
@@ -1144,20 +1153,28 @@ const changeVarByValue = (variable: string, value: number, op: string): AnyNode 
 		variable,
 	};
 };
-const changeVarByVar = (variable: string, source: string, op: string): Action => ({
+const changeVarByVar = (variable: string, source: string, op: string): MUTATE_VARIABLES => ({
 	action: 'MUTATE_VARIABLES',
 	operation: opIntoStringMap[op] || op,
 	source,
 	variable,
 });
-const copyVarIntoEntityField = (variable: string, entity: string, field: string): Action => ({
+const copyVarIntoEntityField = (
+	variable: string,
+	entity: string,
+	field: string,
+): COPY_VARIABLE => ({
 	action: 'COPY_VARIABLE',
 	entity,
 	field,
 	inbound: false,
 	variable,
 });
-const copyEntityFieldIntoVar = (entity: string, field: string, variable: string): Action => ({
+const copyEntityFieldIntoVar = (
+	entity: string,
+	field: string,
+	variable: string,
+): COPY_VARIABLE => ({
 	action: 'COPY_VARIABLE',
 	entity,
 	field,
