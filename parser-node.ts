@@ -34,7 +34,6 @@ import {
 	type LabelDefinitionNode,
 	type MGSMessage,
 	type AddDialogSettingsNode,
-	type MathlangSerialDialogParameter,
 	type MathlangSequence,
 	type DialogInfo,
 	type IncludeNode,
@@ -49,8 +48,6 @@ import {
 	type SerialDialogInfo,
 	type SerialDialog,
 	type Dialog,
-	type MathlangDialogParameter,
-	type DialogIdentifier,
 	type ScriptDefinitionNode,
 	isMGSValue,
 	isMathlangDialogParameter,
@@ -63,7 +60,11 @@ import {
 	type ContinueStatement,
 	isSerialDialog,
 	isDialog,
+	isMathlangSerialDialogParameter,
+	isDialogIdentifier,
+	isMathlangCondition,
 } from './parser-types.ts';
+import { type GOTO_ACTION_INDEX, type CheckAction } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	// ->[]
@@ -360,11 +361,8 @@ const nodeFns = {
 	},
 	add_serial_dialog_settings: (f: FileState, node: Node): [AddSerialDialogSettingsNode] => {
 		// This one is inconsistent with the others?
-		const parameters: MathlangSerialDialogParameter[] = capturesForFieldName(
-			f,
-			node,
-			'serial_dialog_parameter',
-		);
+		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
+		if (!parameters.every(isMathlangSerialDialogParameter)) throw new Error();
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
@@ -444,11 +442,8 @@ const nodeFns = {
 	},
 	serial_dialog: (f: FileState, node: Node): [SerialDialog] => {
 		const settings = {};
-		const params: MathlangSerialDialogParameter[] = capturesForFieldName(
-			f,
-			node,
-			'serial_dialog_parameter',
-		);
+		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
+		if (!params.every(isMathlangSerialDialogParameter)) throw new Error();
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
@@ -475,7 +470,8 @@ const nodeFns = {
 	},
 	dialog: (f: FileState, node: Node): [Dialog] => {
 		const settings = {};
-		const params: MathlangDialogParameter[] = capturesForFieldName(f, node, 'dialog_parameter');
+		const params = capturesForFieldName(f, node, 'dialog_parameter');
+		if (!params.every(isMathlangDialogParameter)) throw new Error();
 		const messageN = node.childrenForFieldName('message');
 		params.forEach((v) => {
 			settings[v.property] = v.value;
@@ -490,7 +486,8 @@ const nodeFns = {
 		if (!options.every(isDialogOption)) {
 			throw new Error('invalid option');
 		}
-		const identifier: DialogIdentifier = captureForFieldName(f, node, 'dialog_identifier');
+		const identifier = captureForFieldName(f, node, 'dialog_identifier');
+		if (!isDialogIdentifier(identifier)) throw new Error('asdf');
 		const messages = messageN.map((v) => handleCapture(f, v));
 		if (!messages.every((v) => typeof v === 'string')) throw new Error('Pff');
 		const info: DialogInfo = {
@@ -597,6 +594,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
+		if (!isMathlangCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -629,6 +627,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
+		if (!isMathlangCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -659,6 +658,8 @@ const nodeFns = {
 		const continueL = `for continue #${n}`;
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
+		const condition = handleCapture(f, conditionN);
+		if (!isMathlangCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const incrementerN = node.childForFieldName('incrementer');
@@ -679,7 +680,7 @@ const nodeFns = {
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
 			label(f, conditionN, conditionL),
-			...expandCondition(f, conditionN, handleCapture(f, conditionN), bodyL),
+			...expandCondition(f, conditionN, condition, bodyL),
 			gotoLabel(f, node, rendezvousL),
 			label(f, bodyN, bodyL),
 			...body,
@@ -695,7 +696,9 @@ const nodeFns = {
 		let action = handleCapture(f, conditionN);
 		// condition.mathlang = 'if_single';
 		const type = textForFieldName(f, node, 'type');
-		const isBool = typeof action === 'boolean';
+		if (typeof action === 'number') throw new Error('lol waht');
+		if (action === undefined) throw new Error('lol waht');
+		if (action === null) throw new Error('lol waht');
 		if (typeof action === 'string') {
 			action = {
 				mathlang: 'bool_getable',
@@ -706,27 +709,31 @@ const nodeFns = {
 		}
 		if (!type) {
 			const script = captureForFieldName(f, node, 'script');
-			if (isBool) {
+			if (typeof script !== 'string') throw new Error('');
+			if (typeof action === 'boolean') {
 				return action ? [{ action: 'RUN_SCRIPT', script }] : [];
 			}
-			delete action.mathlang;
-			return {
+			if (typeof action === 'number') throw new Error("this shouldn't happen");
+			if (typeof action === 'boolean') throw new Error("this shouldn't happen");
+			const ret: CheckAction = {
 				...action,
 				success_script: script,
 			};
+			return [ret];
 		} else if (type === 'index') {
 			const index = captureForFieldName(f, node, 'index');
-			if (isBool) {
-				return action ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
+			if (typeof action === 'boolean') {
+				if (typeof index !== 'number') throw new Error(':(');
+				const ret: GOTO_ACTION_INDEX = { action: 'GOTO_ACTION_INDEX', action_index: index };
+				return action ? [ret] : [];
 			}
-			delete action.mathlang;
 			return {
 				...action,
 				jump_index: index,
 			};
 		} else if (type === 'label') {
 			const label = captureForFieldName(f, node, 'label');
-			if (isBool) {
+			if (typeof action === 'boolean') {
 				return action ? [gotoLabel(f, node, label)] : [];
 			}
 			return [
@@ -755,7 +762,10 @@ const nodeFns = {
 					return handleNode(f, v);
 				})
 				.flat();
-			if (body.length === 1 && (condition.action || typeof condition === 'string')) {
+			if (
+				body.length === 1 &&
+				(isNodeAction(condition as AnyNode) || typeof condition === 'string')
+			) {
 				if (isNodeAction(body[0]) && body[0].action === 'RUN_SCRIPT') {
 					if (typeof condition === 'string') {
 						condition = {
@@ -766,7 +776,6 @@ const nodeFns = {
 						};
 					}
 					condition.success_script = body[0].script;
-					delete condition.mathlang;
 					return condition;
 				} else if (!isNodeAction(body[0]) && body[0].mathlang === 'goto_label') {
 					if (typeof condition === 'string') {
@@ -791,6 +800,7 @@ const nodeFns = {
 			const conditionN = iff.childForFieldName('condition');
 			if (!conditionN) throw new Error('TS');
 			const condition = handleCapture(f, conditionN);
+			if (!isMathlangCondition(condition)) throw new Error('not a condition');
 			const bodyN = iff.childForFieldName('body');
 			if (!bodyN) throw new Error('TS');
 			const body = bodyN.namedChildren

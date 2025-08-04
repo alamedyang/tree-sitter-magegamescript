@@ -170,7 +170,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo):
 			}
 			option.label = wrapText(option.label, serialDialogSettings.wrap || SERIAL_DIALOG_WRAP);
 			if (option.optionType !== firstOptionType) {
-				const node = option.debug.firstChild;
+				const node = option.debug.node.firstChild;
 				if (!node) throw new Error('TS');
 				warnNodes.push({ node });
 			}

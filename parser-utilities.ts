@@ -209,6 +209,7 @@ export const expandCondition = (
 	const op = condition.op;
 	const lhs = condition.lhs;
 	const rhs = condition.rhs;
+	if (typeof lhs === 'number' || typeof rhs === 'number') throw new Error('');
 	if (op === '||') {
 		const expanded = [
 			expandCondition(f, condition.lhsNode, lhs, ifLabel),

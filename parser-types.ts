@@ -21,6 +21,7 @@ export type MathlangNode =
 	| MathlangSequence
 	| SerialDialog
 	| Dialog
+	| DialogIdentifier
 	| DialogDefinitionNode
 	| SerialDialogDefinitionNode
 	| ScriptDefinitionNode
@@ -40,10 +41,6 @@ export type MathlangNode =
 	| MathlangGotoLabel
 	| MathlangCopyMacro;
 
-export type GenericActionish = Record<
-	string,
-	boolean | number | string | TYPES.MGSDebug | Record<string, unknown>
->;
 export type AnyNode = TYPES.Action | MathlangNode;
 export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
 	return (node as TYPES.Action).action !== undefined;
@@ -70,6 +67,10 @@ export type DialogIdentifier = {
 	mathlang: 'dialog_identifier';
 	type: 'label' | 'entity' | 'name';
 	value: string;
+	debug?: TYPES.MGSDebug;
+};
+export const isDialogIdentifier = (v: unknown): v is DialogIdentifier => {
+	return (v as DialogIdentifier).mathlang === 'dialog_identifier';
 };
 export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
@@ -83,7 +84,6 @@ export type SerialDialogSettings = {
 export type MathlangBoolComparison =
 	| MathlangNumberCheckableEquality
 	| MathlangStringCheckable
-	| MathlangNumberCheckableEquality
 	| ((TYPES.CHECK_VARIABLES | TYPES.CHECK_VARIABLE | TYPES.CHECK_ENTITY_DIRECTION) & {
 			mathlang: 'bool_comparison';
 			label?: string;
@@ -166,6 +166,20 @@ export type MathlangCondition =
 	| TYPES.CHECK_SAVE_FLAG
 	| boolean
 	| string;
+export const isMathlangCondition = (v: unknown): v is MathlangCondition => {
+	if (typeof v === 'string') return true;
+	if (typeof v === 'boolean') return true;
+	if ((v as TYPES.CHECK_SAVE_FLAG).action === 'CHECK_SAVE_FLAG') return true;
+	if ((v as BoolBinaryExpression).mathlang === 'bool_binary_expression') return true;
+	if ((v as MathlangBoolGetable).mathlang === 'bool_getable') return true;
+	if ((v as MathlangBoolComparison).mathlang === 'bool_comparison') return true;
+	if ((v as MathlangBoolComparison).mathlang === 'number_checkable_equality') return true;
+	if ((v as MathlangStringCheckable).mathlang === 'string_checkable') return true;
+	if ((v as MathlangNumberCheckableEquality).mathlang === 'number_checkable_equality') {
+		return true;
+	}
+	return false;
+};
 
 export type MathlangStringCheckable = {
 	mathlang: 'string_checkable' | 'bool_comparison'; // todo fix
@@ -384,6 +398,7 @@ export type SerialDialog = {
 	messages: string[];
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
+	debug?: TYPES.MGSDebug;
 };
 export const isSerialDialog = (v: AnyNode): v is SerialDialog => {
 	return (v as SerialDialog).mathlang === 'serial_dialog';

@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { handleCapture, grammarTypeForFieldName } from './parser-capture.ts';
+import { handleCapture, grammarTypeForFieldName, type Capture } from './parser-capture.ts';
 import {
 	type Action,
 	type MGSDebug,
@@ -21,7 +21,8 @@ import {
 	type IntGetable,
 	type MathlangSequence,
 	isIntGetable,
-	type GenericActionish,
+	isDialog,
+	isSerialDialog,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -161,6 +162,10 @@ const actionSetBoolMaker = (
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
 
+export type GenericActionish = Record<
+	string,
+	boolean | number | string | MGSDebug | Record<string, unknown>
+>;
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
 const spreadValues = (
@@ -212,7 +217,7 @@ const spreadValues = (
 // TODO: why then return an array?
 type FieldToSpread = {
 	node: TreeSitterNode;
-	captures: unknown[];
+	captures: Capture[];
 };
 export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	if (!node) throw new Error('Missing node');
@@ -281,7 +286,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 			}
 		});
 	}
-	return spreads;
+	return spreads as AnyNode[];
 };
 
 // Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
@@ -292,10 +297,14 @@ const actionFns: Record<string, ActionFn> = {
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		if (typeof name !== 'string') throw new Error('name not a string');
 		const dialogs = (node.childrenForFieldName('dialog') || [])
-			.map((child) => handleNode(f, child))
+			.map((child) => {
+				if (child === null) throw new Error('');
+				return handleNode(f, child);
+			})
 			.flat();
 		const shownDialog = showDialog(f, node, name);
 		if (dialogs.length) {
+			if (!dialogs.every(isDialog)) throw new Error('');
 			const dialogDefinition = newDialog(f, node, name, dialogs) as DialogDefinitionNode;
 			return [dialogDefinition, shownDialog];
 		}
@@ -312,10 +321,14 @@ const actionFns: Record<string, ActionFn> = {
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
 		if (typeof name !== 'string') throw new Error('name not a string');
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
-			.map((child) => handleNode(f, child))
+			.map((child) => {
+				if (child === null) throw new Error('');
+				return handleNode(f, child);
+			})
 			.flat();
 		const shownSerialDialog = showSerialDialog(f, node, name, isConcat || false);
 		if (serialDialogs.length) {
+			if (!isSerialDialog(serialDialogs[0])) throw new Error('');
 			const serialDialoDefinition = newSerialDialog(f, node, name, serialDialogs[0]);
 			return [serialDialoDefinition, shownSerialDialog];
 		}

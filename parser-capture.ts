@@ -7,6 +7,7 @@ import {
 import {
 	type CoordinateIdentifier,
 	type MovableIdentifier,
+	type MathlangDialogParameter,
 	type MathlangSerialDialogParameter,
 	type MathlangStringCheckable,
 	type MathlangNumberCheckableEquality,
@@ -21,6 +22,8 @@ import {
 	type DirectionTarget,
 	isStringCheckable,
 	isIntUnit,
+	isMathlangCondition,
+	type IntUnit,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -47,13 +50,14 @@ type BoolExpression =
 	| boolean
 	| string
 	| MathlangBoolGetable;
-type Capture =
+export type Capture =
 	| number
 	| boolean
 	| string
 	| MovableIdentifier
 	| DialogIdentifier
-	| MathlanglDialogParameter
+	| MathlangSerialDialogParameter
+	| MathlangDialogParameter
 	| MathlangSerialDialogParameter
 	| CoordinateIdentifier
 	| BoolSetable
@@ -200,7 +204,7 @@ const captureFns = {
 			value,
 		};
 	},
-	dialog_parameter: (f: FileState, node: TreeSitterNode): MathlanglDialogParameter => {
+	dialog_parameter: (f: FileState, node: TreeSitterNode): MathlangDialogParameter => {
 		const property = textForFieldName(f, node, 'property');
 		if (property === undefined) throw new Error('undefined property');
 		const value = captureForFieldName(f, node, 'value');
@@ -382,7 +386,11 @@ const captureFns = {
 		};
 	},
 	bool_grouping: (f: FileState, node: TreeSitterNode): BoolExpression => {
-		return captureForFieldName(f, node, 'inner');
+		const capture = captureForFieldName(f, node, 'inner');
+		if (capture === undefined) throw new Error('no');
+		if (typeof capture === 'number') throw new Error('no');
+		if (!isMathlangCondition(capture)) throw new Error('lulul');
+		return capture;
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): MathlangCondition => {
 		const op = textForFieldName(f, node, 'operator');
@@ -722,11 +730,12 @@ const captureFns = {
 			entity,
 		};
 	},
-	int_grouping: (
-		f: FileState,
-		node: TreeSitterNode,
-	): IntBinaryExpression | IntGetable | number | string => {
-		return handleCapture(f, node.namedChildren[0]);
+	int_grouping: (f: FileState, node: TreeSitterNode): IntUnit => {
+		const capture = handleCapture(f, node.namedChildren[0]);
+		if (!isIntUnit(capture)) {
+			throw new Error();
+		}
+		return capture;
 	},
 	direction_target: (f: FileState, node: TreeSitterNode): DirectionTarget => {
 		const direction = textForFieldName(f, node, 'nsew');

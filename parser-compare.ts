@@ -89,6 +89,7 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 	// }
 	const oldActions = oldPre[scriptName];
 	const newActions = p.scripts[scriptName].preActions;
+	if (!newActions) throw new Error('missing newActions');
 
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
