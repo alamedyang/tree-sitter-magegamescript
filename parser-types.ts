@@ -11,10 +11,10 @@ export const isMGSValue = (v: unknown): v is MGSValue => {
 
 export type Intermediate =
 	| BoolBinaryExpression
-	| MathlangBoolGetable
-	| MathlangBoolComparison
-	| MathlangStringCheckable
-	| MathlangNumberCheckableEquality;
+	| BoolGetable
+	| BoolComparison
+	| StringCheckable
+	| NumberCheckableEquality;
 
 export type MathlangNode =
 	| Intermediate
@@ -38,8 +38,8 @@ export type MathlangNode =
 	| ReturnStatement
 	| ContinueStatement
 	| BreakStatement
-	| MathlangGotoLabel
-	| MathlangCopyMacro;
+	| GotoLabel
+	| CopyMacro;
 
 export type AnyNode = TYPES.Action | MathlangNode;
 export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
@@ -81,32 +81,32 @@ export type SerialDialogSettings = {
 	wrap?: number;
 };
 
-export type MathlangBoolComparison =
-	| MathlangNumberCheckableEquality
-	| MathlangStringCheckable
+export type BoolComparison =
+	| NumberCheckableEquality
+	| StringCheckable
 	| ((TYPES.CHECK_VARIABLES | TYPES.CHECK_VARIABLE | TYPES.CHECK_ENTITY_DIRECTION) & {
 			mathlang: 'bool_comparison';
 			label?: string;
 			debug?: TYPES.MGSDebug;
 			comment?: string;
 	  });
-export type MathlangDialogParameter = {
+export type DialogParameter = {
 	mathlang: 'dialog_parameter';
 	property: string;
 	value: MGSValue;
 };
-export const isMathlangDialogParameter = (v: unknown): v is MathlangDialogParameter => {
+export const isDialogParameter = (v: unknown): v is DialogParameter => {
 	if (typeof v !== 'object') return false;
-	return (v as MathlangDialogParameter).mathlang === 'dialog_parameter';
+	return (v as DialogParameter).mathlang === 'dialog_parameter';
 };
-export type MathlangSerialDialogParameter = {
+export type SerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
 	property: string;
 	value: MGSValue;
 };
-export const isMathlangSerialDialogParameter = (v: unknown): v is MathlangSerialDialogParameter => {
+export const isSerialDialogParameter = (v: unknown): v is SerialDialogParameter => {
 	if (typeof v !== 'object') return false;
-	return (v as MathlangSerialDialogParameter).mathlang === 'serial_dialog_parameter';
+	return (v as SerialDialogParameter).mathlang === 'serial_dialog_parameter';
 };
 export type MovableIdentifier = {
 	mathlang: 'movable_identifier';
@@ -159,29 +159,29 @@ export type BoolBinaryExpression = {
 };
 export type MathlangCondition =
 	| BoolBinaryExpression
-	| MathlangBoolGetable
-	| MathlangBoolComparison
-	| MathlangStringCheckable
-	| MathlangNumberCheckableEquality
+	| BoolGetable
+	| BoolComparison
+	| StringCheckable
+	| NumberCheckableEquality
 	| TYPES.CHECK_SAVE_FLAG
 	| boolean
 	| string;
-export const isMathlangCondition = (v: unknown): v is MathlangCondition => {
+export const isCondition = (v: unknown): v is MathlangCondition => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'boolean') return true;
 	if ((v as TYPES.CHECK_SAVE_FLAG).action === 'CHECK_SAVE_FLAG') return true;
 	if ((v as BoolBinaryExpression).mathlang === 'bool_binary_expression') return true;
-	if ((v as MathlangBoolGetable).mathlang === 'bool_getable') return true;
-	if ((v as MathlangBoolComparison).mathlang === 'bool_comparison') return true;
-	if ((v as MathlangBoolComparison).mathlang === 'number_checkable_equality') return true;
-	if ((v as MathlangStringCheckable).mathlang === 'string_checkable') return true;
-	if ((v as MathlangNumberCheckableEquality).mathlang === 'number_checkable_equality') {
+	if ((v as BoolGetable).mathlang === 'bool_getable') return true;
+	if ((v as BoolComparison).mathlang === 'bool_comparison') return true;
+	if ((v as BoolComparison).mathlang === 'number_checkable_equality') return true;
+	if ((v as StringCheckable).mathlang === 'string_checkable') return true;
+	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') {
 		return true;
 	}
 	return false;
 };
 
-export type MathlangStringCheckable = {
+export type StringCheckable = {
 	mathlang: 'string_checkable' | 'bool_comparison'; // todo fix
 	debug?: TYPES.MGSDebug;
 	entity: string;
@@ -201,17 +201,17 @@ export type MathlangStringCheckable = {
 };
 
 // icky
-export const isStringCheckable = (v: unknown): v is MathlangStringCheckable => {
+export const isStringCheckable = (v: unknown): v is StringCheckable => {
 	if (typeof v !== 'object') return false;
-	const hasEntity = typeof (v as MathlangStringCheckable).entity == 'string';
-	const hasProperty = typeof (v as MathlangStringCheckable).property == 'string';
+	const hasEntity = typeof (v as StringCheckable).entity == 'string';
+	const hasProperty = typeof (v as StringCheckable).property == 'string';
 	return (
 		(v as MathlangNode).mathlang === 'string_checkable' ||
 		((v as MathlangNode).mathlang === 'string_checkable' && hasEntity && hasProperty)
 	);
 };
 
-export type MathlangNumberCheckableEquality = {
+export type NumberCheckableEquality = {
 	mathlang: 'number_checkable_equality' | 'bool_comparison'; // todo fix
 	debug?: TYPES.MGSDebug;
 	entity: string;
@@ -229,7 +229,7 @@ export type MathlangNumberCheckableEquality = {
 	numberLabel?: 'expected_u2' | 'expected_byte';
 	comment?: string;
 };
-export type MathlangBoolGetable = {
+export type BoolGetable = {
 	mathlang: 'bool_getable';
 	debug: TYPES.MGSDebug;
 	action: string;
@@ -298,7 +298,7 @@ export type AddDialogSettingsNode = {
 	mathlang: 'add_dialog_settings';
 	debug: TYPES.MGSDebug;
 	targets: AddDialogSettingsTargetNode[];
-	parameters?: MathlangSerialDialogParameter[];
+	parameters?: SerialDialogParameter[];
 };
 export const isAddDialogSettingsNode = (node: AnyNode): node is AddDialogSettingsNode => {
 	return (node as AddDialogSettingsNode).mathlang === 'add_dialog_settings';
@@ -308,7 +308,7 @@ export type AddDialogSettingsTargetNode = {
 	type: string;
 	debug: TYPES.MGSDebug;
 	target?: string;
-	parameters?: MathlangDialogParameter[];
+	parameters?: DialogParameter[];
 };
 export const isAddDialogSettingsTargetNode = (
 	node: AnyNode,
@@ -318,7 +318,7 @@ export const isAddDialogSettingsTargetNode = (
 // todo: not used?
 export type AddSerialDialogSettingsNode = {
 	mathlang: 'add_serial_dialog_settings';
-	parameters: MathlangSerialDialogParameter[];
+	parameters: SerialDialogParameter[];
 	debug: TYPES.MGSDebug;
 };
 export type SerialOptionType = 'text_options' | 'options';
@@ -426,7 +426,7 @@ export type BreakStatement = {
 	mathlang: 'break_statement';
 	debug: TYPES.MGSDebug;
 };
-export type MathlangGotoLabel = {
+export type GotoLabel = {
 	mathlang: 'goto_label';
 	label: string;
 	debug?: TYPES.MGSDebug;
@@ -436,12 +436,12 @@ export type Constant = {
 	value: MGSValue;
 	debug: TYPES.MGSDebug;
 };
-export type MathlangCopyMacro = {
+export type CopyMacro = {
 	mathlang: 'copy_script';
 	script: string;
 	debug: TYPES.MGSDebug;
 };
-type CopyScript = MathlangCopyMacro | TYPES.COPY_SCRIPT;
+type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
 
 export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
 	return (
@@ -457,11 +457,11 @@ export const hasSearchAndReplace = (node: AnyNode): boolean => {
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
-	| MathlangGotoLabel
-	| MathlangBoolGetable
-	| MathlangBoolComparison
-	| MathlangStringCheckable
-	| MathlangNumberCheckableEquality;
+	| GotoLabel
+	| BoolGetable
+	| BoolComparison
+	| StringCheckable
+	| NumberCheckableEquality;
 
 export const doesMathlangHaveLabelToChangeToIndex = (
 	node: AnyNode,

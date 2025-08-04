@@ -7,22 +7,22 @@ import {
 import {
 	type CoordinateIdentifier,
 	type MovableIdentifier,
-	type MathlangDialogParameter,
-	type MathlangSerialDialogParameter,
-	type MathlangStringCheckable,
-	type MathlangNumberCheckableEquality,
-	type MathlangBoolGetable,
+	type DialogParameter,
+	type SerialDialogParameter,
+	type StringCheckable,
+	type NumberCheckableEquality,
+	type BoolGetable,
 	type DialogIdentifier,
 	type BoolSetable,
 	type IntBinaryExpression,
 	type BoolBinaryExpression,
-	type MathlangBoolComparison,
+	type BoolComparison,
 	type MathlangCondition,
 	type IntGetable,
 	type DirectionTarget,
 	isStringCheckable,
 	isIntUnit,
-	isMathlangCondition,
+	isCondition,
 	type IntUnit,
 } from './parser-types.ts';
 import {
@@ -44,21 +44,16 @@ const opIntoStringMap: Record<string, string> = {
 	'?': 'RNG',
 };
 
-type BoolExpression =
-	| MathlangBoolComparison
-	| BoolBinaryExpression
-	| boolean
-	| string
-	| MathlangBoolGetable;
+type BoolExpression = BoolComparison | BoolBinaryExpression | boolean | string | BoolGetable;
 export type Capture =
 	| number
 	| boolean
 	| string
 	| MovableIdentifier
 	| DialogIdentifier
-	| MathlangSerialDialogParameter
-	| MathlangDialogParameter
-	| MathlangSerialDialogParameter
+	| SerialDialogParameter
+	| DialogParameter
+	| SerialDialogParameter
 	| CoordinateIdentifier
 	| BoolSetable
 	| IntBinaryExpression
@@ -66,8 +61,8 @@ export type Capture =
 	| BoolBinaryExpression
 	| MathlangCondition
 	| IntGetable
-	| MathlangBoolGetable
-	| MathlangStringCheckable;
+	| BoolGetable
+	| StringCheckable;
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
 	if (!node) throw new Error('TS FRFR');
 	reportErrorNodes(f, node);
@@ -204,7 +199,7 @@ const captureFns = {
 			value,
 		};
 	},
-	dialog_parameter: (f: FileState, node: TreeSitterNode): MathlangDialogParameter => {
+	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
 		const property = textForFieldName(f, node, 'property');
 		if (property === undefined) throw new Error('undefined property');
 		const value = captureForFieldName(f, node, 'value');
@@ -215,10 +210,7 @@ const captureFns = {
 			value,
 		};
 	},
-	serial_dialog_parameter: (
-		f: FileState,
-		node: TreeSitterNode,
-	): MathlangSerialDialogParameter => {
+	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
 		const property = textForFieldName(f, node, 'property') || '';
 		const value = captureForFieldName(f, node, 'value');
 		if (typeof value !== 'string' && typeof value !== 'number') throw new Error('ts');
@@ -389,7 +381,7 @@ const captureFns = {
 		const capture = captureForFieldName(f, node, 'inner');
 		if (capture === undefined) throw new Error('no');
 		if (typeof capture === 'number') throw new Error('no');
-		if (!isMathlangCondition(capture)) throw new Error('lulul');
+		if (!isCondition(capture)) throw new Error('lulul');
 		return capture;
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): MathlangCondition => {
@@ -412,10 +404,10 @@ const captureFns = {
 			entity,
 		};
 	},
-	bool_getable: (f: FileState, node: TreeSitterNode): MathlangBoolGetable => {
+	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		// PART OF BOOL EXPRESSIONS
 		const type = textForFieldName(f, node, 'type');
-		const ret: MathlangBoolGetable = {
+		const ret: BoolGetable = {
 			mathlang: 'bool_getable',
 			debug: {
 				node,
@@ -480,8 +472,8 @@ const captureFns = {
 		ret[param] = ret[param] === undefined ? true : ret[param];
 		return ret;
 	},
-	string_checkable: (f: FileState, node: TreeSitterNode): MathlangStringCheckable => {
-		const ret: MathlangStringCheckable = {
+	string_checkable: (f: FileState, node: TreeSitterNode): StringCheckable => {
+		const ret: StringCheckable = {
 			mathlang: 'string_checkable',
 			entity: '',
 			property: '',
@@ -540,11 +532,8 @@ const captureFns = {
 		}
 		throw new Error(`unreachable`);
 	},
-	number_checkable_equality: (
-		f: FileState,
-		node: TreeSitterNode,
-	): MathlangNumberCheckableEquality => {
-		const ret: MathlangNumberCheckableEquality = {
+	number_checkable_equality: (f: FileState, node: TreeSitterNode): NumberCheckableEquality => {
+		const ret: NumberCheckableEquality = {
 			mathlang: 'number_checkable_equality',
 			entity: '',
 			property: '',
@@ -621,7 +610,7 @@ const captureFns = {
 		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return entity;
 	},
-	bool_comparison: (f: FileState, node: TreeSitterNode): MathlangBoolComparison | boolean => {
+	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | boolean => {
 		const lhsNode = node.childForFieldName('lhs');
 		const rhsNode = node.childForFieldName('rhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
@@ -632,7 +621,7 @@ const captureFns = {
 			fileName: f.fileName,
 		};
 		if (lhsNode.grammarType === 'entity_direction') {
-			const checkEntityDirection: MathlangBoolComparison = {
+			const checkEntityDirection: BoolComparison = {
 				...compareNSEW(f, lhsNode, rhsNode),
 				debug,
 				expected_bool: op === '==',
@@ -640,7 +629,7 @@ const captureFns = {
 			return checkEntityDirection;
 		}
 		if (rhsNode.grammarType === 'entity_direction') {
-			const checkEntityDirection: MathlangBoolComparison = {
+			const checkEntityDirection: BoolComparison = {
 				...compareNSEW(f, rhsNode, lhsNode),
 				debug,
 				expected_bool: op === '==',
@@ -648,7 +637,7 @@ const captureFns = {
 			return checkEntityDirection;
 		}
 		if (lhsNode.grammarType === 'string_checkable') {
-			const stringCheckable: MathlangStringCheckable = {
+			const stringCheckable: StringCheckable = {
 				...compareString(f, lhsNode, rhsNode),
 				mathlang: 'bool_comparison',
 				debug,
@@ -657,7 +646,7 @@ const captureFns = {
 			return stringCheckable;
 		}
 		if (rhsNode.grammarType === 'string_checkable') {
-			const stringCheckable: MathlangStringCheckable = {
+			const stringCheckable: StringCheckable = {
 				...compareString(f, rhsNode, lhsNode),
 				mathlang: 'bool_comparison',
 				debug,
@@ -666,7 +655,7 @@ const captureFns = {
 			return stringCheckable;
 		}
 		if (lhsNode.grammarType === 'number_checkable_equality') {
-			const numberCheckableEquality: MathlangNumberCheckableEquality = {
+			const numberCheckableEquality: NumberCheckableEquality = {
 				...compareNumberCheckableEquality(f, lhsNode, rhsNode),
 				mathlang: 'bool_comparison',
 				debug,
@@ -675,7 +664,7 @@ const captureFns = {
 			return numberCheckableEquality;
 		}
 		if (rhsNode.grammarType === 'number_checkable_equality') {
-			const numberCheckableEquality: MathlangNumberCheckableEquality = {
+			const numberCheckableEquality: NumberCheckableEquality = {
 				...compareNumberCheckableEquality(f, rhsNode, lhsNode),
 				mathlang: 'bool_comparison',
 				debug,
@@ -687,14 +676,14 @@ const captureFns = {
 		const rhs = handleCapture(f, rhsNode);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
-				const checkVariablesAction: MathlangBoolComparison = {
+				const checkVariablesAction: BoolComparison = {
 					...checkVariables(f, lhs, rhs, op),
 					mathlang: 'bool_comparison',
 					debug,
 				};
 				return checkVariablesAction;
 			} else if (typeof rhs === 'number') {
-				const checkVariableAction: MathlangBoolComparison = {
+				const checkVariableAction: BoolComparison = {
 					...checkVariable(f, lhs, rhs, op),
 					mathlang: 'bool_comparison',
 					debug,
@@ -771,7 +760,7 @@ const compareNSEW = (
 	f: FileState,
 	entityNode: TreeSitterNode,
 	nsewNode: TreeSitterNode,
-): MathlangBoolComparison => {
+): BoolComparison => {
 	const entity = captureForFieldName(f, entityNode, 'entity_identifier');
 	if (typeof entity !== 'string') throw new Error('entity not a string');
 	return {
@@ -786,7 +775,7 @@ const compareString = (
 	f: FileState,
 	checkableNode: TreeSitterNode,
 	stringNode: TreeSitterNode,
-): MathlangStringCheckable => {
+): StringCheckable => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isStringCheckable(checkable)) {
 		throw new Error('invalid string checkable');
@@ -811,7 +800,7 @@ const compareNumberCheckableEquality = (
 	f: FileState,
 	checkableNode: TreeSitterNode,
 	numberNode: TreeSitterNode,
-): MathlangNumberCheckableEquality => {
+): NumberCheckableEquality => {
 	const checkable = handleCapture(f, checkableNode);
 	const number = handleCapture(f, numberNode);
 	return {

@@ -47,11 +47,11 @@ const printAction = (data: MATHLANG.AnyNode): string => {
 // TODO: data type
 const mathlang = {
 	goto_label: (data) => `${printGotoSegment(data)};`,
-	label_definition: (data: MATHLANG.MathlangGotoLabel) => {
+	label_definition: (data: MATHLANG.GotoLabel) => {
 		if (!data.label) throw new Error('cannot print label without label');
 		return `${sanitizeLabel(data.label)}:`;
 	},
-	copy_script: (data: MATHLANG.MathlangCopyMacro) => `copy!("${data.script}")`,
+	copy_script: (data: MATHLANG.CopyMacro) => `copy!("${data.script}")`,
 };
 
 // TODO: v type

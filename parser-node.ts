@@ -28,8 +28,8 @@ import {
 import { handleAction } from './parser-actions.ts';
 import {
 	isNodeAction,
-	type MathlangBoolComparison,
-	type MathlangCopyMacro,
+	type BoolComparison,
+	type CopyMacro,
 	type AnyNode,
 	type LabelDefinitionNode,
 	type MGSMessage,
@@ -50,7 +50,7 @@ import {
 	type Dialog,
 	type ScriptDefinitionNode,
 	isMGSValue,
-	isMathlangDialogParameter,
+	isDialogParameter,
 	type ConstantDefinitionNode,
 	type JSONNode,
 	isAddDialogSettingsTargetNode,
@@ -60,9 +60,9 @@ import {
 	type ContinueStatement,
 	isSerialDialog,
 	isDialog,
-	isMathlangSerialDialogParameter,
+	isSerialDialogParameter,
 	isDialogIdentifier,
-	isMathlangCondition,
+	isCondition,
 } from './parser-types.ts';
 import { type GOTO_ACTION_INDEX, type CheckAction } from './parser-bytecode-info.ts';
 
@@ -266,7 +266,7 @@ const nodeFns = {
 		vertical.forEach((body, i) => {
 			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
-			const condition: MathlangBoolComparison = {
+			const condition: BoolComparison = {
 				mathlang: 'bool_comparison',
 				action: 'CHECK_VARIABLE',
 				variable: temporary,
@@ -350,7 +350,7 @@ const nodeFns = {
 		}
 		// find the settings themselves
 		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
-		if (!parameters.every(isMathlangDialogParameter)) {
+		if (!parameters.every(isDialogParameter)) {
 			throw new Error('Not every capture is the thing');
 		}
 		parameters.forEach((param) => {
@@ -362,7 +362,7 @@ const nodeFns = {
 	add_serial_dialog_settings: (f: FileState, node: Node): [AddSerialDialogSettingsNode] => {
 		// This one is inconsistent with the others?
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		if (!parameters.every(isMathlangSerialDialogParameter)) throw new Error();
+		if (!parameters.every(isSerialDialogParameter)) throw new Error();
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
@@ -443,7 +443,7 @@ const nodeFns = {
 	serial_dialog: (f: FileState, node: Node): [SerialDialog] => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		if (!params.every(isMathlangSerialDialogParameter)) throw new Error();
+		if (!params.every(isSerialDialogParameter)) throw new Error();
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
@@ -471,7 +471,7 @@ const nodeFns = {
 	dialog: (f: FileState, node: Node): [Dialog] => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
-		if (!params.every(isMathlangDialogParameter)) throw new Error();
+		if (!params.every(isDialogParameter)) throw new Error();
 		const messageN = node.childrenForFieldName('message');
 		params.forEach((v) => {
 			settings[v.property] = v.value;
@@ -533,7 +533,7 @@ const nodeFns = {
 		}
 		return [];
 	},
-	copy_macro: (f: FileState, node: Node): [MathlangCopyMacro] => {
+	copy_macro: (f: FileState, node: Node): [CopyMacro] => {
 		const script = captureForFieldName(f, node, 'script');
 		if (typeof script !== 'string') throw new Error('asdfasdf');
 		return [
@@ -594,7 +594,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isMathlangCondition(condition)) throw new Error('not a condition');
+		if (!isCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -627,7 +627,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isMathlangCondition(condition)) throw new Error('not a condition');
+		if (!isCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -659,7 +659,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isMathlangCondition(condition)) throw new Error('not a condition');
+		if (!isCondition(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const incrementerN = node.childForFieldName('incrementer');
@@ -800,7 +800,7 @@ const nodeFns = {
 			const conditionN = iff.childForFieldName('condition');
 			if (!conditionN) throw new Error('TS');
 			const condition = handleCapture(f, conditionN);
-			if (!isMathlangCondition(condition)) throw new Error('not a condition');
+			if (!isCondition(condition)) throw new Error('not a condition');
 			const bodyN = iff.childForFieldName('body');
 			if (!bodyN) throw new Error('TS');
 			const body = bodyN.namedChildren

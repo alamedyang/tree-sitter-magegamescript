@@ -12,7 +12,7 @@ import {
 	type Dialog,
 	type CommentNode,
 	type DialogDefinitionNode,
-	type MathlangGotoLabel,
+	type GotoLabel,
 	type LabelDefinitionNode,
 	type MathlangSequence,
 	type SerialDialogDefinitionNode,
@@ -331,7 +331,7 @@ export const label = (f: FileState, node: Node, label: string): LabelDefinitionN
 		fileName: f.fileName,
 	},
 });
-export const gotoLabel = (f: FileState, node: Node, label: string): MathlangGotoLabel => ({
+export const gotoLabel = (f: FileState, node: Node, label: string): GotoLabel => ({
 	mathlang: 'goto_label',
 	label,
 	debug: {
