@@ -18,9 +18,9 @@ import {
 	type MovableIdentifier,
 	type CoordinateIdentifier,
 	type MGSMessage,
-	type IntGetable,
+	type EntityIntProperty,
 	type MathlangSequence,
-	isIntGetable,
+	isEntityIntProperty,
 	isDialog,
 	isSerialDialog,
 } from './parser-types.ts';
@@ -1021,7 +1021,7 @@ const actionData: Record<string, actionDataEntry> = {
 				}
 				// e.g. varName += player x
 				if (typeof v.rhs !== 'object') throw new Error('come on');
-				if (isIntGetable(v.rhs)) {
+				if (isEntityIntProperty(v.rhs)) {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
@@ -1047,9 +1047,9 @@ const actionData: Record<string, actionDataEntry> = {
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
 			if (typeof v.lhs !== 'object') throw new Error('TS');
-			if (isIntGetable(v.lhs)) {
+			if (isEntityIntProperty(v.lhs)) {
 				// e.g. player x = 1;
-				const lhs = v.lhs as IntGetable;
+				const lhs = v.lhs as EntityIntProperty;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
@@ -1088,7 +1088,7 @@ const actionData: Record<string, actionDataEntry> = {
 				}
 				// e.g. player x = self y;
 				if (typeof v.rhs === 'boolean') throw new Error('TS seriously trust me');
-				if (isIntGetable(v.rhs)) {
+				if (isEntityIntProperty(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [

@@ -25,11 +25,11 @@ import {
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
 import { makeMap, parseProject } from './parser.ts';
-import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import { ansiTags } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 import { type ProjectState } from './parser-project.ts';
+import { type DialogDefinition, type SerialDialog } from './parser-types.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -125,9 +125,7 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 };
 
 // TODO: put into types
-const sortSerialDialogs = (
-	dialogs: Record<string, EncoderSerialDialog | MATHLANG.SerialDialog>,
-) => {
+const sortSerialDialogs = (dialogs: Record<string, EncoderSerialDialog | SerialDialog>) => {
 	const ret = {
 		NAMED: {},
 	};
@@ -144,7 +142,7 @@ const sortSerialDialogs = (
 	return ret;
 };
 // TODO: put into types
-const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDefinitionNode>) => {
+const sortDialogs = (dialogs: Record<string, EncoderDialog[] | DialogDefinition>) => {
 	const ret = {
 		NAMED: {},
 	};
@@ -190,7 +188,7 @@ parseProject(fileMap, {}).then((p: ProjectState): void => {
 	// Comparing named serial dialogs
 	const namedSerialDialogDiffs: string[] = [];
 	[...serialDialogNames].forEach((name) => {
-		const found: MATHLANG.SerialDialog = foundSerialDialogsSorted.NAMED[name];
+		const found: SerialDialog = foundSerialDialogsSorted.NAMED[name];
 		const expected: EncoderSerialDialog = expectedSerialDialogsSorted.NAMED[name];
 		const diffs = compareSerialDialogs(expected, found, 'serialDialogName', name);
 		namedSerialDialogDiffs.push(...diffs);
@@ -207,7 +205,7 @@ parseProject(fileMap, {}).then((p: ProjectState): void => {
 	const anonymousSerialDialogWarnings: string[] = [];
 	[...serialDialogFileNames].forEach((name) => {
 		const expected: EncoderSerialDialog[] = expectedSerialDialogsSorted[name];
-		const found: MATHLANG.SerialDialog[] = foundSerialDialogsSorted[name];
+		const found: SerialDialog[] = foundSerialDialogsSorted[name];
 		if (Array.isArray(expected) && Array.isArray(found) && expected.length !== found.length) {
 			namedSerialDialogDiffs.push(
 				`Expected ${expected.length} serial dialogs in file ${name}, found ${found.length}`,
@@ -259,7 +257,7 @@ parseProject(fileMap, {}).then((p: ProjectState): void => {
 	// Comparing named dialogs
 	const namedDialogDiffs: string[] = [];
 	[...dialogNames].forEach((name) => {
-		const found: MATHLANG.DialogDefinitionNode = foundDialogsSorted.NAMED[name];
+		const found: DialogDefinition = foundDialogsSorted.NAMED[name];
 		const expected: EncoderDialog[] = expectedDialogsSorted.NAMED[name];
 		const diffs = compareBigDialog(expected, found.dialogs, 'dialogName', name);
 		namedDialogDiffs.push(...diffs);
@@ -275,7 +273,7 @@ parseProject(fileMap, {}).then((p: ProjectState): void => {
 	const anonymousDialogDiffs: string[] = [];
 	[...dialogFileNames].forEach((name) => {
 		const expected: EncoderDialog[][] = expectedDialogsSorted[name];
-		const found: MATHLANG.DialogDefinitionNode[] = foundDialogsSorted[name];
+		const found: DialogDefinition[] = foundDialogsSorted[name];
 		const diffs = compareSeriesOfBigDialogs(expected, found, name);
 		anonymousDialogDiffs.push(...diffs);
 	});

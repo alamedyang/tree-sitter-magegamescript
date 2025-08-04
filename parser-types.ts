@@ -14,6 +14,17 @@ export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.A
 	return (node as TYPES.Action).action !== undefined;
 };
 
+export type MGSLocation = {
+	node: TreeSitterNode;
+	fileName?: string;
+};
+export type MGSMessage = {
+	// error or warning
+	locations: MGSLocation[];
+	message: string;
+	footer?: string;
+};
+
 export type MathlangNode =
 	// SETTINGS
 	| AddDialogSettings
@@ -27,6 +38,7 @@ export type MathlangNode =
 	// DIALOG
 	| DialogDefinition
 	| Dialog
+	| DialogOption
 	// SERIAL DIALOG
 	| SerialDialogDefinition
 	| SerialDialog
@@ -55,7 +67,7 @@ export type AddDialogSettings = {
 	targets: AddDialogSettingsTarget[];
 	parameters?: SerialDialogParameter[];
 };
-export const isAddDialogSettingsNode = (v: unknown): v is AddDialogSettings => {
+export const isAddDialogSettings = (v: unknown): v is AddDialogSettings => {
 	if (typeof v !== 'object') return false;
 	return (v as AddDialogSettings).mathlang === 'add_dialog_settings';
 };
@@ -67,7 +79,7 @@ export type AddDialogSettingsTarget = {
 	target?: string;
 	parameters?: DialogParameter[];
 };
-export const isAddDialogSettingsTargetNode = (v: unknown): v is AddDialogSettingsTarget => {
+export const isAddDialogSettingsTarget = (v: unknown): v is AddDialogSettingsTarget => {
 	if (typeof v !== 'object') return false;
 	return (v as AddDialogSettingsTarget).mathlang === 'add_dialog_settings_target';
 };
@@ -112,7 +124,7 @@ export type DialogDefinition = {
 	debug: TYPES.MGSDebug;
 	duplicates?: DialogDefinition[];
 };
-export const isDialogDefinitionNode = (v: unknown): v is DialogDefinition => {
+export const isDialogDefinition = (v: unknown): v is DialogDefinition => {
 	if (typeof v !== 'object') return false;
 	return (v as MathlangNode).mathlang === 'dialog_definition';
 };
@@ -125,6 +137,16 @@ export type DialogSettings = {
 	portrait?: string;
 	alignment?: string;
 	border_tileset?: string;
+};
+
+export type DialogParameter = {
+	mathlang: 'dialog_parameter';
+	property: string;
+	value: MGSPrimitive;
+};
+export const isDialogParameter = (v: unknown): v is DialogParameter => {
+	if (typeof v !== 'object') return false;
+	return (v as DialogParameter).mathlang === 'dialog_parameter';
 };
 
 export type Dialog = DialogSettings & {
@@ -179,9 +201,23 @@ export type SerialDialogDefinition = {
 	debug: TYPES.MGSDebug;
 	duplicates?: SerialDialogDefinition[];
 };
-export const isSerialDialogDefinitionNode = (v: unknown): v is SerialDialogDefinition => {
+export const isSerialDialogDefinition = (v: unknown): v is SerialDialogDefinition => {
 	if (typeof v !== 'object') return false;
 	return (v as MathlangNode).mathlang === 'serial_dialog_definition';
+};
+
+export type SerialDialogSettings = {
+	wrap?: number;
+};
+
+export type SerialDialogParameter = {
+	mathlang: 'serial_dialog_parameter';
+	property: string;
+	value: MGSPrimitive;
+};
+export const isSerialDialogParameter = (v: unknown): v is SerialDialogParameter => {
+	if (typeof v !== 'object') return false;
+	return (v as SerialDialogParameter).mathlang === 'serial_dialog_parameter';
 };
 
 export type SerialDialog = {
@@ -200,10 +236,6 @@ export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
 	messages: string[];
 	options: SerialDialogOption[];
-};
-
-export type SerialDialogSettings = {
-	wrap?: number;
 };
 
 export type SerialOptionType = 'text_options' | 'options';
@@ -288,6 +320,43 @@ export type MathlangSequence = {
 	debug: TYPES.MGSDebug;
 };
 
+// ------------------------------ INT EXPRESSIONS ------------------------------ \\
+
+export type IntExpression = IntUnit | IntBinaryExpression;
+export const isIntExpression = (data: unknown): data is IntExpression => {
+	return isIntUnit(data) || isIntBinaryExpression(data);
+};
+
+export type IntUnit = EntityIntProperty | number | string;
+export const isIntUnit = (data: unknown): data is IntUnit => {
+	if (data === null) return false;
+	if (typeof data === 'number') return true;
+	if (typeof data === 'string') return true;
+	if (isEntityIntProperty(data)) return true;
+	return false;
+};
+
+export type EntityIntProperty = {
+	mathlang: 'int_getable'; // TODO: rename to entity_int_property
+	field: string;
+	entity: string;
+};
+export const isEntityIntProperty = (data: unknown): data is EntityIntProperty => {
+	if (typeof data !== 'object') return false;
+	return (data as EntityIntProperty).mathlang === 'int_getable';
+};
+
+export type IntBinaryExpression = {
+	mathlang: 'int_binary_expression';
+	lhs: IntExpression;
+	rhs: IntExpression;
+	op: string;
+};
+export const isIntBinaryExpression = (data: unknown): data is IntBinaryExpression => {
+	if (typeof data !== 'object') return false;
+	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
+};
+
 // ------------------------------ NEXT ------------------------------ \\
 
 export type BoolComparison =
@@ -347,25 +416,6 @@ export const isStringCheckable = (v: unknown): v is StringCheckable => {
 	);
 };
 
-export type DialogParameter = {
-	mathlang: 'dialog_parameter';
-	property: string;
-	value: MGSPrimitive;
-};
-export const isDialogParameter = (v: unknown): v is DialogParameter => {
-	if (typeof v !== 'object') return false;
-	return (v as DialogParameter).mathlang === 'dialog_parameter';
-};
-
-export type SerialDialogParameter = {
-	mathlang: 'serial_dialog_parameter';
-	property: string;
-	value: MGSPrimitive;
-};
-export const isSerialDialogParameter = (v: unknown): v is SerialDialogParameter => {
-	if (typeof v !== 'object') return false;
-	return (v as SerialDialogParameter).mathlang === 'serial_dialog_parameter';
-};
 export type MovableIdentifier = {
 	mathlang: 'movable_identifier';
 	type: string;
@@ -381,29 +431,6 @@ export type CoordinateIdentifier = {
 	type: string;
 	value: string;
 	polygonType: string | undefined;
-};
-export type IntGetable = {
-	mathlang: 'int_getable';
-	field: string;
-	entity: string;
-};
-export const isIntGetable = (data: unknown): data is IntGetable => {
-	if (typeof data !== 'object') return false;
-	return (data as IntGetable).mathlang === 'int_getable';
-};
-export type IntBinaryExpression = {
-	mathlang: 'int_binary_expression';
-	lhs: IntUnit;
-	rhs: IntUnit;
-	op: string;
-};
-export type IntUnit = IntBinaryExpression | IntGetable | number | string;
-export const isIntUnit = (data: unknown): data is IntUnit => {
-	if (data === null) return false;
-	if (typeof data === 'number') return true;
-	if (typeof data === 'string') return true;
-	if (isIntGetable(data)) return true;
-	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
 };
 export type BoolBinaryExpression =
 	| {
@@ -483,11 +510,6 @@ export type DirectionTarget =
 			target_entity: string;
 	  };
 
-export type Constant = {
-	value: MGSPrimitive;
-	debug: TYPES.MGSDebug;
-};
-
 export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
 	return (
 		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
@@ -518,18 +540,4 @@ export const doesMathlangHaveLabelToChangeToIndex = (
 	if (node.mathlang === 'string_checkable') return true;
 	if (node.mathlang === 'number_checkable_equality') return true;
 	return false;
-};
-
-// --------------------- idk --------------------- \\
-
-export type MGSLocation = {
-	node: TreeSitterNode;
-	fileName?: string;
-};
-
-export type MGSMessage = {
-	// error or warning
-	locations: MGSLocation[];
-	message: string;
-	footer?: string;
 };

@@ -13,9 +13,9 @@ import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
 import { standardizeAction } from './parser-bytecode-info.ts';
 import {
-	isDialogDefinitionNode,
+	isDialogDefinition,
 	isScriptDefinitionNode,
-	isSerialDialogDefinitionNode,
+	isSerialDialogDefinition,
 	type MathlangNode,
 } from './parser-types.ts';
 
@@ -87,9 +87,9 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		f.nodes.forEach((node) => {
 			if (isScriptDefinitionNode(node)) {
 				p.addScript(node);
-			} else if (isDialogDefinitionNode(node)) {
+			} else if (isDialogDefinition(node)) {
 				p.addDialog(node);
-			} else if (isSerialDialogDefinitionNode(node)) {
+			} else if (isSerialDialogDefinition(node)) {
 				p.addSerialDialog(node);
 			}
 		});

@@ -18,12 +18,12 @@ import {
 	type BoolBinaryExpression,
 	type BoolComparison,
 	type BoolExpression,
-	type IntGetable,
+	type EntityIntProperty,
 	type DirectionTarget,
 	isStringCheckable,
-	isIntUnit,
 	isBoolExpression,
-	type IntUnit,
+	isIntExpression,
+	type IntExpression,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -59,7 +59,7 @@ export type Capture =
 	| BoolExpression
 	| BoolBinaryExpression
 	| BoolExpression
-	| IntGetable
+	| EntityIntProperty
 	| BoolGetable
 	| StringCheckable;
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
@@ -293,8 +293,8 @@ const captureFns = {
 		const op = textForFieldName(f, node, 'operator') || '';
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		if (!isIntUnit(rhs)) throw new Error('RHS not Int Unit');
-		if (!isIntUnit(lhs)) throw new Error('LHS not Int Unit');
+		if (!isIntExpression(rhs)) throw new Error('RHS not Int Exp');
+		if (!isIntExpression(lhs)) throw new Error('LHS not Int Exp');
 		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'number') {
 			f.newError({
 				locations: [
@@ -391,7 +391,7 @@ const captureFns = {
 		const inverted = invert(f, node, toInvert);
 		return inverted;
 	},
-	int_getable: (f: FileState, node: TreeSitterNode): IntGetable => {
+	int_getable: (f: FileState, node: TreeSitterNode): EntityIntProperty => {
 		// if (textForFieldName(f, node, 'variable')) {
 		// 	return captureForFieldName(f, node, 'variable');
 		// }
@@ -709,7 +709,7 @@ const captureFns = {
 		}
 		throw new Error("unreachable; seriously, anything else wouldn't have matched this");
 	},
-	int_setable: (f: FileState, node: TreeSitterNode): IntGetable => {
+	int_setable: (f: FileState, node: TreeSitterNode): EntityIntProperty => {
 		const entity = captureForFieldName(f, node, 'entity_identifier');
 		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return {
@@ -718,9 +718,9 @@ const captureFns = {
 			entity,
 		};
 	},
-	int_grouping: (f: FileState, node: TreeSitterNode): IntUnit => {
+	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
-		if (!isIntUnit(capture)) {
+		if (!isIntExpression(capture)) {
 			throw new Error();
 		}
 		return capture;

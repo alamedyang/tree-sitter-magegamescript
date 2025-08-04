@@ -1,13 +1,18 @@
+import { type MGSDebug } from './parser-bytecode-info.ts';
 import { type ProjectState } from './parser-project.ts';
 import type {
-	Constant,
 	DialogSettings,
 	MGSMessage,
 	SerialDialogSettings,
 	AnyNode,
+	MGSPrimitive,
 } from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
 
+export type Constant = {
+	value: MGSPrimitive;
+	debug: MGSDebug;
+};
 export type FileState = {
 	p: ProjectState;
 	fileName: string;

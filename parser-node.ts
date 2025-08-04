@@ -31,29 +31,29 @@ import {
 	type BoolComparison,
 	type CopyMacro,
 	type AnyNode,
-	type LabelDefinitionNode,
+	type LabelDefinition,
 	type MGSMessage,
-	type AddDialogSettingsNode,
+	type AddDialogSettings,
 	type MathlangSequence,
 	type DialogInfo,
 	type IncludeNode,
-	type AddDialogSettingsTargetNode,
+	type AddDialogSettingsTarget,
 	type DialogSettings,
-	type AddSerialDialogSettingsNode,
+	type AddSerialDialogSettings,
 	type SerialDialogOption,
 	type SerialOptionType,
 	type DialogOption,
-	type DialogDefinitionNode,
-	type SerialDialogDefinitionNode,
+	type DialogDefinition,
+	type SerialDialogDefinition,
 	type SerialDialogInfo,
 	type SerialDialog,
 	type Dialog,
-	type ScriptDefinitionNode,
+	type ScriptDefinition,
 	isMGSPrimitive,
 	isDialogParameter,
-	type ConstantDefinitionNode,
+	type ConstantDefinition,
 	type JSONNode,
-	isAddDialogSettingsTargetNode,
+	isAddDialogSettingsTarget,
 	isSerialDialogOption,
 	isDialogOption,
 	type BreakStatement,
@@ -118,7 +118,7 @@ const nodeFns = {
 		f.newError(err);
 		return [];
 	},
-	script_definition: (f: FileState, node: Node): [ScriptDefinitionNode] => {
+	script_definition: (f: FileState, node: Node): [ScriptDefinition] => {
 		const name = captureForFieldName(f, node, 'script_name');
 		if (typeof name !== 'string') throw new Error('need string');
 		// error nodes are caught above
@@ -145,7 +145,7 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('should be a node');
-		const labelAction: LabelDefinitionNode = label(f, lastChild, returnLabel);
+		const labelAction: LabelDefinition = label(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		actions.forEach((action, i) => {
 			if (isNodeAction(action)) {
@@ -168,7 +168,7 @@ const nodeFns = {
 			},
 		];
 	},
-	constant_assignment: (f: FileState, node: Node): [ConstantDefinitionNode] => {
+	constant_assignment: (f: FileState, node: Node): [ConstantDefinition] => {
 		const label = textForFieldName(f, node, 'label');
 		if (label === undefined) throw new Error('undefined label');
 		const value = captureForFieldName(f, node, 'value');
@@ -293,19 +293,19 @@ const nodeFns = {
 		combined.push(label(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
-	label_definition: (f: FileState, node: Node): [LabelDefinitionNode] => {
+	label_definition: (f: FileState, node: Node): [LabelDefinition] => {
 		const text = textForFieldName(f, node, 'label');
 		if (text === undefined) throw new Error('undefined label');
 		return [label(f, node, text)];
 	},
-	add_dialog_settings: (f: FileState, node: Node): [AddDialogSettingsNode] => {
+	add_dialog_settings: (f: FileState, node: Node): [AddDialogSettings] => {
 		const targets = node.namedChildren
 			.map((child) => {
 				if (child === null) throw new Error('asdf');
 				return handleNode(f, child);
 			})
 			.flat();
-		if (!targets.every(isAddDialogSettingsTargetNode)) throw new Error('');
+		if (!targets.every(isAddDialogSettingsTarget)) throw new Error('');
 		return [
 			{
 				mathlang: 'add_dialog_settings',
@@ -317,11 +317,11 @@ const nodeFns = {
 			},
 		];
 	},
-	add_dialog_settings_target: (f: FileState, node: Node): [AddDialogSettingsTargetNode] => {
+	add_dialog_settings_target: (f: FileState, node: Node): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
 		const type = textForFieldName(f, node, 'type');
 		if (type === undefined) throw new Error('undefined type');
-		const ret: AddDialogSettingsTargetNode = {
+		const ret: AddDialogSettingsTarget = {
 			mathlang: 'add_dialog_settings_target',
 			type,
 			debug: {
@@ -359,7 +359,7 @@ const nodeFns = {
 		ret.parameters = parameters;
 		return [ret];
 	},
-	add_serial_dialog_settings: (f: FileState, node: Node): [AddSerialDialogSettingsNode] => {
+	add_serial_dialog_settings: (f: FileState, node: Node): [AddSerialDialogSettings] => {
 		// This one is inconsistent with the others?
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
 		if (!parameters.every(isSerialDialogParameter)) throw new Error();
@@ -417,7 +417,7 @@ const nodeFns = {
 			},
 		];
 	},
-	serial_dialog_definition: (f: FileState, node: Node): [SerialDialogDefinitionNode] => {
+	serial_dialog_definition: (f: FileState, node: Node): [SerialDialogDefinition] => {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode === null) throw new Error('node not found');
 		const name = captureForFieldName(f, node, 'serial_dialog_name');
@@ -427,7 +427,7 @@ const nodeFns = {
 		if (!isSerialDialog(serialDialog[0])) throw new Error('');
 		return [newSerialDialog(f, node, name, serialDialog[0])];
 	},
-	dialog_definition: (f: FileState, node: Node): [DialogDefinitionNode] => {
+	dialog_definition: (f: FileState, node: Node): [DialogDefinition] => {
 		const dialogName = captureForFieldName(f, node, 'dialog_name');
 		if (typeof dialogName !== 'string') throw new Error('need string)');
 		const dialogNodes = node.childrenForFieldName('dialog');
