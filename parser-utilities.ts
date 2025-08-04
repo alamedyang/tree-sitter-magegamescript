@@ -19,7 +19,8 @@ import {
 	type MGSLocation,
 	type MGSMessage,
 	type SerialDialog,
-	type MathlangCondition,
+	type BoolExpression,
+	type BoolUnit,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -178,7 +179,7 @@ export const autoIdentifierName = (f: FileState, node: Node): string => {
 export const expandCondition = (
 	f: FileState,
 	node: Node,
-	condition: MathlangCondition,
+	condition: BoolExpression,
 	ifLabel: string,
 ): AnyNode[] => {
 	if (condition === true) {
@@ -302,7 +303,11 @@ export const simpleBranchMaker = (
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-export const invert = (f: FileState, node: Node, boolExp: MathlangCondition): MathlangCondition => {
+export const invert = (
+	f: FileState,
+	node: Node,
+	boolExp: BoolExpression | BoolUnit,
+): BoolExpression | BoolUnit => {
 	// TODO: typeof `boolExp`
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
@@ -310,8 +315,10 @@ export const invert = (f: FileState, node: Node, boolExp: MathlangCondition): Ma
 	}
 	if (boolExp.mathlang === 'bool_binary_expression') {
 		if (boolExp.op === '||' || boolExp.op === '&&') {
-			boolExp.lhs = invert(f, node, boolExp.lhs);
-			boolExp.rhs = invert(f, node, boolExp.rhs);
+			const invertedLHS = invert(f, node, boolExp.lhs);
+			boolExp.lhs = invertedLHS;
+			const invertedRHS = invert(f, node, boolExp.rhs);
+			boolExp.rhs = invertedRHS;
 		}
 		boolExp.op = inverseOpMap[boolExp.op];
 		return boolExp;

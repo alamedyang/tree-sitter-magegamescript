@@ -44,7 +44,7 @@ import {
 import { handleNode } from './parser-node.ts';
 import { type FileState } from './parser-file.ts';
 
-const opIntoStringMap = {
+const opIntoStringMap: Record<string, string> = {
 	'=': 'SET',
 	'+': 'ADD',
 	'-': 'SUB',

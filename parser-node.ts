@@ -49,7 +49,7 @@ import {
 	type SerialDialog,
 	type Dialog,
 	type ScriptDefinitionNode,
-	isMGSValue,
+	isMGSPrimitive,
 	isDialogParameter,
 	type ConstantDefinitionNode,
 	type JSONNode,
@@ -62,9 +62,9 @@ import {
 	isDialog,
 	isSerialDialogParameter,
 	isDialogIdentifier,
-	isCondition,
+	isBoolExpression,
 } from './parser-types.ts';
-import { type GOTO_ACTION_INDEX, type CheckAction } from './parser-bytecode-info.ts';
+import { type GOTO_ACTION_INDEX } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	// ->[]
@@ -172,7 +172,7 @@ const nodeFns = {
 		const label = textForFieldName(f, node, 'label');
 		if (label === undefined) throw new Error('undefined label');
 		const value = captureForFieldName(f, node, 'value');
-		if (!isMGSValue(value)) throw new Error('derp');
+		if (!isMGSPrimitive(value)) throw new Error('derp');
 		f.constants = f.constants || {};
 		if (f.constants[label]) {
 			f.newError({
@@ -594,7 +594,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isCondition(condition)) throw new Error('not a condition');
+		if (!isBoolExpression(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -627,7 +627,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isCondition(condition)) throw new Error('not a condition');
+		if (!isBoolExpression(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const body = handleNode(f, bodyN)
@@ -659,7 +659,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		if (!conditionN) throw new Error('TS');
 		const condition = handleCapture(f, conditionN);
-		if (!isCondition(condition)) throw new Error('not a condition');
+		if (!isBoolExpression(condition)) throw new Error('not a condition');
 		const bodyN = node.childForFieldName('body');
 		if (!bodyN) throw new Error('TS');
 		const incrementerN = node.childForFieldName('incrementer');
@@ -715,7 +715,7 @@ const nodeFns = {
 			}
 			if (typeof action === 'number') throw new Error("this shouldn't happen");
 			if (typeof action === 'boolean') throw new Error("this shouldn't happen");
-			const ret: CheckAction = {
+			const ret = {
 				...action,
 				success_script: script,
 			};
@@ -800,7 +800,7 @@ const nodeFns = {
 			const conditionN = iff.childForFieldName('condition');
 			if (!conditionN) throw new Error('TS');
 			const condition = handleCapture(f, conditionN);
-			if (!isCondition(condition)) throw new Error('not a condition');
+			if (!isBoolExpression(condition)) throw new Error('not a condition');
 			const bodyN = iff.childForFieldName('body');
 			if (!bodyN) throw new Error('TS');
 			const body = bodyN.namedChildren

@@ -17,12 +17,12 @@ import {
 	type IntBinaryExpression,
 	type BoolBinaryExpression,
 	type BoolComparison,
-	type MathlangCondition,
+	type BoolExpression,
 	type IntGetable,
 	type DirectionTarget,
 	isStringCheckable,
 	isIntUnit,
-	isCondition,
+	isBoolExpression,
 	type IntUnit,
 } from './parser-types.ts';
 import {
@@ -44,7 +44,6 @@ const opIntoStringMap: Record<string, string> = {
 	'?': 'RNG',
 };
 
-type BoolExpression = BoolComparison | BoolBinaryExpression | boolean | string | BoolGetable;
 export type Capture =
 	| number
 	| boolean
@@ -59,7 +58,7 @@ export type Capture =
 	| IntBinaryExpression
 	| BoolExpression
 	| BoolBinaryExpression
-	| MathlangCondition
+	| BoolExpression
 	| IntGetable
 	| BoolGetable
 	| StringCheckable;
@@ -381,10 +380,10 @@ const captureFns = {
 		const capture = captureForFieldName(f, node, 'inner');
 		if (capture === undefined) throw new Error('no');
 		if (typeof capture === 'number') throw new Error('no');
-		if (!isCondition(capture)) throw new Error('lulul');
+		if (!isBoolExpression(capture)) throw new Error('lulul');
 		return capture;
 	},
-	bool_unary_expression: (f: FileState, node: TreeSitterNode): MathlangCondition => {
+	bool_unary_expression: (f: FileState, node: TreeSitterNode): BoolExpression => {
 		const op = textForFieldName(f, node, 'operator');
 		if (op !== '!') throw new Error("what kind of unary is '" + op + "'?");
 		const capture = captureForFieldName(f, node, 'operand');

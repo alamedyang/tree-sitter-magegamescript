@@ -9,12 +9,11 @@ import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
 	type AnyNode,
-	type DialogDefinitionNode,
-	type SerialDialogDefinitionNode,
-	type ScriptDefinitionNode,
+	type DialogDefinition,
+	type SerialDialogDefinition,
+	type ScriptDefinition,
 	type MGSMessage,
 	isNodeAction,
-	type FileCategory,
 	isAnyCopyScript,
 	type MathlangNode,
 	hasSearchAndReplace,
@@ -41,18 +40,18 @@ export type ProjectState = {
 	parser: Parser;
 	fileMap: FileMap;
 	gotoSuffixValue: number;
-	scripts: Record<string, ScriptDefinitionNode>;
-	dialogs: Record<string, DialogDefinitionNode>;
-	serialDialogs: Record<string, SerialDialogDefinitionNode>;
+	scripts: Record<string, ScriptDefinition>;
+	dialogs: Record<string, DialogDefinition>;
+	serialDialogs: Record<string, SerialDialogDefinition>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];
 	advanceGotoSuffix: () => number;
 	getGotoSuffix: () => number;
 	newError: (error: MGSMessage) => void;
 	newWarning: (warning: MGSMessage) => void;
-	addScript: (args: ScriptDefinitionNode) => void;
-	addDialog: (args: DialogDefinitionNode) => void;
-	addSerialDialog: (args: SerialDialogDefinitionNode) => void;
+	addScript: (args: ScriptDefinition) => void;
+	addDialog: (args: DialogDefinition) => void;
+	addSerialDialog: (args: SerialDialogDefinition) => void;
 	detectDuplicates: () => void;
 	bakeCopyScriptSingle: (scriptToBake: string) => void;
 	copyScriptAll: () => void;
@@ -61,6 +60,7 @@ export type ProjectState = {
 	parseFile: (fileName: string) => FileState;
 };
 
+type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
 export const makeProjectState = (
 	tsParser: Parser,
 	fileMap: FileMap,
@@ -93,7 +93,7 @@ export const makeProjectState = (
 
 		// for adding a file's data to the project
 
-		addScript: (data: ScriptDefinitionNode) => {
+		addScript: (data: ScriptDefinition) => {
 			const name = data.scriptName;
 			data.rawNodes = data.actions; // making a backup of actions
 			// finalize actions
@@ -120,7 +120,7 @@ export const makeProjectState = (
 				p.scripts[name].duplicates.push(data);
 			}
 		},
-		addDialog: (data: DialogDefinitionNode) => {
+		addDialog: (data: DialogDefinition) => {
 			const name = data.dialogName;
 			if (!p.dialogs[name]) {
 				p.dialogs[name] = data;
@@ -131,7 +131,7 @@ export const makeProjectState = (
 				p.dialogs[name].duplicates.push(data);
 			}
 		},
-		addSerialDialog: (data: SerialDialogDefinitionNode) => {
+		addSerialDialog: (data: SerialDialogDefinition) => {
 			const name = data.dialogName;
 			if (!p.serialDialogs[name]) {
 				p.serialDialogs[name] = data;
@@ -149,11 +149,8 @@ export const makeProjectState = (
 			cats.forEach((category) => {
 				const entries = Object.entries(p[category]);
 				entries.forEach(([name, entry]) => {
-					const dupes: (
-						| DialogDefinitionNode
-						| SerialDialogDefinitionNode
-						| ScriptDefinitionNode
-					)[] = entry.duplicates;
+					const dupes: (DialogDefinition | SerialDialogDefinition | ScriptDefinition)[] =
+						entry.duplicates;
 					if (dupes) {
 						// note: one error message, multiple locations
 						p.newError({

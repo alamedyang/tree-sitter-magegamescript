@@ -1,59 +1,122 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
 
-export type MGSValue = string | boolean | number;
-export const isMGSValue = (v: unknown): v is MGSValue => {
+export type MGSPrimitive = string | boolean | number;
+export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'number') return true;
 	if (typeof v === 'boolean') return true;
 	return false;
 };
 
-export type Intermediate =
+export type AnyNode = TYPES.Action | MathlangNode;
+export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
+	return (node as TYPES.Action).action !== undefined;
+};
+
+export type MathlangNode =
+	// SETTINGS
+	| AddDialogSettings
+	| AddDialogSettingsTarget
+	| AddSerialDialogSettings
+	// CONTROL
+	| ReturnStatement
+	| ContinueStatement
+	| BreakStatement
+	| GotoLabel
+	// DIALOG
+	| DialogDefinition
+	| Dialog
+	// SERIAL DIALOG
+	| SerialDialogDefinition
+	| SerialDialog
+	| SerialDialogOption
+	// ONE-OFFS
+	| IncludeNode
+	| ConstantDefinition
+	| ScriptDefinition
+	| CommentNode
+	| LabelDefinition
+	| JSONNode
+	| CopyMacro
+	| MathlangSequence
+	// EXPRESSIONS
 	| BoolBinaryExpression
 	| BoolGetable
 	| BoolComparison
 	| StringCheckable
 	| NumberCheckableEquality;
 
-export type MathlangNode =
-	| Intermediate
-	| MathlangSequence
-	| SerialDialog
-	| Dialog
-	| DialogIdentifier
-	| DialogDefinitionNode
-	| SerialDialogDefinitionNode
-	| ScriptDefinitionNode
-	| ConstantDefinitionNode
-	| IncludeNode
-	| AddDialogSettingsNode
-	| AddSerialDialogSettingsNode
-	| LabelDefinitionNode
-	| AddDialogSettingsTargetNode
-	| SerialDialogOption
-	| DialogOption
-	| JSONNode
-	| CommentNode
-	| ReturnStatement
-	| ContinueStatement
-	| BreakStatement
-	| GotoLabel
-	| CopyMacro;
+// ------------------------------ SETTINGS ------------------------------ \\
 
-export type AnyNode = TYPES.Action | MathlangNode;
-export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
-	return (node as TYPES.Action).action !== undefined;
+export type AddDialogSettings = {
+	mathlang: 'add_dialog_settings';
+	debug: TYPES.MGSDebug;
+	targets: AddDialogSettingsTarget[];
+	parameters?: SerialDialogParameter[];
+};
+export const isAddDialogSettingsNode = (v: unknown): v is AddDialogSettings => {
+	if (typeof v !== 'object') return false;
+	return (v as AddDialogSettings).mathlang === 'add_dialog_settings';
 };
 
-// --------------------- intermediates, used to make final nodes --------------------- \\
-
-export type DialogInfo = {
-	identifier: DialogIdentifier;
-	settings: DialogSettings;
-	messages: string[];
-	options: DialogOption[];
+export type AddDialogSettingsTarget = {
+	mathlang: 'add_dialog_settings_target';
+	type: string;
+	debug: TYPES.MGSDebug;
+	target?: string;
+	parameters?: DialogParameter[];
 };
+export const isAddDialogSettingsTargetNode = (v: unknown): v is AddDialogSettingsTarget => {
+	if (typeof v !== 'object') return false;
+	return (v as AddDialogSettingsTarget).mathlang === 'add_dialog_settings_target';
+};
+
+export type AddSerialDialogSettings = {
+	mathlang: 'add_serial_dialog_settings';
+	parameters: SerialDialogParameter[];
+	debug: TYPES.MGSDebug;
+};
+
+// ------------------------------ CONTROL ------------------------------ \\
+
+export type ReturnStatement = {
+	mathlang: 'return_statement';
+	debug: TYPES.MGSDebug;
+};
+
+export type ContinueStatement = {
+	mathlang: 'continue_statement';
+	debug: TYPES.MGSDebug;
+};
+
+export type BreakStatement = {
+	mathlang: 'break_statement';
+	debug: TYPES.MGSDebug;
+};
+
+export type GotoLabel = {
+	mathlang: 'goto_label';
+	label: string;
+	debug?: TYPES.MGSDebug;
+	comment?: string;
+};
+
+// ------------------------------ DIALOG ------------------------------ \\
+
+export type DialogDefinition = {
+	mathlang: 'dialog_definition';
+	fileName: string;
+	dialogName: string;
+	dialogs: Dialog[];
+	debug: TYPES.MGSDebug;
+	duplicates?: DialogDefinition[];
+};
+export const isDialogDefinitionNode = (v: unknown): v is DialogDefinition => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangNode).mathlang === 'dialog_definition';
+};
+
 export type DialogSettings = {
 	wrap?: number;
 	emote?: number;
@@ -63,6 +126,27 @@ export type DialogSettings = {
 	alignment?: string;
 	border_tileset?: string;
 };
+
+export type Dialog = DialogSettings & {
+	mathlang: 'dialog';
+	info: DialogInfo;
+	messages: string[];
+	response_type?: 'SELECT_FROM_SHORT_LIST';
+	options?: DialogOption[];
+	debug?: TYPES.MGSDebug;
+};
+export const isDialog = (v: unknown): v is Dialog => {
+	if (typeof v !== 'object') return false;
+	return (v as Dialog).mathlang === 'dialog';
+};
+
+export type DialogInfo = {
+	identifier: DialogIdentifier;
+	settings: DialogSettings;
+	messages: string[];
+	options: DialogOption[];
+};
+
 export type DialogIdentifier = {
 	mathlang: 'dialog_identifier';
 	type: 'label' | 'entity' | 'name';
@@ -70,16 +154,141 @@ export type DialogIdentifier = {
 	debug?: TYPES.MGSDebug;
 };
 export const isDialogIdentifier = (v: unknown): v is DialogIdentifier => {
+	if (typeof v !== 'object') return false;
 	return (v as DialogIdentifier).mathlang === 'dialog_identifier';
 };
+
+export type DialogOption = {
+	mathlang: 'dialog_option';
+	label: string;
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+export const isDialogOption = (v: unknown): v is DialogOption => {
+	if (typeof v !== 'object') return false;
+	return (v as DialogOption).mathlang === 'dialog_option';
+};
+
+// ------------------------------ SERIAL DIALOG ------------------------------ \\
+
+export type SerialDialogDefinition = {
+	mathlang: 'serial_dialog_definition';
+	fileName: string;
+	dialogName: string;
+	serialDialog: SerialDialog;
+	debug: TYPES.MGSDebug;
+	duplicates?: SerialDialogDefinition[];
+};
+export const isSerialDialogDefinitionNode = (v: unknown): v is SerialDialogDefinition => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangNode).mathlang === 'serial_dialog_definition';
+};
+
+export type SerialDialog = {
+	mathlang: 'serial_dialog';
+	info: SerialDialogInfo;
+	messages: string[];
+	options?: SerialDialogOption[];
+	text_options?: SerialDialogOption[];
+	debug?: TYPES.MGSDebug;
+};
+export const isSerialDialog = (v: AnyNode): v is SerialDialog => {
+	return (v as SerialDialog).mathlang === 'serial_dialog';
+};
+
 export type SerialDialogInfo = {
 	settings: SerialDialogSettings;
 	messages: string[];
 	options: SerialDialogOption[];
 };
+
 export type SerialDialogSettings = {
 	wrap?: number;
 };
+
+export type SerialOptionType = 'text_options' | 'options';
+export type SerialDialogOption = {
+	mathlang: 'serial_dialog_option';
+	optionType: SerialOptionType;
+	label: string;
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+export const isSerialDialogOption = (node: AnyNode): node is SerialDialogOption => {
+	return (node as SerialDialogOption).mathlang === 'serial_dialog_option';
+};
+
+// ------------------------------ ONE-OFFS ------------------------------ \\
+
+export type IncludeNode = {
+	mathlang: 'include_macro';
+	value: string;
+	debug: TYPES.MGSDebug;
+};
+
+export type ConstantDefinition = {
+	mathlang: 'constant_assignment';
+	label: string;
+	value: string | boolean | number;
+	debug: TYPES.MGSDebug;
+};
+
+export type ScriptDefinition = {
+	mathlang: 'script_definition';
+	fileName: string;
+	scriptName: string;
+	prePrint?: string;
+	testPrint?: string;
+	print?: string;
+	rawNodes?: AnyNode[];
+	actions: AnyNode[];
+	debug: TYPES.MGSDebug;
+	preActions?: AnyNode[];
+	duplicates?: ScriptDefinition[];
+	copyScriptResolved?: boolean;
+};
+export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinition => {
+	return (node as MathlangNode).mathlang === 'script_definition';
+};
+
+export type CommentNode = {
+	mathlang: 'comment';
+	comment: string;
+	debug?: TYPES.MGSDebug;
+};
+
+export type LabelDefinition = {
+	mathlang: 'label_definition';
+	label: string;
+	debug?: TYPES.MGSDebug;
+};
+export const isLabelDefinition = (node: AnyNode): node is LabelDefinition => {
+	if (isNodeAction(node)) return false;
+	return node.mathlang === 'label_definition';
+};
+
+export type JSONNode = {
+	mathlang: 'json_literal';
+	json: JSON;
+	debug: TYPES.MGSDebug;
+};
+
+export type CopyMacro = {
+	mathlang: 'copy_script';
+	script: string;
+	debug: TYPES.MGSDebug;
+};
+type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
+
+// needs to be one unit of thing for reasons, but still contain than one thing
+export type MathlangSequence = {
+	mathlang: 'sequence';
+	type: string;
+	steps: AnyNode[];
+	debug: TYPES.MGSDebug;
+};
+
+// ------------------------------ NEXT ------------------------------ \\
 
 export type BoolComparison =
 	| NumberCheckableEquality
@@ -90,19 +299,68 @@ export type BoolComparison =
 			debug?: TYPES.MGSDebug;
 			comment?: string;
 	  });
+
+export type NumberCheckableEquality = {
+	mathlang: 'number_checkable_equality';
+	debug?: TYPES.MGSDebug;
+	entity: string;
+	property: string;
+	expected_bool?: boolean;
+	label?: string;
+	action?:
+		| 'CHECK_ENTITY_X'
+		| 'CHECK_ENTITY_Y'
+		| 'CHECK_ENTITY_PRIMARY_ID'
+		| 'CHECK_ENTITY_SECONDARY_ID'
+		| 'CHECK_ENTITY_PRIMARY_ID_TYPE'
+		| 'CHECK_ENTITY_CURRENT_ANIMATION'
+		| 'CHECK_ENTITY_CURRENT_FRAME';
+	numberLabel?: 'expected_u2' | 'expected_byte';
+	comment?: string;
+};
+export type StringCheckable = {
+	mathlang: 'string_checkable';
+	debug?: TYPES.MGSDebug;
+	entity: string;
+	property: string;
+	expected_bool?: boolean;
+	label?: string;
+	action?:
+		| 'CHECK_ENTITY_TICK_SCRIPT'
+		| 'CHECK_ENTITY_LOOK_SCRIPT'
+		| 'CHECK_ENTITY_INTERACT_SCRIPT'
+		| 'CHECK_ENTITY_NAME'
+		| 'CHECK_ENTITY_PATH'
+		| 'CHECK_ENTITY_TYPE'
+		| 'CHECK_WARP_STATE';
+	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
+	comment?: string;
+};
+// icky
+export const isStringCheckable = (v: unknown): v is StringCheckable => {
+	if (typeof v !== 'object') return false;
+	const hasEntity = typeof (v as StringCheckable).entity == 'string';
+	const hasProperty = typeof (v as StringCheckable).property == 'string';
+	return (
+		(v as MathlangNode).mathlang === 'string_checkable' ||
+		((v as MathlangNode).mathlang === 'string_checkable' && hasEntity && hasProperty)
+	);
+};
+
 export type DialogParameter = {
 	mathlang: 'dialog_parameter';
 	property: string;
-	value: MGSValue;
+	value: MGSPrimitive;
 };
 export const isDialogParameter = (v: unknown): v is DialogParameter => {
 	if (typeof v !== 'object') return false;
 	return (v as DialogParameter).mathlang === 'dialog_parameter';
 };
+
 export type SerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
 	property: string;
-	value: MGSValue;
+	value: MGSPrimitive;
 };
 export const isSerialDialogParameter = (v: unknown): v is SerialDialogParameter => {
 	if (typeof v !== 'object') return false;
@@ -147,224 +405,69 @@ export const isIntUnit = (data: unknown): data is IntUnit => {
 	if (isIntGetable(data)) return true;
 	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
 };
-export type BoolUnit = BoolBinaryExpression | boolean | string;
-export type BoolBinaryExpression = {
-	mathlang: 'bool_binary_expression';
-	debug: TYPES.MGSDebug;
-	op: string;
-	lhs: BoolUnit | number | IntUnit;
-	rhs: BoolUnit | number | IntUnit;
-	lhsNode: TreeSitterNode;
-	rhsNode: TreeSitterNode;
-};
-export type MathlangCondition =
-	| BoolBinaryExpression
-	| BoolGetable
-	| BoolComparison
-	| StringCheckable
-	| NumberCheckableEquality
-	| TYPES.CHECK_SAVE_FLAG
-	| boolean
-	| string;
-export const isCondition = (v: unknown): v is MathlangCondition => {
+export type BoolBinaryExpression =
+	| {
+			mathlang: 'bool_binary_expression';
+			debug: TYPES.MGSDebug;
+			op: string; // ==, !==, &&, ||
+			lhs: BoolUnit;
+			rhs: BoolUnit;
+			lhsNode: TreeSitterNode;
+			rhsNode: TreeSitterNode;
+	  }
+	| {
+			mathlang: 'bool_binary_expression';
+			debug: TYPES.MGSDebug;
+			op: string; // ==, !==
+			lhs: StringCheckable | string;
+			rhs: StringCheckable | string;
+			lhsNode: TreeSitterNode;
+			rhsNode: TreeSitterNode;
+	  }
+	| {
+			mathlang: 'bool_binary_expression';
+			debug: TYPES.MGSDebug;
+			op: string; // ==, !==
+			lhs: NumberCheckableEquality | number;
+			rhs: NumberCheckableEquality | number;
+			lhsNode: TreeSitterNode;
+			rhsNode: TreeSitterNode;
+	  };
+
+export type BoolUnit = boolean | string | BoolGetable | BoolBinaryExpression;
+export type BoolExpression = BoolUnit | BoolComparison;
+
+export const isBoolExpression = (v: unknown): v is BoolExpression => {
+	// isBoolUnit
 	if (typeof v === 'string') return true;
 	if (typeof v === 'boolean') return true;
-	if ((v as TYPES.CHECK_SAVE_FLAG).action === 'CHECK_SAVE_FLAG') return true;
-	if ((v as BoolBinaryExpression).mathlang === 'bool_binary_expression') return true;
 	if ((v as BoolGetable).mathlang === 'bool_getable') return true;
+	if ((v as BoolBinaryExpression).mathlang === 'bool_binary_expression') return true;
+	// isBoolComparison
 	if ((v as BoolComparison).mathlang === 'bool_comparison') return true;
-	if ((v as BoolComparison).mathlang === 'number_checkable_equality') return true;
+	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') return true;
 	if ((v as StringCheckable).mathlang === 'string_checkable') return true;
-	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') {
-		return true;
-	}
+	// fail
 	return false;
 };
 
-export type StringCheckable = {
-	mathlang: 'string_checkable' | 'bool_comparison'; // todo fix
-	debug?: TYPES.MGSDebug;
-	entity: string;
-	property: string;
-	expected_bool?: boolean;
-	label?: string;
-	action?:
-		| 'CHECK_ENTITY_TICK_SCRIPT'
-		| 'CHECK_ENTITY_LOOK_SCRIPT'
-		| 'CHECK_ENTITY_INTERACT_SCRIPT'
-		| 'CHECK_ENTITY_NAME'
-		| 'CHECK_ENTITY_PATH'
-		| 'CHECK_ENTITY_TYPE'
-		| 'CHECK_WARP_STATE';
-	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
-	comment?: string;
-};
-
-// icky
-export const isStringCheckable = (v: unknown): v is StringCheckable => {
-	if (typeof v !== 'object') return false;
-	const hasEntity = typeof (v as StringCheckable).entity == 'string';
-	const hasProperty = typeof (v as StringCheckable).property == 'string';
-	return (
-		(v as MathlangNode).mathlang === 'string_checkable' ||
-		((v as MathlangNode).mathlang === 'string_checkable' && hasEntity && hasProperty)
-	);
-};
-
-export type NumberCheckableEquality = {
-	mathlang: 'number_checkable_equality' | 'bool_comparison'; // todo fix
-	debug?: TYPES.MGSDebug;
-	entity: string;
-	property: string;
-	expected_bool?: boolean;
-	label?: string;
-	action?:
-		| 'CHECK_ENTITY_X'
-		| 'CHECK_ENTITY_Y'
-		| 'CHECK_ENTITY_PRIMARY_ID'
-		| 'CHECK_ENTITY_SECONDARY_ID'
-		| 'CHECK_ENTITY_PRIMARY_ID_TYPE'
-		| 'CHECK_ENTITY_CURRENT_ANIMATION'
-		| 'CHECK_ENTITY_CURRENT_FRAME';
-	numberLabel?: 'expected_u2' | 'expected_byte';
-	comment?: string;
-};
-export type BoolGetable = {
+export type BoolGetable = (
+	| TYPES.CHECK_DEBUG_MODE
+	| TYPES.CHECK_ENTITY_GLITCHED
+	| TYPES.CHECK_IF_ENTITY_IS_IN_GEOMETRY
+	| TYPES.CHECK_SAVE_FLAG
+	| TYPES.CHECK_DIALOG_OPEN
+	| TYPES.CHECK_SERIAL_DIALOG_OPEN
+	| TYPES.CHECK_FOR_BUTTON_PRESS
+	| TYPES.CHECK_FOR_BUTTON_STATE
+) & {
 	mathlang: 'bool_getable';
-	debug: TYPES.MGSDebug;
-	action: string;
-	entity: string;
-	geometry: string;
-	value: string;
-	state: string;
-	button_id: string;
-	expected_bool?: boolean;
 	label?: string;
-	save_flag: string;
+	debug?: TYPES.MGSDebug;
 	comment?: string;
 };
 
 // --------------------- final nodes that aren't actions --------------------- \\
-
-// needs to be one unit of thing for reasons, but still contain than one thing
-export type MathlangSequence = {
-	mathlang: 'sequence';
-	type: string;
-	steps: AnyNode[];
-	debug: TYPES.MGSDebug;
-};
-
-export type ScriptDefinitionNode = {
-	mathlang: 'script_definition';
-	fileName: string;
-	scriptName: string;
-	prePrint?: string;
-	testPrint?: string;
-	print?: string;
-	rawNodes?: AnyNode[];
-	actions: AnyNode[];
-	debug: TYPES.MGSDebug;
-	preActions?: AnyNode[];
-	duplicates?: ScriptDefinitionNode[];
-	copyScriptResolved?: boolean;
-};
-export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinitionNode => {
-	return (node as MathlangNode).mathlang === 'script_definition';
-};
-
-export type ConstantDefinitionNode = {
-	mathlang: 'constant_assignment';
-	label: string;
-	value: string | boolean | number;
-	debug: TYPES.MGSDebug;
-};
-
-export type IncludeNode = {
-	mathlang: 'include_macro';
-	value: string;
-	debug: TYPES.MGSDebug;
-};
-export type LabelDefinitionNode = {
-	mathlang: 'label_definition';
-	label: string;
-	debug?: TYPES.MGSDebug;
-};
-export const isLabelDefinition = (node: AnyNode): node is LabelDefinitionNode => {
-	if (isNodeAction(node)) return false;
-	return node.mathlang === 'label_definition';
-};
-
-export type AddDialogSettingsNode = {
-	mathlang: 'add_dialog_settings';
-	debug: TYPES.MGSDebug;
-	targets: AddDialogSettingsTargetNode[];
-	parameters?: SerialDialogParameter[];
-};
-export const isAddDialogSettingsNode = (node: AnyNode): node is AddDialogSettingsNode => {
-	return (node as AddDialogSettingsNode).mathlang === 'add_dialog_settings';
-};
-export type AddDialogSettingsTargetNode = {
-	mathlang: 'add_dialog_settings_target';
-	type: string;
-	debug: TYPES.MGSDebug;
-	target?: string;
-	parameters?: DialogParameter[];
-};
-export const isAddDialogSettingsTargetNode = (
-	node: AnyNode,
-): node is AddDialogSettingsTargetNode => {
-	return (node as AddDialogSettingsTargetNode).mathlang === 'add_dialog_settings_target';
-};
-// todo: not used?
-export type AddSerialDialogSettingsNode = {
-	mathlang: 'add_serial_dialog_settings';
-	parameters: SerialDialogParameter[];
-	debug: TYPES.MGSDebug;
-};
-export type SerialOptionType = 'text_options' | 'options';
-export type SerialDialogOption = {
-	mathlang: 'serial_dialog_option';
-	optionType: SerialOptionType;
-	label: string;
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-export const isSerialDialogOption = (node: AnyNode): node is SerialDialogOption => {
-	return (node as SerialDialogOption).mathlang === 'serial_dialog_option';
-};
-export type DialogOption = {
-	mathlang: 'dialog_option';
-	label: string;
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-export const isDialogOption = (node: AnyNode): node is DialogOption => {
-	return (node as DialogOption).mathlang === 'dialog_option';
-};
-
-export type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
-export type DialogDefinitionNode = {
-	mathlang: 'dialog_definition';
-	fileName: string;
-	dialogName: string;
-	dialogs: Dialog[];
-	debug: TYPES.MGSDebug;
-	duplicates?: DialogDefinitionNode[];
-};
-export const isDialogDefinitionNode = (node: AnyNode): node is DialogDefinitionNode => {
-	return (node as MathlangNode).mathlang === 'dialog_definition';
-};
-export type SerialDialogDefinitionNode = {
-	mathlang: 'serial_dialog_definition';
-	fileName: string;
-	dialogName: string;
-	serialDialog: SerialDialog;
-	debug: TYPES.MGSDebug;
-	duplicates?: SerialDialogDefinitionNode[];
-};
-export const isSerialDialogDefinitionNode = (node: AnyNode): node is SerialDialogDefinitionNode => {
-	return (node as MathlangNode).mathlang === 'serial_dialog_definition';
-};
 
 export type DirectionTarget =
 	| {
@@ -380,68 +483,10 @@ export type DirectionTarget =
 			target_entity: string;
 	  };
 
-export type Dialog = DialogSettings & {
-	mathlang: 'dialog';
-	info: DialogInfo; // for debugging(?)
-	messages: string[];
-	response_type?: 'SELECT_FROM_SHORT_LIST';
-	options?: DialogOption[];
-	debug?: TYPES.MGSDebug;
-};
-export const isDialog = (v: AnyNode): v is Dialog => {
-	return (v as Dialog).mathlang === 'dialog';
-};
-export type SerialDialog = {
-	// TODO fix all of these
-	mathlang: 'serial_dialog';
-	info: SerialDialogInfo; // for debugging
-	messages: string[];
-	options?: SerialDialogOption[];
-	text_options?: SerialDialogOption[];
-	debug?: TYPES.MGSDebug;
-};
-export const isSerialDialog = (v: AnyNode): v is SerialDialog => {
-	return (v as SerialDialog).mathlang === 'serial_dialog';
-};
-
-export type JSONNode = {
-	mathlang: 'json_literal';
-	json: JSON;
-	debug: TYPES.MGSDebug;
-};
-export type CommentNode = {
-	mathlang: 'comment';
-	comment: string;
-	debug?: TYPES.MGSDebug;
-};
-export type ReturnStatement = {
-	mathlang: 'return_statement';
-	debug: TYPES.MGSDebug;
-};
-export type ContinueStatement = {
-	mathlang: 'continue_statement';
-	debug: TYPES.MGSDebug;
-};
-export type BreakStatement = {
-	mathlang: 'break_statement';
-	debug: TYPES.MGSDebug;
-};
-export type GotoLabel = {
-	mathlang: 'goto_label';
-	label: string;
-	debug?: TYPES.MGSDebug;
-	comment?: string;
-};
 export type Constant = {
-	value: MGSValue;
+	value: MGSPrimitive;
 	debug: TYPES.MGSDebug;
 };
-export type CopyMacro = {
-	mathlang: 'copy_script';
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
 
 export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
 	return (
