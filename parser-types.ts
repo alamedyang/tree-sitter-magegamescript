@@ -83,16 +83,20 @@ export type SerialDialogOption = {
 	debug: TreeSitterNode;
 	fileName: string;
 };
-export type MathlangBoolComparison = {
-	mathlang: 'bool_comparison';
-	action: 'CHECK_VARIABLE';
-	variable: string;
-	value: number;
-	comparison: '==';
-	expected_bool: boolean;
-	label: string;
-	debug: TYPES.MGSDebug;
-	comment?: string;
+export type MathlangBoolComparison =
+	| MathlangNumberCheckableEquality
+	| MathlangStringCheckable
+	| MathlangNumberCheckableEquality
+	| ((TYPES.CHECK_VARIABLES | TYPES.CHECK_VARIABLE | TYPES.CHECK_ENTITY_DIRECTION) & {
+			mathlang: 'bool_comparison';
+			label?: string;
+			debug?: TYPES.MGSDebug;
+			comment?: string;
+	  });
+export type MathlanglDialogParameter = {
+	mathlang: 'dialog_parameter';
+	property: string;
+	value: MGSValue;
 };
 export type MathlangSerialDialogParameter = {
 	mathlang: 'serial_dialog_parameter';
@@ -104,32 +108,47 @@ export type MovableIdentifier = {
 	type: string;
 	value: string;
 };
+export type BoolSetable = {
+	mathlang: 'bool_setable';
+	type: string;
+	value?: string;
+};
 export type CoordinateIdentifier = {
 	mathlang: 'coordinate_identifier';
 	type: string;
 	value: string;
-	polygonType: string;
+	polygonType: string | undefined;
 };
 export type IntGetable = {
 	mathlang: 'int_getable';
 	field: string;
 	entity: string;
 };
-export const isIntGetable = (data: Record<string, unknown>): data is IntGetable => {
+export const isIntGetable = (data: unknown): data is IntGetable => {
+	if (typeof data !== 'object') return false;
 	return (data as IntGetable).mathlang === 'int_getable';
 };
 export type IntBinaryExpression = {
 	mathlang: 'int_binary_expression';
-	lhs: unknown;
-	rhs: unknown;
+	lhs: IntUnit;
+	rhs: IntUnit;
 	op: string;
 };
+export type IntUnit = IntBinaryExpression | IntGetable | number | string;
+export const isIntUnit = (data: unknown): data is IntUnit => {
+	if (data === null) return false;
+	if (typeof data === 'number') return true;
+	if (typeof data === 'string') return true;
+	if (isIntGetable(data)) return true;
+	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
+};
+export type BoolUnit = BoolBinaryExpression | boolean | string;
 export type BoolBinaryExpression = {
 	mathlang: 'bool_binary_expression';
 	debug: TYPES.MGSDebug;
 	op: string;
-	lhs: MathlangCondition;
-	rhs: MathlangCondition;
+	lhs: BoolUnit | number | IntUnit;
+	rhs: BoolUnit | number | IntUnit;
 	lhsNode: TreeSitterNode;
 	rhsNode: TreeSitterNode;
 };
@@ -144,7 +163,7 @@ export type MathlangCondition =
 	| string;
 
 export type MathlangStringCheckable = {
-	mathlang: 'string_checkable';
+	mathlang: 'string_checkable' | 'bool_comparison'; // todo fix
 	debug?: TYPES.MGSDebug;
 	entity: string;
 	property: string;
@@ -161,8 +180,20 @@ export type MathlangStringCheckable = {
 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
 	comment?: string;
 };
+
+// icky
+export const isStringCheckable = (v: unknown): v is MathlangStringCheckable => {
+	if (typeof v !== 'object') return false;
+	const hasEntity = typeof (v as MathlangStringCheckable).entity == 'string';
+	const hasProperty = typeof (v as MathlangStringCheckable).property == 'string';
+	return (
+		(v as MathlangNode).mathlang === 'string_checkable' ||
+		((v as MathlangNode).mathlang === 'string_checkable' && hasEntity && hasProperty)
+	);
+};
+
 export type MathlangNumberCheckableEquality = {
-	mathlang: 'number_checkable_equality';
+	mathlang: 'number_checkable_equality' | 'bool_comparison'; // todo fix
 	debug?: TYPES.MGSDebug;
 	entity: string;
 	property: string;
@@ -216,6 +247,20 @@ export type AddSerialDialogSettingsNode = {
 	parameters: Record<string, MGSValue>;
 	debug: TYPES.MGSDebug;
 };
+
+export type DirectionTarget =
+	| {
+			action: 'SET_ENTITY_DIRECTION';
+			direction: string;
+	  }
+	| {
+			action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
+			target_geometry: string;
+	  }
+	| {
+			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
+			target_entity: string;
+	  };
 
 export type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
 export type DialogDefinitionNode = {

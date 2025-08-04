@@ -212,7 +212,7 @@ const spreadValues = (
 // TODO: why then return an array?
 type FieldToSpread = {
 	node: TreeSitterNode;
-	captures: boolean[] | string[] | number[];
+	captures: unknown[];
 };
 export const handleAction = (
 	f: FileState,
@@ -293,6 +293,7 @@ const actionFns: Record<string, ActionFn> = {
 	action_show_dialog: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const nameNode = node.childForFieldName('dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
+		if (typeof name !== 'string') throw new Error('name not a string');
 		const dialogs = (node.childrenForFieldName('dialog') || [])
 			.map((child) => handleNode(f, child))
 			.flat();
@@ -312,6 +313,7 @@ const actionFns: Record<string, ActionFn> = {
 	): AnyNode[] => {
 		const nameNode = node.childForFieldName('serial_dialog_name');
 		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
+		if (typeof name !== 'string') throw new Error('name not a string');
 		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
 			.map((child) => handleNode(f, child))
 			.flat();
