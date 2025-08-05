@@ -63,8 +63,14 @@ import {
 	isSerialDialogParameter,
 	isDialogIdentifier,
 	isBoolExpression,
+	type GotoLabel,
 } from './parser-types.ts';
-import { type GOTO_ACTION_INDEX } from './parser-bytecode-info.ts';
+import {
+	type RUN_SCRIPT,
+	type CheckAction,
+	type GOTO_ACTION_INDEX,
+	isCheckAction,
+} from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	// ->[]
@@ -691,61 +697,66 @@ const nodeFns = {
 		];
 		return [newSequence(f, node, steps, 'for sequence')];
 	},
-	if_single: (f: FileState, node: Node): AnyNode[] => {
+	if_single: (
+		f: FileState,
+		node: Node,
+	): (CheckAction | GotoLabel | GOTO_ACTION_INDEX | RUN_SCRIPT)[] => {
 		const conditionN = node.childForFieldName('condition');
-		let action = handleCapture(f, conditionN);
-		// condition.mathlang = 'if_single';
+		// simple condition: bool_comparison, bool_unary, bool_getable, bool, string
+		let condition = handleCapture(f, conditionN);
+		if (!isBoolExpression(condition)) throw new Error('');
 		const type = textForFieldName(f, node, 'type');
-		if (typeof action === 'number') throw new Error('lol waht');
-		if (action === undefined) throw new Error('lol waht');
-		if (action === null) throw new Error('lol waht');
-		if (typeof action === 'string') {
-			action = {
+		if (condition === null) throw new Error('lol waht');
+		if (condition === undefined) throw new Error('lol waht');
+		if (typeof condition === 'number') throw new Error('lol waht');
+		if (typeof condition === 'string') {
+			condition = {
 				mathlang: 'bool_getable',
 				action: 'CHECK_SAVE_FLAG',
 				expected_bool: true,
-				save_flag: action,
+				save_flag: condition,
 			};
 		}
 		if (!type) {
 			const script = captureForFieldName(f, node, 'script');
 			if (typeof script !== 'string') throw new Error('');
-			if (typeof action === 'boolean') {
-				return action ? [{ action: 'RUN_SCRIPT', script }] : [];
+			if (typeof condition === 'boolean') {
+				return condition ? [{ action: 'RUN_SCRIPT', script }] : [];
 			}
-			if (typeof action === 'number') throw new Error("this shouldn't happen");
-			if (typeof action === 'boolean') throw new Error("this shouldn't happen");
 			const ret = {
-				...action,
+				...condition,
 				success_script: script,
 			};
+			if (!isCheckAction(ret)) throw new Error('pls');
 			return [ret];
 		} else if (type === 'index') {
 			const index = captureForFieldName(f, node, 'index');
-			if (typeof action === 'boolean') {
-				if (typeof index !== 'number') throw new Error(':(');
-				const ret: GOTO_ACTION_INDEX = { action: 'GOTO_ACTION_INDEX', action_index: index };
-				return action ? [ret] : [];
+			if (typeof index !== 'number') throw new Error(':(');
+			if (typeof condition === 'boolean') {
+				return condition ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
 			}
-			return {
-				...action,
+			const ret = {
+				...condition,
 				jump_index: index,
 			};
+			if (!isCheckAction(ret)) throw new Error('pls');
+			return [ret];
 		} else if (type === 'label') {
 			const label = captureForFieldName(f, node, 'label');
-			if (typeof action === 'boolean') {
-				return action ? [gotoLabel(f, node, label)] : [];
+			if (typeof label !== 'string') throw new Error('needs string');
+			if (typeof condition === 'boolean') {
+				return condition ? [gotoLabel(f, node, label)] : [];
 			}
-			return [
-				{
-					...action,
-					label,
-				},
-			];
+			const ret = {
+				...condition,
+				label,
+			};
+			if (!isCheckAction(ret)) throw new Error('pls');
+			return [ret];
 		}
 		throw new Error('Unreachable?');
 	},
-	if_chain: (f: FileState, node: Node): [MathlangSequence] => {
+	if_chain: (f: FileState, node: Node): [AnyNode] => {
 		const ifs = node.childrenForFieldName('if_block');
 		const elzeN = node.childForFieldName('else_block');
 		if (!ifs) throw new Error('I know, I got it');
@@ -754,6 +765,7 @@ const nodeFns = {
 			if (!ifsZero) throw new Error('srsly');
 			const conditionN = ifsZero.childForFieldName('condition');
 			let condition = handleCapture(f, conditionN);
+			if (!isBoolExpression(condition)) throw new Error('');
 			const bodyN = ifsZero.childForFieldName('body');
 			if (!bodyN) throw new Error('srsly');
 			const body = bodyN.namedChildren
@@ -762,10 +774,7 @@ const nodeFns = {
 					return handleNode(f, v);
 				})
 				.flat();
-			if (
-				body.length === 1 &&
-				(isNodeAction(condition as AnyNode) || typeof condition === 'string')
-			) {
+			if (body.length === 1 && typeof condition === 'string') {
 				if (isNodeAction(body[0]) && body[0].action === 'RUN_SCRIPT') {
 					if (typeof condition === 'string') {
 						condition = {
@@ -776,7 +785,7 @@ const nodeFns = {
 						};
 					}
 					condition.success_script = body[0].script;
-					return condition;
+					return [condition];
 				} else if (!isNodeAction(body[0]) && body[0].mathlang === 'goto_label') {
 					if (typeof condition === 'string') {
 						condition = {
@@ -787,7 +796,7 @@ const nodeFns = {
 						};
 					}
 					condition.label = body[0].label;
-					return condition;
+					return [condition];
 				}
 			}
 		}

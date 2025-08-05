@@ -113,6 +113,10 @@ export type GotoLabel = {
 	debug?: TYPES.MGSDebug;
 	comment?: string;
 };
+export const isGotoLabel = (v: unknown): v is GotoLabel => {
+	if (typeof v !== 'object') return false;
+	return (v as GotoLabel).mathlang === 'goto_label';
+};
 
 // ------------------------------ DIALOG ------------------------------ \\
 
@@ -311,6 +315,16 @@ export type CopyMacro = {
 	debug: TYPES.MGSDebug;
 };
 type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
+export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
+	return (
+		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
+		(node as MathlangNode).mathlang === 'copy_script'
+	);
+};
+export const hasSearchAndReplace = (node: AnyNode): boolean => {
+	if (TYPES.isActionCopyScript(node) && node.search_and_replace) return true;
+	return false;
+};
 
 // needs to be one unit of thing for reasons, but still contain than one thing
 export type MathlangSequence = {
@@ -327,23 +341,23 @@ export const isIntExpression = (data: unknown): data is IntExpression => {
 	return isIntUnit(data) || isIntBinaryExpression(data);
 };
 
-export type IntUnit = EntityIntProperty | number | string;
+export type IntUnit = IntGetable | number | string;
 export const isIntUnit = (data: unknown): data is IntUnit => {
 	if (data === null) return false;
 	if (typeof data === 'number') return true;
 	if (typeof data === 'string') return true;
-	if (isEntityIntProperty(data)) return true;
+	if (isIntGetable(data)) return true;
 	return false;
 };
 
-export type EntityIntProperty = {
-	mathlang: 'int_getable'; // TODO: rename to entity_int_property
+export type IntGetable = {
+	mathlang: 'int_getable';
 	field: string;
 	entity: string;
 };
-export const isEntityIntProperty = (data: unknown): data is EntityIntProperty => {
+export const isIntGetable = (data: unknown): data is IntGetable => {
 	if (typeof data !== 'object') return false;
-	return (data as EntityIntProperty).mathlang === 'int_getable';
+	return (data as IntGetable).mathlang === 'int_getable';
 };
 
 export type IntBinaryExpression = {
@@ -357,8 +371,27 @@ export const isIntBinaryExpression = (data: unknown): data is IntBinaryExpressio
 	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
 };
 
-// ------------------------------ NEXT ------------------------------ \\
+// ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
 
+export type BoolExpression = BoolComparison | BoolBinaryExpression | BoolUnit;
+export const isBoolExpression = (v: unknown): v is BoolExpression => {
+	return isBoolComparison(v) || isBoolBinaryExpression(v) || isBoolUnit(v);
+};
+
+// bool_unit: bool | string | bool_getable | bool_expression(?)
+export type BoolUnit = boolean | string | BoolGetable;
+export const isBoolUnit = (v: unknown): v is BoolUnit => {
+	if (typeof v === 'string') return true;
+	if (typeof v === 'boolean') return true;
+	if (typeof v !== 'object') return false;
+	return (v as BoolGetable).mathlang === 'bool_getable';
+};
+
+// bool_comparison:
+// 	(number_checkable_equality | number) (==|!==) (number_checkable_equality | number)
+// 	(string_checkable | string) (==|!==) (string_checkable | string)
+// 	(number | string) (<|<=|==|!=|=>|>) (number | string)
+// 	(entity_direction_identifier | nsew) (==|!==) (entity_direction_identifier | nsew)
 export type BoolComparison =
 	| NumberCheckableEquality
 	| StringCheckable
@@ -368,25 +401,15 @@ export type BoolComparison =
 			debug?: TYPES.MGSDebug;
 			comment?: string;
 	  });
-
-export type NumberCheckableEquality = {
-	mathlang: 'number_checkable_equality';
-	debug?: TYPES.MGSDebug;
-	entity: string;
-	property: string;
-	expected_bool?: boolean;
-	label?: string;
-	action?:
-		| 'CHECK_ENTITY_X'
-		| 'CHECK_ENTITY_Y'
-		| 'CHECK_ENTITY_PRIMARY_ID'
-		| 'CHECK_ENTITY_SECONDARY_ID'
-		| 'CHECK_ENTITY_PRIMARY_ID_TYPE'
-		| 'CHECK_ENTITY_CURRENT_ANIMATION'
-		| 'CHECK_ENTITY_CURRENT_FRAME';
-	numberLabel?: 'expected_u2' | 'expected_byte';
-	comment?: string;
+export const isBoolComparison = (v: unknown): v is BoolComparison => {
+	if (typeof v !== 'object') return false;
+	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') return true;
+	if ((v as StringCheckable).mathlang === 'string_checkable') return true;
+	if ((v as BoolComparison).mathlang === 'bool_comparison') return true;
+	return false;
 };
+
+// string_checkable:
 export type StringCheckable = {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
@@ -405,96 +428,123 @@ export type StringCheckable = {
 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
 	comment?: string;
 };
-// icky
 export const isStringCheckable = (v: unknown): v is StringCheckable => {
 	if (typeof v !== 'object') return false;
-	const hasEntity = typeof (v as StringCheckable).entity == 'string';
-	const hasProperty = typeof (v as StringCheckable).property == 'string';
-	return (
-		(v as MathlangNode).mathlang === 'string_checkable' ||
-		((v as MathlangNode).mathlang === 'string_checkable' && hasEntity && hasProperty)
-	);
+	return (v as MathlangNode).mathlang === 'string_checkable';
 };
+
+// bool_binary_expression:
+// 	lhs: bool_expression
+// 	op: && || == !==
+// 	rhs: bool_expression
+export type BoolBinaryExpression = (
+	| {
+			// ==, !==, &&, ||
+			lhs: BoolExpression;
+			rhs: BoolExpression;
+	  }
+	| {
+			// ==, !==
+			lhs: StringCheckable | string;
+			rhs: StringCheckable | string;
+	  }
+	| {
+			// ==, !==
+			lhs: NumberCheckableEquality | number;
+			rhs: NumberCheckableEquality | number;
+	  }
+) & {
+	mathlang: 'bool_binary_expression';
+	op: string;
+	debug?: TYPES.MGSDebug;
+	lhsNode: TreeSitterNode;
+	rhsNode: TreeSitterNode;
+};
+export const isBoolBinaryExpression = (v: unknown): v is BoolBinaryExpression => {
+	if (typeof v !== 'object') return false;
+	return (v as BoolBinaryExpression).mathlang === 'bool_binary_expression';
+};
+
+// bool_getable:
+// 	'debug_mode'
+// 	entity_identifier 'glitched'
+// 	entity_identifier 'intersects' geometry_identifier
+// 	flag
+// 	dialog open/closed
+// 	serial dialog open/closed
+// 	button pressed
+// 	button state
+
+export type BoolGetableCommon = {
+	mathlang: 'bool_getable';
+	label?: string;
+	debug?: TYPES.MGSDebug;
+	comment?: string;
+};
+export type BoolGetable = BoolGetableCommon &
+	(
+		| TYPES.CHECK_DEBUG_MODE
+		| TYPES.CHECK_ENTITY_GLITCHED
+		| TYPES.CHECK_IF_ENTITY_IS_IN_GEOMETRY
+		| TYPES.CHECK_SAVE_FLAG
+		| TYPES.CHECK_DIALOG_OPEN
+		| TYPES.CHECK_SERIAL_DIALOG_OPEN
+		| TYPES.CHECK_FOR_BUTTON_PRESS
+		| TYPES.CHECK_FOR_BUTTON_STATE
+	);
+
+export const isBoolGetable = (v: unknown): v is BoolGetable => {
+	if (typeof v !== 'object') return false;
+	return (v as BoolGetable).mathlang === 'bool_getable';
+};
+
+// (Intermediate)
+export type BoolSetable = {
+	mathlang: 'bool_setable';
+	type: string;
+	value?: string;
+};
+
+// entity_direction_identifier: entity_identifier 'direction'
+
+// number_checkable_equality: entity_identifier int_property
+export type NumberCheckableEquality = {
+	mathlang: 'number_checkable_equality';
+	debug?: TYPES.MGSDebug;
+	entity: string;
+	property: string;
+	expected_bool?: boolean;
+	label?: string;
+	action?:
+		| 'CHECK_ENTITY_X'
+		| 'CHECK_ENTITY_Y'
+		| 'CHECK_ENTITY_PRIMARY_ID'
+		| 'CHECK_ENTITY_SECONDARY_ID'
+		| 'CHECK_ENTITY_PRIMARY_ID_TYPE'
+		| 'CHECK_ENTITY_CURRENT_ANIMATION'
+		| 'CHECK_ENTITY_CURRENT_FRAME';
+	numberLabel?: 'expected_u2' | 'expected_byte';
+	comment?: string;
+};
+export const isNumberCheckableEquality = (v: unknown): v is NumberCheckableEquality => {
+	if (typeof v !== 'object') return false;
+	return (v as NumberCheckableEquality).mathlang === 'number_checkable_equality';
+};
+
+// ------------------------------ NEXT ------------------------------ \\
 
 export type MovableIdentifier = {
 	mathlang: 'movable_identifier';
 	type: string;
 	value: string;
 };
-export type BoolSetable = {
-	mathlang: 'bool_setable';
-	type: string;
-	value?: string;
-};
+
 export type CoordinateIdentifier = {
 	mathlang: 'coordinate_identifier';
 	type: string;
 	value: string;
 	polygonType: string | undefined;
 };
-export type BoolBinaryExpression =
-	| {
-			mathlang: 'bool_binary_expression';
-			debug: TYPES.MGSDebug;
-			op: string; // ==, !==, &&, ||
-			lhs: BoolUnit;
-			rhs: BoolUnit;
-			lhsNode: TreeSitterNode;
-			rhsNode: TreeSitterNode;
-	  }
-	| {
-			mathlang: 'bool_binary_expression';
-			debug: TYPES.MGSDebug;
-			op: string; // ==, !==
-			lhs: StringCheckable | string;
-			rhs: StringCheckable | string;
-			lhsNode: TreeSitterNode;
-			rhsNode: TreeSitterNode;
-	  }
-	| {
-			mathlang: 'bool_binary_expression';
-			debug: TYPES.MGSDebug;
-			op: string; // ==, !==
-			lhs: NumberCheckableEquality | number;
-			rhs: NumberCheckableEquality | number;
-			lhsNode: TreeSitterNode;
-			rhsNode: TreeSitterNode;
-	  };
-
-export type BoolUnit = boolean | string | BoolGetable | BoolBinaryExpression;
-export type BoolExpression = BoolUnit | BoolComparison;
-
-export const isBoolExpression = (v: unknown): v is BoolExpression => {
-	// isBoolUnit
-	if (typeof v === 'string') return true;
-	if (typeof v === 'boolean') return true;
-	if ((v as BoolGetable).mathlang === 'bool_getable') return true;
-	if ((v as BoolBinaryExpression).mathlang === 'bool_binary_expression') return true;
-	// isBoolComparison
-	if ((v as BoolComparison).mathlang === 'bool_comparison') return true;
-	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') return true;
-	if ((v as StringCheckable).mathlang === 'string_checkable') return true;
-	// fail
-	return false;
-};
-
-export type BoolGetable = (
-	| TYPES.CHECK_DEBUG_MODE
-	| TYPES.CHECK_ENTITY_GLITCHED
-	| TYPES.CHECK_IF_ENTITY_IS_IN_GEOMETRY
-	| TYPES.CHECK_SAVE_FLAG
-	| TYPES.CHECK_DIALOG_OPEN
-	| TYPES.CHECK_SERIAL_DIALOG_OPEN
-	| TYPES.CHECK_FOR_BUTTON_PRESS
-	| TYPES.CHECK_FOR_BUTTON_STATE
-) & {
-	mathlang: 'bool_getable';
-	label?: string;
-	debug?: TYPES.MGSDebug;
-	comment?: string;
-};
-
-// --------------------- final nodes that aren't actions --------------------- \\
 
 export type DirectionTarget =
 	| {
@@ -510,17 +560,6 @@ export type DirectionTarget =
 			target_entity: string;
 	  };
 
-export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
-	return (
-		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
-		(node as MathlangNode).mathlang === 'copy_script'
-	);
-};
-export const hasSearchAndReplace = (node: AnyNode): boolean => {
-	if (TYPES.isActionCopyScript(node) && node.search_and_replace) return true;
-	return false;
-};
-
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
@@ -530,14 +569,13 @@ export type MathlangNodeWithLabel =
 	| StringCheckable
 	| NumberCheckableEquality;
 
-export const doesMathlangHaveLabelToChangeToIndex = (
-	node: AnyNode,
-): node is MathlangNodeWithLabel => {
-	if (isNodeAction(node)) return false;
-	if (node.mathlang === 'goto_label') return true;
-	if (node.mathlang === 'bool_getable') return true;
-	if (node.mathlang === 'bool_comparison') return true;
-	if (node.mathlang === 'string_checkable') return true;
-	if (node.mathlang === 'number_checkable_equality') return true;
+export const doesMathlangHaveLabelToChangeToIndex = (v: AnyNode): v is MathlangNodeWithLabel => {
+	if (typeof v !== 'object') return false;
+	if (isNodeAction(v)) return false; // load bearing??
+	if (isGotoLabel(v)) return true;
+	if (isBoolGetable(v)) return true;
+	if (isBoolComparison(v)) return true;
+	if (isStringCheckable(v)) return true;
+	if (isNumberCheckableEquality(v)) return true;
 	return false;
 };

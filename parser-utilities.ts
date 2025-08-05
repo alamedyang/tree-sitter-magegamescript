@@ -7,20 +7,19 @@ import {
 } from './parser-bytecode-info.ts';
 import {
 	isNodeAction,
-	type BoolBinaryExpression,
 	type AnyNode,
-	type Dialog,
-	type CommentNode,
-	type DialogDefinitionNode,
-	type GotoLabel,
-	type LabelDefinitionNode,
-	type MathlangSequence,
-	type SerialDialogDefinitionNode,
 	type MGSLocation,
 	type MGSMessage,
+	type CommentNode,
+	type Dialog,
+	type DialogDefinition,
 	type SerialDialog,
+	type SerialDialogDefinition,
+	type LabelDefinition,
+	type GotoLabel,
+	type MathlangSequence,
 	type BoolExpression,
-	type BoolUnit,
+	type BoolBinaryExpression,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -242,14 +241,14 @@ export const expandCondition = (
 	const expandAs: BoolBinaryExpression = {
 		mathlang: 'bool_binary_expression',
 		debug: {
-			node: condition.debug.node,
+			node: condition.debug?.node || node,
 			fileName: f.fileName,
 		},
 		op: '||',
 		lhs: {
 			mathlang: 'bool_binary_expression',
 			debug: {
-				node: condition.debug.node,
+				node: condition.debug?.node || node,
 				fileName: f.fileName,
 			},
 			op: '&&',
@@ -261,7 +260,7 @@ export const expandCondition = (
 		rhs: {
 			mathlang: 'bool_binary_expression',
 			debug: {
-				node: condition.debug.node,
+				node: condition.debug?.node || node,
 				fileName: f.fileName,
 			},
 			op: '&&',
@@ -303,18 +302,17 @@ export const simpleBranchMaker = (
 	return newSequence(f, node, steps, 'simple branch on');
 };
 
-export const invert = (
-	f: FileState,
-	node: Node,
-	boolExp: BoolExpression | BoolUnit,
-): BoolExpression | BoolUnit => {
+export const invert = (f: FileState, node: Node, boolExp: BoolExpression): BoolExpression => {
 	// TODO: typeof `boolExp`
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
-		return checkFlag(f, node, boolExp, '', false);
+		return { ...checkFlag(f, node, boolExp, '', false), mathlang: 'bool_getable' };
 	}
 	if (boolExp.mathlang === 'bool_binary_expression') {
 		if (boolExp.op === '||' || boolExp.op === '&&') {
+			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
+				throw new Error('|| or && for a number??');
+			}
 			const invertedLHS = invert(f, node, boolExp.lhs);
 			boolExp.lhs = invertedLHS;
 			const invertedRHS = invert(f, node, boolExp.rhs);
@@ -330,7 +328,7 @@ export const invert = (
 	return boolExp;
 };
 
-export const label = (f: FileState, node: Node, label: string): LabelDefinitionNode => ({
+export const label = (f: FileState, node: Node, label: string): LabelDefinition => ({
 	mathlang: 'label_definition',
 	label,
 	debug: {
@@ -381,7 +379,7 @@ export const newDialog = (
 	node: Node,
 	dialogName: string,
 	dialogs: Dialog[],
-): DialogDefinitionNode => ({
+): DialogDefinition => ({
 	mathlang: 'dialog_definition',
 	fileName: f.fileName,
 	dialogName,
@@ -404,7 +402,7 @@ export const newSerialDialog = (
 	node: Node,
 	dialogName: string,
 	serialDialog: SerialDialog,
-): SerialDialogDefinitionNode => ({
+): SerialDialogDefinition => ({
 	mathlang: 'serial_dialog_definition',
 	fileName: f.fileName,
 	dialogName,
