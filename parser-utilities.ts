@@ -6,7 +6,6 @@ import {
 	type CHECK_SAVE_FLAG,
 } from './parser-bytecode-info.ts';
 import {
-	isNodeAction,
 	type AnyNode,
 	type MGSLocation,
 	type MGSMessage,
@@ -20,6 +19,7 @@ import {
 	type MathlangSequence,
 	type BoolExpression,
 	type BoolBinaryExpression,
+	isNodeMathlang,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -358,7 +358,7 @@ export const newSequence = (
 	steps
 		.filter((v) => v !== null) // might not need this anymore
 		.forEach((v) => {
-			if (!isNodeAction(v) && v.mathlang === 'sequence') {
+			if (isNodeMathlang(v) && v.mathlang === 'sequence') {
 				flatSteps.push(...v.steps);
 			} else {
 				flatSteps.push(v);
@@ -454,9 +454,9 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 		const action = actions[i];
 		const next = actions[i + 1];
 		if (
-			!isNodeAction(action) &&
+			isNodeMathlang(action) &&
 			next &&
-			!isNodeAction(next) &&
+			isNodeMathlang(next) &&
 			action.mathlang === 'goto_label' &&
 			next?.mathlang === 'label_definition' &&
 			next?.label === action.label
@@ -472,9 +472,9 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 	// then the previous label registration can be replaced with following goto value
 	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
 	actions.forEach((action: AnyNode, i: number) => {
-		if (!isNodeAction(action) && action.mathlang === 'label_definition') {
+		if (isNodeMathlang(action) && action.mathlang === 'label_definition') {
 			const next = actions[i + 1];
-			if (next && !isNodeAction(next) && next.mathlang === 'goto_label') {
+			if (next && isNodeMathlang(next) && next.mathlang === 'goto_label') {
 				if (!next.label) {
 					throw new Error('NO LABEL');
 				}
@@ -483,7 +483,7 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 		}
 	});
 	actions.forEach((action: AnyNode) => {
-		if (!isNodeAction(action) && action.mathlang === 'goto_label') {
+		if (isNodeMathlang(action) && action.mathlang === 'goto_label') {
 			if (!action.label) {
 				throw new Error('NO LABEL');
 			}

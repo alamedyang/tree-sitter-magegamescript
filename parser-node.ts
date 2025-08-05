@@ -23,6 +23,7 @@ import {
 	handleCapture,
 	captureForFieldName,
 	textForFieldName,
+	mandatoryTextForFieldName,
 	capturesForFieldName,
 } from './parser-capture.ts';
 import { handleAction } from './parser-actions.ts';
@@ -64,6 +65,7 @@ import {
 	isDialogIdentifier,
 	isBoolExpression,
 	type GotoLabel,
+	isNodeMathlang,
 } from './parser-types.ts';
 import {
 	type RUN_SCRIPT,
@@ -106,7 +108,7 @@ const nodeFns = {
 	line_comment: () => [],
 	block_comment: () => [],
 	semicolon: () => [],
-	ERROR: (f: FileState, node: Node) => {
+	ERROR: (f: FileState, node: Node): [] => {
 		const err: MGSMessage = {
 			locations: [{ node }],
 			message: 'syntax error',
@@ -137,9 +139,9 @@ const nodeFns = {
 		const actions: AnyNode[] = [];
 		// flatten sequences
 		rawActions.forEach((raw) => {
-			if (!isNodeAction(raw) && raw.mathlang === 'sequence') {
+			if (isNodeMathlang(raw) && raw.mathlang === 'sequence') {
 				raw.steps.forEach((step) => actions.push(step));
-			} else if (!isNodeAction(raw) && raw.mathlang === 'json_literal') {
+			} else if (isNodeMathlang(raw) && raw.mathlang === 'json_literal') {
 				if (!Array.isArray(raw.json)) throw new Error('JSON should be []');
 				raw.json.forEach((obj) => actions.push(obj));
 			} else {
@@ -175,8 +177,7 @@ const nodeFns = {
 		];
 	},
 	constant_assignment: (f: FileState, node: Node): [ConstantDefinition] => {
-		const label = textForFieldName(f, node, 'label');
-		if (label === undefined) throw new Error('undefined label');
+		const label = mandatoryTextForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
 		if (!isMGSPrimitive(value)) throw new Error('derp');
 		f.constants = f.constants || {};
@@ -300,8 +301,7 @@ const nodeFns = {
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
 	label_definition: (f: FileState, node: Node): [LabelDefinition] => {
-		const text = textForFieldName(f, node, 'label');
-		if (text === undefined) throw new Error('undefined label');
+		const text = mandatoryTextForFieldName(f, node, 'label');
 		return [label(f, node, text)];
 	},
 	add_dialog_settings: (f: FileState, node: Node): [AddDialogSettings] => {
@@ -325,8 +325,7 @@ const nodeFns = {
 	},
 	add_dialog_settings_target: (f: FileState, node: Node): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
-		const type = textForFieldName(f, node, 'type');
-		if (type === undefined) throw new Error('undefined type');
+		const type = mandatoryTextForFieldName(f, node, 'type');
 		const ret: AddDialogSettingsTarget = {
 			mathlang: 'add_dialog_settings_target',
 			type,
@@ -385,7 +384,7 @@ const nodeFns = {
 	},
 	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them
 	serial_dialog_option: (f: FileState, node: Node): [SerialDialogOption] => {
-		const optionChar = textForFieldName(f, node, 'option_type') || 'ERROR';
+		const optionChar = mandatoryTextForFieldName(f, node, 'option_type');
 		let optionType: SerialOptionType = 'options';
 		if (optionChar === '_') optionType = 'text_options';
 		else if (optionChar !== '#') throw new Error('invalid option type');
@@ -673,9 +672,9 @@ const nodeFns = {
 		const body: AnyNode[] = handleNode(f, bodyN)
 			.flat()
 			.map((v: AnyNode) => {
-				if (!isNodeAction(v) && v.mathlang === 'continue_statement') {
+				if (isNodeMathlang(v) && v.mathlang === 'continue_statement') {
 					return gotoLabel(f, node, continueL);
-				} else if (!isNodeAction(v) && v.mathlang === 'break_statement') {
+				} else if (isNodeMathlang(v) && v.mathlang === 'break_statement') {
 					return gotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -786,7 +785,7 @@ const nodeFns = {
 					}
 					condition.success_script = body[0].script;
 					return [condition];
-				} else if (!isNodeAction(body[0]) && body[0].mathlang === 'goto_label') {
+				} else if (isNodeMathlang(body[0]) && body[0].mathlang === 'goto_label') {
 					if (typeof condition === 'string') {
 						condition = {
 							mathlang: 'bool_getable',

@@ -109,8 +109,7 @@ const captureFns = {
 	NUMBER: (f: FileState, node: TreeSitterNode): number => Number(node.text),
 	DURATION: (f: FileState, node: TreeSitterNode): number => {
 		const suffix = textForFieldName(f, node, 'suffix');
-		const int = textForFieldName(f, node, 'NUMBER');
-		if (int === undefined) throw new Error('missing int');
+		const int = mandatoryTextForFieldName(f, node, 'NUMBER');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
@@ -123,8 +122,7 @@ const captureFns = {
 			if (node.text === 'thrice') return 3;
 		}
 		const suffix = textForFieldName(f, node, 'suffix');
-		const int = textForFieldName(f, node, 'NUMBER');
-		if (int === undefined) throw new Error('missing int');
+		const int = mandatoryTextForFieldName(f, node, 'NUMBER');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
@@ -182,8 +180,7 @@ const captureFns = {
 				value: label,
 			};
 		}
-		const type = textForFieldName(f, node, 'type');
-		if (type === undefined) throw new Error('undefined type');
+		const type = mandatoryTextForFieldName(f, node, 'type');
 		if (type !== 'label' && type !== 'entity' && type !== 'name') {
 			throw new Error('invalid type');
 		}
@@ -196,8 +193,7 @@ const captureFns = {
 		};
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
-		const property = textForFieldName(f, node, 'property');
-		if (property === undefined) throw new Error('undefined property');
+		const property = mandatoryTextForFieldName(f, node, 'property');
 		const value = captureForFieldName(f, node, 'value');
 		if (typeof value !== 'string' && typeof value !== 'number') throw new Error('ts');
 		return {
@@ -207,7 +203,7 @@ const captureFns = {
 		};
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
-		const property = textForFieldName(f, node, 'property') || '';
+		const property = mandatoryTextForFieldName(f, node, 'property');
 		const value = captureForFieldName(f, node, 'value');
 		if (typeof value !== 'string' && typeof value !== 'number') throw new Error('ts');
 		return {
@@ -287,7 +283,7 @@ const captureFns = {
 		const lhsNode = node.childForFieldName('lhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
 		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = textForFieldName(f, node, 'operator') || '';
+		const op = mandatoryTextForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
 		if (!isIntExpression(rhs)) throw new Error('RHS not Int Exp');
@@ -330,7 +326,7 @@ const captureFns = {
 		const lhsNode = node.childForFieldName('lhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
 		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = textForFieldName(f, node, 'operator') || '';
+		const op = mandatoryTextForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
 		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'boolean') {
@@ -411,8 +407,6 @@ const captureFns = {
 	},
 	bool_grouping: (f: FileState, node: TreeSitterNode): BoolExpression => {
 		const capture = captureForFieldName(f, node, 'inner');
-		if (capture === undefined) throw new Error('no');
-		if (typeof capture === 'number') throw new Error('no');
 		if (!isBoolExpression(capture)) throw new Error('lulul');
 		return capture;
 	},
@@ -433,7 +427,7 @@ const captureFns = {
 		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return {
 			mathlang: 'int_getable',
-			field: textForFieldName(f, node, 'property') || '',
+			field: mandatoryTextForFieldName(f, node, 'property'),
 			entity,
 		};
 	},
@@ -537,7 +531,7 @@ const captureFns = {
 		if (entity) {
 			if (typeof entity !== 'string') throw new Error('entity not a string');
 			ret.entity = entity;
-			ret.property = textForFieldName(f, node, 'property') || '';
+			ret.property = mandatoryTextForFieldName(f, node, 'property');
 			if (ret.property === 'on_tick') {
 				return {
 					...ret,
@@ -670,7 +664,7 @@ const captureFns = {
 		const rhsNode = node.childForFieldName('rhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
 		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = textForFieldName(f, node, 'operator') || '';
+		const op = mandatoryTextForFieldName(f, node, 'operator');
 		const debug = {
 			node,
 			fileName: f.fileName,
@@ -766,7 +760,7 @@ const captureFns = {
 		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return {
 			mathlang: 'int_getable',
-			field: textForFieldName(f, node, 'property') || '',
+			field: mandatoryTextForFieldName(f, node, 'property'),
 			entity,
 		};
 	},
@@ -924,6 +918,15 @@ export const textForFieldName = (
 ): string | undefined => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) return undefined;
+	return captureNode.text;
+};
+export const mandatoryTextForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): string => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) throw new Error('missing text for field name ' + fieldName);
 	return captureNode.text;
 };
 // ditto?

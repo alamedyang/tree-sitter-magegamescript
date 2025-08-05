@@ -46,7 +46,7 @@ const printAction = (data: MATHLANG.AnyNode): string => {
 
 // TODO: data type
 const mathlang = {
-	goto_label: (data) => `${printGotoSegment(data)};`,
+	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
 	label_definition: (data: MATHLANG.GotoLabel) => {
 		if (!data.label) throw new Error('cannot print label without label');
 		return `${sanitizeLabel(data.label)}:`;

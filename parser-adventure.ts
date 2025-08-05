@@ -1,6 +1,6 @@
 import { compareTexts } from './parser-tests.ts';
 
-const getLabelRegistery = (lines: string[]) => {
+const getLabelRegistery = (lines: string[]): Record<string, number> => {
 	const registry: Record<string, number> = {};
 	lines.forEach((line, i) => {
 		const labelMatch = line.trim().match(/^([^/]+):$/);

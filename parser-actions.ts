@@ -23,6 +23,8 @@ import {
 	isIntGetable,
 	isDialog,
 	isSerialDialog,
+	type IntBinaryExpression,
+	isIntBinaryExpression,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -56,7 +58,7 @@ const opIntoStringMap: Record<string, string> = {
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 
-const flattenIntBinaryExpression = (exp, steps: AnyNode[]) => {
+const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]): AnyNode[] => {
 	const temporary = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
@@ -65,7 +67,7 @@ const flattenIntBinaryExpression = (exp, steps: AnyNode[]) => {
 		steps.push(setVarToVar(temporary, lhs));
 	} else if (typeof lhs === 'number') {
 		steps.push(setVarToValue(temporary, lhs));
-	} else if (lhs.entity) {
+	} else if (isIntGetable(lhs)) {
 		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary));
 	} else if (lhs.mathlang === 'int_binary_expression') {
 		// can use the same temporary since it's the lhs and we're going LTR
@@ -85,7 +87,7 @@ const flattenIntBinaryExpression = (exp, steps: AnyNode[]) => {
 		} else {
 			steps.push(changeVarByValue(temporary, rhs, op));
 		}
-	} else if (rhs.entity) {
+	} else if (isIntGetable(rhs)) {
 		const temp = quickTemporary();
 		if (!temp) throw new Error('TS why');
 		steps.push(
@@ -221,13 +223,6 @@ type FieldToSpread = {
 };
 export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	if (!node) throw new Error('Missing node');
-	// ->[]
-	// Cyclic dependency bodge
-	if (!handleNode) {
-		throw new Error(
-			'handleAction cannot be called until handleNode has been provided to the init function',
-		);
-	}
 	// From the action dictionary
 	const data = actionData[node.grammarType];
 	if (!data) {
@@ -545,6 +540,7 @@ const actionData: Record<string, actionDataEntry> = {
 				// Make a temporary variable to store the value of the expression
 				newTemporary(v.lhs);
 				// Play out the expression
+				if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				// Clean up the temporary (but retain the variable name)
 				const temporary = dropTemporary();
@@ -672,6 +668,7 @@ const actionData: Record<string, actionDataEntry> = {
 			// Do the expression thing, like above, but the final step is different
 			// (It's going into an entity field, not a variable)
 			newTemporary();
+			if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 			const steps = flattenIntBinaryExpression(v.rhs, []);
 			const temporary = dropTemporary();
 			steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
@@ -1032,6 +1029,7 @@ const actionData: Record<string, actionDataEntry> = {
 				// e.g. varName += (var2 * 7)
 				if (v.rhs.mathlang === 'int_binary_expression') {
 					const temporary = newTemporary();
+					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
@@ -1076,6 +1074,7 @@ const actionData: Record<string, actionDataEntry> = {
 				if (v.rhs.mathlang === 'int_binary_expression') {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
+					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 					const steps = [
 						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary1),
 						...flattenIntBinaryExpression(v.rhs, []),

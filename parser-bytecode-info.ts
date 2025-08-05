@@ -1034,5 +1034,6 @@ export const standardizeAction = (action: Record<string, unknown>, OOB: number):
 			ret[field] = action[field];
 		}
 	});
+	// todo: don't coerce, see if it'll work on its own
 	return action as Action;
 };

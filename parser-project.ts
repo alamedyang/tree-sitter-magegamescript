@@ -13,12 +13,12 @@ import {
 	type SerialDialogDefinition,
 	type ScriptDefinition,
 	type MGSMessage,
-	isNodeAction,
 	isAnyCopyScript,
 	type MathlangNode,
 	hasSearchAndReplace,
 	isLabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
+	isNodeMathlang,
 } from './parser-types.ts';
 import {
 	type GOTO_ACTION_INDEX,
@@ -99,9 +99,9 @@ export const makeProjectState = (
 			// finalize actions
 			const finalizedActions: AnyNode[] = [];
 			data.rawNodes.forEach((node) => {
-				if (!isNodeAction(node) && node.mathlang === 'dialog_definition') {
+				if (isNodeMathlang(node) && node.mathlang === 'dialog_definition') {
 					p.addDialog(node);
-				} else if (!isNodeAction(node) && node.mathlang === 'serial_dialog_definition') {
+				} else if (isNodeMathlang(node) && node.mathlang === 'serial_dialog_definition') {
 					p.addSerialDialog(node);
 				} else {
 					finalizedActions.push(node);
@@ -401,7 +401,7 @@ export const makeProjectState = (
 				})
 				.flat()
 				.filter((v) => v); // catastrophic errors are undefined
-			f.nodes = nodes;
+			f.nodes = nodes.filter((v) => v !== undefined);
 			// add parsed file to the pile
 			fileMap[fileName].parsed = f;
 			return f;

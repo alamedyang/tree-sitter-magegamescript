@@ -10,8 +10,14 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 };
 
 export type AnyNode = TYPES.Action | MathlangNode;
-export const isNodeAction = (node: TYPES.Action | MathlangNode): node is TYPES.Action => {
-	return (node as TYPES.Action).action !== undefined;
+export const isNodeAction = (v: unknown): v is TYPES.Action => {
+	return (v as TYPES.Action).action !== undefined;
+};
+export const isNodeMathlang = (v: unknown): v is MathlangNode => {
+	return (v as MathlangNode).mathlang !== undefined;
+};
+export const isThingNode = (v: unknown): v is AnyNode => {
+	return (v as TYPES.Action).action !== undefined || (v as MathlangNode).mathlang !== undefined;
 };
 
 export type MGSLocation = {
@@ -232,7 +238,8 @@ export type SerialDialog = {
 	text_options?: SerialDialogOption[];
 	debug?: TYPES.MGSDebug;
 };
-export const isSerialDialog = (v: AnyNode): v is SerialDialog => {
+export const isSerialDialog = (v: unknown): v is SerialDialog => {
+	if (typeof v !== 'object') return false;
 	return (v as SerialDialog).mathlang === 'serial_dialog';
 };
 
@@ -250,8 +257,9 @@ export type SerialDialogOption = {
 	script: string;
 	debug: TYPES.MGSDebug;
 };
-export const isSerialDialogOption = (node: AnyNode): node is SerialDialogOption => {
-	return (node as SerialDialogOption).mathlang === 'serial_dialog_option';
+export const isSerialDialogOption = (v: unknown): v is SerialDialogOption => {
+	if (typeof v !== 'object') return false;
+	return (v as SerialDialogOption).mathlang === 'serial_dialog_option';
 };
 
 // ------------------------------ ONE-OFFS ------------------------------ \\
@@ -283,8 +291,9 @@ export type ScriptDefinition = {
 	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
 };
-export const isScriptDefinitionNode = (node: AnyNode): node is ScriptDefinition => {
-	return (node as MathlangNode).mathlang === 'script_definition';
+export const isScriptDefinitionNode = (v: unknown): v is ScriptDefinition => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangNode).mathlang === 'script_definition';
 };
 
 export type CommentNode = {
@@ -298,9 +307,10 @@ export type LabelDefinition = {
 	label: string;
 	debug?: TYPES.MGSDebug;
 };
-export const isLabelDefinition = (node: AnyNode): node is LabelDefinition => {
-	if (isNodeAction(node)) return false;
-	return node.mathlang === 'label_definition';
+export const isLabelDefinition = (v: unknown): v is LabelDefinition => {
+	if (typeof v !== 'object') return false;
+	if (!isNodeMathlang(v)) return false;
+	return v.mathlang === 'label_definition';
 };
 
 export type JSONNode = {
@@ -315,14 +325,17 @@ export type CopyMacro = {
 	debug: TYPES.MGSDebug;
 };
 type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
-export const isAnyCopyScript = (node: TYPES.Action | MathlangNode): node is CopyScript => {
+export const isAnyCopyScript = (v: unknown): v is CopyScript => {
+	if (typeof v !== 'object') return false;
 	return (
-		(node as TYPES.Action).action === 'COPY_SCRIPT' ||
-		(node as MathlangNode).mathlang === 'copy_script'
+		(v as TYPES.Action).action === 'COPY_SCRIPT' ||
+		(v as MathlangNode).mathlang === 'copy_script'
 	);
 };
-export const hasSearchAndReplace = (node: AnyNode): boolean => {
-	if (TYPES.isActionCopyScript(node) && node.search_and_replace) return true;
+export const hasSearchAndReplace = (v: unknown): boolean => {
+	if (!v) return false;
+	if (typeof v !== 'object') return false;
+	if (isNodeAction(v) && TYPES.isActionCopyScript(v) && v.search_and_replace) return true;
 	return false;
 };
 
@@ -337,16 +350,16 @@ export type MathlangSequence = {
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
 
 export type IntExpression = IntUnit | IntBinaryExpression;
-export const isIntExpression = (data: unknown): data is IntExpression => {
-	return isIntUnit(data) || isIntBinaryExpression(data);
+export const isIntExpression = (v: unknown): v is IntExpression => {
+	return isIntUnit(v) || isIntBinaryExpression(v);
 };
 
 export type IntUnit = IntGetable | number | string;
-export const isIntUnit = (data: unknown): data is IntUnit => {
-	if (data === null) return false;
-	if (typeof data === 'number') return true;
-	if (typeof data === 'string') return true;
-	if (isIntGetable(data)) return true;
+export const isIntUnit = (v: unknown): v is IntUnit => {
+	if (v === null) return false;
+	if (typeof v === 'number') return true;
+	if (typeof v === 'string') return true;
+	if (isIntGetable(v)) return true;
 	return false;
 };
 
@@ -355,9 +368,9 @@ export type IntGetable = {
 	field: string;
 	entity: string;
 };
-export const isIntGetable = (data: unknown): data is IntGetable => {
-	if (typeof data !== 'object') return false;
-	return (data as IntGetable).mathlang === 'int_getable';
+export const isIntGetable = (v: unknown): v is IntGetable => {
+	if (typeof v !== 'object') return false;
+	return (v as IntGetable).mathlang === 'int_getable';
 };
 
 export type IntBinaryExpression = {
@@ -366,9 +379,9 @@ export type IntBinaryExpression = {
 	rhs: IntExpression;
 	op: string;
 };
-export const isIntBinaryExpression = (data: unknown): data is IntBinaryExpression => {
-	if (typeof data !== 'object') return false;
-	return (data as IntBinaryExpression).mathlang === 'int_binary_expression';
+export const isIntBinaryExpression = (v: unknown): v is IntBinaryExpression => {
+	if (typeof v !== 'object') return false;
+	return (v as IntBinaryExpression).mathlang === 'int_binary_expression';
 };
 
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
@@ -378,7 +391,6 @@ export const isBoolExpression = (v: unknown): v is BoolExpression => {
 	return isBoolComparison(v) || isBoolBinaryExpression(v) || isBoolUnit(v);
 };
 
-// bool_unit: bool | string | bool_getable | bool_expression(?)
 export type BoolUnit = boolean | string | BoolGetable;
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (typeof v === 'string') return true;
@@ -387,11 +399,6 @@ export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	return (v as BoolGetable).mathlang === 'bool_getable';
 };
 
-// bool_comparison:
-// 	(number_checkable_equality | number) (==|!==) (number_checkable_equality | number)
-// 	(string_checkable | string) (==|!==) (string_checkable | string)
-// 	(number | string) (<|<=|==|!=|=>|>) (number | string)
-// 	(entity_direction_identifier | nsew) (==|!==) (entity_direction_identifier | nsew)
 export type BoolComparison =
 	| NumberCheckableEquality
 	| StringCheckable
@@ -409,7 +416,6 @@ export const isBoolComparison = (v: unknown): v is BoolComparison => {
 	return false;
 };
 
-// string_checkable:
 export type StringCheckable = {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
@@ -433,10 +439,6 @@ export const isStringCheckable = (v: unknown): v is StringCheckable => {
 	return (v as MathlangNode).mathlang === 'string_checkable';
 };
 
-// bool_binary_expression:
-// 	lhs: bool_expression
-// 	op: && || == !==
-// 	rhs: bool_expression
 export type BoolBinaryExpression = (
 	| {
 			// ==, !==, &&, ||
@@ -464,16 +466,6 @@ export const isBoolBinaryExpression = (v: unknown): v is BoolBinaryExpression =>
 	if (typeof v !== 'object') return false;
 	return (v as BoolBinaryExpression).mathlang === 'bool_binary_expression';
 };
-
-// bool_getable:
-// 	'debug_mode'
-// 	entity_identifier 'glitched'
-// 	entity_identifier 'intersects' geometry_identifier
-// 	flag
-// 	dialog open/closed
-// 	serial dialog open/closed
-// 	button pressed
-// 	button state
 
 export type BoolGetableCommon = {
 	mathlang: 'bool_getable';
@@ -505,9 +497,6 @@ export type BoolSetable = {
 	value?: string;
 };
 
-// entity_direction_identifier: entity_identifier 'direction'
-
-// number_checkable_equality: entity_identifier int_property
 export type NumberCheckableEquality = {
 	mathlang: 'number_checkable_equality';
 	debug?: TYPES.MGSDebug;
@@ -569,8 +558,9 @@ export type MathlangNodeWithLabel =
 	| StringCheckable
 	| NumberCheckableEquality;
 
-export const doesMathlangHaveLabelToChangeToIndex = (v: AnyNode): v is MathlangNodeWithLabel => {
+export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
 	if (typeof v !== 'object') return false;
+	if (!isNodeMathlang(v)) return false;
 	if (isNodeAction(v)) return false; // load bearing??
 	if (isGotoLabel(v)) return true;
 	if (isBoolGetable(v)) return true;
