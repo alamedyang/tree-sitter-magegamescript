@@ -182,7 +182,7 @@ export const expandCondition = (
 	ifLabel: string,
 ): AnyNode[] => {
 	if (condition === true) {
-		return [gotoLabel(f, node, ifLabel)];
+		return [makeGotoLabel(f, node, ifLabel)];
 	} else if (condition === false) {
 		return [];
 	}
@@ -226,10 +226,10 @@ export const expandCondition = (
 		const innerRendezvousLabel = `rendezvous #${suffix}`;
 		const inner = [
 			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
-			gotoLabel(f, node, innerRendezvousLabel),
-			label(f, node, innerIfTrueLabel),
+			makeGotoLabel(f, node, innerRendezvousLabel),
+			makeLabelDefinition(f, node, innerIfTrueLabel),
 			expandCondition(f, condition.rhsNode, rhs, ifLabel),
-			label(f, node, innerRendezvousLabel),
+			makeLabelDefinition(f, node, innerRendezvousLabel),
 		];
 		return inner.flat();
 	}
@@ -328,7 +328,8 @@ export const invert = (f: FileState, node: Node, boolExp: BoolExpression): BoolE
 	return boolExp;
 };
 
-export const label = (f: FileState, node: Node, label: string): LabelDefinition => ({
+// TODO: real constructors
+export const makeLabelDefinition = (f: FileState, node: Node, label: string): LabelDefinition => ({
 	mathlang: 'label_definition',
 	label,
 	debug: {
@@ -336,7 +337,7 @@ export const label = (f: FileState, node: Node, label: string): LabelDefinition 
 		fileName: f.fileName,
 	},
 });
-export const gotoLabel = (f: FileState, node: Node, label: string): GotoLabel => ({
+export const makeGotoLabel = (f: FileState, node: Node, label: string): GotoLabel => ({
 	mathlang: 'goto_label',
 	label,
 	debug: {

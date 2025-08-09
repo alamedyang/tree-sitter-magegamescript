@@ -1,23 +1,42 @@
 import { Parser, Language } from 'web-tree-sitter';
-
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';
-
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
-import { debugLog, ansiTags } from './parser-utilities.ts';
+import {
+	debugLog,
+	ansiTags,
+	newComment,
+	makeMessagePrintable,
+	ansiTags as ansi,
+} from './parser-utilities.ts';
+
 import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
 import { standardizeAction } from './parser-bytecode-info.ts';
+
 import {
+	type ScriptDefinition,
+	type DialogDefinition,
+	type SerialDialogDefinition,
+	isScriptDefinition,
 	isDialogDefinition,
-	isScriptDefinitionNode,
 	isSerialDialogDefinition,
 	type MathlangNode,
+	isLabelDefinition,
+	doesMathlangHaveLabelToChangeToIndex,
 } from './parser-types.ts';
+
+type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
+type Definition = ScriptDefinition | DialogDefinition | SerialDialogDefinition;
+type DuplicatesData =
+	| DialogDefinition[]
+	| SerialDialogDefinition[]
+	| ScriptDefinition[]
+	| undefined;
 
 // /*
 // stolen from the other place
@@ -76,7 +95,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		}
 	});
 
-	// take scripts/dialogs from each file and make global for the project
+	// take file scripts/dialogs, make global for the project
 	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
 	// TODO: could they not be added to an object for that file rather than being left in sequence?
 	// That way we don't have to filter out those nodes anymore when script parsing
@@ -85,7 +104,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		const f = fileMap[fileName].parsed;
 		if (!f) throw new Error(`File ${fileName} failed to parse in time (?)`);
 		f.nodes.forEach((node) => {
-			if (isScriptDefinitionNode(node)) {
+			if (isScriptDefinition(node)) {
 				p.addScript(node);
 			} else if (isDialogDefinition(node)) {
 				p.addDialog(node);
@@ -99,10 +118,32 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		);
 	});
 
-	// check whether multiple registrations have been made for anything global
-	p.detectDuplicates();
+	// CHECK FOR DUPLICATES
+	const cats: FileCategory[] = ['scripts', 'dialogs', 'serialDialogs'];
+	cats.forEach((category) => {
+		const entries = Object.entries(p[category]);
+		entries.forEach(([name, entry]: [string, Definition]) => {
+			const dupes: DuplicatesData = entry.duplicates;
+			if (dupes) {
+				// One error message, multiple locations
+				p.newError({
+					message: `multiple ${category} with name "${name}"`,
+					locations: dupes.map((dupe: Definition) => ({
+						fileName: dupe.fileName,
+						node: dupe.debug.node.firstNamedChild || dupe.debug.node,
+					})),
+				});
+				// Increment error count for that file
+				dupes.forEach((dupe: Definition) => {
+					const file = p.fileMap[dupe.fileName].parsed;
+					if (!file) throw new Error('ts');
+					file.errorCount += 1;
+				});
+			}
+		});
+	});
 
-	// Make script plaintext readable (pre copy, labels)
+	// STANDARDIZE ACTIONS
 	Object.keys(p.scripts).forEach((scriptName) => {
 		const standardizedActions = p.scripts[scriptName].actions
 			.filter(
@@ -112,30 +153,101 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 					(v as MathlangNode).mathlang !== 'serial_dialog_definition',
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
-		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
+		// Make script plaintext readable (pre copy_script, pre label baking)
+		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
 	});
 
-	// copyscript - TODO: check for recursion?
-	p.copyScriptAll();
+	// COPY_SCRIPT
+	Object.keys(p.scripts).forEach((scriptName) => {
+		// TODO: check for recursion?
+		if (!p.scripts[scriptName].copyScriptResolved) {
+			p.bakeCopyScriptSingle(scriptName);
+		}
+	});
 
 	// This is where unit tests want to pull from?
 	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].testPrint = printScript(scriptName, p.scripts[scriptName].actions);
 	});
 
-	// bake all the labels into hard-coded action indices
-	p.bakeLabels();
+	// BAKE LABELS
+	Object.keys(p.scripts).forEach((scriptName) => {
+		const scriptData = p.scripts[scriptName];
+		const registry: Record<string, number> = {};
+		const actions = scriptData.actions;
+		let commentlessIndex = 0;
+		for (let i = 0; i < actions.length; i++) {
+			const currAction = actions[i];
+			if (
+				(currAction as MathlangNode).mathlang === 'comment' ||
+				(currAction as MathlangNode).mathlang === 'dialog_definition' ||
+				(currAction as MathlangNode).mathlang === 'serial_dialog_definition'
+			) {
+				continue;
+			} else if (isLabelDefinition(currAction)) {
+				registry[currAction.label] = commentlessIndex;
+				actions[i] = newComment(`'${currAction.label}':`);
+			} else {
+				commentlessIndex += 1;
+			}
+		}
+		actions.forEach((action, i) => {
+			if (doesMathlangHaveLabelToChangeToIndex(action)) {
+				if (!action.label) throw new Error("should have a label and doesn't");
+				const jump_index = registry[action.label];
+				if (jump_index === undefined) {
+					throw new Error(
+						`Jump index not registered for label "${action.label}" in script "${scriptName}"`,
+					);
+				}
+				const param = 'jump_index';
+				if (action.mathlang === 'goto_label') {
+					actions[i] = {
+						action: 'GOTO_ACTION_INDEX',
+						action_index: jump_index,
+					};
+				} else {
+					action.comment = `goto label '${action.label}'`;
+					action[param] = jump_index;
+					delete action.label;
+				}
+			}
+		});
+	});
 
 	// Make script plaintext readable
 	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
 	});
 
-	// print fancy squiggly error messages
-	p.printProblems();
+	// PRINT ERRORS
+	const messages: string[] = [];
+	const errCount = p.errors.length;
+	const warnCount = p.warnings.length;
+	if (errCount) {
+		const s = errCount !== 1 ? 's' : '';
+		messages.push(ansi.red + `${errCount} error${s}` + ansi.reset);
+	}
+	if (warnCount) {
+		const s = warnCount !== 1 ? 's' : '';
+		messages.push(ansi.yellow + `${warnCount} warning${s}` + ansi.reset);
+	}
+	if (messages.length) {
+		console.log(`Issues found: ${messages.join(', ')}`);
+	} else {
+		console.log(`All your project's MGS files parsed with no issues!`);
+	}
+	p.warnings.forEach((message) => {
+		const str = ansi.yellow + makeMessagePrintable(p.fileMap, 'Warning', message) + ansi.reset;
+		console.warn(str);
+	});
+	p.errors.forEach((message) => {
+		const str = ansi.red + makeMessagePrintable(p.fileMap, 'Error', message) + ansi.reset;
+		console.error(str);
+	});
 
-	// done!
+	// DONE
 	return p;
 };
 

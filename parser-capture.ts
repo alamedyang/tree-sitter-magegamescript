@@ -121,10 +121,8 @@ const captureFns = {
 			if (node.text === 'twice') return 2;
 			if (node.text === 'thrice') return 3;
 		}
-		const suffix = textForFieldName(f, node, 'suffix');
 		const int = mandatoryTextForFieldName(f, node, 'NUMBER');
-		let n = parseInt(int);
-		if (suffix === 's') n *= 1000;
+		const n = parseInt(int);
 		return n;
 	},
 	COLOR: (f: FileState, node: TreeSitterNode): string => {

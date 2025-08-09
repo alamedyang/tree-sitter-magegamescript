@@ -28,14 +28,13 @@ export type FileState = {
 	warningCount: number;
 	newError: (message: MGSMessage) => void;
 	newWarning: (message: MGSMessage) => void;
-	includeFile: (newName: string) => void;
 	printableMessageInformation: () => string;
 };
 
 export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 	// file crawl state
 	const f: FileState = {
-		p, // project state, because we need to reach in sometimes
+		p, // project crawl state
 		fileName,
 
 		// compile-time constants,
@@ -43,7 +42,6 @@ export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 		constants: {},
 
 		// dialog and serial dialog settings, applied to the (s)dialogs as we go
-		// (adding a setting later means only later (s)dialogs will be affected)
 		settings: {
 			default: {},
 			entity: {},
@@ -51,22 +49,16 @@ export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 			serial: {},
 		},
 
-		// root level nodes like script definitions, settings definitions, etc
+		// root level nodes, e.g. script definitions, settings definitions
 		nodes: [],
 
-		// some warnings/errors are at the file level, but others are not encountered until all files are mushed together; this count only concerns the former
+		// local error/warning counts
 		errorCount: 0,
 		warningCount: 0,
-		// errors involving multiple files (duplicate definitions) are detected later, so their count is added later
 
-		// local errors/warnings will add the filename here for sanity's sake
-		// (rather than needing to be added each time there's an error)
-		// errors made this way should only be concerned with the original file itself,
-		// and so the crawl state's filename should be correct in all cases
 		newError: (message) => {
 			message.locations.forEach((v) => {
-				// only put on a filename if one was not provided in the locations entry
-				// (should be able to override default filename if necessary)
+				// local filename assumed (if absent)
 				if (!v.fileName) v.fileName = fileName;
 			});
 			p.newError(message);
@@ -80,50 +72,7 @@ export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 			f.warningCount += 1;
 		},
 
-		// add a new file's crawl state to ours (overriding existing values) (i.e. `include`)
-		includeFile: (newName: string) => {
-			// Push ifs up! Don't call this function unless you know the file is parsed already
-			const newFile = p.fileMap[newName].parsed;
-			if (!newFile) throw new Error(`Missing file to include: ${newName}`);
-			// add their constants to us
-			Object.keys(newFile.constants).forEach((constantName) => {
-				if (f.constants[constantName]) {
-					f.newError({
-						message: `cannot redefine constant ${constantName} (via 'include')`,
-						locations: [
-							{
-								fileName: newFile.fileName,
-								node: newFile.constants[constantName].debug.node,
-							},
-						],
-					});
-				}
-				f.constants[constantName] = newFile.constants[constantName];
-			});
-			// add their actual node entries to us (might help debugging)
-			newFile.nodes.forEach((node) => {
-				f.nodes.push(node);
-			});
-			// add (serial) dialog settings
-			['default', 'serial'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((param) => {
-					f.settings[type][param] = newFile.settings[type][param];
-				});
-			});
-			// ...some of which are extra layered
-			['entity', 'label'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((target) => {
-					const params = Object.keys(newFile.settings[type][target]);
-					f.settings[type][target] = f.settings[type][target] || {};
-					params.forEach((param) => {
-						f.settings[type][target][param] = newFile.settings[type][target][param];
-						// (I apologize for this)
-					});
-				});
-			});
-		},
-
-		// log an individual file's parse status
+		// print the file's parse status
 		printableMessageInformation: () => {
 			if (f.errorCount === 0 && f.warningCount === 0) {
 				return `(${ansi.green}OK${ansi.reset})`;

@@ -28,10 +28,16 @@ export type RUN_SCRIPT = {
 	script: string;
 	debug?: MGSDebug;
 };
-export type COPY_SCRIPT = {
+export type COPY_SCRIPT = COPY_SCRIPT_PLAIN | COPY_SCRIPT_SEARCH_AND_REPLACE;
+export type COPY_SCRIPT_PLAIN = {
 	action: 'COPY_SCRIPT';
 	script: string;
-	search_and_replace?: Record<string, string>;
+	debug?: MGSDebug;
+};
+export type COPY_SCRIPT_SEARCH_AND_REPLACE = {
+	action: 'COPY_SCRIPT';
+	script: string;
+	search_and_replace: Record<string, string>;
 	debug?: MGSDebug;
 };
 export const isActionCopyScript = (node: AnyNode): node is COPY_SCRIPT => {

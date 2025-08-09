@@ -5,8 +5,8 @@ import {
 	reportErrorNodes,
 	debugLog,
 	expandCondition,
-	label,
-	gotoLabel,
+	makeLabelDefinition,
+	makeGotoLabel,
 	simpleBranchMaker,
 	newSequence,
 	newSerialDialog,
@@ -75,7 +75,6 @@ import {
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: Node): AnyNode[] => {
-	// ->[]
 	debugLog(`handleNode: ${node.grammarType}`);
 
 	// Tree-sitter does not (?) report these on its own; we have to seek them each time
@@ -90,11 +89,7 @@ export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	// Look up the handler function
 	const nodeFn = nodeFns[node.grammarType];
 	if (!nodeFn) {
-		f.newError({
-			locations: [{ node }],
-			message: 'no parser-node function for ' + node.grammarType,
-		});
-		return [];
+		throw new Error('no parser-node function for ' + node.grammarType);
 	}
 
 	// Do it
@@ -102,6 +97,7 @@ export const handleNode = (f: FileState, node: Node): AnyNode[] => {
 	return ret;
 };
 
+const includeRecursion: string[] = [];
 // These must return an array, because they might produce multiple things (or zero things)
 // NOTICE: The caller should flat() what it receives!
 const nodeFns = {
@@ -116,6 +112,7 @@ const nodeFns = {
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
 		// (This is only for nodes so malformed that tree-sitter can't tell what it is)
+		// TODO: test that this is reachable
 		if (node.namedChildren.some((v) => v?.grammarType === 'over_time_operator')) {
 			err.message = `malformed 'do over time' expression`;
 			err.footer =
@@ -153,14 +150,14 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('should be a node');
-		const labelAction: LabelDefinition = label(f, lastChild, returnLabel);
+		const labelAction: LabelDefinition = makeLabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		actions.forEach((action, i) => {
 			if (isNodeAction(action)) {
 				return;
 			}
 			if (action.mathlang === 'return_statement') {
-				actions[i] = gotoLabel(f, action.debug.node, returnLabel);
+				actions[i] = makeGotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
 		return [
@@ -179,8 +176,9 @@ const nodeFns = {
 	constant_assignment: (f: FileState, node: Node): [ConstantDefinition] => {
 		const label = mandatoryTextForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
-		if (!isMGSPrimitive(value)) throw new Error('derp');
-		f.constants = f.constants || {};
+		if (!isMGSPrimitive(value)) {
+			throw new Error(`Constant value not an MGS primitive (${label})`);
+		}
 		if (f.constants[label]) {
 			f.newError({
 				locations: [{ node }],
@@ -207,7 +205,15 @@ const nodeFns = {
 		];
 	},
 	include_macro: (f: FileState, node: Node): IncludeNode[] => {
-		// TODO: ~~handle~~ prevent recursive references
+		// Recursion detection
+		if (includeRecursion.includes(f.fileName)) {
+			includeRecursion.push(f.fileName);
+			throw new Error(
+				`include_macro recursion\n       ${includeRecursion.join('\n       -> ')}`,
+			);
+		}
+		includeRecursion.push(f.fileName);
+		// todo: Should this use the spread macro? Or should it be limited to actions?
 		const rawFileNames = captureForFieldName(f, node, 'fileName');
 		const fileNames = Array.isArray(rawFileNames) ? rawFileNames : [rawFileNames];
 		if (!fileNames.every((v) => typeof v === 'string')) {
@@ -221,7 +227,47 @@ const nodeFns = {
 				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
 			}
 			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
-			f.includeFile(prereqName); // incorporate their crawl state into us
+
+			// INCLUDE FILE
+			const newFile = f.p.fileMap[prereqName].parsed;
+			if (!newFile) throw new Error(`Missing file to include: ${prereqName}`);
+			// add their constants to us
+			Object.keys(newFile.constants).forEach((constantName) => {
+				if (f.constants[constantName]) {
+					f.newError({
+						message: `cannot redefine constant ${constantName} (via 'include')`,
+						locations: [
+							{
+								fileName: newFile.fileName,
+								node: newFile.constants[constantName].debug.node,
+							},
+						],
+					});
+				}
+				f.constants[constantName] = newFile.constants[constantName];
+			});
+			// add their actual node entries to us (might help debugging)
+			newFile.nodes.forEach((node) => {
+				f.nodes.push(node);
+			});
+			// add (serial) dialog settings
+			['default', 'serial'].forEach((type) => {
+				Object.keys(newFile.settings[type]).forEach((param) => {
+					f.settings[type][param] = newFile.settings[type][param];
+				});
+			});
+			// ...some of which are extra layered
+			['entity', 'label'].forEach((type) => {
+				Object.keys(newFile.settings[type]).forEach((target) => {
+					const params = Object.keys(newFile.settings[type][target]);
+					f.settings[type][target] = f.settings[type][target] || {};
+					params.forEach((param) => {
+						f.settings[type][target][param] = newFile.settings[type][target][param];
+						// (I apologize for this)
+					});
+				});
+			});
+			includeRecursion.pop();
 		});
 		return fileNames.map((fileName: string) => ({
 			mathlang: 'include_macro',
@@ -270,6 +316,7 @@ const nodeFns = {
 		];
 		let bottomSteps: AnyNode[] = [];
 		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
+		// TODO: why not use the "make quick if-else" function for this?
 		vertical.forEach((body, i) => {
 			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
@@ -289,29 +336,31 @@ const nodeFns = {
 			steps.push(condition);
 			// add bottom half
 			const bottomInsert: AnyNode[] = [
-				label(f, node, ifL),
+				makeLabelDefinition(f, node, ifL),
 				...body,
-				gotoLabel(f, node, rendezvousL),
+				makeGotoLabel(f, node, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		dropTemporary();
 		const combined = steps.concat(bottomSteps);
-		combined.push(label(f, node, rendezvousL));
+		combined.push(makeLabelDefinition(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'rand macro')];
 	},
 	label_definition: (f: FileState, node: Node): [LabelDefinition] => {
 		const text = mandatoryTextForFieldName(f, node, 'label');
-		return [label(f, node, text)];
+		return [makeLabelDefinition(f, node, text)];
 	},
 	add_dialog_settings: (f: FileState, node: Node): [AddDialogSettings] => {
 		const targets = node.namedChildren
 			.map((child) => {
-				if (child === null) throw new Error('asdf');
+				if (child === null) throw new Error('Invalid child node in Add Dialog Settings');
 				return handleNode(f, child);
 			})
 			.flat();
-		if (!targets.every(isAddDialogSettingsTarget)) throw new Error('');
+		if (!targets.every(isAddDialogSettingsTarget)) {
+			throw new Error('Dialog Settings Target node not a dialog settings target');
+		}
 		return [
 			{
 				mathlang: 'add_dialog_settings',
@@ -583,9 +632,9 @@ const nodeFns = {
 				const handled = handleNode(f, v);
 				if (Array.isArray(handled)) return handled;
 				if ((handled as ContinueStatement).mathlang === 'continue_statement') {
-					return gotoLabel(f, v, `while condition #${printGotoLabel}`);
+					return makeGotoLabel(f, v, `while condition #${printGotoLabel}`);
 				} else if ((handled as BreakStatement).mathlang === 'break_statement') {
-					return gotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
+					return makeGotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
 				}
 				return handled;
 			})
@@ -606,21 +655,21 @@ const nodeFns = {
 			.flat()
 			.map((v) => {
 				if ((v as ContinueStatement).mathlang === 'continue_statement') {
-					return gotoLabel(f, node, conditionL);
+					return makeGotoLabel(f, node, conditionL);
 				} else if ((v as BreakStatement).mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousL);
+					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
 		const steps = [
-			label(f, conditionN, conditionL),
+			makeLabelDefinition(f, conditionN, conditionL),
 			...expandCondition(f, conditionN, condition, bodyL),
-			gotoLabel(f, node, rendezvousL),
-			label(f, bodyN, bodyL),
+			makeGotoLabel(f, node, rendezvousL),
+			makeLabelDefinition(f, bodyN, bodyL),
 			...body,
-			gotoLabel(f, conditionN, conditionL),
-			label(f, node, rendezvousL),
+			makeGotoLabel(f, conditionN, conditionL),
+			makeLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'while sequence')];
 	},
@@ -639,19 +688,19 @@ const nodeFns = {
 			.flat()
 			.map((v) => {
 				if ((v as ContinueStatement).mathlang === 'continue_statement') {
-					return gotoLabel(f, node, conditionL);
+					return makeGotoLabel(f, node, conditionL);
 				} else if ((v as BreakStatement).mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousL);
+					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
 			});
 		const steps = [
-			label(f, bodyN, bodyL),
+			makeLabelDefinition(f, bodyN, bodyL),
 			...body,
-			label(f, conditionN, conditionL),
+			makeLabelDefinition(f, conditionN, conditionL),
 			...expandCondition(f, conditionN, condition, bodyL),
-			label(f, node, rendezvousL),
+			makeLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'do-while sequence')];
 	},
@@ -673,9 +722,9 @@ const nodeFns = {
 			.flat()
 			.map((v: AnyNode) => {
 				if (isNodeMathlang(v) && v.mathlang === 'continue_statement') {
-					return gotoLabel(f, node, continueL);
+					return makeGotoLabel(f, node, continueL);
 				} else if (isNodeMathlang(v) && v.mathlang === 'break_statement') {
-					return gotoLabel(f, node, rendezvousL);
+					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
 				}
@@ -684,15 +733,15 @@ const nodeFns = {
 		if (initializer === null) throw new Error('missing initializer');
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
-			label(f, conditionN, conditionL),
+			makeLabelDefinition(f, conditionN, conditionL),
 			...expandCondition(f, conditionN, condition, bodyL),
-			gotoLabel(f, node, rendezvousL),
-			label(f, bodyN, bodyL),
+			makeGotoLabel(f, node, rendezvousL),
+			makeLabelDefinition(f, bodyN, bodyL),
 			...body,
-			label(f, incrementerN, continueL),
+			makeLabelDefinition(f, incrementerN, continueL),
 			...handleNode(f, incrementerN),
-			gotoLabel(f, conditionN, conditionL),
-			label(f, node, rendezvousL),
+			makeGotoLabel(f, conditionN, conditionL),
+			makeLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'for sequence')];
 	},
@@ -744,7 +793,7 @@ const nodeFns = {
 			const label = captureForFieldName(f, node, 'label');
 			if (typeof label !== 'string') throw new Error('needs string');
 			if (typeof condition === 'boolean') {
-				return condition ? [gotoLabel(f, node, label)] : [];
+				return condition ? [makeGotoLabel(f, node, label)] : [];
 			}
 			const ret = {
 				...condition,
@@ -821,9 +870,9 @@ const nodeFns = {
 			expandCondition(f, conditionN, condition, ifL).forEach((v) => steps.push(v));
 			// add bottom half
 			const bottomInsert: AnyNode[] = [
-				label(f, bodyN, ifL),
+				makeLabelDefinition(f, bodyN, ifL),
 				...body,
-				gotoLabel(f, bodyN, rendezvousL),
+				makeGotoLabel(f, bodyN, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
@@ -838,9 +887,9 @@ const nodeFns = {
 				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
-		steps.push(gotoLabel(f, node, rendezvousL));
+		steps.push(makeGotoLabel(f, node, rendezvousL));
 		const combined = steps.concat(bottomSteps);
-		combined.push(label(f, node, rendezvousL));
+		combined.push(makeLabelDefinition(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'if sequence')];
 	},
 };

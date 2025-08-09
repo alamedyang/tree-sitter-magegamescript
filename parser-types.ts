@@ -291,7 +291,7 @@ export type ScriptDefinition = {
 	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
 };
-export const isScriptDefinitionNode = (v: unknown): v is ScriptDefinition => {
+export const isScriptDefinition = (v: unknown): v is ScriptDefinition => {
 	if (typeof v !== 'object') return false;
 	return (v as MathlangNode).mathlang === 'script_definition';
 };
@@ -332,11 +332,14 @@ export const isAnyCopyScript = (v: unknown): v is CopyScript => {
 		(v as MathlangNode).mathlang === 'copy_script'
 	);
 };
-export const hasSearchAndReplace = (v: unknown): boolean => {
+export const hasSearchAndReplace = (v: unknown): v is TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE => {
 	if (!v) return false;
-	if (typeof v !== 'object') return false;
-	if (isNodeAction(v) && TYPES.isActionCopyScript(v) && v.search_and_replace) return true;
-	return false;
+	return (
+		typeof v === 'object' &&
+		isNodeAction(v) &&
+		TYPES.isActionCopyScript(v) &&
+		!!(v as TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE).search_and_replace
+	);
 };
 
 // needs to be one unit of thing for reasons, but still contain than one thing

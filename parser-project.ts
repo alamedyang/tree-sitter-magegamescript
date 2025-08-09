@@ -1,10 +1,5 @@
 import { Parser } from 'web-tree-sitter';
-import {
-	makeMessagePrintable,
-	flattenGotos,
-	newComment,
-	ansiTags as ansi,
-} from './parser-utilities.ts';
+import { flattenGotos, newComment } from './parser-utilities.ts';
 import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
@@ -13,18 +8,13 @@ import {
 	type SerialDialogDefinition,
 	type ScriptDefinition,
 	type MGSMessage,
-	isAnyCopyScript,
-	type MathlangNode,
-	hasSearchAndReplace,
+	isNodeMathlang,
 	isLabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
-	isNodeMathlang,
+	isAnyCopyScript,
+	hasSearchAndReplace,
 } from './parser-types.ts';
-import {
-	type GOTO_ACTION_INDEX,
-	isActionCopyScript,
-	type MGSDebug,
-} from './parser-bytecode-info.ts';
+import { type MGSDebug } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -39,60 +29,52 @@ export type FileMap = Record<string, FileMapEntry>;
 export type ProjectState = {
 	parser: Parser;
 	fileMap: FileMap;
-	gotoSuffixValue: number;
 	scripts: Record<string, ScriptDefinition>;
 	dialogs: Record<string, DialogDefinition>;
 	serialDialogs: Record<string, SerialDialogDefinition>;
 	errors: MGSMessage[];
 	warnings: MGSMessage[];
-	advanceGotoSuffix: () => number;
-	getGotoSuffix: () => number;
 	newError: (error: MGSMessage) => void;
 	newWarning: (warning: MGSMessage) => void;
+	gotoSuffixValue: number;
+	advanceGotoSuffix: () => number;
+	getGotoSuffix: () => number;
 	addScript: (args: ScriptDefinition) => void;
 	addDialog: (args: DialogDefinition) => void;
 	addSerialDialog: (args: SerialDialogDefinition) => void;
-	detectDuplicates: () => void;
 	bakeCopyScriptSingle: (scriptToBake: string) => void;
-	copyScriptAll: () => void;
-	bakeLabels: () => void;
-	printProblems: () => void;
 	parseFile: (fileName: string) => FileState;
 };
 
-type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
+// PROJECT CRAWL STATE
 export const makeProjectState = (
 	tsParser: Parser,
 	fileMap: FileMap,
 	scenarioData: Record<string, unknown>,
 ): ProjectState => {
-	// project crawl state
 	const p: ProjectState = {
+		// stuff needed to be handed around
 		...(scenarioData || {}),
 		parser: tsParser,
 		fileMap,
 
-		// auto counter, so that auto-generated gotos do not share labels:
-		gotoSuffixValue: 0,
-
-		// the global project things:
+		// global project things
 		scripts: {},
 		dialogs: {},
 		serialDialogs: {},
 
-		// for printing fancy messages:
+		// error/warning messages
 		errors: [],
 		warnings: [],
-
-		// provides the label suffix, then advances counter:
-		advanceGotoSuffix: () => ++p.gotoSuffixValue,
-		getGotoSuffix: () => p.gotoSuffixValue,
-
 		newError: (v) => p.errors.push(v),
 		newWarning: (v) => p.warnings.push(v),
 
-		// for adding a file's data to the project
+		// auto counter, so that auto-generated gotos don't share labels:
+		gotoSuffixValue: 0,
+		advanceGotoSuffix: () => ++p.gotoSuffixValue,
+		getGotoSuffix: () => p.gotoSuffixValue,
 
+		// for adding a file's data to the project
 		addScript: (data: ScriptDefinition) => {
 			const name = data.scriptName;
 			data.rawNodes = data.actions; // making a backup of actions
@@ -143,32 +125,8 @@ export const makeProjectState = (
 			}
 		},
 
-		// can only be done after all files in a project are parsed
-		detectDuplicates: () => {
-			const cats: FileCategory[] = ['scripts', 'dialogs', 'serialDialogs'];
-			cats.forEach((category) => {
-				const entries = Object.entries(p[category]);
-				entries.forEach(([name, entry]) => {
-					const dupes: (DialogDefinition | SerialDialogDefinition | ScriptDefinition)[] =
-						entry.duplicates;
-					if (dupes) {
-						// note: one error message, multiple locations
-						p.newError({
-							message: `multiple ${category} with name "${name}"`,
-							locations: entry.duplicates.map((dupe) => ({
-								fileName: dupe.fileName,
-								node: dupe.debug.node.firstNamedChild,
-							})),
-						});
-						dupes.forEach((dupe) => {
-							const file = p.fileMap[dupe.fileName].parsed;
-							if (!file) throw new Error('ts');
-							file.errorCount += 1;
-						});
-					}
-				});
-			});
-		},
+		// do a COPY_SCRIPT
+		// needs to be here because it can call itself
 		bakeCopyScriptSingle: (scriptName: string) => {
 			const finalActions: AnyNode[] = [];
 			const scriptData = p.scripts[scriptName];
@@ -183,10 +141,11 @@ export const makeProjectState = (
 				const targetScript: string = action.script;
 				if (!p.scripts[targetScript]) {
 					// named script not found; error
-					if (!action.debug)
+					if (!action.debug) {
 						throw new Error(
 							"plain COPY_SCRIPT with missing TreeSitterNode; this shouldn't happen",
 						);
+					}
 					p.newError({
 						locations: [
 							{
@@ -200,12 +159,10 @@ export const makeProjectState = (
 					});
 					return;
 				}
-				// if the target script hasn't had its own copyscript pass done yet, do that pass first
+				// if the target script hasn't had its own copy_script pass done yet, do that pass first
 				if (!p.scripts[action.script].copyScriptResolved) {
 					p.bakeCopyScriptSingle(action.script);
 				}
-				// no label? just hand it up, it's fine
-				// otherwise alter the copied labels so they don't collide with other copies
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedActions: AnyNode[] = p.scripts[action.script].actions.map(
 					(copiedAction) => {
@@ -214,6 +171,7 @@ export const makeProjectState = (
 								copiedAction.label) ||
 							isLabelDefinition(copiedAction)
 						) {
+							// alter the copied labels so they don't collide with other copies
 							return {
 								...copiedAction,
 								label: copiedAction.label + labelSuffix,
@@ -223,8 +181,7 @@ export const makeProjectState = (
 						}
 					},
 				);
-				// simple copies are mathlang's copy_script and the JSON copy_script without search_and_replace
-				if (!isAnyCopyScript(action) || !hasSearchAndReplace(action)) {
+				if (!hasSearchAndReplace(action)) {
 					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
 					finalActions.push(...copiedActions);
 				} else {
@@ -242,15 +199,11 @@ export const makeProjectState = (
 					});
 					// Do the search-and-replace
 					let stringActions: string = JSON.stringify(copiedActions);
-					const doSearchAndReplace =
-						isActionCopyScript(action) && hasSearchAndReplace(action);
-					if (doSearchAndReplace) {
-						const searchAndReplace: Record<string, string> =
-							action.search_and_replace || {};
-						Object.entries(searchAndReplace).forEach(([k, v]) => {
-							stringActions = stringActions.replace(new RegExp(k, 'g'), v);
-						});
-					}
+					const searchAndReplace: Record<string, string> =
+						action.search_and_replace || {};
+					Object.entries(searchAndReplace).forEach(([k, v]) => {
+						stringActions = stringActions.replace(new RegExp(k, 'g'), v);
+					});
 					const objectActions: AnyNode[] = JSON.parse(stringActions);
 					// Put the debugs back
 					objectActions.forEach((v, i) => {
@@ -259,100 +212,13 @@ export const makeProjectState = (
 							v.debug = debug;
 						}
 					});
-					const comment = doSearchAndReplace
-						? `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`
-						: `Copying: ${action.script} (-${labelSuffix})`;
+					const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
 					finalActions.push(newComment(comment));
 					finalActions.push(...objectActions);
 				}
 			});
 			p.scripts[scriptName].copyScriptResolved = true;
 			p.scripts[scriptName].actions = finalActions;
-		},
-		copyScriptAll: () => {
-			Object.keys(p.scripts).forEach((scriptName) => {
-				if (!p.scripts[scriptName].copyScriptResolved) {
-					p.bakeCopyScriptSingle(scriptName);
-				}
-			});
-		},
-		bakeLabels: () => {
-			// standardizeAction() has happened by now;
-			// no more mathlang: 'copy_script', 'label_definition', 'goto_label', or 'return_statement'
-			Object.keys(p.scripts).forEach((scriptName) => {
-				const scriptData = p.scripts[scriptName];
-				const registry: Record<string, number> = {};
-				const actions = scriptData.actions;
-				let commentlessIndex = 0;
-				for (let i = 0; i < actions.length; i++) {
-					const currAction = actions[i];
-					if (
-						(currAction as MathlangNode).mathlang === 'comment' ||
-						(currAction as MathlangNode).mathlang === 'dialog_definition' ||
-						(currAction as MathlangNode).mathlang === 'serial_dialog_definition'
-					) {
-						continue;
-					} else if (isLabelDefinition(currAction)) {
-						registry[currAction.label] = commentlessIndex;
-						actions[i] = newComment(`'${currAction.label}':`);
-					} else {
-						commentlessIndex += 1;
-					}
-				}
-				actions.forEach((action, i) => {
-					if (doesMathlangHaveLabelToChangeToIndex(action)) {
-						if (!action.label) throw new Error("should have a label and doesn't");
-						const jump_index = registry[action.label];
-						if (jump_index === undefined) {
-							throw new Error(
-								`Jump index not registered for label ${action.label} (in script ${scriptName})`,
-							);
-						}
-						const param = 'jump_index';
-						if (action.mathlang === 'goto_label') {
-							const replacement: GOTO_ACTION_INDEX = {
-								action: 'GOTO_ACTION_INDEX',
-								action_index: jump_index,
-							};
-							actions[i] = replacement;
-						} else {
-							action.comment = `goto label '${action.label}'`;
-							action[param] = jump_index;
-							delete action.label;
-						}
-					}
-				});
-			});
-		},
-
-		// fancy console location printing for all collected problems
-		printProblems: () => {
-			const messages: string[] = [];
-			const errCount = p.errors.length;
-			const warnCount = p.warnings.length;
-			if (errCount) {
-				const s = errCount !== 1 ? 's' : '';
-				messages.push(ansi.red + `${errCount} error${s}` + ansi.reset);
-			}
-			if (warnCount) {
-				const s = warnCount !== 1 ? 's' : '';
-				messages.push(ansi.yellow + `${warnCount} warning${s}` + ansi.reset);
-			}
-			if (messages.length) {
-				console.log(`Issues found: ${messages.join(', ')}`);
-			} else {
-				console.log(`All your project's MGS files parsed with no issues!`);
-			}
-			p.warnings.forEach((message) => {
-				const str =
-					ansi.yellow + makeMessagePrintable(p.fileMap, 'Warning', message) + ansi.reset;
-				console.warn(str);
-			});
-			p.errors.forEach((message) => {
-				const str =
-					ansi.red + makeMessagePrintable(p.fileMap, 'Error', message) + ansi.reset;
-				console.error(str);
-			});
 		},
 
 		// the actual owl
@@ -361,7 +227,7 @@ export const makeProjectState = (
 			// tree-sitter things
 			const text = fileMap[fileName].fileText;
 			const ast = tsParser.parse(text);
-			if (!ast) throw new Error('HAHAHA SOMETHING WENT WRONG BOOOO');
+			if (!ast) throw new Error('tree-sitter parser failed to produce AST');
 			const document = ast.rootNode;
 			// file crawl state
 			const f = makeFileState(p, fileName);
@@ -369,7 +235,6 @@ export const makeProjectState = (
 			const nodes = document.namedChildren
 				.map((node) => {
 					if (catastrophicErrorReported) {
-						// Nuke the map()!
 						return;
 					} else if (node && !node.isError) {
 						// Normal
@@ -384,7 +249,9 @@ export const makeProjectState = (
 						} else {
 							// The first catastrophic error should be the last!
 							// Every node underneath is just wrecked. Nuke it all!
-							if (!node) throw new Error('ts');
+							if (!node) {
+								throw new Error('No node found for catastrophic error case(?)');
+							}
 							f.newError({
 								locations: [{ node }],
 								message: `catastrophic syntax error (naive guess: invalid script name)`,

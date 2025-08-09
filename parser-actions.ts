@@ -29,8 +29,8 @@ import {
 import {
 	autoIdentifierName,
 	expandCondition,
-	label,
-	gotoLabel,
+	makeLabelDefinition,
+	makeGotoLabel,
 	simpleBranchMaker,
 	newSequence,
 	newSerialDialog,
@@ -154,10 +154,10 @@ const actionSetBoolMaker = (
 	const steps = [
 		...expandCondition(f, rhsRaw.debug.node, rhsRaw, ifLabel),
 		setLhsIfFalse,
-		gotoLabel(f, rhsRaw.debug.node, rendezvousLabel),
-		label(f, rhsRaw.debug.node, ifLabel),
+		makeGotoLabel(f, rhsRaw.debug.node, rendezvousLabel),
+		makeLabelDefinition(f, rhsRaw.debug.node, ifLabel),
 		setLhsIfTrue,
-		label(f, rhsRaw.debug.node, rendezvousLabel),
+		makeLabelDefinition(f, rhsRaw.debug.node, rendezvousLabel),
 	];
 	return newSequence(f, rhsRaw.debug.node, steps, 'set bool on');
 };
