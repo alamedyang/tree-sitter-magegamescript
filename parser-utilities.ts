@@ -280,11 +280,9 @@ export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
 	_branchAction: AnyNode,
-	_ifBody: AnyNode[],
-	_elseBody: AnyNode[],
+	ifBody: AnyNode[],
+	elseBody: AnyNode[],
 ): MathlangSequence => {
-	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
-	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
 	const gotoLabel = f.p.advanceGotoSuffix();
 	const ifLabel = `if #${gotoLabel}`;
 	const rendezvousLabel = `rendezvous #${gotoLabel}`;

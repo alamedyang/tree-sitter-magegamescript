@@ -348,6 +348,10 @@ export type MathlangSequence = {
 	steps: AnyNode[];
 	debug: TYPES.MGSDebug;
 };
+export const isMathlangSequence = (v: unknown): v is MathlangSequence => {
+	if (typeof v !== 'object') return false;
+	return (v as MathlangSequence).mathlang === 'sequence';
+};
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
 
@@ -426,7 +430,7 @@ export type StringCheckable = {
 	property: string;
 	expected_bool?: boolean;
 	label: string;
-	action?:
+	action:
 		| 'CHECK_ENTITY_TICK_SCRIPT'
 		| 'CHECK_ENTITY_LOOK_SCRIPT'
 		| 'CHECK_ENTITY_INTERACT_SCRIPT'
@@ -511,7 +515,7 @@ export type NumberCheckableEquality = {
 	property: string;
 	expected_bool?: boolean;
 	label?: string;
-	action?:
+	action:
 		| 'CHECK_ENTITY_X'
 		| 'CHECK_ENTITY_Y'
 		| 'CHECK_ENTITY_PRIMARY_ID'

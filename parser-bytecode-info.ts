@@ -792,19 +792,18 @@ export const isCheckAction = (node: AnyNode): node is CheckAction => {
 export type Action =
 	| CheckAction
 	| ActionSetEntityString
-	| ActionSetInt
+	| ActionSetEntityInt
 	| ActionSetDirection
 	| ActionSetBool
 	| ActionSetPosition
 	| ActionMoveOverTime
 	| ActionSetScript
 	| NULL_ACTION
-	| LABEL
+	| LABEL // for old-style parser
 	| RUN_SCRIPT
 	| COPY_SCRIPT
 	| BLOCKING_DELAY
 	| NON_BLOCKING_DELAY
-	| SET_SAVE_FLAG
 	| SET_HEX_CURSOR_LOCATION
 	| SET_WARP_STATE
 	| LOAD_MAP
@@ -835,7 +834,7 @@ export type Action =
 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
 	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
 
-export type ActionSetInt =
+export type ActionSetEntityInt =
 	| SET_ENTITY_X
 	| SET_ENTITY_Y
 	| SET_ENTITY_PRIMARY_ID
@@ -855,12 +854,13 @@ export type ActionSetBool =
 	| SET_HEX_EDITOR_DIALOG_MODE
 	| SET_HEX_EDITOR_CONTROL
 	| SET_HEX_EDITOR_CONTROL_CLIPBOARD
-	| SET_SERIAL_DIALOG_CONTROL;
+	| SET_SERIAL_DIALOG_CONTROL
+	| SET_SAVE_FLAG;
 
 export type ActionSetPosition =
+	| TELEPORT_ENTITY_TO_GEOMETRY
 	| TELEPORT_CAMERA_TO_GEOMETRY
-	| SET_CAMERA_TO_FOLLOW_ENTITY
-	| TELEPORT_ENTITY_TO_GEOMETRY;
+	| SET_CAMERA_TO_FOLLOW_ENTITY;
 
 export type ActionSetDirection =
 	| SET_ENTITY_DIRECTION
@@ -875,10 +875,10 @@ export type ActionSetScript =
 	| SET_ENTITY_LOOK_SCRIPT;
 
 export type ActionMoveOverTime =
-	| PAN_CAMERA_TO_ENTITY
 	| LOOP_CAMERA_ALONG_GEOMETRY
 	| PAN_CAMERA_ALONG_GEOMETRY
 	| PAN_CAMERA_TO_GEOMETRY
+	| PAN_CAMERA_TO_ENTITY
 	| LOOP_ENTITY_ALONG_GEOMETRY
 	| WALK_ENTITY_ALONG_GEOMETRY
 	| WALK_ENTITY_TO_GEOMETRY;

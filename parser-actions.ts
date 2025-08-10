@@ -21,9 +21,10 @@ import {
 	type ActionSetScript,
 	type ActionMoveOverTime,
 	type ActionSetEntityString,
-	type ActionSetInt,
+	type ActionSetEntityInt,
 	type SHOW_DIALOG,
 	type SHOW_SERIAL_DIALOG,
+	type ActionSetBool,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
@@ -42,6 +43,11 @@ import {
 	isMovableIdentifier,
 	isCoordinateIdentifier,
 	isDirectionTarget,
+	isBoolGetable,
+	isBoolComparison,
+	isStringCheckable,
+	isNumberCheckableEquality,
+	type BoolExpression,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -126,57 +132,70 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 
 const actionSetBoolMaker = (
 	f: FileState,
-	_rhsRaw,
-	_lhs,
-	backupNode?: TreeSitterNode,
-): MathlangSequence => {
-	// get the action JSON for the LHS
-	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
-	const lhsParam = getBoolFieldForAction(lhs.action);
-	if (typeof _rhsRaw === 'boolean') {
-		lhs[lhsParam] = _rhsRaw;
-		return lhs;
+	_lhsSetAction: ActionSetBool,
+	_rhsBoolExp: BoolExpression,
+	backupNode: TreeSitterNode,
+): MathlangSequence | ActionSetBool => {
+	if (typeof _lhsSetAction === 'string' && typeof _rhsBoolExp === 'string') {
+		// not sure if this case will ever happen on its own due to the ambiguity dance
+		// (and the typing we've got set up) but it's here if we need it
+		return setFlagToFlag(f, backupNode, _lhsSetAction, _rhsBoolExp);
 	}
-	// get the action JSON for the RHS
-	const rhsRaw = typeof _rhsRaw === 'string' ? checkFlag(_rhsRaw, true) : _rhsRaw;
-	// TODO: do this via proving a type or something:
+
+	const lhsSetAction =
+		typeof _lhsSetAction === 'string' ? setFlag(_lhsSetAction, true) : _lhsSetAction;
+	const lhsBoolField = getBoolFieldForAction(lhsSetAction.action);
+
+	// player glitched = true;
+	if (typeof _rhsBoolExp === 'boolean') {
+		lhsSetAction[lhsBoolField] = _rhsBoolExp;
+		return lhsSetAction;
+	}
+
+	// player glitched = self glitched;
+	// ->
+	// if (player glitched) { self glitched = true; } else { self glitched = false; }
+	const rhsBoolExp = typeof _rhsBoolExp === 'string' ? checkFlag(_rhsBoolExp, true) : _rhsBoolExp;
 	if (
-		rhsRaw.mathlang === 'bool_getable' ||
-		rhsRaw.mathlang === 'bool_comparison' ||
-		rhsRaw.mathlang === 'string_checkable' ||
-		rhsRaw.mathlang === 'number_checkable_equality'
+		isBoolGetable(rhsBoolExp) ||
+		isBoolComparison(rhsBoolExp) ||
+		isStringCheckable(rhsBoolExp) ||
+		isNumberCheckableEquality(rhsBoolExp)
 	) {
-		const rhsParam = getBoolFieldForAction(rhsRaw.action);
-		const existingValue = rhsRaw[rhsParam];
-		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsRaw.action);
+		const rhsBoolField = getBoolFieldForAction(rhsBoolExp.action);
+		const existingValue = rhsBoolExp[rhsBoolField];
+		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsBoolExp.action);
 		const baseAction = {
-			...rhsRaw,
-			[rhsParam]: existingValue,
+			...rhsBoolExp,
+			[rhsBoolField]: existingValue,
 		};
 		return simpleBranchMaker(
 			f,
-			rhsRaw.debug?.node || backupNode,
+			rhsBoolExp.debug?.node || backupNode,
 			baseAction,
-			{ ...lhs, [lhsParam]: true },
-			{ ...lhs, [lhsParam]: false },
+			[{ ...lhsSetAction, [lhsBoolField]: true }],
+			[{ ...lhsSetAction, [lhsBoolField]: false }],
 		);
 	}
-	// Everything hereafter is a bool expression (?)
-	const setLhsIfTrue =
-		typeof lhs === 'string' ? setFlag(lhs, true) : { ...lhs, [lhsParam]: true };
-	const setLhsIfFalse =
-		typeof lhs === 'string' ? setFlag(lhs, false) : { ...lhs, [lhsParam]: false };
+
+	if (!isBoolExpression(rhsBoolExp)) {
+		throw new Error('actionSetBoolMaker: unknown type of RHS');
+	}
+	const setLhsIfTrue = lhsSetAction;
+	const setLhsIfFalse = { ...lhsSetAction, [lhsBoolField]: false };
+
 	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
 	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+	const useNode = rhsBoolExp.debug?.node || backupNode;
 	const steps = [
-		...expandCondition(f, rhsRaw.debug.node, rhsRaw, ifLabel),
+		...expandCondition(f, useNode, rhsBoolExp, ifLabel),
 		setLhsIfFalse,
-		makeGotoLabel(f, rhsRaw.debug.node, rendezvousLabel),
-		makeLabelDefinition(f, rhsRaw.debug.node, ifLabel),
+		makeGotoLabel(f, useNode, rendezvousLabel),
+		makeLabelDefinition(f, useNode, ifLabel),
 		setLhsIfTrue,
-		makeLabelDefinition(f, rhsRaw.debug.node, rendezvousLabel),
+		makeLabelDefinition(f, useNode, rendezvousLabel),
 	];
-	return newSequence(f, rhsRaw.debug.node, steps, 'set bool on');
+	return newSequence(f, useNode, steps, 'set bool on');
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
@@ -504,13 +523,20 @@ const actionData: Record<string, actionDataEntry> = {
 		// if the LHS is ambiguous (a variable name)
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node, i): AnyNode | undefined => {
+		handle: (v, f, node, i): AnyNode => {
 			const lhs = coerceAsString(f, node, v.lhs, 'action_set_ambiguous lhs');
-
 			const rhsNode = node.childForFieldName('rhs');
 			if (!rhsNode) throw new Error('action_set_ambiguous: missing RHS node');
-			const rhsGrammarType = rhsNode.grammarType;
 
+			// simple cases first (easy to check for)
+
+			// varName = false;
+			if (typeof v.rhs === 'boolean') return setFlag(lhs, v.rhs);
+
+			// varName = 255;
+			if (typeof v.rhs === 'number') return setVarToValue(lhs, v.rhs);
+
+			// AMBIGUITY DANCE PARTY
 			// varName = varName;
 			if (typeof v.rhs == 'string') {
 				if (i === undefined) throw new Error('undefined index in action_set_ambiguous');
@@ -542,24 +568,13 @@ const actionData: Record<string, actionDataEntry> = {
 				return setVarToVar(lhs, v.rhs);
 			}
 
-			// varName = 255;
-			if (typeof v.rhs === 'number') {
-				return setVarToValue(lhs, v.rhs);
-			}
-
 			// varName = player x;
-			if (rhsGrammarType === 'int_getable') {
-				if (!isIntGetable(v.rhs)) {
-					throw new Error('action_set_ambiguous: invalid int_getable');
-				}
+			if (isIntGetable(v.rhs)) {
 				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, lhs);
 			}
 
 			// varName = (255 + player x);
-			if (rhsGrammarType.includes('int')) {
-				if (!isIntBinaryExpression(v.rhs)) {
-					throw new Error('action_set_ambiguous: invalid int_binary_expression');
-				}
+			if (isIntBinaryExpression(v.rhs)) {
 				const temporary = newTemporary(lhs);
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
@@ -567,27 +582,12 @@ const actionData: Record<string, actionDataEntry> = {
 				return newSequence(f, node, steps, 'set int (ambiguous lhs)');
 			}
 
-			// varName = false;
-			if (typeof v.rhs === 'boolean') {
-				return setFlag(lhs, v.rhs);
-			}
-
-			// varName = player glitched;
-			if (typeof v.rhs === 'object' && v.rhs.mathlang === 'bool_getable') {
-				// TODO: I think this one isn't quite lining up
-				const rhsAction = coerceAsString(f, node, v.rhs.action, 'action');
-				const rhsValue = coerceAsString(f, node, v.rhs.value, 'value');
-				const param = getBoolFieldForAction(rhsAction);
-				return setFlagToFlag(f, node, lhs, rhsValue, !v.rhs[param]);
-			}
-
 			// varName = (debug_mode || player glitched);
-			if (rhsGrammarType.includes('bool')) {
-				const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
-				const setFlagSteps = setFlagToFlag(f, node, lhs, quickTemporary());
-				ret.steps.push(...setFlagSteps.steps);
-				return ret;
+			if (isBoolExpression(v.rhs)) {
+				return actionSetBoolMaker(f, setFlag(lhs, true), v.rhs, node);
 			}
+
+			throw new Error('action_set_ambiguous failed to parse');
 		},
 	},
 	action_set_int: {
@@ -595,7 +595,7 @@ const actionData: Record<string, actionDataEntry> = {
 		// Only option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node): ActionSetInt | MathlangSequence | COPY_VARIABLE => {
+		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
 			if (!isIntGetable(v.lhs)) {
 				throw new Error('action_set_int: LHS not int_getable');
 			}
@@ -690,7 +690,7 @@ const actionData: Record<string, actionDataEntry> = {
 		// If we've matched this, we know the LHS is not a variable name.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node): MathlangSequence => {
+		handle: (v, f, node): MathlangSequence | ActionSetBool => {
 			if (!isBoolSetable(v.lhs)) {
 				throw new Error('action_set_bool: LHS not a bool_setable');
 			}
@@ -698,51 +698,71 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('action_set_bool: RHS not a bool_expression');
 			}
 			if (v.lhs.type === 'entity') {
-				const lhsAction = {
+				const lhs: ActionSetBool = {
 					action: 'SET_ENTITY_GLITCHED',
 					bool_value: true,
-					entity: v.lhs.value,
+					entity: coerceAsString(
+						f,
+						node,
+						v.lhs.value,
+						'SET_ENTITY_GLITCHED field entity',
+					),
 				};
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'light') {
-				const lhsAction = {
+				const lhs: ActionSetBool = {
 					action: 'SET_LIGHTS_STATE',
-					lights: v.lhs.value,
+					lights: coerceAsString(f, node, v.lhs.value, 'SET_LIGHTS_STATE field lights'),
 					enabled: true,
 				};
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'player_control') {
-				const lhsAction = { action: 'SET_PLAYER_CONTROL' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = { action: 'SET_PLAYER_CONTROL', bool_value: true };
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'lights_control') {
-				const lhsAction = {
+				const lhs: ActionSetBool = {
 					action: 'SET_LIGHTS_CONTROL',
 					enabled: true,
 				};
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_editor') {
-				const lhsAction = { action: 'SET_HEX_EDITOR_STATE' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = {
+					action: 'SET_HEX_EDITOR_STATE',
+					bool_value: true,
+				};
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_dialog_mode') {
-				const lhsAction = { action: 'SET_HEX_EDITOR_DIALOG_MODE' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = {
+					action: 'SET_HEX_EDITOR_DIALOG_MODE',
+					bool_value: true,
+				};
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_control') {
-				const lhsAction = { action: 'SET_HEX_EDITOR_CONTROL' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = {
+					action: 'SET_HEX_EDITOR_CONTROL',
+					bool_value: true,
+				};
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_clipboard') {
-				const lhsAction = { action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = {
+					action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
+					bool_value: true,
+				};
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'serial_control') {
-				const lhsAction = { action: 'SET_SERIAL_DIALOG_CONTROL' };
-				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
+				const lhs: ActionSetBool = {
+					action: 'SET_SERIAL_DIALOG_CONTROL',
+					bool_value: true,
+				};
+				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			throw new Error('action_set_bool: unknown LHS type');
 		},
