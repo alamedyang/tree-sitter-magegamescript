@@ -422,25 +422,40 @@ export const isBoolComparison = (v: unknown): v is BoolComparison => {
 	return false;
 };
 
-// TODO: untangle this >:(
-export type StringCheckable = {
+// // TODO: untangle this >:(
+// export type StringCheckable = {
+// 	mathlang: 'string_checkable';
+// 	debug?: TYPES.MGSDebug;
+// 	entity: string;
+// 	property: string;
+// 	expected_bool?: boolean;
+// 	label: string;
+// 	action:
+// 		| 'CHECK_ENTITY_TICK_SCRIPT'
+// 		| 'CHECK_ENTITY_LOOK_SCRIPT'
+// 		| 'CHECK_ENTITY_INTERACT_SCRIPT'
+// 		| 'CHECK_ENTITY_NAME'
+// 		| 'CHECK_ENTITY_PATH'
+// 		| 'CHECK_ENTITY_TYPE'
+// 		| 'CHECK_WARP_STATE';
+// 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
+// 	comment?: string;
+// };
+export type StringCheckable = (
+	| TYPES.CHECK_ENTITY_TICK_SCRIPT
+	| TYPES.CHECK_ENTITY_LOOK_SCRIPT
+	| TYPES.CHECK_ENTITY_INTERACT_SCRIPT
+	| TYPES.CHECK_ENTITY_NAME
+	| TYPES.CHECK_ENTITY_PATH
+	| TYPES.CHECK_ENTITY_TYPE
+	| TYPES.CHECK_WARP_STATE
+) & {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
-	entity: string;
-	property: string;
-	expected_bool?: boolean;
-	label: string;
-	action:
-		| 'CHECK_ENTITY_TICK_SCRIPT'
-		| 'CHECK_ENTITY_LOOK_SCRIPT'
-		| 'CHECK_ENTITY_INTERACT_SCRIPT'
-		| 'CHECK_ENTITY_NAME'
-		| 'CHECK_ENTITY_PATH'
-		| 'CHECK_ENTITY_TYPE'
-		| 'CHECK_WARP_STATE';
 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
 	comment?: string;
 };
+
 export const isStringCheckable = (v: unknown): v is StringCheckable => {
 	if (typeof v !== 'object') return false;
 	return (v as MathlangNode).mathlang === 'string_checkable';

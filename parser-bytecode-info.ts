@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { isNodeAction, type AnyNode } from './parser-types.ts';
+import { isLabelDefinition, isNodeAction, type AnyNode } from './parser-types.ts';
 
 // For intermediate data types and MGS-specific nodes
 export type MGSDebug = {
@@ -928,7 +928,7 @@ const actionFields: Record<string, string[]> = {
 	CHECK_FOR_BUTTON_STATE: ['JUMP_SPECIAL_FIELDS', 'button_id', 'expected_bool'],
 	CHECK_WARP_STATE: ['JUMP_SPECIAL_FIELDS', 'string', 'expected_bool'],
 	RUN_SCRIPT: ['script'],
-	COPY_SCRIPT: ['script'],
+	COPY_SCRIPT: ['script', 'search_and_replace'],
 	BLOCKING_DELAY: ['duration'],
 	NON_BLOCKING_DELAY: ['duration'],
 	SET_ENTITY_NAME: ['string', 'entity'],
@@ -1030,44 +1030,48 @@ export const getBoolFieldForAction = (action: string): string => {
 	throw new Error('multiple possible bool params: ' + filtered.join(', '));
 };
 
+const breakIfNotString = (v: unknown): string => {
+	if (typeof v === 'string') return v;
+	throw new Error('not a string');
+};
+
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
-// TODO: don't do 'as', do real things
+// old style so the old and new output can be directly compared (I think)
 export const standardizeAction = (action: Record<string, unknown>, OOB: number): Action => {
-	const ret = {};
 	if (action.mathlang === 'copy_script') {
-		const manual = {
+		const manual: COPY_SCRIPT = {
 			action: 'COPY_SCRIPT',
-			script: action.script,
+			script: breakIfNotString(action.script),
 		};
-		return manual as Action;
+		return manual;
 	}
-	if (action.mathlang === 'label_definition') {
-		const copy = {
+	if (isLabelDefinition(action)) {
+		const ret: LABEL = {
 			action: 'LABEL',
-			value: action.label,
+			value: breakIfNotString(action.label),
 		};
-		return copy as Action;
+		return ret;
 	}
 	if (action.mathlang === 'goto_label') {
-		const copy = {
+		const ret: GOTO_ACTION_INDEX = {
 			action: 'GOTO_ACTION_INDEX',
-			action_index: action.label,
+			action_index: breakIfNotString(action.label),
 		};
-		return copy as Action;
+		return ret;
 	}
 	if (action.mathlang === 'return_statement') {
-		const copy = {
+		const ret: GOTO_ACTION_INDEX = {
 			action: 'GOTO_ACTION_INDEX',
 			action_index: OOB,
 		};
-		return copy as Action;
+		return ret;
 	}
-	const actionName = action.action;
-	if (typeof actionName !== 'string') throw new Error('ts');
+	const actionName = breakIfNotString(action.action);
+	const ret = { action: actionName };
 	Object.keys(action).forEach((field: string) => {
 		if (isFieldForAction(field, actionName)) {
 			ret[field] = action[field];
 		}
 	});
-	return action as Action;
+	return ret as Action;
 };

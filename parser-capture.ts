@@ -443,21 +443,16 @@ const captureFns = {
 		throw new Error('failed to capture bool_getable');
 	},
 	string_checkable: (f: FileState, node: TreeSitterNode): StringCheckable => {
-		const ret: StringCheckable = {
-			mathlang: 'string_checkable',
-			entity: '',
-			property: '',
-			stringLabel: 'string',
-			label: '',
-		};
 		const entity = optionalStringCaptureForFieldName(f, node, 'entity_identifier');
 		if (entity === null) {
 			const type = optionalTextForFieldName(f, node, 'type');
 			if (type === 'warp_state') {
 				return {
-					...ret,
+					mathlang: 'string_checkable',
 					action: 'CHECK_WARP_STATE',
+					expected_bool: true,
 					stringLabel: 'string',
+					string: '',
 				};
 			} else {
 				throw new Error(
@@ -465,96 +460,124 @@ const captureFns = {
 				);
 			}
 		}
-		ret.entity = entity;
-		ret.property = textForFieldName(f, node, 'property');
-		if (ret.property === 'on_tick') {
+		const property = textForFieldName(f, node, 'property');
+		if (property === 'on_tick') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_TICK_SCRIPT',
+				expected_bool: true,
 				stringLabel: 'expected_script',
+				expected_script: '',
 			};
-		} else if (ret.property === 'on_look') {
+		} else if (property === 'on_look') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_LOOK_SCRIPT',
+				expected_bool: true,
 				stringLabel: 'expected_script',
+				expected_script: '',
 			};
-		} else if (ret.property === 'on_interact') {
+		} else if (property === 'on_interact') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_INTERACT_SCRIPT',
+				expected_bool: true,
 				stringLabel: 'expected_script',
+				expected_script: '',
 			};
-		} else if (ret.property === 'name') {
+		} else if (property === 'name') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_NAME',
+				expected_bool: true,
 				stringLabel: 'string',
+				string: '',
 			};
-		} else if (ret.property === 'path') {
+		} else if (property === 'path') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_PATH',
+				expected_bool: true,
 				stringLabel: 'geometry',
+				geometry: '',
 			};
-		} else if (ret.property === 'type') {
+		} else if (property === 'type') {
 			return {
-				...ret,
+				mathlang: 'string_checkable',
+				entity,
 				action: 'CHECK_ENTITY_TYPE',
+				expected_bool: true,
 				stringLabel: 'entity_type',
+				entity_type: '',
 			};
 		}
 		throw new Error(`unidentifiable entity string_checkable, failed to capture`);
 	},
 	number_checkable_equality: (f: FileState, node: TreeSitterNode): NumberCheckableEquality => {
-		const ret: NumberCheckableEquality = {
-			mathlang: 'number_checkable_equality',
-			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-			property: textForFieldName(f, node, 'property'),
-		};
-		if (ret.property === 'x') {
+		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
+		const property = textForFieldName(f, node, 'property');
+		if (property === 'x') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_X',
 				numberLabel: 'expected_u2',
 			};
-		} else if (ret.property === 'y') {
+		} else if (property === 'y') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_Y',
 				numberLabel: 'expected_u2',
 			};
-		} else if (ret.property === 'primary_id') {
+		} else if (property === 'primary_id') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_PRIMARY_ID',
 				numberLabel: 'expected_u2',
 			};
-		} else if (ret.property === 'secondary_id') {
+		} else if (property === 'secondary_id') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_SECONDARY_ID',
 				numberLabel: 'expected_u2',
 			};
-		} else if (ret.property === 'primary_id_type') {
+		} else if (property === 'primary_id_type') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_PRIMARY_ID_TYPE',
 				numberLabel: 'expected_byte',
 			};
-		} else if (ret.property === 'current_animation') {
+		} else if (property === 'current_animation') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_CURRENT_ANIMATION',
 				numberLabel: 'expected_byte',
 			};
-		} else if (ret.property === 'animation_frame') {
+		} else if (property === 'animation_frame') {
 			return {
-				...ret,
+				mathlang: 'number_checkable_equality',
+				entity,
+				property,
 				action: 'CHECK_ENTITY_CURRENT_FRAME',
 				numberLabel: 'expected_byte',
 			};
-		} else if (ret.property === 'strafe') {
+		} else if (property === 'strafe') {
 			const propertyNode = node.childForFieldName('property');
 			if (!propertyNode) {
 				throw new Error('missing property node in capture number_checkable_equality');
