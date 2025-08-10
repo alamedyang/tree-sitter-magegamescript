@@ -46,6 +46,8 @@ export type ProjectState = {
 	parseFile: (fileName: string) => FileState;
 };
 
+const copyRecursion: string[] = [];
+
 // PROJECT CRAWL STATE
 export const makeProjectState = (
 	tsParser: Parser,
@@ -128,11 +130,21 @@ export const makeProjectState = (
 		// do a COPY_SCRIPT
 		// needs to be here because it can call itself
 		bakeCopyScriptSingle: (scriptName: string) => {
+			// Recursion detection
+			if (copyRecursion.includes(scriptName)) {
+				copyRecursion.push(scriptName);
+				throw new Error(
+					`copy_macro recursion\n       ${copyRecursion.join('\n       -> ')}`,
+				);
+			}
+			copyRecursion.push(scriptName);
+
 			const finalActions: AnyNode[] = [];
 			const scriptData = p.scripts[scriptName];
+
 			// one node can become multiple nodes, so this needs to be .forEach() and not .map()
 			scriptData.actions.forEach((action: AnyNode) => {
-				// not copy script, easy
+				// not copy script, easy, hand it in
 				if (!isAnyCopyScript(action)) {
 					finalActions.push(action);
 					return;
@@ -149,7 +161,7 @@ export const makeProjectState = (
 					p.newError({
 						locations: [
 							{
-								fileName: scriptData.fileName,
+								fileName: scriptData.debug.fileName,
 								node:
 									action.debug.node.childForFieldName('script') ||
 									action.debug.node,
@@ -163,6 +175,7 @@ export const makeProjectState = (
 				if (!p.scripts[action.script].copyScriptResolved) {
 					p.bakeCopyScriptSingle(action.script);
 				}
+				// add suffix to labels so they don't collide with other copies
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
 				const copiedActions: AnyNode[] = p.scripts[action.script].actions.map(
 					(copiedAction) => {
@@ -171,7 +184,6 @@ export const makeProjectState = (
 								copiedAction.label) ||
 							isLabelDefinition(copiedAction)
 						) {
-							// alter the copied labels so they don't collide with other copies
 							return {
 								...copiedAction,
 								label: copiedAction.label + labelSuffix,
@@ -181,13 +193,15 @@ export const makeProjectState = (
 						}
 					},
 				);
+				// search-and-replace
 				if (!hasSearchAndReplace(action)) {
+					// plain version
 					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
 					finalActions.push(...copiedActions);
 				} else {
-					// search_and_replace does naive JSON stringifying and straight find-and-replace
-					// But thanks to the TreeSitter node stuff, you can't stringify the whole thing
-					// Gotta extract the "debug" nodes first so it doesn't try to print recursive things
+					// search-and-replace does naive JSON stringifying and straight find-and-replace.
+					// But thanks to the TreeSitter node stuff, you can't stringify the whole thing in this intermediate state.
+					// Gotta extract the "debug" nodes first so it doesn't try to print recursive things.
 
 					// Exctract the debugs for later re-insertion
 					const extractedDebugProps = copiedActions.map((copiedAction) => {
@@ -219,6 +233,7 @@ export const makeProjectState = (
 			});
 			p.scripts[scriptName].copyScriptResolved = true;
 			p.scripts[scriptName].actions = finalActions;
+			copyRecursion.pop();
 		},
 
 		// the actual owl
@@ -250,7 +265,7 @@ export const makeProjectState = (
 							// The first catastrophic error should be the last!
 							// Every node underneath is just wrecked. Nuke it all!
 							if (!node) {
-								throw new Error('No node found for catastrophic error case(?)');
+								throw new Error('No node found for catastrophic error case');
 							}
 							f.newError({
 								locations: [{ node }],

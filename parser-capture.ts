@@ -1,12 +1,14 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { type CHECK_VARIABLE, type CHECK_VARIABLES } from './parser-bytecode-info.ts';
+import { type MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type CoordinateIdentifier,
 	type MovableIdentifier,
 	type DialogParameter,
 	type SerialDialogParameter,
 	type StringCheckable,
+	isStringCheckable,
 	type NumberCheckableEquality,
+	isNumberCheckableEquality,
 	type BoolGetable,
 	type DialogIdentifier,
 	type BoolSetable,
@@ -14,13 +16,11 @@ import {
 	type BoolBinaryExpression,
 	type BoolComparison,
 	type BoolExpression,
-	type IntGetable,
-	type DirectionTarget,
-	isStringCheckable,
 	isBoolExpression,
-	isIntExpression,
+	type IntGetable,
 	type IntExpression,
-	isNumberCheckableEquality,
+	isIntExpression,
+	type DirectionTarget,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -47,7 +47,6 @@ export type Capture =
 	| string
 	| MovableIdentifier
 	| DialogIdentifier
-	| SerialDialogParameter
 	| DialogParameter
 	| SerialDialogParameter
 	| CoordinateIdentifier
@@ -59,16 +58,19 @@ export type Capture =
 	| IntGetable
 	| BoolGetable
 	| StringCheckable;
+
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
-	if (!node) throw new Error('TS FRFR');
+	if (!node) throw new Error('handleCapture: null node');
 	reportErrorNodes(f, node);
 	reportMissingChildNodes(f, node);
+	// problems handled ^^
 	const grammarType = node.grammarType;
 	debugLog(`-->> Capturing: ${grammarType}`);
-	// expansions cannot be recursive, so this is fine
 	if (grammarType.endsWith('_expansion')) {
+		// fwiw, cannot become recursive according to the grammar (1 level deep only)
 		return node.namedChildren.map((v) => handleCapture(f, v)).flat();
 	}
+	// swap out values of compile-time constants
 	if (grammarType === 'CONSTANT') {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
@@ -79,18 +81,12 @@ export const handleCapture = (f: FileState, node: TreeSitterNode | null): Captur
 		}
 		return lookup?.value !== undefined ? lookup?.value : node.text;
 	}
+	// do the thing
 	const fn = captureFns[grammarType];
-	if (!fn) throw new Error(`No handler function found for token ${grammarType}`);
-	const ret = fn(f, node);
-	// todo: Maybe I don't need this? Errors are reported as they are discovered, not ascertained after the fact (bereft of context), right?
-	if (typeof ret === 'object') {
-		ret.debug = {
-			node,
-			fileName: f.fileName,
-		};
-	}
-	return ret;
+	if (!fn) throw new Error(`No capture handler function found for grammar type ${grammarType}`);
+	return fn(f, node);
 };
+
 const captureFns = {
 	BOOL: (f: FileState, node: TreeSitterNode): boolean => {
 		const text = node.text;
@@ -108,8 +104,8 @@ const captureFns = {
 	QUOTED_STRING: (f: FileState, node: TreeSitterNode): string => node.text.slice(1, -1),
 	NUMBER: (f: FileState, node: TreeSitterNode): number => Number(node.text),
 	DURATION: (f: FileState, node: TreeSitterNode): number => {
-		const suffix = textForFieldName(f, node, 'suffix');
-		const int = mandatoryTextForFieldName(f, node, 'NUMBER');
+		const suffix = optionalTextForFieldName(f, node, 'suffix');
+		const int = textForFieldName(f, node, 'NUMBER');
 		let n = parseInt(int);
 		if (suffix === 's') n *= 1000;
 		return n;
@@ -121,7 +117,7 @@ const captureFns = {
 			if (node.text === 'twice') return 2;
 			if (node.text === 'thrice') return 3;
 		}
-		const int = mandatoryTextForFieldName(f, node, 'NUMBER');
+		const int = textForFieldName(f, node, 'NUMBER');
 		const n = parseInt(int);
 		return n;
 	},
@@ -149,28 +145,28 @@ const captureFns = {
 	plus_minus_equals: (f: FileState, node: TreeSitterNode): string => node.text,
 	forever: () => true,
 	entity_or_map_identifier: (f: FileState, node: TreeSitterNode): string => {
-		return textForFieldName(f, node, 'type') === 'map' ? '%MAP%' : extractEntityName(f, node);
+		const type = optionalTextForFieldName(f, node, 'type');
+		return type === 'map' ? '%MAP%' : extractEntityName(f, node);
 	},
 	entity_identifier: (f: FileState, node: TreeSitterNode): string => extractEntityName(f, node),
 	movable_identifier: (f: FileState, node: TreeSitterNode): MovableIdentifier => {
-		const ret: MovableIdentifier = {
-			mathlang: 'movable_identifier',
-			type: '',
-			value: '',
-		};
-		const type = textForFieldName(f, node, 'type');
+		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'camera') {
-			ret.type = 'camera';
-			ret.value = 'camera';
+			return {
+				mathlang: 'movable_identifier',
+				type: 'camera',
+				value: 'camera',
+			};
 		} else {
-			const entityName = extractEntityName(f, node);
-			ret.type = 'entity';
-			ret.value = entityName;
+			return {
+				mathlang: 'movable_identifier',
+				type: 'entity',
+				value: extractEntityName(f, node),
+			};
 		}
-		return ret;
 	},
 	dialog_identifier: (f: FileState, node: TreeSitterNode): DialogIdentifier => {
-		const label = textForFieldName(f, node, 'label');
+		const label = optionalTextForFieldName(f, node, 'label');
 		if (label) {
 			return {
 				mathlang: 'dialog_identifier',
@@ -178,99 +174,77 @@ const captureFns = {
 				value: label,
 			};
 		}
-		const type = mandatoryTextForFieldName(f, node, 'type');
+		const type = textForFieldName(f, node, 'type');
 		if (type !== 'label' && type !== 'entity' && type !== 'name') {
-			throw new Error('invalid type');
+			throw new Error('invalid dialog identifier type: ' + type);
 		}
-		const value = captureForFieldName(f, node, 'value');
-		if (typeof value !== 'string') throw new Error('value not a string');
 		return {
 			mathlang: 'dialog_identifier',
 			type,
-			value,
+			value: stringCaptureForFieldName(f, node, 'value'),
 		};
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
-		const property = mandatoryTextForFieldName(f, node, 'property');
-		const value = captureForFieldName(f, node, 'value');
-		if (typeof value !== 'string' && typeof value !== 'number') throw new Error('ts');
 		return {
 			mathlang: 'dialog_parameter',
-			property,
-			value,
+			property: textForFieldName(f, node, 'property'),
+			value: stringOrNumberCaptureForFieldName(f, node, 'value'),
 		};
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
-		const property = mandatoryTextForFieldName(f, node, 'property');
-		const value = captureForFieldName(f, node, 'value');
-		if (typeof value !== 'string' && typeof value !== 'number') throw new Error('ts');
 		return {
 			mathlang: 'serial_dialog_parameter',
-			property,
-			value,
+			property: textForFieldName(f, node, 'property'),
+			value: stringOrNumberCaptureForFieldName(f, node, 'value'),
 		};
 	},
 	coordinate_identifier: (f: FileState, node: TreeSitterNode): CoordinateIdentifier => {
-		const type = textForFieldName(f, node, 'type');
-		const ret: CoordinateIdentifier = {
-			mathlang: 'coordinate_identifier',
-			type: '',
-			value: '',
-			polygonType: '',
-		};
+		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'entity_path') {
 			return {
-				...ret,
+				mathlang: 'coordinate_identifier',
 				type: 'geometry',
 				value: '%ENTITY_PATH%',
-				polygonType: textForFieldName(f, node, 'polygon_type'),
+				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
 			};
 		}
 		if (type === 'geometry') {
-			const value = captureForFieldName(f, node, 'geometry');
-			if (typeof value !== 'string') throw new Error('value not a string');
 			return {
-				...ret,
+				mathlang: 'coordinate_identifier',
 				type: 'geometry',
-				value,
-				polygonType: textForFieldName(f, node, 'polygon_type'),
+				value: stringCaptureForFieldName(f, node, 'geometry'),
+				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
 			};
 		}
 		return {
-			...ret,
+			mathlang: 'coordinate_identifier',
 			type: 'entity',
 			value: extractEntityName(f, node),
 		};
 	},
 	bool_setable: (f: FileState, node: TreeSitterNode): BoolSetable => {
-		const type = textForFieldName(f, node, 'type');
+		const type = optionalTextForFieldName(f, node, 'type');
 		if (!type) {
-			const value = captureForFieldName(f, node, 'flag');
-			if (typeof value !== 'string') throw new Error('value not a string');
 			return {
-				mathlang: 'bool_setable',
 				// action: 'SET_SAVE_FLAG',
-				value,
+				mathlang: 'bool_setable',
+				value: stringCaptureForFieldName(f, node, 'flag'),
 				type: 'save_flag',
 			};
 		}
 		if (type === 'glitched') {
-			const value = captureForFieldName(f, node, 'entity_identifier');
-			if (typeof value !== 'string') throw new Error('value not a string');
 			return {
-				mathlang: 'bool_setable',
 				// action: 'SET_ENTITY_GLITCHED',
-				value,
+				mathlang: 'bool_setable',
+				value: stringCaptureForFieldName(f, node, 'entity_identifier'),
 				type: 'entity',
 			};
 		}
 		if (type === 'light') {
-			const value = captureForFieldName(f, node, 'light');
-			if (typeof value !== 'string') throw new Error('value not a string');
 			return {
-				mathlang: 'bool_setable',
 				// action: 'SET_LIGHTS_STATE',
-				value,
+				mathlang: 'bool_setable',
+				value: stringCaptureForFieldName(f, node, 'light'),
 				type: 'light',
 			};
 		}
@@ -279,38 +253,18 @@ const captureFns = {
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
 		const rhsNode = node.childForFieldName('rhs');
 		const lhsNode = node.childForFieldName('lhs');
-		if (!rhsNode) throw new Error('missing rhsNode');
-		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = mandatoryTextForFieldName(f, node, 'operator');
+		if (!rhsNode) throw new Error('missing rhsNode in int_binary_expression');
+		if (!lhsNode) throw new Error('missing lhsNode in int_binary_expression');
+		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
 		if (!isIntExpression(rhs)) throw new Error('RHS not Int Exp');
 		if (!isIntExpression(lhs)) throw new Error('LHS not Int Exp');
-		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'number') {
-			f.newError({
-				locations: [
-					{
-						node: f.constants[rhsNode.text].debug.node,
-						fileName: f.constants[rhsNode.text].debug.fileName,
-					},
-					{ node: rhsNode },
-				],
-				message: `constant is not a number`,
-			});
-			rhs = NaN;
+		if (rhsNode.grammarType === 'CONSTANT') {
+			rhs = coerceAsNumber(f, rhsNode, rhs, 'constant');
 		}
-		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'number') {
-			f.newError({
-				locations: [
-					{
-						node: f.constants[lhsNode.text].debug.node,
-						fileName: f.constants[lhsNode.text].debug.fileName,
-					},
-					{ node: lhsNode },
-				],
-				message: `constant is not a number`,
-			});
-			lhs = NaN;
+		if (lhsNode.grammarType === 'CONSTANT') {
+			lhs = coerceAsNumber(f, lhsNode, lhs, 'constant');
 		}
 		return {
 			mathlang: 'int_binary_expression',
@@ -324,34 +278,14 @@ const captureFns = {
 		const lhsNode = node.childForFieldName('lhs');
 		if (!rhsNode) throw new Error('missing rhsNode');
 		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = mandatoryTextForFieldName(f, node, 'operator');
+		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		if (rhsNode.grammarType === 'CONSTANT' && typeof rhs !== 'boolean') {
-			f.newError({
-				locations: [
-					{
-						node: f.constants[rhsNode.text].debug.node,
-						fileName: f.constants[rhsNode.text].debug.fileName,
-					},
-					{ node: rhsNode },
-				],
-				message: `constant is not a boolean`,
-			});
-			rhs = false;
+		if (rhsNode.grammarType === 'CONSTANT') {
+			rhs = coerceAsBool(f, rhsNode, rhs, 'constant');
 		}
-		if (lhsNode.grammarType === 'CONSTANT' && typeof lhs !== 'boolean') {
-			f.newError({
-				locations: [
-					{
-						node: f.constants[lhsNode.text].debug.node,
-						fileName: f.constants[lhsNode.text].debug.fileName,
-					},
-					{ node: lhsNode },
-				],
-				message: `constant is not a boolean`,
-			});
-			lhs = false;
+		if (lhsNode.grammarType === 'CONSTANT') {
+			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return {
@@ -401,49 +335,46 @@ const captureFns = {
 				op,
 			};
 		}
-		throw new Error('unreachable');
+		throw new Error('invalid LHS and RHS combo for captured bool binary expression');
 	},
 	bool_grouping: (f: FileState, node: TreeSitterNode): BoolExpression => {
 		const capture = captureForFieldName(f, node, 'inner');
-		if (!isBoolExpression(capture)) throw new Error('lulul');
-		return capture;
+		if (isBoolExpression(capture)) return capture;
+		throw new Error('bool_grouping capture did not yield a bool expression');
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): BoolExpression => {
-		const op = textForFieldName(f, node, 'operator');
-		if (op !== '!') throw new Error("what kind of unary is '" + op + "'?");
+		const op = optionalTextForFieldName(f, node, 'operator');
+		if (op !== '!') throw new Error('captured unknown unary operator: ' + op);
 		const capture = captureForFieldName(f, node, 'operand');
-		if (!isBoolExpression(capture)) throw new Error(':/');
-		const toInvert = typeof capture === 'object' ? { ...capture } : capture;
-		const inverted = invert(f, node, toInvert);
-		return inverted;
+		if (isBoolExpression(capture)) {
+			const toInvert = typeof capture === 'object' ? { ...capture } : capture;
+			return invert(f, node, toInvert);
+		}
+		throw new Error('bool_unary_expression capture did not yield a bool expression');
 	},
 	int_getable: (f: FileState, node: TreeSitterNode): IntGetable => {
 		// if (textForFieldName(f, node, 'variable')) {
 		// 	return captureForFieldName(f, node, 'variable');
 		// }
-		const entity = captureForFieldName(f, node, 'entity_identifier');
-		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return {
 			mathlang: 'int_getable',
-			field: mandatoryTextForFieldName(f, node, 'property'),
-			entity,
+			field: textForFieldName(f, node, 'property'),
+			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 		};
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
-		const type = textForFieldName(f, node, 'type');
+		const type = optionalTextForFieldName(f, node, 'type');
 		const debug = {
 			node,
 			fileName: f.fileName,
 		};
 		if (type === 'flag') {
-			const save_flag = captureForFieldName(f, node, 'value');
-			if (typeof save_flag !== 'string') throw new Error('flag not a string');
 			return {
 				action: 'CHECK_SAVE_FLAG',
 				debug,
 				mathlang: 'bool_getable',
 				expected_bool: true,
-				save_flag: save_flag,
+				save_flag: stringCaptureForFieldName(f, node, 'value'),
 			};
 		} else if (type === 'debug_mode') {
 			return {
@@ -453,30 +384,24 @@ const captureFns = {
 				expected_bool: true,
 			};
 		} else if (type === 'glitched') {
-			const entity = captureForFieldName(f, node, 'entity_identifier');
-			if (typeof entity !== 'string') throw new Error('entity not a string');
 			return {
 				action: 'CHECK_ENTITY_GLITCHED',
 				debug,
 				mathlang: 'bool_getable',
 				expected_bool: true,
-				entity,
+				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 			};
 		} else if (type === 'intersects') {
-			const entity = captureForFieldName(f, node, 'entity_identifier');
-			if (typeof entity !== 'string') throw new Error('entity not a string');
-			const geometry = captureForFieldName(f, node, 'geometry_identifier');
-			if (typeof geometry !== 'string') throw new Error('geometry not a string');
 			return {
 				action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY',
 				debug,
 				mathlang: 'bool_getable',
 				expected_bool: true,
-				entity,
-				geometry,
+				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
+				geometry: stringCaptureForFieldName(f, node, 'geometry_identifier'),
 			};
 		} else if (type === 'dialog' || type === 'serial_dialog') {
-			const state = textForFieldName(f, node, 'value');
+			const state = optionalTextForFieldName(f, node, 'value');
 			if (type === 'dialog') {
 				return {
 					action: 'CHECK_DIALOG_OPEN',
@@ -493,307 +418,260 @@ const captureFns = {
 				};
 			}
 		} else if (type === 'button') {
-			const value = captureForFieldName(f, node, 'button');
-			if (typeof value !== 'string') throw new Error('button not a string');
+			const button_id = stringCaptureForFieldName(f, node, 'button');
 			const stateNode = node.childForFieldName('state');
-			if (!stateNode) throw new Error('Missing stateNode');
+			if (!stateNode) throw new Error('missing stateNode in bool_getable capture');
 			if (stateNode.text === 'pressed') {
 				return {
 					action: 'CHECK_FOR_BUTTON_PRESS',
 					debug,
 					mathlang: 'bool_getable',
 					expected_bool: true,
-					button_id: value,
+					button_id,
 				};
 			} else {
 				const state = handleCapture(f, stateNode);
-				if (typeof state !== 'boolean') throw new Error('bool');
 				return {
 					action: 'CHECK_FOR_BUTTON_STATE',
 					debug,
 					mathlang: 'bool_getable',
-					expected_bool: state,
-					button_id: value,
+					expected_bool: coerceAsBool(f, node, state, 'button state'),
+					button_id,
 				};
 			}
 		}
-		throw new Error('unreachable');
+		throw new Error('failed to capture bool_getable');
 	},
 	string_checkable: (f: FileState, node: TreeSitterNode): StringCheckable => {
 		const ret: StringCheckable = {
 			mathlang: 'string_checkable',
 			entity: '',
 			property: '',
+			stringLabel: 'string',
+			label: '',
 		};
-		const entity = captureForFieldName(f, node, 'entity_identifier');
-		if (entity) {
-			if (typeof entity !== 'string') throw new Error('entity not a string');
-			ret.entity = entity;
-			ret.property = mandatoryTextForFieldName(f, node, 'property');
-			if (ret.property === 'on_tick') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_TICK_SCRIPT',
-					stringLabel: 'expected_script',
-				};
-			} else if (ret.property === 'on_look') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_LOOK_SCRIPT',
-					stringLabel: 'expected_script',
-				};
-			} else if (ret.property === 'on_interact') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_INTERACT_SCRIPT',
-					stringLabel: 'expected_script',
-				};
-			} else if (ret.property === 'name') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_NAME',
-					stringLabel: 'string',
-				};
-			} else if (ret.property === 'path') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_PATH',
-					stringLabel: 'geometry',
-				};
-			} else if (ret.property === 'type') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_TYPE',
-					stringLabel: 'entity_type',
-				};
-			}
-		} else {
-			const type = textForFieldName(f, node, 'type');
+		const entity = optionalStringCaptureForFieldName(f, node, 'entity_identifier');
+		if (entity === null) {
+			const type = optionalTextForFieldName(f, node, 'type');
 			if (type === 'warp_state') {
 				return {
 					...ret,
 					action: 'CHECK_WARP_STATE',
 					stringLabel: 'string',
 				};
+			} else {
+				throw new Error(
+					`unidentifiable non-entity string_checkable: capturing type ${type}`,
+				);
 			}
 		}
-		throw new Error(`unreachable`);
+		ret.entity = entity;
+		ret.property = textForFieldName(f, node, 'property');
+		if (ret.property === 'on_tick') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_TICK_SCRIPT',
+				stringLabel: 'expected_script',
+			};
+		} else if (ret.property === 'on_look') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_LOOK_SCRIPT',
+				stringLabel: 'expected_script',
+			};
+		} else if (ret.property === 'on_interact') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_INTERACT_SCRIPT',
+				stringLabel: 'expected_script',
+			};
+		} else if (ret.property === 'name') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_NAME',
+				stringLabel: 'string',
+			};
+		} else if (ret.property === 'path') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_PATH',
+				stringLabel: 'geometry',
+			};
+		} else if (ret.property === 'type') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_TYPE',
+				stringLabel: 'entity_type',
+			};
+		}
+		throw new Error(`unidentifiable entity string_checkable, failed to capture`);
 	},
 	number_checkable_equality: (f: FileState, node: TreeSitterNode): NumberCheckableEquality => {
 		const ret: NumberCheckableEquality = {
 			mathlang: 'number_checkable_equality',
-			entity: '',
-			property: '',
+			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
+			property: textForFieldName(f, node, 'property'),
 		};
-		const entity = captureForFieldName(f, node, 'entity_identifier');
-		if (entity) {
-			if (typeof entity !== 'string') throw new Error('entity not a string');
-			ret.entity = entity;
-			ret.property = textForFieldName(f, node, 'property') || '';
-			if (ret.property === 'x') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_X',
-					numberLabel: 'expected_u2',
-				};
-			} else if (ret.property === 'y') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_Y',
-					numberLabel: 'expected_u2',
-				};
-			} else if (ret.property === 'primary_id') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_PRIMARY_ID',
-					numberLabel: 'expected_u2',
-				};
-			} else if (ret.property === 'secondary_id') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_SECONDARY_ID',
-					numberLabel: 'expected_u2',
-				};
-			} else if (ret.property === 'primary_id_type') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_PRIMARY_ID_TYPE',
-					numberLabel: 'expected_byte',
-				};
-			} else if (ret.property === 'current_animation') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_CURRENT_ANIMATION',
-					numberLabel: 'expected_byte',
-				};
-			} else if (ret.property === 'animation_frame') {
-				return {
-					...ret,
-					action: 'CHECK_ENTITY_CURRENT_FRAME',
-					numberLabel: 'expected_byte',
-				};
-			} else if (ret.property === 'strafe') {
-				const propertyNode = node.childForFieldName('property');
-				if (!propertyNode) throw new Error('Missing property node');
-				f.newError({
-					locations: [{ node: propertyNode }],
-					message: `This property is not supported in boolean expressions`,
-				});
+		if (ret.property === 'x') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_X',
+				numberLabel: 'expected_u2',
+			};
+		} else if (ret.property === 'y') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_Y',
+				numberLabel: 'expected_u2',
+			};
+		} else if (ret.property === 'primary_id') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_PRIMARY_ID',
+				numberLabel: 'expected_u2',
+			};
+		} else if (ret.property === 'secondary_id') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_SECONDARY_ID',
+				numberLabel: 'expected_u2',
+			};
+		} else if (ret.property === 'primary_id_type') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_PRIMARY_ID_TYPE',
+				numberLabel: 'expected_byte',
+			};
+		} else if (ret.property === 'current_animation') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_CURRENT_ANIMATION',
+				numberLabel: 'expected_byte',
+			};
+		} else if (ret.property === 'animation_frame') {
+			return {
+				...ret,
+				action: 'CHECK_ENTITY_CURRENT_FRAME',
+				numberLabel: 'expected_byte',
+			};
+		} else if (ret.property === 'strafe') {
+			const propertyNode = node.childForFieldName('property');
+			if (!propertyNode) {
+				throw new Error('missing property node in capture number_checkable_equality');
 			}
+			f.newError({
+				locations: [{ node: propertyNode }],
+				message: `this property is not supported in boolean expressions`,
+			});
 		}
-		return ret;
+		throw new Error('could not capture number_checkable_equality');
 	},
 	geometry_identifier: (f: FileState, node: TreeSitterNode): string => {
-		const type = textForFieldName(f, node, 'type');
+		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'entity_path') {
 			return '%ENTITY_PATH%';
 		}
-		const geometry = captureForFieldName(f, node, 'geometry');
-		if (typeof geometry !== 'string') throw new Error('geometry not a string');
-		return geometry;
+		return stringCaptureForFieldName(f, node, 'geometry');
 	},
 	entity_direction: (f: FileState, node: TreeSitterNode): string => {
-		const entity = captureForFieldName(f, node, 'entity_identifier');
-		if (typeof entity !== 'string') throw new Error('entity not a string');
-		return entity;
+		return stringCaptureForFieldName(f, node, 'entity_identifier');
 	},
 	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | boolean => {
 		const lhsNode = node.childForFieldName('lhs');
 		const rhsNode = node.childForFieldName('rhs');
-		if (!rhsNode) throw new Error('missing rhsNode');
-		if (!lhsNode) throw new Error('missing lhsNode');
-		const op = mandatoryTextForFieldName(f, node, 'operator');
+		if (!rhsNode) throw new Error('missing rhsNode in bool_comparison capture');
+		if (!lhsNode) throw new Error('missing lhsNode in bool_comparison capture');
+		const op = textForFieldName(f, node, 'operator');
 		const debug = {
 			node,
 			fileName: f.fileName,
 		};
+		// entity Bob direction == north
 		if (lhsNode.grammarType === 'entity_direction') {
-			const checkEntityDirection: BoolComparison = {
-				...compareNSEW(f, lhsNode, rhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return checkEntityDirection;
+			return compareNSEW(f, lhsNode, rhsNode, op, debug);
 		}
+		// north == entity Bob direction
 		if (rhsNode.grammarType === 'entity_direction') {
-			const checkEntityDirection: BoolComparison = {
-				...compareNSEW(f, rhsNode, lhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return checkEntityDirection;
+			return compareNSEW(f, rhsNode, lhsNode, op, debug);
 		}
+		// entity Bob name == "Super Bob"
 		if (lhsNode.grammarType === 'string_checkable') {
-			const stringCheckable: StringCheckable = {
-				...compareString(f, lhsNode, rhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return stringCheckable;
+			return compareString(f, lhsNode, rhsNode, op, debug);
 		}
+		// "Super Bob" == entity Bob name
 		if (rhsNode.grammarType === 'string_checkable') {
-			const stringCheckable: StringCheckable = {
-				...compareString(f, rhsNode, lhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return stringCheckable;
+			return compareString(f, rhsNode, lhsNode, op, debug);
 		}
+		// entity Bob x == 7
 		if (lhsNode.grammarType === 'number_checkable_equality') {
-			const numberCheckableEquality: NumberCheckableEquality = {
-				...compareNumberCheckableEquality(f, lhsNode, rhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return numberCheckableEquality;
+			return compareNumberCheckableEquality(f, lhsNode, rhsNode, op, debug);
 		}
+		// 7 == entity Bob x
 		if (rhsNode.grammarType === 'number_checkable_equality') {
-			const numberCheckableEquality: NumberCheckableEquality = {
-				...compareNumberCheckableEquality(f, rhsNode, lhsNode),
-				debug,
-				expected_bool: op === '==',
-			};
-			return numberCheckableEquality;
+			return compareNumberCheckableEquality(f, rhsNode, lhsNode, op, debug);
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
-				const checkVariablesAction: BoolComparison = {
-					...checkVariables(f, lhs, rhs, op),
-					mathlang: 'bool_comparison',
-					debug,
-				};
-				return checkVariablesAction;
+				// varName1 > varName2
+				return checkVariables(f, lhs, rhs, op, debug);
 			} else if (typeof rhs === 'number') {
-				const checkVariableAction: BoolComparison = {
-					...checkVariable(f, lhs, rhs, op),
-					mathlang: 'bool_comparison',
-					debug,
-				};
-				return checkVariableAction;
+				// varName > 255
+				return checkVariable(f, lhs, rhs, op, debug);
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
-				return {
-					...checkVariable(f, rhs, lhs, inverseOpMap[op]),
-					mathlang: 'bool_comparison',
-					debug,
-				};
+				// 255 > varName
+				return checkVariable(f, rhs, lhs, inverseOpMap[op], debug);
 			} else if (typeof rhs === 'number') {
-				// I decided I don't want eval in here, lul
+				// 255 > 0
 				if (op === '<') return lhs < rhs;
 				if (op === '<=') return lhs <= rhs;
 				if (op === '>') return lhs > rhs;
 				if (op === '>=') return lhs >= rhs;
 				if (op === '==') return lhs == rhs;
 				if (op === '!=') return lhs != rhs;
-				throw new Error(`invalid op in bool comparison (${op})`);
+				throw new Error(`invalid op in captured bool comparison: ${op}`);
 			}
 		}
-		throw new Error("unreachable; seriously, anything else wouldn't have matched this");
+		throw new Error('failed to capture bool_comparison');
 	},
 	int_setable: (f: FileState, node: TreeSitterNode): IntGetable => {
-		const entity = captureForFieldName(f, node, 'entity_identifier');
-		if (typeof entity !== 'string') throw new Error('entity not a string');
 		return {
 			mathlang: 'int_getable',
-			field: mandatoryTextForFieldName(f, node, 'property'),
-			entity,
+			field: textForFieldName(f, node, 'property'),
+			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 		};
 	},
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
-		if (!isIntExpression(capture)) {
-			throw new Error();
-		}
-		return capture;
+		if (isIntExpression(capture)) return capture;
+		throw new Error('captured int_grouping did not produce int expression');
 	},
 	direction_target: (f: FileState, node: TreeSitterNode): DirectionTarget => {
-		const direction = textForFieldName(f, node, 'nsew');
+		const direction = optionalTextForFieldName(f, node, 'nsew');
 		if (direction) {
 			return {
 				action: 'SET_ENTITY_DIRECTION',
 				direction,
 			};
 		}
-		const target_geometry = captureForFieldName(f, node, 'geometry');
+		const target_geometry = optionalStringCaptureForFieldName(f, node, 'geometry');
 		if (target_geometry) {
-			if (typeof target_geometry !== 'string') throw new Error('geometry not a string');
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
 				target_geometry,
 			};
 		}
-		const target_entity = captureForFieldName(f, node, 'entity');
+		const target_entity = optionalStringCaptureForFieldName(f, node, 'entity');
 		if (target_entity) {
-			if (typeof target_entity !== 'string') throw new Error('entity not a string');
 			return {
 				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
 				target_entity,
 			};
 		}
-		throw new Error('unreachable');
+		throw new Error('could not capture direction_target');
 	},
 	set_entity_string_field: (f: FileState, node: TreeSitterNode): string => node.text,
 };
@@ -803,25 +681,34 @@ const compareNSEW = (
 	f: FileState,
 	entityNode: TreeSitterNode,
 	nsewNode: TreeSitterNode,
+	op: string,
+	debug: MGSDebug,
 ): BoolComparison => {
-	const entity = captureForFieldName(f, entityNode, 'entity_identifier');
-	if (typeof entity !== 'string') throw new Error('entity not a string');
+	if (op !== '==' && op !== '!=') {
+		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
+	}
 	return {
 		mathlang: 'bool_comparison',
+		debug,
 		action: 'CHECK_ENTITY_DIRECTION',
-		expected_bool: true,
+		expected_bool: op === '==',
 		direction: nsewNode.text,
-		entity,
+		entity: stringCaptureForFieldName(f, entityNode, 'entity_identifier'),
 	};
 };
 const compareString = (
 	f: FileState,
 	checkableNode: TreeSitterNode,
 	stringNode: TreeSitterNode,
+	op: string,
+	debug: MGSDebug,
 ): StringCheckable => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isStringCheckable(checkable)) {
 		throw new Error('invalid string checkable');
+	}
+	if (op !== '==' && op !== '!=') {
+		throw new Error('invalid op for bool_comparison compareString: ' + op);
 	}
 	const string = handleCapture(f, stringNode);
 	const prop = checkable.stringLabel;
@@ -836,6 +723,8 @@ const compareString = (
 	}
 	return {
 		...checkable,
+		debug,
+		expected_bool: op === '==',
 		[prop]: string,
 	};
 };
@@ -843,15 +732,32 @@ const compareNumberCheckableEquality = (
 	f: FileState,
 	checkableNode: TreeSitterNode,
 	numberNode: TreeSitterNode,
+	op: string,
+	debug: MGSDebug,
 ): NumberCheckableEquality => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isNumberCheckableEquality(checkable)) throw new Error('not a thing');
+	if (op !== '==' && op !== '!=') {
+		throw new Error('invalid op for bool_comparison compareNumberCheckableEquality: ' + op);
+	}
 	const number = handleCapture(f, numberNode);
+	if (typeof number !== 'number') {
+		f.newError({
+			message: `This action can only compare to number literals`,
+			locations: [
+				{
+					node: numberNode,
+				},
+			],
+		});
+	}
 	if (checkable.numberLabel !== 'expected_u2' && checkable.numberLabel !== 'expected_byte') {
 		throw new Error('invalid prop');
 	}
 	return {
 		...checkable,
+		expected_bool: op === '==',
+		debug,
 		[checkable.numberLabel]: number,
 	};
 };
@@ -860,8 +766,11 @@ const checkVariables = (
 	variable: string,
 	source: string,
 	comparison: string,
-): CHECK_VARIABLES => {
+	debug: MGSDebug,
+): BoolComparison => {
 	return {
+		mathlang: 'bool_comparison',
+		debug,
 		action: 'CHECK_VARIABLES',
 		variable,
 		source,
@@ -874,7 +783,10 @@ const checkVariable = (
 	variable: string,
 	value: number,
 	comparison: string,
-): CHECK_VARIABLE => ({
+	debug: MGSDebug,
+): BoolComparison => ({
+	mathlang: 'bool_comparison',
+	debug,
 	action: 'CHECK_VARIABLE',
 	variable,
 	value,
@@ -882,16 +794,63 @@ const checkVariable = (
 	expected_bool: true,
 });
 const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
-	const type = textForFieldName(f, node, 'type');
+	const type = optionalTextForFieldName(f, node, 'type');
 	if (type === 'self') return '%SELF%';
 	if (type === 'player') return '%PLAYER%';
 	if (type !== 'entity') throw new Error('Entity identifier not an entity?');
-	const entity = captureForFieldName(f, node, 'entity');
-	if (typeof entity !== 'string') throw new Error('entity not a string');
-	return entity;
+	return stringCaptureForFieldName(f, node, 'entity');
 };
 
 // Very common node handling behaviors
+
+export const stringCaptureForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): string => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const capture = handleCapture(f, captureNode);
+	if (typeof capture === 'string') return capture;
+	throw new Error(`capture from field ${fieldName} not a string`);
+};
+
+export const optionalStringCaptureForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): string | null => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) return null;
+	const capture = handleCapture(f, captureNode);
+	if (typeof capture === 'string') return capture;
+	throw new Error(`capture from field ${fieldName} not a string`);
+};
+
+export const stringOrNumberCaptureForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): string | number => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const capture = handleCapture(f, captureNode);
+	if (typeof capture === 'string' || typeof capture === 'number') return capture;
+	throw new Error(`capture from field ${fieldName} not a string or number`);
+};
+
+export const numberCaptureForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): number => {
+	const captureNode = node.childForFieldName(fieldName);
+	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const capture = handleCapture(f, captureNode);
+	if (typeof capture === 'number') return capture;
+	throw new Error(`capture from field ${fieldName} not a number`);
+};
+
 export const captureForFieldName = (
 	f: FileState,
 	node: TreeSitterNode,
@@ -909,7 +868,7 @@ export const capturesForFieldName = (
 	return (node.childrenForFieldName(fieldName) || []).map((v) => handleCapture(f, v)).flat();
 };
 // TODO: change to not return undefined? Better to return ''?
-export const textForFieldName = (
+export const optionalTextForFieldName = (
 	f: FileState,
 	node: TreeSitterNode,
 	fieldName: string,
@@ -918,22 +877,73 @@ export const textForFieldName = (
 	if (!captureNode) return undefined;
 	return captureNode.text;
 };
-export const mandatoryTextForFieldName = (
-	f: FileState,
-	node: TreeSitterNode,
-	fieldName: string,
-): string => {
+export const textForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string): string => {
 	const captureNode = node.childForFieldName(fieldName);
 	if (!captureNode) throw new Error('missing text for field name ' + fieldName);
 	return captureNode.text;
 };
-// ditto?
-export const grammarTypeForFieldName = (
+
+export const coerceAsString = (
 	f: FileState,
 	node: TreeSitterNode,
-	fieldName: string,
-): string | undefined => {
-	const captureNode = node.childForFieldName(fieldName);
-	if (!captureNode) return undefined;
-	return captureNode.grammarType;
+	v: unknown,
+	label: string,
+): string => {
+	if (typeof v !== 'string') {
+		f.newError({
+			locations: [
+				{
+					node: f.constants[node.text].debug.node,
+					fileName: f.constants[node.text].debug.fileName,
+				},
+				{ node },
+			],
+			message: `${label} is not a string`,
+		});
+		return '';
+	}
+	return v;
+};
+export const coerceAsNumber = (
+	f: FileState,
+	node: TreeSitterNode,
+	v: unknown,
+	label: string,
+): number => {
+	if (typeof v !== 'number') {
+		f.newError({
+			locations: [
+				{
+					node: f.constants[node.text].debug.node,
+					fileName: f.constants[node.text].debug.fileName,
+				},
+				{ node },
+			],
+			message: `${label} is not a number`,
+		});
+		return NaN;
+	}
+	return v;
+};
+
+export const coerceAsBool = (
+	f: FileState,
+	node: TreeSitterNode,
+	v: unknown,
+	label: string,
+): boolean => {
+	if (typeof v !== 'boolean') {
+		f.newError({
+			locations: [
+				{
+					node: f.constants[node.text].debug.node,
+					fileName: f.constants[node.text].debug.fileName,
+				},
+				{ node },
+			],
+			message: `${label} is not a boolean`,
+		});
+		return false;
+	}
+	return v;
 };

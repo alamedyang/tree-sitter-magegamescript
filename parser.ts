@@ -10,7 +10,7 @@ import {
 	debugLog,
 	ansiTags,
 	newComment,
-	makeMessagePrintable,
+	printableMessage,
 	ansiTags as ansi,
 } from './parser-utilities.ts';
 
@@ -87,7 +87,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	parser.setLanguage(Lang);
 
 	const p = makeProjectState(parser, fileMap, scenarioData);
-	// parse each file
+	// PARSE EACH FILE
 	Object.keys(fileMap).forEach((fileName) => {
 		if (fileName.endsWith('.mgs') && !fileMap[fileName].parsed) {
 			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
@@ -95,14 +95,14 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		}
 	});
 
-	// take file scripts/dialogs, make global for the project
-	// why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
+	// MAKE FILE SCRIPTS/DIALOGS GLOBAL FOR PROJECT
+	// Q. why do these one at a time? so a single file can be parsed on its own, and added/removed on its own (later)
 	// TODO: could they not be added to an object for that file rather than being left in sequence?
-	// That way we don't have to filter out those nodes anymore when script parsing
+	// That way we don't have to filter out those nodes anymore when script parsing?
 	Object.keys(fileMap).forEach((fileName) => {
 		if (!fileName.endsWith('.mgs')) return;
 		const f = fileMap[fileName].parsed;
-		if (!f) throw new Error(`File ${fileName} failed to parse in time (?)`);
+		if (!f) throw new Error(`File "${fileName}" failed to parse in time (?)`);
 		f.nodes.forEach((node) => {
 			if (isScriptDefinition(node)) {
 				p.addScript(node);
@@ -129,14 +129,16 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 				p.newError({
 					message: `multiple ${category} with name "${name}"`,
 					locations: dupes.map((dupe: Definition) => ({
-						fileName: dupe.fileName,
+						fileName: dupe.debug.fileName,
 						node: dupe.debug.node.firstNamedChild || dupe.debug.node,
 					})),
 				});
 				// Increment error count for that file
 				dupes.forEach((dupe: Definition) => {
-					const file = p.fileMap[dupe.fileName].parsed;
-					if (!file) throw new Error('ts');
+					const file = p.fileMap[dupe.debug.fileName].parsed;
+					if (!file) {
+						throw new Error(`No parsed file found by name "${dupe.debug.fileName}"`);
+					}
 					file.errorCount += 1;
 				});
 			}
@@ -154,19 +156,18 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
-		// Make script plaintext readable (pre copy_script, pre label baking)
+		// Snapshot current action state (pre copy_script, pre label baking)
 		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
 	});
 
-	// COPY_SCRIPT
+	// DO COPY_SCRIPT
 	Object.keys(p.scripts).forEach((scriptName) => {
-		// TODO: check for recursion?
 		if (!p.scripts[scriptName].copyScriptResolved) {
 			p.bakeCopyScriptSingle(scriptName);
 		}
 	});
 
-	// This is where unit tests want to pull from?
+	// Snapshot current action state (post copy_script, pre label baking)
 	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].testPrint = printScript(scriptName, p.scripts[scriptName].actions);
 	});
@@ -176,7 +177,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		const scriptData = p.scripts[scriptName];
 		const registry: Record<string, number> = {};
 		const actions = scriptData.actions;
-		let commentlessIndex = 0;
+		let gaplessIndex = 0;
 		for (let i = 0; i < actions.length; i++) {
 			const currAction = actions[i];
 			if (
@@ -186,17 +187,17 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 			) {
 				continue;
 			} else if (isLabelDefinition(currAction)) {
-				registry[currAction.label] = commentlessIndex;
+				registry[currAction.label] = gaplessIndex;
 				actions[i] = newComment(`'${currAction.label}':`);
 			} else {
-				commentlessIndex += 1;
+				gaplessIndex += 1;
 			}
 		}
 		actions.forEach((action, i) => {
 			if (doesMathlangHaveLabelToChangeToIndex(action)) {
-				if (!action.label) throw new Error("should have a label and doesn't");
-				const jump_index = registry[action.label];
-				if (jump_index === undefined) {
+				if (!action.label) throw new Error(`action should have a label and doesn't`);
+				const jumpToIndex = registry[action.label];
+				if (jumpToIndex === undefined) {
 					throw new Error(
 						`Jump index not registered for label "${action.label}" in script "${scriptName}"`,
 					);
@@ -205,18 +206,18 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 				if (action.mathlang === 'goto_label') {
 					actions[i] = {
 						action: 'GOTO_ACTION_INDEX',
-						action_index: jump_index,
+						action_index: jumpToIndex,
 					};
 				} else {
 					action.comment = `goto label '${action.label}'`;
-					action[param] = jump_index;
+					action[param] = jumpToIndex;
 					delete action.label;
 				}
 			}
 		});
 	});
 
-	// Make script plaintext readable
+	// Snapshot current action state (post copy_script, post label baking)
 	Object.keys(p.scripts).forEach((scriptName) => {
 		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
 	});
@@ -226,12 +227,10 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	const errCount = p.errors.length;
 	const warnCount = p.warnings.length;
 	if (errCount) {
-		const s = errCount !== 1 ? 's' : '';
-		messages.push(ansi.red + `${errCount} error${s}` + ansi.reset);
+		messages.push(ansi.red + `${errCount} error${plural(errCount)}` + ansi.reset);
 	}
 	if (warnCount) {
-		const s = warnCount !== 1 ? 's' : '';
-		messages.push(ansi.yellow + `${warnCount} warning${s}` + ansi.reset);
+		messages.push(ansi.yellow + `${warnCount} warning${plural(warnCount)}` + ansi.reset);
 	}
 	if (messages.length) {
 		console.log(`Issues found: ${messages.join(', ')}`);
@@ -239,17 +238,19 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		console.log(`All your project's MGS files parsed with no issues!`);
 	}
 	p.warnings.forEach((message) => {
-		const str = ansi.yellow + makeMessagePrintable(p.fileMap, 'Warning', message) + ansi.reset;
+		const str = ansi.yellow + printableMessage(p.fileMap, 'Warning', message) + ansi.reset;
 		console.warn(str);
 	});
 	p.errors.forEach((message) => {
-		const str = ansi.red + makeMessagePrintable(p.fileMap, 'Error', message) + ansi.reset;
+		const str = ansi.red + printableMessage(p.fileMap, 'Error', message) + ansi.reset;
 		console.error(str);
 	});
 
 	// DONE
 	return p;
 };
+
+const plural = (n: number): string => (n !== 1 ? 's' : '');
 
 /*
 const inputPath = _resolve('./scenario_source_files');

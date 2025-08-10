@@ -1,12 +1,20 @@
-import { Node } from 'web-tree-sitter';
+import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { isNodeAction, type AnyNode } from './parser-types.ts';
 
 // For intermediate data types and MGS-specific nodes
 export type MGSDebug = {
-	node: Node;
-	data?: Record<string, unknown>;
-	fileName?: string;
+	node: TreeSitterNode;
+	fileName: string;
 	comment?: string;
+};
+export const isMGSDebug = (v: unknown): v is MGSDebug => {
+	if (typeof v !== 'object') return false;
+	if (typeof (v as MGSDebug).fileName !== 'string') {
+		return false;
+	}
+	// that's as far as I'll go for now....
+	if (typeof (v as MGSDebug).node === 'object') return true;
+	return false;
 };
 
 // ---------------------------------- ACTUAL BYTECODE JSON ---------------------------------- \\
@@ -783,51 +791,25 @@ export const isCheckAction = (node: AnyNode): node is CheckAction => {
 // Super union type
 export type Action =
 	| CheckAction
+	| ActionSetEntityString
+	| ActionSetInt
+	| ActionSetDirection
+	| ActionSetBool
+	| ActionSetPosition
+	| ActionMoveOverTime
+	| ActionSetScript
 	| NULL_ACTION
 	| LABEL
 	| RUN_SCRIPT
 	| COPY_SCRIPT
 	| BLOCKING_DELAY
 	| NON_BLOCKING_DELAY
-	| SET_ENTITY_NAME
-	| SET_ENTITY_X
-	| SET_ENTITY_Y
-	| SET_ENTITY_INTERACT_SCRIPT
-	| SET_ENTITY_TICK_SCRIPT
-	| SET_ENTITY_TYPE
-	| SET_ENTITY_PRIMARY_ID
-	| SET_ENTITY_SECONDARY_ID
-	| SET_ENTITY_PRIMARY_ID_TYPE
-	| SET_ENTITY_CURRENT_ANIMATION
-	| SET_ENTITY_CURRENT_FRAME
-	| SET_ENTITY_DIRECTION
-	| SET_ENTITY_DIRECTION_RELATIVE
-	| SET_ENTITY_DIRECTION_TARGET_ENTITY
-	| SET_ENTITY_DIRECTION_TARGET_GEOMETRY
-	| SET_ENTITY_GLITCHED
-	| SET_ENTITY_PATH
 	| SET_SAVE_FLAG
-	| SET_PLAYER_CONTROL
-	| SET_MAP_TICK_SCRIPT
 	| SET_HEX_CURSOR_LOCATION
 	| SET_WARP_STATE
-	| SET_HEX_EDITOR_STATE
-	| SET_HEX_EDITOR_DIALOG_MODE
-	| SET_HEX_EDITOR_CONTROL
-	| SET_HEX_EDITOR_CONTROL_CLIPBOARD
 	| LOAD_MAP
 	| SHOW_DIALOG
 	| PLAY_ENTITY_ANIMATION
-	| TELEPORT_ENTITY_TO_GEOMETRY
-	| WALK_ENTITY_TO_GEOMETRY
-	| WALK_ENTITY_ALONG_GEOMETRY
-	| LOOP_ENTITY_ALONG_GEOMETRY
-	| SET_CAMERA_TO_FOLLOW_ENTITY
-	| TELEPORT_CAMERA_TO_GEOMETRY
-	| PAN_CAMERA_TO_ENTITY
-	| PAN_CAMERA_TO_GEOMETRY
-	| PAN_CAMERA_ALONG_GEOMETRY
-	| LOOP_CAMERA_ALONG_GEOMETRY
 	| SET_SCREEN_SHAKE
 	| SCREEN_FADE_OUT
 	| SCREEN_FADE_IN
@@ -839,25 +821,69 @@ export type Action =
 	| SLOT_ERASE
 	| SET_CONNECT_SERIAL_DIALOG
 	| SHOW_SERIAL_DIALOG
-	| SET_MAP_LOOK_SCRIPT
-	| SET_ENTITY_LOOK_SCRIPT
 	| SET_TELEPORT_ENABLED
 	| SET_BLE_FLAG
-	| SET_SERIAL_DIALOG_CONTROL
 	| REGISTER_SERIAL_DIALOG_COMMAND
 	| REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
 	| UNREGISTER_SERIAL_DIALOG_COMMAND
 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-	| SET_ENTITY_MOVEMENT_RELATIVE
 	| CLOSE_DIALOG
 	| CLOSE_SERIAL_DIALOG
-	| SET_LIGHTS_CONTROL
-	| SET_LIGHTS_STATE
 	| GOTO_ACTION_INDEX
 	| SET_SCRIPT_PAUSE
 	| REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
 	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
+
+export type ActionSetInt =
+	| SET_ENTITY_X
+	| SET_ENTITY_Y
+	| SET_ENTITY_PRIMARY_ID
+	| SET_ENTITY_SECONDARY_ID
+	| SET_ENTITY_PRIMARY_ID_TYPE
+	| SET_ENTITY_CURRENT_ANIMATION
+	| SET_ENTITY_CURRENT_FRAME
+	| SET_ENTITY_MOVEMENT_RELATIVE
+	| SET_ENTITY_DIRECTION_RELATIVE;
+
+export type ActionSetBool =
+	| SET_ENTITY_GLITCHED
+	| SET_LIGHTS_STATE
+	| SET_PLAYER_CONTROL
+	| SET_LIGHTS_CONTROL
+	| SET_HEX_EDITOR_STATE
+	| SET_HEX_EDITOR_DIALOG_MODE
+	| SET_HEX_EDITOR_CONTROL
+	| SET_HEX_EDITOR_CONTROL_CLIPBOARD
+	| SET_SERIAL_DIALOG_CONTROL;
+
+export type ActionSetPosition =
+	| TELEPORT_CAMERA_TO_GEOMETRY
+	| SET_CAMERA_TO_FOLLOW_ENTITY
+	| TELEPORT_ENTITY_TO_GEOMETRY;
+
+export type ActionSetDirection =
+	| SET_ENTITY_DIRECTION
+	| SET_ENTITY_DIRECTION_TARGET_GEOMETRY
+	| SET_ENTITY_DIRECTION_TARGET_ENTITY;
+
+export type ActionSetScript =
+	| SET_MAP_TICK_SCRIPT
+	| SET_MAP_LOOK_SCRIPT
+	| SET_ENTITY_TICK_SCRIPT
+	| SET_ENTITY_INTERACT_SCRIPT
+	| SET_ENTITY_LOOK_SCRIPT;
+
+export type ActionMoveOverTime =
+	| PAN_CAMERA_TO_ENTITY
+	| LOOP_CAMERA_ALONG_GEOMETRY
+	| PAN_CAMERA_ALONG_GEOMETRY
+	| PAN_CAMERA_TO_GEOMETRY
+	| LOOP_ENTITY_ALONG_GEOMETRY
+	| WALK_ENTITY_ALONG_GEOMETRY
+	| WALK_ENTITY_TO_GEOMETRY;
+
+export type ActionSetEntityString = SET_ENTITY_NAME | SET_ENTITY_TYPE | SET_ENTITY_PATH;
 
 // ----------------------------------- non TypeScript stuff ----------------------------------- \\
 
@@ -991,18 +1017,21 @@ export const isFieldForAction = (field: string, action: string): boolean => {
 	}
 	return false;
 };
-export const getBoolFieldForAction = (action: string): string | null => {
+export const getBoolFieldForAction = (action: string): string => {
 	const fields = actionFields[action];
 	if (fields.includes('bool_value')) return 'bool_value';
 	if (fields.includes('expected_bool')) return 'expected_bool';
 	if (fields.includes('enabled')) return 'enabled';
 	const filtered = fields.filter((s: string) => s.includes('bool'));
 	if (filtered.length === 1) return filtered[0];
-	if (filtered.length === 0) return null;
+	if (filtered.length === 0) {
+		throw new Error(`bool field not found for action ${action}`);
+	}
 	throw new Error('multiple possible bool params: ' + filtered.join(', '));
 };
 
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
+// TODO: don't do 'as', do real things
 export const standardizeAction = (action: Record<string, unknown>, OOB: number): Action => {
 	const ret = {};
 	if (action.mathlang === 'copy_script') {
@@ -1040,6 +1069,5 @@ export const standardizeAction = (action: Record<string, unknown>, OOB: number):
 			ret[field] = action[field];
 		}
 	});
-	// todo: don't coerce, see if it'll work on its own
 	return action as Action;
 };

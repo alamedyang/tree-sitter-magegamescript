@@ -279,7 +279,6 @@ export type ConstantDefinition = {
 
 export type ScriptDefinition = {
 	mathlang: 'script_definition';
-	fileName: string;
 	scriptName: string;
 	prePrint?: string;
 	testPrint?: string;
@@ -419,13 +418,14 @@ export const isBoolComparison = (v: unknown): v is BoolComparison => {
 	return false;
 };
 
+// TODO: untangle this >:(
 export type StringCheckable = {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
 	entity: string;
 	property: string;
 	expected_bool?: boolean;
-	label?: string;
+	label: string;
 	action?:
 		| 'CHECK_ENTITY_TICK_SCRIPT'
 		| 'CHECK_ENTITY_LOOK_SCRIPT'
@@ -499,6 +499,10 @@ export type BoolSetable = {
 	type: string;
 	value?: string;
 };
+export const isBoolSetable = (v: unknown): v is BoolSetable => {
+	if (typeof v !== 'object') return false;
+	return (v as BoolSetable).mathlang === 'bool_setable';
+};
 
 export type NumberCheckableEquality = {
 	mathlang: 'number_checkable_equality';
@@ -530,12 +534,20 @@ export type MovableIdentifier = {
 	type: string;
 	value: string;
 };
+export const isMovableIdentifier = (v: unknown): v is MovableIdentifier => {
+	if (typeof v !== 'object') return false;
+	return (v as MovableIdentifier).mathlang === 'movable_identifier';
+};
 
 export type CoordinateIdentifier = {
 	mathlang: 'coordinate_identifier';
 	type: string;
 	value: string;
-	polygonType: string | undefined;
+	polygonType?: string;
+};
+export const isCoordinateIdentifier = (v: unknown): v is CoordinateIdentifier => {
+	if (typeof v !== 'object') return false;
+	return (v as CoordinateIdentifier).mathlang === 'coordinate_identifier';
 };
 
 export type DirectionTarget =
@@ -551,6 +563,22 @@ export type DirectionTarget =
 			action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 			target_entity: string;
 	  };
+
+export const isDirectionTarget = (v: unknown): v is DirectionTarget => {
+	if (typeof v !== 'object') return false;
+	if ((v as DirectionTarget).action === 'SET_ENTITY_DIRECTION') {
+		return typeof (v as TYPES.SET_ENTITY_DIRECTION).direction === 'string';
+	}
+	if ((v as DirectionTarget).action === 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY') {
+		return (
+			typeof (v as TYPES.SET_ENTITY_DIRECTION_TARGET_GEOMETRY).target_geometry === 'string'
+		);
+	}
+	if ((v as DirectionTarget).action === 'SET_ENTITY_DIRECTION_TARGET_ENTITY') {
+		return typeof (v as TYPES.SET_ENTITY_DIRECTION_TARGET_ENTITY).target_entity === 'string';
+	}
+	return false;
+};
 
 // --------------------- Mathlang Nodes with labels --------------------- \\
 

@@ -34,21 +34,21 @@ const printAction = (data: MATHLANG.AnyNode): string => {
 		}
 		if (!isAction && data.mathlang === 'return_statement') return '// auto return label';
 		const fn = mathlang[data.mathlang];
-		if (!fn) throw new Error('Fn needed for ' + data.mathlang);
+		if (!fn) throw new Error('print fn needed for ' + data.mathlang);
 		const print = fn(data);
 		return print;
 	}
 	// if (data.error) {
 	// 	return `// ERROR: ${data.debug.text.replace(/[\t\n\s]+/g, ' ')}`;
 	// }
-	throw new Error('Fn needed for ???');
+	throw new Error('print fn needed for ???');
 };
 
 // TODO: data type
 const mathlang = {
 	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
 	label_definition: (data: MATHLANG.GotoLabel) => {
-		if (!data.label) throw new Error('cannot print label without label');
+		if (!data.label) throw new Error('cannot print label action without label');
 		return `${sanitizeLabel(data.label)}:`;
 	},
 	copy_script: (data: MATHLANG.CopyMacro) => `copy!("${data.script}")`,
@@ -273,7 +273,7 @@ const printActionFns: Record<string, (v) => string> = {
 	},
 	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto script "${v.script}";`,
 	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => {
-		if (!v.search_and_replace) {
+		if (!MATHLANG.hasSearchAndReplace(v)) {
 			return `copy!("${v.script}")`;
 		}
 		const action = {
@@ -316,14 +316,12 @@ const printGotoSegment = (data): string => {
 };
 const printCheckAction = (data: TYPES.Action, lhs: string, smartInvert: boolean): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
-	if (!param) throw new Error('No param for action');
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = printGotoSegment(data);
 	return `if ${bang}${lhs} then ${goto};`;
 };
 const printSetBoolAction = (data: TYPES.Action, lhs: string): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
-	if (!param) throw new Error('No param for action');
 	return `${lhs} = ${data[param]};`;
 };
 const printDuration = (duration: number): string => duration + 'ms';

@@ -89,7 +89,8 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 	// }
 	const oldActions = oldPre[scriptName];
 	const newActions = p.scripts[scriptName].preActions;
-	if (!newActions) throw new Error('missing newActions');
+	if (!newActions) throw new Error(`missing newActions for script "${scriptName}"`);
+	if (!oldActions) throw new Error(`missing oldActions for script "${scriptName}"`);
 
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
@@ -217,23 +218,25 @@ parseProject(fileMap, {}).then((p: ProjectState): void => {
 		anonymousSerialDialogWarnings.push(...diffs.warnings);
 	});
 	if (anonymousSerialDialogDiffs.length) {
-		console.error(`Anonymous dialogs: found ${anonymousSerialDialogDiffs.length} differences`);
+		console.error(
+			`Anonymous serial dialogs: found ${anonymousSerialDialogDiffs.length} differences`,
+		);
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`    ...and ${anonymousSerialDialogWarnings.length} anonymous dialogs were only probable matches (due to text wrap bug from old version)`,
+				`    ...and ${anonymousSerialDialogWarnings.length} anonymous serial dialogs were only probable matches (due to text wrap bug from old version)`,
 			);
 		}
 		console.error(anonymousSerialDialogDiffs.join('\n'));
 	} else {
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`Anonymous dialogs from all ${serialDialogFileNames.size} files are identical with the caveat that...\n` +
-					`    ...${anonymousSerialDialogWarnings.length} anonymous dialogs were probable matches (due to text wrap bug from old version)\n` +
+				`Anonymous serial dialogs from all ${serialDialogFileNames.size} files are identical with the caveat that...\n` +
+					`    ...${anonymousSerialDialogWarnings.length} anonymous serial dialogs were probable matches (due to text wrap bug from old version)\n` +
 					`    Good enough!`,
 			);
 		} else {
 			console.log(
-				`All anonymous dialogs from all ${serialDialogFileNames.size} files are identical!`,
+				`All anonymous serial dialogs from all ${serialDialogFileNames.size} files are identical!`,
 			);
 		}
 	}

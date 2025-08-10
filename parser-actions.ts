@@ -1,7 +1,12 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { handleCapture, grammarTypeForFieldName, type Capture } from './parser-capture.ts';
 import {
-	type Action,
+	coerceAsNumber,
+	coerceAsString,
+	handleCapture,
+	optionalStringCaptureForFieldName,
+	type Capture,
+} from './parser-capture.ts';
+import {
 	type MGSDebug,
 	type CHECK_SAVE_FLAG,
 	type SET_SAVE_FLAG,
@@ -9,22 +14,34 @@ import {
 	type COPY_VARIABLE,
 	type MUTATE_VARIABLE,
 	type MUTATE_VARIABLES,
+	isMGSDebug,
+	type SET_ENTITY_DIRECTION_RELATIVE,
+	type ActionSetPosition,
+	type ActionSetDirection,
+	type ActionSetScript,
+	type ActionMoveOverTime,
+	type ActionSetEntityString,
+	type ActionSetInt,
+	type SHOW_DIALOG,
+	type SHOW_SERIAL_DIALOG,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	type DialogDefinition,
-	type MathlangNode,
+	type SerialDialogDefinition,
 	type CommentNode,
-	type MovableIdentifier,
-	type CoordinateIdentifier,
 	type MGSMessage,
-	type IntGetable,
 	type MathlangSequence,
 	isIntGetable,
 	isDialog,
 	isSerialDialog,
 	type IntBinaryExpression,
 	isIntBinaryExpression,
+	isBoolSetable,
+	isBoolExpression,
+	isMovableIdentifier,
+	isCoordinateIdentifier,
+	isDirectionTarget,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -58,47 +75,48 @@ const opIntoStringMap: Record<string, string> = {
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 
+const invisibleMath = (op: string, operand: number): boolean => {
+	if (op === '+' && operand === 0) return true;
+	if (op === '-' && operand === 0) return true;
+	if (op === '*' && operand === 1) return true;
+	if (op === '/' && operand === 1) return true;
+	return false;
+};
+
 const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]): AnyNode[] => {
-	const temporary = latestTemporary();
+	const temp = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
 	const rhs = exp.rhs;
 	if (typeof lhs === 'string') {
-		steps.push(setVarToVar(temporary, lhs));
+		steps.push(setVarToVar(temp, lhs));
 	} else if (typeof lhs === 'number') {
-		steps.push(setVarToValue(temporary, lhs));
+		steps.push(setVarToValue(temp, lhs));
 	} else if (isIntGetable(lhs)) {
-		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary));
+		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temp));
 	} else if (lhs.mathlang === 'int_binary_expression') {
 		// can use the same temporary since it's the lhs and we're going LTR
 		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(lhs, steps);
 	}
 	if (typeof rhs === 'string') {
-		steps.push(changeVarByVar(temporary, rhs, op));
+		steps.push(changeVarByVar(temp, rhs, op));
 	} else if (typeof rhs === 'number') {
-		if (
-			(op === '+' && rhs === 0) ||
-			(op === '-' && rhs === 0) ||
-			(op === '*' && rhs === 1) ||
-			(op === '/' && rhs === 1)
-		) {
-			// do nothing
-		} else {
-			steps.push(changeVarByValue(temporary, rhs, op));
+		// invisible = *1 or +0
+		if (!invisibleMath(op, rhs)) {
+			steps.push(changeVarByValue(temp, rhs, op));
 		}
 	} else if (isIntGetable(rhs)) {
-		const temp = quickTemporary();
-		if (!temp) throw new Error('TS why');
+		const quickTemp = quickTemporary();
 		steps.push(
-			copyEntityFieldIntoVar(rhs.entity, rhs.field, temp),
-			changeVarByVar(temporary, temp, op),
+			copyEntityFieldIntoVar(rhs.entity, rhs.field, quickTemp),
+			changeVarByVar(temp, quickTemp, op),
 		);
 	} else if (rhs.mathlang === 'int_binary_expression') {
 		// this one DOES need a new temporary
 		const innerTemporary = newTemporary();
 		flattenIntBinaryExpression(rhs, steps);
-		steps.push(changeVarByVar(temporary, innerTemporary, op));
+		steps.push(changeVarByVar(temp, innerTemporary, op));
 		dropTemporary();
 	}
 	return steps;
@@ -115,13 +133,13 @@ const actionSetBoolMaker = (
 	// get the action JSON for the LHS
 	const lhs = typeof _lhs === 'string' ? setFlag(_lhs, true) : _lhs;
 	const lhsParam = getBoolFieldForAction(lhs.action);
-	if (!lhsParam) throw new Error('shoudl have been a string');
 	if (typeof _rhsRaw === 'boolean') {
 		lhs[lhsParam] = _rhsRaw;
 		return lhs;
 	}
 	// get the action JSON for the RHS
 	const rhsRaw = typeof _rhsRaw === 'string' ? checkFlag(_rhsRaw, true) : _rhsRaw;
+	// TODO: do this via proving a type or something:
 	if (
 		rhsRaw.mathlang === 'bool_getable' ||
 		rhsRaw.mathlang === 'bool_comparison' ||
@@ -129,7 +147,6 @@ const actionSetBoolMaker = (
 		rhsRaw.mathlang === 'number_checkable_equality'
 	) {
 		const rhsParam = getBoolFieldForAction(rhsRaw.action);
-		if (!rhsParam) throw new Error('shoudl have been a string');
 		const existingValue = rhsRaw[rhsParam];
 		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsRaw.action);
 		const baseAction = {
@@ -222,7 +239,6 @@ type FieldToSpread = {
 	captures: Capture[];
 };
 export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
-	if (!node) throw new Error('Missing node');
 	// From the action dictionary
 	const data = actionData[node.grammarType];
 	if (!data) {
@@ -231,7 +247,8 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 			throw new Error(
 				`No action data nor handler function found for action ${node.grammarType}`,
 			);
-		return customFn(f, node);
+		const customed = customFn(f, node);
+		return customed;
 	}
 	const debug: MGSDebug = {
 		node,
@@ -247,9 +264,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	captures.forEach((fieldName) => {
 		const captureNode = node.childForFieldName(fieldName);
 		if (captureNode === null) {
-			if (data.optionalCaptures?.includes(fieldName)) {
-				action[fieldName] = null;
-			} else {
+			if (!data.optionalCaptures || !data.optionalCaptures.includes(fieldName)) {
 				throw new Error(
 					`Capture found for field not associated with this action (${fieldName})`,
 				);
@@ -275,8 +290,6 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 			const handled = handleFn(actionInsideSpread, f, node, i) as GenericActionish;
 			if (handled) {
 				spreads[i] = handled;
-				// any reason to keep the intermediate values? no? tests still pass? well then
-				// spreads[i] = { ...action, ...handled };
 				return;
 			}
 		});
@@ -284,51 +297,60 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	return spreads as AnyNode[];
 };
 
+type ShowDialogOutput = (SHOW_DIALOG | DialogDefinition)[];
+type ShowSerialDialogOutput = (SHOW_SERIAL_DIALOG | SerialDialogDefinition)[];
+
 // Put things here if you don't care about auto-spreading them; otherwise they should go in actionData
 type ActionFn = (f: FileState, node: TreeSitterNode, isConcat?: boolean) => AnyNode[];
 const actionFns: Record<string, ActionFn> = {
-	action_show_dialog: (f: FileState, node: TreeSitterNode): AnyNode[] => {
-		const nameNode = node.childForFieldName('dialog_name');
-		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
-		if (typeof name !== 'string') throw new Error('name not a string');
+	action_show_dialog: (f: FileState, node: TreeSitterNode): ShowDialogOutput => {
+		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
+		const name = tryName !== null ? tryName : autoIdentifierName(f, node);
 		const dialogs = (node.childrenForFieldName('dialog') || [])
+			.filter((v) => v !== null)
 			.map((child) => {
-				if (child === null) throw new Error('');
 				return handleNode(f, child);
 			})
 			.flat();
 		const shownDialog = showDialog(f, node, name);
 		if (dialogs.length) {
-			if (!dialogs.every(isDialog)) throw new Error('');
-			const dialogDefinition = newDialog(f, node, name, dialogs) as DialogDefinition;
+			if (!dialogs.every(isDialog)) throw new Error('parsed dialogs not all of type Dialog');
+			const dialogDefinition = newDialog(f, node, name, dialogs);
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
 	},
-	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode): AnyNode[] =>
-		actionFns.action_show_serial_dialog(f, node, true),
-	action_show_serial_dialog: (
-		f: FileState,
-		node: TreeSitterNode,
-		isConcat: boolean = false,
-	): AnyNode[] => {
-		const nameNode = node.childForFieldName('serial_dialog_name');
-		const name = nameNode ? handleCapture(f, nameNode) : autoIdentifierName(f, node);
-		if (typeof name !== 'string') throw new Error('name not a string');
-		const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
-			.map((child) => {
-				if (child === null) throw new Error('');
-				return handleNode(f, child);
-			})
-			.flat();
-		const shownSerialDialog = showSerialDialog(f, node, name, isConcat || false);
-		if (serialDialogs.length) {
-			if (!isSerialDialog(serialDialogs[0])) throw new Error('');
-			const serialDialoDefinition = newSerialDialog(f, node, name, serialDialogs[0]);
-			return [serialDialoDefinition, shownSerialDialog];
-		}
-		return [shownSerialDialog];
+	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode): ShowSerialDialogOutput => {
+		return actionShowSerialDialog(f, node, true);
 	},
+	action_show_serial_dialog: (f: FileState, node: TreeSitterNode): ShowSerialDialogOutput => {
+		return actionShowSerialDialog(f, node, false);
+	},
+};
+
+// This is the only way the return type is preserved? Otherwise it gets genericized to AnyNode[]? That can't be right....
+const actionShowSerialDialog = (
+	f: FileState,
+	node: TreeSitterNode,
+	isConcat: boolean = false,
+): ShowSerialDialogOutput => {
+	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
+	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
+	const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
+		.filter((v) => v !== null)
+		.map((child) => {
+			return handleNode(f, child);
+		})
+		.flat();
+	const shownSerialDialog = showSerialDialog(f, node, name, isConcat || false);
+	if (serialDialogs.length) {
+		if (!isSerialDialog(serialDialogs[0])) {
+			throw new Error('parsed serial dialogs not all of type SerialDialog');
+		}
+		const serialDialoDefinition = newSerialDialog(f, node, name, serialDialogs[0]);
+		return [serialDialoDefinition, shownSerialDialog];
+	}
+	return [shownSerialDialog];
 };
 
 type actionDataEntry = {
@@ -479,32 +501,33 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['command', 'argument', 'script'],
 	},
 	action_set_ambiguous: {
+		// if the LHS is ambiguous (a variable name)
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node, i) => {
-			const grammarType = grammarTypeForFieldName(f, node, 'rhs');
-			if (grammarType === undefined) throw new Error('undefined grammarType');
-			if (typeof v.lhs !== 'string') throw new Error('TS');
-			if (
-				grammarType === 'ambiguous_identifier_expansion' ||
-				grammarType === 'BAREWORD' ||
-				grammarType === 'QUOTED_STRING'
-			) {
-				if (i === undefined) throw new Error('TS');
-				if (typeof v.rhs !== 'string') throw new Error('TS');
+		handle: (v, f, node, i): AnyNode | undefined => {
+			const lhs = coerceAsString(f, node, v.lhs, 'action_set_ambiguous lhs');
+
+			const rhsNode = node.childForFieldName('rhs');
+			if (!rhsNode) throw new Error('action_set_ambiguous: missing RHS node');
+			const rhsGrammarType = rhsNode.grammarType;
+
+			// varName = varName;
+			if (typeof v.rhs == 'string') {
+				if (i === undefined) throw new Error('undefined index in action_set_ambiguous');
 				// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
 				// `i` is from the caller, who knows which one of the set we're looking at now.
 				// Basically, the whole spread might not be ambiguous, so we need to report
 				// only once the action is identified in an individual spread, not all the time.
-				const lhsNode =
+				const lhsSquiggliesNode =
 					node.childForFieldName('lhs')?.namedChildren?.[i] ||
 					node.childForFieldName('lhs');
-				const rhsNode =
+				const rhsSquiggliesNode =
 					node.childForFieldName('rhs')?.namedChildren?.[i] ||
 					node.childForFieldName('rhs');
-				// These are the nodes that will get squigglies
-				if (!lhsNode || !rhsNode) throw new Error('ts!!');
-				const printNodes = [lhsNode, rhsNode];
+				if (!lhsSquiggliesNode || !rhsSquiggliesNode) {
+					throw new Error(`action_set_ambiguous: couldn't find nodes to squiggle`);
+				}
+				const printNodes = [lhsSquiggliesNode, rhsSquiggliesNode];
 				const suggestion = v.rhs.includes(' ') ? '"' + v.rhs + '"' : v.rhs;
 				f.newWarning({
 					locations: printNodes.map((v) => ({ node: v })),
@@ -516,76 +539,70 @@ const actionData: Record<string, actionDataEntry> = {
 						`\n    ${suggestion} + 0` +
 						`\n    ${suggestion} * 1`,
 				});
-				return setVarToVar(v.lhs, v.rhs);
+				return setVarToVar(lhs, v.rhs);
 			}
 
-			// We know the RHS is a number
-			// ... but it's a simple case, so use a simple action for this
+			// varName = 255;
 			if (typeof v.rhs === 'number') {
-				return setVarToValue(v.lhs, v.rhs);
-			}
-			// ... but it's a simple "getable" so use a simple action for this
-			if (grammarType === 'int_getable') {
-				if (
-					typeof v.rhs !== 'object' ||
-					typeof v.rhs.entity !== 'string' ||
-					typeof v.rhs.field !== 'string'
-				)
-					throw new Error('ts');
-				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, v.lhs);
+				return setVarToValue(lhs, v.rhs);
 			}
 
-			// We know the RHS is a int expression
-			if (grammarType.includes('int')) {
-				// Make a temporary variable to store the value of the expression
-				newTemporary(v.lhs);
-				// Play out the expression
-				if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
+			// varName = player x;
+			if (rhsGrammarType === 'int_getable') {
+				if (!isIntGetable(v.rhs)) {
+					throw new Error('action_set_ambiguous: invalid int_getable');
+				}
+				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, lhs);
+			}
+
+			// varName = (255 + player x);
+			if (rhsGrammarType.includes('int')) {
+				if (!isIntBinaryExpression(v.rhs)) {
+					throw new Error('action_set_ambiguous: invalid int_binary_expression');
+				}
+				const temporary = newTemporary(lhs);
 				const steps = flattenIntBinaryExpression(v.rhs, []);
-				// Clean up the temporary (but retain the variable name)
-				const temporary = dropTemporary();
-				// do `LHS = temporary`
-				steps.push(setVarToVar(v.lhs, temporary));
+				dropTemporary();
+				steps.push(setVarToVar(lhs, temporary));
 				return newSequence(f, node, steps, 'set int (ambiguous lhs)');
 			}
 
-			// We know the RHS is a boolean
-			// ... but it's a simple case, so use a simple action for this
+			// varName = false;
 			if (typeof v.rhs === 'boolean') {
-				return setFlag(v.lhs, v.rhs);
-			}
-			// ... and RHS is a simple bool getable
-			if (typeof v.rhs === 'object' && v.rhs.mathlang === 'bool_getable') {
-				if (typeof v.rhs.action !== 'string') throw new Error('ts wants a string lol');
-				if (typeof v.rhs.value !== 'string') throw new Error('ts wants a string lol');
-				const param = getBoolFieldForAction(v.rhs.action);
-				if (typeof param !== 'string') throw new Error('ts wants a string lol');
-				return setFlagToFlag(f, node, v.lhs, v.rhs.value, !v.rhs[param]);
+				return setFlag(lhs, v.rhs);
 			}
 
-			// We know the RHS is a bool expression
-			// ... it's complicated.
-			if (grammarType.includes('bool')) {
-				// TODO: review this fn
-				if (typeof v.lhs !== 'string') throw new Error('should be string: ' + v.lhs);
+			// varName = player glitched;
+			if (typeof v.rhs === 'object' && v.rhs.mathlang === 'bool_getable') {
+				// TODO: I think this one isn't quite lining up
+				const rhsAction = coerceAsString(f, node, v.rhs.action, 'action');
+				const rhsValue = coerceAsString(f, node, v.rhs.value, 'value');
+				const param = getBoolFieldForAction(rhsAction);
+				return setFlagToFlag(f, node, lhs, rhsValue, !v.rhs[param]);
+			}
+
+			// varName = (debug_mode || player glitched);
+			if (rhsGrammarType.includes('bool')) {
 				const ret = actionSetBoolMaker(f, v.rhs, v.lhs);
-				const setFlagSteps = setFlagToFlag(f, node, v.lhs, quickTemporary());
+				const setFlagSteps = setFlagToFlag(f, node, lhs, quickTemporary());
 				ret.steps.push(...setFlagSteps.steps);
 				return ret;
 			}
 		},
 	},
 	action_set_int: {
-		// If we've matched this, we know the LHS is not a variable name. Only other option is an entity field.
+		// If we've matched this, we know the LHS is not a variable name.
+		// Only option is an entity field.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		handle: (v, f, node): Action | MathlangNode | undefined => {
-			// RHS is number, simple case
-			// Different LHSs need different actions, though
+		handle: (v, f, node): ActionSetInt | MathlangSequence | COPY_VARIABLE => {
+			if (!isIntGetable(v.lhs)) {
+				throw new Error('action_set_int: LHS not int_getable');
+			}
+			const entity = coerceAsString(f, node, v.lhs.entity, 'action_set_int entity');
+
+			// player x = 0;
 			if (typeof v.rhs === 'number') {
-				if (typeof v.lhs !== 'object') throw new Error('TS SRSLY');
-				const entity = v.lhs.entity;
-				if (typeof entity !== 'string') throw new Error('TS SRSLY AGAIN');
 				if (v.lhs.field === 'x') {
 					return {
 						entity,
@@ -649,39 +666,37 @@ const actionData: Record<string, actionDataEntry> = {
 						relative_direction: v.rhs,
 					};
 				}
-				if (!v.debug && typeof v.debug !== 'object') throw new Error('TSTSTS');
-				f.newError({
-					locations: [{ node }],
-					message: `syntax error setting int to number`,
-				});
+				throw new Error('action_set_int: unidentified int_getable, field: ' + v.lhs.field);
 			}
-			// RHS is variable name, simple case
-			// The field is part of the JSON action
-			if (typeof v.lhs !== 'object') throw new Error('LHS not an object');
-			if (typeof v.lhs.entity !== 'string') throw new Error('LHS entity field not a string');
-			if (typeof v.lhs.field !== 'string')
-				throw new Error('LHS entity field "field" not a string');
+
+			// player x = varName;
 			if (typeof v.rhs === 'string') {
 				return copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field);
 			}
-			// RHS is something more complex (everything else)
-			// Do the expression thing, like above, but the final step is different
-			// (It's going into an entity field, not a variable)
-			newTemporary();
-			if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
-			const steps = flattenIntBinaryExpression(v.rhs, []);
-			const temporary = dropTemporary();
-			steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-			return newSequence(f, node, steps, 'set int') as MathlangNode;
+
+			// player x = player y;
+			if (isIntBinaryExpression(v.rhs)) {
+				const temporary = newTemporary();
+				const steps = flattenIntBinaryExpression(v.rhs, []);
+				dropTemporary();
+				steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
+				return newSequence(f, node, steps, 'set int');
+			}
+
+			throw new Error('action_set_int: unknown RHS type');
 		},
 	},
 	action_set_bool: {
 		// If we've matched this, we know the LHS is not a variable name.
 		values: {},
 		captures: ['lhs', 'rhs'],
-		// TODO: can the capture side put the action in?
-		handle: (v, f, node) => {
-			if (typeof v.lhs !== 'object') throw new Error('not making a type for this');
+		handle: (v, f, node): MathlangSequence => {
+			if (!isBoolSetable(v.lhs)) {
+				throw new Error('action_set_bool: LHS not a bool_setable');
+			}
+			if (!isBoolExpression(v.rhs)) {
+				throw new Error('action_set_bool: RHS not a bool_expression');
+			}
 			if (v.lhs.type === 'entity') {
 				const lhsAction = {
 					action: 'SET_ENTITY_GLITCHED',
@@ -729,39 +744,44 @@ const actionData: Record<string, actionDataEntry> = {
 				const lhsAction = { action: 'SET_SERIAL_DIALOG_CONTROL' };
 				return actionSetBoolMaker(f, v.rhs, lhsAction, node);
 			}
+			throw new Error('action_set_bool: unknown LHS type');
 		},
 	},
 	action_set_position: {
 		values: {},
 		captures: ['movable', 'coordinate'],
-		handle: (v, f, node) => {
-			const movable = v.movable as MovableIdentifier;
-			const coordinate = v.coordinate as CoordinateIdentifier;
-			if (movable.type === 'camera') {
-				if (coordinate.type === 'geometry' && coordinate.polygonType !== 'length') {
+		handle: (v, f, node): ActionSetPosition | MathlangSequence => {
+			if (!isMovableIdentifier(v.movable)) {
+				throw new Error('action_set_position: invalid MovableIdentifier');
+			}
+			if (!isCoordinateIdentifier(v.coordinate)) {
+				throw new Error('action_set_position: invalid CoordinateIdentifier');
+			}
+			if (v.movable.type === 'camera') {
+				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
 					return {
 						action: 'TELEPORT_CAMERA_TO_GEOMETRY',
-						geometry: coordinate.value,
+						geometry: v.coordinate.value,
 					};
 				}
-				if (coordinate.type === 'entity') {
+				if (v.coordinate.type === 'entity') {
 					return {
 						action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
-						entity: coordinate.value,
+						entity: v.coordinate.value,
 					};
 				}
-			} else if (movable.type === 'entity') {
-				if (coordinate.type === 'geometry' && coordinate.polygonType !== 'length') {
+			} else if (v.movable.type === 'entity') {
+				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
 					return {
 						action: 'TELEPORT_ENTITY_TO_GEOMETRY',
-						entity: movable.value,
-						geometry: coordinate.value,
+						entity: v.movable.value,
+						geometry: v.coordinate.value,
 					};
 				}
-				if (coordinate.type === 'entity') {
+				if (v.coordinate.type === 'entity') {
 					const variable = quickTemporary();
-					const copyFrom = coordinate.value;
-					const copyTo = movable.value;
+					const copyFrom = v.coordinate.value;
+					const copyTo = v.movable.value;
 					const steps = [
 						copyVarIntoEntityField(variable, copyFrom, 'x'),
 						copyEntityFieldIntoVar(copyTo, 'x', variable),
@@ -771,30 +791,31 @@ const actionData: Record<string, actionDataEntry> = {
 					return newSequence(f, node, steps, 'set position');
 				}
 			}
-			const debug = v.debug as MGSDebug;
-			f.newError({
-				locations: [{ node: debug.node }],
-				message: `incompatible movable identifier and position identifier`,
-			});
+			throw new Error('action_set_position: invalid everything');
 		},
 	},
 	action_move_over_time: {
 		values: {},
 		captures: ['movable', 'coordinate', 'duration', 'forever'],
 		optionalCaptures: ['forever'],
-		handle: (v, f): Action | undefined => {
-			const movable = v.movable as MovableIdentifier;
-			const coordinate = v.coordinate as CoordinateIdentifier;
-			const debug = v.debug as MGSDebug;
-			const duration = v.duration;
-			if (typeof duration !== 'number') throw new Error('freak out');
+		handle: (v, f, node): ActionMoveOverTime | undefined => {
+			if (!isMovableIdentifier(v.movable)) {
+				throw new Error('action_move_over_time: invalid MovableIdentifier');
+			}
+			if (!isCoordinateIdentifier(v.coordinate)) {
+				throw new Error('action_move_over_time: invalid CoordinateIdentifier');
+			}
+			if (!isMGSDebug(v.debug)) {
+				throw new Error('invalid debug node');
+			}
+			const duration = coerceAsNumber(f, node, v.duration, 'duration');
 			const error: MGSMessage = {
-				locations: [{ node: debug.node }],
+				locations: [{ node: v.debug.node }],
 				message: '',
 			};
-			if (movable.type === 'camera') {
+			if (v.movable.type === 'camera') {
 				// Moving the camera
-				if (coordinate.type === 'entity') {
+				if (v.coordinate.type === 'entity') {
 					// ... to an entity
 					if (v.forever) {
 						// ... forever (ILLEGAL)
@@ -806,32 +827,32 @@ const actionData: Record<string, actionDataEntry> = {
 						return {
 							action: 'PAN_CAMERA_TO_ENTITY',
 							duration: duration,
-							entity: coordinate.value,
+							entity: v.coordinate.value,
 						};
 					}
 				}
-				if (coordinate.type === 'geometry') {
+				if (v.coordinate.type === 'geometry') {
 					// ... to a geometry
-					if (coordinate.polygonType === 'length') {
+					if (v.coordinate.polygonType === 'length') {
 						// ... length
 						if (v.forever) {
 							// ... forever
 							return {
 								action: 'LOOP_CAMERA_ALONG_GEOMETRY',
-								entity: coordinate.value,
+								entity: v.coordinate.value,
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						} else {
 							// ... not forever
 							return {
 								action: 'PAN_CAMERA_ALONG_GEOMETRY',
-								entity: coordinate.value,
+								entity: v.coordinate.value,
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						}
-					} else if (coordinate.polygonType === 'origin') {
+					} else if (v.coordinate.polygonType === 'origin') {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
@@ -843,44 +864,44 @@ const actionData: Record<string, actionDataEntry> = {
 							return {
 								action: 'PAN_CAMERA_TO_GEOMETRY',
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						}
 					}
 				}
 			}
 
-			if (movable.type === 'entity') {
+			if (v.movable.type === 'entity') {
 				// Moving an entity
-				if (coordinate.type === 'entity') {
+				if (v.coordinate.type === 'entity') {
 					// ... to another entity (ILLEGAL)
 					error.message = `cannot move an entity to another entity's position over time`;
 					f.newError(error);
 					return;
 				}
-				if (coordinate.type === 'geometry') {
+				if (v.coordinate.type === 'geometry') {
 					// ... to a geometry
-					if (coordinate.polygonType === 'length') {
+					if (v.coordinate.polygonType === 'length') {
 						// ... length
 						if (v.forever) {
 							// ... forever
 							return {
 								action: 'LOOP_ENTITY_ALONG_GEOMETRY',
-								entity: movable.value,
+								entity: v.movable.value,
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						} else {
 							// ... not forever
 							return {
 								action: 'WALK_ENTITY_ALONG_GEOMETRY',
-								entity: movable.value,
+								entity: v.movable.value,
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						}
 					}
-					if (coordinate.polygonType === 'origin') {
+					if (v.coordinate.polygonType === 'origin') {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
@@ -891,9 +912,9 @@ const actionData: Record<string, actionDataEntry> = {
 							// ... not forever
 							return {
 								action: 'WALK_ENTITY_TO_GEOMETRY',
-								entity: movable.value,
+								entity: v.movable.value,
 								duration: duration,
-								geometry: coordinate.value,
+								geometry: v.coordinate.value,
 							};
 						}
 					}
@@ -904,59 +925,69 @@ const actionData: Record<string, actionDataEntry> = {
 	action_set_direction: {
 		values: {},
 		captures: ['entity', 'target'],
-		handle: (v) => {
-			if (typeof v.target !== 'object') throw new Error('trust me');
+		handle: (v, f, node): ActionSetDirection => {
+			const entity = coerceAsString(f, node, v.entity, 'entity');
+			if (!isDirectionTarget(v.target)) {
+				throw new Error('action_set_direction: invalid target');
+			}
 			return {
 				...v.target,
-				entity: v.entity,
+				entity,
 			};
 		},
 	},
 	action_set_script: {
 		values: {},
 		captures: ['entity', 'script_slot', 'script'],
-		handle: (v, f, node) => {
-			if (v.entity === '%MAP%') {
-				if (v.script_slot === 'on_tick') {
+		handle: (v, f, node): ActionSetScript | undefined => {
+			const entity = coerceAsString(f, node, v.entity, 'entity');
+			const script_slot = coerceAsString(f, node, v.script_slot, 'script_slot');
+			const script = coerceAsString(f, node, v.script, 'script');
+			if (entity === '%MAP%') {
+				if (script_slot === 'on_tick') {
 					return {
 						action: 'SET_MAP_TICK_SCRIPT',
-						script: v.script,
+						script,
+					};
+				} else if (script_slot === 'on_tick') {
+					return {
+						action: 'SET_MAP_LOOK_SCRIPT',
+						script,
 					};
 				}
 				const errorNodes = node.childForFieldName('script_slot');
-				if (!errorNodes) throw new Error('LOLOL');
+				if (!errorNodes) throw new Error('action_set_script: missing script_slot node');
 				f.newError({
 					message: `invalid map script slot`,
 					locations: [{ node: errorNodes }],
-					footer: `You can only set a map's 'on_tick' slot`,
+					footer: `You can only set a map's 'on_tick' or 'on_look' slot`,
 				});
 				return;
 			}
 			// not a map; must be an entity
-			const ret = {
-				entity: v.entity,
-				script: v.script,
-			};
 			if (v.script_slot === 'on_tick') {
 				return {
-					...ret,
 					action: 'SET_ENTITY_TICK_SCRIPT',
+					entity,
+					script,
 				};
 			}
 			if (v.script_slot === 'on_interact') {
 				return {
-					...ret,
 					action: 'SET_ENTITY_INTERACT_SCRIPT',
+					entity,
+					script,
 				};
 			}
 			if (v.script_slot === 'on_look') {
 				return {
-					...ret,
 					action: 'SET_ENTITY_LOOK_SCRIPT',
+					entity,
+					script,
 				};
 			}
 			const errorNodes = node.childForFieldName('script_slot');
-			if (!errorNodes) throw new Error('LOLOL');
+			if (!errorNodes) throw new Error('cannot find script_slot nodes');
 			f.newError({
 				message: `invalid entity script slot`,
 				locations: [{ node: errorNodes }],
@@ -967,57 +998,48 @@ const actionData: Record<string, actionDataEntry> = {
 	action_set_entity_string: {
 		values: {},
 		captures: ['entity', 'field', 'value'],
-		handle: (v, f, node): Action | undefined => {
+		handle: (v, f, node): ActionSetEntityString => {
+			const entity = coerceAsString(f, node, v.entity, 'entity');
+			const value = coerceAsString(f, node, v.value, 'value');
 			if (v.field === 'name') {
-				if (typeof v.value !== 'string') throw new Error('TS');
-				if (typeof v.entity !== 'string') throw new Error('TS');
 				return {
 					action: 'SET_ENTITY_NAME',
-					string: v.value,
-					entity: v.entity,
+					string: value,
+					entity: entity,
 				};
 			} else if (v.field === 'type') {
-				if (typeof v.value !== 'string') throw new Error('TS');
-				if (typeof v.entity !== 'string') throw new Error('TS');
 				return {
 					action: 'SET_ENTITY_TYPE',
-					entity_type: v.value,
-					entity: v.entity,
+					entity_type: value,
+					entity: entity,
 				};
 			} else if (v.field === 'path') {
-				if (typeof v.value !== 'string') throw new Error('TS');
-				if (typeof v.entity !== 'string') throw new Error('TS');
 				return {
 					action: 'SET_ENTITY_PATH',
-					entity: v.entity,
-					geometry: v.value,
+					entity: entity,
+					geometry: value,
 				};
-			} else {
-				f.newError({
-					locations: [{ node }],
-					message: `syntax error setting entity property to string`,
-				});
 			}
+			throw new Error('action_set_entity_string: invalid field?');
 		},
 	},
 	action_op_equals: {
 		values: {},
 		captures: ['lhs', 'operator', 'rhs'],
-		handle: (v, f, node) => {
+		handle: (v, f, node): AnyNode => {
+			const op = coerceAsString(f, node, v.operator, 'op');
+
 			// LHS is a string, meaning we're doing a thing to an integer variable
-			const op = v.operator;
-			if (typeof op !== 'string') throw new Error(`Operator is not a string (${op})`);
 			if (typeof v.lhs === 'string') {
-				// e.g. varName += 1
+				// varName += 1
 				if (typeof v.rhs === 'number') {
 					return changeVarByValue(v.lhs, v.rhs, op);
 				}
-				// e.g. varName += var2
+				// varName += var2
 				if (typeof v.rhs === 'string') {
 					return changeVarByVar(v.lhs, v.rhs, op);
 				}
-				// e.g. varName += player x
-				if (typeof v.rhs !== 'object') throw new Error('come on');
+				// varName += player x
 				if (isIntGetable(v.rhs)) {
 					const temp = quickTemporary();
 					const steps = [
@@ -1026,8 +1048,8 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				}
-				// e.g. varName += (var2 * 7)
-				if (v.rhs.mathlang === 'int_binary_expression') {
+				// varName += (var2 * 7)
+				if (isIntBinaryExpression(v.rhs)) {
 					const temporary = newTemporary();
 					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 					const steps = flattenIntBinaryExpression(v.rhs, []);
@@ -1035,88 +1057,83 @@ const actionData: Record<string, actionDataEntry> = {
 					steps.push(changeVarByVar(v.lhs, temporary, op));
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				}
-				f.newError({
-					locations: [{ node }],
-					message: `syntax error setting integer variable value`,
-				});
+				throw new Error('action_op_equals: action handler error');
 			}
 
 			// LHS is an int getable, like `player y`
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
-			if (typeof v.lhs !== 'object') throw new Error('TS');
 			if (isIntGetable(v.lhs)) {
-				// e.g. player x = 1;
-				const lhs = v.lhs as IntGetable;
+				// player x = 1;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary),
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
 						changeVarByValue(temporary, v.rhs, op),
-						copyVarIntoEntityField(temporary, lhs.entity, lhs.field),
+						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with number');
 				}
-				// e.g. player x = varName;
+				// player x = varName;
 				if (typeof v.rhs === 'string') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary),
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
 						changeVarByVar(temporary, v.rhs, op),
-						copyVarIntoEntityField(temporary, lhs.entity, lhs.field),
+						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with string (identifier)');
 				}
-				// e.g. player x = (varName * 7);
-				if (typeof v.rhs !== 'object') throw new Error('not a bool');
-				if (v.rhs.mathlang === 'int_binary_expression') {
+				// player x = (varName * 7);
+				if (isIntBinaryExpression(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
 					const steps = [
-						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary1),
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
 						...flattenIntBinaryExpression(v.rhs, []),
 						changeVarByVar(temporary1, temporary2, op),
-						copyVarIntoEntityField(temporary1, lhs.entity, lhs.field),
+						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int binary expression');
 				}
-				// e.g. player x = self y;
-				if (typeof v.rhs === 'boolean') throw new Error('TS seriously trust me');
+				// player x = self y;
 				if (isIntGetable(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(lhs.entity, lhs.field, temporary1),
+						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temporary2),
 						changeVarByVar(temporary1, temporary2, op),
-						copyVarIntoEntityField(temporary1, lhs.entity, lhs.field),
+						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
 					return newSequence(f, node, steps, 'set op-equals with int getable');
 				}
-				f.newError({
-					locations: [{ node }],
-					message: `syntax error setting int property value`,
-				});
 			}
+			throw new Error('action_op_equals: action handler error');
 		},
 	},
 	action_plus_minus_equals_ables: {
 		values: {},
 		captures: ['entity', 'operator', 'value'],
-		handle: (v) => {
-			const sign = v.operator === '-=' ? -1 : 1;
-			if (typeof v.value !== 'number') throw new Error(`Not a number: ${v.value}`);
+		handle: (v, f, node): SET_ENTITY_DIRECTION_RELATIVE => {
+			const entity = coerceAsString(f, node, v.entity, 'entity');
+			const op = coerceAsString(f, node, v.operator, 'operator');
+			if (op !== '-=' && op !== '+=') {
+				throw new Error('action_plus_minus_equals_ables invalid op: ' + op);
+			}
+			const value = coerceAsNumber(f, node, v.value, 'value');
+			const sign = op === '-=' ? -1 : 1;
 			return {
 				action: 'SET_ENTITY_DIRECTION_RELATIVE',
-				entity: v.entity,
-				relative_direction: sign * v.value,
+				entity,
+				relative_direction: sign * value,
 			};
 		},
 	},
@@ -1124,15 +1141,16 @@ const actionData: Record<string, actionDataEntry> = {
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-const setVarToValue = (variable: string, value: number): Action => ({
+const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => ({
 	action: 'MUTATE_VARIABLE',
 	operation: 'SET',
 	value,
 	variable,
 });
 const setVarToVar = (variable: string, source: string): MUTATE_VARIABLES | CommentNode => {
-	if (variable === source)
+	if (variable === source) {
 		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
+	}
 	return {
 		action: 'MUTATE_VARIABLES',
 		operation: 'SET',

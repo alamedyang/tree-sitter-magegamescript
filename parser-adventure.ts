@@ -255,7 +255,11 @@ const startAdventure = (text: string): AdventureCrawlState => {
 	const segments: AdventureSegment[] = [];
 	while (queue.length) {
 		const curr = queue.shift();
-		if (curr === undefined) throw new Error('TS');
+		if (curr === undefined) {
+			throw new Error(
+				'Checked for the presence of items in an array, then shifted, then somehow unded up with nothing? TS, you crack me up',
+			);
+		}
 		const newSegments = advanceAdventure(lines, curr, cs);
 		newSegments.forEach((segment) => {
 			segments.push(segment);
@@ -344,7 +348,7 @@ const invertCondition = (condition: string): string => {
 	if (multiWordBool) {
 		return `if !${multiWordBool[1]} then`;
 	}
-	throw new Error('unknown inversion needed');
+	throw new Error('inversion not implemented for string: ' + condition);
 };
 
 // The "been to" Set is which crossroads you've touched.
