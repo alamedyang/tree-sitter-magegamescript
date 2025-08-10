@@ -3,8 +3,8 @@ import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
 const printAction = (data: MATHLANG.AnyNode): string => {
-	const isAction = MATHLANG.isNodeAction(data);
-	if (!isAction && data.mathlang === 'comment') {
+	const isAction = MATHLANG.isActionNode(data);
+	if (MATHLANG.isCommentNode(data)) {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;
 		return `// ${abridged}`;
@@ -24,23 +24,20 @@ const printAction = (data: MATHLANG.AnyNode): string => {
 		return print + comment;
 	}
 	if (!isAction && data.mathlang) {
-		if (data.mathlang === 'dialog_definition') {
+		if (MATHLANG.isDialogDefinition(data)) {
 			const sample = data.dialogs[0].messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto dialog: "${sample}"`;
 		}
-		if (data.mathlang === 'serial_dialog_definition') {
+		if (MATHLANG.isSerialDialogDefinition(data)) {
 			const sample = data.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto serial_dialog: "${sample}"`;
 		}
-		if (!isAction && data.mathlang === 'return_statement') return '// auto return label';
+		if (MATHLANG.isReturnStatement(data)) return '// auto return label';
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error('print fn needed for ' + data.mathlang);
 		const print = fn(data);
 		return print;
 	}
-	// if (data.error) {
-	// 	return `// ERROR: ${data.debug.text.replace(/[\t\n\s]+/g, ' ')}`;
-	// }
 	throw new Error('print fn needed for ???');
 };
 

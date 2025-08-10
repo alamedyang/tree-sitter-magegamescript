@@ -8,11 +8,12 @@ import {
 	type SerialDialogDefinition,
 	type ScriptDefinition,
 	type MGSMessage,
-	isNodeMathlang,
 	isLabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
 	isAnyCopyScript,
 	hasSearchAndReplace,
+	isDialogDefinition,
+	isSerialDialogDefinition,
 } from './parser-types.ts';
 import { type MGSDebug } from './parser-bytecode-info.ts';
 
@@ -83,9 +84,9 @@ export const makeProjectState = (
 			// finalize actions
 			const finalizedActions: AnyNode[] = [];
 			data.rawNodes.forEach((node) => {
-				if (isNodeMathlang(node) && node.mathlang === 'dialog_definition') {
+				if (isDialogDefinition(node)) {
 					p.addDialog(node);
-				} else if (isNodeMathlang(node) && node.mathlang === 'serial_dialog_definition') {
+				} else if (isSerialDialogDefinition(node)) {
 					p.addSerialDialog(node);
 				} else {
 					finalizedActions.push(node);

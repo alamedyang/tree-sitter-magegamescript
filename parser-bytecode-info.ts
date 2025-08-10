@@ -1,5 +1,12 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { isLabelDefinition, isNodeAction, type AnyNode } from './parser-types.ts';
+import {
+	isGotoLabel,
+	isLabelDefinition,
+	isMathlangCopyScript,
+	isActionNode,
+	isReturnStatement,
+	type AnyNode,
+} from './parser-types.ts';
 
 // For intermediate data types and MGS-specific nodes
 export type MGSDebug = {
@@ -48,8 +55,8 @@ export type COPY_SCRIPT_SEARCH_AND_REPLACE = {
 	search_and_replace: Record<string, string>;
 	debug?: MGSDebug;
 };
-export const isActionCopyScript = (node: AnyNode): node is COPY_SCRIPT => {
-	return (node as Action).action === 'COPY_SCRIPT';
+export const isActionCopyScript = (v: unknown): v is COPY_SCRIPT => {
+	return (v as COPY_SCRIPT)?.action === 'COPY_SCRIPT';
 };
 
 export type BLOCKING_DELAY = {
@@ -757,7 +764,7 @@ export type CheckAction =
 	| CHECK_SERIAL_DIALOG_OPEN
 	| CHECK_DEBUG_MODE;
 export const isCheckAction = (node: AnyNode): node is CheckAction => {
-	if (!isNodeAction(node)) return false;
+	if (!isActionNode(node)) return false;
 	if (node.action === 'CHECK_ENTITY_NAME') return true;
 	if (node.action === 'CHECK_ENTITY_X') return true;
 	if (node.action === 'CHECK_ENTITY_Y') return true;
@@ -1038,7 +1045,7 @@ const breakIfNotString = (v: unknown): string => {
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
 // old style so the old and new output can be directly compared (I think)
 export const standardizeAction = (action: Record<string, unknown>, OOB: number): Action => {
-	if (action.mathlang === 'copy_script') {
+	if (isMathlangCopyScript(action)) {
 		const manual: COPY_SCRIPT = {
 			action: 'COPY_SCRIPT',
 			script: breakIfNotString(action.script),
@@ -1052,14 +1059,14 @@ export const standardizeAction = (action: Record<string, unknown>, OOB: number):
 		};
 		return ret;
 	}
-	if (action.mathlang === 'goto_label') {
+	if (isGotoLabel(action)) {
 		const ret: GOTO_ACTION_INDEX = {
 			action: 'GOTO_ACTION_INDEX',
 			action_index: breakIfNotString(action.label),
 		};
 		return ret;
 	}
-	if (action.mathlang === 'return_statement') {
+	if (isReturnStatement(action)) {
 		const ret: GOTO_ACTION_INDEX = {
 			action: 'GOTO_ACTION_INDEX',
 			action_index: OOB,

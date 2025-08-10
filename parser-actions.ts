@@ -100,7 +100,7 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 		steps.push(setVarToValue(temp, lhs));
 	} else if (isIntGetable(lhs)) {
 		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temp));
-	} else if (lhs.mathlang === 'int_binary_expression') {
+	} else if (isIntBinaryExpression(lhs)) {
 		// can use the same temporary since it's the lhs and we're going LTR
 		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(lhs, steps);
@@ -118,7 +118,7 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 			copyEntityFieldIntoVar(rhs.entity, rhs.field, quickTemp),
 			changeVarByVar(temp, quickTemp, op),
 		);
-	} else if (rhs.mathlang === 'int_binary_expression') {
+	} else if (isIntBinaryExpression(rhs)) {
 		// this one DOES need a new temporary
 		const innerTemporary = newTemporary();
 		flattenIntBinaryExpression(rhs, steps);

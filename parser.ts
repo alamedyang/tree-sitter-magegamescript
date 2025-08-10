@@ -25,9 +25,10 @@ import {
 	isScriptDefinition,
 	isDialogDefinition,
 	isSerialDialogDefinition,
-	type MathlangNode,
 	isLabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
+	isCommentNode,
+	isGotoLabel,
 } from './parser-types.ts';
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
@@ -149,10 +150,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	Object.keys(p.scripts).forEach((scriptName) => {
 		const standardizedActions = p.scripts[scriptName].actions
 			.filter(
-				(v) =>
-					(v as MathlangNode).mathlang !== 'comment' &&
-					(v as MathlangNode).mathlang !== 'dialog_definition' &&
-					(v as MathlangNode).mathlang !== 'serial_dialog_definition',
+				(v) => !isCommentNode(v) && !isDialogDefinition(v) && !isSerialDialogDefinition(v),
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
@@ -181,9 +179,9 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		for (let i = 0; i < actions.length; i++) {
 			const currAction = actions[i];
 			if (
-				(currAction as MathlangNode).mathlang === 'comment' ||
-				(currAction as MathlangNode).mathlang === 'dialog_definition' ||
-				(currAction as MathlangNode).mathlang === 'serial_dialog_definition'
+				isCommentNode(currAction) ||
+				isDialogDefinition(currAction) ||
+				isSerialDialogDefinition(currAction)
 			) {
 				continue;
 			} else if (isLabelDefinition(currAction)) {
@@ -203,7 +201,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 					);
 				}
 				const param = 'jump_index';
-				if (action.mathlang === 'goto_label') {
+				if (isGotoLabel(action)) {
 					actions[i] = {
 						action: 'GOTO_ACTION_INDEX',
 						action_index: jumpToIndex,

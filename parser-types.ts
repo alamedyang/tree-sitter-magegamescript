@@ -10,10 +10,10 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 };
 
 export type AnyNode = TYPES.Action | MathlangNode;
-export const isNodeAction = (v: unknown): v is TYPES.Action => {
+export const isActionNode = (v: unknown): v is TYPES.Action => {
 	return (v as TYPES.Action).action !== undefined;
 };
-export const isNodeMathlang = (v: unknown): v is MathlangNode => {
+export const isMathlangNode = (v: unknown): v is MathlangNode => {
 	return (v as MathlangNode).mathlang !== undefined;
 };
 export const isThingNode = (v: unknown): v is AnyNode => {
@@ -55,7 +55,7 @@ export type MathlangNode =
 	| ScriptDefinition
 	| CommentNode
 	| LabelDefinition
-	| JSONNode
+	| JSONLiteral
 	| CopyMacro
 	| MathlangSequence
 	// EXPRESSIONS
@@ -74,8 +74,7 @@ export type AddDialogSettings = {
 	parameters?: SerialDialogParameter[];
 };
 export const isAddDialogSettings = (v: unknown): v is AddDialogSettings => {
-	if (typeof v !== 'object') return false;
-	return (v as AddDialogSettings).mathlang === 'add_dialog_settings';
+	return (v as AddDialogSettings)?.mathlang === 'add_dialog_settings';
 };
 
 export type AddDialogSettingsTarget = {
@@ -86,8 +85,7 @@ export type AddDialogSettingsTarget = {
 	parameters?: DialogParameter[];
 };
 export const isAddDialogSettingsTarget = (v: unknown): v is AddDialogSettingsTarget => {
-	if (typeof v !== 'object') return false;
-	return (v as AddDialogSettingsTarget).mathlang === 'add_dialog_settings_target';
+	return (v as AddDialogSettingsTarget)?.mathlang === 'add_dialog_settings_target';
 };
 
 export type AddSerialDialogSettings = {
@@ -102,15 +100,24 @@ export type ReturnStatement = {
 	mathlang: 'return_statement';
 	debug: TYPES.MGSDebug;
 };
+export const isReturnStatement = (v: unknown): v is ReturnStatement => {
+	return (v as ReturnStatement)?.mathlang === 'return_statement';
+};
 
 export type ContinueStatement = {
 	mathlang: 'continue_statement';
 	debug: TYPES.MGSDebug;
 };
+export const isContinueStatement = (v: unknown): v is ContinueStatement => {
+	return (v as ContinueStatement)?.mathlang === 'continue_statement';
+};
 
 export type BreakStatement = {
 	mathlang: 'break_statement';
 	debug: TYPES.MGSDebug;
+};
+export const isBreakStatement = (v: unknown): v is BreakStatement => {
+	return (v as BreakStatement)?.mathlang === 'break_statement';
 };
 
 export type GotoLabel = {
@@ -120,8 +127,7 @@ export type GotoLabel = {
 	comment?: string;
 };
 export const isGotoLabel = (v: unknown): v is GotoLabel => {
-	if (typeof v !== 'object') return false;
-	return (v as GotoLabel).mathlang === 'goto_label';
+	return (v as GotoLabel)?.mathlang === 'goto_label';
 };
 
 // ------------------------------ DIALOG ------------------------------ \\
@@ -135,8 +141,7 @@ export type DialogDefinition = {
 	duplicates?: DialogDefinition[];
 };
 export const isDialogDefinition = (v: unknown): v is DialogDefinition => {
-	if (typeof v !== 'object') return false;
-	return (v as MathlangNode).mathlang === 'dialog_definition';
+	return (v as MathlangNode)?.mathlang === 'dialog_definition';
 };
 
 export type DialogSettings = {
@@ -155,8 +160,7 @@ export type DialogParameter = {
 	value: MGSPrimitive;
 };
 export const isDialogParameter = (v: unknown): v is DialogParameter => {
-	if (typeof v !== 'object') return false;
-	return (v as DialogParameter).mathlang === 'dialog_parameter';
+	return (v as DialogParameter)?.mathlang === 'dialog_parameter';
 };
 
 export type Dialog = DialogSettings & {
@@ -168,8 +172,7 @@ export type Dialog = DialogSettings & {
 	debug?: TYPES.MGSDebug;
 };
 export const isDialog = (v: unknown): v is Dialog => {
-	if (typeof v !== 'object') return false;
-	return (v as Dialog).mathlang === 'dialog';
+	return (v as Dialog)?.mathlang === 'dialog';
 };
 
 export type DialogInfo = {
@@ -186,8 +189,7 @@ export type DialogIdentifier = {
 	debug?: TYPES.MGSDebug;
 };
 export const isDialogIdentifier = (v: unknown): v is DialogIdentifier => {
-	if (typeof v !== 'object') return false;
-	return (v as DialogIdentifier).mathlang === 'dialog_identifier';
+	return (v as DialogIdentifier)?.mathlang === 'dialog_identifier';
 };
 
 export type DialogOption = {
@@ -197,8 +199,7 @@ export type DialogOption = {
 	debug: TYPES.MGSDebug;
 };
 export const isDialogOption = (v: unknown): v is DialogOption => {
-	if (typeof v !== 'object') return false;
-	return (v as DialogOption).mathlang === 'dialog_option';
+	return (v as DialogOption)?.mathlang === 'dialog_option';
 };
 
 // ------------------------------ SERIAL DIALOG ------------------------------ \\
@@ -212,8 +213,7 @@ export type SerialDialogDefinition = {
 	duplicates?: SerialDialogDefinition[];
 };
 export const isSerialDialogDefinition = (v: unknown): v is SerialDialogDefinition => {
-	if (typeof v !== 'object') return false;
-	return (v as MathlangNode).mathlang === 'serial_dialog_definition';
+	return (v as MathlangNode)?.mathlang === 'serial_dialog_definition';
 };
 
 export type SerialDialogSettings = {
@@ -226,8 +226,7 @@ export type SerialDialogParameter = {
 	value: MGSPrimitive;
 };
 export const isSerialDialogParameter = (v: unknown): v is SerialDialogParameter => {
-	if (typeof v !== 'object') return false;
-	return (v as SerialDialogParameter).mathlang === 'serial_dialog_parameter';
+	return (v as SerialDialogParameter)?.mathlang === 'serial_dialog_parameter';
 };
 
 export type SerialDialog = {
@@ -239,8 +238,7 @@ export type SerialDialog = {
 	debug?: TYPES.MGSDebug;
 };
 export const isSerialDialog = (v: unknown): v is SerialDialog => {
-	if (typeof v !== 'object') return false;
-	return (v as SerialDialog).mathlang === 'serial_dialog';
+	return (v as SerialDialog)?.mathlang === 'serial_dialog';
 };
 
 export type SerialDialogInfo = {
@@ -258,8 +256,7 @@ export type SerialDialogOption = {
 	debug: TYPES.MGSDebug;
 };
 export const isSerialDialogOption = (v: unknown): v is SerialDialogOption => {
-	if (typeof v !== 'object') return false;
-	return (v as SerialDialogOption).mathlang === 'serial_dialog_option';
+	return (v as SerialDialogOption)?.mathlang === 'serial_dialog_option';
 };
 
 // ------------------------------ ONE-OFFS ------------------------------ \\
@@ -291,14 +288,16 @@ export type ScriptDefinition = {
 	copyScriptResolved?: boolean;
 };
 export const isScriptDefinition = (v: unknown): v is ScriptDefinition => {
-	if (typeof v !== 'object') return false;
-	return (v as MathlangNode).mathlang === 'script_definition';
+	return (v as MathlangNode)?.mathlang === 'script_definition';
 };
 
 export type CommentNode = {
 	mathlang: 'comment';
 	comment: string;
 	debug?: TYPES.MGSDebug;
+};
+export const isCommentNode = (v: unknown): v is CommentNode => {
+	return (v as CommentNode)?.mathlang === 'comment';
 };
 
 export type LabelDefinition = {
@@ -307,15 +306,18 @@ export type LabelDefinition = {
 	debug?: TYPES.MGSDebug;
 };
 export const isLabelDefinition = (v: unknown): v is LabelDefinition => {
-	if (typeof v !== 'object') return false;
-	if (!isNodeMathlang(v)) return false;
-	return v.mathlang === 'label_definition';
+	return (v as LabelDefinition)?.mathlang === 'label_definition';
 };
 
-export type JSONNode = {
+export type JSONLiteral = {
 	mathlang: 'json_literal';
-	json: JSON;
+	json: [JSON];
 	debug: TYPES.MGSDebug;
+};
+export const isJSONLiteral = (v: unknown): v is JSONLiteral => {
+	if (typeof v !== 'object') return false;
+	if (!Array.isArray((v as JSONLiteral).json)) return false; // extra strict!
+	return (v as JSONLiteral)?.mathlang === 'json_literal';
 };
 
 export type CopyMacro = {
@@ -323,19 +325,16 @@ export type CopyMacro = {
 	script: string;
 	debug: TYPES.MGSDebug;
 };
+export const isMathlangCopyScript = (v: unknown): v is CopyMacro => {
+	return (v as CopyMacro)?.mathlang === 'copy_script';
+};
+
 type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
 export const isAnyCopyScript = (v: unknown): v is CopyScript => {
-	if (typeof v !== 'object') return false;
-	return (
-		(v as TYPES.Action).action === 'COPY_SCRIPT' ||
-		(v as MathlangNode).mathlang === 'copy_script'
-	);
+	return (v as MathlangNode)?.mathlang === 'copy_script';
 };
 export const hasSearchAndReplace = (v: unknown): v is TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE => {
-	if (!v) return false;
 	return (
-		typeof v === 'object' &&
-		isNodeAction(v) &&
 		TYPES.isActionCopyScript(v) &&
 		!!(v as TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE).search_and_replace
 	);
@@ -349,8 +348,7 @@ export type MathlangSequence = {
 	debug: TYPES.MGSDebug;
 };
 export const isMathlangSequence = (v: unknown): v is MathlangSequence => {
-	if (typeof v !== 'object') return false;
-	return (v as MathlangSequence).mathlang === 'sequence';
+	return (v as MathlangSequence)?.mathlang === 'sequence';
 };
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
@@ -375,8 +373,7 @@ export type IntGetable = {
 	entity: string;
 };
 export const isIntGetable = (v: unknown): v is IntGetable => {
-	if (typeof v !== 'object') return false;
-	return (v as IntGetable).mathlang === 'int_getable';
+	return (v as IntGetable)?.mathlang === 'int_getable';
 };
 
 export type IntBinaryExpression = {
@@ -386,8 +383,7 @@ export type IntBinaryExpression = {
 	op: string;
 };
 export const isIntBinaryExpression = (v: unknown): v is IntBinaryExpression => {
-	if (typeof v !== 'object') return false;
-	return (v as IntBinaryExpression).mathlang === 'int_binary_expression';
+	return (v as IntBinaryExpression)?.mathlang === 'int_binary_expression';
 };
 
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
@@ -401,8 +397,7 @@ export type BoolUnit = boolean | string | BoolGetable;
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'boolean') return true;
-	if (typeof v !== 'object') return false;
-	return (v as BoolGetable).mathlang === 'bool_getable';
+	return (v as BoolGetable)?.mathlang === 'bool_getable';
 };
 
 export type BoolComparison =
@@ -415,32 +410,12 @@ export type BoolComparison =
 			comment?: string;
 	  });
 export const isBoolComparison = (v: unknown): v is BoolComparison => {
-	if (typeof v !== 'object') return false;
-	if ((v as NumberCheckableEquality).mathlang === 'number_checkable_equality') return true;
-	if ((v as StringCheckable).mathlang === 'string_checkable') return true;
-	if ((v as BoolComparison).mathlang === 'bool_comparison') return true;
+	if ((v as NumberCheckableEquality)?.mathlang === 'number_checkable_equality') return true;
+	if ((v as StringCheckable)?.mathlang === 'string_checkable') return true;
+	if ((v as BoolComparison)?.mathlang === 'bool_comparison') return true;
 	return false;
 };
 
-// // TODO: untangle this >:(
-// export type StringCheckable = {
-// 	mathlang: 'string_checkable';
-// 	debug?: TYPES.MGSDebug;
-// 	entity: string;
-// 	property: string;
-// 	expected_bool?: boolean;
-// 	label: string;
-// 	action:
-// 		| 'CHECK_ENTITY_TICK_SCRIPT'
-// 		| 'CHECK_ENTITY_LOOK_SCRIPT'
-// 		| 'CHECK_ENTITY_INTERACT_SCRIPT'
-// 		| 'CHECK_ENTITY_NAME'
-// 		| 'CHECK_ENTITY_PATH'
-// 		| 'CHECK_ENTITY_TYPE'
-// 		| 'CHECK_WARP_STATE';
-// 	stringLabel?: 'expected_script' | 'string' | 'geometry' | 'entity_type';
-// 	comment?: string;
-// };
 export type StringCheckable = (
 	| TYPES.CHECK_ENTITY_TICK_SCRIPT
 	| TYPES.CHECK_ENTITY_LOOK_SCRIPT
@@ -457,8 +432,7 @@ export type StringCheckable = (
 };
 
 export const isStringCheckable = (v: unknown): v is StringCheckable => {
-	if (typeof v !== 'object') return false;
-	return (v as MathlangNode).mathlang === 'string_checkable';
+	return (v as MathlangNode)?.mathlang === 'string_checkable';
 };
 
 export type BoolBinaryExpression = (
@@ -485,8 +459,7 @@ export type BoolBinaryExpression = (
 	rhsNode: TreeSitterNode;
 };
 export const isBoolBinaryExpression = (v: unknown): v is BoolBinaryExpression => {
-	if (typeof v !== 'object') return false;
-	return (v as BoolBinaryExpression).mathlang === 'bool_binary_expression';
+	return (v as BoolBinaryExpression)?.mathlang === 'bool_binary_expression';
 };
 
 export type BoolGetableCommon = {
@@ -508,8 +481,7 @@ export type BoolGetable = BoolGetableCommon &
 	);
 
 export const isBoolGetable = (v: unknown): v is BoolGetable => {
-	if (typeof v !== 'object') return false;
-	return (v as BoolGetable).mathlang === 'bool_getable';
+	return (v as BoolGetable)?.mathlang === 'bool_getable';
 };
 
 // (Intermediate)
@@ -519,8 +491,7 @@ export type BoolSetable = {
 	value?: string;
 };
 export const isBoolSetable = (v: unknown): v is BoolSetable => {
-	if (typeof v !== 'object') return false;
-	return (v as BoolSetable).mathlang === 'bool_setable';
+	return (v as BoolSetable)?.mathlang === 'bool_setable';
 };
 
 export type NumberCheckableEquality = {
@@ -542,8 +513,7 @@ export type NumberCheckableEquality = {
 	comment?: string;
 };
 export const isNumberCheckableEquality = (v: unknown): v is NumberCheckableEquality => {
-	if (typeof v !== 'object') return false;
-	return (v as NumberCheckableEquality).mathlang === 'number_checkable_equality';
+	return (v as NumberCheckableEquality)?.mathlang === 'number_checkable_equality';
 };
 
 // ------------------------------ NEXT ------------------------------ \\
@@ -554,8 +524,7 @@ export type MovableIdentifier = {
 	value: string;
 };
 export const isMovableIdentifier = (v: unknown): v is MovableIdentifier => {
-	if (typeof v !== 'object') return false;
-	return (v as MovableIdentifier).mathlang === 'movable_identifier';
+	return (v as MovableIdentifier)?.mathlang === 'movable_identifier';
 };
 
 export type CoordinateIdentifier = {
@@ -565,8 +534,7 @@ export type CoordinateIdentifier = {
 	polygonType?: string;
 };
 export const isCoordinateIdentifier = (v: unknown): v is CoordinateIdentifier => {
-	if (typeof v !== 'object') return false;
-	return (v as CoordinateIdentifier).mathlang === 'coordinate_identifier';
+	return (v as CoordinateIdentifier)?.mathlang === 'coordinate_identifier';
 };
 
 export type DirectionTarget =
@@ -610,8 +578,8 @@ export type MathlangNodeWithLabel =
 
 export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
 	if (typeof v !== 'object') return false;
-	if (!isNodeMathlang(v)) return false;
-	if (isNodeAction(v)) return false; // load bearing??
+	if (!isMathlangNode(v)) return false;
+	if (isActionNode(v)) return false; // load bearing??
 	if (isGotoLabel(v)) return true;
 	if (isBoolGetable(v)) return true;
 	if (isBoolComparison(v)) return true;

@@ -19,8 +19,15 @@ import {
 	type MathlangSequence,
 	type BoolExpression,
 	type BoolBinaryExpression,
-	isNodeMathlang,
+	isMathlangNode,
 	isGotoLabel,
+	isBoolGetable,
+	isBoolComparison,
+	isStringCheckable,
+	isNumberCheckableEquality,
+	isBoolBinaryExpression,
+	isLabelDefinition,
+	isMathlangSequence,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -190,10 +197,10 @@ export const expandCondition = (
 		return [action];
 	}
 	if (
-		condition.mathlang === 'bool_getable' ||
-		condition.mathlang === 'bool_comparison' ||
-		condition.mathlang === 'string_checkable' ||
-		condition.mathlang === 'number_checkable_equality'
+		isBoolGetable(condition) ||
+		isBoolComparison(condition) ||
+		isStringCheckable(condition) ||
+		isNumberCheckableEquality(condition)
 	) {
 		const action = {
 			...condition,
@@ -202,7 +209,7 @@ export const expandCondition = (
 		};
 		return [action];
 	}
-	if (condition.mathlang !== 'bool_binary_expression') {
+	if (!isBoolBinaryExpression(condition)) {
 		throw new Error('expansion for condition not yet implemented');
 	}
 	const op = condition.op;
@@ -311,7 +318,7 @@ export const invert = (
 	if (typeof boolExp === 'string') {
 		return { ...checkFlag(f, node, boolExp, '', false), mathlang: 'bool_getable' };
 	}
-	if (boolExp.mathlang === 'bool_binary_expression') {
+	if (isBoolBinaryExpression(boolExp)) {
 		if (boolExp.op === '||' || boolExp.op === '&&') {
 			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
 				throw new Error('|| or && for a number??');
@@ -365,7 +372,7 @@ export const newSequence = (
 	steps
 		.filter((v) => v !== null) // might not need this anymore
 		.forEach((v) => {
-			if (isNodeMathlang(v) && v.mathlang === 'sequence') {
+			if (isMathlangSequence(v)) {
 				flatSteps.push(...v.steps);
 			} else {
 				flatSteps.push(v);
@@ -461,12 +468,12 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 		const action = actions[i];
 		const next = actions[i + 1];
 		if (
-			isNodeMathlang(action) &&
+			isMathlangNode(action) &&
+			isGotoLabel(action) &&
 			next &&
-			isNodeMathlang(next) &&
-			action.mathlang === 'goto_label' &&
-			next?.mathlang === 'label_definition' &&
-			next?.label === action.label
+			isMathlangNode(next) &&
+			isLabelDefinition(next) &&
+			next.label === action.label
 		) {
 			actions.splice(i, 1);
 			// can jump over the next one (no need to i--) because it's not being handled now
@@ -479,7 +486,7 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 	// then the previous label registration can be replaced with following goto value
 	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
 	actions.forEach((action: AnyNode, i: number) => {
-		if (isNodeMathlang(action) && action.mathlang === 'label_definition') {
+		if (isLabelDefinition(action)) {
 			const next = actions[i + 1];
 			if (isGotoLabel(next)) {
 				labelDefThenDifferentGotoLabel[action.label] = next.label;

@@ -30,7 +30,7 @@ import {
 } from './parser-capture.ts';
 import { handleAction } from './parser-actions.ts';
 import {
-	isNodeAction,
+	isActionNode,
 	type BoolComparison,
 	type CopyMacro,
 	type AnyNode,
@@ -55,19 +55,22 @@ import {
 	isMGSPrimitive,
 	isDialogParameter,
 	type ConstantDefinition,
-	type JSONNode,
+	type JSONLiteral,
 	isAddDialogSettingsTarget,
 	isSerialDialogOption,
 	isDialogOption,
-	type BreakStatement,
-	type ContinueStatement,
 	isSerialDialog,
 	isDialog,
 	isSerialDialogParameter,
 	isDialogIdentifier,
 	isBoolExpression,
 	type GotoLabel,
-	isNodeMathlang,
+	isMathlangSequence,
+	isReturnStatement,
+	isContinueStatement,
+	isBreakStatement,
+	isJSONLiteral,
+	isGotoLabel,
 } from './parser-types.ts';
 import {
 	type RUN_SCRIPT,
@@ -138,11 +141,16 @@ const nodeFns = {
 		const actions: AnyNode[] = [];
 		// flatten sequences
 		rawActions.forEach((raw) => {
-			if (isNodeMathlang(raw) && raw.mathlang === 'sequence') {
+			if (isMathlangSequence(raw)) {
 				raw.steps.forEach((step) => actions.push(step));
-			} else if (isNodeMathlang(raw) && raw.mathlang === 'json_literal') {
-				if (!Array.isArray(raw.json)) throw new Error('JSON should be []');
-				raw.json.forEach((obj) => actions.push(obj));
+			} else if (isJSONLiteral(raw)) {
+				raw.json.forEach((obj) => {
+					if (isActionNode(obj)) {
+						actions.push(obj);
+					} else {
+						throw new Error('not a JSON action: ' + JSON.stringify(obj));
+					}
+				});
 			} else {
 				actions.push(raw);
 			}
@@ -155,10 +163,10 @@ const nodeFns = {
 		const labelAction: LabelDefinition = makeLabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		actions.forEach((action, i) => {
-			if (isNodeAction(action)) {
+			if (isActionNode(action)) {
 				return;
 			}
-			if (action.mathlang === 'return_statement') {
+			if (isReturnStatement(action)) {
 				actions[i] = makeGotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
@@ -546,7 +554,7 @@ const nodeFns = {
 			},
 		];
 	},
-	json_literal: (f: FileState, node: TreeSitterNode): JSONNode[] => {
+	json_literal: (f: FileState, node: TreeSitterNode): JSONLiteral[] => {
 		// todo: do it more by hand so that errors can be reported more accurately?
 		const jsonNode = node.namedChildren[0];
 		if (!jsonNode) throw new Error('json node not found??');
@@ -613,9 +621,9 @@ const nodeFns = {
 				if (!v) throw new Error('TS');
 				const handled = handleNode(f, v);
 				if (Array.isArray(handled)) return handled;
-				if ((handled as ContinueStatement).mathlang === 'continue_statement') {
+				if (isContinueStatement(handled)) {
 					return makeGotoLabel(f, v, `while condition #${printGotoLabel}`);
-				} else if ((handled as BreakStatement).mathlang === 'break_statement') {
+				} else if (isBreakStatement(handled)) {
 					return makeGotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
 				}
 				return handled;
@@ -636,9 +644,9 @@ const nodeFns = {
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if ((v as ContinueStatement).mathlang === 'continue_statement') {
+				if (isContinueStatement(v)) {
 					return makeGotoLabel(f, node, conditionL);
-				} else if ((v as BreakStatement).mathlang === 'break_statement') {
+				} else if (isBreakStatement(v)) {
 					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -669,9 +677,9 @@ const nodeFns = {
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if ((v as ContinueStatement).mathlang === 'continue_statement') {
+				if (isContinueStatement(v)) {
 					return makeGotoLabel(f, node, conditionL);
-				} else if ((v as BreakStatement).mathlang === 'break_statement') {
+				} else if (isBreakStatement(v)) {
 					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -703,9 +711,9 @@ const nodeFns = {
 		const body: AnyNode[] = handleNode(f, bodyN)
 			.flat()
 			.map((v: AnyNode) => {
-				if (isNodeMathlang(v) && v.mathlang === 'continue_statement') {
+				if (isContinueStatement(v)) {
 					return makeGotoLabel(f, node, continueL);
-				} else if (isNodeMathlang(v) && v.mathlang === 'break_statement') {
+				} else if (isBreakStatement(v)) {
 					return makeGotoLabel(f, node, rendezvousL);
 				} else {
 					return v;
@@ -802,7 +810,7 @@ const nodeFns = {
 				})
 				.flat();
 			if (body.length === 1 && typeof condition === 'string') {
-				if (isNodeAction(body[0]) && body[0].action === 'RUN_SCRIPT') {
+				if (isActionNode(body[0]) && body[0].action === 'RUN_SCRIPT') {
 					if (typeof condition === 'string') {
 						condition = {
 							mathlang: 'bool_getable',
@@ -813,7 +821,7 @@ const nodeFns = {
 					}
 					condition.success_script = body[0].script;
 					return [condition];
-				} else if (isNodeMathlang(body[0]) && body[0].mathlang === 'goto_label') {
+				} else if (isGotoLabel(body[0])) {
 					if (typeof condition === 'string') {
 						condition = {
 							mathlang: 'bool_getable',
