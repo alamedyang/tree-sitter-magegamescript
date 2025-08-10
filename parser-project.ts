@@ -1,5 +1,5 @@
 import { Parser } from 'web-tree-sitter';
-import { flattenGotos, newComment } from './parser-utilities.ts';
+import { simplifyLabelGotos } from './parser-utilities.ts';
 import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
@@ -14,6 +14,7 @@ import {
 	hasSearchAndReplace,
 	isDialogDefinition,
 	isSerialDialogDefinition,
+	newComment,
 } from './parser-types.ts';
 import { type MGSDebug } from './parser-bytecode-info.ts';
 
@@ -92,7 +93,7 @@ export const makeProjectState = (
 					finalizedActions.push(node);
 				}
 			});
-			data.actions = flattenGotos(finalizedActions.flat());
+			data.actions = simplifyLabelGotos(finalizedActions.flat());
 			// put script in the project
 			if (!p.scripts[name]) {
 				// if not registered yet, add it

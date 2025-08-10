@@ -41,7 +41,6 @@ const printAction = (data: MATHLANG.AnyNode): string => {
 	throw new Error('print fn needed for ???');
 };
 
-// TODO: data type
 const mathlang = {
 	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
 	label_definition: (data: MATHLANG.GotoLabel) => {
@@ -299,25 +298,29 @@ const sanitizeLabel = (label: string): string =>
 	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
 
 // TODO: data type is complicated
-const printGotoSegment = (data): string => {
+const printGotoSegment = (data: TYPES.CheckAction | MATHLANG.GotoLabel): string => {
+	if (data.label) {
+		return `goto label ${sanitizeLabel(data.label)}`;
+	}
+	if (!TYPES.isCheckAction(data)) throw new Error('failed isCheckAction()');
 	if (data.jump_index !== undefined) {
 		if (typeof data.jump_index === 'string') {
 			return `goto label ${sanitizeLabel(data.jump_index)}`;
 		}
 		return `goto index ${data.jump_index}`;
-	} else if (data.success_script) {
-		return `goto script "${data.success_script}"`;
-	} else {
-		return `goto label ${sanitizeLabel(data.label)}`;
 	}
+	if (data.success_script) {
+		return `goto script "${data.success_script}"`;
+	}
+	throw new Error('cannot print goto segment without destination!');
 };
-const printCheckAction = (data: TYPES.Action, lhs: string, smartInvert: boolean): string => {
+const printCheckAction = (data: TYPES.CheckAction, lhs: string, smartInvert: boolean): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = printGotoSegment(data);
 	return `if ${bang}${lhs} then ${goto};`;
 };
-const printSetBoolAction = (data: TYPES.Action, lhs: string): string => {
+const printSetBoolAction = (data: TYPES.ActionSetBool, lhs: string): string => {
 	const param = TYPES.getBoolFieldForAction(data.action);
 	return `${lhs} = ${data[param]};`;
 };

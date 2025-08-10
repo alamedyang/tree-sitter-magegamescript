@@ -1,21 +1,9 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import {
-	getBoolFieldForAction,
-	type SHOW_SERIAL_DIALOG,
-	type SHOW_DIALOG,
-	type CHECK_SAVE_FLAG,
-} from './parser-bytecode-info.ts';
+import { getBoolFieldForAction } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	type MGSLocation,
 	type MGSMessage,
-	type CommentNode,
-	type Dialog,
-	type DialogDefinition,
-	type SerialDialog,
-	type SerialDialogDefinition,
-	type LabelDefinition,
-	type GotoLabel,
 	type MathlangSequence,
 	type BoolExpression,
 	type BoolBinaryExpression,
@@ -27,7 +15,10 @@ import {
 	isNumberCheckableEquality,
 	isBoolBinaryExpression,
 	isLabelDefinition,
-	isMathlangSequence,
+	makeLabelDefinition,
+	makeGotoLabel,
+	newSequence,
+	newCheckSaveFlag,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -145,7 +136,7 @@ export const reportErrorNodes = (f: FileState, node: TreeSitterNode): (TreeSitte
 	return errorNodes;
 };
 
-const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): string => {
+const printableLocation = (fileMap: FileMap, location: MGSLocation): string => {
 	const fileName = location.fileName || '';
 	const fileText = fileMap[fileName].fileText;
 	const allLines = fileText.split('\n');
@@ -160,12 +151,12 @@ const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): stri
 	return message;
 };
 
-export const printableMessage = (fileMap: FileMap, prefix: string, v: MGSMessage): string => {
+export const printableMGSMessage = (fileMap: FileMap, prefix: string, v: MGSMessage): string => {
 	let message =
 		`${prefix}: ${v.message}\n` +
 		v.locations
 			.map((location) => {
-				return getPrintableLocationData(fileMap, location);
+				return printableLocation(fileMap, location);
 			})
 			.join('\n');
 	if (v.footer) {
@@ -181,7 +172,7 @@ export const autoIdentifierName = (f: FileState, node: TreeSitterNode): string =
 // ------------------------ CONDITIONS ------------------------ //
 
 // todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
-export const expandCondition = (
+export const expandBoolExpression = (
 	f: FileState,
 	node: TreeSitterNode,
 	condition: BoolExpression,
@@ -193,8 +184,12 @@ export const expandCondition = (
 		return [];
 	}
 	if (typeof condition === 'string') {
-		const action = checkFlag(f, node, condition, ifLabel, true);
-		return [action];
+		return [
+			{
+				...newCheckSaveFlag(f, node, condition, true),
+				label: ifLabel,
+			},
+		];
 	}
 	if (
 		isBoolGetable(condition) ||
@@ -219,11 +214,10 @@ export const expandCondition = (
 		throw new Error('LHS or RHS not a number');
 	}
 	if (op === '||') {
-		const expanded = [
-			expandCondition(f, condition.lhsNode, lhs, ifLabel),
-			expandCondition(f, condition.rhsNode, rhs, ifLabel),
+		return [
+			...expandBoolExpression(f, condition.lhsNode, lhs, ifLabel),
+			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
 		];
-		return expanded.flat();
 	}
 	if (op === '&&') {
 		// have a separate if-else insert?
@@ -232,14 +226,13 @@ export const expandCondition = (
 		const suffix = f.p.advanceGotoSuffix();
 		const innerIfTrueLabel = `if true #${suffix}`;
 		const innerRendezvousLabel = `rendezvous #${suffix}`;
-		const inner = [
-			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
+		return [
+			...expandBoolExpression(f, condition.lhsNode, lhs, innerIfTrueLabel),
 			makeGotoLabel(f, node, innerRendezvousLabel),
 			makeLabelDefinition(f, node, innerIfTrueLabel),
-			expandCondition(f, condition.rhsNode, rhs, ifLabel),
+			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
 			makeLabelDefinition(f, node, innerRendezvousLabel),
 		];
-		return inner.flat();
 	}
 	if (op !== '==' && op !== '!=') {
 		throw new Error('Expected == or !==, found ' + op);
@@ -272,15 +265,44 @@ export const expandCondition = (
 				fileName: f.fileName,
 			},
 			op: '&&',
-			lhs: invert(f, condition.lhsNode, lhs),
-			rhs: invert(f, condition.rhsNode, rhs),
+			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
+			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
 			lhsNode: condition.lhsNode,
 			rhsNode: condition.rhsNode,
 		},
 		lhsNode: condition.lhsNode,
 		rhsNode: condition.rhsNode,
 	};
-	return expandCondition(f, node, expandAs, ifLabel);
+	return expandBoolExpression(f, node, expandAs, ifLabel);
+};
+
+export const invertBoolExpression = (
+	f: FileState,
+	node: TreeSitterNode,
+	boolExp: BoolExpression,
+): BoolExpression => {
+	// TODO: typeof `boolExp`
+	if (typeof boolExp === 'boolean') return !boolExp;
+	if (typeof boolExp === 'string') {
+		return newCheckSaveFlag(f, node, boolExp, false);
+	}
+	if (isBoolBinaryExpression(boolExp)) {
+		if (boolExp.op === '||' || boolExp.op === '&&') {
+			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
+				throw new Error('|| or && for a number??');
+			}
+			const invertedLHS = invertBoolExpression(f, node, boolExp.lhs);
+			boolExp.lhs = invertedLHS;
+			const invertedRHS = invertBoolExpression(f, node, boolExp.rhs);
+			boolExp.rhs = invertedRHS;
+		}
+		boolExp.op = inverseOpMap[boolExp.op];
+		return boolExp;
+	}
+	if (!boolExp.action) throw new Error('should be string');
+	const param = getBoolFieldForAction(boolExp.action);
+	boolExp[param] = !boolExp[param];
+	return boolExp;
 };
 
 export const simpleBranchMaker = (
@@ -300,168 +322,15 @@ export const simpleBranchMaker = (
 	const steps: AnyNode[] = [
 		branchAction,
 		...elseBody,
-		{ mathlang: 'goto_label', label: rendezvousLabel },
-		{ mathlang: 'label_definition', label: ifLabel },
+		makeGotoLabel(f, node, rendezvousLabel),
+		makeLabelDefinition(f, node, ifLabel),
 		...ifBody,
-		{ mathlang: 'label_definition', label: rendezvousLabel },
+		makeLabelDefinition(f, node, rendezvousLabel),
 	];
-	return newSequence(f, node, steps, 'simple branch on');
+	return newSequence(f, node, steps, 'simpleBranchMaker');
 };
 
-export const invert = (
-	f: FileState,
-	node: TreeSitterNode,
-	boolExp: BoolExpression,
-): BoolExpression => {
-	// TODO: typeof `boolExp`
-	if (typeof boolExp === 'boolean') return !boolExp;
-	if (typeof boolExp === 'string') {
-		return { ...checkFlag(f, node, boolExp, '', false), mathlang: 'bool_getable' };
-	}
-	if (isBoolBinaryExpression(boolExp)) {
-		if (boolExp.op === '||' || boolExp.op === '&&') {
-			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
-				throw new Error('|| or && for a number??');
-			}
-			const invertedLHS = invert(f, node, boolExp.lhs);
-			boolExp.lhs = invertedLHS;
-			const invertedRHS = invert(f, node, boolExp.rhs);
-			boolExp.rhs = invertedRHS;
-		}
-		boolExp.op = inverseOpMap[boolExp.op];
-		return boolExp;
-	}
-	if (!boolExp.action) throw new Error('should be string');
-	const param = getBoolFieldForAction(boolExp.action);
-	boolExp[param] = !boolExp[param];
-	return boolExp;
-};
-
-// TODO: real constructors
-export const makeLabelDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	label: string,
-): LabelDefinition => ({
-	mathlang: 'label_definition',
-	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const makeGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
-	mathlang: 'goto_label',
-	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const newComment = (comment: string): CommentNode => ({ mathlang: 'comment', comment });
-export const newSequence = (
-	f: FileState,
-	node: TreeSitterNode,
-	steps: AnyNode[],
-	type: string = 'generic_sequence',
-): MathlangSequence => {
-	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
-	const mathlangComment: CommentNode = newComment(`${type}: ${comment}`);
-	steps.unshift(mathlangComment);
-	const flatSteps: AnyNode[] = [];
-	steps
-		.filter((v) => v !== null) // might not need this anymore
-		.forEach((v) => {
-			if (isMathlangSequence(v)) {
-				flatSteps.push(...v.steps);
-			} else {
-				flatSteps.push(v);
-			}
-		});
-	return {
-		mathlang: 'sequence',
-		type,
-		steps: flatSteps,
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
-	};
-};
-export const newDialog = (
-	f: FileState,
-	node: TreeSitterNode,
-	dialogName: string,
-	dialogs: Dialog[],
-): DialogDefinition => ({
-	mathlang: 'dialog_definition',
-	fileName: f.fileName,
-	dialogName,
-	dialogs,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const showDialog = (f: FileState, node: TreeSitterNode, name: string): SHOW_DIALOG => ({
-	action: 'SHOW_DIALOG',
-	dialog: name,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const newSerialDialog = (
-	f: FileState,
-	node: TreeSitterNode,
-	dialogName: string,
-	serialDialog: SerialDialog,
-): SerialDialogDefinition => ({
-	mathlang: 'serial_dialog_definition',
-	fileName: f.fileName,
-	dialogName,
-	serialDialog,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const showSerialDialog = (
-	f: FileState,
-	node: TreeSitterNode,
-	name: string,
-	isConcat?: boolean,
-): SHOW_SERIAL_DIALOG => ({
-	action: 'SHOW_SERIAL_DIALOG',
-	disable_newline: isConcat,
-	serial_dialog: name,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-const checkFlag = (
-	f: FileState,
-	node: TreeSitterNode,
-	save_flag: string,
-	gotoLabel: string,
-	expected_bool: boolean = true,
-): CHECK_SAVE_FLAG => {
-	return {
-		mathlang: 'bool_getable',
-		action: 'CHECK_SAVE_FLAG',
-		save_flag,
-		value: save_flag,
-		expected_bool,
-		label: gotoLabel || 'UNDEFINED LABEL',
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
-	};
-};
-
-export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
+export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
 	// const before = printScript('_', actions).split('\n');
 	// A goto label followed by the same label definition can be removed
 	for (let i = 0; i < actions.length; i++) {

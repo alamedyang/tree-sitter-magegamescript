@@ -6,13 +6,7 @@ import { dirname } from 'path';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
-import {
-	debugLog,
-	ansiTags,
-	newComment,
-	printableMessage,
-	ansiTags as ansi,
-} from './parser-utilities.ts';
+import { debugLog, printableMGSMessage, ansiTags as ansi } from './parser-utilities.ts';
 
 import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
@@ -29,6 +23,7 @@ import {
 	doesMathlangHaveLabelToChangeToIndex,
 	isCommentNode,
 	isGotoLabel,
+	newComment,
 } from './parser-types.ts';
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
@@ -91,7 +86,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	// PARSE EACH FILE
 	Object.keys(fileMap).forEach((fileName) => {
 		if (fileName.endsWith('.mgs') && !fileMap[fileName].parsed) {
-			debugLog(`Parsing file ${ansiTags.c}"${fileName}"${ansiTags.reset}`);
+			debugLog(`Parsing file ${ansi.c}"${fileName}"${ansi.reset}`);
 			p.parseFile(fileName);
 		}
 	});
@@ -114,8 +109,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 			}
 		});
 		debugLog(
-			`File ${ansiTags.c}"${fileName}"${ansiTags.reset} complete! ` +
-				f.printableMessageInformation(),
+			`File ${ansi.c}"${fileName}"${ansi.reset} complete! ` + f.printableMessageInformation(),
 		);
 	});
 
@@ -236,11 +230,11 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		console.log(`All your project's MGS files parsed with no issues!`);
 	}
 	p.warnings.forEach((message) => {
-		const str = ansi.yellow + printableMessage(p.fileMap, 'Warning', message) + ansi.reset;
+		const str = ansi.yellow + printableMGSMessage(p.fileMap, 'Warning', message) + ansi.reset;
 		console.warn(str);
 	});
 	p.errors.forEach((message) => {
-		const str = ansi.red + printableMessage(p.fileMap, 'Error', message) + ansi.reset;
+		const str = ansi.red + printableMGSMessage(p.fileMap, 'Error', message) + ansi.reset;
 		console.error(str);
 	});
 

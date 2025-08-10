@@ -1,14 +1,13 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import {
-	coerceAsNumber,
-	coerceAsString,
+	coerceToNumber,
+	coerceToString,
 	handleCapture,
 	optionalStringCaptureForFieldName,
 	type Capture,
 } from './parser-capture.ts';
 import {
 	type MGSDebug,
-	type CHECK_SAVE_FLAG,
 	type SET_SAVE_FLAG,
 	getBoolFieldForAction,
 	type COPY_VARIABLE,
@@ -48,23 +47,22 @@ import {
 	isStringCheckable,
 	isNumberCheckableEquality,
 	type BoolExpression,
+	makeLabelDefinition,
+	makeGotoLabel,
+	newComment,
+	newSequence,
+	newDialogDefinition,
+	newSerialDialogDefinition,
+	newCheckSaveFlag,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
-	expandCondition,
-	makeLabelDefinition,
-	makeGotoLabel,
+	expandBoolExpression,
 	simpleBranchMaker,
-	newSequence,
-	newSerialDialog,
-	showSerialDialog,
-	newDialog,
-	showDialog,
 	newTemporary,
 	dropTemporary,
 	quickTemporary,
 	latestTemporary,
-	newComment,
 } from './parser-utilities.ts';
 import { handleNode } from './parser-node.ts';
 import { type FileState } from './parser-file.ts';
@@ -108,8 +106,9 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 	if (typeof rhs === 'string') {
 		steps.push(changeVarByVar(temp, rhs, op));
 	} else if (typeof rhs === 'number') {
-		// invisible = *1 or +0
-		if (!invisibleMath(op, rhs)) {
+		if (invisibleMath(op, rhs)) {
+			// invisible == *1 or +0
+		} else {
 			steps.push(changeVarByValue(temp, rhs, op));
 		}
 	} else if (isIntGetable(rhs)) {
@@ -119,10 +118,9 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 			changeVarByVar(temp, quickTemp, op),
 		);
 	} else if (isIntBinaryExpression(rhs)) {
-		// this one DOES need a new temporary
-		const innerTemporary = newTemporary();
+		const newTemp = newTemporary();
 		flattenIntBinaryExpression(rhs, steps);
-		steps.push(changeVarByVar(temp, innerTemporary, op));
+		steps.push(changeVarByVar(temp, newTemp, op));
 		dropTemporary();
 	}
 	return steps;
@@ -154,8 +152,11 @@ const actionSetBoolMaker = (
 
 	// player glitched = self glitched;
 	// ->
-	// if (player glitched) { self glitched = true; } else { self glitched = false; }
-	const rhsBoolExp = typeof _rhsBoolExp === 'string' ? checkFlag(_rhsBoolExp, true) : _rhsBoolExp;
+	// if (self glitched) { player glitched = true; } else { player glitched = false; }
+	const rhsBoolExp =
+		typeof _rhsBoolExp === 'string'
+			? newCheckSaveFlag(f, backupNode, _rhsBoolExp, true)
+			: _rhsBoolExp;
 	if (
 		isBoolGetable(rhsBoolExp) ||
 		isBoolComparison(rhsBoolExp) ||
@@ -178,24 +179,23 @@ const actionSetBoolMaker = (
 		);
 	}
 
-	if (!isBoolExpression(rhsBoolExp)) {
-		throw new Error('actionSetBoolMaker: unknown type of RHS');
+	if (isBoolExpression(rhsBoolExp)) {
+		const actionIfTrue = lhsSetAction;
+		const actionIfFalse = { ...lhsSetAction, [lhsBoolField]: false };
+		const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
+		const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
+		const useNode = rhsBoolExp.debug?.node || backupNode;
+		const steps = [
+			...expandBoolExpression(f, useNode, rhsBoolExp, ifLabel),
+			actionIfFalse,
+			makeGotoLabel(f, useNode, rendezvousLabel),
+			makeLabelDefinition(f, useNode, ifLabel),
+			actionIfTrue,
+			makeLabelDefinition(f, useNode, rendezvousLabel),
+		];
+		return newSequence(f, useNode, steps, 'actionSetBoolMaker');
 	}
-	const setLhsIfTrue = lhsSetAction;
-	const setLhsIfFalse = { ...lhsSetAction, [lhsBoolField]: false };
-
-	const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
-	const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
-	const useNode = rhsBoolExp.debug?.node || backupNode;
-	const steps = [
-		...expandCondition(f, useNode, rhsBoolExp, ifLabel),
-		setLhsIfFalse,
-		makeGotoLabel(f, useNode, rendezvousLabel),
-		makeLabelDefinition(f, useNode, ifLabel),
-		setLhsIfTrue,
-		makeLabelDefinition(f, useNode, rendezvousLabel),
-	];
-	return newSequence(f, useNode, steps, 'set bool on');
+	throw new Error('actionSetBoolMaker: unknown type of RHS');
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
@@ -331,10 +331,17 @@ const actionFns: Record<string, ActionFn> = {
 				return handleNode(f, child);
 			})
 			.flat();
-		const shownDialog = showDialog(f, node, name);
+		const shownDialog: SHOW_DIALOG = {
+			action: 'SHOW_DIALOG',
+			dialog: name,
+			debug: {
+				node,
+				fileName: f.fileName,
+			},
+		};
 		if (dialogs.length) {
 			if (!dialogs.every(isDialog)) throw new Error('parsed dialogs not all of type Dialog');
-			const dialogDefinition = newDialog(f, node, name, dialogs);
+			const dialogDefinition = newDialogDefinition(f, node, name, dialogs);
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
@@ -361,12 +368,20 @@ const actionShowSerialDialog = (
 			return handleNode(f, child);
 		})
 		.flat();
-	const shownSerialDialog = showSerialDialog(f, node, name, isConcat || false);
+	const shownSerialDialog: SHOW_SERIAL_DIALOG = {
+		action: 'SHOW_SERIAL_DIALOG',
+		disable_newline: isConcat,
+		serial_dialog: name,
+		debug: {
+			node,
+			fileName: f.fileName,
+		},
+	};
 	if (serialDialogs.length) {
 		if (!isSerialDialog(serialDialogs[0])) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
-		const serialDialoDefinition = newSerialDialog(f, node, name, serialDialogs[0]);
+		const serialDialoDefinition = newSerialDialogDefinition(f, node, name, serialDialogs[0]);
 		return [serialDialoDefinition, shownSerialDialog];
 	}
 	return [shownSerialDialog];
@@ -524,7 +539,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i): AnyNode => {
-			const lhs = coerceAsString(f, node, v.lhs, 'action_set_ambiguous lhs');
+			const lhs = coerceToString(f, node, v.lhs, 'action_set_ambiguous lhs');
 			const rhsNode = node.childForFieldName('rhs');
 			if (!rhsNode) throw new Error('action_set_ambiguous: missing RHS node');
 
@@ -579,7 +594,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
 				steps.push(setVarToVar(lhs, temporary));
-				return newSequence(f, node, steps, 'set int (ambiguous lhs)');
+				return newSequence(f, node, steps, 'parser-actions: action_set_ambiguous');
 			}
 
 			// varName = (debug_mode || player glitched);
@@ -599,7 +614,7 @@ const actionData: Record<string, actionDataEntry> = {
 			if (!isIntGetable(v.lhs)) {
 				throw new Error('action_set_int: LHS not int_getable');
 			}
-			const entity = coerceAsString(f, node, v.lhs.entity, 'action_set_int entity');
+			const entity = coerceToString(f, node, v.lhs.entity, 'action_set_int entity');
 
 			// player x = 0;
 			if (typeof v.rhs === 'number') {
@@ -680,7 +695,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
 				steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-				return newSequence(f, node, steps, 'set int');
+				return newSequence(f, node, steps, 'parser-actions: action_set_int');
 			}
 
 			throw new Error('action_set_int: unknown RHS type');
@@ -701,7 +716,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const lhs: ActionSetBool = {
 					action: 'SET_ENTITY_GLITCHED',
 					bool_value: true,
-					entity: coerceAsString(
+					entity: coerceToString(
 						f,
 						node,
 						v.lhs.value,
@@ -713,7 +728,7 @@ const actionData: Record<string, actionDataEntry> = {
 			if (v.lhs.type === 'light') {
 				const lhs: ActionSetBool = {
 					action: 'SET_LIGHTS_STATE',
-					lights: coerceAsString(f, node, v.lhs.value, 'SET_LIGHTS_STATE field lights'),
+					lights: coerceToString(f, node, v.lhs.value, 'SET_LIGHTS_STATE field lights'),
 					enabled: true,
 				};
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
@@ -808,7 +823,7 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(variable, copyFrom, 'y'),
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
-					return newSequence(f, node, steps, 'set position');
+					return newSequence(f, node, steps, 'parser-actions: action_set_position');
 				}
 			}
 			throw new Error('action_set_position: invalid everything');
@@ -828,7 +843,7 @@ const actionData: Record<string, actionDataEntry> = {
 			if (!isMGSDebug(v.debug)) {
 				throw new Error('invalid debug node');
 			}
-			const duration = coerceAsNumber(f, node, v.duration, 'duration');
+			const duration = coerceToNumber(f, node, v.duration, 'duration');
 			const error: MGSMessage = {
 				locations: [{ node: v.debug.node }],
 				message: '',
@@ -946,7 +961,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['entity', 'target'],
 		handle: (v, f, node): ActionSetDirection => {
-			const entity = coerceAsString(f, node, v.entity, 'entity');
+			const entity = coerceToString(f, node, v.entity, 'entity');
 			if (!isDirectionTarget(v.target)) {
 				throw new Error('action_set_direction: invalid target');
 			}
@@ -960,9 +975,9 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['entity', 'script_slot', 'script'],
 		handle: (v, f, node): ActionSetScript | undefined => {
-			const entity = coerceAsString(f, node, v.entity, 'entity');
-			const script_slot = coerceAsString(f, node, v.script_slot, 'script_slot');
-			const script = coerceAsString(f, node, v.script, 'script');
+			const entity = coerceToString(f, node, v.entity, 'entity');
+			const script_slot = coerceToString(f, node, v.script_slot, 'script_slot');
+			const script = coerceToString(f, node, v.script, 'script');
 			if (entity === '%MAP%') {
 				if (script_slot === 'on_tick') {
 					return {
@@ -1019,8 +1034,8 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['entity', 'field', 'value'],
 		handle: (v, f, node): ActionSetEntityString => {
-			const entity = coerceAsString(f, node, v.entity, 'entity');
-			const value = coerceAsString(f, node, v.value, 'value');
+			const entity = coerceToString(f, node, v.entity, 'entity');
+			const value = coerceToString(f, node, v.value, 'value');
 			if (v.field === 'name') {
 				return {
 					action: 'SET_ENTITY_NAME',
@@ -1047,7 +1062,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'operator', 'rhs'],
 		handle: (v, f, node): AnyNode => {
-			const op = coerceAsString(f, node, v.operator, 'op');
+			const op = coerceToString(f, node, v.operator, 'op');
 
 			// LHS is a string, meaning we're doing a thing to an integer variable
 			if (typeof v.lhs === 'string') {
@@ -1066,7 +1081,12 @@ const actionData: Record<string, actionDataEntry> = {
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.lhs, temp, op),
 					];
-					return newSequence(f, node, steps, 'set op-equals with int getable');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: string, RHS: IntGetable)',
+					);
 				}
 				// varName += (var2 * 7)
 				if (isIntBinaryExpression(v.rhs)) {
@@ -1075,7 +1095,12 @@ const actionData: Record<string, actionDataEntry> = {
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
-					return newSequence(f, node, steps, 'set op-equals with int binary expression');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: string, RHS: IntBinaryExpression)',
+					);
 				}
 				throw new Error('action_op_equals: action handler error');
 			}
@@ -1093,7 +1118,12 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, node, steps, 'set op-equals with number');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: IntGetable, RHS: number)',
+					);
 				}
 				// player x = varName;
 				if (typeof v.rhs === 'string') {
@@ -1104,7 +1134,12 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(f, node, steps, 'set op-equals with string (identifier)');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: IntGetable, RHS: string)',
+					);
 				}
 				// player x = (varName * 7);
 				if (isIntBinaryExpression(v.rhs)) {
@@ -1119,7 +1154,12 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(f, node, steps, 'set op-equals with int binary expression');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntBinaryExpression)',
+					);
 				}
 				// player x = self y;
 				if (isIntGetable(v.rhs)) {
@@ -1133,7 +1173,12 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(f, node, steps, 'set op-equals with int getable');
+					return newSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntGetable)',
+					);
 				}
 			}
 			throw new Error('action_op_equals: action handler error');
@@ -1143,12 +1188,12 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['entity', 'operator', 'value'],
 		handle: (v, f, node): SET_ENTITY_DIRECTION_RELATIVE => {
-			const entity = coerceAsString(f, node, v.entity, 'entity');
-			const op = coerceAsString(f, node, v.operator, 'operator');
+			const entity = coerceToString(f, node, v.entity, 'entity');
+			const op = coerceToString(f, node, v.operator, 'operator');
 			if (op !== '-=' && op !== '+=') {
 				throw new Error('action_plus_minus_equals_ables invalid op: ' + op);
 			}
-			const value = coerceAsNumber(f, node, v.value, 'value');
+			const value = coerceToNumber(f, node, v.value, 'value');
 			const sign = op === '-=' ? -1 : 1;
 			return {
 				action: 'SET_ENTITY_DIRECTION_RELATIVE',
@@ -1235,12 +1280,6 @@ const setFlag = (save_flag: string, bool_value: boolean): SET_SAVE_FLAG => ({
 	bool_value,
 	save_flag,
 });
-const checkFlag = (save_flag: string, expected_bool: boolean): CHECK_SAVE_FLAG => ({
-	mathlang: 'bool_getable',
-	action: 'CHECK_SAVE_FLAG',
-	expected_bool,
-	save_flag,
-});
 const setFlagToFlag = (
 	f: FileState,
 	node: TreeSitterNode,
@@ -1252,7 +1291,7 @@ const setFlagToFlag = (
 	return simpleBranchMaker(
 		f,
 		node,
-		checkFlag(source, !invert),
+		newCheckSaveFlag(f, node, source, !invert),
 		[{ ...action, bool_value: true }], // if true
 		[{ ...action, bool_value: false }], // if false
 	);

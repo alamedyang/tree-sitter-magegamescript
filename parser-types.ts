@@ -1,5 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
+import { type FileState } from './parser-file.ts';
 
 export type MGSPrimitive = string | boolean | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
@@ -129,6 +130,14 @@ export type GotoLabel = {
 export const isGotoLabel = (v: unknown): v is GotoLabel => {
 	return (v as GotoLabel)?.mathlang === 'goto_label';
 };
+export const makeGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
+	mathlang: 'goto_label',
+	label,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
+});
 
 // ------------------------------ DIALOG ------------------------------ \\
 
@@ -143,6 +152,21 @@ export type DialogDefinition = {
 export const isDialogDefinition = (v: unknown): v is DialogDefinition => {
 	return (v as MathlangNode)?.mathlang === 'dialog_definition';
 };
+export const newDialogDefinition = (
+	f: FileState,
+	node: TreeSitterNode,
+	dialogName: string,
+	dialogs: Dialog[],
+): DialogDefinition => ({
+	mathlang: 'dialog_definition',
+	fileName: f.fileName,
+	dialogName,
+	dialogs,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
+});
 
 export type DialogSettings = {
 	wrap?: number;
@@ -215,6 +239,21 @@ export type SerialDialogDefinition = {
 export const isSerialDialogDefinition = (v: unknown): v is SerialDialogDefinition => {
 	return (v as MathlangNode)?.mathlang === 'serial_dialog_definition';
 };
+export const newSerialDialogDefinition = (
+	f: FileState,
+	node: TreeSitterNode,
+	dialogName: string,
+	serialDialog: SerialDialog,
+): SerialDialogDefinition => ({
+	mathlang: 'serial_dialog_definition',
+	fileName: f.fileName,
+	dialogName,
+	serialDialog,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
+});
 
 export type SerialDialogSettings = {
 	wrap?: number;
@@ -299,6 +338,7 @@ export type CommentNode = {
 export const isCommentNode = (v: unknown): v is CommentNode => {
 	return (v as CommentNode)?.mathlang === 'comment';
 };
+export const newComment = (comment: string): CommentNode => ({ mathlang: 'comment', comment });
 
 export type LabelDefinition = {
 	mathlang: 'label_definition';
@@ -308,6 +348,19 @@ export type LabelDefinition = {
 export const isLabelDefinition = (v: unknown): v is LabelDefinition => {
 	return (v as LabelDefinition)?.mathlang === 'label_definition';
 };
+// TODO: real constructors
+export const makeLabelDefinition = (
+	f: FileState,
+	node: TreeSitterNode,
+	label: string,
+): LabelDefinition => ({
+	mathlang: 'label_definition',
+	label,
+	debug: {
+		node,
+		fileName: f.fileName,
+	},
+});
 
 export type JSONLiteral = {
 	mathlang: 'json_literal';
@@ -349,6 +402,35 @@ export type MathlangSequence = {
 };
 export const isMathlangSequence = (v: unknown): v is MathlangSequence => {
 	return (v as MathlangSequence)?.mathlang === 'sequence';
+};
+export const newSequence = (
+	f: FileState,
+	node: TreeSitterNode,
+	steps: AnyNode[],
+	type: string = 'generic_sequence',
+): MathlangSequence => {
+	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
+	const mathlangComment: CommentNode = newComment(`${type}: ${comment}`);
+	steps.unshift(mathlangComment);
+	const flatSteps: AnyNode[] = [];
+	steps
+		.filter((v) => v !== null) // might not need this anymore
+		.forEach((v) => {
+			if (isMathlangSequence(v)) {
+				flatSteps.push(...v.steps);
+			} else {
+				flatSteps.push(v);
+			}
+		});
+	return {
+		mathlang: 'sequence',
+		type,
+		steps: flatSteps,
+		debug: {
+			node,
+			fileName: f.fileName,
+		},
+	};
 };
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
@@ -482,6 +564,23 @@ export type BoolGetable = BoolGetableCommon &
 
 export const isBoolGetable = (v: unknown): v is BoolGetable => {
 	return (v as BoolGetable)?.mathlang === 'bool_getable';
+};
+export const newCheckSaveFlag = (
+	f: FileState,
+	node: TreeSitterNode,
+	save_flag: string,
+	expected_bool: boolean,
+): BoolGetable => {
+	return {
+		mathlang: 'bool_getable',
+		action: 'CHECK_SAVE_FLAG',
+		expected_bool,
+		save_flag,
+		debug: {
+			fileName: f.fileName,
+			node,
+		},
+	};
 };
 
 // (Intermediate)

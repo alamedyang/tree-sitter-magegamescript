@@ -21,12 +21,13 @@ import {
 	type IntExpression,
 	isIntExpression,
 	type DirectionTarget,
+	newCheckSaveFlag,
 } from './parser-types.ts';
 import {
 	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
-	invert,
+	invertBoolExpression,
 	inverseOpMap,
 } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
@@ -261,10 +262,10 @@ const captureFns = {
 		if (!isIntExpression(rhs)) throw new Error('RHS not Int Exp');
 		if (!isIntExpression(lhs)) throw new Error('LHS not Int Exp');
 		if (rhsNode.grammarType === 'CONSTANT') {
-			rhs = coerceAsNumber(f, rhsNode, rhs, 'constant');
+			rhs = coerceToNumber(f, rhsNode, rhs, 'constant');
 		}
 		if (lhsNode.grammarType === 'CONSTANT') {
-			lhs = coerceAsNumber(f, lhsNode, lhs, 'constant');
+			lhs = coerceToNumber(f, lhsNode, lhs, 'constant');
 		}
 		return {
 			mathlang: 'int_binary_expression',
@@ -348,7 +349,7 @@ const captureFns = {
 		const capture = captureForFieldName(f, node, 'operand');
 		if (isBoolExpression(capture)) {
 			const toInvert = typeof capture === 'object' ? { ...capture } : capture;
-			return invert(f, node, toInvert);
+			return invertBoolExpression(f, node, toInvert);
 		}
 		throw new Error('bool_unary_expression capture did not yield a bool expression');
 	},
@@ -369,33 +370,27 @@ const captureFns = {
 			fileName: f.fileName,
 		};
 		if (type === 'flag') {
-			return {
-				action: 'CHECK_SAVE_FLAG',
-				debug,
-				mathlang: 'bool_getable',
-				expected_bool: true,
-				save_flag: stringCaptureForFieldName(f, node, 'value'),
-			};
+			return newCheckSaveFlag(f, node, stringCaptureForFieldName(f, node, 'value'), true);
 		} else if (type === 'debug_mode') {
 			return {
+				mathlang: 'bool_getable',
 				action: 'CHECK_DEBUG_MODE',
 				debug,
-				mathlang: 'bool_getable',
 				expected_bool: true,
 			};
 		} else if (type === 'glitched') {
 			return {
+				mathlang: 'bool_getable',
 				action: 'CHECK_ENTITY_GLITCHED',
 				debug,
-				mathlang: 'bool_getable',
 				expected_bool: true,
 				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 			};
 		} else if (type === 'intersects') {
 			return {
+				mathlang: 'bool_getable',
 				action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY',
 				debug,
-				mathlang: 'bool_getable',
 				expected_bool: true,
 				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 				geometry: stringCaptureForFieldName(f, node, 'geometry_identifier'),
@@ -404,16 +399,16 @@ const captureFns = {
 			const state = optionalTextForFieldName(f, node, 'value');
 			if (type === 'dialog') {
 				return {
+					mathlang: 'bool_getable',
 					action: 'CHECK_DIALOG_OPEN',
 					debug,
-					mathlang: 'bool_getable',
 					expected_bool: state === 'open',
 				};
 			} else {
 				return {
+					mathlang: 'bool_getable',
 					action: 'CHECK_SERIAL_DIALOG_OPEN',
 					debug,
-					mathlang: 'bool_getable',
 					expected_bool: state === 'open',
 				};
 			}
@@ -423,18 +418,18 @@ const captureFns = {
 			if (!stateNode) throw new Error('missing stateNode in bool_getable capture');
 			if (stateNode.text === 'pressed') {
 				return {
+					mathlang: 'bool_getable',
 					action: 'CHECK_FOR_BUTTON_PRESS',
 					debug,
-					mathlang: 'bool_getable',
 					expected_bool: true,
 					button_id,
 				};
 			} else {
 				const state = handleCapture(f, stateNode);
 				return {
+					mathlang: 'bool_getable',
 					action: 'CHECK_FOR_BUTTON_STATE',
 					debug,
-					mathlang: 'bool_getable',
 					expected_bool: coerceAsBool(f, node, state, 'button state'),
 					button_id,
 				};
@@ -906,7 +901,7 @@ export const textForFieldName = (f: FileState, node: TreeSitterNode, fieldName: 
 	return captureNode.text;
 };
 
-export const coerceAsString = (
+export const coerceToString = (
 	f: FileState,
 	node: TreeSitterNode,
 	v: unknown,
@@ -927,7 +922,7 @@ export const coerceAsString = (
 	}
 	return v;
 };
-export const coerceAsNumber = (
+export const coerceToNumber = (
 	f: FileState,
 	node: TreeSitterNode,
 	v: unknown,

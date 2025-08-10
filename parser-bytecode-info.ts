@@ -43,6 +43,10 @@ export type RUN_SCRIPT = {
 	script: string;
 	debug?: MGSDebug;
 };
+export const isRunScript = (v: unknown): v is RUN_SCRIPT => {
+	return (v as RUN_SCRIPT)?.action === 'RUN_SCRIPT';
+};
+
 export type COPY_SCRIPT = COPY_SCRIPT_PLAIN | COPY_SCRIPT_SEARCH_AND_REPLACE;
 export type COPY_SCRIPT_PLAIN = {
 	action: 'COPY_SCRIPT';
