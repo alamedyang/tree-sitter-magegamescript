@@ -3,9 +3,7 @@ import {
 	isGotoLabel,
 	isLabelDefinition,
 	isMathlangCopyScript,
-	isActionNode,
 	isReturnStatement,
-	type AnyNode,
 } from './parser-types.ts';
 
 // For intermediate data types and MGS-specific nodes
@@ -767,35 +765,34 @@ export type CheckAction =
 	| CHECK_DIALOG_OPEN
 	| CHECK_SERIAL_DIALOG_OPEN
 	| CHECK_DEBUG_MODE;
-export const isCheckAction = (node: AnyNode): node is CheckAction => {
-	if (!isActionNode(node)) return false;
-	if (node.action === 'CHECK_ENTITY_NAME') return true;
-	if (node.action === 'CHECK_ENTITY_X') return true;
-	if (node.action === 'CHECK_ENTITY_Y') return true;
-	if (node.action === 'CHECK_ENTITY_INTERACT_SCRIPT') return true;
-	if (node.action === 'CHECK_ENTITY_TICK_SCRIPT') return true;
-	if (node.action === 'CHECK_ENTITY_LOOK_SCRIPT') return true;
-	if (node.action === 'CHECK_ENTITY_TYPE') return true;
-	if (node.action === 'CHECK_ENTITY_PRIMARY_ID') return true;
-	if (node.action === 'CHECK_ENTITY_SECONDARY_ID') return true;
-	if (node.action === 'CHECK_ENTITY_PRIMARY_ID_TYPE') return true;
-	if (node.action === 'CHECK_ENTITY_CURRENT_ANIMATION') return true;
-	if (node.action === 'CHECK_ENTITY_CURRENT_FRAME') return true;
-	if (node.action === 'CHECK_ENTITY_DIRECTION') return true;
-	if (node.action === 'CHECK_ENTITY_GLITCHED') return true;
-	if (node.action === 'CHECK_ENTITY_PATH') return true;
-	if (node.action === 'CHECK_SAVE_FLAG') return true;
-	if (node.action === 'CHECK_IF_ENTITY_IS_IN_GEOMETRY') return true;
-	if (node.action === 'CHECK_FOR_BUTTON_PRESS') return true;
-	if (node.action === 'CHECK_FOR_BUTTON_STATE') return true;
-	if (node.action === 'CHECK_WARP_STATE') return true;
-	if (node.action === 'CHECK_VARIABLE') return true;
-	if (node.action === 'CHECK_VARIABLES') return true;
-	if (node.action === 'CHECK_MAP') return true;
-	if (node.action === 'CHECK_BLE_FLAG') return true;
-	if (node.action === 'CHECK_DIALOG_OPEN') return true;
-	if (node.action === 'CHECK_SERIAL_DIALOG_OPEN') return true;
-	if (node.action === 'CHECK_DEBUG_MODE') return true;
+export const isCheckAction = (v: unknown): v is CheckAction => {
+	if ((v as CheckAction).action === 'CHECK_ENTITY_NAME') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_X') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_Y') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_INTERACT_SCRIPT') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_TICK_SCRIPT') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_LOOK_SCRIPT') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_TYPE') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_PRIMARY_ID') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_SECONDARY_ID') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_PRIMARY_ID_TYPE') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_CURRENT_ANIMATION') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_CURRENT_FRAME') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_DIRECTION') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_GLITCHED') return true;
+	if ((v as CheckAction).action === 'CHECK_ENTITY_PATH') return true;
+	if ((v as CheckAction).action === 'CHECK_SAVE_FLAG') return true;
+	if ((v as CheckAction).action === 'CHECK_IF_ENTITY_IS_IN_GEOMETRY') return true;
+	if ((v as CheckAction).action === 'CHECK_FOR_BUTTON_PRESS') return true;
+	if ((v as CheckAction).action === 'CHECK_FOR_BUTTON_STATE') return true;
+	if ((v as CheckAction).action === 'CHECK_WARP_STATE') return true;
+	if ((v as CheckAction).action === 'CHECK_VARIABLE') return true;
+	if ((v as CheckAction).action === 'CHECK_VARIABLES') return true;
+	if ((v as CheckAction).action === 'CHECK_MAP') return true;
+	if ((v as CheckAction).action === 'CHECK_BLE_FLAG') return true;
+	if ((v as CheckAction).action === 'CHECK_DIALOG_OPEN') return true;
+	if ((v as CheckAction).action === 'CHECK_SERIAL_DIALOG_OPEN') return true;
+	if ((v as CheckAction).action === 'CHECK_DEBUG_MODE') return true;
 	return false;
 };
 

@@ -694,52 +694,38 @@ const nodeFns = {
 		f: FileState,
 		node: TreeSitterNode,
 	): (CheckAction | GotoLabel | GOTO_ACTION_INDEX | RUN_SCRIPT)[] => {
-		const conditionN = node.childForFieldName('condition');
-		// simple condition: bool_comparison, bool_unary, bool_getable, bool, string
-		let condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('');
+		// for parsing the bytecode output; not really meant to be seen in the wild
+		// e.g. `if varName then goto label LABELNAME;`
+		// vs `if (varName) { /*do stuff at the label destination*/ }`
 		const type = optionalTextForFieldName(f, node, 'type');
-		if (condition === null) throw new Error('lol waht');
-		if (condition === undefined) throw new Error('lol waht');
-		if (typeof condition === 'number') throw new Error('lol waht');
+		const conditionN = node.childForFieldName('condition');
+		let condition = handleCapture(f, conditionN);
 		if (typeof condition === 'string') {
 			condition = newCheckSaveFlag(f, node, condition, true);
 		}
-		if (!type) {
-			const script = stringCaptureForFieldName(f, node, 'script');
-			if (typeof condition === 'boolean') {
+		if (typeof condition === 'boolean') {
+			if (!type) {
+				const script = stringCaptureForFieldName(f, node, 'script');
 				return condition ? [{ action: 'RUN_SCRIPT', script }] : [];
-			}
-			const ret = {
-				...condition,
-				success_script: script,
-			};
-			if (!isCheckAction(ret)) throw new Error('pls');
-			return [ret];
-		} else if (type === 'index') {
-			const index = numberCaptureForFieldName(f, node, 'index');
-			if (typeof condition === 'boolean') {
+			} else if (type === 'index') {
+				const index = numberCaptureForFieldName(f, node, 'index');
 				return condition ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
-			}
-			const ret = {
-				...condition,
-				jump_index: index,
-			};
-			if (!isCheckAction(ret)) throw new Error('pls');
-			return [ret];
-		} else if (type === 'label') {
-			const label = stringCaptureForFieldName(f, node, 'label');
-			if (typeof condition === 'boolean') {
+			} else if (type === 'label') {
+				const label = stringCaptureForFieldName(f, node, 'label');
 				return condition ? [newGotoLabel(f, node, label)] : [];
 			}
-			const ret = {
-				...condition,
-				label,
-			};
-			if (!isCheckAction(ret)) throw new Error('pls');
-			return [ret];
 		}
-		throw new Error('Unreachable?');
+		if (isCheckAction(condition)) {
+			if (!type) {
+				condition.success_script = stringCaptureForFieldName(f, node, 'script');
+			} else if (type === 'index') {
+				condition.jump_index = numberCaptureForFieldName(f, node, 'index');
+			} else if (type === 'label') {
+				condition.label = stringCaptureForFieldName(f, node, 'label');
+			}
+			return [condition];
+		}
+		throw new Error('invalid if_single');
 	},
 	if_chain: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const ifNodes = node.childrenForFieldName('if_block').filter((v) => v !== null);
