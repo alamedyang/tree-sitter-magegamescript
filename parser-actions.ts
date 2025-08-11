@@ -219,15 +219,7 @@ const spreadValues = (
 	return ret;
 };
 
-// Takes an action node (from the TS parser) and gets associated "dictionary" data
-// - Processes listed captures by field name
-// - Spreads them if any of the captures are "expansions" (e.g. [a, b])
-// - Once spread, the handler identifies the JSON action for each spread item (since they might be different from each toehr)
-// - Adds the final JSON properties required by the encoder
-// - If the result is more than one "step" (for sequences not directly supported by the engine)
-// it will add the action as a "sequence", which will need to be expanded later
-// (for a few reasons, the result must be a single "unit" at this stage)
-// TODO: why then return an array?
+// TODO: why then return an array? Don't multis return MathlangSequence?
 type FieldToSpread = {
 	node: TreeSitterNode;
 	captures: Capture[];
@@ -239,7 +231,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const customFn = actionFns[node.grammarType];
 		if (!customFn)
 			throw new Error(
-				`No action data nor handler function found for action ${node.grammarType}`,
+				`no action data nor handler function found for action ${node.grammarType}`,
 			);
 		const customed = customFn(f, node);
 		return customed;
@@ -256,7 +248,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		if (captureNode === null) {
 			if (!data.optionalCaptures || !data.optionalCaptures.includes(fieldName)) {
 				throw new Error(
-					`Capture found for field not associated with this action (${fieldName})`,
+					`capture found for field not associated with action ${node.grammarType} (${fieldName})`,
 				);
 			}
 			return;
@@ -505,7 +497,7 @@ const actionData: Record<string, actionDataEntry> = {
 			// AMBIGUITY DANCE PARTY
 			// varName = varName;
 			if (typeof v.rhs == 'string') {
-				if (i === undefined) throw new Error('undefined index in action_set_ambiguous');
+				if (i === undefined) throw new Error('undefined index');
 				// For expansions, we only want to print one ambiguous identifier at a time in an error/warning message.
 				// `i` is from the caller, who knows which one of the set we're looking at now.
 				// Basically, the whole spread might not be ambiguous, so we need to report
@@ -517,7 +509,7 @@ const actionData: Record<string, actionDataEntry> = {
 					node.childForFieldName('rhs')?.namedChildren?.[i] ||
 					node.childForFieldName('rhs');
 				if (!lhsSquiggliesNode || !rhsSquiggliesNode) {
-					throw new Error(`action_set_ambiguous: couldn't find nodes to squiggle`);
+					throw new Error(`couldn't find nodes to squiggle`);
 				}
 				const printNodes = [lhsSquiggliesNode, rhsSquiggliesNode];
 				const suggestion = v.rhs.includes(' ') ? '"' + v.rhs + '"' : v.rhs;
@@ -553,7 +545,7 @@ const actionData: Record<string, actionDataEntry> = {
 				return actionSetBoolMaker(f, setFlag(lhs, true), v.rhs, node);
 			}
 
-			throw new Error('action_set_ambiguous failed to parse');
+			throw new Error('failed to parse');
 		},
 	},
 	action_set_int: {
@@ -563,7 +555,7 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
 			if (!isIntGetable(v.lhs)) {
-				throw new Error('action_set_int: LHS not int_getable');
+				throw new Error('LHS not int_getable');
 			}
 			const entity = coerceToString(f, node, v.lhs.entity, 'action_set_int entity');
 
@@ -632,7 +624,7 @@ const actionData: Record<string, actionDataEntry> = {
 						relative_direction: v.rhs,
 					};
 				}
-				throw new Error('action_set_int: unidentified int_getable, field: ' + v.lhs.field);
+				throw new Error('unidentified int_getable, field: ' + v.lhs.field);
 			}
 
 			// player x = varName;
@@ -649,7 +641,7 @@ const actionData: Record<string, actionDataEntry> = {
 				return newSequence(f, node, steps, 'parser-actions: action_set_int');
 			}
 
-			throw new Error('action_set_int: unknown RHS type');
+			throw new Error('unknown RHS type');
 		},
 	},
 	action_set_bool: {
@@ -658,10 +650,10 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): MathlangSequence | ActionSetBool => {
 			if (!isBoolSetable(v.lhs)) {
-				throw new Error('action_set_bool: LHS not a bool_setable');
+				throw new Error('LHS not a bool_setable');
 			}
 			if (!isBoolExpression(v.rhs)) {
-				throw new Error('action_set_bool: RHS not a bool_expression');
+				throw new Error('RHS not a bool_expression');
 			}
 			if (v.lhs.type === 'entity') {
 				const lhs: ActionSetBool = {
@@ -730,7 +722,7 @@ const actionData: Record<string, actionDataEntry> = {
 				};
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
-			throw new Error('action_set_bool: unknown LHS type');
+			throw new Error('unknown LHS type');
 		},
 	},
 	action_set_position: {
@@ -738,10 +730,10 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node): ActionSetPosition | MathlangSequence => {
 			if (!isMovableIdentifier(v.movable)) {
-				throw new Error('action_set_position: invalid MovableIdentifier');
+				throw new Error('invalid MovableIdentifier');
 			}
 			if (!isCoordinateIdentifier(v.coordinate)) {
-				throw new Error('action_set_position: invalid CoordinateIdentifier');
+				throw new Error('invalid CoordinateIdentifier');
 			}
 			if (v.movable.type === 'camera') {
 				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
@@ -777,7 +769,7 @@ const actionData: Record<string, actionDataEntry> = {
 					return newSequence(f, node, steps, 'parser-actions: action_set_position');
 				}
 			}
-			throw new Error('action_set_position: invalid everything');
+			throw new Error('invalid everything');
 		},
 	},
 	action_move_over_time: {
@@ -786,10 +778,10 @@ const actionData: Record<string, actionDataEntry> = {
 		optionalCaptures: ['forever'],
 		handle: (v, f, node): ActionMoveOverTime | undefined => {
 			if (!isMovableIdentifier(v.movable)) {
-				throw new Error('action_move_over_time: invalid MovableIdentifier');
+				throw new Error('invalid MovableIdentifier');
 			}
 			if (!isCoordinateIdentifier(v.coordinate)) {
-				throw new Error('action_move_over_time: invalid CoordinateIdentifier');
+				throw new Error('invalid CoordinateIdentifier');
 			}
 			if (!isMGSDebug(v.debug)) {
 				throw new Error('invalid debug node');
@@ -914,7 +906,7 @@ const actionData: Record<string, actionDataEntry> = {
 		handle: (v, f, node): ActionSetDirection => {
 			const entity = coerceToString(f, node, v.entity, 'entity');
 			if (!isDirectionTarget(v.target)) {
-				throw new Error('action_set_direction: invalid target');
+				throw new Error('invalid target');
 			}
 			return {
 				...v.target,
@@ -1004,7 +996,7 @@ const actionData: Record<string, actionDataEntry> = {
 					geometry: value,
 				};
 			}
-			throw new Error('action_set_entity_string: invalid field?');
+			throw new Error('invalid field?');
 		},
 	},
 	action_op_equals: {
@@ -1040,7 +1032,7 @@ const actionData: Record<string, actionDataEntry> = {
 				// varName += (var2 * 7)
 				if (isIntBinaryExpression(v.rhs)) {
 					const temporary = newTemporary();
-					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
+					if (!isIntBinaryExpression(v.rhs)) throw new Error('not IntBinaryExpression');
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
@@ -1048,10 +1040,10 @@ const actionData: Record<string, actionDataEntry> = {
 						f,
 						node,
 						steps,
-						'parser-actions: action_op_equals (LHS: string, RHS: IntBinaryExpression)',
+						'action_op_equals (LHS: string, RHS: IntBinaryExpression)',
 					);
 				}
-				throw new Error('action_op_equals: action handler error');
+				throw new Error('unknown op equals type');
 			}
 
 			// LHS is an int getable, like `player y`
@@ -1094,7 +1086,7 @@ const actionData: Record<string, actionDataEntry> = {
 				if (isIntBinaryExpression(v.rhs)) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
-					if (!isIntBinaryExpression(v.rhs)) throw new Error('meep');
+					if (!isIntBinaryExpression(v.rhs)) throw new Error('not IntBinaryExpression');
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
 						...flattenIntBinaryExpression(v.rhs, []),
@@ -1130,7 +1122,7 @@ const actionData: Record<string, actionDataEntry> = {
 					);
 				}
 			}
-			throw new Error('action_op_equals: action handler error');
+			throw new Error('unknown op equals type');
 		},
 	},
 	action_plus_minus_equals_ables: {
@@ -1140,7 +1132,7 @@ const actionData: Record<string, actionDataEntry> = {
 			const entity = coerceToString(f, node, v.entity, 'entity');
 			const op = coerceToString(f, node, v.operator, 'operator');
 			if (op !== '-=' && op !== '+=') {
-				throw new Error('action_plus_minus_equals_ables invalid op: ' + op);
+				throw new Error('invalid op: ' + op);
 			}
 			const value = coerceToNumber(f, node, v.value, 'value');
 			const sign = op === '-=' ? -1 : 1;

@@ -77,6 +77,11 @@ import {
 	newSerialDialogDefinition,
 	newDialogDefinition,
 	newCheckSaveFlag,
+	newScriptDefinition,
+	newConstantDefinition,
+	newIncludeNode,
+	newAddDialogSettings,
+	newAddSerialDialogSettings,
 } from './parser-types.ts';
 import {
 	type RUN_SCRIPT,
@@ -125,7 +130,6 @@ const nodeFns = {
 		// This might be the only place some of them can be detected
 		// (This is only for nodes so malformed that tree-sitter can't tell what they are)
 		if (node.namedChildren.some((v) => v?.grammarType === 'over_time_operator')) {
-			// TODO: test that this is reachable
 			err.message = `malformed 'do over time' expression`;
 			err.footer =
 				`should take the form '@movable -> @coordinate over @duration [forever];'\n` +
@@ -161,7 +165,7 @@ const nodeFns = {
 		// add auto return label
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
-		if (!lastChild) throw new Error('should be a node');
+		if (!lastChild) throw new Error('could not find final node in script block');
 		const labelAction: LabelDefinition = newLabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		// change all return statements to goto labels
@@ -170,14 +174,7 @@ const nodeFns = {
 				actions[i] = newGotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
-		return [
-			{
-				mathlang: 'script_definition',
-				debug: autoDebug(f, node),
-				scriptName: name,
-				actions,
-			},
-		];
+		return [newScriptDefinition(f, node, name, actions)];
 	},
 	constant_assignment: (f: FileState, node: TreeSitterNode): ConstantDefinition[] => {
 		const label = textForFieldName(f, node, 'label');
@@ -200,14 +197,7 @@ const nodeFns = {
 			debug: autoDebug(f, node),
 			value,
 		};
-		return [
-			{
-				mathlang: 'constant_assignment',
-				debug: autoDebug(f, node),
-				label,
-				value,
-			},
-		];
+		return [newConstantDefinition(f, node, label, value)];
 	},
 	include_macro: (f: FileState, node: TreeSitterNode): IncludeNode[] => {
 		// Recursion detection
@@ -218,67 +208,56 @@ const nodeFns = {
 			);
 		}
 		includeRecursion.push(f.fileName);
-		// todo: Should this be allowed to use the spread macro? Or should spreading be limited to actions?
-		const rawFileNames = captureForFieldName(f, node, 'fileName');
-		const fileNames = Array.isArray(rawFileNames) ? rawFileNames : [rawFileNames];
-		if (!fileNames.every((v) => typeof v === 'string')) {
-			throw new Error('include_macro prerequisites not all strings');
+		const fileName = stringCaptureForFieldName(f, node, 'fileName');
+		if (!f.p.fileMap[fileName].parsed) {
+			debugLog(`include_macro: must first parse prerequesite "${fileName}"`);
+			f.p.parseFile(fileName);
+		} else {
+			debugLog(`include_macro: prerequesite "${fileName}" already parsed`);
 		}
-		fileNames.forEach((prereqName) => {
-			if (!f.p.fileMap[prereqName].parsed) {
-				debugLog(`include_macro: must first parse prerequesite "${prereqName}"`);
-				f.p.parseFile(prereqName);
-			} else {
-				debugLog(`include_macro: prerequesite "${prereqName}" already parsed`);
-			}
-			debugLog(`include_macro: merging ${prereqName} into ${f.fileName}...`);
+		debugLog(`include_macro: merging ${fileName} into ${f.fileName}...`);
 
-			// INCLUDE FILE
-			const newFile = f.p.fileMap[prereqName].parsed;
-			if (!newFile) throw new Error(`Missing file to include: ${prereqName}`);
-			// add their constants to us
-			Object.keys(newFile.constants).forEach((constantName) => {
-				if (f.constants[constantName]) {
-					f.newError({
-						message: `cannot redefine constant ${constantName} (via 'include')`,
-						locations: [
-							{
-								fileName: newFile.fileName,
-								node: newFile.constants[constantName].debug.node,
-							},
-						],
-					});
-				}
-				f.constants[constantName] = newFile.constants[constantName];
-			});
-			// add their actual node entries to us (might help debugging)
-			newFile.nodes.forEach((node) => {
-				f.nodes.push(node);
-			});
-			// add (serial) dialog settings
-			['default', 'serial'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((param) => {
-					f.settings[type][param] = newFile.settings[type][param];
+		// INCLUDE FILE
+		const newFile = f.p.fileMap[fileName].parsed;
+		if (!newFile) throw new Error(`missing file to include: ${fileName}`);
+		// add their constants to us
+		Object.keys(newFile.constants).forEach((constantName) => {
+			if (f.constants[constantName]) {
+				f.newError({
+					message: `cannot redefine constant ${constantName} (via 'include')`,
+					locations: [
+						{
+							fileName: newFile.fileName,
+							node: newFile.constants[constantName].debug.node,
+						},
+					],
 				});
-			});
-			// ...some of which are extra layered
-			['entity', 'label'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((target) => {
-					const params = Object.keys(newFile.settings[type][target]);
-					f.settings[type][target] = f.settings[type][target] || {};
-					params.forEach((param) => {
-						f.settings[type][target][param] = newFile.settings[type][target][param];
-						// (I apologize for this)
-					});
-				});
-			});
-			includeRecursion.pop();
+			}
+			f.constants[constantName] = newFile.constants[constantName];
 		});
-		return fileNames.map((fileName: string) => ({
-			mathlang: 'include_macro',
-			value: fileName,
-			debug: autoDebug(f, node),
-		}));
+		// add their actual node entries to us (might help debugging)
+		newFile.nodes.forEach((node) => {
+			f.nodes.push(node);
+		});
+		// add (serial) dialog settings
+		['default', 'serial'].forEach((type) => {
+			Object.keys(newFile.settings[type]).forEach((param) => {
+				f.settings[type][param] = newFile.settings[type][param];
+			});
+		});
+		// ...some of which are extra layered
+		['entity', 'label'].forEach((type) => {
+			Object.keys(newFile.settings[type]).forEach((target) => {
+				const params = Object.keys(newFile.settings[type][target]);
+				f.settings[type][target] = f.settings[type][target] || {};
+				params.forEach((param) => {
+					f.settings[type][target][param] = newFile.settings[type][target][param];
+					// (I apologize for this)
+				});
+			});
+		});
+		includeRecursion.pop();
+		return [newIncludeNode(f, node, fileName)];
 	},
 	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const horizontal: AnyNode[][] = [];
@@ -330,15 +309,9 @@ const nodeFns = {
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = handleNamedChildren(f, node);
 		if (!targets.every(isAddDialogSettingsTarget)) {
-			throw new Error('Dialog Settings Target node not a dialog settings target');
+			throw new Error('add_dialog_settings node not a AddDialogSettingsTarget');
 		}
-		return [
-			{
-				mathlang: 'add_dialog_settings',
-				debug: autoDebug(f, node),
-				targets,
-			},
-		];
+		return [newAddDialogSettings(f, node, targets)];
 	},
 	add_dialog_settings_target: (f: FileState, node: TreeSitterNode): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
@@ -357,7 +330,7 @@ const nodeFns = {
 			settingsTarget = f.settings[type][target];
 			ret.target = target;
 		} else {
-			throw new Error(`Unknown dialog settings target type: ${type}`);
+			throw new Error(`unknown target type: ${type}`);
 		}
 		// find the settings themselves
 		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
@@ -378,13 +351,7 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
-		return [
-			{
-				mathlang: 'add_serial_dialog_settings',
-				debug: autoDebug(f, node),
-				parameters,
-			},
-		];
+		return [newAddSerialDialogSettings(f, node, parameters)];
 	},
 	serial_dialog_option: (f: FileState, node: TreeSitterNode): [SerialDialogOption] => {
 		const optionChar = textForFieldName(f, node, 'option_type');
@@ -415,30 +382,36 @@ const nodeFns = {
 		const serialDialogNode = mandatoryChildForFieldName(f, node, 'serial_dialog');
 		const name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialog = handleNode(f, serialDialogNode);
-		if (serialDialog.length !== 1) throw new Error('');
-		if (!isSerialDialog(serialDialog[0])) throw new Error('');
+		if (serialDialog.length !== 1) {
+			throw new Error('serial dialogs must have only 1 serial dialog');
+		}
+		if (!isSerialDialog(serialDialog[0])) throw new Error('missing serial dialog');
 		return [newSerialDialogDefinition(f, node, name, serialDialog[0])];
 	},
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
 		const dialogName = stringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		if (!dialogs.every(isDialog)) throw new Error('');
+		if (!dialogs.every(isDialog)) throw new Error('not every dialog is a Dialog');
 		return [newDialogDefinition(f, node, dialogName, dialogs)];
 	},
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		if (!params.every(isSerialDialogParameter)) throw new Error();
+		if (!params.every(isSerialDialogParameter)) {
+			throw new Error('not every serial dialog parameter is a SerialDialogParameter');
+		}
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
 		// TODO: make options more closely resemble final form?
 		const options = handleChildrenForFieldName(f, node, 'serial_dialog_option');
 		if (!options.every(isSerialDialogOption)) {
-			throw new Error('invalid option');
+			throw new Error('not every serial dialog option not aSerialDialogOption');
 		}
 		const messages = capturesForFieldName(f, node, 'serial_message');
-		if (!messages.every((v) => typeof v === 'string')) throw new Error('Pff');
+		if (!messages.every((v) => typeof v === 'string')) {
+			throw new Error('not every message is a string');
+		}
 		const info: SerialDialogInfo = {
 			settings,
 			messages,
@@ -450,7 +423,9 @@ const nodeFns = {
 	dialog: (f: FileState, node: TreeSitterNode): [Dialog] => {
 		// Identifier
 		const identifier = captureForFieldName(f, node, 'dialog_identifier');
-		if (!isDialogIdentifier(identifier)) throw new Error('asdf');
+		if (!isDialogIdentifier(identifier)) {
+			throw new Error('dialog_identifier is not a DialogIdentifier');
+		}
 		// Settings
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
@@ -487,9 +462,9 @@ const nodeFns = {
 		];
 	},
 	json_literal: (f: FileState, node: TreeSitterNode): JSONLiteral[] => {
-		// todo: do it more by hand so that errors can be reported more accurately?
+		// TODO: do it more by hand so that errors can be reported more accurately?
 		const jsonNode = node.namedChildren[0];
-		if (!jsonNode) throw new Error('json node not found??');
+		if (!jsonNode) throw new Error('could not find JSON node');
 		const text = jsonNode.text;
 		try {
 			const parsed = JSON.parse(text);
@@ -524,11 +499,13 @@ const nodeFns = {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode) {
 			const serialDialog = handleNode(f, serialDialogNode);
-			if (!isSerialDialog(serialDialog[0])) throw new Error();
+			if (!isSerialDialog(serialDialog[0])) {
+				throw new Error('serial dialog not a SerialDialog');
+			}
 			name = autoIdentifierName(f, node);
 			ret.push(newSerialDialogDefinition(f, node, name, serialDialog[0]));
 		} else {
-			// todo: did I copy-pasta this? Why is this here?
+			// might just be the name of a serial dialog, and not a serial-dialog-in-place
 			name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		}
 		const action = simpleBranchMaker(
@@ -600,14 +577,11 @@ const nodeFns = {
 		const bodyL = `for body #${n}`;
 		const rendezvousL = `for rendezvous #${n}`;
 		const continueL = `for continue #${n}`;
-		const conditionN = node.childForFieldName('condition');
-		if (!conditionN) throw new Error('TS');
+		const conditionN = mandatoryChildForFieldName(f, node, 'condition');
 		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('not a condition');
-		const bodyN = node.childForFieldName('body');
-		if (!bodyN) throw new Error('TS');
-		const incrementerN = node.childForFieldName('incrementer');
-		if (!incrementerN) throw new Error('TS');
+		if (!isBoolExpression(condition)) throw new Error('invalid condition');
+		const bodyN = mandatoryChildForFieldName(f, node, 'body');
+		const incrementerN = mandatoryChildForFieldName(f, node, 'incrementer');
 		const body: AnyNode[] = handleNode(f, bodyN).map((v: AnyNode) => {
 			if (isContinueStatement(v)) return newGotoLabel(f, node, continueL);
 			if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);

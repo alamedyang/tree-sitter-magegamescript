@@ -267,7 +267,7 @@ export const makeProjectState = (
 							// The first catastrophic error should be the last!
 							// Every node underneath is just wrecked. Nuke it all!
 							if (!node) {
-								throw new Error('No node found for catastrophic error case');
+								throw new Error('no node found for catastrophic error case');
 							}
 							f.newError({
 								locations: [{ node }],

@@ -1,3 +1,5 @@
+// TODO: see if you can remove debug prop, especially from actions
+
 import { Parser, Language } from 'web-tree-sitter';
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';

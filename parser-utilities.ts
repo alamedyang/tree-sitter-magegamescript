@@ -233,24 +233,21 @@ export const expandBoolExpression = (
 		];
 	}
 	if (op === '&&') {
-		// have a separate if-else insert?
-		// if first one is false goto a rendezvous at the end of the insert
-		// if the second one is false, ditto
+		// basically nesting the ifs
 		const suffix = f.p.advanceGotoSuffix();
-		const innerIfTrueLabel = `if true #${suffix}`;
-		const innerRendezvousLabel = `rendezvous #${suffix}`;
+		const secondIfTrueLabel = `if true #${suffix}`;
+		const secondRendezvousLabel = `rendezvous #${suffix}`;
 		return [
-			...expandBoolExpression(f, condition.lhsNode, lhs, innerIfTrueLabel),
-			newGotoLabel(f, node, innerRendezvousLabel),
-			newLabelDefinition(f, node, innerIfTrueLabel),
+			...expandBoolExpression(f, condition.lhsNode, lhs, secondIfTrueLabel),
+			newGotoLabel(f, node, secondRendezvousLabel),
+			newLabelDefinition(f, node, secondIfTrueLabel),
 			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
-			newLabelDefinition(f, node, innerRendezvousLabel),
+			newLabelDefinition(f, node, secondRendezvousLabel),
 		];
 	}
 	if (op !== '==' && op !== '!=') {
-		throw new Error('Expected == or !==, found ' + op);
+		throw new Error('expected == or !==, found ' + op);
 	}
-	// todo: if any of these are == bool literal, they can be simplified
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs: BoolBinaryExpression = {
 		mathlang: 'bool_binary_expression',

@@ -50,7 +50,7 @@ const mathlang = {
 	copy_script: (data: MATHLANG.CopyMacro) => `copy!("${data.script}")`,
 };
 
-// TODO: v type
+// TODO: how to add types to this without needing each fn to check the type of its args?
 const printActionFns: Record<string, (v) => string> = {
 	// Branch on bool equality (==)
 	CHECK_DEBUG_MODE: (v: TYPES.CHECK_DEBUG_MODE) => printCheckAction(v, 'debug_mode', true),
@@ -297,7 +297,6 @@ const stringIntoOpMap: Record<string, string> = {
 const sanitizeLabel = (label: string): string =>
 	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
 
-// TODO: data type is complicated
 const printGotoSegment = (data: TYPES.CheckAction | MATHLANG.GotoLabel): string => {
 	if (data.label) {
 		return `goto label ${sanitizeLabel(data.label)}`;

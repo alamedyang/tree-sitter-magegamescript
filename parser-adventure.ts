@@ -167,7 +167,6 @@ const advanceAdventure = (
 		// if we hit a rejoin boundary, start new segment
 		if (from !== pos && cs.rejoins.has(pos)) {
 			ret.tos = [pos];
-			// TODO
 			break;
 		}
 		const analysis = analyzeLine(lines[pos]);
@@ -255,11 +254,7 @@ const startAdventure = (text: string): AdventureCrawlState => {
 	const segments: AdventureSegment[] = [];
 	while (queue.length) {
 		const curr = queue.shift();
-		if (curr === undefined) {
-			throw new Error(
-				'Checked for the presence of items in an array, then shifted, then somehow unded up with nothing? TS, you crack me up',
-			);
-		}
+		if (curr === undefined) throw new Error('adventure queue shift() failure');
 		const newSegments = advanceAdventure(lines, curr, cs);
 		newSegments.forEach((segment) => {
 			segments.push(segment);

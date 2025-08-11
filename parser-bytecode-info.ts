@@ -1038,9 +1038,9 @@ export const getBoolFieldForAction = (action: string): string => {
 	throw new Error('multiple possible bool params: ' + filtered.join(', '));
 };
 
-const breakIfNotString = (v: unknown): string => {
+const breakIfNotString = (v: unknown, label: string): string => {
 	if (typeof v === 'string') return v;
-	throw new Error('not a string');
+	throw new Error(label + ' not a string');
 };
 
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
@@ -1049,21 +1049,21 @@ export const standardizeAction = (action: Record<string, unknown>, OOB: number):
 	if (isMathlangCopyScript(action)) {
 		const manual: COPY_SCRIPT = {
 			action: 'COPY_SCRIPT',
-			script: breakIfNotString(action.script),
+			script: breakIfNotString(action.script, 'script'),
 		};
 		return manual;
 	}
 	if (isLabelDefinition(action)) {
 		const ret: LABEL = {
 			action: 'LABEL',
-			value: breakIfNotString(action.label),
+			value: breakIfNotString(action.label, 'label'),
 		};
 		return ret;
 	}
 	if (isGotoLabel(action)) {
 		const ret: GOTO_ACTION_INDEX = {
 			action: 'GOTO_ACTION_INDEX',
-			action_index: breakIfNotString(action.label),
+			action_index: breakIfNotString(action.label, 'label'),
 		};
 		return ret;
 	}
@@ -1074,7 +1074,7 @@ export const standardizeAction = (action: Record<string, unknown>, OOB: number):
 		};
 		return ret;
 	}
-	const actionName = breakIfNotString(action.action);
+	const actionName = breakIfNotString(action.action, 'actionName');
 	const ret = { action: actionName };
 	Object.keys(action).forEach((field: string) => {
 		if (isFieldForAction(field, actionName)) {

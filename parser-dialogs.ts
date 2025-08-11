@@ -96,7 +96,7 @@ const wrapText = (origStr: string, wrap: number, doAnsiWrapBodge: boolean = fals
 			const spaces = chunk.groups?.spaces;
 			const word = chunk.groups?.word;
 			if (spaces === undefined || word === undefined) {
-				throw new Error('Empty text wrap segment in: ' + line);
+				throw new Error('empty text wrap segment in: ' + line);
 			}
 			const spacesLength = spaces.length;
 			const wordLength = countCharLength(word);
@@ -259,7 +259,7 @@ export const buildDialogFromInfo = (
 			if (lastIndex === i && dialog.options) {
 				warningMessage = `messages before dialog options will collide if more than 1 line`;
 			}
-			if (!messageNodes[i]) throw new Error('No associated node for message at index' + i);
+			if (!messageNodes[i]) throw new Error('no associated node for message at index' + i);
 			f.newWarning({
 				locations: [{ node: messageNodes[i] }],
 				message: warningMessage,

@@ -157,8 +157,7 @@ export default grammar({
 				$.dialog_definition,
 			),
 
-		include_macro: ($) =>
-			seq('include', field('fileName', $.quoted_string_expandable), $.semicolon),
+		include_macro: ($) => seq('include', field('fileName', $.quoted_string), $.semicolon),
 		constant_assignment: ($) =>
 			seq(
 				field('label', $.CONSTANT),

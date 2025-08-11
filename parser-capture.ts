@@ -64,7 +64,7 @@ export type Capture =
 	| StringCheckable;
 
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
-	if (!node) throw new Error('handleCapture: null node');
+	if (!node) throw new Error('null node');
 	reportErrorNodes(f, node);
 	reportMissingChildNodes(f, node);
 	// problems handled ^^
@@ -87,7 +87,7 @@ export const handleCapture = (f: FileState, node: TreeSitterNode | null): Captur
 	}
 	// do the thing
 	const fn = captureFns[grammarType];
-	if (!fn) throw new Error(`No capture handler function found for grammar type ${grammarType}`);
+	if (!fn) throw new Error(`no function found for grammar type ${grammarType}`);
 	return fn(f, node);
 };
 
@@ -102,7 +102,7 @@ const captureFns = {
 		if (text === 'closed') return false;
 		if (text === 'down') return true;
 		if (text === 'up') return false;
-		throw new Error('unreachable');
+		throw new Error('bool capture text not one of the mathlang bools');
 	},
 	BAREWORD: (f: FileState, node: TreeSitterNode): string => node.text,
 	QUOTED_STRING: (f: FileState, node: TreeSitterNode): string => node.text.slice(1, -1),
@@ -260,8 +260,8 @@ const captureFns = {
 		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		if (!isIntExpression(rhs)) throw new Error('RHS not Int Exp');
-		if (!isIntExpression(lhs)) throw new Error('LHS not Int Exp');
+		if (!isIntExpression(rhs)) throw new Error('RHS not IntBinaryExpression');
+		if (!isIntExpression(lhs)) throw new Error('LHS not IntBinaryExpression');
 		if (rhsNode.grammarType === 'CONSTANT') {
 			rhs = coerceToNumber(f, rhsNode, rhs, 'constant');
 		}
@@ -331,7 +331,7 @@ const captureFns = {
 	bool_grouping: (f: FileState, node: TreeSitterNode): BoolExpression => {
 		const capture = captureForFieldName(f, node, 'inner');
 		if (isBoolExpression(capture)) return capture;
-		throw new Error('bool_grouping capture did not yield a bool expression');
+		throw new Error('bool_grouping capture did not yield BoolExpression');
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): BoolExpression => {
 		const op = optionalTextForFieldName(f, node, 'operator');
@@ -341,7 +341,7 @@ const captureFns = {
 			const toInvert = typeof capture === 'object' ? { ...capture } : capture;
 			return invertBoolExpression(f, node, toInvert);
 		}
-		throw new Error('bool_unary_expression capture did not yield a bool expression');
+		throw new Error('bool_unary_expression capture did not yield BoolExpression');
 	},
 	int_getable: (f: FileState, node: TreeSitterNode): IntGetable => {
 		// if (textForFieldName(f, node, 'variable')) {
@@ -497,7 +497,7 @@ const captureFns = {
 				entity_type: '',
 			};
 		}
-		throw new Error(`unidentifiable entity string_checkable, failed to capture`);
+		throw new Error(`could not capture entity string_checkable`);
 	},
 	number_checkable_equality: (f: FileState, node: TreeSitterNode): NumberCheckableEquality => {
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
@@ -643,7 +643,7 @@ const captureFns = {
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
 		if (isIntExpression(capture)) return capture;
-		throw new Error('captured int_grouping did not produce int expression');
+		throw new Error('captured int_grouping did not produce IntExpression');
 	},
 	direction_target: (f: FileState, node: TreeSitterNode): DirectionTarget => {
 		const direction = optionalTextForFieldName(f, node, 'nsew');
@@ -701,10 +701,10 @@ const compareString = (
 ): StringCheckable => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isStringCheckable(checkable)) {
-		throw new Error('invalid string checkable');
+		throw new Error('invalid StringCheckable');
 	}
 	if (op !== '==' && op !== '!=') {
-		throw new Error('invalid op for bool_comparison compareString: ' + op);
+		throw new Error('invalid op for bool_comparison: ' + op);
 	}
 	const string = handleCapture(f, stringNode);
 	const prop = checkable.stringLabel;
@@ -715,7 +715,7 @@ const compareString = (
 		prop !== 'geometry' &&
 		prop !== 'entity_type'
 	) {
-		throw new Error('string checkable with invalid prop ' + prop);
+		throw new Error('StringCheckable with invalid prop ' + prop);
 	}
 	return {
 		...checkable,
@@ -889,7 +889,6 @@ export const capturesForFieldName = (
 ): Capture[] => {
 	return (node.childrenForFieldName(fieldName) || []).map((v) => handleCapture(f, v)).flat();
 };
-// TODO: change to not return undefined? Better to return ''?
 export const optionalTextForFieldName = (
 	f: FileState,
 	node: TreeSitterNode,

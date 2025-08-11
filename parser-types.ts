@@ -78,6 +78,17 @@ export type AddDialogSettings = {
 export const isAddDialogSettings = (v: unknown): v is AddDialogSettings => {
 	return (v as AddDialogSettings)?.mathlang === 'add_dialog_settings';
 };
+export const newAddDialogSettings = (
+	f: FileState,
+	node: TreeSitterNode,
+	targets: AddDialogSettingsTarget[],
+): AddDialogSettings => {
+	return {
+		mathlang: 'add_dialog_settings',
+		debug: autoDebug(f, node),
+		targets,
+	};
+};
 
 export type AddDialogSettingsTarget = {
 	mathlang: 'add_dialog_settings_target';
@@ -94,6 +105,17 @@ export type AddSerialDialogSettings = {
 	mathlang: 'add_serial_dialog_settings';
 	parameters: SerialDialogParameter[];
 	debug: TYPES.MGSDebug;
+};
+export const newAddSerialDialogSettings = (
+	f: FileState,
+	node: TreeSitterNode,
+	parameters: SerialDialogParameter[],
+): AddSerialDialogSettings => {
+	return {
+		mathlang: 'add_serial_dialog_settings',
+		debug: autoDebug(f, node),
+		parameters,
+	};
 };
 
 // ------------------------------ CONTROL ------------------------------ \\
@@ -293,12 +315,32 @@ export type IncludeNode = {
 	value: string;
 	debug: TYPES.MGSDebug;
 };
+export const newIncludeNode = (f: FileState, node: TreeSitterNode, value: string): IncludeNode => {
+	return {
+		mathlang: 'include_macro',
+		debug: autoDebug(f, node),
+		value,
+	};
+};
 
 export type ConstantDefinition = {
 	mathlang: 'constant_assignment';
 	label: string;
 	value: string | boolean | number;
 	debug: TYPES.MGSDebug;
+};
+export const newConstantDefinition = (
+	f: FileState,
+	node: TreeSitterNode,
+	label: string,
+	value: MGSPrimitive,
+): ConstantDefinition => {
+	return {
+		mathlang: 'constant_assignment',
+		debug: autoDebug(f, node),
+		label,
+		value,
+	};
 };
 
 export type ScriptDefinition = {
@@ -316,6 +358,19 @@ export type ScriptDefinition = {
 };
 export const isScriptDefinition = (v: unknown): v is ScriptDefinition => {
 	return (v as MathlangNode)?.mathlang === 'script_definition';
+};
+export const newScriptDefinition = (
+	f: FileState,
+	node: TreeSitterNode,
+	scriptName: string,
+	actions: AnyNode[],
+): ScriptDefinition => {
+	return {
+		mathlang: 'script_definition',
+		debug: autoDebug(f, node),
+		scriptName,
+		actions,
+	};
 };
 
 export type CommentNode = {
