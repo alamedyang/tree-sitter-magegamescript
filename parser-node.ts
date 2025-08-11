@@ -5,13 +5,13 @@ import {
 	reportErrorNodes,
 	debugLog,
 	expandBoolExpression,
-	newTemporary,
-	dropTemporary,
 	autoIdentifierName,
 	newConditionalBlock,
 	newElse,
 	ifChainMaker,
 	simpleBranchMaker,
+	type ConditionalBlock,
+	quickTemporary,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -29,7 +29,6 @@ import {
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
 	isActionNode,
-	type BoolComparison,
 	type CopyMacro,
 	type AnyNode,
 	type LabelDefinition,
@@ -292,56 +291,51 @@ const nodeFns = {
 	},
 	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const horizontal: AnyNode[][] = [];
-		let multipleCount = -Infinity;
-		node.namedChildren.forEach((innerNode) => {
-			if (!innerNode) throw new Error('found null tree-sitter node in rand_macro');
-			const handled: AnyNode[] = handleNode(f, innerNode);
-			const len = handled.length;
-			if (len === 0) return; // empties are ignored
-			horizontal.push(handled);
-			// count how much it spread
-			if (len === 1) return; // singles are fine wherever
-			if (multipleCount === -Infinity) multipleCount = len;
-			if (multipleCount !== len) {
-				f.newError({
-					locations: [{ node: innerNode }],
-					message: `spreads inside rand!() must contain same number of items`,
-				});
-			}
-		});
+		// count items per spread
+		let spreadCount = -Infinity;
+		node.namedChildren
+			.filter((v) => v !== null)
+			.forEach((innerNode) => {
+				const actions: AnyNode[] = handleNode(f, innerNode);
+				const len = actions.length;
+				if (len === 0) return; // empties are ignored
+				horizontal.push(actions);
+				// count how much it spread
+				if (len === 1) return; // singles are passed through
+				if (spreadCount === -Infinity) spreadCount = len;
+				if (spreadCount !== len) {
+					f.newError({
+						locations: [{ node: innerNode }],
+						message: `spreads inside rand!() must contain same number of items`,
+					});
+				}
+			});
+		// tilt the other direction
+		// [{a:1},{a:2}], [{b:3}], [{c:4},{c:5}] ->
+		// [{a:1},{b:3},{c:4}], [{a:2},{b:3},{c:5}]
 		const vertical: AnyNode[][] = [];
-		for (let i = 0; i < multipleCount; i++) {
-			const insert = horizontal.map((unit) => {
-				return unit[i % unit.length];
+		for (let i = 0; i < spreadCount; i++) {
+			const insert = horizontal.map((arr) => {
+				return arr[i % arr.length];
 			});
 			vertical.push(insert);
 		}
-		// put the slices into a sequence
-		const temporary = newTemporary();
-		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
-		const steps: AnyNode[] = [changeVarByValue(temporary, vertical.length, '?')];
-		let bottomSteps: AnyNode[] = [];
-		// TODO: why not use the "new quick if-else" function for this?
-		vertical.forEach((body, i) => {
-			const ifL = `if #${f.p.advanceGotoSuffix()}`;
-			// add top half
-			const condition: BoolComparison = {
-				...checkVariable(f, node, temporary, i, '=='),
-				label: ifL,
+		// slices -> if chain
+		const temp = quickTemporary();
+		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
+			return {
+				condition: checkVariable(f, node, temp, i, '=='),
+				body,
+				debug: {
+					fileName: f.fileName,
+					node,
+				},
 			};
-			steps.push(condition);
-			// add bottom half
-			const bottomInsert: AnyNode[] = [
-				newLabelDefinition(f, node, ifL),
-				...body,
-				newGotoLabel(f, node, rendezvousL),
-			];
-			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
-		dropTemporary();
-		const combined = steps.concat(bottomSteps);
-		combined.push(newLabelDefinition(f, node, rendezvousL));
-		return [newSequence(f, node, combined, 'parser-node: rand_macro')];
+		const sequence: MathlangSequence = ifChainMaker(f, node, iffs, [], 'rand_macro');
+		// put the random number generation on the top
+		sequence.steps.unshift(changeVarByValue(temp, vertical.length, '?'));
+		return [sequence];
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
 		const text = textForFieldName(f, node, 'label');
@@ -634,12 +628,12 @@ const nodeFns = {
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
 		const steps = [
-			newLabelDefinition(f, block.conditionNode, conditionL),
-			...expandBoolExpression(f, block.conditionNode, block.condition, bodyL),
+			newLabelDefinition(f, block.conditionNode || node, conditionL),
+			...expandBoolExpression(f, block.conditionNode || node, block.condition, bodyL),
 			newGotoLabel(f, node, rendezvousL),
-			newLabelDefinition(f, block.bodyNode, bodyL),
+			newLabelDefinition(f, block.bodyNode || node, bodyL),
 			...block.body,
-			newGotoLabel(f, block.conditionNode, conditionL),
+			newGotoLabel(f, block.conditionNode || node, conditionL),
 			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: while_block')];
@@ -651,10 +645,10 @@ const nodeFns = {
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
 		const steps = [
-			newLabelDefinition(f, doWhyle.bodyNode, bodyL),
+			newLabelDefinition(f, doWhyle.bodyNode || node, bodyL),
 			...doWhyle.body,
-			newLabelDefinition(f, doWhyle.conditionNode, conditionL),
-			...expandBoolExpression(f, doWhyle.conditionNode, doWhyle.condition, bodyL),
+			newLabelDefinition(f, doWhyle.conditionNode || node, conditionL),
+			...expandBoolExpression(f, doWhyle.conditionNode || node, doWhyle.condition, bodyL),
 			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: do_while_block')];

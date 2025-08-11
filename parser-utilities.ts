@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { getBoolFieldForAction, isRunScript, type MGSDebug } from './parser-bytecode-info.ts';
+import { getBoolFieldForAction, type MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	type MGSLocation,
@@ -310,34 +310,32 @@ export const invertBoolExpression = (
 export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
-	conditionBoolExp: BoolGetable | BoolComparison | BoolBinaryExpression,
-	ifTrue: AnyNode[],
-	ifFalse: AnyNode[],
+	condition: BoolGetable | BoolComparison | BoolBinaryExpression,
+	trueBlock: AnyNode[],
+	falseBlock: AnyNode[],
 ): MathlangSequence => {
 	const n = f.p.advanceGotoSuffix();
 	const ifLabel = `if true #${n}`;
 	const rendezvousLabel = `rendezvous #${n}`;
 
 	let top: AnyNode[] = [];
-	if (isBoolComparison(conditionBoolExp) || isBoolGetable(conditionBoolExp)) {
+	if (isBoolComparison(condition) || isBoolGetable(condition)) {
 		top = [
 			{
-				...conditionBoolExp,
+				...condition,
 				label: ifLabel,
 			},
 		];
-	} else if (isBoolBinaryExpression(conditionBoolExp)) {
-		top = expandBoolExpression(f, node, conditionBoolExp, ifLabel);
-	} else {
-		console.log('wat is it?');
+	} else if (isBoolBinaryExpression(condition)) {
+		top = expandBoolExpression(f, node, condition, ifLabel);
 	}
 
 	const steps = [
 		...top,
-		...ifFalse,
+		...falseBlock,
 		newGotoLabel(f, node, rendezvousLabel),
 		newLabelDefinition(f, node, ifLabel),
-		...ifTrue,
+		...trueBlock,
 		newLabelDefinition(f, node, rendezvousLabel),
 	];
 	return newSequence(f, node, steps, 'longerBranchMaker');
@@ -345,9 +343,9 @@ export const simpleBranchMaker = (
 
 export type ConditionalBlock = {
 	condition: BoolExpression;
-	conditionNode: TreeSitterNode;
+	conditionNode?: TreeSitterNode;
 	body: AnyNode[];
-	bodyNode: TreeSitterNode;
+	bodyNode?: TreeSitterNode;
 	debug: MGSDebug;
 };
 export const newConditionalBlock = (
@@ -396,26 +394,7 @@ export const ifChainMaker = (
 	iffs: ConditionalBlock[],
 	elseBody: AnyNode[],
 	label: string,
-): AnyNode => {
-	// if single (cheaty short version)
-	if (iffs.length === 1 && elseBody.length === 0) {
-		const iff = iffs[0];
-		if (iff.body.length === 1 && typeof iff.condition === 'string') {
-			const goto = iff.body[0];
-			if (isRunScript(goto)) {
-				return {
-					...newCheckSaveFlag(f, node, iff.condition, true),
-					success_script: goto.script,
-				};
-			} else if (isGotoLabel(goto)) {
-				return {
-					...newCheckSaveFlag(f, node, iff.condition, true),
-					label: goto.label,
-				};
-			}
-		}
-	}
-	// normal version
+): MathlangSequence => {
 	const rendezvousL: string = label + ` rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps: AnyNode[] = [];
 	let bottomSteps: AnyNode[] = [];
@@ -423,12 +402,14 @@ export const ifChainMaker = (
 	iffs.forEach((iff) => {
 		const ifL = `if true #${f.p.advanceGotoSuffix()}`;
 		// add top half
-		steps.push(...expandBoolExpression(f, iff.conditionNode, iff.condition, ifL));
+		steps.push(
+			...expandBoolExpression(f, iff.conditionNode || iff.debug.node, iff.condition, ifL),
+		);
 		// add bottom half
 		const bottomInsert: AnyNode[] = [
-			newLabelDefinition(f, iff.bodyNode, ifL),
+			newLabelDefinition(f, iff.bodyNode || iff.debug.node, ifL),
 			...iff.body,
-			newGotoLabel(f, iff.bodyNode, rendezvousL),
+			newGotoLabel(f, iff.bodyNode || iff.debug.node, rendezvousL),
 		];
 		bottomSteps = bottomInsert.concat(bottomSteps);
 	});
