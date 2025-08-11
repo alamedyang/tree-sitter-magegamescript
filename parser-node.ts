@@ -9,6 +9,9 @@ import {
 	newTemporary,
 	dropTemporary,
 	autoIdentifierName,
+	newConditionalBlock,
+	newElse,
+	ifChainMaker,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -21,6 +24,7 @@ import {
 	capturesForFieldName,
 	stringCaptureForFieldName,
 	numberCaptureForFieldName,
+	checkVariable,
 } from './parser-capture.ts';
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
@@ -64,7 +68,6 @@ import {
 	isContinueStatement as isContinueStatement,
 	isBreakStatement as isBreakStatement,
 	isJSONLiteral,
-	isGotoLabel,
 	newLabelDefinition,
 	newGotoLabel,
 	newSequence,
@@ -77,7 +80,6 @@ import {
 	type CheckAction,
 	type GOTO_ACTION_INDEX,
 	isCheckAction,
-	isRunScript,
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: TreeSitterNode): AnyNode[] => {
@@ -316,25 +318,16 @@ const nodeFns = {
 		}
 		// put the slices into a sequence
 		const temporary = newTemporary();
+		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
 		const steps: AnyNode[] = [changeVarByValue(temporary, vertical.length, '?')];
 		let bottomSteps: AnyNode[] = [];
-		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
 		// TODO: why not use the "new quick if-else" function for this?
 		vertical.forEach((body, i) => {
 			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
 			const condition: BoolComparison = {
-				mathlang: 'bool_comparison',
-				action: 'CHECK_VARIABLE',
-				variable: temporary,
-				value: i,
-				comparison: '==',
-				expected_bool: true,
+				...checkVariable(f, node, temporary, i, '=='),
 				label: ifL,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			};
 			steps.push(condition);
 			// add bottom half
@@ -622,66 +615,42 @@ const nodeFns = {
 				const handled = handleNode(f, v);
 				if (Array.isArray(handled)) return handled;
 				if (isContinueStatement(handled)) {
-					return newGotoLabel(f, v, `while condition #${printGotoLabel}`);
+					return newGotoLabel(f, v, `condition #${printGotoLabel}`);
 				} else if (isBreakStatement(handled)) {
-					return newGotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
+					return newGotoLabel(f, v, `rendezvous #${printGotoLabel}`);
 				}
 				return handled;
 			})
 			.flat();
 	},
 	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+		const block = newConditionalBlock(f, node, 'while');
 		const n = f.p.advanceGotoSuffix();
-		const whileL = `while condition #${n}`;
+		const conditionL = `while condition #${n}`;
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
-		const conditionN = node.childForFieldName('condition');
-		if (!conditionN) throw new Error('while_block: no condition node');
-		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('not a BoolExp');
-		const bodyN = node.childForFieldName('body');
-		if (!bodyN) throw new Error('while_block: no body node');
-		const body = handleNode(f, bodyN)
-			.flat()
-			.map((v) => {
-				if (isContinueStatement(v)) return newGotoLabel(f, node, whileL);
-				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
-				return v;
-			});
 		const steps = [
-			newLabelDefinition(f, conditionN, whileL),
-			...expandBoolExpression(f, conditionN, condition, bodyL),
+			newLabelDefinition(f, block.conditionNode, conditionL),
+			...expandBoolExpression(f, block.conditionNode, block.condition, bodyL),
 			newGotoLabel(f, node, rendezvousL),
-			newLabelDefinition(f, bodyN, bodyL),
-			...body,
-			newGotoLabel(f, conditionN, whileL),
+			newLabelDefinition(f, block.bodyNode, bodyL),
+			...block.body,
+			newGotoLabel(f, block.conditionNode, conditionL),
 			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: while_block')];
 	},
 	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+		const doWhyle = newConditionalBlock(f, node, 'do while');
 		const n = f.p.advanceGotoSuffix();
-		const whileL = `do while condition #${n}`;
+		const conditionL = `do while condition #${n}`;
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
-		const conditionN = node.childForFieldName('condition');
-		if (!conditionN) throw new Error('do_while_block: no condition node');
-		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('not a BoolExp');
-		const bodyN = node.childForFieldName('body');
-		if (!bodyN) throw new Error('do_while_block: no body node');
-		const body = handleNode(f, bodyN)
-			.flat()
-			.map((v) => {
-				if (isContinueStatement(v)) return newGotoLabel(f, node, whileL);
-				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
-				return v;
-			});
 		const steps = [
-			newLabelDefinition(f, bodyN, bodyL),
-			...body,
-			newLabelDefinition(f, conditionN, whileL),
-			...expandBoolExpression(f, conditionN, condition, bodyL),
+			newLabelDefinition(f, doWhyle.bodyNode, bodyL),
+			...doWhyle.body,
+			newLabelDefinition(f, doWhyle.conditionNode, conditionL),
+			...expandBoolExpression(f, doWhyle.conditionNode, doWhyle.condition, bodyL),
 			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: do_while_block')];
@@ -774,86 +743,12 @@ const nodeFns = {
 		}
 		throw new Error('Unreachable?');
 	},
-	if_chain: (f: FileState, node: TreeSitterNode): [AnyNode] => {
-		const ifs = node.childrenForFieldName('if_block');
-		const elzeN = node.childForFieldName('else_block');
-		if (!ifs) throw new Error('I know, I got it');
-		if (ifs.length === 1 && !elzeN) {
-			const ifsZero = ifs[0];
-			if (!ifsZero) throw new Error('srsly');
-			const conditionN = ifsZero.childForFieldName('condition');
-			const condition = handleCapture(f, conditionN);
-			if (!isBoolExpression(condition)) throw new Error('');
-			const bodyN = ifsZero.childForFieldName('body');
-			if (!bodyN) throw new Error('srsly');
-			const body = bodyN.namedChildren
-				.map((v) => {
-					if (v === null) throw new Error();
-					return handleNode(f, v);
-				})
-				.flat();
-			if (body.length === 1 && typeof condition === 'string') {
-				const goto = body[0];
-				if (isRunScript(goto)) {
-					return [
-						{
-							...newCheckSaveFlag(f, node, condition, true),
-							success_script: goto.script,
-						},
-					];
-				} else if (isGotoLabel(goto)) {
-					return [
-						{
-							...newCheckSaveFlag(f, node, condition, true),
-							label: goto.label,
-						},
-					];
-				}
-			}
-		}
-		const rendezvousL: string = `rendezvous #${f.p.advanceGotoSuffix()}`;
-		const steps: AnyNode[] = [];
-		let bottomSteps: AnyNode[] = [];
-		ifs.forEach((iff) => {
-			if (!iff) throw new Error('TS');
-			const ifL = `if true #${f.p.advanceGotoSuffix()}`;
-			const conditionN = iff.childForFieldName('condition');
-			if (!conditionN) throw new Error('TS');
-			const condition = handleCapture(f, conditionN);
-			if (!isBoolExpression(condition)) throw new Error('not a condition');
-			const bodyN = iff.childForFieldName('body');
-			if (!bodyN) throw new Error('TS');
-			const body = bodyN.namedChildren
-				.map((v) => {
-					if (v === null) throw new Error();
-					return handleNode(f, v);
-				})
-				.flat();
-			// add top half
-			steps.push(...expandBoolExpression(f, conditionN, condition, ifL));
-			// add bottom half
-			const bottomInsert: AnyNode[] = [
-				newLabelDefinition(f, bodyN, ifL),
-				...body,
-				newGotoLabel(f, bodyN, rendezvousL),
-			];
-			bottomSteps = bottomInsert.concat(bottomSteps);
-		});
-		if (elzeN && elzeN.lastChild) {
-			steps.push(
-				...elzeN.lastChild.namedChildren
-					.map((v) => {
-						if (v === null) throw new Error();
-						return handleNode(f, v);
-					})
-					.flat(),
-				// gotoLabel(f, node, rendezvousLabel),
-			);
-		}
-		steps.push(newGotoLabel(f, node, rendezvousL));
-		const combined = steps.concat(bottomSteps);
-		combined.push(newLabelDefinition(f, node, rendezvousL));
-		return [newSequence(f, node, combined, 'parser-node: if_chain')];
+	if_chain: (f: FileState, node: TreeSitterNode): AnyNode[] => {
+		const ifNodes = node.childrenForFieldName('if_block').filter((v) => v !== null);
+		const iffs = ifNodes.map((v) => newConditionalBlock(f, v, 'if'));
+		const elseNode = node.childForFieldName('else_block');
+		const elseBody = newElse(f, elseNode);
+		return [ifChainMaker(f, node, iffs, elseBody, 'if_chain')];
 	},
 };
 

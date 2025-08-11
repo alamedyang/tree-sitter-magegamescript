@@ -47,8 +47,6 @@ import {
 	isStringCheckable,
 	isNumberCheckableEquality,
 	type BoolExpression,
-	newLabelDefinition,
-	newGotoLabel,
 	newComment,
 	newSequence,
 	newDialogDefinition,
@@ -57,12 +55,12 @@ import {
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
-	expandBoolExpression,
 	simpleBranchMaker,
 	newTemporary,
 	dropTemporary,
 	quickTemporary,
 	latestTemporary,
+	longerBranchMaker,
 } from './parser-utilities.ts';
 import { handleNode } from './parser-node.ts';
 import { type FileState } from './parser-file.ts';
@@ -180,20 +178,14 @@ const actionSetBoolMaker = (
 	}
 
 	if (isBoolExpression(rhsBoolExp)) {
-		const actionIfTrue = lhsSetAction;
-		const actionIfFalse = { ...lhsSetAction, [lhsBoolField]: false };
-		const ifLabel = `if true #${f.p.advanceGotoSuffix()}`;
-		const rendezvousLabel = `rendezvous #${f.p.advanceGotoSuffix()}`;
 		const useNode = rhsBoolExp.debug?.node || backupNode;
-		const steps = [
-			...expandBoolExpression(f, useNode, rhsBoolExp, ifLabel),
-			actionIfFalse,
-			newGotoLabel(f, useNode, rendezvousLabel),
-			newLabelDefinition(f, useNode, ifLabel),
-			actionIfTrue,
-			newLabelDefinition(f, useNode, rendezvousLabel),
-		];
-		return newSequence(f, useNode, steps, 'actionSetBoolMaker');
+		return longerBranchMaker(
+			f,
+			useNode,
+			rhsBoolExp,
+			[lhsSetAction],
+			[{ ...lhsSetAction, [lhsBoolField]: false }],
+		);
 	}
 	throw new Error('actionSetBoolMaker: unknown type of RHS');
 };

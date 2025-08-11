@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { getBoolFieldForAction } from './parser-bytecode-info.ts';
+import { getBoolFieldForAction, isRunScript, type MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	type MGSLocation,
@@ -19,9 +19,12 @@ import {
 	newGotoLabel,
 	newSequence,
 	newCheckSaveFlag,
+	isBoolExpression,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
+import { handleCapture } from './parser-capture.ts';
+import { handleNode } from './parser-node.ts';
 
 export const verbose = false;
 export const debugLog = (message: string) => {
@@ -309,9 +312,10 @@ export const simpleBranchMaker = (
 	ifBody: AnyNode[],
 	elseBody: AnyNode[],
 ): MathlangSequence => {
-	const gotoLabel = f.p.advanceGotoSuffix();
-	const ifLabel = `if #${gotoLabel}`;
-	const rendezvousLabel = `rendezvous #${gotoLabel}`;
+	const n = f.p.advanceGotoSuffix();
+	const ifLabel = `if #${n}`;
+	const rendezvousLabel = `rendezvous #${n}`;
+
 	const branchAction = {
 		..._branchAction,
 		label: ifLabel,
@@ -325,6 +329,124 @@ export const simpleBranchMaker = (
 		newLabelDefinition(f, node, rendezvousLabel),
 	];
 	return newSequence(f, node, steps, 'simpleBranchMaker');
+};
+export const longerBranchMaker = (
+	f: FileState,
+	node: TreeSitterNode,
+	conditionBoolExp: BoolExpression,
+	ifTrue: AnyNode[],
+	ifFalse: AnyNode[],
+): MathlangSequence => {
+	const n = f.p.advanceGotoSuffix();
+	const ifLabel = `if true #${n}`;
+	const rendezvousLabel = `rendezvous #${n}`;
+
+	const steps = [
+		...expandBoolExpression(f, node, conditionBoolExp, ifLabel),
+		...ifFalse,
+		newGotoLabel(f, node, rendezvousLabel),
+		newLabelDefinition(f, node, ifLabel),
+		...ifTrue,
+		newLabelDefinition(f, node, rendezvousLabel),
+	];
+	return newSequence(f, node, steps, 'longerBranchMaker');
+};
+
+export type ConditionalBlock = {
+	condition: BoolExpression;
+	conditionNode: TreeSitterNode;
+	body: AnyNode[];
+	bodyNode: TreeSitterNode;
+	debug: MGSDebug;
+};
+export const newConditionalBlock = (
+	f: FileState,
+	node: TreeSitterNode,
+	type: string,
+): ConditionalBlock => {
+	const conditionNode = node.childForFieldName('condition');
+	const condition = handleCapture(f, conditionNode);
+	if (!isBoolExpression(condition) || conditionNode === null) {
+		throw new Error(type + ' condition not BoolExpression');
+	}
+	const bodyNode = node.childForFieldName('body');
+	if (!bodyNode) throw new Error(type + ' lacks a body');
+	const body = bodyNode.namedChildren
+		.filter((v) => v !== null)
+		.map((v) => {
+			return handleNode(f, v);
+		})
+		.flat();
+	return {
+		condition,
+		conditionNode,
+		body,
+		bodyNode,
+		debug: {
+			fileName: f.fileName,
+			node,
+		},
+	};
+};
+export const newElse = (f: FileState, elseNode: TreeSitterNode | null): AnyNode[] => {
+	let elseBody: AnyNode[] = [];
+	if (elseNode && elseNode.lastChild) {
+		elseBody = elseNode.lastChild.namedChildren
+			.filter((v) => v !== null)
+			.map((v) => handleNode(f, v))
+			.flat();
+	}
+	return elseBody;
+};
+
+export const ifChainMaker = (
+	f: FileState,
+	node: TreeSitterNode,
+	iffs: ConditionalBlock[],
+	elseBody: AnyNode[],
+	label: string,
+): AnyNode => {
+	// if single (cheaty short version)
+	if (iffs.length === 1 && elseBody.length === 0) {
+		const iff = iffs[0];
+		if (iff.body.length === 1 && typeof iff.condition === 'string') {
+			const goto = iff.body[0];
+			if (isRunScript(goto)) {
+				return {
+					...newCheckSaveFlag(f, node, iff.condition, true),
+					success_script: goto.script,
+				};
+			} else if (isGotoLabel(goto)) {
+				return {
+					...newCheckSaveFlag(f, node, iff.condition, true),
+					label: goto.label,
+				};
+			}
+		}
+	}
+	// normal version
+	const rendezvousL: string = label + ` rendezvous #${f.p.advanceGotoSuffix()}`;
+	const steps: AnyNode[] = [];
+	let bottomSteps: AnyNode[] = [];
+
+	iffs.forEach((iff) => {
+		const ifL = `if true #${f.p.advanceGotoSuffix()}`;
+		// add top half
+		steps.push(...expandBoolExpression(f, iff.conditionNode, iff.condition, ifL));
+		// add bottom half
+		const bottomInsert: AnyNode[] = [
+			newLabelDefinition(f, iff.bodyNode, ifL),
+			...iff.body,
+			newGotoLabel(f, iff.bodyNode, rendezvousL),
+		];
+		bottomSteps = bottomInsert.concat(bottomSteps);
+	});
+
+	steps.push(...elseBody);
+	steps.push(newGotoLabel(f, node, rendezvousL));
+	const combined = steps.concat(bottomSteps);
+	combined.push(newLabelDefinition(f, node, rendezvousL));
+	return newSequence(f, node, combined, 'parser-node: ' + label);
 };
 
 export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {

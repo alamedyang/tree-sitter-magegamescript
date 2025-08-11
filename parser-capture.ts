@@ -633,15 +633,15 @@ const captureFns = {
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
 				// varName1 > varName2
-				return checkVariables(f, lhs, rhs, op, debug);
+				return checkVariables(f, node, lhs, rhs, op);
 			} else if (typeof rhs === 'number') {
 				// varName > 255
-				return checkVariable(f, lhs, rhs, op, debug);
+				return checkVariable(f, node, lhs, rhs, op);
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
 				// 255 > varName
-				return checkVariable(f, rhs, lhs, inverseOpMap[op], debug);
+				return checkVariable(f, node, rhs, lhs, inverseOpMap[op]);
 			} else if (typeof rhs === 'number') {
 				// 255 > 0
 				if (op === '<') return lhs < rhs;
@@ -781,35 +781,41 @@ const compareNumberCheckableEquality = (
 };
 const checkVariables = (
 	f: FileState,
+	node: TreeSitterNode,
 	variable: string,
 	source: string,
 	comparison: string,
-	debug: MGSDebug,
 ): BoolComparison => {
 	return {
 		mathlang: 'bool_comparison',
-		debug,
 		action: 'CHECK_VARIABLES',
 		variable,
 		source,
 		comparison,
 		expected_bool: true,
+		debug: {
+			fileName: f.fileName,
+			node,
+		},
 	};
 };
-const checkVariable = (
+export const checkVariable = (
 	f: FileState,
+	node: TreeSitterNode,
 	variable: string,
 	value: number,
 	comparison: string,
-	debug: MGSDebug,
 ): BoolComparison => ({
 	mathlang: 'bool_comparison',
-	debug,
 	action: 'CHECK_VARIABLE',
 	variable,
 	value,
 	comparison,
 	expected_bool: true,
+	debug: {
+		fileName: f.fileName,
+		node,
+	},
 });
 const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
 	const type = optionalTextForFieldName(f, node, 'type');
