@@ -20,6 +20,8 @@ import {
 	newSequence,
 	newCheckSaveFlag,
 	isBoolExpression,
+	type BoolComparison,
+	type BoolGetable,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -308,32 +310,7 @@ export const invertBoolExpression = (
 export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
-	_branchAction: AnyNode,
-	ifBody: AnyNode[],
-	elseBody: AnyNode[],
-): MathlangSequence => {
-	const n = f.p.advanceGotoSuffix();
-	const ifLabel = `if #${n}`;
-	const rendezvousLabel = `rendezvous #${n}`;
-
-	const branchAction = {
-		..._branchAction,
-		label: ifLabel,
-	};
-	const steps: AnyNode[] = [
-		branchAction,
-		...elseBody,
-		newGotoLabel(f, node, rendezvousLabel),
-		newLabelDefinition(f, node, ifLabel),
-		...ifBody,
-		newLabelDefinition(f, node, rendezvousLabel),
-	];
-	return newSequence(f, node, steps, 'simpleBranchMaker');
-};
-export const longerBranchMaker = (
-	f: FileState,
-	node: TreeSitterNode,
-	conditionBoolExp: BoolExpression,
+	conditionBoolExp: BoolGetable | BoolComparison | BoolBinaryExpression,
 	ifTrue: AnyNode[],
 	ifFalse: AnyNode[],
 ): MathlangSequence => {
@@ -341,8 +318,22 @@ export const longerBranchMaker = (
 	const ifLabel = `if true #${n}`;
 	const rendezvousLabel = `rendezvous #${n}`;
 
+	let top: AnyNode[] = [];
+	if (isBoolComparison(conditionBoolExp) || isBoolGetable(conditionBoolExp)) {
+		top = [
+			{
+				...conditionBoolExp,
+				label: ifLabel,
+			},
+		];
+	} else if (isBoolBinaryExpression(conditionBoolExp)) {
+		top = expandBoolExpression(f, node, conditionBoolExp, ifLabel);
+	} else {
+		console.log('wat is it?');
+	}
+
 	const steps = [
-		...expandBoolExpression(f, node, conditionBoolExp, ifLabel),
+		...top,
 		...ifFalse,
 		newGotoLabel(f, node, rendezvousLabel),
 		newLabelDefinition(f, node, ifLabel),

@@ -38,15 +38,13 @@ import {
 	type IntBinaryExpression,
 	isIntBinaryExpression,
 	isBoolSetable,
+	type BoolExpression,
 	isBoolExpression,
 	isMovableIdentifier,
 	isCoordinateIdentifier,
 	isDirectionTarget,
 	isBoolGetable,
 	isBoolComparison,
-	isStringCheckable,
-	isNumberCheckableEquality,
-	type BoolExpression,
 	newComment,
 	newSequence,
 	newDialogDefinition,
@@ -55,12 +53,11 @@ import {
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
-	simpleBranchMaker,
 	newTemporary,
 	dropTemporary,
 	quickTemporary,
 	latestTemporary,
-	longerBranchMaker,
+	simpleBranchMaker,
 } from './parser-utilities.ts';
 import { handleNode } from './parser-node.ts';
 import { type FileState } from './parser-file.ts';
@@ -151,43 +148,27 @@ const actionSetBoolMaker = (
 	// player glitched = self glitched;
 	// ->
 	// if (self glitched) { player glitched = true; } else { player glitched = false; }
-	const rhsBoolExp =
+	const rhsBoolExp: BoolExpression =
 		typeof _rhsBoolExp === 'string'
 			? newCheckSaveFlag(f, backupNode, _rhsBoolExp, true)
 			: _rhsBoolExp;
-	if (
-		isBoolGetable(rhsBoolExp) ||
-		isBoolComparison(rhsBoolExp) ||
-		isStringCheckable(rhsBoolExp) ||
-		isNumberCheckableEquality(rhsBoolExp)
-	) {
-		const rhsBoolField = getBoolFieldForAction(rhsBoolExp.action);
-		const existingValue = rhsBoolExp[rhsBoolField];
-		if (existingValue === undefined) throw new Error('Found a hole! ' + rhsBoolExp.action);
-		const baseAction = {
-			...rhsBoolExp,
-			[rhsBoolField]: existingValue,
-		};
+	if (isBoolGetable(rhsBoolExp) || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
 			f,
 			rhsBoolExp.debug?.node || backupNode,
-			baseAction,
-			[{ ...lhsSetAction, [lhsBoolField]: true }],
-			[{ ...lhsSetAction, [lhsBoolField]: false }],
-		);
-	}
-
-	if (isBoolExpression(rhsBoolExp)) {
-		const useNode = rhsBoolExp.debug?.node || backupNode;
-		return longerBranchMaker(
-			f,
-			useNode,
 			rhsBoolExp,
 			[lhsSetAction],
 			[{ ...lhsSetAction, [lhsBoolField]: false }],
 		);
 	}
-	throw new Error('actionSetBoolMaker: unknown type of RHS');
+
+	return simpleBranchMaker(
+		f,
+		rhsBoolExp.debug?.node || backupNode,
+		rhsBoolExp,
+		[lhsSetAction],
+		[{ ...lhsSetAction, [lhsBoolField]: false }],
+	);
 };
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //

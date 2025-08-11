@@ -5,13 +5,13 @@ import {
 	reportErrorNodes,
 	debugLog,
 	expandBoolExpression,
-	simpleBranchMaker,
 	newTemporary,
 	dropTemporary,
 	autoIdentifierName,
 	newConditionalBlock,
 	newElse,
 	ifChainMaker,
+	simpleBranchMaker,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -595,7 +595,11 @@ const nodeFns = {
 		const action = simpleBranchMaker(
 			f,
 			node,
-			{ action: 'CHECK_DEBUG_MODE', expected_bool: true },
+			{
+				mathlang: 'bool_getable',
+				action: 'CHECK_DEBUG_MODE',
+				expected_bool: true,
+			},
 			[
 				{
 					action: 'SHOW_SERIAL_DIALOG',
