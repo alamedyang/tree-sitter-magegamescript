@@ -47,8 +47,8 @@ import {
 	isStringCheckable,
 	isNumberCheckableEquality,
 	type BoolExpression,
-	makeLabelDefinition,
-	makeGotoLabel,
+	newLabelDefinition,
+	newGotoLabel,
 	newComment,
 	newSequence,
 	newDialogDefinition,
@@ -188,10 +188,10 @@ const actionSetBoolMaker = (
 		const steps = [
 			...expandBoolExpression(f, useNode, rhsBoolExp, ifLabel),
 			actionIfFalse,
-			makeGotoLabel(f, useNode, rendezvousLabel),
-			makeLabelDefinition(f, useNode, ifLabel),
+			newGotoLabel(f, useNode, rendezvousLabel),
+			newLabelDefinition(f, useNode, ifLabel),
 			actionIfTrue,
-			makeLabelDefinition(f, useNode, rendezvousLabel),
+			newLabelDefinition(f, useNode, rendezvousLabel),
 		];
 		return newSequence(f, useNode, steps, 'actionSetBoolMaker');
 	}
@@ -334,10 +334,6 @@ const actionFns: Record<string, ActionFn> = {
 		const shownDialog: SHOW_DIALOG = {
 			action: 'SHOW_DIALOG',
 			dialog: name,
-			debug: {
-				node,
-				fileName: f.fileName,
-			},
 		};
 		if (dialogs.length) {
 			if (!dialogs.every(isDialog)) throw new Error('parsed dialogs not all of type Dialog');
@@ -358,7 +354,7 @@ const actionFns: Record<string, ActionFn> = {
 const actionShowSerialDialog = (
 	f: FileState,
 	node: TreeSitterNode,
-	isConcat: boolean = false,
+	disable_newline: boolean = false,
 ): ShowSerialDialogOutput => {
 	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
 	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
@@ -370,12 +366,8 @@ const actionShowSerialDialog = (
 		.flat();
 	const shownSerialDialog: SHOW_SERIAL_DIALOG = {
 		action: 'SHOW_SERIAL_DIALOG',
-		disable_newline: isConcat,
 		serial_dialog: name,
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
+		disable_newline,
 	};
 	if (serialDialogs.length) {
 		if (!isSerialDialog(serialDialogs[0])) {
@@ -1206,6 +1198,14 @@ const actionData: Record<string, actionDataEntry> = {
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
+export const showSerialDialog = (
+	name: string,
+	disable_newline: boolean = false,
+): SHOW_SERIAL_DIALOG => ({
+	action: 'SHOW_SERIAL_DIALOG',
+	serial_dialog: name,
+	disable_newline,
+});
 const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => ({
 	action: 'MUTATE_VARIABLE',
 	operation: 'SET',
@@ -1223,7 +1223,7 @@ const setVarToVar = (variable: string, source: string): MUTATE_VARIABLES | Comme
 		variable,
 	};
 };
-const changeVarByValue = (
+export const changeVarByValue = (
 	variable: string,
 	value: number,
 	op: string,

@@ -15,8 +15,8 @@ import {
 	isNumberCheckableEquality,
 	isBoolBinaryExpression,
 	isLabelDefinition,
-	makeLabelDefinition,
-	makeGotoLabel,
+	newLabelDefinition,
+	newGotoLabel,
 	newSequence,
 	newCheckSaveFlag,
 } from './parser-types.ts';
@@ -171,7 +171,6 @@ export const autoIdentifierName = (f: FileState, node: TreeSitterNode): string =
 
 // ------------------------ CONDITIONS ------------------------ //
 
-// todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
 export const expandBoolExpression = (
 	f: FileState,
 	node: TreeSitterNode,
@@ -179,7 +178,7 @@ export const expandBoolExpression = (
 	ifLabel: string,
 ): AnyNode[] => {
 	if (condition === true) {
-		return [makeGotoLabel(f, node, ifLabel)];
+		return [newGotoLabel(f, node, ifLabel)];
 	} else if (condition === false) {
 		return [];
 	}
@@ -228,10 +227,10 @@ export const expandBoolExpression = (
 		const innerRendezvousLabel = `rendezvous #${suffix}`;
 		return [
 			...expandBoolExpression(f, condition.lhsNode, lhs, innerIfTrueLabel),
-			makeGotoLabel(f, node, innerRendezvousLabel),
-			makeLabelDefinition(f, node, innerIfTrueLabel),
+			newGotoLabel(f, node, innerRendezvousLabel),
+			newLabelDefinition(f, node, innerIfTrueLabel),
 			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
-			makeLabelDefinition(f, node, innerRendezvousLabel),
+			newLabelDefinition(f, node, innerRendezvousLabel),
 		];
 	}
 	if (op !== '==' && op !== '!=') {
@@ -281,7 +280,6 @@ export const invertBoolExpression = (
 	node: TreeSitterNode,
 	boolExp: BoolExpression,
 ): BoolExpression => {
-	// TODO: typeof `boolExp`
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
 		return newCheckSaveFlag(f, node, boolExp, false);
@@ -299,7 +297,6 @@ export const invertBoolExpression = (
 		boolExp.op = inverseOpMap[boolExp.op];
 		return boolExp;
 	}
-	if (!boolExp.action) throw new Error('should be string');
 	const param = getBoolFieldForAction(boolExp.action);
 	boolExp[param] = !boolExp[param];
 	return boolExp;
@@ -322,16 +319,15 @@ export const simpleBranchMaker = (
 	const steps: AnyNode[] = [
 		branchAction,
 		...elseBody,
-		makeGotoLabel(f, node, rendezvousLabel),
-		makeLabelDefinition(f, node, ifLabel),
+		newGotoLabel(f, node, rendezvousLabel),
+		newLabelDefinition(f, node, ifLabel),
 		...ifBody,
-		makeLabelDefinition(f, node, rendezvousLabel),
+		newLabelDefinition(f, node, rendezvousLabel),
 	];
 	return newSequence(f, node, steps, 'simpleBranchMaker');
 };
 
 export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
-	// const before = printScript('_', actions).split('\n');
 	// A goto label followed by the same label definition can be removed
 	for (let i = 0; i < actions.length; i++) {
 		const action = actions[i];

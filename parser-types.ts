@@ -130,7 +130,7 @@ export type GotoLabel = {
 export const isGotoLabel = (v: unknown): v is GotoLabel => {
 	return (v as GotoLabel)?.mathlang === 'goto_label';
 };
-export const makeGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
+export const newGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
 	mathlang: 'goto_label',
 	label,
 	debug: {
@@ -349,7 +349,7 @@ export const isLabelDefinition = (v: unknown): v is LabelDefinition => {
 	return (v as LabelDefinition)?.mathlang === 'label_definition';
 };
 // TODO: real constructors
-export const makeLabelDefinition = (
+export const newLabelDefinition = (
 	f: FileState,
 	node: TreeSitterNode,
 	label: string,

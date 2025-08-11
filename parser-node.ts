@@ -22,7 +22,7 @@ import {
 	stringCaptureForFieldName,
 	numberCaptureForFieldName,
 } from './parser-capture.ts';
-import { handleAction } from './parser-actions.ts';
+import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
 	isActionNode,
 	type BoolComparison,
@@ -61,12 +61,12 @@ import {
 	type GotoLabel,
 	isMathlangSequence,
 	isReturnStatement,
-	isContinueStatement,
-	isBreakStatement,
+	isContinueStatement as isContinueStatement,
+	isBreakStatement as isBreakStatement,
 	isJSONLiteral,
 	isGotoLabel,
-	makeLabelDefinition,
-	makeGotoLabel,
+	newLabelDefinition,
+	newGotoLabel,
 	newSequence,
 	newSerialDialogDefinition,
 	newDialogDefinition,
@@ -77,7 +77,6 @@ import {
 	type CheckAction,
 	type GOTO_ACTION_INDEX,
 	isCheckAction,
-	type MGSDebug,
 	isRunScript,
 } from './parser-bytecode-info.ts';
 
@@ -162,14 +161,14 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('should be a node');
-		const labelAction: LabelDefinition = makeLabelDefinition(f, lastChild, returnLabel);
+		const labelAction: LabelDefinition = newLabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		actions.forEach((action, i) => {
 			if (isActionNode(action)) {
 				return;
 			}
 			if (isReturnStatement(action)) {
-				actions[i] = makeGotoLabel(f, action.debug.node, returnLabel);
+				actions[i] = newGotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
 		return [
@@ -317,17 +316,10 @@ const nodeFns = {
 		}
 		// put the slices into a sequence
 		const temporary = newTemporary();
-		const steps: AnyNode[] = [
-			{
-				action: 'MUTATE_VARIABLE',
-				operation: 'RNG',
-				value: vertical.length,
-				variable: temporary,
-			},
-		];
+		const steps: AnyNode[] = [changeVarByValue(temporary, vertical.length, '?')];
 		let bottomSteps: AnyNode[] = [];
 		const rendezvousL = `rendezvous #${f.p.getGotoSuffix()}`;
-		// TODO: why not use the "make quick if-else" function for this?
+		// TODO: why not use the "new quick if-else" function for this?
 		vertical.forEach((body, i) => {
 			const ifL = `if #${f.p.advanceGotoSuffix()}`;
 			// add top half
@@ -347,20 +339,20 @@ const nodeFns = {
 			steps.push(condition);
 			// add bottom half
 			const bottomInsert: AnyNode[] = [
-				makeLabelDefinition(f, node, ifL),
+				newLabelDefinition(f, node, ifL),
 				...body,
-				makeGotoLabel(f, node, rendezvousL),
+				newGotoLabel(f, node, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
 		dropTemporary();
 		const combined = steps.concat(bottomSteps);
-		combined.push(makeLabelDefinition(f, node, rendezvousL));
+		combined.push(newLabelDefinition(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'parser-node: rand_macro')];
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
 		const text = textForFieldName(f, node, 'label');
-		return [makeLabelDefinition(f, node, text)];
+		return [newLabelDefinition(f, node, text)];
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = node.namedChildren
@@ -607,20 +599,15 @@ const nodeFns = {
 			// todo: did I copy-pasta this? Why is this here?
 			name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		}
-		const debug: MGSDebug = {
-			node,
-			fileName: f.fileName,
-		};
 		const action = simpleBranchMaker(
 			f,
 			node,
-			{ action: 'CHECK_DEBUG_MODE', expected_bool: true, debug },
+			{ action: 'CHECK_DEBUG_MODE', expected_bool: true },
 			[
 				{
 					action: 'SHOW_SERIAL_DIALOG',
 					disable_newline: false,
 					serial_dialog: name,
-					debug,
 				},
 			],
 			[],
@@ -630,14 +617,14 @@ const nodeFns = {
 	},
 	looping_block: (f: FileState, node: TreeSitterNode, printGotoLabel: string): AnyNode[] => {
 		return node.namedChildren
+			.filter((v) => v !== null)
 			.map((v) => {
-				if (!v) throw new Error('TS');
 				const handled = handleNode(f, v);
 				if (Array.isArray(handled)) return handled;
 				if (isContinueStatement(handled)) {
-					return makeGotoLabel(f, v, `while condition #${printGotoLabel}`);
+					return newGotoLabel(f, v, `while condition #${printGotoLabel}`);
 				} else if (isBreakStatement(handled)) {
-					return makeGotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
+					return newGotoLabel(f, v, `while rendezvous #${printGotoLabel}`);
 				}
 				return handled;
 			})
@@ -645,65 +632,57 @@ const nodeFns = {
 	},
 	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionL = `while condition #${n}`;
+		const whileL = `while condition #${n}`;
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
 		const conditionN = node.childForFieldName('condition');
-		if (!conditionN) throw new Error('TS');
+		if (!conditionN) throw new Error('while_block: no condition node');
 		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('not a condition');
+		if (!isBoolExpression(condition)) throw new Error('not a BoolExp');
 		const bodyN = node.childForFieldName('body');
-		if (!bodyN) throw new Error('TS');
+		if (!bodyN) throw new Error('while_block: no body node');
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if (isContinueStatement(v)) {
-					return makeGotoLabel(f, node, conditionL);
-				} else if (isBreakStatement(v)) {
-					return makeGotoLabel(f, node, rendezvousL);
-				} else {
-					return v;
-				}
+				if (isContinueStatement(v)) return newGotoLabel(f, node, whileL);
+				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
+				return v;
 			});
 		const steps = [
-			makeLabelDefinition(f, conditionN, conditionL),
+			newLabelDefinition(f, conditionN, whileL),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
-			makeGotoLabel(f, node, rendezvousL),
-			makeLabelDefinition(f, bodyN, bodyL),
+			newGotoLabel(f, node, rendezvousL),
+			newLabelDefinition(f, bodyN, bodyL),
 			...body,
-			makeGotoLabel(f, conditionN, conditionL),
-			makeLabelDefinition(f, node, rendezvousL),
+			newGotoLabel(f, conditionN, whileL),
+			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: while_block')];
 	},
 	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
-		const conditionL = `do while condition #${n}`;
+		const whileL = `do while condition #${n}`;
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
 		const conditionN = node.childForFieldName('condition');
-		if (!conditionN) throw new Error('TS');
+		if (!conditionN) throw new Error('do_while_block: no condition node');
 		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('not a condition');
+		if (!isBoolExpression(condition)) throw new Error('not a BoolExp');
 		const bodyN = node.childForFieldName('body');
-		if (!bodyN) throw new Error('TS');
+		if (!bodyN) throw new Error('do_while_block: no body node');
 		const body = handleNode(f, bodyN)
 			.flat()
 			.map((v) => {
-				if (isContinueStatement(v)) {
-					return makeGotoLabel(f, node, conditionL);
-				} else if (isBreakStatement(v)) {
-					return makeGotoLabel(f, node, rendezvousL);
-				} else {
-					return v;
-				}
+				if (isContinueStatement(v)) return newGotoLabel(f, node, whileL);
+				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
+				return v;
 			});
 		const steps = [
-			makeLabelDefinition(f, bodyN, bodyL),
+			newLabelDefinition(f, bodyN, bodyL),
 			...body,
-			makeLabelDefinition(f, conditionN, conditionL),
+			newLabelDefinition(f, conditionN, whileL),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
-			makeLabelDefinition(f, node, rendezvousL),
+			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: do_while_block')];
 	},
@@ -724,27 +703,23 @@ const nodeFns = {
 		const body: AnyNode[] = handleNode(f, bodyN)
 			.flat()
 			.map((v: AnyNode) => {
-				if (isContinueStatement(v)) {
-					return makeGotoLabel(f, node, continueL);
-				} else if (isBreakStatement(v)) {
-					return makeGotoLabel(f, node, rendezvousL);
-				} else {
-					return v;
-				}
+				if (isContinueStatement(v)) return newGotoLabel(f, node, continueL);
+				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
+				return v;
 			});
 		const initializer = node.childForFieldName('initializer');
 		if (initializer === null) throw new Error('missing initializer');
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
-			makeLabelDefinition(f, conditionN, conditionL),
+			newLabelDefinition(f, conditionN, conditionL),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
-			makeGotoLabel(f, node, rendezvousL),
-			makeLabelDefinition(f, bodyN, bodyL),
+			newGotoLabel(f, node, rendezvousL),
+			newLabelDefinition(f, bodyN, bodyL),
 			...body,
-			makeLabelDefinition(f, incrementerN, continueL),
+			newLabelDefinition(f, incrementerN, continueL),
 			...handleNode(f, incrementerN),
-			makeGotoLabel(f, conditionN, conditionL),
-			makeLabelDefinition(f, node, rendezvousL),
+			newGotoLabel(f, conditionN, conditionL),
+			newLabelDefinition(f, node, rendezvousL),
 		];
 		return [newSequence(f, node, steps, 'parser-node: for_block')];
 	},
@@ -788,7 +763,7 @@ const nodeFns = {
 		} else if (type === 'label') {
 			const label = stringCaptureForFieldName(f, node, 'label');
 			if (typeof condition === 'boolean') {
-				return condition ? [makeGotoLabel(f, node, label)] : [];
+				return condition ? [newGotoLabel(f, node, label)] : [];
 			}
 			const ret = {
 				...condition,
@@ -858,9 +833,9 @@ const nodeFns = {
 			steps.push(...expandBoolExpression(f, conditionN, condition, ifL));
 			// add bottom half
 			const bottomInsert: AnyNode[] = [
-				makeLabelDefinition(f, bodyN, ifL),
+				newLabelDefinition(f, bodyN, ifL),
 				...body,
-				makeGotoLabel(f, bodyN, rendezvousL),
+				newGotoLabel(f, bodyN, rendezvousL),
 			];
 			bottomSteps = bottomInsert.concat(bottomSteps);
 		});
@@ -875,9 +850,9 @@ const nodeFns = {
 				// gotoLabel(f, node, rendezvousLabel),
 			);
 		}
-		steps.push(makeGotoLabel(f, node, rendezvousL));
+		steps.push(newGotoLabel(f, node, rendezvousL));
 		const combined = steps.concat(bottomSteps);
-		combined.push(makeLabelDefinition(f, node, rendezvousL));
+		combined.push(newLabelDefinition(f, node, rendezvousL));
 		return [newSequence(f, node, combined, 'parser-node: if_chain')];
 	},
 };
