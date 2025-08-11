@@ -25,8 +25,11 @@ import {
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
-import { handleCapture } from './parser-capture.ts';
-import { handleNode } from './parser-node.ts';
+import {
+	handleCapture,
+	handleNamedChildren,
+	mandatoryChildForFieldName,
+} from './parser-capture.ts';
 
 export const verbose = false;
 export const debugLog = (message: string) => {
@@ -103,6 +106,12 @@ export const latestTemporary = (): string => temporaries[0];
 
 // ------------------------ GENERIC ------------------------ //
 
+export const autoDebug = (f: FileState, node: TreeSitterNode): MGSDebug => {
+	return {
+		node,
+		fileName: f.fileName,
+	};
+};
 export const inverseOpMap: Record<string, string> = {
 	'<': '>=',
 	'<=': '>',
@@ -245,17 +254,11 @@ export const expandBoolExpression = (
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs: BoolBinaryExpression = {
 		mathlang: 'bool_binary_expression',
-		debug: {
-			node: condition.debug?.node || node,
-			fileName: f.fileName,
-		},
+		debug: autoDebug(f, condition.debug?.node || node),
 		op: '||',
 		lhs: {
 			mathlang: 'bool_binary_expression',
-			debug: {
-				node: condition.debug?.node || node,
-				fileName: f.fileName,
-			},
+			debug: autoDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs,
 			rhs,
@@ -264,10 +267,7 @@ export const expandBoolExpression = (
 		},
 		rhs: {
 			mathlang: 'bool_binary_expression',
-			debug: {
-				node: condition.debug?.node || node,
-				fileName: f.fileName,
-			},
+			debug: autoDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
 			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
@@ -353,37 +353,26 @@ export const newConditionalBlock = (
 	node: TreeSitterNode,
 	type: string,
 ): ConditionalBlock => {
-	const conditionNode = node.childForFieldName('condition');
+	const conditionNode = mandatoryChildForFieldName(f, node, 'condition');
 	const condition = handleCapture(f, conditionNode);
-	if (!isBoolExpression(condition) || conditionNode === null) {
+	if (!isBoolExpression(condition)) {
 		throw new Error(type + ' condition not BoolExpression');
 	}
 	const bodyNode = node.childForFieldName('body');
 	if (!bodyNode) throw new Error(type + ' lacks a body');
-	const body = bodyNode.namedChildren
-		.filter((v) => v !== null)
-		.map((v) => {
-			return handleNode(f, v);
-		})
-		.flat();
+	const body = handleNamedChildren(f, bodyNode);
 	return {
 		condition,
 		conditionNode,
 		body,
 		bodyNode,
-		debug: {
-			fileName: f.fileName,
-			node,
-		},
+		debug: autoDebug(f, node),
 	};
 };
 export const newElse = (f: FileState, elseNode: TreeSitterNode | null): AnyNode[] => {
 	let elseBody: AnyNode[] = [];
 	if (elseNode && elseNode.lastChild) {
-		elseBody = elseNode.lastChild.namedChildren
-			.filter((v) => v !== null)
-			.map((v) => handleNode(f, v))
-			.flat();
+		elseBody = handleNamedChildren(f, elseNode.lastChild);
 	}
 	return elseBody;
 };

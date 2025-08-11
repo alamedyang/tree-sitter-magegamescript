@@ -1,6 +1,7 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
 import { type FileState } from './parser-file.ts';
+import { autoDebug } from './parser-utilities.ts';
 
 export type MGSPrimitive = string | boolean | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
@@ -132,18 +133,14 @@ export const isGotoLabel = (v: unknown): v is GotoLabel => {
 };
 export const newGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
 	mathlang: 'goto_label',
+	debug: autoDebug(f, node),
 	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
 });
 
 // ------------------------------ DIALOG ------------------------------ \\
 
 export type DialogDefinition = {
 	mathlang: 'dialog_definition';
-	fileName: string;
 	dialogName: string;
 	dialogs: Dialog[];
 	debug: TYPES.MGSDebug;
@@ -159,13 +156,9 @@ export const newDialogDefinition = (
 	dialogs: Dialog[],
 ): DialogDefinition => ({
 	mathlang: 'dialog_definition',
-	fileName: f.fileName,
+	debug: autoDebug(f, node),
 	dialogName,
 	dialogs,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
 });
 
 export type DialogSettings = {
@@ -230,7 +223,6 @@ export const isDialogOption = (v: unknown): v is DialogOption => {
 
 export type SerialDialogDefinition = {
 	mathlang: 'serial_dialog_definition';
-	fileName: string;
 	dialogName: string;
 	serialDialog: SerialDialog;
 	debug: TYPES.MGSDebug;
@@ -246,13 +238,9 @@ export const newSerialDialogDefinition = (
 	serialDialog: SerialDialog,
 ): SerialDialogDefinition => ({
 	mathlang: 'serial_dialog_definition',
-	fileName: f.fileName,
+	debug: autoDebug(f, node),
 	dialogName,
 	serialDialog,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
 });
 
 export type SerialDialogSettings = {
@@ -355,11 +343,8 @@ export const newLabelDefinition = (
 	label: string,
 ): LabelDefinition => ({
 	mathlang: 'label_definition',
+	debug: autoDebug(f, node),
 	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
 });
 
 export type JSONLiteral = {
@@ -424,12 +409,9 @@ export const newSequence = (
 		});
 	return {
 		mathlang: 'sequence',
+		debug: autoDebug(f, node),
 		type,
 		steps: flatSteps,
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
 	};
 };
 
@@ -443,6 +425,7 @@ export const isIntExpression = (v: unknown): v is IntExpression => {
 export type IntUnit = IntGetable | number | string;
 export const isIntUnit = (v: unknown): v is IntUnit => {
 	if (v === null) return false;
+	if (v === undefined) return false;
 	if (typeof v === 'number') return true;
 	if (typeof v === 'string') return true;
 	if (isIntGetable(v)) return true;
@@ -574,12 +557,9 @@ export const newCheckSaveFlag = (
 	return {
 		mathlang: 'bool_getable',
 		action: 'CHECK_SAVE_FLAG',
+		debug: autoDebug(f, node),
 		expected_bool,
 		save_flag,
-		debug: {
-			fileName: f.fileName,
-			node,
-		},
 	};
 };
 

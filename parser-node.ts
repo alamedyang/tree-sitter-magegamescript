@@ -12,6 +12,7 @@ import {
 	simpleBranchMaker,
 	type ConditionalBlock,
 	quickTemporary,
+	autoDebug,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -25,6 +26,9 @@ import {
 	stringCaptureForFieldName,
 	numberCaptureForFieldName,
 	checkVariable,
+	mandatoryChildForFieldName,
+	handleChildrenForFieldName,
+	handleNamedChildren,
 } from './parser-capture.ts';
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
@@ -119,7 +123,7 @@ const nodeFns = {
 		};
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
-		// (This is only for nodes so malformed that tree-sitter can't tell what it is)
+		// (This is only for nodes so malformed that tree-sitter can't tell what they are)
 		if (node.namedChildren.some((v) => v?.grammarType === 'over_time_operator')) {
 			// TODO: test that this is reachable
 			err.message = `malformed 'do over time' expression`;
@@ -133,13 +137,7 @@ const nodeFns = {
 	},
 	script_definition: (f: FileState, node: TreeSitterNode): [ScriptDefinition] => {
 		const name = stringCaptureForFieldName(f, node, 'script_name');
-		// error nodes are caught above
-		const rawActions: AnyNode[] = (node.lastChild?.namedChildren || [])
-			.map((v) => {
-				if (v === null) throw new Error('');
-				return handleNode(f, v);
-			})
-			.flat();
+		const rawActions: AnyNode[] = handleNamedChildren(f, node.lastChild || node);
 		const actions: AnyNode[] = [];
 		// flatten sequences
 		rawActions.forEach((raw) => {
@@ -150,24 +148,24 @@ const nodeFns = {
 					if (isActionNode(obj)) {
 						actions.push(obj);
 					} else {
-						throw new Error('not a JSON action: ' + JSON.stringify(obj));
+						f.newError({
+							message: 'invalid JSON action: ' + JSON.stringify(obj),
+							locations: [{ node: raw.debug.node }],
+						});
 					}
 				});
 			} else {
 				actions.push(raw);
 			}
 		});
-		// add auto return destination
-		// (this should be done prior to copy!(), but after flattening sequences)
+		// add auto return label
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('should be a node');
 		const labelAction: LabelDefinition = newLabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
+		// change all return statements to goto labels
 		actions.forEach((action, i) => {
-			if (isActionNode(action)) {
-				return;
-			}
 			if (isReturnStatement(action)) {
 				actions[i] = newGotoLabel(f, action.debug.node, returnLabel);
 			}
@@ -175,20 +173,22 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'script_definition',
+				debug: autoDebug(f, node),
 				scriptName: name,
 				actions,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
-	constant_assignment: (f: FileState, node: TreeSitterNode): [ConstantDefinition] => {
+	constant_assignment: (f: FileState, node: TreeSitterNode): ConstantDefinition[] => {
 		const label = textForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
 		if (!isMGSPrimitive(value)) {
-			throw new Error(`constant value not an MGS primitive (${label})`);
+			const valueNode = node.childForFieldName('value');
+			f.newError({
+				message: `constant value not an MGS primitive (${label})`,
+				locations: [{ node: valueNode || node }],
+			});
+			return [];
 		}
 		if (f.constants[label]) {
 			f.newError({
@@ -197,21 +197,15 @@ const nodeFns = {
 			});
 		}
 		f.constants[label] = {
+			debug: autoDebug(f, node),
 			value,
-			debug: {
-				node,
-				fileName: f.fileName,
-			},
 		};
 		return [
 			{
 				mathlang: 'constant_assignment',
+				debug: autoDebug(f, node),
 				label,
 				value,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
@@ -224,7 +218,7 @@ const nodeFns = {
 			);
 		}
 		includeRecursion.push(f.fileName);
-		// todo: Should this use the spread macro? Or should it be limited to actions?
+		// todo: Should this be allowed to use the spread macro? Or should spreading be limited to actions?
 		const rawFileNames = captureForFieldName(f, node, 'fileName');
 		const fileNames = Array.isArray(rawFileNames) ? rawFileNames : [rawFileNames];
 		if (!fileNames.every((v) => typeof v === 'string')) {
@@ -283,10 +277,7 @@ const nodeFns = {
 		return fileNames.map((fileName: string) => ({
 			mathlang: 'include_macro',
 			value: fileName,
-			debug: {
-				node,
-				fileName: f.fileName,
-			},
+			debug: autoDebug(f, node),
 		}));
 	},
 	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
@@ -300,7 +291,6 @@ const nodeFns = {
 				const len = actions.length;
 				if (len === 0) return; // empties are ignored
 				horizontal.push(actions);
-				// count how much it spread
 				if (len === 1) return; // singles are passed through
 				if (spreadCount === -Infinity) spreadCount = len;
 				if (spreadCount !== len) {
@@ -325,40 +315,28 @@ const nodeFns = {
 		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
 			return {
 				condition: checkVariable(f, node, temp, i, '=='),
+				debug: autoDebug(f, node),
 				body,
-				debug: {
-					fileName: f.fileName,
-					node,
-				},
 			};
 		});
 		const sequence: MathlangSequence = ifChainMaker(f, node, iffs, [], 'rand_macro');
-		// put the random number generation on the top
-		sequence.steps.unshift(changeVarByValue(temp, vertical.length, '?'));
+		sequence.steps.unshift(changeVarByValue(temp, vertical.length, '?')); // the RNG roll
 		return [sequence];
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
-		const text = textForFieldName(f, node, 'label');
-		return [newLabelDefinition(f, node, text)];
+		const label = textForFieldName(f, node, 'label');
+		return [newLabelDefinition(f, node, label)];
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
-		const targets = node.namedChildren
-			.map((child) => {
-				if (child === null) throw new Error('found null child node in add_dialog_settings');
-				return handleNode(f, child);
-			})
-			.flat();
+		const targets = handleNamedChildren(f, node);
 		if (!targets.every(isAddDialogSettingsTarget)) {
 			throw new Error('Dialog Settings Target node not a dialog settings target');
 		}
 		return [
 			{
 				mathlang: 'add_dialog_settings',
+				debug: autoDebug(f, node),
 				targets,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
@@ -367,13 +345,10 @@ const nodeFns = {
 		const type = textForFieldName(f, node, 'type');
 		const ret: AddDialogSettingsTarget = {
 			mathlang: 'add_dialog_settings_target',
+			debug: autoDebug(f, node),
 			type,
-			debug: {
-				node,
-				fileName: f.fileName,
-			},
 		};
-		// figure out which settings we're adding to (the "target")
+		// figure out which settings target it is
 		if (type === 'default') {
 			settingsTarget = f.settings.default;
 		} else if (type === 'label' || type === 'entity') {
@@ -387,7 +362,7 @@ const nodeFns = {
 		// find the settings themselves
 		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
 		if (!parameters.every(isDialogParameter)) {
-			throw new Error('Not every capture is the thing');
+			throw new Error('not every dialog_parameter is a DialogParameter');
 		}
 		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
@@ -396,10 +371,9 @@ const nodeFns = {
 		return [ret];
 	},
 	add_serial_dialog_settings: (f: FileState, node: TreeSitterNode): [AddSerialDialogSettings] => {
-		// This one is inconsistent with the others?
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
 		if (!parameters.every(isSerialDialogParameter)) {
-			throw new Error('every serial dialog parameter not of the correct type');
+			throw new Error('not every serial_dialog_parameter is a SerialDialogParameter');
 		}
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
@@ -407,30 +381,23 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'add_serial_dialog_settings',
+				debug: autoDebug(f, node),
 				parameters,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
-	// TODO: move these to parser-capture, so we can use capturesForFieldName() to get them (?)
 	serial_dialog_option: (f: FileState, node: TreeSitterNode): [SerialDialogOption] => {
 		const optionChar = textForFieldName(f, node, 'option_type');
 		let optionType: SerialOptionType = 'options';
 		if (optionChar === '_') optionType = 'text_options';
-		else if (optionChar !== '#') throw new Error('invalid option type');
+		else if (optionChar !== '#') throw new Error('invalid option type: ' + optionChar);
 		return [
 			{
 				mathlang: 'serial_dialog_option',
 				optionType,
 				label: stringCaptureForFieldName(f, node, 'label'),
+				debug: autoDebug(f, node),
 				script: stringCaptureForFieldName(f, node, 'script'),
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
@@ -438,18 +405,14 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'dialog_option',
+				debug: autoDebug(f, node),
 				label: stringCaptureForFieldName(f, node, 'label'),
 				script: stringCaptureForFieldName(f, node, 'script'),
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
 	serial_dialog_definition: (f: FileState, node: TreeSitterNode): [SerialDialogDefinition] => {
-		const serialDialogNode = node.childForFieldName('serial_dialog');
-		if (serialDialogNode === null) throw new Error('node not found');
+		const serialDialogNode = mandatoryChildForFieldName(f, node, 'serial_dialog');
 		const name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialog = handleNode(f, serialDialogNode);
 		if (serialDialog.length !== 1) throw new Error('');
@@ -458,13 +421,7 @@ const nodeFns = {
 	},
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
 		const dialogName = stringCaptureForFieldName(f, node, 'dialog_name');
-		const dialogNodes = node.childrenForFieldName('dialog');
-		const dialogs = dialogNodes
-			.map((v) => {
-				if (v === null) throw new Error('missing node');
-				return handleNode(f, v);
-			})
-			.flat();
+		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		if (!dialogs.every(isDialog)) throw new Error('');
 		return [newDialogDefinition(f, node, dialogName, dialogs)];
 	},
@@ -476,13 +433,7 @@ const nodeFns = {
 			settings[v.property] = v.value;
 		});
 		// TODO: make options more closely resemble final form?
-		const options = node
-			.childrenForFieldName('serial_dialog_option')
-			.map((v) => {
-				if (v === null) throw new Error('missing node');
-				return handleNode(f, v);
-			})
-			.flat();
+		const options = handleChildrenForFieldName(f, node, 'serial_dialog_option');
 		if (!options.every(isSerialDialogOption)) {
 			throw new Error('invalid option');
 		}
@@ -497,27 +448,30 @@ const nodeFns = {
 		return [serialDialog];
 	},
 	dialog: (f: FileState, node: TreeSitterNode): [Dialog] => {
+		// Identifier
+		const identifier = captureForFieldName(f, node, 'dialog_identifier');
+		if (!isDialogIdentifier(identifier)) throw new Error('asdf');
+		// Settings
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
-		if (!params.every(isDialogParameter)) throw new Error();
-		const messageN = node.childrenForFieldName('message');
+		if (!params.every(isDialogParameter)) {
+			throw new Error('not every dialog_parameter is a DialogParameter');
+		}
 		params.forEach((v) => {
 			settings[v.property] = v.value;
 		});
-		const options = node
-			.childrenForFieldName('dialog_option')
-			.map((v) => {
-				if (v === null) throw new Error('missing node');
-				return handleNode(f, v);
-			})
-			.flat();
-		if (!options.every(isDialogOption)) {
-			throw new Error('invalid option');
-		}
-		const identifier = captureForFieldName(f, node, 'dialog_identifier');
-		if (!isDialogIdentifier(identifier)) throw new Error('asdf');
+		// Messages
+		const messageN = node.childrenForFieldName('message');
 		const messages = messageN.map((v) => handleCapture(f, v));
-		if (!messages.every((v) => typeof v === 'string')) throw new Error('Pff');
+		if (!messages.every((v) => typeof v === 'string')) {
+			throw new Error('not every dialog_message is a string');
+		}
+		// Options
+		const options = handleChildrenForFieldName(f, node, 'dialog_option');
+		if (!options.every(isDialogOption)) {
+			throw new Error('not every dialog_option is a DialogOption');
+		}
+		// Build it
 		const info: DialogInfo = {
 			identifier,
 			settings,
@@ -528,10 +482,7 @@ const nodeFns = {
 		return [
 			{
 				...dialogs,
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
+				debug: autoDebug(f, node),
 			},
 		];
 	},
@@ -545,11 +496,8 @@ const nodeFns = {
 			return [
 				{
 					mathlang: 'json_literal',
+					debug: autoDebug(f, node),
 					json: parsed,
-					debug: {
-						node,
-						fileName: f.fileName,
-					},
 				},
 			];
 		} catch {
@@ -565,11 +513,8 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'copy_script',
+				debug: autoDebug(f, node),
 				script: stringCaptureForFieldName(f, node, 'script'),
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
 			},
 		];
 	},
@@ -578,7 +523,7 @@ const nodeFns = {
 		let name = '';
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode) {
-			const serialDialog = handleNode(f, serialDialogNode).flat();
+			const serialDialog = handleNode(f, serialDialogNode);
 			if (!isSerialDialog(serialDialog[0])) throw new Error();
 			name = autoIdentifierName(f, node);
 			ret.push(newSerialDialogDefinition(f, node, name, serialDialog[0]));
@@ -607,19 +552,15 @@ const nodeFns = {
 		return ret;
 	},
 	looping_block: (f: FileState, node: TreeSitterNode, printGotoLabel: string): AnyNode[] => {
-		return node.namedChildren
-			.filter((v) => v !== null)
-			.map((v) => {
-				const handled = handleNode(f, v);
-				if (Array.isArray(handled)) return handled;
-				if (isContinueStatement(handled)) {
-					return newGotoLabel(f, v, `condition #${printGotoLabel}`);
-				} else if (isBreakStatement(handled)) {
-					return newGotoLabel(f, v, `rendezvous #${printGotoLabel}`);
-				}
-				return handled;
-			})
-			.flat();
+		return handleNamedChildren(f, node).map((v) => {
+			if (Array.isArray(v)) return v;
+			if (isContinueStatement(v)) {
+				return newGotoLabel(f, v.debug.node, `condition #${printGotoLabel}`);
+			} else if (isBreakStatement(v)) {
+				return newGotoLabel(f, v.debug.node, `rendezvous #${printGotoLabel}`);
+			}
+			return v;
+		});
 	},
 	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const block = newConditionalBlock(f, node, 'while');
@@ -667,15 +608,12 @@ const nodeFns = {
 		if (!bodyN) throw new Error('TS');
 		const incrementerN = node.childForFieldName('incrementer');
 		if (!incrementerN) throw new Error('TS');
-		const body: AnyNode[] = handleNode(f, bodyN)
-			.flat()
-			.map((v: AnyNode) => {
-				if (isContinueStatement(v)) return newGotoLabel(f, node, continueL);
-				if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
-				return v;
-			});
-		const initializer = node.childForFieldName('initializer');
-		if (initializer === null) throw new Error('missing initializer');
+		const body: AnyNode[] = handleNode(f, bodyN).map((v: AnyNode) => {
+			if (isContinueStatement(v)) return newGotoLabel(f, node, continueL);
+			if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
+			return v;
+		});
+		const initializer = mandatoryChildForFieldName(f, node, 'initializer');
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
 			newLabelDefinition(f, conditionN, conditionL),

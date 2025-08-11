@@ -22,6 +22,7 @@ import {
 	isIntExpression,
 	type DirectionTarget,
 	newCheckSaveFlag,
+	type AnyNode,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -29,8 +30,10 @@ import {
 	reportErrorNodes,
 	invertBoolExpression,
 	inverseOpMap,
+	autoDebug,
 } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
+import { handleNode } from './parser-node.ts';
 
 const opIntoStringMap: Record<string, string> = {
 	'=': 'SET',
@@ -252,10 +255,8 @@ const captureFns = {
 		return { mathlang: 'bool_setable', type };
 	},
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
-		const rhsNode = node.childForFieldName('rhs');
-		const lhsNode = node.childForFieldName('lhs');
-		if (!rhsNode) throw new Error('missing rhsNode in int_binary_expression');
-		if (!lhsNode) throw new Error('missing lhsNode in int_binary_expression');
+		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
+		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
@@ -275,10 +276,8 @@ const captureFns = {
 		};
 	},
 	bool_binary_expression: (f: FileState, node: TreeSitterNode): BoolBinaryExpression => {
-		const rhsNode = node.childForFieldName('rhs');
-		const lhsNode = node.childForFieldName('lhs');
-		if (!rhsNode) throw new Error('missing rhsNode');
-		if (!lhsNode) throw new Error('missing lhsNode');
+		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
+		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
@@ -291,10 +290,7 @@ const captureFns = {
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
+				debug: autoDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -308,10 +304,7 @@ const captureFns = {
 		) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
+				debug: autoDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -325,10 +318,7 @@ const captureFns = {
 		) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: {
-					node,
-					fileName: f.fileName,
-				},
+				debug: autoDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -365,10 +355,7 @@ const captureFns = {
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
-		const debug = {
-			node,
-			fileName: f.fileName,
-		};
+		const debug = autoDebug(f, node);
 		if (type === 'flag') {
 			return newCheckSaveFlag(f, node, stringCaptureForFieldName(f, node, 'value'), true);
 		} else if (type === 'debug_mode') {
@@ -414,8 +401,7 @@ const captureFns = {
 			}
 		} else if (type === 'button') {
 			const button_id = stringCaptureForFieldName(f, node, 'button');
-			const stateNode = node.childForFieldName('state');
-			if (!stateNode) throw new Error('missing stateNode in bool_getable capture');
+			const stateNode = mandatoryChildForFieldName(f, node, 'state');
 			if (stateNode.text === 'pressed') {
 				return {
 					mathlang: 'bool_getable',
@@ -573,10 +559,7 @@ const captureFns = {
 				numberLabel: 'expected_byte',
 			};
 		} else if (property === 'strafe') {
-			const propertyNode = node.childForFieldName('property');
-			if (!propertyNode) {
-				throw new Error('missing property node in capture number_checkable_equality');
-			}
+			const propertyNode = mandatoryChildForFieldName(f, node, 'property');
 			f.newError({
 				locations: [{ node: propertyNode }],
 				message: `this property is not supported in boolean expressions`,
@@ -595,15 +578,10 @@ const captureFns = {
 		return stringCaptureForFieldName(f, node, 'entity_identifier');
 	},
 	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | boolean => {
-		const lhsNode = node.childForFieldName('lhs');
-		const rhsNode = node.childForFieldName('rhs');
-		if (!rhsNode) throw new Error('missing rhsNode in bool_comparison capture');
-		if (!lhsNode) throw new Error('missing lhsNode in bool_comparison capture');
+		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
+		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const op = textForFieldName(f, node, 'operator');
-		const debug = {
-			node,
-			fileName: f.fileName,
-		};
+		const debug = autoDebug(f, node);
 		// entity Bob direction == north
 		if (lhsNode.grammarType === 'entity_direction') {
 			return compareNSEW(f, lhsNode, rhsNode, op, debug);
@@ -789,14 +767,11 @@ const checkVariables = (
 	return {
 		mathlang: 'bool_comparison',
 		action: 'CHECK_VARIABLES',
+		debug: autoDebug(f, node),
 		variable,
 		source,
 		comparison,
 		expected_bool: true,
-		debug: {
-			fileName: f.fileName,
-			node,
-		},
 	};
 };
 export const checkVariable = (
@@ -808,14 +783,11 @@ export const checkVariable = (
 ): BoolComparison => ({
 	mathlang: 'bool_comparison',
 	action: 'CHECK_VARIABLE',
+	debug: autoDebug(f, node),
 	variable,
 	value,
 	comparison,
 	expected_bool: true,
-	debug: {
-		fileName: f.fileName,
-		node,
-	},
 });
 const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
 	const type = optionalTextForFieldName(f, node, 'type');
@@ -827,13 +799,41 @@ const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
 
 // Very common node handling behaviors
 
+export const handleChildrenForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): AnyNode[] => {
+	const children = node.childrenForFieldName(fieldName);
+	return children
+		.filter((v) => v !== null)
+		.map((v) => handleNode(f, v))
+		.flat();
+};
+
+export const handleNamedChildren = (f: FileState, node: TreeSitterNode): AnyNode[] => {
+	return node.namedChildren
+		.filter((v) => v !== null)
+		.map((v) => handleNode(f, v))
+		.flat();
+};
+
+export const mandatoryChildForFieldName = (
+	f: FileState,
+	node: TreeSitterNode,
+	fieldName: string,
+): TreeSitterNode => {
+	const child = node.childForFieldName(fieldName);
+	if (child === null) throw new Error('missing child for field name ' + fieldName);
+	return child;
+};
+
 export const stringCaptureForFieldName = (
 	f: FileState,
 	node: TreeSitterNode,
 	fieldName: string,
 ): string => {
-	const captureNode = node.childForFieldName(fieldName);
-	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const captureNode = mandatoryChildForFieldName(f, node, fieldName);
 	const capture = handleCapture(f, captureNode);
 	if (typeof capture === 'string') return capture;
 	throw new Error(`capture from field ${fieldName} not a string`);
@@ -856,8 +856,7 @@ export const stringOrNumberCaptureForFieldName = (
 	node: TreeSitterNode,
 	fieldName: string,
 ): string | number => {
-	const captureNode = node.childForFieldName(fieldName);
-	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const captureNode = mandatoryChildForFieldName(f, node, fieldName);
 	const capture = handleCapture(f, captureNode);
 	if (typeof capture === 'string' || typeof capture === 'number') return capture;
 	throw new Error(`capture from field ${fieldName} not a string or number`);
@@ -868,8 +867,7 @@ export const numberCaptureForFieldName = (
 	node: TreeSitterNode,
 	fieldName: string,
 ): number => {
-	const captureNode = node.childForFieldName(fieldName);
-	if (!captureNode) throw new Error('no TS node found for fieldName ' + fieldName);
+	const captureNode = mandatoryChildForFieldName(f, node, fieldName);
 	const capture = handleCapture(f, captureNode);
 	if (typeof capture === 'number') return capture;
 	throw new Error(`capture from field ${fieldName} not a number`);
@@ -902,8 +900,7 @@ export const optionalTextForFieldName = (
 	return captureNode.text;
 };
 export const textForFieldName = (f: FileState, node: TreeSitterNode, fieldName: string): string => {
-	const captureNode = node.childForFieldName(fieldName);
-	if (!captureNode) throw new Error('missing text for field name ' + fieldName);
+	const captureNode = mandatoryChildForFieldName(f, node, fieldName);
 	return captureNode.text;
 };
 

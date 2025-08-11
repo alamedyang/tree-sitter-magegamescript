@@ -3,6 +3,8 @@ import {
 	coerceToNumber,
 	coerceToString,
 	handleCapture,
+	handleChildrenForFieldName,
+	mandatoryChildForFieldName,
 	optionalStringCaptureForFieldName,
 	type Capture,
 } from './parser-capture.ts';
@@ -58,8 +60,8 @@ import {
 	quickTemporary,
 	latestTemporary,
 	simpleBranchMaker,
+	autoDebug,
 } from './parser-utilities.ts';
-import { handleNode } from './parser-node.ts';
 import { type FileState } from './parser-file.ts';
 
 const opIntoStringMap: Record<string, string> = {
@@ -242,12 +244,8 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const customed = customFn(f, node);
 		return customed;
 	}
-	const debug: MGSDebug = {
-		node,
-		fileName: f.fileName,
-	};
 	const action = {
-		debug,
+		debug: autoDebug(f, node),
 		...data.values,
 	};
 	// Action params
@@ -298,12 +296,7 @@ const actionFns: Record<string, ActionFn> = {
 	action_show_dialog: (f: FileState, node: TreeSitterNode): ShowDialogOutput => {
 		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
 		const name = tryName !== null ? tryName : autoIdentifierName(f, node);
-		const dialogs = (node.childrenForFieldName('dialog') || [])
-			.filter((v) => v !== null)
-			.map((child) => {
-				return handleNode(f, child);
-			})
-			.flat();
+		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		const shownDialog: SHOW_DIALOG = {
 			action: 'SHOW_DIALOG',
 			dialog: name,
@@ -331,12 +324,7 @@ const actionShowSerialDialog = (
 ): ShowSerialDialogOutput => {
 	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
 	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
-	const serialDialogs = (node.childrenForFieldName('serial_dialog') || [])
-		.filter((v) => v !== null)
-		.map((child) => {
-			return handleNode(f, child);
-		})
-		.flat();
+	const serialDialogs = handleChildrenForFieldName(f, node, 'serial_dialog');
 	const shownSerialDialog: SHOW_SERIAL_DIALOG = {
 		action: 'SHOW_SERIAL_DIALOG',
 		serial_dialog: name,
@@ -505,8 +493,6 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i): AnyNode => {
 			const lhs = coerceToString(f, node, v.lhs, 'action_set_ambiguous lhs');
-			const rhsNode = node.childForFieldName('rhs');
-			if (!rhsNode) throw new Error('action_set_ambiguous: missing RHS node');
 
 			// simple cases first (easy to check for)
 
@@ -955,11 +941,10 @@ const actionData: Record<string, actionDataEntry> = {
 						script,
 					};
 				}
-				const errorNodes = node.childForFieldName('script_slot');
-				if (!errorNodes) throw new Error('action_set_script: missing script_slot node');
+				const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 				f.newError({
 					message: `invalid map script slot`,
-					locations: [{ node: errorNodes }],
+					locations: [{ node: errorNode }],
 					footer: `You can only set a map's 'on_tick' or 'on_look' slot`,
 				});
 				return;
@@ -986,11 +971,10 @@ const actionData: Record<string, actionDataEntry> = {
 					script,
 				};
 			}
-			const errorNodes = node.childForFieldName('script_slot');
-			if (!errorNodes) throw new Error('cannot find script_slot nodes');
+			const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 			f.newError({
 				message: `invalid entity script slot`,
-				locations: [{ node: errorNodes }],
+				locations: [{ node: errorNode }],
 				footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
 			});
 		},
