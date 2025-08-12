@@ -1,16 +1,15 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { type FileState } from './parser-file.ts';
 import {
+	ConditionalBlock,
 	reportMissingChildNodes,
 	reportErrorNodes,
 	debugLog,
 	expandBoolExpression,
 	autoIdentifierName,
-	newConditionalBlock,
 	newElse,
 	ifChainMaker,
 	simpleBranchMaker,
-	type ConditionalBlock,
 	quickTemporary,
 	autoDebug,
 } from './parser-utilities.ts';
@@ -82,12 +81,14 @@ import {
 	newIncludeNode,
 	newAddDialogSettings,
 	newAddSerialDialogSettings,
+	type BoolGetable,
 } from './parser-types.ts';
 import {
 	type RUN_SCRIPT,
 	type CheckAction,
 	type GOTO_ACTION_INDEX,
 	isCheckAction,
+	type SHOW_SERIAL_DIALOG,
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: TreeSitterNode): AnyNode[] => {
@@ -508,23 +509,17 @@ const nodeFns = {
 			// might just be the name of a serial dialog, and not a serial-dialog-in-place
 			name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		}
-		const action = simpleBranchMaker(
-			f,
-			node,
-			{
-				mathlang: 'bool_getable',
-				action: 'CHECK_DEBUG_MODE',
-				expected_bool: true,
-			},
-			[
-				{
-					action: 'SHOW_SERIAL_DIALOG',
-					disable_newline: false,
-					serial_dialog: name,
-				},
-			],
-			[],
-		);
+		const condition: BoolGetable = {
+			mathlang: 'bool_getable',
+			action: 'CHECK_DEBUG_MODE',
+			expected_bool: true,
+		};
+		const ifTrue: SHOW_SERIAL_DIALOG = {
+			action: 'SHOW_SERIAL_DIALOG',
+			disable_newline: false,
+			serial_dialog: name,
+		};
+		const action = simpleBranchMaker(f, node, condition, [ifTrue], []);
 		ret.push(action);
 		return ret;
 	},
@@ -540,7 +535,7 @@ const nodeFns = {
 		});
 	},
 	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const block = newConditionalBlock(f, node, 'while');
+		const block = new ConditionalBlock(f, node, 'while');
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `while condition #${n}`;
 		const bodyL = `while body #${n}`;
@@ -557,7 +552,7 @@ const nodeFns = {
 		return [newSequence(f, node, steps, 'parser-node: while_block')];
 	},
 	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const doWhyle = newConditionalBlock(f, node, 'do while');
+		const doWhyle = new ConditionalBlock(f, node, 'do while');
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `do while condition #${n}`;
 		const bodyL = `do while body #${n}`;
@@ -641,7 +636,7 @@ const nodeFns = {
 	},
 	if_chain: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const ifNodes = node.childrenForFieldName('if_block').filter((v) => v !== null);
-		const iffs = ifNodes.map((v) => newConditionalBlock(f, v, 'if'));
+		const iffs = ifNodes.map((v) => new ConditionalBlock(f, v, 'if'));
 		const elseNode = node.childForFieldName('else_block');
 		const elseBody = newElse(f, elseNode);
 		return [ifChainMaker(f, node, iffs, elseBody, 'if_chain')];

@@ -2,7 +2,7 @@ import * as TYPES from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
-const printAction = (data: MATHLANG.AnyNode): string => {
+export const printAction = (data: MATHLANG.AnyNode): string => {
 	const isAction = MATHLANG.isActionNode(data);
 	if (MATHLANG.isCommentNode(data)) {
 		const abridged =

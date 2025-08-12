@@ -338,34 +338,37 @@ export const simpleBranchMaker = (
 	return newSequence(f, node, steps, 'longerBranchMaker');
 };
 
-export type ConditionalBlock = {
+export class ConditionalBlock {
 	condition: BoolExpression;
 	conditionNode?: TreeSitterNode;
 	body: AnyNode[];
 	bodyNode?: TreeSitterNode;
 	debug: MGSDebug;
-};
-export const newConditionalBlock = (
-	f: FileState,
-	node: TreeSitterNode,
-	type: string,
-): ConditionalBlock => {
-	const conditionNode = mandatoryChildForFieldName(f, node, 'condition');
-	const condition = handleCapture(f, conditionNode);
-	if (!isBoolExpression(condition)) {
-		throw new Error(type + ' condition not BoolExpression');
+	constructor(f: FileState, node: TreeSitterNode, type: string) {
+		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
+		const condition = handleCapture(f, this.conditionNode);
+		if (!isBoolExpression(condition)) {
+			throw new Error(type + ' condition not BoolExpression');
+		}
+		this.condition = condition;
+		this.bodyNode = mandatoryChildForFieldName(f, node, 'body');
+		this.body = handleNamedChildren(f, this.bodyNode);
+		this.debug = autoDebug(f, node);
 	}
-	const bodyNode = node.childForFieldName('body');
-	if (!bodyNode) throw new Error(type + ' lacks a body');
-	const body = handleNamedChildren(f, bodyNode);
-	return {
-		condition,
-		conditionNode,
-		body,
-		bodyNode,
-		debug: autoDebug(f, node),
-	};
-};
+	// toString() {
+	// 	const bodyPrint = this.body.map(printAction);
+	// 	if (this.conditionNode) {
+	// 		const string = [
+	// 			`if (${this.conditionNode.text}) {`,
+	// 			...bodyPrint.map((v) => `\t${v}`),
+	// 			`}`,
+	// 		].join('\n');
+	// 		return string;
+	// 	}
+	// 	throw new Error('todo');
+	// }
+}
+
 export const newElse = (f: FileState, elseNode: TreeSitterNode | null): AnyNode[] => {
 	let elseBody: AnyNode[] = [];
 	if (elseNode && elseNode.lastChild) {
