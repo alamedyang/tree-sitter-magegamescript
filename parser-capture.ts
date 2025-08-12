@@ -1,6 +1,36 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { type MGSDebug } from './parser-bytecode-info.ts';
 import {
+	CHECK_DEBUG_MODE,
+	CHECK_DIALOG_OPEN,
+	CHECK_ENTITY_CURRENT_ANIMATION,
+	CHECK_ENTITY_CURRENT_FRAME,
+	CHECK_ENTITY_DIRECTION,
+	CHECK_ENTITY_GLITCHED,
+	CHECK_ENTITY_INTERACT_SCRIPT,
+	CHECK_ENTITY_LOOK_SCRIPT,
+	CHECK_ENTITY_NAME,
+	CHECK_ENTITY_PATH,
+	CHECK_ENTITY_PRIMARY_ID,
+	CHECK_ENTITY_PRIMARY_ID_TYPE,
+	CHECK_ENTITY_SECONDARY_ID,
+	CHECK_ENTITY_TICK_SCRIPT,
+	CHECK_ENTITY_TYPE,
+	CHECK_ENTITY_X,
+	CHECK_ENTITY_Y,
+	CHECK_FOR_BUTTON_PRESS,
+	CHECK_FOR_BUTTON_STATE,
+	CHECK_IF_ENTITY_IS_IN_GEOMETRY,
+	CHECK_SERIAL_DIALOG_OPEN,
+	CHECK_VARIABLE,
+	CHECK_VARIABLES,
+	CHECK_WARP_STATE,
+	MGSDebug,
+	SET_ENTITY_DIRECTION,
+	SET_ENTITY_DIRECTION_TARGET_ENTITY,
+	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
+} from './parser-bytecode-info.ts';
+import {
+	BoolSetable,
 	type CoordinateIdentifier,
 	type MovableIdentifier,
 	type DialogParameter,
@@ -11,7 +41,6 @@ import {
 	isNumberCheckableEquality,
 	type BoolGetable,
 	type DialogIdentifier,
-	type BoolSetable,
 	type IntBinaryExpression,
 	type BoolBinaryExpression,
 	type BoolComparison,
@@ -30,7 +59,6 @@ import {
 	reportErrorNodes,
 	invertBoolExpression,
 	inverseOpMap,
-	autoDebug,
 } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
@@ -229,30 +257,21 @@ const captureFns = {
 	bool_setable: (f: FileState, node: TreeSitterNode): BoolSetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (!type) {
-			return {
-				// action: 'SET_SAVE_FLAG',
-				mathlang: 'bool_setable',
-				value: stringCaptureForFieldName(f, node, 'flag'),
-				type: 'save_flag',
-			};
+			// action: 'SET_SAVE_FLAG',
+			return new BoolSetable('save_flag', stringCaptureForFieldName(f, node, 'flag'));
 		}
 		if (type === 'glitched') {
-			return {
-				// action: 'SET_ENTITY_GLITCHED',
-				mathlang: 'bool_setable',
-				value: stringCaptureForFieldName(f, node, 'entity_identifier'),
-				type: 'entity',
-			};
+			// action: 'SET_ENTITY_GLITCHED',
+			return new BoolSetable(
+				'entity',
+				stringCaptureForFieldName(f, node, 'entity_identifier'),
+			);
 		}
 		if (type === 'light') {
-			return {
-				// action: 'SET_LIGHTS_STATE',
-				mathlang: 'bool_setable',
-				value: stringCaptureForFieldName(f, node, 'light'),
-				type: 'light',
-			};
+			// action: 'SET_LIGHTS_STATE',
+			return new BoolSetable('light', stringCaptureForFieldName(f, node, 'light'));
 		}
-		return { mathlang: 'bool_setable', type };
+		return new BoolSetable(type, '');
 	},
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
@@ -290,7 +309,7 @@ const captureFns = {
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -304,7 +323,7 @@ const captureFns = {
 		) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -318,7 +337,7 @@ const captureFns = {
 		) {
 			return {
 				mathlang: 'bool_binary_expression',
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
@@ -355,70 +374,56 @@ const captureFns = {
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
-		const debug = autoDebug(f, node);
+		const debug = new MGSDebug(f, node);
 		if (type === 'flag') {
 			return newCheckSaveFlag(f, node, stringCaptureForFieldName(f, node, 'value'), true);
 		} else if (type === 'debug_mode') {
-			return {
-				mathlang: 'bool_getable',
-				action: 'CHECK_DEBUG_MODE',
+			return new CHECK_DEBUG_MODE({
 				debug,
 				expected_bool: true,
-			};
+			});
 		} else if (type === 'glitched') {
-			return {
-				mathlang: 'bool_getable',
-				action: 'CHECK_ENTITY_GLITCHED',
+			return new CHECK_ENTITY_GLITCHED({
 				debug,
 				expected_bool: true,
 				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-			};
+			});
 		} else if (type === 'intersects') {
-			return {
-				mathlang: 'bool_getable',
-				action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY',
+			return new CHECK_IF_ENTITY_IS_IN_GEOMETRY({
 				debug,
 				expected_bool: true,
 				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
 				geometry: stringCaptureForFieldName(f, node, 'geometry_identifier'),
-			};
+			});
 		} else if (type === 'dialog' || type === 'serial_dialog') {
 			const state = optionalTextForFieldName(f, node, 'value');
 			if (type === 'dialog') {
-				return {
-					mathlang: 'bool_getable',
-					action: 'CHECK_DIALOG_OPEN',
+				return new CHECK_DIALOG_OPEN({
 					debug,
 					expected_bool: state === 'open',
-				};
+				});
 			} else {
-				return {
-					mathlang: 'bool_getable',
-					action: 'CHECK_SERIAL_DIALOG_OPEN',
+				return new CHECK_SERIAL_DIALOG_OPEN({
 					debug,
 					expected_bool: state === 'open',
-				};
+				});
 			}
 		} else if (type === 'button') {
 			const button_id = stringCaptureForFieldName(f, node, 'button');
 			const stateNode = mandatoryChildForFieldName(f, node, 'state');
 			if (stateNode.text === 'pressed') {
-				return {
-					mathlang: 'bool_getable',
-					action: 'CHECK_FOR_BUTTON_PRESS',
+				return new CHECK_FOR_BUTTON_PRESS({
 					debug,
 					expected_bool: true,
 					button_id,
-				};
+				});
 			} else {
 				const state = handleCapture(f, stateNode);
-				return {
-					mathlang: 'bool_getable',
-					action: 'CHECK_FOR_BUTTON_STATE',
+				return new CHECK_FOR_BUTTON_STATE({
 					debug,
 					expected_bool: coerceAsBool(f, node, state, 'button state'),
 					button_id,
-				};
+				});
 			}
 		}
 		throw new Error('failed to capture bool_getable');
@@ -428,13 +433,10 @@ const captureFns = {
 		if (entity === null) {
 			const type = optionalTextForFieldName(f, node, 'type');
 			if (type === 'warp_state') {
-				return {
-					mathlang: 'string_checkable',
-					action: 'CHECK_WARP_STATE',
+				return new CHECK_WARP_STATE({
 					expected_bool: true,
-					stringLabel: 'string',
 					string: '',
-				};
+				});
 			} else {
 				throw new Error(
 					`unidentifiable non-entity string_checkable: capturing type ${type}`,
@@ -443,59 +445,41 @@ const captureFns = {
 		}
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'on_tick') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_TICK_SCRIPT({
 				entity,
-				action: 'CHECK_ENTITY_TICK_SCRIPT',
 				expected_bool: true,
-				stringLabel: 'expected_script',
 				expected_script: '',
-			};
+			});
 		} else if (property === 'on_look') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_LOOK_SCRIPT({
 				entity,
-				action: 'CHECK_ENTITY_LOOK_SCRIPT',
 				expected_bool: true,
-				stringLabel: 'expected_script',
 				expected_script: '',
-			};
+			});
 		} else if (property === 'on_interact') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_INTERACT_SCRIPT({
 				entity,
-				action: 'CHECK_ENTITY_INTERACT_SCRIPT',
 				expected_bool: true,
-				stringLabel: 'expected_script',
 				expected_script: '',
-			};
+			});
 		} else if (property === 'name') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_NAME({
 				entity,
-				action: 'CHECK_ENTITY_NAME',
 				expected_bool: true,
-				stringLabel: 'string',
 				string: '',
-			};
+			});
 		} else if (property === 'path') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_PATH({
 				entity,
-				action: 'CHECK_ENTITY_PATH',
 				expected_bool: true,
-				stringLabel: 'geometry',
 				geometry: '',
-			};
+			});
 		} else if (property === 'type') {
-			return {
-				mathlang: 'string_checkable',
+			return new CHECK_ENTITY_TYPE({
 				entity,
-				action: 'CHECK_ENTITY_TYPE',
 				expected_bool: true,
-				stringLabel: 'entity_type',
 				entity_type: '',
-			};
+			});
 		}
 		throw new Error(`could not capture entity string_checkable`);
 	},
@@ -503,61 +487,44 @@ const captureFns = {
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'x') {
-			return {
-				mathlang: 'number_checkable_equality',
-				entity,
-				property,
-				action: 'CHECK_ENTITY_X',
-				numberLabel: 'expected_u2',
-			};
+			return new CHECK_ENTITY_X({ entity });
 		} else if (property === 'y') {
-			return {
-				mathlang: 'number_checkable_equality',
-				entity,
-				property,
-				action: 'CHECK_ENTITY_Y',
-				numberLabel: 'expected_u2',
-			};
+			return new CHECK_ENTITY_Y({ entity });
 		} else if (property === 'primary_id') {
-			return {
-				mathlang: 'number_checkable_equality',
+			return new CHECK_ENTITY_PRIMARY_ID({
 				entity,
 				property,
-				action: 'CHECK_ENTITY_PRIMARY_ID',
-				numberLabel: 'expected_u2',
-			};
+				expected_u2: NaN,
+				expected_bool: true,
+			});
 		} else if (property === 'secondary_id') {
-			return {
-				mathlang: 'number_checkable_equality',
+			return new CHECK_ENTITY_SECONDARY_ID({
 				entity,
 				property,
-				action: 'CHECK_ENTITY_SECONDARY_ID',
-				numberLabel: 'expected_u2',
-			};
+				expected_u2: NaN,
+				expected_bool: true,
+			});
 		} else if (property === 'primary_id_type') {
-			return {
-				mathlang: 'number_checkable_equality',
+			return new CHECK_ENTITY_PRIMARY_ID_TYPE({
 				entity,
 				property,
-				action: 'CHECK_ENTITY_PRIMARY_ID_TYPE',
-				numberLabel: 'expected_byte',
-			};
+				expected_byte: NaN,
+				expected_bool: true,
+			});
 		} else if (property === 'current_animation') {
-			return {
-				mathlang: 'number_checkable_equality',
+			return new CHECK_ENTITY_CURRENT_ANIMATION({
 				entity,
 				property,
-				action: 'CHECK_ENTITY_CURRENT_ANIMATION',
-				numberLabel: 'expected_byte',
-			};
+				expected_byte: NaN,
+				expected_bool: true,
+			});
 		} else if (property === 'animation_frame') {
-			return {
-				mathlang: 'number_checkable_equality',
+			return new CHECK_ENTITY_CURRENT_FRAME({
 				entity,
 				property,
-				action: 'CHECK_ENTITY_CURRENT_FRAME',
-				numberLabel: 'expected_byte',
-			};
+				expected_byte: NaN,
+				expected_bool: true,
+			});
 		} else if (property === 'strafe') {
 			const propertyNode = mandatoryChildForFieldName(f, node, 'property');
 			f.newError({
@@ -581,7 +548,7 @@ const captureFns = {
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const op = textForFieldName(f, node, 'operator');
-		const debug = autoDebug(f, node);
+		const debug = new MGSDebug(f, node);
 		// entity Bob direction == north
 		if (lhsNode.grammarType === 'entity_direction') {
 			return compareNSEW(f, lhsNode, rhsNode, op, debug);
@@ -648,24 +615,24 @@ const captureFns = {
 	direction_target: (f: FileState, node: TreeSitterNode): DirectionTarget => {
 		const direction = optionalTextForFieldName(f, node, 'nsew');
 		if (direction) {
-			return {
-				action: 'SET_ENTITY_DIRECTION',
+			return new SET_ENTITY_DIRECTION({
 				direction,
-			};
+				entity: '',
+			});
 		}
 		const target_geometry = optionalStringCaptureForFieldName(f, node, 'geometry');
 		if (target_geometry) {
-			return {
-				action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
+			return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({
 				target_geometry,
-			};
+				entity: '',
+			});
 		}
 		const target_entity = optionalStringCaptureForFieldName(f, node, 'entity');
 		if (target_entity) {
-			return {
-				action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
+			return new SET_ENTITY_DIRECTION_TARGET_ENTITY({
 				target_entity,
-			};
+				entity: '',
+			});
 		}
 		throw new Error('could not capture direction_target');
 	},
@@ -683,14 +650,12 @@ const compareNSEW = (
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
 	}
-	return {
-		mathlang: 'bool_comparison',
+	return new CHECK_ENTITY_DIRECTION({
 		debug,
-		action: 'CHECK_ENTITY_DIRECTION',
 		expected_bool: op === '==',
 		direction: nsewNode.text,
 		entity: stringCaptureForFieldName(f, entityNode, 'entity_identifier'),
-	};
+	});
 };
 const compareString = (
 	f: FileState,
@@ -763,32 +728,28 @@ const checkVariables = (
 	variable: string,
 	source: string,
 	comparison: string,
-): BoolComparison => {
-	return {
-		mathlang: 'bool_comparison',
-		action: 'CHECK_VARIABLES',
-		debug: autoDebug(f, node),
+): BoolComparison =>
+	new CHECK_VARIABLES({
+		debug: new MGSDebug(f, node),
 		variable,
 		source,
 		comparison,
 		expected_bool: true,
-	};
-};
+	});
 export const checkVariable = (
 	f: FileState,
 	node: TreeSitterNode,
 	variable: string,
 	value: number,
 	comparison: string,
-): BoolComparison => ({
-	mathlang: 'bool_comparison',
-	action: 'CHECK_VARIABLE',
-	debug: autoDebug(f, node),
-	variable,
-	value,
-	comparison,
-	expected_bool: true,
-});
+): BoolComparison =>
+	new CHECK_VARIABLE({
+		debug: new MGSDebug(f, node),
+		variable,
+		value,
+		comparison,
+		expected_bool: true,
+	});
 const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
 	const type = optionalTextForFieldName(f, node, 'type');
 	if (type === 'self') return '%SELF%';

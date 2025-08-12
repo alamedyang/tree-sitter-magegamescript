@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { getBoolFieldForAction, type MGSDebug } from './parser-bytecode-info.ts';
+import { getBoolFieldForAction, MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	type MGSLocation,
@@ -103,12 +103,6 @@ export const latestTemporary = (): string => temporaries[0];
 
 // ------------------------ GENERIC ------------------------ //
 
-export const autoDebug = (f: FileState, node: TreeSitterNode): MGSDebug => {
-	return {
-		node,
-		fileName: f.fileName,
-	};
-};
 export const inverseOpMap: Record<string, string> = {
 	'<': '>=',
 	'<=': '>',
@@ -248,11 +242,11 @@ export const expandBoolExpression = (
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
 	const expandAs: BoolBinaryExpression = {
 		mathlang: 'bool_binary_expression',
-		debug: autoDebug(f, condition.debug?.node || node),
+		debug: new MGSDebug(f, condition.debug?.node || node),
 		op: '||',
 		lhs: {
 			mathlang: 'bool_binary_expression',
-			debug: autoDebug(f, condition.debug?.node || node),
+			debug: new MGSDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs,
 			rhs,
@@ -261,7 +255,7 @@ export const expandBoolExpression = (
 		},
 		rhs: {
 			mathlang: 'bool_binary_expression',
-			debug: autoDebug(f, condition.debug?.node || node),
+			debug: new MGSDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
 			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
@@ -350,7 +344,7 @@ export class ConditionalBlock {
 		this.condition = condition;
 		this.bodyNode = mandatoryChildForFieldName(f, node, 'body');
 		this.body = handleNamedChildren(f, this.bodyNode);
-		this.debug = autoDebug(f, node);
+		this.debug = new MGSDebug(f, node);
 	}
 	// toString() {
 	// 	const bodyPrint = this.body.map(printAction);

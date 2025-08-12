@@ -9,9 +9,7 @@ import {
 	type Capture,
 } from './parser-capture.ts';
 import {
-	type MGSDebug,
 	getBoolFieldForAction,
-	isMGSDebug,
 	type ActionSetPosition,
 	type ActionSetDirection,
 	type ActionSetScript,
@@ -19,6 +17,7 @@ import {
 	type ActionSetEntityString,
 	type ActionSetEntityInt,
 	type ActionSetBool,
+	MGSDebug,
 	MUTATE_VARIABLE,
 	MUTATE_VARIABLES,
 	RUN_SCRIPT,
@@ -67,6 +66,24 @@ import {
 	TELEPORT_ENTITY_TO_GEOMETRY,
 	TELEPORT_CAMERA_TO_GEOMETRY,
 	SET_CAMERA_TO_FOLLOW_ENTITY,
+	SET_LIGHTS_STATE,
+	SET_PLAYER_CONTROL,
+	SET_LIGHTS_CONTROL,
+	SET_HEX_EDITOR_STATE,
+	SET_HEX_EDITOR_DIALOG_MODE,
+	SET_SERIAL_DIALOG_CONTROL,
+	SET_HEX_EDITOR_CONTROL_CLIPBOARD,
+	SET_HEX_EDITOR_CONTROL,
+	PAN_CAMERA_TO_ENTITY,
+	PAN_CAMERA_TO_GEOMETRY,
+	PAN_CAMERA_ALONG_GEOMETRY,
+	LOOP_CAMERA_ALONG_GEOMETRY,
+	WALK_ENTITY_TO_GEOMETRY,
+	WALK_ENTITY_ALONG_GEOMETRY,
+	LOOP_ENTITY_ALONG_GEOMETRY,
+	SET_MAP_LOOK_SCRIPT,
+	SET_MAP_TICK_SCRIPT,
+	SET_ENTITY_LOOK_SCRIPT,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
@@ -78,7 +95,6 @@ import {
 	isSerialDialog,
 	type IntBinaryExpression,
 	isIntBinaryExpression,
-	isBoolSetable,
 	type BoolExpression,
 	SerialDialogDefinition,
 	isBoolExpression,
@@ -93,6 +109,7 @@ import {
 	BreakStatement,
 	ContinueStatement,
 	GotoLabel,
+	BoolSetable,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -101,7 +118,6 @@ import {
 	quickTemporary,
 	latestTemporary,
 	simpleBranchMaker,
-	autoDebug,
 } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
 
@@ -278,7 +294,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		return customed;
 	}
 	const action = {
-		debug: autoDebug(f, node),
+		debug: new MGSDebug(f, node),
 		...data.values,
 	};
 	// Action params
@@ -643,7 +659,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): MathlangSequence | ActionSetBool => {
-			if (!isBoolSetable(v.lhs)) {
+			if (!(v.lhs instanceof BoolSetable)) {
 				throw new Error('LHS not a bool_setable');
 			}
 			if (!isBoolExpression(v.rhs)) {
@@ -660,57 +676,38 @@ const actionData: Record<string, actionDataEntry> = {
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'light') {
-				const lhs: ActionSetBool = {
-					action: 'SET_LIGHTS_STATE',
+				const lhs = new SET_LIGHTS_STATE({
 					lights: coerceToString(f, node, v.lhs.value, 'SET_LIGHTS_STATE field lights'),
 					enabled: true,
-				};
+				});
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'player_control') {
-				const lhs: ActionSetBool = { action: 'SET_PLAYER_CONTROL', bool_value: true };
+				const lhs = new SET_PLAYER_CONTROL({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'lights_control') {
-				const lhs: ActionSetBool = {
-					action: 'SET_LIGHTS_CONTROL',
-					enabled: true,
-				};
+				const lhs = new SET_LIGHTS_CONTROL({ enabled: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_editor') {
-				const lhs: ActionSetBool = {
-					action: 'SET_HEX_EDITOR_STATE',
-					bool_value: true,
-				};
+				const lhs = new SET_HEX_EDITOR_STATE({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_dialog_mode') {
-				const lhs: ActionSetBool = {
-					action: 'SET_HEX_EDITOR_DIALOG_MODE',
-					bool_value: true,
-				};
+				const lhs = new SET_HEX_EDITOR_DIALOG_MODE({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_control') {
-				const lhs: ActionSetBool = {
-					action: 'SET_HEX_EDITOR_CONTROL',
-					bool_value: true,
-				};
+				const lhs = new SET_HEX_EDITOR_CONTROL({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_clipboard') {
-				const lhs: ActionSetBool = {
-					action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD',
-					bool_value: true,
-				};
+				const lhs = new SET_HEX_EDITOR_CONTROL_CLIPBOARD({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'serial_control') {
-				const lhs: ActionSetBool = {
-					action: 'SET_SERIAL_DIALOG_CONTROL',
-					bool_value: true,
-				};
+				const lhs = new SET_SERIAL_DIALOG_CONTROL({ bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			throw new Error('unknown LHS type');
@@ -776,7 +773,7 @@ const actionData: Record<string, actionDataEntry> = {
 			if (!isCoordinateIdentifier(v.coordinate)) {
 				throw new Error('invalid CoordinateIdentifier');
 			}
-			if (!isMGSDebug(v.debug)) {
+			if (!(v.debug instanceof MGSDebug)) {
 				throw new Error('invalid debug node');
 			}
 			const duration = coerceToNumber(f, node, v.duration, 'duration');
@@ -795,11 +792,10 @@ const actionData: Record<string, actionDataEntry> = {
 						return;
 					} else {
 						// ... not forever
-						return {
-							action: 'PAN_CAMERA_TO_ENTITY',
+						return new PAN_CAMERA_TO_ENTITY({
 							duration: duration,
 							entity: v.coordinate.value,
-						};
+						});
 					}
 				}
 				if (v.coordinate.type === 'geometry') {
@@ -808,18 +804,16 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							return {
-								action: 'LOOP_CAMERA_ALONG_GEOMETRY',
+							return new LOOP_CAMERA_ALONG_GEOMETRY({
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						} else {
 							// ... not forever
-							return {
-								action: 'PAN_CAMERA_ALONG_GEOMETRY',
+							return new PAN_CAMERA_ALONG_GEOMETRY({
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						}
 					} else if (v.coordinate.polygonType === 'origin') {
 						// ... origin (single point)
@@ -830,11 +824,10 @@ const actionData: Record<string, actionDataEntry> = {
 							return;
 						} else {
 							// ... not forever
-							return {
-								action: 'PAN_CAMERA_TO_GEOMETRY',
+							return new PAN_CAMERA_TO_GEOMETRY({
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						}
 					}
 				}
@@ -854,20 +847,18 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							return {
-								action: 'LOOP_ENTITY_ALONG_GEOMETRY',
+							return new LOOP_ENTITY_ALONG_GEOMETRY({
 								entity: v.movable.value,
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						} else {
 							// ... not forever
-							return {
-								action: 'WALK_ENTITY_ALONG_GEOMETRY',
+							return new WALK_ENTITY_ALONG_GEOMETRY({
 								entity: v.movable.value,
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						}
 					}
 					if (v.coordinate.polygonType === 'origin') {
@@ -879,12 +870,11 @@ const actionData: Record<string, actionDataEntry> = {
 							return;
 						} else {
 							// ... not forever
-							return {
-								action: 'WALK_ENTITY_TO_GEOMETRY',
+							return new WALK_ENTITY_TO_GEOMETRY({
 								entity: v.movable.value,
 								duration: duration,
 								geometry: v.coordinate.value,
-							};
+							});
 						}
 					}
 				}
@@ -914,15 +904,9 @@ const actionData: Record<string, actionDataEntry> = {
 			const script = coerceToString(f, node, v.script, 'script');
 			if (entity === '%MAP%') {
 				if (script_slot === 'on_tick') {
-					return {
-						action: 'SET_MAP_TICK_SCRIPT',
-						script,
-					};
+					return new SET_MAP_TICK_SCRIPT({ script });
 				} else if (script_slot === 'on_tick') {
-					return {
-						action: 'SET_MAP_LOOK_SCRIPT',
-						script,
-					};
+					return new SET_MAP_LOOK_SCRIPT({ script });
 				}
 				const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 				f.newError({
@@ -940,11 +924,7 @@ const actionData: Record<string, actionDataEntry> = {
 				return new SET_ENTITY_INTERACT_SCRIPT({ entity, script });
 			}
 			if (v.script_slot === 'on_look') {
-				return {
-					action: 'SET_ENTITY_LOOK_SCRIPT',
-					entity,
-					script,
-				};
+				return new SET_ENTITY_LOOK_SCRIPT({ entity, script });
 			}
 			const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 			f.newError({
@@ -1107,25 +1087,21 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			const value = coerceToNumber(f, node, v.value, 'value');
 			const sign = op === '-=' ? -1 : 1;
-			return {
-				action: 'SET_ENTITY_DIRECTION_RELATIVE',
+			return new SET_ENTITY_DIRECTION_RELATIVE({
 				entity,
 				relative_direction: sign * value,
-			};
+			});
 		},
 	},
 };
 
 // ------------------------ MAKE JSON ACTIONS ------------------------ //
 
-export const showSerialDialog = (
-	name: string,
-	disable_newline: boolean = false,
-): SHOW_SERIAL_DIALOG => ({
-	action: 'SHOW_SERIAL_DIALOG',
-	serial_dialog: name,
-	disable_newline,
-});
+export const showSerialDialog = (name: string, disable_newline: boolean = false) =>
+	new SHOW_SERIAL_DIALOG({
+		serial_dialog: name,
+		disable_newline,
+	});
 const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => {
 	return new MUTATE_VARIABLE({ operation: 'SET', value, variable });
 };
@@ -1154,12 +1130,13 @@ export const changeVarByValue = (
 	}
 	return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
 };
-const changeVarByVar = (variable: string, source: string, op: string): MUTATE_VARIABLES => ({
-	action: 'MUTATE_VARIABLES',
-	operation: opIntoStringMap[op] || op,
-	source,
-	variable,
-});
+const changeVarByVar = (variable: string, source: string, op: string) => {
+	return new MUTATE_VARIABLES({
+		operation: opIntoStringMap[op] || op,
+		source,
+		variable,
+	});
+};
 const copyVarIntoEntityField = (variable: string, entity: string, field: string) => {
 	return new COPY_VARIABLE({ entity, field, inbound: false, variable });
 };

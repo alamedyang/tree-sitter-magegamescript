@@ -1,7 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import * as TYPES from './parser-bytecode-info.ts';
 import { type FileState } from './parser-file.ts';
-import { autoDebug } from './parser-utilities.ts';
 
 export type MGSPrimitive = string | boolean | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
@@ -85,7 +84,7 @@ export const newAddDialogSettings = (
 ): AddDialogSettings => {
 	return {
 		mathlang: 'add_dialog_settings',
-		debug: autoDebug(f, node),
+		debug: new TYPES.MGSDebug(f, node),
 		targets,
 	};
 };
@@ -113,7 +112,7 @@ export const newAddSerialDialogSettings = (
 ): AddSerialDialogSettings => {
 	return {
 		mathlang: 'add_serial_dialog_settings',
-		debug: autoDebug(f, node),
+		debug: new TYPES.MGSDebug(f, node),
 		parameters,
 	};
 };
@@ -125,7 +124,7 @@ export class ReturnStatement {
 	debug: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode) {
 		this.mathlang = 'return_statement';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 	}
 }
 export class ContinueStatement {
@@ -133,7 +132,7 @@ export class ContinueStatement {
 	debug: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode) {
 		this.mathlang = 'continue_statement';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 	}
 }
 export class BreakStatement {
@@ -141,7 +140,7 @@ export class BreakStatement {
 	debug: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode) {
 		this.mathlang = 'break_statement';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 	}
 }
 
@@ -153,7 +152,7 @@ export class GotoLabel {
 	constructor(f: FileState, node: TreeSitterNode, label: unknown, comment?: string) {
 		this.mathlang = 'goto_label';
 		this.label = TYPES.breakIfNotString(label, 'GotoLabel label');
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		if (comment) this.comment = comment;
 	}
 }
@@ -168,7 +167,7 @@ export class DialogDefinition {
 	duplicates?: DialogDefinition[];
 	constructor(f: FileState, node: TreeSitterNode, dialogName: string, dialogs: Dialog[]) {
 		this.mathlang = 'dialog_definition';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.dialogName = dialogName;
 		this.dialogs = dialogs;
 	}
@@ -246,7 +245,7 @@ export class SerialDialogDefinition {
 		serialDialog: SerialDialog,
 	) {
 		this.mathlang = 'serial_dialog_definition';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.dialogName = dialogName;
 		this.serialDialog = serialDialog;
 	}
@@ -303,7 +302,7 @@ export class IncludeNode {
 	value: string;
 	constructor(f: FileState, node: TreeSitterNode, value: string) {
 		this.mathlang = 'include_macro';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.value = value;
 	}
 }
@@ -315,7 +314,7 @@ export class ConstantDefinition {
 	value: string | boolean | number;
 	constructor(f: FileState, node: TreeSitterNode, label: string, value: MGSPrimitive) {
 		this.mathlang = 'constant_assignment';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.label = label;
 		this.value = value;
 	}
@@ -335,7 +334,7 @@ export class ScriptDefinition {
 	copyScriptResolved?: boolean;
 	constructor(f: FileState, node: TreeSitterNode, scriptName: string, actions: AnyNode[]) {
 		this.mathlang = 'script_definition';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.scriptName = scriptName;
 		this.actions = actions;
 	}
@@ -357,7 +356,7 @@ export class LabelDefinition {
 	debug?: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode, label: string) {
 		this.mathlang = 'label_definition';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.label = label;
 	}
 }
@@ -368,7 +367,7 @@ export class JSONLiteral {
 	debug: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode, json: [JSON]) {
 		this.mathlang = 'json_literal';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.json = json;
 	}
 }
@@ -384,7 +383,7 @@ export class CopyMacro {
 	debug: TYPES.MGSDebug;
 	constructor(f: FileState, node: TreeSitterNode, script: string) {
 		this.mathlang = 'copy_script';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.script = script;
 	}
 }
@@ -402,7 +401,7 @@ export class MathlangSequence {
 		type: string = 'generic_sequence',
 	) {
 		this.mathlang = 'sequence';
-		this.debug = autoDebug(f, node);
+		this.debug = new TYPES.MGSDebug(f, node);
 		this.type = type;
 		const comment = node.text.replace(/[\n\s\t]+/g, ' ');
 		const mathlangComment = new CommentNode(`${type}: ${comment}`);
@@ -559,25 +558,19 @@ export const newCheckSaveFlag = (
 	node: TreeSitterNode,
 	save_flag: string,
 	expected_bool: boolean,
-): BoolGetable => {
-	return {
-		mathlang: 'bool_getable',
-		action: 'CHECK_SAVE_FLAG',
-		debug: autoDebug(f, node),
-		expected_bool,
-		save_flag,
-	};
-};
+): BoolGetable => new TYPES.CHECK_SAVE_FLAG({ save_flag, expected_bool });
 
 // (Intermediate)
-export type BoolSetable = {
+export class BoolSetable {
 	mathlang: 'bool_setable';
 	type: string;
-	value?: string;
-};
-export const isBoolSetable = (v: unknown): v is BoolSetable => {
-	return (v as BoolSetable)?.mathlang === 'bool_setable';
-};
+	value: string;
+	constructor(type: string, value: string) {
+		this.mathlang = 'bool_setable';
+		this.value = value;
+		this.type = type;
+	}
+}
 
 export type NumberCheckableEquality = {
 	mathlang: 'number_checkable_equality';

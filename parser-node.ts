@@ -11,7 +11,6 @@ import {
 	ifChainMaker,
 	simpleBranchMaker,
 	quickTemporary,
-	autoDebug,
 } from './parser-utilities.ts';
 
 import { buildSerialDialogFromInfo, buildDialogFromInfo } from './parser-dialogs.ts';
@@ -74,11 +73,13 @@ import {
 	BreakStatement,
 } from './parser-types.ts';
 import {
+	CHECK_DEBUG_MODE,
 	type CheckAction,
-	type GOTO_ACTION_INDEX,
+	GOTO_ACTION_INDEX,
 	isCheckAction,
+	MGSDebug,
 	RUN_SCRIPT,
-	type SHOW_SERIAL_DIALOG,
+	SHOW_SERIAL_DIALOG,
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: TreeSitterNode): AnyNode[] => {
@@ -185,7 +186,7 @@ const nodeFns = {
 			});
 		}
 		f.constants[label] = {
-			debug: autoDebug(f, node),
+			debug: new MGSDebug(f, node),
 			value,
 		};
 		return [new ConstantDefinition(f, node, label, value)];
@@ -285,7 +286,7 @@ const nodeFns = {
 		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
 			return {
 				condition: checkVariable(f, node, temp, i, '=='),
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				body,
 			};
 		});
@@ -309,7 +310,7 @@ const nodeFns = {
 		const type = textForFieldName(f, node, 'type');
 		const ret: AddDialogSettingsTarget = {
 			mathlang: 'add_dialog_settings_target',
-			debug: autoDebug(f, node),
+			debug: new MGSDebug(f, node),
 			type,
 		};
 		// figure out which settings target it is
@@ -354,7 +355,7 @@ const nodeFns = {
 				mathlang: 'serial_dialog_option',
 				optionType,
 				label: stringCaptureForFieldName(f, node, 'label'),
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				script: stringCaptureForFieldName(f, node, 'script'),
 			},
 		];
@@ -363,7 +364,7 @@ const nodeFns = {
 		return [
 			{
 				mathlang: 'dialog_option',
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 				label: stringCaptureForFieldName(f, node, 'label'),
 				script: stringCaptureForFieldName(f, node, 'script'),
 			},
@@ -448,7 +449,7 @@ const nodeFns = {
 		return [
 			{
 				...dialogs,
-				debug: autoDebug(f, node),
+				debug: new MGSDebug(f, node),
 			},
 		];
 	},
@@ -487,16 +488,11 @@ const nodeFns = {
 			// might just be the name of a serial dialog, and not a serial-dialog-in-place
 			name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		}
-		const condition: BoolGetable = {
-			mathlang: 'bool_getable',
-			action: 'CHECK_DEBUG_MODE',
-			expected_bool: true,
-		};
-		const ifTrue: SHOW_SERIAL_DIALOG = {
-			action: 'SHOW_SERIAL_DIALOG',
+		const condition: BoolGetable = new CHECK_DEBUG_MODE({ expected_bool: true });
+		const ifTrue = new SHOW_SERIAL_DIALOG({
 			disable_newline: false,
 			serial_dialog: name,
-		};
+		});
 		const action = simpleBranchMaker(f, node, condition, [ifTrue], []);
 		ret.push(action);
 		return ret;
@@ -594,7 +590,7 @@ const nodeFns = {
 				return condition ? [new RUN_SCRIPT({ script })] : [];
 			} else if (type === 'index') {
 				const index = numberCaptureForFieldName(f, node, 'index');
-				return condition ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
+				return condition ? [new GOTO_ACTION_INDEX({ action_index: index })] : [];
 			} else if (type === 'label') {
 				const label = stringCaptureForFieldName(f, node, 'label');
 				return condition ? [new GotoLabel(f, node, label)] : [];
