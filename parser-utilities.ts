@@ -4,24 +4,21 @@ import {
 	type AnyNode,
 	type MGSLocation,
 	type MGSMessage,
-	type MathlangSequence,
 	type BoolExpression,
 	type BoolBinaryExpression,
 	isMathlangNode,
-	isGotoLabel,
 	isBoolGetable,
 	isBoolComparison,
 	isStringCheckable,
 	isNumberCheckableEquality,
 	isBoolBinaryExpression,
-	isLabelDefinition,
-	newLabelDefinition,
-	newGotoLabel,
-	newSequence,
+	LabelDefinition,
+	MathlangSequence,
 	newCheckSaveFlag,
 	isBoolExpression,
 	type BoolComparison,
 	type BoolGetable,
+	GotoLabel,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -192,7 +189,7 @@ export const expandBoolExpression = (
 	ifLabel: string,
 ): AnyNode[] => {
 	if (condition === true) {
-		return [newGotoLabel(f, node, ifLabel)];
+		return [new GotoLabel(f, node, ifLabel)];
 	} else if (condition === false) {
 		return [];
 	}
@@ -239,10 +236,10 @@ export const expandBoolExpression = (
 		const secondRendezvousLabel = `rendezvous #${suffix}`;
 		return [
 			...expandBoolExpression(f, condition.lhsNode, lhs, secondIfTrueLabel),
-			newGotoLabel(f, node, secondRendezvousLabel),
-			newLabelDefinition(f, node, secondIfTrueLabel),
+			new GotoLabel(f, node, secondRendezvousLabel),
+			new LabelDefinition(f, node, secondIfTrueLabel),
 			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
-			newLabelDefinition(f, node, secondRendezvousLabel),
+			new LabelDefinition(f, node, secondRendezvousLabel),
 		];
 	}
 	if (op !== '==' && op !== '!=') {
@@ -330,12 +327,12 @@ export const simpleBranchMaker = (
 	const steps = [
 		...top,
 		...falseBlock,
-		newGotoLabel(f, node, rendezvousLabel),
-		newLabelDefinition(f, node, ifLabel),
+		new GotoLabel(f, node, rendezvousLabel),
+		new LabelDefinition(f, node, ifLabel),
 		...trueBlock,
-		newLabelDefinition(f, node, rendezvousLabel),
+		new LabelDefinition(f, node, rendezvousLabel),
 	];
-	return newSequence(f, node, steps, 'longerBranchMaker');
+	return new MathlangSequence(f, node, steps, 'longerBranchMaker');
 };
 
 export class ConditionalBlock {
@@ -396,18 +393,18 @@ export const ifChainMaker = (
 		);
 		// add bottom half
 		const bottomInsert: AnyNode[] = [
-			newLabelDefinition(f, iff.bodyNode || iff.debug.node, ifL),
+			new LabelDefinition(f, iff.bodyNode || iff.debug.node, ifL),
 			...iff.body,
-			newGotoLabel(f, iff.bodyNode || iff.debug.node, rendezvousL),
+			new GotoLabel(f, iff.bodyNode || iff.debug.node, rendezvousL),
 		];
 		bottomSteps = bottomInsert.concat(bottomSteps);
 	});
 
 	steps.push(...elseBody);
-	steps.push(newGotoLabel(f, node, rendezvousL));
+	steps.push(new GotoLabel(f, node, rendezvousL));
 	const combined = steps.concat(bottomSteps);
-	combined.push(newLabelDefinition(f, node, rendezvousL));
-	return newSequence(f, node, combined, 'parser-node: ' + label);
+	combined.push(new LabelDefinition(f, node, rendezvousL));
+	return new MathlangSequence(f, node, combined, 'parser-node: ' + label);
 };
 
 export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
@@ -417,10 +414,10 @@ export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
 		const next = actions[i + 1];
 		if (
 			isMathlangNode(action) &&
-			isGotoLabel(action) &&
+			action instanceof GotoLabel &&
 			next &&
 			isMathlangNode(next) &&
-			isLabelDefinition(next) &&
+			next instanceof LabelDefinition &&
 			next.label === action.label
 		) {
 			actions.splice(i, 1);
@@ -434,15 +431,15 @@ export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
 	// then the previous label registration can be replaced with following goto value
 	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
 	actions.forEach((action: AnyNode, i: number) => {
-		if (isLabelDefinition(action)) {
+		if (action instanceof LabelDefinition) {
 			const next = actions[i + 1];
-			if (isGotoLabel(next)) {
+			if (next instanceof GotoLabel) {
 				labelDefThenDifferentGotoLabel[action.label] = next.label;
 			}
 		}
 	});
 	actions.forEach((action: AnyNode) => {
-		if (isGotoLabel(action)) {
+		if (action instanceof GotoLabel) {
 			const alias = labelDefThenDifferentGotoLabel[action.label];
 			if (alias) {
 				action.label = alias;

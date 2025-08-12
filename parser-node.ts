@@ -31,31 +31,28 @@ import {
 } from './parser-capture.ts';
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
+	ConstantDefinition,
+	CopyMacro,
+	DialogDefinition,
+	GotoLabel,
+	IncludeNode,
 	isActionNode,
-	type CopyMacro,
+	ScriptDefinition,
 	type AnyNode,
-	type LabelDefinition,
 	type MGSMessage,
 	type AddDialogSettings,
-	type MathlangSequence,
 	type DialogInfo,
-	type IncludeNode,
 	type AddDialogSettingsTarget,
 	type DialogSettings,
 	type AddSerialDialogSettings,
 	type SerialDialogOption,
 	type SerialOptionType,
 	type DialogOption,
-	type DialogDefinition,
-	type SerialDialogDefinition,
 	type SerialDialogInfo,
 	type SerialDialog,
 	type Dialog,
-	type ScriptDefinition,
 	isMGSPrimitive,
 	isDialogParameter,
-	type ConstantDefinition,
-	type JSONLiteral,
 	isAddDialogSettingsTarget,
 	isSerialDialogOption,
 	isDialogOption,
@@ -64,30 +61,23 @@ import {
 	isSerialDialogParameter,
 	isDialogIdentifier,
 	isBoolExpression,
-	type GotoLabel,
-	isMathlangSequence,
-	isReturnStatement,
-	isContinueStatement as isContinueStatement,
-	isBreakStatement as isBreakStatement,
-	isJSONLiteral,
-	newLabelDefinition,
-	newGotoLabel,
-	newSequence,
-	newSerialDialogDefinition,
-	newDialogDefinition,
+	JSONLiteral,
+	LabelDefinition,
+	MathlangSequence,
 	newCheckSaveFlag,
-	newScriptDefinition,
-	newConstantDefinition,
-	newIncludeNode,
 	newAddDialogSettings,
 	newAddSerialDialogSettings,
+	SerialDialogDefinition,
 	type BoolGetable,
+	ReturnStatement,
+	ContinueStatement,
+	BreakStatement,
 } from './parser-types.ts';
 import {
-	type RUN_SCRIPT,
 	type CheckAction,
 	type GOTO_ACTION_INDEX,
 	isCheckAction,
+	RUN_SCRIPT,
 	type SHOW_SERIAL_DIALOG,
 } from './parser-bytecode-info.ts';
 
@@ -146,9 +136,9 @@ const nodeFns = {
 		const actions: AnyNode[] = [];
 		// flatten sequences
 		rawActions.forEach((raw) => {
-			if (isMathlangSequence(raw)) {
+			if (raw instanceof MathlangSequence) {
 				raw.steps.forEach((step) => actions.push(step));
-			} else if (isJSONLiteral(raw)) {
+			} else if (raw instanceof JSONLiteral) {
 				raw.json.forEach((obj) => {
 					if (isActionNode(obj)) {
 						actions.push(obj);
@@ -167,15 +157,15 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('could not find final node in script block');
-		const labelAction: LabelDefinition = newLabelDefinition(f, lastChild, returnLabel);
+		const labelAction: LabelDefinition = new LabelDefinition(f, lastChild, returnLabel);
 		actions.push(labelAction);
 		// change all return statements to goto labels
 		actions.forEach((action, i) => {
-			if (isReturnStatement(action)) {
-				actions[i] = newGotoLabel(f, action.debug.node, returnLabel);
+			if (action instanceof ReturnStatement) {
+				actions[i] = new GotoLabel(f, action.debug.node, returnLabel);
 			}
 		});
-		return [newScriptDefinition(f, node, name, actions)];
+		return [new ScriptDefinition(f, node, name, actions)];
 	},
 	constant_assignment: (f: FileState, node: TreeSitterNode): ConstantDefinition[] => {
 		const label = textForFieldName(f, node, 'label');
@@ -198,7 +188,7 @@ const nodeFns = {
 			debug: autoDebug(f, node),
 			value,
 		};
-		return [newConstantDefinition(f, node, label, value)];
+		return [new ConstantDefinition(f, node, label, value)];
 	},
 	include_macro: (f: FileState, node: TreeSitterNode): IncludeNode[] => {
 		// Recursion detection
@@ -258,7 +248,7 @@ const nodeFns = {
 			});
 		});
 		includeRecursion.pop();
-		return [newIncludeNode(f, node, fileName)];
+		return [new IncludeNode(f, node, fileName)];
 	},
 	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const horizontal: AnyNode[][] = [];
@@ -305,7 +295,7 @@ const nodeFns = {
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
 		const label = textForFieldName(f, node, 'label');
-		return [newLabelDefinition(f, node, label)];
+		return [new LabelDefinition(f, node, label)];
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = handleNamedChildren(f, node);
@@ -387,13 +377,13 @@ const nodeFns = {
 			throw new Error('serial dialogs must have only 1 serial dialog');
 		}
 		if (!isSerialDialog(serialDialog[0])) throw new Error('missing serial dialog');
-		return [newSerialDialogDefinition(f, node, name, serialDialog[0])];
+		return [new SerialDialogDefinition(f, node, name, serialDialog[0])];
 	},
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
 		const dialogName = stringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		if (!dialogs.every(isDialog)) throw new Error('not every dialog is a Dialog');
-		return [newDialogDefinition(f, node, dialogName, dialogs)];
+		return [new DialogDefinition(f, node, dialogName, dialogs)];
 	},
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
 		const settings = {};
@@ -469,13 +459,7 @@ const nodeFns = {
 		const text = jsonNode.text;
 		try {
 			const parsed = JSON.parse(text);
-			return [
-				{
-					mathlang: 'json_literal',
-					debug: autoDebug(f, node),
-					json: parsed,
-				},
-			];
+			return [new JSONLiteral(f, node, parsed)];
 		} catch {
 			f.newError({
 				locations: [{ node }],
@@ -486,13 +470,7 @@ const nodeFns = {
 		return [];
 	},
 	copy_macro: (f: FileState, node: TreeSitterNode): [CopyMacro] => {
-		return [
-			{
-				mathlang: 'copy_script',
-				debug: autoDebug(f, node),
-				script: stringCaptureForFieldName(f, node, 'script'),
-			},
-		];
+		return [new CopyMacro(f, node, stringCaptureForFieldName(f, node, 'script'))];
 	},
 	debug_macro: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const ret: AnyNode[] = [];
@@ -504,7 +482,7 @@ const nodeFns = {
 				throw new Error('serial dialog not a SerialDialog');
 			}
 			name = autoIdentifierName(f, node);
-			ret.push(newSerialDialogDefinition(f, node, name, serialDialog[0]));
+			ret.push(new SerialDialogDefinition(f, node, name, serialDialog[0]));
 		} else {
 			// might just be the name of a serial dialog, and not a serial-dialog-in-place
 			name = stringCaptureForFieldName(f, node, 'serial_dialog_name');
@@ -526,10 +504,10 @@ const nodeFns = {
 	looping_block: (f: FileState, node: TreeSitterNode, printGotoLabel: string): AnyNode[] => {
 		return handleNamedChildren(f, node).map((v) => {
 			if (Array.isArray(v)) return v;
-			if (isContinueStatement(v)) {
-				return newGotoLabel(f, v.debug.node, `condition #${printGotoLabel}`);
-			} else if (isBreakStatement(v)) {
-				return newGotoLabel(f, v.debug.node, `rendezvous #${printGotoLabel}`);
+			if (v instanceof ContinueStatement) {
+				return new GotoLabel(f, v.debug.node, `condition #${printGotoLabel}`);
+			} else if (v instanceof BreakStatement) {
+				return new GotoLabel(f, v.debug.node, `rendezvous #${printGotoLabel}`);
 			}
 			return v;
 		});
@@ -541,15 +519,15 @@ const nodeFns = {
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
 		const steps = [
-			newLabelDefinition(f, block.conditionNode || node, conditionL),
+			new LabelDefinition(f, block.conditionNode || node, conditionL),
 			...expandBoolExpression(f, block.conditionNode || node, block.condition, bodyL),
-			newGotoLabel(f, node, rendezvousL),
-			newLabelDefinition(f, block.bodyNode || node, bodyL),
+			new GotoLabel(f, node, rendezvousL),
+			new LabelDefinition(f, block.bodyNode || node, bodyL),
 			...block.body,
-			newGotoLabel(f, block.conditionNode || node, conditionL),
-			newLabelDefinition(f, node, rendezvousL),
+			new GotoLabel(f, block.conditionNode || node, conditionL),
+			new LabelDefinition(f, node, rendezvousL),
 		];
-		return [newSequence(f, node, steps, 'parser-node: while_block')];
+		return [new MathlangSequence(f, node, steps, 'parser-node: while_block')];
 	},
 	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const doWhyle = new ConditionalBlock(f, node, 'do while');
@@ -558,13 +536,13 @@ const nodeFns = {
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
 		const steps = [
-			newLabelDefinition(f, doWhyle.bodyNode || node, bodyL),
+			new LabelDefinition(f, doWhyle.bodyNode || node, bodyL),
 			...doWhyle.body,
-			newLabelDefinition(f, doWhyle.conditionNode || node, conditionL),
+			new LabelDefinition(f, doWhyle.conditionNode || node, conditionL),
 			...expandBoolExpression(f, doWhyle.conditionNode || node, doWhyle.condition, bodyL),
-			newLabelDefinition(f, node, rendezvousL),
+			new LabelDefinition(f, node, rendezvousL),
 		];
-		return [newSequence(f, node, steps, 'parser-node: do_while_block')];
+		return [new MathlangSequence(f, node, steps, 'parser-node: do_while_block')];
 	},
 	for_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
 		const n = f.p.advanceGotoSuffix();
@@ -578,24 +556,24 @@ const nodeFns = {
 		const bodyN = mandatoryChildForFieldName(f, node, 'body');
 		const incrementerN = mandatoryChildForFieldName(f, node, 'incrementer');
 		const body: AnyNode[] = handleNode(f, bodyN).map((v: AnyNode) => {
-			if (isContinueStatement(v)) return newGotoLabel(f, node, continueL);
-			if (isBreakStatement(v)) return newGotoLabel(f, node, rendezvousL);
+			if (v instanceof ContinueStatement) return new GotoLabel(f, node, continueL);
+			if (v instanceof BreakStatement) return new GotoLabel(f, node, rendezvousL);
 			return v;
 		});
 		const initializer = mandatoryChildForFieldName(f, node, 'initializer');
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
-			newLabelDefinition(f, conditionN, conditionL),
+			new LabelDefinition(f, conditionN, conditionL),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
-			newGotoLabel(f, node, rendezvousL),
-			newLabelDefinition(f, bodyN, bodyL),
+			new GotoLabel(f, node, rendezvousL),
+			new LabelDefinition(f, bodyN, bodyL),
 			...body,
-			newLabelDefinition(f, incrementerN, continueL),
+			new LabelDefinition(f, incrementerN, continueL),
 			...handleNode(f, incrementerN),
-			newGotoLabel(f, conditionN, conditionL),
-			newLabelDefinition(f, node, rendezvousL),
+			new GotoLabel(f, conditionN, conditionL),
+			new LabelDefinition(f, node, rendezvousL),
 		];
-		return [newSequence(f, node, steps, 'parser-node: for_block')];
+		return [new MathlangSequence(f, node, steps, 'parser-node: for_block')];
 	},
 	if_single: (
 		f: FileState,
@@ -613,13 +591,13 @@ const nodeFns = {
 		if (typeof condition === 'boolean') {
 			if (!type) {
 				const script = stringCaptureForFieldName(f, node, 'script');
-				return condition ? [{ action: 'RUN_SCRIPT', script }] : [];
+				return condition ? [new RUN_SCRIPT({ script })] : [];
 			} else if (type === 'index') {
 				const index = numberCaptureForFieldName(f, node, 'index');
 				return condition ? [{ action: 'GOTO_ACTION_INDEX', action_index: index }] : [];
 			} else if (type === 'label') {
 				const label = stringCaptureForFieldName(f, node, 'label');
-				return condition ? [newGotoLabel(f, node, label)] : [];
+				return condition ? [new GotoLabel(f, node, label)] : [];
 			}
 		}
 		if (isCheckAction(condition)) {

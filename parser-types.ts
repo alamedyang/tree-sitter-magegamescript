@@ -120,69 +120,59 @@ export const newAddSerialDialogSettings = (
 
 // ------------------------------ CONTROL ------------------------------ \\
 
-export type ReturnStatement = {
+export class ReturnStatement {
 	mathlang: 'return_statement';
 	debug: TYPES.MGSDebug;
-};
-export const isReturnStatement = (v: unknown): v is ReturnStatement => {
-	return (v as ReturnStatement)?.mathlang === 'return_statement';
-};
-
-export type ContinueStatement = {
+	constructor(f: FileState, node: TreeSitterNode) {
+		this.mathlang = 'return_statement';
+		this.debug = autoDebug(f, node);
+	}
+}
+export class ContinueStatement {
 	mathlang: 'continue_statement';
 	debug: TYPES.MGSDebug;
-};
-export const isContinueStatement = (v: unknown): v is ContinueStatement => {
-	return (v as ContinueStatement)?.mathlang === 'continue_statement';
-};
-
-export type BreakStatement = {
+	constructor(f: FileState, node: TreeSitterNode) {
+		this.mathlang = 'continue_statement';
+		this.debug = autoDebug(f, node);
+	}
+}
+export class BreakStatement {
 	mathlang: 'break_statement';
 	debug: TYPES.MGSDebug;
-};
-export const isBreakStatement = (v: unknown): v is BreakStatement => {
-	return (v as BreakStatement)?.mathlang === 'break_statement';
-};
+	constructor(f: FileState, node: TreeSitterNode) {
+		this.mathlang = 'break_statement';
+		this.debug = autoDebug(f, node);
+	}
+}
 
-export type GotoLabel = {
+export class GotoLabel {
 	mathlang: 'goto_label';
 	label: string;
-	debug?: TYPES.MGSDebug;
+	debug: TYPES.MGSDebug;
 	comment?: string;
-};
-export const isGotoLabel = (v: unknown): v is GotoLabel => {
-	return (v as GotoLabel)?.mathlang === 'goto_label';
-};
-export const newGotoLabel = (f: FileState, node: TreeSitterNode, label: string): GotoLabel => ({
-	mathlang: 'goto_label',
-	debug: autoDebug(f, node),
-	label,
-});
+	constructor(f: FileState, node: TreeSitterNode, label: unknown, comment?: string) {
+		this.mathlang = 'goto_label';
+		this.label = TYPES.breakIfNotString(label, 'GotoLabel label');
+		this.debug = autoDebug(f, node);
+		if (comment) this.comment = comment;
+	}
+}
 
 // ------------------------------ DIALOG ------------------------------ \\
 
-export type DialogDefinition = {
+export class DialogDefinition {
 	mathlang: 'dialog_definition';
 	dialogName: string;
 	dialogs: Dialog[];
 	debug: TYPES.MGSDebug;
 	duplicates?: DialogDefinition[];
-};
-export const isDialogDefinition = (v: unknown): v is DialogDefinition => {
-	return (v as MathlangNode)?.mathlang === 'dialog_definition';
-};
-export const newDialogDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	dialogName: string,
-	dialogs: Dialog[],
-): DialogDefinition => ({
-	mathlang: 'dialog_definition',
-	debug: autoDebug(f, node),
-	dialogName,
-	dialogs,
-});
-
+	constructor(f: FileState, node: TreeSitterNode, dialogName: string, dialogs: Dialog[]) {
+		this.mathlang = 'dialog_definition';
+		this.debug = autoDebug(f, node);
+		this.dialogName = dialogName;
+		this.dialogs = dialogs;
+	}
+}
 export type DialogSettings = {
 	wrap?: number;
 	emote?: number;
@@ -243,27 +233,24 @@ export const isDialogOption = (v: unknown): v is DialogOption => {
 
 // ------------------------------ SERIAL DIALOG ------------------------------ \\
 
-export type SerialDialogDefinition = {
+export class SerialDialogDefinition {
 	mathlang: 'serial_dialog_definition';
 	dialogName: string;
 	serialDialog: SerialDialog;
 	debug: TYPES.MGSDebug;
 	duplicates?: SerialDialogDefinition[];
-};
-export const isSerialDialogDefinition = (v: unknown): v is SerialDialogDefinition => {
-	return (v as MathlangNode)?.mathlang === 'serial_dialog_definition';
-};
-export const newSerialDialogDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	dialogName: string,
-	serialDialog: SerialDialog,
-): SerialDialogDefinition => ({
-	mathlang: 'serial_dialog_definition',
-	debug: autoDebug(f, node),
-	dialogName,
-	serialDialog,
-});
+	constructor(
+		f: FileState,
+		node: TreeSitterNode,
+		dialogName: string,
+		serialDialog: SerialDialog,
+	) {
+		this.mathlang = 'serial_dialog_definition';
+		this.debug = autoDebug(f, node);
+		this.dialogName = dialogName;
+		this.serialDialog = serialDialog;
+	}
+}
 
 export type SerialDialogSettings = {
 	wrap?: number;
@@ -310,40 +297,31 @@ export const isSerialDialogOption = (v: unknown): v is SerialDialogOption => {
 
 // ------------------------------ ONE-OFFS ------------------------------ \\
 
-export type IncludeNode = {
+export class IncludeNode {
 	mathlang: 'include_macro';
-	value: string;
 	debug: TYPES.MGSDebug;
-};
-export const newIncludeNode = (f: FileState, node: TreeSitterNode, value: string): IncludeNode => {
-	return {
-		mathlang: 'include_macro',
-		debug: autoDebug(f, node),
-		value,
-	};
-};
+	value: string;
+	constructor(f: FileState, node: TreeSitterNode, value: string) {
+		this.mathlang = 'include_macro';
+		this.debug = autoDebug(f, node);
+		this.value = value;
+	}
+}
 
-export type ConstantDefinition = {
+export class ConstantDefinition {
 	mathlang: 'constant_assignment';
+	debug: TYPES.MGSDebug;
 	label: string;
 	value: string | boolean | number;
-	debug: TYPES.MGSDebug;
-};
-export const newConstantDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	label: string,
-	value: MGSPrimitive,
-): ConstantDefinition => {
-	return {
-		mathlang: 'constant_assignment',
-		debug: autoDebug(f, node),
-		label,
-		value,
-	};
-};
+	constructor(f: FileState, node: TreeSitterNode, label: string, value: MGSPrimitive) {
+		this.mathlang = 'constant_assignment';
+		this.debug = autoDebug(f, node);
+		this.label = label;
+		this.value = value;
+	}
+}
 
-export type ScriptDefinition = {
+export class ScriptDefinition {
 	mathlang: 'script_definition';
 	scriptName: string;
 	prePrint?: string;
@@ -355,120 +333,93 @@ export type ScriptDefinition = {
 	preActions?: AnyNode[];
 	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
-};
-export const isScriptDefinition = (v: unknown): v is ScriptDefinition => {
-	return (v as MathlangNode)?.mathlang === 'script_definition';
-};
-export const newScriptDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	scriptName: string,
-	actions: AnyNode[],
-): ScriptDefinition => {
-	return {
-		mathlang: 'script_definition',
-		debug: autoDebug(f, node),
-		scriptName,
-		actions,
-	};
-};
+	constructor(f: FileState, node: TreeSitterNode, scriptName: string, actions: AnyNode[]) {
+		this.mathlang = 'script_definition';
+		this.debug = autoDebug(f, node);
+		this.scriptName = scriptName;
+		this.actions = actions;
+	}
+}
 
-export type CommentNode = {
+export class CommentNode {
 	mathlang: 'comment';
 	comment: string;
 	debug?: TYPES.MGSDebug;
-};
-export const isCommentNode = (v: unknown): v is CommentNode => {
-	return (v as CommentNode)?.mathlang === 'comment';
-};
-export const newComment = (comment: string): CommentNode => ({ mathlang: 'comment', comment });
+	constructor(comment: string) {
+		this.mathlang = 'comment';
+		this.comment = comment;
+	}
+}
 
-export type LabelDefinition = {
+export class LabelDefinition {
 	mathlang: 'label_definition';
 	label: string;
 	debug?: TYPES.MGSDebug;
-};
-export const isLabelDefinition = (v: unknown): v is LabelDefinition => {
-	return (v as LabelDefinition)?.mathlang === 'label_definition';
-};
-// TODO: real constructors
-export const newLabelDefinition = (
-	f: FileState,
-	node: TreeSitterNode,
-	label: string,
-): LabelDefinition => ({
-	mathlang: 'label_definition',
-	debug: autoDebug(f, node),
-	label,
-});
+	constructor(f: FileState, node: TreeSitterNode, label: string) {
+		this.mathlang = 'label_definition';
+		this.debug = autoDebug(f, node);
+		this.label = label;
+	}
+}
 
-export type JSONLiteral = {
+export class JSONLiteral {
 	mathlang: 'json_literal';
 	json: [JSON];
 	debug: TYPES.MGSDebug;
-};
-export const isJSONLiteral = (v: unknown): v is JSONLiteral => {
-	if (typeof v !== 'object') return false;
-	if (!Array.isArray((v as JSONLiteral).json)) return false; // extra strict!
-	return (v as JSONLiteral)?.mathlang === 'json_literal';
-};
-
-export type CopyMacro = {
-	mathlang: 'copy_script';
-	script: string;
-	debug: TYPES.MGSDebug;
-};
-export const isMathlangCopyScript = (v: unknown): v is CopyMacro => {
-	return (v as CopyMacro)?.mathlang === 'copy_script';
-};
+	constructor(f: FileState, node: TreeSitterNode, json: [JSON]) {
+		this.mathlang = 'json_literal';
+		this.debug = autoDebug(f, node);
+		this.json = json;
+	}
+}
 
 type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
 export const isAnyCopyScript = (v: unknown): v is CopyScript => {
-	return (v as MathlangNode)?.mathlang === 'copy_script';
-};
-export const hasSearchAndReplace = (v: unknown): v is TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE => {
-	return (
-		TYPES.isActionCopyScript(v) &&
-		!!(v as TYPES.COPY_SCRIPT_SEARCH_AND_REPLACE).search_and_replace
-	);
+	return v instanceof TYPES.COPY_SCRIPT || v instanceof CopyMacro;
 };
 
+export class CopyMacro {
+	mathlang: 'copy_script';
+	script: string;
+	debug: TYPES.MGSDebug;
+	constructor(f: FileState, node: TreeSitterNode, script: string) {
+		this.mathlang = 'copy_script';
+		this.debug = autoDebug(f, node);
+		this.script = script;
+	}
+}
+
 // needs to be one unit of thing for reasons, but still contain than one thing
-export type MathlangSequence = {
+export class MathlangSequence {
 	mathlang: 'sequence';
 	type: string;
 	steps: AnyNode[];
 	debug: TYPES.MGSDebug;
-};
-export const isMathlangSequence = (v: unknown): v is MathlangSequence => {
-	return (v as MathlangSequence)?.mathlang === 'sequence';
-};
-export const newSequence = (
-	f: FileState,
-	node: TreeSitterNode,
-	steps: AnyNode[],
-	type: string = 'generic_sequence',
-): MathlangSequence => {
-	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
-	const mathlangComment: CommentNode = newComment(`${type}: ${comment}`);
-	steps.unshift(mathlangComment);
-	const flatSteps: AnyNode[] = [];
-	steps
-		.filter((v) => v !== null) // might not need this anymore
-		.forEach((v) => {
-			if (isMathlangSequence(v)) {
-				flatSteps.push(...v.steps);
-			} else {
-				flatSteps.push(v);
-			}
-		});
-	return {
-		mathlang: 'sequence',
-		debug: autoDebug(f, node),
-		type,
-		steps: flatSteps,
-	};
-};
+	constructor(
+		f: FileState,
+		node: TreeSitterNode,
+		steps: AnyNode[],
+		type: string = 'generic_sequence',
+	) {
+		this.mathlang = 'sequence';
+		this.debug = autoDebug(f, node);
+		this.type = type;
+		const comment = node.text.replace(/[\n\s\t]+/g, ' ');
+		const mathlangComment = new CommentNode(`${type}: ${comment}`);
+		steps.unshift(mathlangComment);
+		const flatSteps: AnyNode[] = [];
+		steps
+			.filter((v) => v !== null) // might not need this anymore
+			.forEach((v) => {
+				if (v instanceof MathlangSequence) {
+					flatSteps.push(...v.steps);
+				} else {
+					flatSteps.push(v);
+				}
+			});
+		this.steps = flatSteps;
+	}
+}
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
 
@@ -714,7 +665,7 @@ export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangN
 	if (typeof v !== 'object') return false;
 	if (!isMathlangNode(v)) return false;
 	if (isActionNode(v)) return false; // load bearing??
-	if (isGotoLabel(v)) return true;
+	if (v instanceof GotoLabel) return true;
 	if (isBoolGetable(v)) return true;
 	if (isBoolComparison(v)) return true;
 	if (isStringCheckable(v)) return true;

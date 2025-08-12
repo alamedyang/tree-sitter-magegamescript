@@ -4,19 +4,16 @@ import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
 	type AnyNode,
-	type DialogDefinition,
-	type SerialDialogDefinition,
+	DialogDefinition,
 	type ScriptDefinition,
 	type MGSMessage,
-	isLabelDefinition,
+	SerialDialogDefinition,
+	LabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
 	isAnyCopyScript,
-	hasSearchAndReplace,
-	isDialogDefinition,
-	isSerialDialogDefinition,
-	newComment,
+	CommentNode,
 } from './parser-types.ts';
-import { type MGSDebug } from './parser-bytecode-info.ts';
+import { COPY_SCRIPT, type MGSDebug } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -85,9 +82,9 @@ export const makeProjectState = (
 			// finalize actions
 			const finalizedActions: AnyNode[] = [];
 			data.rawNodes.forEach((node) => {
-				if (isDialogDefinition(node)) {
+				if (node instanceof DialogDefinition) {
 					p.addDialog(node);
-				} else if (isSerialDialogDefinition(node)) {
+				} else if (node instanceof SerialDialogDefinition) {
 					p.addSerialDialog(node);
 				} else {
 					finalizedActions.push(node);
@@ -184,7 +181,7 @@ export const makeProjectState = (
 						if (
 							(doesMathlangHaveLabelToChangeToIndex(copiedAction) &&
 								copiedAction.label) ||
-							isLabelDefinition(copiedAction)
+							copiedAction instanceof LabelDefinition
 						) {
 							return {
 								...copiedAction,
@@ -196,11 +193,7 @@ export const makeProjectState = (
 					},
 				);
 				// search-and-replace
-				if (!hasSearchAndReplace(action)) {
-					// plain version
-					finalActions.push(newComment(`Copying: ${action.script} (-${labelSuffix})`));
-					finalActions.push(...copiedActions);
-				} else {
+				if (action instanceof COPY_SCRIPT && action.search_and_replace) {
 					// search-and-replace does naive JSON stringifying and straight find-and-replace.
 					// But thanks to the TreeSitter node stuff, you can't stringify the whole thing in this intermediate state.
 					// Gotta extract the "debug" nodes first so it doesn't try to print recursive things.
@@ -215,8 +208,7 @@ export const makeProjectState = (
 					});
 					// Do the search-and-replace
 					let stringActions: string = JSON.stringify(copiedActions);
-					const searchAndReplace: Record<string, string> =
-						action.search_and_replace || {};
+					const searchAndReplace = action.search_and_replace;
 					Object.entries(searchAndReplace).forEach(([k, v]) => {
 						stringActions = stringActions.replace(new RegExp(k, 'g'), v);
 					});
@@ -229,8 +221,14 @@ export const makeProjectState = (
 						}
 					});
 					const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
-					finalActions.push(newComment(comment));
+					finalActions.push(new CommentNode(comment));
 					finalActions.push(...objectActions);
+				} else {
+					// plain version
+					finalActions.push(
+						new CommentNode(`Copying: ${action.script} (-${labelSuffix})`),
+					);
+					finalActions.push(...copiedActions);
 				}
 			});
 			p.scripts[scriptName].copyScriptResolved = true;

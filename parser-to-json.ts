@@ -4,7 +4,7 @@ import { inverseOpMap } from './parser-utilities.ts';
 
 export const printAction = (data: MATHLANG.AnyNode): string => {
 	const isAction = MATHLANG.isActionNode(data);
-	if (MATHLANG.isCommentNode(data)) {
+	if (data instanceof MATHLANG.CommentNode) {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;
 		return `// ${abridged}`;
@@ -24,15 +24,15 @@ export const printAction = (data: MATHLANG.AnyNode): string => {
 		return print + comment;
 	}
 	if (!isAction && data.mathlang) {
-		if (MATHLANG.isDialogDefinition(data)) {
+		if (data instanceof MATHLANG.DialogDefinition) {
 			const sample = data.dialogs[0].messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto dialog: "${sample}"`;
 		}
-		if (MATHLANG.isSerialDialogDefinition(data)) {
+		if (data instanceof MATHLANG.SerialDialogDefinition) {
 			const sample = data.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
 			return `// auto serial_dialog: "${sample}"`;
 		}
-		if (MATHLANG.isReturnStatement(data)) return '// auto return label';
+		if (data instanceof MATHLANG.ReturnStatement) return '// auto return label';
 		const fn = mathlang[data.mathlang];
 		if (!fn) throw new Error('print fn needed for ' + data.mathlang);
 		const print = fn(data);
@@ -51,7 +51,7 @@ const mathlang = {
 };
 
 // TODO: how to add types to this without needing each fn to check the type of its args?
-const printActionFns: Record<string, (v) => string> = {
+export const printActionFns: Record<string, (v) => string> = {
 	// Branch on bool equality (==)
 	CHECK_DEBUG_MODE: (v: TYPES.CHECK_DEBUG_MODE) => printCheckAction(v, 'debug_mode', true),
 	CHECK_SERIAL_DIALOG_OPEN: (v: TYPES.CHECK_SERIAL_DIALOG_OPEN) =>
@@ -269,7 +269,7 @@ const printActionFns: Record<string, (v) => string> = {
 	},
 	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto script "${v.script}";`,
 	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => {
-		if (!MATHLANG.hasSearchAndReplace(v)) {
+		if (v instanceof TYPES.COPY_SCRIPT && !v.search_and_replace) {
 			return `copy!("${v.script}")`;
 		}
 		const action = {

@@ -15,17 +15,13 @@ import { type FileMap, makeProjectState } from './parser-project.ts';
 import { standardizeAction } from './parser-bytecode-info.ts';
 
 import {
-	type ScriptDefinition,
-	type DialogDefinition,
-	type SerialDialogDefinition,
-	isScriptDefinition,
-	isDialogDefinition,
-	isSerialDialogDefinition,
-	isLabelDefinition,
+	DialogDefinition,
+	ScriptDefinition,
+	SerialDialogDefinition,
+	LabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
-	isCommentNode,
-	isGotoLabel,
-	newComment,
+	GotoLabel,
+	CommentNode,
 } from './parser-types.ts';
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
@@ -102,11 +98,11 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		const f = fileMap[fileName].parsed;
 		if (!f) throw new Error(`File "${fileName}" failed to parse in time (?)`);
 		f.nodes.forEach((node) => {
-			if (isScriptDefinition(node)) {
+			if (node instanceof ScriptDefinition) {
 				p.addScript(node);
-			} else if (isDialogDefinition(node)) {
+			} else if (node instanceof DialogDefinition) {
 				p.addDialog(node);
-			} else if (isSerialDialogDefinition(node)) {
+			} else if (node instanceof SerialDialogDefinition) {
 				p.addSerialDialog(node);
 			}
 		});
@@ -146,7 +142,10 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	Object.keys(p.scripts).forEach((scriptName) => {
 		const standardizedActions = p.scripts[scriptName].actions
 			.filter(
-				(v) => !isCommentNode(v) && !isDialogDefinition(v) && !isSerialDialogDefinition(v),
+				(v) =>
+					!(v instanceof CommentNode) &&
+					!(v instanceof DialogDefinition) &&
+					!(v instanceof SerialDialogDefinition),
 			)
 			.map((v, i, arr) => standardizeAction(v, arr.length));
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
@@ -175,14 +174,14 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		for (let i = 0; i < actions.length; i++) {
 			const currAction = actions[i];
 			if (
-				isCommentNode(currAction) ||
-				isDialogDefinition(currAction) ||
-				isSerialDialogDefinition(currAction)
+				currAction instanceof CommentNode ||
+				currAction instanceof DialogDefinition ||
+				currAction instanceof SerialDialogDefinition
 			) {
 				continue;
-			} else if (isLabelDefinition(currAction)) {
+			} else if (currAction instanceof LabelDefinition) {
 				registry[currAction.label] = gaplessIndex;
-				actions[i] = newComment(`'${currAction.label}':`);
+				actions[i] = new CommentNode(`'${currAction.label}':`);
 			} else {
 				gaplessIndex += 1;
 			}
@@ -197,7 +196,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 					);
 				}
 				const param = 'jump_index';
-				if (isGotoLabel(action)) {
+				if (action instanceof GotoLabel) {
 					actions[i] = {
 						action: 'GOTO_ACTION_INDEX',
 						action_index: jumpToIndex,

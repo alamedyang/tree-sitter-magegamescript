@@ -10,30 +10,69 @@ import {
 } from './parser-capture.ts';
 import {
 	type MGSDebug,
-	type SET_SAVE_FLAG,
 	getBoolFieldForAction,
-	type COPY_VARIABLE,
-	type MUTATE_VARIABLE,
-	type MUTATE_VARIABLES,
 	isMGSDebug,
-	type SET_ENTITY_DIRECTION_RELATIVE,
 	type ActionSetPosition,
 	type ActionSetDirection,
 	type ActionSetScript,
 	type ActionMoveOverTime,
 	type ActionSetEntityString,
 	type ActionSetEntityInt,
-	type SHOW_DIALOG,
-	type SHOW_SERIAL_DIALOG,
 	type ActionSetBool,
+	MUTATE_VARIABLE,
+	MUTATE_VARIABLES,
+	RUN_SCRIPT,
+	NON_BLOCKING_DELAY,
+	BLOCKING_DELAY,
+	COPY_VARIABLE,
+	SET_ENTITY_DIRECTION_RELATIVE,
+	UNREGISTER_SERIAL_DIALOG_COMMAND,
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT,
+	SET_ENTITY_X,
+	SET_ENTITY_Y,
+	SET_ENTITY_NAME,
+	SET_ENTITY_TYPE,
+	SET_ENTITY_INTERACT_SCRIPT,
+	SET_ENTITY_TICK_SCRIPT,
+	SET_ENTITY_PRIMARY_ID,
+	SET_ENTITY_SECONDARY_ID,
+	SET_ENTITY_CURRENT_FRAME,
+	SET_ENTITY_CURRENT_ANIMATION,
+	SET_ENTITY_PRIMARY_ID_TYPE,
+	SET_ENTITY_GLITCHED,
+	SET_ENTITY_PATH,
+	GOTO_ACTION_INDEX,
+	SET_SAVE_FLAG,
+	SHOW_DIALOG,
+	SHOW_SERIAL_DIALOG,
+	CLOSE_DIALOG,
+	CLOSE_SERIAL_DIALOG,
+	SLOT_SAVE,
+	SLOT_LOAD,
+	SLOT_ERASE,
+	LOAD_MAP,
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS,
+	SET_SERIAL_DIALOG_COMMAND_VISIBILITY,
+	SET_SCREEN_SHAKE,
+	SCREEN_FADE_IN,
+	SCREEN_FADE_OUT,
+	SET_SCRIPT_PAUSE,
+	SET_WARP_STATE,
+	PLAY_ENTITY_ANIMATION,
+	SET_CONNECT_SERIAL_DIALOG,
+	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS,
+	REGISTER_SERIAL_DIALOG_COMMAND,
+	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT,
+	SET_ENTITY_MOVEMENT_RELATIVE,
+	TELEPORT_ENTITY_TO_GEOMETRY,
+	TELEPORT_CAMERA_TO_GEOMETRY,
+	SET_CAMERA_TO_FOLLOW_ENTITY,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
-	type DialogDefinition,
-	type SerialDialogDefinition,
-	type CommentNode,
+	DialogDefinition,
+	CommentNode,
 	type MGSMessage,
-	type MathlangSequence,
 	isIntGetable,
 	isDialog,
 	isSerialDialog,
@@ -41,17 +80,19 @@ import {
 	isIntBinaryExpression,
 	isBoolSetable,
 	type BoolExpression,
+	SerialDialogDefinition,
 	isBoolExpression,
 	isMovableIdentifier,
 	isCoordinateIdentifier,
 	isDirectionTarget,
 	isBoolGetable,
 	isBoolComparison,
-	newComment,
-	newSequence,
-	newDialogDefinition,
-	newSerialDialogDefinition,
+	MathlangSequence,
 	newCheckSaveFlag,
+	ReturnStatement,
+	BreakStatement,
+	ContinueStatement,
+	GotoLabel,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -271,6 +312,10 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		spreads.forEach((actionInsideSpread, i) => {
 			const handled = handleFn(actionInsideSpread, f, node, i) as GenericActionish;
 			if (handled) {
+				// if (typeof handled.action === 'string' && constructors[handled.action]) {
+				// 	const constructed = constructors[handled.action](f, node, handled);
+				// 	spreads[i] = constructed;
+				// }
 				spreads[i] = handled;
 				return;
 			}
@@ -289,13 +334,10 @@ const actionFns: Record<string, ActionFn> = {
 		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
 		const name = tryName !== null ? tryName : autoIdentifierName(f, node);
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		const shownDialog: SHOW_DIALOG = {
-			action: 'SHOW_DIALOG',
-			dialog: name,
-		};
+		const shownDialog = new SHOW_DIALOG({ dialog: name });
 		if (dialogs.length) {
 			if (!dialogs.every(isDialog)) throw new Error('parsed dialogs not all of type Dialog');
-			const dialogDefinition = newDialogDefinition(f, node, name, dialogs);
+			const dialogDefinition = new DialogDefinition(f, node, name, dialogs);
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
@@ -317,16 +359,12 @@ const actionShowSerialDialog = (
 	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
 	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
 	const serialDialogs = handleChildrenForFieldName(f, node, 'serial_dialog');
-	const shownSerialDialog: SHOW_SERIAL_DIALOG = {
-		action: 'SHOW_SERIAL_DIALOG',
-		serial_dialog: name,
-		disable_newline,
-	};
+	const shownSerialDialog = new SHOW_SERIAL_DIALOG({ serial_dialog: name, disable_newline });
 	if (serialDialogs.length) {
 		if (!isSerialDialog(serialDialogs[0])) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
-		const serialDialoDefinition = newSerialDialogDefinition(f, node, name, serialDialogs[0]);
+		const serialDialoDefinition = new SerialDialogDefinition(f, node, name, serialDialogs[0]);
 		return [serialDialoDefinition, shownSerialDialog];
 	}
 	return [shownSerialDialog];
@@ -347,137 +385,129 @@ const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
 		// Ditto some other actions, too
-		values: { mathlang: 'return_statement' },
+		handle: (v, f, node) => new ReturnStatement(f, node),
 	},
 	action_continue_statement: {
-		values: { mathlang: 'continue_statement' },
+		handle: (v, f, node) => new ContinueStatement(f, node),
 	},
 	action_break_statement: {
-		values: { mathlang: 'break_statement' },
+		handle: (v, f, node) => new BreakStatement(f, node),
 	},
 	action_close_dialog: {
-		values: { action: 'CLOSE_DIALOG' },
+		handle: () => new CLOSE_DIALOG(),
 	},
 	action_close_serial_dialog: {
-		values: { action: 'CLOSE_SERIAL_DIALOG' },
+		handle: () => new CLOSE_SERIAL_DIALOG(),
 	},
 	action_save_slot: {
-		values: { action: 'SLOT_SAVE' },
+		handle: () => new SLOT_SAVE(),
 	},
 	action_load_slot: {
-		values: { action: 'SLOT_LOAD' },
 		captures: ['slot'],
+		handle: (v) => new SLOT_LOAD(v),
 	},
 	action_erase_slot: {
-		values: { action: 'SLOT_ERASE' },
 		captures: ['slot'],
+		handle: (v) => new SLOT_ERASE(v),
 	},
 	action_load_map: {
-		values: { action: 'LOAD_MAP' },
 		captures: ['map'],
+		handle: (v) => new LOAD_MAP(v),
 	},
 	action_goto_label: {
-		values: { mathlang: 'goto_label' },
 		captures: ['label'],
+		handle: (v, f, node) => new GotoLabel(f, node, v.label),
 	},
 	action_goto_index: {
-		values: { action: 'GOTO_ACTION_INDEX' },
 		captures: ['action_index'],
+		handle: (v) => new GOTO_ACTION_INDEX(v),
 	},
 	action_run_script: {
-		values: { action: 'RUN_SCRIPT' },
 		captures: ['script'],
+		handle: (v) => new RUN_SCRIPT(v),
 	},
 	action_non_blocking_delay: {
-		values: { action: 'NON_BLOCKING_DELAY' },
 		captures: ['duration'],
+		handle: (v) => new NON_BLOCKING_DELAY(v),
 	},
 	action_blocking_delay: {
-		values: { action: 'BLOCKING_DELAY' },
 		captures: ['duration'],
+		handle: (v) => new BLOCKING_DELAY(v),
 	},
 	action_delete_command: {
-		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND' },
 		captures: ['command'],
+		handle: (v) => new UNREGISTER_SERIAL_DIALOG_COMMAND(v),
 	},
 	action_delete_command_arg: {
-		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT' },
 		captures: ['command', 'argument'],
+		handle: (v) => new UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT(v),
 	},
 	action_delete_alias: {
-		values: { action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
 		captures: ['alias'],
+		handle: (v) => new UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS(v),
 	},
 	action_hide_command: {
-		values: {
-			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
-			is_visible: false,
-		},
+		values: { is_visible: false },
 		captures: ['command'],
+		handle: (v) => new SET_SERIAL_DIALOG_COMMAND_VISIBILITY(v),
 	},
 	action_unhide_command: {
-		values: {
-			action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY',
-			is_visible: true,
-		},
+		values: { is_visible: true },
 		captures: ['command'],
+		handle: (v) => new SET_SERIAL_DIALOG_COMMAND_VISIBILITY(v),
 	},
 	action_camera_shake: {
-		values: { action: 'SET_SCREEN_SHAKE' },
 		captures: ['frequency', 'amplitude', 'duration'],
+		handle: (v) => new SET_SCREEN_SHAKE(v),
 	},
 	action_camera_fade_in: {
-		values: { action: 'SCREEN_FADE_IN' },
 		captures: ['color', 'duration'],
+		handle: (v) => new SCREEN_FADE_IN(v),
 	},
 	action_camera_fade_out: {
-		values: { action: 'SCREEN_FADE_OUT' },
 		captures: ['color', 'duration'],
+		handle: (v) => new SCREEN_FADE_OUT(v),
 	},
 	action_pause_script: {
-		values: { action: 'SET_SCRIPT_PAUSE', bool_value: true },
+		values: { bool_value: true },
 		captures: ['script_slot', 'entity'],
+		handle: (v) => new SET_SCRIPT_PAUSE(v),
 	},
 	action_unpause_script: {
-		values: { action: 'SET_SCRIPT_PAUSE', bool_value: false },
+		values: { bool_value: false },
 		captures: ['script_slot', 'entity'],
+		handle: (v) => new SET_SCRIPT_PAUSE(v),
 	},
 	action_play_entity_animation: {
-		values: { action: 'PLAY_ENTITY_ANIMATION' },
 		captures: ['entity', 'animation', 'play_count'],
+		handle: (v) => new PLAY_ENTITY_ANIMATION(v),
 	},
 	action_set_warp_state: {
-		values: { action: 'SET_WARP_STATE' },
 		captures: ['string'],
+		handle: (v) => new SET_WARP_STATE(v),
 	},
 	action_set_serial_connect: {
-		values: { action: 'SET_CONNECT_SERIAL_DIALOG' },
 		captures: ['serial_dialog'],
+		handle: (v) => new SET_CONNECT_SERIAL_DIALOG(v),
 	},
 	action_set_alias: {
-		values: { action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS' },
 		captures: ['alias', 'command'],
+		handle: (v) => new REGISTER_SERIAL_DIALOG_COMMAND_ALIAS(v),
 	},
 	action_set_command: {
-		values: {
-			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
-			is_fail: false,
-		},
+		values: { is_fail: false },
 		captures: ['command', 'script'],
+		handle: (v) => new REGISTER_SERIAL_DIALOG_COMMAND(v),
 	},
 	action_set_command_fail: {
-		values: {
-			action: 'REGISTER_SERIAL_DIALOG_COMMAND',
-			is_fail: true,
-		},
+		values: { is_fail: true },
 		captures: ['command', 'script'],
+		handle: (v) => new REGISTER_SERIAL_DIALOG_COMMAND(v),
 	},
 	action_set_command_arg: {
-		values: {
-			action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT',
-			is_fail: true,
-		},
+		values: { is_fail: true },
 		captures: ['command', 'argument', 'script'],
+		handle: (v) => new REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT(v),
 	},
 	action_set_ambiguous: {
 		// if the LHS is ambiguous (a variable name)
@@ -537,7 +567,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
 				steps.push(setVarToVar(lhs, temporary));
-				return newSequence(f, node, steps, 'parser-actions: action_set_ambiguous');
+				return new MathlangSequence(f, node, steps, 'parser-actions: action_set_ambiguous');
 			}
 
 			// varName = (debug_mode || player glitched);
@@ -562,67 +592,31 @@ const actionData: Record<string, actionDataEntry> = {
 			// player x = 0;
 			if (typeof v.rhs === 'number') {
 				if (v.lhs.field === 'x') {
-					return {
-						entity,
-						action: 'SET_ENTITY_X',
-						u2_value: v.rhs,
-					};
+					return new SET_ENTITY_X({ entity, u2_value: v.rhs });
 				}
 				if (v.lhs.field === 'y') {
-					return {
-						entity,
-						action: 'SET_ENTITY_Y',
-						u2_value: v.rhs,
-					};
+					return new SET_ENTITY_Y({ entity, u2_value: v.rhs });
 				}
 				if (v.lhs.field === 'primary_id') {
-					return {
-						entity,
-						action: 'SET_ENTITY_PRIMARY_ID',
-						u2_value: v.rhs,
-					};
+					return new SET_ENTITY_PRIMARY_ID({ entity, u2_value: v.rhs });
 				}
 				if (v.lhs.field === 'secondary_id') {
-					return {
-						entity,
-						action: 'SET_ENTITY_SECONDARY_ID',
-						u2_value: v.rhs,
-					};
+					return new SET_ENTITY_SECONDARY_ID({ entity, u2_value: v.rhs });
 				}
 				if (v.lhs.field === 'primary_id_type') {
-					return {
-						entity,
-						action: 'SET_ENTITY_PRIMARY_ID_TYPE',
-						byte_value: v.rhs,
-					};
+					return new SET_ENTITY_PRIMARY_ID_TYPE({ entity, byte_value: v.rhs });
 				}
 				if (v.lhs.field === 'current_animation') {
-					return {
-						entity,
-						action: 'SET_ENTITY_CURRENT_ANIMATION',
-						byte_value: v.rhs,
-					};
+					return new SET_ENTITY_CURRENT_ANIMATION({ entity, byte_value: v.rhs });
 				}
 				if (v.lhs.field === 'animation_frame') {
-					return {
-						entity,
-						action: 'SET_ENTITY_CURRENT_FRAME',
-						byte_value: v.rhs,
-					};
+					return new SET_ENTITY_CURRENT_FRAME({ entity, byte_value: v.rhs });
 				}
 				if (v.lhs.field === 'strafe') {
-					return {
-						entity,
-						action: 'SET_ENTITY_MOVEMENT_RELATIVE',
-						relative_direction: v.rhs,
-					};
+					return new SET_ENTITY_MOVEMENT_RELATIVE({ entity, relative_direction: v.rhs });
 				}
 				if (v.lhs.field === 'relative_direction') {
-					return {
-						entity,
-						action: 'SET_ENTITY_DIRECTION_RELATIVE',
-						relative_direction: v.rhs,
-					};
+					return new SET_ENTITY_DIRECTION_RELATIVE({ entity, relative_direction: v.rhs });
 				}
 				throw new Error('unidentified int_getable, field: ' + v.lhs.field);
 			}
@@ -638,7 +632,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
 				steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-				return newSequence(f, node, steps, 'parser-actions: action_set_int');
+				return new MathlangSequence(f, node, steps, 'parser-actions: action_set_int');
 			}
 
 			throw new Error('unknown RHS type');
@@ -656,16 +650,13 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('RHS not a bool_expression');
 			}
 			if (v.lhs.type === 'entity') {
-				const lhs: ActionSetBool = {
-					action: 'SET_ENTITY_GLITCHED',
-					bool_value: true,
-					entity: coerceToString(
-						f,
-						node,
-						v.lhs.value,
-						'SET_ENTITY_GLITCHED field entity',
-					),
-				};
+				const entity = coerceToString(
+					f,
+					node,
+					v.lhs.value,
+					'SET_ENTITY_GLITCHED field entity',
+				);
+				const lhs: ActionSetBool = new SET_ENTITY_GLITCHED({ entity, bool_value: true });
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'light') {
@@ -737,24 +728,21 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			if (v.movable.type === 'camera') {
 				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
-					return {
-						action: 'TELEPORT_CAMERA_TO_GEOMETRY',
+					return new TELEPORT_CAMERA_TO_GEOMETRY({
 						geometry: v.coordinate.value,
-					};
+					});
 				}
 				if (v.coordinate.type === 'entity') {
-					return {
-						action: 'SET_CAMERA_TO_FOLLOW_ENTITY',
+					return new SET_CAMERA_TO_FOLLOW_ENTITY({
 						entity: v.coordinate.value,
-					};
+					});
 				}
 			} else if (v.movable.type === 'entity') {
 				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
-					return {
-						action: 'TELEPORT_ENTITY_TO_GEOMETRY',
+					return new TELEPORT_ENTITY_TO_GEOMETRY({
 						entity: v.movable.value,
 						geometry: v.coordinate.value,
-					};
+					});
 				}
 				if (v.coordinate.type === 'entity') {
 					const variable = quickTemporary();
@@ -766,7 +754,12 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(variable, copyFrom, 'y'),
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
-					return newSequence(f, node, steps, 'parser-actions: action_set_position');
+					return new MathlangSequence(
+						f,
+						node,
+						steps,
+						'parser-actions: action_set_position',
+					);
 				}
 			}
 			throw new Error('invalid everything');
@@ -817,7 +810,6 @@ const actionData: Record<string, actionDataEntry> = {
 							// ... forever
 							return {
 								action: 'LOOP_CAMERA_ALONG_GEOMETRY',
-								entity: v.coordinate.value,
 								duration: duration,
 								geometry: v.coordinate.value,
 							};
@@ -825,7 +817,6 @@ const actionData: Record<string, actionDataEntry> = {
 							// ... not forever
 							return {
 								action: 'PAN_CAMERA_ALONG_GEOMETRY',
-								entity: v.coordinate.value,
 								duration: duration,
 								geometry: v.coordinate.value,
 							};
@@ -943,18 +934,10 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			// not a map; must be an entity
 			if (v.script_slot === 'on_tick') {
-				return {
-					action: 'SET_ENTITY_TICK_SCRIPT',
-					entity,
-					script,
-				};
+				return new SET_ENTITY_TICK_SCRIPT({ entity, script });
 			}
 			if (v.script_slot === 'on_interact') {
-				return {
-					action: 'SET_ENTITY_INTERACT_SCRIPT',
-					entity,
-					script,
-				};
+				return new SET_ENTITY_INTERACT_SCRIPT({ entity, script });
 			}
 			if (v.script_slot === 'on_look') {
 				return {
@@ -978,23 +961,11 @@ const actionData: Record<string, actionDataEntry> = {
 			const entity = coerceToString(f, node, v.entity, 'entity');
 			const value = coerceToString(f, node, v.value, 'value');
 			if (v.field === 'name') {
-				return {
-					action: 'SET_ENTITY_NAME',
-					string: value,
-					entity: entity,
-				};
+				return new SET_ENTITY_NAME({ string: value, entity });
 			} else if (v.field === 'type') {
-				return {
-					action: 'SET_ENTITY_TYPE',
-					entity_type: value,
-					entity: entity,
-				};
+				return new SET_ENTITY_TYPE({ entity_type: value, entity });
 			} else if (v.field === 'path') {
-				return {
-					action: 'SET_ENTITY_PATH',
-					entity: entity,
-					geometry: value,
-				};
+				return new SET_ENTITY_PATH({ entity, geometry: value });
 			}
 			throw new Error('invalid field?');
 		},
@@ -1022,7 +993,7 @@ const actionData: Record<string, actionDataEntry> = {
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.lhs, temp, op),
 					];
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1036,7 +1007,7 @@ const actionData: Record<string, actionDataEntry> = {
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1059,7 +1030,7 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1075,7 +1046,7 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1095,7 +1066,7 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1114,7 +1085,7 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return newSequence(
+					return new MathlangSequence(
 						f,
 						node,
 						steps,
@@ -1155,22 +1126,14 @@ export const showSerialDialog = (
 	serial_dialog: name,
 	disable_newline,
 });
-const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => ({
-	action: 'MUTATE_VARIABLE',
-	operation: 'SET',
-	value,
-	variable,
-});
+const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => {
+	return new MUTATE_VARIABLE({ operation: 'SET', value, variable });
+};
 const setVarToVar = (variable: string, source: string): MUTATE_VARIABLES | CommentNode => {
 	if (variable === source) {
-		return newComment(`This action was optimized out (setting '${variable}' to itself)`);
+		return new CommentNode(`This action was optimized out (setting '${variable}' to itself)`);
 	}
-	return {
-		action: 'MUTATE_VARIABLES',
-		operation: 'SET',
-		source,
-		variable,
-	};
+	return new MUTATE_VARIABLES({ operation: 'SET', source, variable });
 };
 export const changeVarByValue = (
 	variable: string,
@@ -1178,23 +1141,18 @@ export const changeVarByValue = (
 	op: string,
 ): MUTATE_VARIABLE | CommentNode => {
 	if (op === '+' && value === 0) {
-		return newComment('This action was optimized out (+ 0)');
+		return new CommentNode('This action was optimized out (+ 0)');
 	}
 	if (op === '*' && value === 1) {
-		return newComment('This action was optimized out (* 1)');
+		return new CommentNode('This action was optimized out (* 1)');
 	}
 	if (op === '/' && value === 1) {
-		return newComment('This action was optimized out (/ 1)');
+		return new CommentNode('This action was optimized out (/ 1)');
 	}
 	if (op === '-' && value === 0) {
-		return newComment('This action was optimized out (- 0)');
+		return new CommentNode('This action was optimized out (- 0)');
 	}
-	return {
-		action: 'MUTATE_VARIABLE',
-		operation: opIntoStringMap[op] || op,
-		value,
-		variable,
-	};
+	return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
 };
 const changeVarByVar = (variable: string, source: string, op: string): MUTATE_VARIABLES => ({
 	action: 'MUTATE_VARIABLES',
@@ -1202,33 +1160,16 @@ const changeVarByVar = (variable: string, source: string, op: string): MUTATE_VA
 	source,
 	variable,
 });
-const copyVarIntoEntityField = (
-	variable: string,
-	entity: string,
-	field: string,
-): COPY_VARIABLE => ({
-	action: 'COPY_VARIABLE',
-	entity,
-	field,
-	inbound: false,
-	variable,
-});
-const copyEntityFieldIntoVar = (
-	entity: string,
-	field: string,
-	variable: string,
-): COPY_VARIABLE => ({
-	action: 'COPY_VARIABLE',
-	entity,
-	field,
-	inbound: true,
-	variable,
-});
-const setFlag = (save_flag: string, bool_value: boolean): SET_SAVE_FLAG => ({
-	action: 'SET_SAVE_FLAG',
-	bool_value,
-	save_flag,
-});
+const copyVarIntoEntityField = (variable: string, entity: string, field: string) => {
+	return new COPY_VARIABLE({ entity, field, inbound: false, variable });
+};
+const copyEntityFieldIntoVar = (entity: string, field: string, variable: string) => {
+	return new COPY_VARIABLE({ entity, field, inbound: true, variable });
+};
+const setFlag = (save_flag: string, bool_value: boolean) => {
+	return new SET_SAVE_FLAG({ save_flag, bool_value });
+};
+
 const setFlagToFlag = (
 	f: FileState,
 	node: TreeSitterNode,
