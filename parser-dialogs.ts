@@ -12,6 +12,7 @@ import {
 	type SerialDialogSettings,
 	DialogOption,
 } from './parser-types.ts';
+import { MGSDebug } from './parser-bytecode-info.ts';
 
 const DIALOG_WRAP = 42;
 const SERIAL_DIALOG_WRAP = 80;
@@ -149,7 +150,11 @@ const ansiWrapBodge = (arr: string[]): string[] => {
 	return bodged;
 };
 
-export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo): SerialDialog => {
+export const buildSerialDialogFromInfo = (
+	f: FileState,
+	node: TreeSitterNode,
+	info: SerialDialogInfo,
+): SerialDialog => {
 	const serialDialogSettings: SerialDialogSettings = {
 		wrap: SERIAL_DIALOG_WRAP,
 		...(f.settings.serial || {}), // global settings
@@ -183,7 +188,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo):
 			});
 		}
 	}
-	return new SerialDialog(serialDialog);
+	return new SerialDialog(new MGSDebug(f, node), serialDialog);
 };
 
 const longerAlignments: Record<string, string> = {
@@ -195,6 +200,7 @@ const longerAlignments: Record<string, string> = {
 
 export const buildDialogFromInfo = (
 	f: FileState,
+	node: TreeSitterNode,
 	info: DialogInfo,
 	messageNodes: (TreeSitterNode | null)[],
 ): Dialog => {
@@ -231,10 +237,11 @@ export const buildDialogFromInfo = (
 	if (expandedAbbreviation) {
 		dialogSettings.alignment = expandedAbbreviation;
 	}
-	const dialog: Dialog = {
+	const dialog = {
 		...dialogSettings,
 		mathlang: 'dialog',
 		messages: [],
+		options: [],
 	};
 	let options: DialogOption[] = [];
 	// this needs to be outside to get the actual wrap value btw:
@@ -249,7 +256,7 @@ export const buildDialogFromInfo = (
 	}
 	const lastIndex = messages.length - 1;
 	messages.forEach((message, i) => {
-		const targetSize = lastIndex === i && dialog.options ? 1 : 5;
+		const targetSize = lastIndex === i && dialog.options.length > 0 ? 1 : 5;
 		const splitMessage: string[] = message.split('\n');
 		if (splitMessage.length > targetSize) {
 			let warningMessage = `dialog messages longer than 5 lines will wrap off the bottom`;
@@ -280,5 +287,5 @@ export const buildDialogFromInfo = (
 			});
 		}
 	});
-	return new Dialog(messages, options, dialogSettings);
+	return new Dialog(new MGSDebug(f, node), { messages, options, settings: dialogSettings });
 };

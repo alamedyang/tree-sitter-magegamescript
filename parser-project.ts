@@ -1,4 +1,4 @@
-import { Parser } from 'web-tree-sitter';
+import { Parser, Node as TreeSitterNode } from 'web-tree-sitter';
 import { simplifyLabelGotos } from './parser-utilities.ts';
 import { type FileState, makeFileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
@@ -13,7 +13,7 @@ import {
 	isAnyCopyScript,
 	CommentNode,
 } from './parser-types.ts';
-import { COPY_SCRIPT, type MGSDebug } from './parser-bytecode-info.ts';
+import { COPY_SCRIPT, MGSDebug } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -41,7 +41,7 @@ export type ProjectState = {
 	addScript: (args: ScriptDefinition) => void;
 	addDialog: (args: DialogDefinition) => void;
 	addSerialDialog: (args: SerialDialogDefinition) => void;
-	bakeCopyScriptSingle: (scriptToBake: string) => void;
+	bakeCopyScriptSingle: (f: FileState, node: TreeSitterNode, scriptToBake: string) => void;
 	parseFile: (fileName: string) => FileState;
 };
 
@@ -128,7 +128,7 @@ export const makeProjectState = (
 
 		// do a COPY_SCRIPT
 		// needs to be here because it can call itself
-		bakeCopyScriptSingle: (scriptName: string) => {
+		bakeCopyScriptSingle: (f: FileState, node: TreeSitterNode, scriptName: string) => {
 			// Recursion detection
 			if (copyRecursion.includes(scriptName)) {
 				copyRecursion.push(scriptName);
@@ -172,7 +172,7 @@ export const makeProjectState = (
 				}
 				// if the target script hasn't had its own copy_script pass done yet, do that pass first
 				if (!p.scripts[action.script].copyScriptResolved) {
-					p.bakeCopyScriptSingle(action.script);
+					p.bakeCopyScriptSingle(f, node, action.script);
 				}
 				// add suffix to labels so they don't collide with other copies
 				const labelSuffix = 'c' + p.advanceGotoSuffix();
@@ -221,13 +221,12 @@ export const makeProjectState = (
 						}
 					});
 					const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
-					finalActions.push(new CommentNode(comment));
+					finalActions.push(new CommentNode(new MGSDebug(f, node), { comment }));
 					finalActions.push(...objectActions);
 				} else {
 					// plain version
-					finalActions.push(
-						new CommentNode(`Copying: ${action.script} (-${labelSuffix})`),
-					);
+					const comment = `Copying: ${action.script} (-${labelSuffix})`;
+					finalActions.push(new CommentNode(new MGSDebug(f, node), { comment }));
 					finalActions.push(...copiedActions);
 				}
 			});

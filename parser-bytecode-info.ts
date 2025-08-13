@@ -1,5 +1,11 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { LabelDefinition, ReturnStatement, CopyMacro } from './parser-types.ts';
+import {
+	LabelDefinition,
+	ReturnStatement,
+	CopyMacro,
+	MathlangNode,
+	AnyNode,
+} from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
 
@@ -17,7 +23,7 @@ export class MGSDebug {
 	}
 }
 
-export class Action {
+export class Action extends AnyNode {
 	action: string;
 	debug?: MGSDebug;
 	clone() {
@@ -27,19 +33,22 @@ export class Action {
 	}
 }
 
-export class GotoLabel {
+export class GotoLabel extends MathlangNode {
 	mathlang: 'goto_label';
-	label: string;
 	debug: MGSDebug;
+	args: Record<string, unknown>;
+	label: string;
 	comment?: string;
-	constructor(f: FileState, node: TreeSitterNode, label: unknown, comment?: string) {
+	constructor(debug: MGSDebug, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
 		this.mathlang = 'goto_label';
-		this.label = breakIfNotString(label, 'GotoLabel label');
-		this.debug = new MGSDebug(f, node);
-		if (comment) this.comment = comment;
+		this.label = breakIfNotString(args.label, 'GotoLabel label');
+		if (typeof args.comment === 'string') this.comment = args.comment;
 	}
 	clone(prev: GotoLabel) {
-		return new GotoLabel(prev.debug.f, prev.debug.node, prev.label, prev.comment);
+		return new GotoLabel(prev.debug, prev.args);
 	}
 }
 
@@ -72,7 +81,7 @@ export class StringCheckable extends Action {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
-	// updateProp(_prop: string) {}
+	updateProp(_prop: string) {}
 }
 export class NumberComparison extends Action {
 	mathlang: 'number_comparison';
@@ -2168,16 +2177,16 @@ export const breakIfNotString = (v: unknown, label: string): string => {
 	if (typeof v === 'string') return v;
 	throw new Error(label + ' not a string');
 };
-const breakIfNotStringOrNumber = (v: unknown, label: string): string | number => {
+export const breakIfNotStringOrNumber = (v: unknown, label: string): string | number => {
 	if (typeof v === 'string') return v;
 	if (typeof v === 'number') return v;
 	throw new Error(label + ' not a string or number');
 };
-const breakIfNotNumber = (v: unknown, label: string): number => {
+export const breakIfNotNumber = (v: unknown, label: string): number => {
 	if (typeof v === 'number') return v;
 	throw new Error(label + ' not a number');
 };
-const breakIfNotBool = (v: unknown, label: string): boolean => {
+export const breakIfNotBool = (v: unknown, label: string): boolean => {
 	if (typeof v === 'boolean') return v;
 	throw new Error(label + ' not a boolean');
 };
@@ -2321,7 +2330,7 @@ const constructorLookup = {
 	CHECK_DEBUG_MODE: (args: GenericActionish) => new CHECK_DEBUG_MODE(args),
 };
 
-export const standardizeAction = (v: unknown) => {
+export const summonActionConstructor = (v: unknown) => {
 	if (typeof v !== 'object' || v === null || v === undefined) {
 		throw new Error('cannot create action from ' + typeof v);
 	}

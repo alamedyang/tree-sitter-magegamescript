@@ -85,7 +85,7 @@ import {
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
 	CHECK_SAVE_FLAG,
-	standardizeAction,
+	summonActionConstructor,
 	GotoLabel,
 	BoolGetable,
 	SET_ENTITY_DIRECTION,
@@ -144,13 +144,17 @@ const invisibleMath = (op: string, operand: number): boolean => {
 	return false;
 };
 
-const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]): AnyNode[] => {
+const flattenIntBinaryExpression = (
+	debug: MGSDebug,
+	exp: IntBinaryExpression,
+	steps: AnyNode[],
+): AnyNode[] => {
 	const temp = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
 	const rhs = exp.rhs;
 	if (typeof lhs === 'string') {
-		steps.push(setVarToVar(temp, lhs));
+		steps.push(setVarToVar(debug, temp, lhs));
 	} else if (typeof lhs === 'number') {
 		steps.push(setVarToValue(temp, lhs));
 	} else if (lhs instanceof IntGetable) {
@@ -158,7 +162,7 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 	} else if (lhs instanceof IntBinaryExpression) {
 		// can use the same temporary since it's the lhs and we're going LTR
 		// (and operator precedence is now baked into the AST)
-		flattenIntBinaryExpression(lhs, steps);
+		flattenIntBinaryExpression(debug, lhs, steps);
 	}
 	if (typeof rhs === 'string') {
 		steps.push(changeVarByVar(temp, rhs, op));
@@ -166,7 +170,7 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 		if (invisibleMath(op, rhs)) {
 			// invisible == *1 or +0
 		} else {
-			steps.push(changeVarByValue(temp, rhs, op));
+			steps.push(changeVarByValue(debug, temp, rhs, op));
 		}
 	} else if (rhs instanceof IntGetable) {
 		const quickTemp = quickTemporary();
@@ -176,7 +180,7 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 		);
 	} else if (rhs instanceof IntBinaryExpression) {
 		const newTemp = newTemporary();
-		flattenIntBinaryExpression(rhs, steps);
+		flattenIntBinaryExpression(debug, rhs, steps);
 		steps.push(changeVarByVar(temp, newTemp, op));
 		dropTemporary();
 	}
@@ -214,7 +218,7 @@ const actionSetBoolMaker = (
 		typeof _rhsBoolExp === 'string'
 			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
 			: _rhsBoolExp;
-	const falseClone = standardizeAction(lhsSetAction);
+	const falseClone = summonActionConstructor(lhsSetAction);
 	falseClone.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
@@ -332,9 +336,11 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	if (handleFn) {
 		spreads.forEach((v, i) => {
 			const handled = handleFn(v, f, node, i) as GenericActionish;
-			const sanitized = handled.clone ? handled.clone(handled) : standardizeAction(handled);
-			if (sanitized) {
-				spreads[i] = sanitized;
+			const realAction = handled.clone
+				? handled.clone(handled)
+				: summonActionConstructor(handled);
+			if (realAction) {
+				spreads[i] = realAction;
 				return;
 			}
 		});
@@ -350,14 +356,17 @@ type ActionFn = (f: FileState, node: TreeSitterNode, isConcat?: boolean) => AnyN
 const actionFns: Record<string, ActionFn> = {
 	action_show_dialog: (f: FileState, node: TreeSitterNode): ShowDialogOutput => {
 		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
-		const name = tryName !== null ? tryName : autoIdentifierName(f, node);
+		const dialogName = tryName !== null ? tryName : autoIdentifierName(f, node);
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		const shownDialog = new SHOW_DIALOG({ dialog: name });
+		const shownDialog = new SHOW_DIALOG({ dialog: dialogName });
 		if (dialogs.length) {
 			if (!dialogs.every((v) => v instanceof Dialog)) {
 				throw new Error('parsed dialogs not all of type Dialog');
 			}
-			const dialogDefinition = new DialogDefinition(f, node, name, dialogs);
+			const dialogDefinition = new DialogDefinition(new MGSDebug(f, node), {
+				dialogName,
+				dialogs,
+			});
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
@@ -384,7 +393,10 @@ const actionShowSerialDialog = (
 		if (!(serialDialogs[0] instanceof SerialDialog)) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
-		const serialDialoDefinition = new SerialDialogDefinition(f, node, name, serialDialogs[0]);
+		const serialDialoDefinition = new SerialDialogDefinition(new MGSDebug(f, node), {
+			dialogName: name,
+			serialDialog: serialDialogs[0],
+		});
 		return [serialDialoDefinition, shownSerialDialog];
 	}
 	return [shownSerialDialog];
@@ -405,13 +417,13 @@ const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
 		// Ditto some other actions, too
-		handle: (v, f, node) => new ReturnStatement(f, node),
+		handle: (v, f, node) => new ReturnStatement(new MGSDebug(f, node)),
 	},
 	action_continue_statement: {
-		handle: (v, f, node) => new ContinueStatement(f, node),
+		handle: (v, f, node) => new ContinueStatement(new MGSDebug(f, node)),
 	},
 	action_break_statement: {
-		handle: (v, f, node) => new BreakStatement(f, node),
+		handle: (v, f, node) => new BreakStatement(new MGSDebug(f, node)),
 	},
 	action_close_dialog: {
 		handle: () => new CLOSE_DIALOG(),
@@ -436,7 +448,7 @@ const actionData: Record<string, actionDataEntry> = {
 	},
 	action_goto_label: {
 		captures: ['label'],
-		handle: (v, f, node) => new GotoLabel(f, node, v.label),
+		handle: (v, f, node) => new GotoLabel(new MGSDebug(f, node), { label: v.label }),
 	},
 	action_goto_index: {
 		captures: ['action_index'],
@@ -534,6 +546,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i): AnyNode => {
+			const debug = new MGSDebug(f, node);
 			const lhs = coerceToString(f, node, v.lhs, 'action_set_ambiguous lhs');
 
 			// simple cases first (easy to check for)
@@ -573,7 +586,7 @@ const actionData: Record<string, actionDataEntry> = {
 						`\n    ${suggestion} + 0` +
 						`\n    ${suggestion} * 1`,
 				});
-				return setVarToVar(lhs, v.rhs);
+				return setVarToVar(debug, lhs, v.rhs);
 			}
 
 			// varName = player x;
@@ -584,10 +597,13 @@ const actionData: Record<string, actionDataEntry> = {
 			// varName = (255 + player x);
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary(lhs);
-				const steps = flattenIntBinaryExpression(v.rhs, []);
+				const steps = flattenIntBinaryExpression(debug, v.rhs, []);
 				dropTemporary();
-				steps.push(setVarToVar(lhs, temporary));
-				return new MathlangSequence(f, node, steps, 'parser-actions: action_set_ambiguous');
+				steps.push(setVarToVar(debug, lhs, temporary));
+				return new MathlangSequence(debug, {
+					steps,
+					type: 'parser-actions: action_set_ambiguous',
+				});
 			}
 
 			// varName = (debug_mode || player glitched);
@@ -604,6 +620,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
+			const debug = new MGSDebug(f, node);
 			if (!(v.lhs instanceof IntGetable)) {
 				throw new Error('LHS not int_getable');
 			}
@@ -649,10 +666,13 @@ const actionData: Record<string, actionDataEntry> = {
 			// player x = player y;
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary();
-				const steps = flattenIntBinaryExpression(v.rhs, []);
+				const steps = flattenIntBinaryExpression(debug, v.rhs, []);
 				dropTemporary();
 				steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
-				return new MathlangSequence(f, node, steps, 'parser-actions: action_set_int');
+				return new MathlangSequence(debug, {
+					steps,
+					type: 'parser-actions: action_set_int',
+				});
 			}
 
 			throw new Error('unknown RHS type');
@@ -721,6 +741,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node): ActionSetPosition | MathlangSequence => {
+			const debug = new MGSDebug(f, node);
 			if (!(v.movable instanceof MovableIdentifier)) {
 				throw new Error('invalid MovableIdentifier');
 			}
@@ -755,12 +776,10 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(variable, copyFrom, 'y'),
 						copyEntityFieldIntoVar(copyTo, 'y', variable),
 					];
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_set_position',
-					);
+						type: 'parser-actions: action_set_position',
+					});
 				}
 			}
 			throw new Error('invalid everything');
@@ -973,13 +992,14 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'operator', 'rhs'],
 		handle: (v, f, node): AnyNode => {
+			const debug = new MGSDebug(f, node);
 			const op = coerceToString(f, node, v.operator, 'op');
 
 			// LHS is a string, meaning we're doing a thing to an integer variable
 			if (typeof v.lhs === 'string') {
 				// varName += 1
 				if (typeof v.rhs === 'number') {
-					return changeVarByValue(v.lhs, v.rhs, op);
+					return changeVarByValue(debug, v.lhs, v.rhs, op);
 				}
 				// varName += var2
 				if (typeof v.rhs === 'string') {
@@ -992,12 +1012,10 @@ const actionData: Record<string, actionDataEntry> = {
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
 						changeVarByVar(v.lhs, temp, op),
 					];
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_op_equals (LHS: string, RHS: IntGetable)',
-					);
+						type: 'parser-actions: action_op_equals (LHS: string, RHS: IntGetable)',
+					});
 				}
 				// varName += (var2 * 7)
 				if (v.rhs instanceof IntBinaryExpression) {
@@ -1005,15 +1023,13 @@ const actionData: Record<string, actionDataEntry> = {
 					if (!(v.rhs instanceof IntBinaryExpression)) {
 						throw new Error('not IntBinaryExpression');
 					}
-					const steps = flattenIntBinaryExpression(v.rhs, []);
+					const steps = flattenIntBinaryExpression(debug, v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'action_op_equals (LHS: string, RHS: IntBinaryExpression)',
-					);
+						type: 'action_op_equals (LHS: string, RHS: IntBinaryExpression)',
+					});
 				}
 				throw new Error('unknown op equals type');
 			}
@@ -1027,16 +1043,14 @@ const actionData: Record<string, actionDataEntry> = {
 					const temporary = newTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
-						changeVarByValue(temporary, v.rhs, op),
+						changeVarByValue(debug, temporary, v.rhs, op),
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_op_equals (LHS: IntGetable, RHS: number)',
-					);
+						type: 'parser-actions: action_op_equals (LHS: IntGetable, RHS: number)',
+					});
 				}
 				// player x = varName;
 				if (typeof v.rhs === 'string') {
@@ -1047,12 +1061,10 @@ const actionData: Record<string, actionDataEntry> = {
 						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_op_equals (LHS: IntGetable, RHS: string)',
-					);
+						type: 'parser-actions: action_op_equals (LHS: IntGetable, RHS: string)',
+					});
 				}
 				// player x = (varName * 7);
 				if (v.rhs instanceof IntBinaryExpression) {
@@ -1063,18 +1075,16 @@ const actionData: Record<string, actionDataEntry> = {
 					}
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
-						...flattenIntBinaryExpression(v.rhs, []),
+						...flattenIntBinaryExpression(debug, v.rhs, []),
 						changeVarByVar(temporary1, temporary2, op),
 						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntBinaryExpression)',
-					);
+						type: 'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntBinaryExpression)',
+					});
 				}
 				// player x = self y;
 				if (v.rhs instanceof IntGetable) {
@@ -1088,12 +1098,10 @@ const actionData: Record<string, actionDataEntry> = {
 					];
 					dropTemporary();
 					dropTemporary();
-					return new MathlangSequence(
-						f,
-						node,
+					return new MathlangSequence(debug, {
 						steps,
-						'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntGetable)',
-					);
+						type: 'parser-actions: action_op_equals (LHS: IntGetable, RHS: IntGetable)',
+					});
 				}
 			}
 			throw new Error('unknown op equals type');
@@ -1128,28 +1136,35 @@ export const showSerialDialog = (name: string, disable_newline: boolean = false)
 const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => {
 	return new MUTATE_VARIABLE({ operation: 'SET', value, variable });
 };
-const setVarToVar = (variable: string, source: string): MUTATE_VARIABLES | CommentNode => {
+const setVarToVar = (
+	debug: MGSDebug,
+	variable: string,
+	source: string,
+): MUTATE_VARIABLES | CommentNode => {
 	if (variable === source) {
-		return new CommentNode(`This action was optimized out (setting '${variable}' to itself)`);
+		return new CommentNode(debug, {
+			comment: `This action was optimized out (setting '${variable}' to itself)`,
+		});
 	}
 	return new MUTATE_VARIABLES({ operation: 'SET', source, variable });
 };
 export const changeVarByValue = (
+	debug: MGSDebug,
 	variable: string,
 	value: number,
 	op: string,
 ): MUTATE_VARIABLE | CommentNode => {
 	if (op === '+' && value === 0) {
-		return new CommentNode('This action was optimized out (+ 0)');
+		return new CommentNode(debug, { comment: 'This action was optimized out (+ 0)' });
 	}
 	if (op === '*' && value === 1) {
-		return new CommentNode('This action was optimized out (* 1)');
+		return new CommentNode(debug, { comment: 'This action was optimized out (* 1)' });
 	}
 	if (op === '/' && value === 1) {
-		return new CommentNode('This action was optimized out (/ 1)');
+		return new CommentNode(debug, { comment: 'This action was optimized out (/ 1)' });
 	}
 	if (op === '-' && value === 0) {
-		return new CommentNode('This action was optimized out (- 0)');
+		return new CommentNode(debug, { comment: 'This action was optimized out (- 0)' });
 	}
 	return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
 };

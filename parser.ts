@@ -1,4 +1,4 @@
-// TODO: see if you can remove debug prop, especially from actions
+// TODO: Change MGSDebug to a generic location property?
 
 import { Parser, Language } from 'web-tree-sitter';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -155,7 +155,10 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	// DO COPY_SCRIPT
 	Object.keys(p.scripts).forEach((scriptName) => {
 		if (!p.scripts[scriptName].copyScriptResolved) {
-			p.bakeCopyScriptSingle(scriptName);
+			const f = p.scripts[scriptName].debug.f;
+			const node = p.scripts[scriptName].debug.node;
+			// todo: better sources of f, node
+			p.bakeCopyScriptSingle(f, node, scriptName);
 		}
 	});
 
@@ -180,7 +183,8 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 				continue;
 			} else if (currAction instanceof LabelDefinition) {
 				registry[currAction.label] = gaplessIndex;
-				actions[i] = new CommentNode(`'${currAction.label}':`);
+				const comment = `'${currAction.label}':`;
+				actions[i] = new CommentNode(currAction.debug, { comment });
 			} else {
 				gaplessIndex += 1;
 			}

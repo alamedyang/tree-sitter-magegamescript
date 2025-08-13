@@ -3,7 +3,7 @@ import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
 export const printAction = (data: MATHLANG.AnyNode): string => {
-	const isAction = MATHLANG.isActionNode(data) || data.action;
+	const isAction = data instanceof TYPES.Action || data.action;
 	if (data instanceof MATHLANG.CommentNode) {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;

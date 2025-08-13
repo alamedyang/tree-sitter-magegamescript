@@ -177,67 +177,77 @@ const captureFns = {
 	},
 	entity_identifier: (f: FileState, node: TreeSitterNode): string => extractEntityName(f, node),
 	movable_identifier: (f: FileState, node: TreeSitterNode): MovableIdentifier => {
+		const debug = new MGSDebug(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'camera') {
-			return new MovableIdentifier('camera', 'camera');
+			return new MovableIdentifier(debug, { type: 'camera', value: 'camera' });
 		} else {
-			return new MovableIdentifier('entity', extractEntityName(f, node));
+			return new MovableIdentifier(debug, {
+				type: 'entity',
+				value: extractEntityName(f, node),
+			});
 		}
 	},
 	dialog_identifier: (f: FileState, node: TreeSitterNode): DialogIdentifier => {
 		const label = optionalTextForFieldName(f, node, 'label');
 		if (label) {
-			return new DialogIdentifier('label', label);
+			return new DialogIdentifier(new MGSDebug(f, node), { type: 'label', value: label });
 		}
 		const type = textForFieldName(f, node, 'type');
 		if (type !== 'label' && type !== 'entity' && type !== 'name') {
 			throw new Error('invalid dialog identifier type: ' + type);
 		}
-		return new DialogIdentifier(type, stringCaptureForFieldName(f, node, 'value'));
+		const value = stringCaptureForFieldName(f, node, 'value');
+		return new DialogIdentifier(new MGSDebug(f, node), { type, value });
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
 		const property = textForFieldName(f, node, 'property');
 		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
-		return new DialogParameter(property, value);
+		return new DialogParameter(new MGSDebug(f, node), { property, value });
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
 		const property = textForFieldName(f, node, 'property');
 		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
-		return new SerialDialogParameter(property, value);
+		return new SerialDialogParameter(new MGSDebug(f, node), { property, value });
 	},
 	coordinate_identifier: (f: FileState, node: TreeSitterNode): CoordinateIdentifier => {
+		const debug = new MGSDebug(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'entity_path') {
-			return new CoordinateIdentifier(
-				'geometry',
-				'%ENTITY_PATH%',
-				optionalTextForFieldName(f, node, 'polygon_type'),
-			);
+			return new CoordinateIdentifier(debug, {
+				type: 'geometry',
+				value: '%ENTITY_PATH%',
+				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
+			});
 		}
 		if (type === 'geometry') {
-			return new CoordinateIdentifier(
-				'geometry',
-				stringCaptureForFieldName(f, node, 'geometry'),
-				optionalTextForFieldName(f, node, 'polygon_type'),
-			);
+			return new CoordinateIdentifier(debug, {
+				type: 'geometry',
+				value: stringCaptureForFieldName(f, node, 'geometry'),
+				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
+			});
 		}
-		return new CoordinateIdentifier('entity', extractEntityName(f, node));
+		return new CoordinateIdentifier(debug, {
+			type: 'entity',
+			value: extractEntityName(f, node),
+		});
 	},
 	bool_setable: (f: FileState, node: TreeSitterNode): BoolSetable => {
+		const debug = new MGSDebug(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (!type) {
-			return new BoolSetable('save_flag', stringCaptureForFieldName(f, node, 'flag'));
+			const value = stringCaptureForFieldName(f, node, 'flag');
+			return new BoolSetable(debug, { type: 'save_flag', value });
 		}
 		if (type === 'glitched') {
-			return new BoolSetable(
-				'entity',
-				stringCaptureForFieldName(f, node, 'entity_identifier'),
-			);
+			const value = stringCaptureForFieldName(f, node, 'entity_identifier');
+			return new BoolSetable(debug, { type: 'entity', value });
 		}
 		if (type === 'light') {
-			return new BoolSetable('light', stringCaptureForFieldName(f, node, 'light'));
+			const value = stringCaptureForFieldName(f, node, 'light');
+			return new BoolSetable(debug, { type: 'light', value });
 		}
-		return new BoolSetable(type, '');
+		return new BoolSetable(debug, { type, value: '' });
 	},
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
@@ -253,7 +263,7 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceToNumber(f, lhsNode, lhs, 'constant');
 		}
-		return new IntBinaryExpression(lhs, rhs, op);
+		return new IntBinaryExpression(new MGSDebug(f, node), { lhs, rhs, op });
 	},
 	bool_binary_expression: (f: FileState, node: TreeSitterNode): BoolBinaryExpression => {
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
@@ -267,9 +277,9 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
+		const debug = new MGSDebug(f, node);
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
-			return new BoolBinaryExpression({
-				debug: new MGSDebug(f, node),
+			return new BoolBinaryExpression(debug, {
 				lhs,
 				lhsNode,
 				rhs,
@@ -281,8 +291,7 @@ const captureFns = {
 			(lhs instanceof StringCheckable || typeof lhs === 'string') &&
 			(rhs instanceof StringCheckable || typeof rhs === 'string')
 		) {
-			return new BoolBinaryExpression({
-				debug: new MGSDebug(f, node),
+			return new BoolBinaryExpression(debug, {
 				lhs,
 				lhsNode,
 				rhs,
@@ -294,8 +303,7 @@ const captureFns = {
 			(lhs instanceof NumberCheckableEquality || typeof lhs === 'number') &&
 			(rhs instanceof NumberCheckableEquality || typeof rhs === 'number')
 		) {
-			return new BoolBinaryExpression({
-				debug: new MGSDebug(f, node),
+			return new BoolBinaryExpression(debug, {
 				lhs,
 				lhsNode,
 				rhs,
@@ -317,7 +325,7 @@ const captureFns = {
 		if (isBoolExpression(capture)) {
 			let toInvert = capture;
 			if (toInvert instanceof BoolBinaryExpression) {
-				toInvert = new BoolBinaryExpression(toInvert);
+				toInvert = new BoolBinaryExpression(new MGSDebug(f, node), toInvert);
 			}
 			return invertBoolExpression(f, node, toInvert);
 		}
@@ -329,7 +337,7 @@ const captureFns = {
 		// }
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return new IntGetable(entity, field);
+		return new IntGetable(new MGSDebug(f, node), { entity, field });
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
@@ -564,7 +572,7 @@ const captureFns = {
 	int_setable: (f: FileState, node: TreeSitterNode) => {
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return new IntGetable(entity, field);
+		return new IntGetable(new MGSDebug(f, node), { entity, field });
 	},
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
@@ -572,17 +580,18 @@ const captureFns = {
 		throw new Error('captured int_grouping did not produce IntExpression');
 	},
 	direction_target: (f: FileState, node: TreeSitterNode) => {
+		const debug = new MGSDebug(f, node);
 		const direction = optionalTextForFieldName(f, node, 'nsew');
 		if (direction) {
-			return new DirectionTarget('nsew', direction);
+			return new DirectionTarget(debug, { type: 'nsew', value: direction });
 		}
 		const target_geometry = optionalStringCaptureForFieldName(f, node, 'geometry');
 		if (target_geometry) {
-			return new DirectionTarget('geometry', target_geometry);
+			return new DirectionTarget(debug, { type: 'geometry', value: target_geometry });
 		}
 		const target_entity = optionalStringCaptureForFieldName(f, node, 'entity');
 		if (target_entity) {
-			return new DirectionTarget('entity', target_entity);
+			return new DirectionTarget(debug, { type: 'entity', value: target_entity });
 		}
 		throw new Error('could not capture direction_target');
 	},
