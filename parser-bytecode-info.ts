@@ -869,18 +869,17 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY {
 export class CHECK_ENTITY_NAME {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_NAME';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	stringLabel: 'string';
 	string: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_NAME';
-		this.stringLabel = 'string';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -895,24 +894,24 @@ export class CHECK_ENTITY_NAME {
 		this.string = breakIfNotString(args?.string, 'CHECK_ENTITY_NAME string');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_NAME expected_bool');
 	}
+	updateProp(value: string) {
+		this.string = value;
+	}
 }
 export class CHECK_ENTITY_X {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_X';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'x';
-	numberLabel: 'expected_u2';
 	expected_u2: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_X';
-		this.property = 'x';
-		this.numberLabel = 'expected_u2';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -927,24 +926,24 @@ export class CHECK_ENTITY_X {
 		this.expected_u2 = breakIfNotNumber(args?.expected_u2, 'CHECK_ENTITY_X expected_u2');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_X expected_bool');
 	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
 }
 export class CHECK_ENTITY_Y {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_Y';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'y';
-	numberLabel: 'expected_u2';
 	expected_u2: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_Y';
-		this.property = 'y';
-		this.numberLabel = 'expected_u2';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -959,22 +958,24 @@ export class CHECK_ENTITY_Y {
 		this.expected_u2 = breakIfNotNumber(args?.expected_u2, 'CHECK_ENTITY_Y expected_u2');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_Y expected_bool');
 	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
 }
 export class CHECK_ENTITY_INTERACT_SCRIPT {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	stringLabel: 'expected_script';
 	expected_script: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
-		this.stringLabel = 'expected_script';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -998,22 +999,24 @@ export class CHECK_ENTITY_INTERACT_SCRIPT {
 			'CHECK_ENTITY_INTERACT_SCRIPT expected_bool',
 		);
 	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
 }
 export class CHECK_ENTITY_TICK_SCRIPT {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	stringLabel: 'expected_script';
 	expected_script: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
-		this.stringLabel = 'expected_script';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1037,22 +1040,24 @@ export class CHECK_ENTITY_TICK_SCRIPT {
 			'CHECK_ENTITY_TICK_SCRIPT expected_bool',
 		);
 	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
 }
 export class CHECK_ENTITY_LOOK_SCRIPT {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	stringLabel: 'expected_script';
 	expected_script: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
-		this.stringLabel = 'expected_script';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1076,22 +1081,24 @@ export class CHECK_ENTITY_LOOK_SCRIPT {
 			'CHECK_ENTITY_LOOK_SCRIPT expected_bool',
 		);
 	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
 }
 export class CHECK_ENTITY_TYPE {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_TYPE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	stringLabel: 'entity_type';
 	entity_type: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_TYPE';
-		this.stringLabel = 'entity_type';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1106,24 +1113,24 @@ export class CHECK_ENTITY_TYPE {
 		this.entity_type = breakIfNotString(args?.entity_type, 'CHECK_ENTITY_TYPE entity_type');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_TYPE expected_bool');
 	}
+	updateProp(value: string) {
+		this.entity_type = value;
+	}
 }
 export class CHECK_ENTITY_PRIMARY_ID {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_PRIMARY_ID';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'primary_id';
-	numberLabel: 'expected_u2';
 	expected_u2: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_PRIMARY_ID';
-		this.property = 'primary_id';
-		this.numberLabel = 'expected_u2';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1147,24 +1154,24 @@ export class CHECK_ENTITY_PRIMARY_ID {
 			'CHECK_ENTITY_PRIMARY_ID expected_bool',
 		);
 	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
 }
 export class CHECK_ENTITY_SECONDARY_ID {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_SECONDARY_ID';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'secondary_id';
-	numberLabel: 'expected_u2';
 	expected_u2: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_SECONDARY_ID';
-		this.property = 'secondary_id';
-		this.numberLabel = 'expected_u2';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1188,24 +1195,24 @@ export class CHECK_ENTITY_SECONDARY_ID {
 			'CHECK_ENTITY_SECONDARY_ID expected_bool',
 		);
 	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
 }
 export class CHECK_ENTITY_PRIMARY_ID_TYPE {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'primary_id_type';
-	numberLabel: 'expected_byte';
 	expected_byte: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
-		this.property = 'primary_id_type';
-		this.numberLabel = 'expected_byte';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1229,24 +1236,24 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE {
 			'CHECK_ENTITY_PRIMARY_ID_TYPE expected_bool',
 		);
 	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
 }
 export class CHECK_ENTITY_CURRENT_ANIMATION {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'current_animation';
-	numberLabel: 'expected_byte';
 	expected_byte: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
-		this.property = 'current_animation';
-		this.numberLabel = 'expected_byte';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1270,24 +1277,24 @@ export class CHECK_ENTITY_CURRENT_ANIMATION {
 			'CHECK_ENTITY_CURRENT_ANIMATION expected_bool',
 		);
 	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
 }
 export class CHECK_ENTITY_CURRENT_FRAME {
 	mathlang: 'number_checkable_equality';
 	action: 'CHECK_ENTITY_CURRENT_FRAME';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	entity: string;
-	property: 'animation_frame';
-	numberLabel: 'expected_byte';
 	expected_byte: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'number_checkable_equality';
 		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
-		this.property = 'animation_frame';
-		this.numberLabel = 'expected_byte';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1311,10 +1318,14 @@ export class CHECK_ENTITY_CURRENT_FRAME {
 			'CHECK_ENTITY_CURRENT_FRAME expected_bool',
 		);
 	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
 }
 export class CHECK_ENTITY_DIRECTION {
 	mathlang: 'bool_comparison';
 	action: 'CHECK_ENTITY_DIRECTION';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1345,10 +1356,14 @@ export class CHECK_ENTITY_DIRECTION {
 			'CHECK_ENTITY_DIRECTION expected_bool',
 		);
 	}
+	updateProp(value: string) {
+		this.direction = value;
+	}
 }
 export class CHECK_ENTITY_GLITCHED {
 	mathlang: 'bool_getable';
 	action: 'CHECK_ENTITY_GLITCHED';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1381,18 +1396,17 @@ export class CHECK_ENTITY_GLITCHED {
 export class CHECK_ENTITY_PATH {
 	mathlang: 'string_checkable';
 	action: 'CHECK_ENTITY_PATH';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	geometry: string;
 	entity: string;
-	stringLabel: 'geometry';
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
 		this.action = 'CHECK_ENTITY_PATH';
-		this.stringLabel = 'geometry';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
 				args?.success_script,
@@ -1407,10 +1421,14 @@ export class CHECK_ENTITY_PATH {
 		this.geometry = breakIfNotString(args?.geometry, 'CHECK_ENTITY_PATH geometry');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_PATH expected_bool');
 	}
+	updateProp(value: string) {
+		this.geometry = value;
+	}
 }
 export class CHECK_SAVE_FLAG {
 	mathlang: 'bool_getable';
 	action: 'CHECK_SAVE_FLAG';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1438,6 +1456,7 @@ export class CHECK_SAVE_FLAG {
 export class CHECK_IF_ENTITY_IS_IN_GEOMETRY {
 	mathlang: 'bool_getable';
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1472,12 +1491,13 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY {
 export class CHECK_FOR_BUTTON_PRESS {
 	mathlang: 'bool_getable';
 	action: 'CHECK_FOR_BUTTON_PRESS';
+	comment?: string;
+	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	button_id: string;
 	expected_bool: boolean;
-	debug?: MGSDebug;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
@@ -1504,6 +1524,7 @@ export class CHECK_FOR_BUTTON_PRESS {
 export class CHECK_FOR_BUTTON_STATE {
 	mathlang: 'bool_getable';
 	action: 'CHECK_FOR_BUTTON_STATE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1536,12 +1557,12 @@ export class CHECK_FOR_BUTTON_STATE {
 export class CHECK_WARP_STATE {
 	mathlang: 'string_checkable';
 	action: 'CHECK_WARP_STATE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
 	string: string;
-	stringLabel: 'string';
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
 		this.mathlang = 'string_checkable';
@@ -1557,13 +1578,16 @@ export class CHECK_WARP_STATE {
 			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_WARP_STATE jump_index');
 		}
 		this.string = breakIfNotString(args?.string, 'CHECK_WARP_STATE string');
-		this.stringLabel = 'string';
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_WARP_STATE expected_bool');
+	}
+	updateProp(value: string) {
+		this.string = value;
 	}
 }
 export class CHECK_VARIABLE {
 	mathlang: 'bool_comparison';
 	action: 'CHECK_VARIABLE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1594,6 +1618,7 @@ export class CHECK_VARIABLE {
 export class CHECK_VARIABLES {
 	mathlang: 'bool_comparison';
 	action: 'CHECK_VARIABLES';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1625,6 +1650,7 @@ export class CHECK_MAP {
 	// TODO: is this even in the engine? O.o
 	action: 'CHECK_MAP';
 	debug?: MGSDebug;
+	comment?: string;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
@@ -1648,6 +1674,7 @@ export class CHECK_MAP {
 }
 export class CHECK_BLE_FLAG {
 	action: 'CHECK_BLE_FLAG';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1673,6 +1700,7 @@ export class CHECK_BLE_FLAG {
 export class CHECK_DIALOG_OPEN {
 	mathlang: 'bool_getable';
 	action: 'CHECK_DIALOG_OPEN';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1697,6 +1725,7 @@ export class CHECK_DIALOG_OPEN {
 export class CHECK_SERIAL_DIALOG_OPEN {
 	mathlang: 'bool_getable';
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
@@ -1727,6 +1756,7 @@ export class CHECK_SERIAL_DIALOG_OPEN {
 export class CHECK_DEBUG_MODE {
 	mathlang: 'bool_getable';
 	action: 'CHECK_DEBUG_MODE';
+	comment?: string;
 	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;

@@ -20,38 +20,35 @@ import {
 	CHECK_FOR_BUTTON_PRESS,
 	CHECK_FOR_BUTTON_STATE,
 	CHECK_IF_ENTITY_IS_IN_GEOMETRY,
+	CHECK_SAVE_FLAG,
 	CHECK_SERIAL_DIALOG_OPEN,
 	CHECK_VARIABLE,
 	CHECK_VARIABLES,
 	CHECK_WARP_STATE,
 	MGSDebug,
-	SET_ENTITY_DIRECTION,
-	SET_ENTITY_DIRECTION_TARGET_ENTITY,
-	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
 } from './parser-bytecode-info.ts';
 import {
+	BoolBinaryExpression,
 	BoolSetable,
-	type CoordinateIdentifier,
-	type MovableIdentifier,
+	CoordinateIdentifier,
+	IntBinaryExpression,
+	IntGetable,
+	MovableIdentifier,
+	SerialDialogParameter,
 	type DialogParameter,
-	type SerialDialogParameter,
 	type StringCheckable,
 	isStringCheckable,
 	type NumberCheckableEquality,
 	isNumberCheckableEquality,
 	type BoolGetable,
 	type DialogIdentifier,
-	type IntBinaryExpression,
-	type BoolBinaryExpression,
 	type BoolComparison,
 	type BoolExpression,
 	isBoolExpression,
-	type IntGetable,
 	type IntExpression,
 	isIntExpression,
-	type DirectionTarget,
-	newCheckSaveFlag,
 	type AnyNode,
+	DirectionTarget,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -184,17 +181,9 @@ const captureFns = {
 	movable_identifier: (f: FileState, node: TreeSitterNode): MovableIdentifier => {
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'camera') {
-			return {
-				mathlang: 'movable_identifier',
-				type: 'camera',
-				value: 'camera',
-			};
+			return new MovableIdentifier('camera', 'camera');
 		} else {
-			return {
-				mathlang: 'movable_identifier',
-				type: 'entity',
-				value: extractEntityName(f, node),
-			};
+			return new MovableIdentifier('entity', extractEntityName(f, node));
 		}
 	},
 	dialog_identifier: (f: FileState, node: TreeSitterNode): DialogIdentifier => {
@@ -224,51 +213,40 @@ const captureFns = {
 		};
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
-		return {
-			mathlang: 'serial_dialog_parameter',
-			property: textForFieldName(f, node, 'property'),
-			value: stringOrNumberCaptureForFieldName(f, node, 'value'),
-		};
+		const property = textForFieldName(f, node, 'property');
+		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
+		return new SerialDialogParameter(property, value);
 	},
 	coordinate_identifier: (f: FileState, node: TreeSitterNode): CoordinateIdentifier => {
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'entity_path') {
-			return {
-				mathlang: 'coordinate_identifier',
-				type: 'geometry',
-				value: '%ENTITY_PATH%',
-				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
-			};
+			return new CoordinateIdentifier(
+				'geometry',
+				'%ENTITY_PATH%',
+				optionalTextForFieldName(f, node, 'polygon_type'),
+			);
 		}
 		if (type === 'geometry') {
-			return {
-				mathlang: 'coordinate_identifier',
-				type: 'geometry',
-				value: stringCaptureForFieldName(f, node, 'geometry'),
-				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
-			};
+			return new CoordinateIdentifier(
+				'geometry',
+				stringCaptureForFieldName(f, node, 'geometry'),
+				optionalTextForFieldName(f, node, 'polygon_type'),
+			);
 		}
-		return {
-			mathlang: 'coordinate_identifier',
-			type: 'entity',
-			value: extractEntityName(f, node),
-		};
+		return new CoordinateIdentifier('entity', extractEntityName(f, node));
 	},
 	bool_setable: (f: FileState, node: TreeSitterNode): BoolSetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (!type) {
-			// action: 'SET_SAVE_FLAG',
 			return new BoolSetable('save_flag', stringCaptureForFieldName(f, node, 'flag'));
 		}
 		if (type === 'glitched') {
-			// action: 'SET_ENTITY_GLITCHED',
 			return new BoolSetable(
 				'entity',
 				stringCaptureForFieldName(f, node, 'entity_identifier'),
 			);
 		}
 		if (type === 'light') {
-			// action: 'SET_LIGHTS_STATE',
 			return new BoolSetable('light', stringCaptureForFieldName(f, node, 'light'));
 		}
 		return new BoolSetable(type, '');
@@ -287,12 +265,7 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceToNumber(f, lhsNode, lhs, 'constant');
 		}
-		return {
-			mathlang: 'int_binary_expression',
-			lhs,
-			rhs,
-			op,
-		};
+		return new IntBinaryExpression(lhs, rhs, op);
 	},
 	bool_binary_expression: (f: FileState, node: TreeSitterNode): BoolBinaryExpression => {
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
@@ -307,43 +280,40 @@ const captureFns = {
 			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
-			return {
-				mathlang: 'bool_binary_expression',
+			return new BoolBinaryExpression({
 				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
 				rhsNode,
 				op,
-			};
+			});
 		}
 		if (
 			(isStringCheckable(lhs) || typeof lhs === 'string') &&
 			(isStringCheckable(rhs) || typeof rhs === 'string')
 		) {
-			return {
-				mathlang: 'bool_binary_expression',
+			return new BoolBinaryExpression({
 				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
 				rhsNode,
 				op,
-			};
+			});
 		}
 		if (
 			(isNumberCheckableEquality(lhs) || typeof lhs === 'number') &&
 			(isNumberCheckableEquality(rhs) || typeof rhs === 'number')
 		) {
-			return {
-				mathlang: 'bool_binary_expression',
+			return new BoolBinaryExpression({
 				debug: new MGSDebug(f, node),
 				lhs,
 				lhsNode,
 				rhs,
 				rhsNode,
 				op,
-			};
+			});
 		}
 		throw new Error('invalid LHS and RHS combo for captured bool binary expression');
 	},
@@ -357,7 +327,10 @@ const captureFns = {
 		if (op !== '!') throw new Error('captured unknown unary operator: ' + op);
 		const capture = captureForFieldName(f, node, 'operand');
 		if (isBoolExpression(capture)) {
-			const toInvert = typeof capture === 'object' ? { ...capture } : capture;
+			let toInvert = capture;
+			if (toInvert instanceof BoolBinaryExpression) {
+				toInvert = new BoolBinaryExpression(toInvert);
+			}
 			return invertBoolExpression(f, node, toInvert);
 		}
 		throw new Error('bool_unary_expression capture did not yield BoolExpression');
@@ -366,17 +339,18 @@ const captureFns = {
 		// if (textForFieldName(f, node, 'variable')) {
 		// 	return captureForFieldName(f, node, 'variable');
 		// }
-		return {
-			mathlang: 'int_getable',
-			field: textForFieldName(f, node, 'property'),
-			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-		};
+		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
+		const field = textForFieldName(f, node, 'property');
+		return new IntGetable(entity, field);
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
 		const debug = new MGSDebug(f, node);
 		if (type === 'flag') {
-			return newCheckSaveFlag(f, node, stringCaptureForFieldName(f, node, 'value'), true);
+			return new CHECK_SAVE_FLAG({
+				save_flag: stringCaptureForFieldName(f, node, 'value'),
+				expected_bool: true,
+			});
 		} else if (type === 'debug_mode') {
 			return new CHECK_DEBUG_MODE({
 				debug,
@@ -548,30 +522,29 @@ const captureFns = {
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const op = textForFieldName(f, node, 'operator');
-		const debug = new MGSDebug(f, node);
 		// entity Bob direction == north
 		if (lhsNode.grammarType === 'entity_direction') {
-			return compareNSEW(f, lhsNode, rhsNode, op, debug);
+			return compareNSEW(f, lhsNode, rhsNode, op);
 		}
 		// north == entity Bob direction
 		if (rhsNode.grammarType === 'entity_direction') {
-			return compareNSEW(f, rhsNode, lhsNode, op, debug);
+			return compareNSEW(f, rhsNode, lhsNode, op);
 		}
 		// entity Bob name == "Super Bob"
 		if (lhsNode.grammarType === 'string_checkable') {
-			return compareString(f, lhsNode, rhsNode, op, debug);
+			return compareString(f, lhsNode, rhsNode, op);
 		}
 		// "Super Bob" == entity Bob name
 		if (rhsNode.grammarType === 'string_checkable') {
-			return compareString(f, rhsNode, lhsNode, op, debug);
+			return compareString(f, rhsNode, lhsNode, op);
 		}
 		// entity Bob x == 7
 		if (lhsNode.grammarType === 'number_checkable_equality') {
-			return compareNumberCheckableEquality(f, lhsNode, rhsNode, op, debug);
+			return compareNumberCheckableEquality(f, lhsNode, rhsNode, op);
 		}
 		// 7 == entity Bob x
 		if (rhsNode.grammarType === 'number_checkable_equality') {
-			return compareNumberCheckableEquality(f, rhsNode, lhsNode, op, debug);
+			return compareNumberCheckableEquality(f, rhsNode, lhsNode, op);
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
@@ -600,39 +573,28 @@ const captureFns = {
 		}
 		throw new Error('failed to capture bool_comparison');
 	},
-	int_setable: (f: FileState, node: TreeSitterNode): IntGetable => {
-		return {
-			mathlang: 'int_getable',
-			field: textForFieldName(f, node, 'property'),
-			entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-		};
+	int_setable: (f: FileState, node: TreeSitterNode) => {
+		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
+		const field = textForFieldName(f, node, 'property');
+		return new IntGetable(entity, field);
 	},
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
 		if (isIntExpression(capture)) return capture;
 		throw new Error('captured int_grouping did not produce IntExpression');
 	},
-	direction_target: (f: FileState, node: TreeSitterNode): DirectionTarget => {
+	direction_target: (f: FileState, node: TreeSitterNode) => {
 		const direction = optionalTextForFieldName(f, node, 'nsew');
 		if (direction) {
-			return new SET_ENTITY_DIRECTION({
-				direction,
-				entity: '',
-			});
+			return new DirectionTarget('nsew', direction);
 		}
 		const target_geometry = optionalStringCaptureForFieldName(f, node, 'geometry');
 		if (target_geometry) {
-			return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({
-				target_geometry,
-				entity: '',
-			});
+			return new DirectionTarget('geometry', target_geometry);
 		}
 		const target_entity = optionalStringCaptureForFieldName(f, node, 'entity');
 		if (target_entity) {
-			return new SET_ENTITY_DIRECTION_TARGET_ENTITY({
-				target_entity,
-				entity: '',
-			});
+			return new DirectionTarget('entity', target_entity);
 		}
 		throw new Error('could not capture direction_target');
 	},
@@ -645,13 +607,11 @@ const compareNSEW = (
 	entityNode: TreeSitterNode,
 	nsewNode: TreeSitterNode,
 	op: string,
-	debug: MGSDebug,
 ): BoolComparison => {
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
 	}
 	return new CHECK_ENTITY_DIRECTION({
-		debug,
 		expected_bool: op === '==',
 		direction: nsewNode.text,
 		entity: stringCaptureForFieldName(f, entityNode, 'entity_identifier'),
@@ -662,7 +622,6 @@ const compareString = (
 	checkableNode: TreeSitterNode,
 	stringNode: TreeSitterNode,
 	op: string,
-	debug: MGSDebug,
 ): StringCheckable => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isStringCheckable(checkable)) {
@@ -672,29 +631,15 @@ const compareString = (
 		throw new Error('invalid op for bool_comparison: ' + op);
 	}
 	const string = handleCapture(f, stringNode);
-	const prop = checkable.stringLabel;
-	if (prop === undefined) throw new Error('undefined prop');
-	if (
-		prop !== 'string' &&
-		prop !== 'expected_script' &&
-		prop !== 'geometry' &&
-		prop !== 'entity_type'
-	) {
-		throw new Error('StringCheckable with invalid prop ' + prop);
-	}
-	return {
-		...checkable,
-		debug,
-		expected_bool: op === '==',
-		[prop]: string,
-	};
+	checkable.updateProp(coerceToString(f, stringNode, string, 'compareString'));
+	checkable.expected_bool = op === '==';
+	return checkable;
 };
 const compareNumberCheckableEquality = (
 	f: FileState,
 	checkableNode: TreeSitterNode,
 	numberNode: TreeSitterNode,
 	op: string,
-	debug: MGSDebug,
 ): NumberCheckableEquality => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!isNumberCheckableEquality(checkable)) throw new Error('not a thing');
@@ -712,15 +657,11 @@ const compareNumberCheckableEquality = (
 			],
 		});
 	}
-	if (checkable.numberLabel !== 'expected_u2' && checkable.numberLabel !== 'expected_byte') {
-		throw new Error('invalid prop');
-	}
-	return {
-		...checkable,
-		expected_bool: op === '==',
-		debug,
-		[checkable.numberLabel]: number,
-	};
+	checkable.updateProp(
+		coerceToNumber(f, numberNode, number, 'compareNumberCheckableEquality expected number'),
+	);
+	checkable.expected_bool = op === '==';
+	return checkable;
 };
 const checkVariables = (
 	f: FileState,

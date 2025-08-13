@@ -1,20 +1,18 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { getBoolFieldForAction, MGSDebug } from './parser-bytecode-info.ts';
+import { CHECK_SAVE_FLAG, getBoolFieldForAction, MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
+	BoolBinaryExpression,
 	type MGSLocation,
 	type MGSMessage,
 	type BoolExpression,
-	type BoolBinaryExpression,
 	isMathlangNode,
 	isBoolGetable,
 	isBoolComparison,
 	isStringCheckable,
 	isNumberCheckableEquality,
-	isBoolBinaryExpression,
 	LabelDefinition,
 	MathlangSequence,
-	newCheckSaveFlag,
 	isBoolExpression,
 	type BoolComparison,
 	type BoolGetable,
@@ -188,12 +186,7 @@ export const expandBoolExpression = (
 		return [];
 	}
 	if (typeof condition === 'string') {
-		return [
-			{
-				...newCheckSaveFlag(f, node, condition, true),
-				label: ifLabel,
-			},
-		];
+		return [new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true, label: ifLabel })];
 	}
 	if (
 		isBoolGetable(condition) ||
@@ -201,14 +194,10 @@ export const expandBoolExpression = (
 		isStringCheckable(condition) ||
 		isNumberCheckableEquality(condition)
 	) {
-		const action = {
-			...condition,
-			expected_bool: condition.expected_bool === undefined ? true : condition.expected_bool,
-			label: ifLabel,
-		};
-		return [action];
+		condition.label = ifLabel;
+		return [condition];
 	}
-	if (!isBoolBinaryExpression(condition)) {
+	if (!(condition instanceof BoolBinaryExpression)) {
 		throw new Error('expansion for condition not yet implemented');
 	}
 	const op = condition.op;
@@ -240,31 +229,28 @@ export const expandBoolExpression = (
 		throw new Error('expected == or !==, found ' + op);
 	}
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAs: BoolBinaryExpression = {
-		mathlang: 'bool_binary_expression',
+	const expandAs = new BoolBinaryExpression({
 		debug: new MGSDebug(f, condition.debug?.node || node),
 		op: '||',
-		lhs: {
-			mathlang: 'bool_binary_expression',
+		lhs: new BoolBinaryExpression({
 			debug: new MGSDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs,
 			rhs,
 			lhsNode: condition.lhsNode,
 			rhsNode: condition.rhsNode,
-		},
-		rhs: {
-			mathlang: 'bool_binary_expression',
+		}),
+		rhs: new BoolBinaryExpression({
 			debug: new MGSDebug(f, condition.debug?.node || node),
 			op: '&&',
 			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
 			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
 			lhsNode: condition.lhsNode,
 			rhsNode: condition.rhsNode,
-		},
+		}),
 		lhsNode: condition.lhsNode,
 		rhsNode: condition.rhsNode,
-	};
+	});
 	return expandBoolExpression(f, node, expandAs, ifLabel);
 };
 
@@ -275,9 +261,9 @@ export const invertBoolExpression = (
 ): BoolExpression => {
 	if (typeof boolExp === 'boolean') return !boolExp;
 	if (typeof boolExp === 'string') {
-		return newCheckSaveFlag(f, node, boolExp, false);
+		return new CHECK_SAVE_FLAG({ save_flag: boolExp, expected_bool: false });
 	}
-	if (isBoolBinaryExpression(boolExp)) {
+	if (boolExp instanceof BoolBinaryExpression) {
 		if (boolExp.op === '||' || boolExp.op === '&&') {
 			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
 				throw new Error('|| or && for a number??');
@@ -308,13 +294,9 @@ export const simpleBranchMaker = (
 
 	let top: AnyNode[] = [];
 	if (isBoolComparison(condition) || isBoolGetable(condition)) {
-		top = [
-			{
-				...condition,
-				label: ifLabel,
-			},
-		];
-	} else if (isBoolBinaryExpression(condition)) {
+		condition.label = ifLabel;
+		top = [condition];
+	} else if (condition instanceof BoolBinaryExpression) {
 		top = expandBoolExpression(f, node, condition, ifLabel);
 	}
 

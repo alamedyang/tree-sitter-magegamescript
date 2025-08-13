@@ -84,32 +84,31 @@ import {
 	SET_MAP_LOOK_SCRIPT,
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
+	CHECK_SAVE_FLAG,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	DialogDefinition,
 	CommentNode,
+	IntBinaryExpression,
 	type MGSMessage,
-	isIntGetable,
 	isDialog,
-	isSerialDialog,
-	type IntBinaryExpression,
-	isIntBinaryExpression,
 	type BoolExpression,
 	SerialDialogDefinition,
 	isBoolExpression,
-	isMovableIdentifier,
-	isCoordinateIdentifier,
-	isDirectionTarget,
 	isBoolGetable,
 	isBoolComparison,
 	MathlangSequence,
-	newCheckSaveFlag,
 	ReturnStatement,
 	BreakStatement,
 	ContinueStatement,
 	GotoLabel,
 	BoolSetable,
+	MovableIdentifier,
+	CoordinateIdentifier,
+	DirectionTarget,
+	IntGetable,
+	SerialDialog,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -150,9 +149,9 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 		steps.push(setVarToVar(temp, lhs));
 	} else if (typeof lhs === 'number') {
 		steps.push(setVarToValue(temp, lhs));
-	} else if (isIntGetable(lhs)) {
+	} else if (lhs instanceof IntGetable) {
 		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temp));
-	} else if (isIntBinaryExpression(lhs)) {
+	} else if (lhs instanceof IntBinaryExpression) {
 		// can use the same temporary since it's the lhs and we're going LTR
 		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(lhs, steps);
@@ -165,13 +164,13 @@ const flattenIntBinaryExpression = (exp: IntBinaryExpression, steps: AnyNode[]):
 		} else {
 			steps.push(changeVarByValue(temp, rhs, op));
 		}
-	} else if (isIntGetable(rhs)) {
+	} else if (rhs instanceof IntGetable) {
 		const quickTemp = quickTemporary();
 		steps.push(
 			copyEntityFieldIntoVar(rhs.entity, rhs.field, quickTemp),
 			changeVarByVar(temp, quickTemp, op),
 		);
-	} else if (isIntBinaryExpression(rhs)) {
+	} else if (rhs instanceof IntBinaryExpression) {
 		const newTemp = newTemporary();
 		flattenIntBinaryExpression(rhs, steps);
 		steps.push(changeVarByVar(temp, newTemp, op));
@@ -209,7 +208,7 @@ const actionSetBoolMaker = (
 	// if (self glitched) { player glitched = true; } else { player glitched = false; }
 	const rhsBoolExp: BoolExpression =
 		typeof _rhsBoolExp === 'string'
-			? newCheckSaveFlag(f, backupNode, _rhsBoolExp, true)
+			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
 			: _rhsBoolExp;
 	if (isBoolGetable(rhsBoolExp) || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
@@ -377,7 +376,7 @@ const actionShowSerialDialog = (
 	const serialDialogs = handleChildrenForFieldName(f, node, 'serial_dialog');
 	const shownSerialDialog = new SHOW_SERIAL_DIALOG({ serial_dialog: name, disable_newline });
 	if (serialDialogs.length) {
-		if (!isSerialDialog(serialDialogs[0])) {
+		if (!(serialDialogs[0] instanceof SerialDialog)) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
 		const serialDialoDefinition = new SerialDialogDefinition(f, node, name, serialDialogs[0]);
@@ -573,12 +572,12 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 
 			// varName = player x;
-			if (isIntGetable(v.rhs)) {
+			if (v.rhs instanceof IntGetable) {
 				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, lhs);
 			}
 
 			// varName = (255 + player x);
-			if (isIntBinaryExpression(v.rhs)) {
+			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary(lhs);
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
@@ -600,7 +599,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
-			if (!isIntGetable(v.lhs)) {
+			if (!(v.lhs instanceof IntGetable)) {
 				throw new Error('LHS not int_getable');
 			}
 			const entity = coerceToString(f, node, v.lhs.entity, 'action_set_int entity');
@@ -643,7 +642,7 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 
 			// player x = player y;
-			if (isIntBinaryExpression(v.rhs)) {
+			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary();
 				const steps = flattenIntBinaryExpression(v.rhs, []);
 				dropTemporary();
@@ -717,10 +716,10 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node): ActionSetPosition | MathlangSequence => {
-			if (!isMovableIdentifier(v.movable)) {
+			if (!(v.movable instanceof MovableIdentifier)) {
 				throw new Error('invalid MovableIdentifier');
 			}
-			if (!isCoordinateIdentifier(v.coordinate)) {
+			if (!(v.coordinate instanceof CoordinateIdentifier)) {
 				throw new Error('invalid CoordinateIdentifier');
 			}
 			if (v.movable.type === 'camera') {
@@ -767,10 +766,10 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['movable', 'coordinate', 'duration', 'forever'],
 		optionalCaptures: ['forever'],
 		handle: (v, f, node): ActionMoveOverTime | undefined => {
-			if (!isMovableIdentifier(v.movable)) {
+			if (!(v.movable instanceof MovableIdentifier)) {
 				throw new Error('invalid MovableIdentifier');
 			}
-			if (!isCoordinateIdentifier(v.coordinate)) {
+			if (!(v.coordinate instanceof CoordinateIdentifier)) {
 				throw new Error('invalid CoordinateIdentifier');
 			}
 			if (!(v.debug instanceof MGSDebug)) {
@@ -886,13 +885,31 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['entity', 'target'],
 		handle: (v, f, node): ActionSetDirection => {
 			const entity = coerceToString(f, node, v.entity, 'entity');
-			if (!isDirectionTarget(v.target)) {
-				throw new Error('invalid target');
+			if (!(v.target instanceof DirectionTarget)) {
+				throw new Error('action_set_direction target not a DirectionTarget');
 			}
-			return {
-				...v.target,
-				entity,
-			};
+			if (v.target.type === 'nsew') {
+				return {
+					action: 'SET_ENTITY_DIRECTION',
+					entity,
+					direction: v.target.value,
+				};
+			}
+			if (v.target.type === 'geometry') {
+				return {
+					action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
+					entity,
+					target_geometry: v.target.value,
+				};
+			}
+			if (v.target.type === 'entity') {
+				return {
+					action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
+					entity,
+					target_entity: v.target.value,
+				};
+			}
+			throw new Error('invalid type of DirectionTarget');
 		},
 	},
 	action_set_script: {
@@ -967,7 +984,7 @@ const actionData: Record<string, actionDataEntry> = {
 					return changeVarByVar(v.lhs, v.rhs, op);
 				}
 				// varName += player x
-				if (isIntGetable(v.rhs)) {
+				if (v.rhs instanceof IntGetable) {
 					const temp = quickTemporary();
 					const steps = [
 						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
@@ -981,9 +998,11 @@ const actionData: Record<string, actionDataEntry> = {
 					);
 				}
 				// varName += (var2 * 7)
-				if (isIntBinaryExpression(v.rhs)) {
+				if (v.rhs instanceof IntBinaryExpression) {
 					const temporary = newTemporary();
-					if (!isIntBinaryExpression(v.rhs)) throw new Error('not IntBinaryExpression');
+					if (!(v.rhs instanceof IntBinaryExpression)) {
+						throw new Error('not IntBinaryExpression');
+					}
 					const steps = flattenIntBinaryExpression(v.rhs, []);
 					dropTemporary();
 					steps.push(changeVarByVar(v.lhs, temporary, op));
@@ -1000,7 +1019,7 @@ const actionData: Record<string, actionDataEntry> = {
 			// LHS is an int getable, like `player y`
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
-			if (isIntGetable(v.lhs)) {
+			if (v.lhs instanceof IntGetable) {
 				// player x = 1;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
@@ -1034,10 +1053,12 @@ const actionData: Record<string, actionDataEntry> = {
 					);
 				}
 				// player x = (varName * 7);
-				if (isIntBinaryExpression(v.rhs)) {
+				if (v.rhs instanceof IntBinaryExpression) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
-					if (!isIntBinaryExpression(v.rhs)) throw new Error('not IntBinaryExpression');
+					if (!(v.rhs instanceof IntBinaryExpression)) {
+						throw new Error('not IntBinaryExpression');
+					}
 					const steps = [
 						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
 						...flattenIntBinaryExpression(v.rhs, []),
@@ -1054,7 +1075,7 @@ const actionData: Record<string, actionDataEntry> = {
 					);
 				}
 				// player x = self y;
-				if (isIntGetable(v.rhs)) {
+				if (v.rhs instanceof IntGetable) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
@@ -1158,7 +1179,7 @@ const setFlagToFlag = (
 	return simpleBranchMaker(
 		f,
 		node,
-		newCheckSaveFlag(f, node, source, !invert),
+		new CHECK_SAVE_FLAG({ save_flag: source, expected_bool: !invert }),
 		[{ ...action, bool_value: true }], // if true
 		[{ ...action, bool_value: false }], // if false
 	);

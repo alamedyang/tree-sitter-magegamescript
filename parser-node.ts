@@ -37,6 +37,8 @@ import {
 	IncludeNode,
 	isActionNode,
 	ScriptDefinition,
+	SerialDialog,
+	SerialDialogOption,
 	type AnyNode,
 	type MGSMessage,
 	type AddDialogSettings,
@@ -44,26 +46,20 @@ import {
 	type AddDialogSettingsTarget,
 	type DialogSettings,
 	type AddSerialDialogSettings,
-	type SerialDialogOption,
 	type SerialOptionType,
 	type DialogOption,
 	type SerialDialogInfo,
-	type SerialDialog,
 	type Dialog,
 	isMGSPrimitive,
 	isDialogParameter,
 	isAddDialogSettingsTarget,
-	isSerialDialogOption,
 	isDialogOption,
-	isSerialDialog,
 	isDialog,
-	isSerialDialogParameter,
 	isDialogIdentifier,
 	isBoolExpression,
 	JSONLiteral,
 	LabelDefinition,
 	MathlangSequence,
-	newCheckSaveFlag,
 	newAddDialogSettings,
 	newAddSerialDialogSettings,
 	SerialDialogDefinition,
@@ -71,9 +67,11 @@ import {
 	ReturnStatement,
 	ContinueStatement,
 	BreakStatement,
+	SerialDialogParameter,
 } from './parser-types.ts';
 import {
 	CHECK_DEBUG_MODE,
+	CHECK_SAVE_FLAG,
 	type CheckAction,
 	GOTO_ACTION_INDEX,
 	isCheckAction,
@@ -337,7 +335,7 @@ const nodeFns = {
 	},
 	add_serial_dialog_settings: (f: FileState, node: TreeSitterNode): [AddSerialDialogSettings] => {
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		if (!parameters.every(isSerialDialogParameter)) {
+		if (!parameters.every((v) => v instanceof SerialDialogParameter)) {
 			throw new Error('not every serial_dialog_parameter is a SerialDialogParameter');
 		}
 		parameters.forEach((param) => {
@@ -350,15 +348,9 @@ const nodeFns = {
 		let optionType: SerialOptionType = 'options';
 		if (optionChar === '_') optionType = 'text_options';
 		else if (optionChar !== '#') throw new Error('invalid option type: ' + optionChar);
-		return [
-			{
-				mathlang: 'serial_dialog_option',
-				optionType,
-				label: stringCaptureForFieldName(f, node, 'label'),
-				debug: new MGSDebug(f, node),
-				script: stringCaptureForFieldName(f, node, 'script'),
-			},
-		];
+		const label = stringCaptureForFieldName(f, node, 'label');
+		const script = stringCaptureForFieldName(f, node, 'script');
+		return [new SerialDialogOption(optionType, label, script, new MGSDebug(f, node))];
 	},
 	dialog_option: (f: FileState, node: TreeSitterNode): [DialogOption] => {
 		return [
@@ -377,7 +369,7 @@ const nodeFns = {
 		if (serialDialog.length !== 1) {
 			throw new Error('serial dialogs must have only 1 serial dialog');
 		}
-		if (!isSerialDialog(serialDialog[0])) throw new Error('missing serial dialog');
+		if (!(serialDialog[0] instanceof SerialDialog)) throw new Error('missing serial dialog');
 		return [new SerialDialogDefinition(f, node, name, serialDialog[0])];
 	},
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
@@ -389,7 +381,7 @@ const nodeFns = {
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'serial_dialog_parameter');
-		if (!params.every(isSerialDialogParameter)) {
+		if (!params.every((v) => v instanceof SerialDialogParameter)) {
 			throw new Error('not every serial dialog parameter is a SerialDialogParameter');
 		}
 		params.forEach((v) => {
@@ -397,7 +389,7 @@ const nodeFns = {
 		});
 		// TODO: make options more closely resemble final form?
 		const options = handleChildrenForFieldName(f, node, 'serial_dialog_option');
-		if (!options.every(isSerialDialogOption)) {
+		if (!options.every((v) => v instanceof SerialDialogOption)) {
 			throw new Error('not every serial dialog option not aSerialDialogOption');
 		}
 		const messages = capturesForFieldName(f, node, 'serial_message');
@@ -479,7 +471,7 @@ const nodeFns = {
 		const serialDialogNode = node.childForFieldName('serial_dialog');
 		if (serialDialogNode) {
 			const serialDialog = handleNode(f, serialDialogNode);
-			if (!isSerialDialog(serialDialog[0])) {
+			if (!(serialDialog[0] instanceof SerialDialog)) {
 				throw new Error('serial dialog not a SerialDialog');
 			}
 			name = autoIdentifierName(f, node);
@@ -582,7 +574,7 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		let condition = handleCapture(f, conditionN);
 		if (typeof condition === 'string') {
-			condition = newCheckSaveFlag(f, node, condition, true);
+			condition = new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true });
 		}
 		if (typeof condition === 'boolean') {
 			if (!type) {

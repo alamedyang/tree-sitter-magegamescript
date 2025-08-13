@@ -2,11 +2,12 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { ansiTags as ansi } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
 import {
+	SerialDialog,
+	type SerialDialogConstructorArgs,
 	type Dialog,
 	type DialogInfo,
 	type DialogSettings,
 	type MGSLocation,
-	type SerialDialog,
 	type SerialDialogInfo,
 	type SerialDialogSettings,
 } from './parser-types.ts';
@@ -153,9 +154,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo):
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
-	const serialDialog: SerialDialog = {
-		mathlang: 'serial_dialog',
-		info,
+	const serialDialog: SerialDialogConstructorArgs = {
 		messages: [],
 	};
 	serialDialog.messages = info.messages
@@ -183,7 +182,7 @@ export const buildSerialDialogFromInfo = (f: FileState, info: SerialDialogInfo):
 			});
 		}
 	}
-	return serialDialog;
+	return new SerialDialog(serialDialog);
 };
 
 const longerAlignments: Record<string, string> = {
