@@ -2,14 +2,15 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { ansiTags as ansi } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
 import {
+	Dialog,
 	SerialDialog,
 	type SerialDialogConstructorArgs,
-	type Dialog,
 	type DialogInfo,
 	type DialogSettings,
 	type MGSLocation,
 	type SerialDialogInfo,
 	type SerialDialogSettings,
+	DialogOption,
 } from './parser-types.ts';
 
 const DIALOG_WRAP = 42;
@@ -234,23 +235,20 @@ export const buildDialogFromInfo = (
 		...dialogSettings,
 		mathlang: 'dialog',
 		messages: [],
-		info,
 	};
+	let options: DialogOption[] = [];
 	// this needs to be outside to get the actual wrap value btw:
-	dialog.messages = info.messages.map((message: string) =>
-		wrapText(message, dialogSettings.wrap),
-	);
+	const messages = info.messages.map((message: string) => wrapText(message, dialogSettings.wrap));
 	if (info.options.length > 0) {
-		dialog.response_type = 'SELECT_FROM_SHORT_LIST';
-		dialog.options = info.options;
-		dialog.options.forEach((option, i) => {
-			if (dialog.options?.[i]) {
-				dialog.options[i].label = wrapText(option.label, 0);
+		options = info.options;
+		options.forEach((option, i) => {
+			if (options?.[i]) {
+				options[i].label = wrapText(option.label, 0);
 			}
 		});
 	}
-	const lastIndex = dialog.messages.length - 1;
-	dialog.messages.forEach((message, i) => {
+	const lastIndex = messages.length - 1;
+	messages.forEach((message, i) => {
 		const targetSize = lastIndex === i && dialog.options ? 1 : 5;
 		const splitMessage: string[] = message.split('\n');
 		if (splitMessage.length > targetSize) {
@@ -282,5 +280,5 @@ export const buildDialogFromInfo = (
 			});
 		}
 	});
-	return dialog;
+	return new Dialog(messages, options, dialogSettings);
 };

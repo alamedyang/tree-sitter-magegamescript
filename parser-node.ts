@@ -30,9 +30,12 @@ import {
 } from './parser-capture.ts';
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
+	AddDialogSettingsTarget,
 	ConstantDefinition,
 	CopyMacro,
+	Dialog,
 	DialogDefinition,
+	DialogOption,
 	GotoLabel,
 	IncludeNode,
 	isActionNode,
@@ -43,19 +46,11 @@ import {
 	type MGSMessage,
 	type AddDialogSettings,
 	type DialogInfo,
-	type AddDialogSettingsTarget,
 	type DialogSettings,
 	type AddSerialDialogSettings,
 	type SerialOptionType,
-	type DialogOption,
 	type SerialDialogInfo,
-	type Dialog,
 	isMGSPrimitive,
-	isDialogParameter,
-	isAddDialogSettingsTarget,
-	isDialogOption,
-	isDialog,
-	isDialogIdentifier,
 	isBoolExpression,
 	JSONLiteral,
 	LabelDefinition,
@@ -68,6 +63,8 @@ import {
 	ContinueStatement,
 	BreakStatement,
 	SerialDialogParameter,
+	DialogIdentifier,
+	DialogParameter,
 } from './parser-types.ts';
 import {
 	CHECK_DEBUG_MODE,
@@ -298,7 +295,7 @@ const nodeFns = {
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = handleNamedChildren(f, node);
-		if (!targets.every(isAddDialogSettingsTarget)) {
+		if (!targets.every((v) => v instanceof AddDialogSettingsTarget)) {
 			throw new Error('add_dialog_settings node not a AddDialogSettingsTarget');
 		}
 		return [newAddDialogSettings(f, node, targets)];
@@ -306,11 +303,7 @@ const nodeFns = {
 	add_dialog_settings_target: (f: FileState, node: TreeSitterNode): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
 		const type = textForFieldName(f, node, 'type');
-		const ret: AddDialogSettingsTarget = {
-			mathlang: 'add_dialog_settings_target',
-			debug: new MGSDebug(f, node),
-			type,
-		};
+		const ret = new AddDialogSettingsTarget(type, new MGSDebug(f, node), []);
 		// figure out which settings target it is
 		if (type === 'default') {
 			settingsTarget = f.settings.default;
@@ -324,7 +317,7 @@ const nodeFns = {
 		}
 		// find the settings themselves
 		const parameters = capturesForFieldName(f, node, 'dialog_parameter');
-		if (!parameters.every(isDialogParameter)) {
+		if (!parameters.every((v) => v instanceof DialogParameter)) {
 			throw new Error('not every dialog_parameter is a DialogParameter');
 		}
 		parameters.forEach((param) => {
@@ -353,14 +346,9 @@ const nodeFns = {
 		return [new SerialDialogOption(optionType, label, script, new MGSDebug(f, node))];
 	},
 	dialog_option: (f: FileState, node: TreeSitterNode): [DialogOption] => {
-		return [
-			{
-				mathlang: 'dialog_option',
-				debug: new MGSDebug(f, node),
-				label: stringCaptureForFieldName(f, node, 'label'),
-				script: stringCaptureForFieldName(f, node, 'script'),
-			},
-		];
+		const label = stringCaptureForFieldName(f, node, 'label');
+		const script = stringCaptureForFieldName(f, node, 'script');
+		return [new DialogOption(label, script, new MGSDebug(f, node))];
 	},
 	serial_dialog_definition: (f: FileState, node: TreeSitterNode): [SerialDialogDefinition] => {
 		const serialDialogNode = mandatoryChildForFieldName(f, node, 'serial_dialog');
@@ -375,7 +363,8 @@ const nodeFns = {
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
 		const dialogName = stringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		if (!dialogs.every(isDialog)) throw new Error('not every dialog is a Dialog');
+		if (!dialogs.every((v) => v instanceof Dialog))
+			throw new Error('not every dialog is a Dialog');
 		return [new DialogDefinition(f, node, dialogName, dialogs)];
 	},
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
@@ -407,13 +396,13 @@ const nodeFns = {
 	dialog: (f: FileState, node: TreeSitterNode): [Dialog] => {
 		// Identifier
 		const identifier = captureForFieldName(f, node, 'dialog_identifier');
-		if (!isDialogIdentifier(identifier)) {
+		if (!(identifier instanceof DialogIdentifier)) {
 			throw new Error('dialog_identifier is not a DialogIdentifier');
 		}
 		// Settings
 		const settings = {};
 		const params = capturesForFieldName(f, node, 'dialog_parameter');
-		if (!params.every(isDialogParameter)) {
+		if (!params.every((v) => v instanceof DialogParameter)) {
 			throw new Error('not every dialog_parameter is a DialogParameter');
 		}
 		params.forEach((v) => {
@@ -427,7 +416,7 @@ const nodeFns = {
 		}
 		// Options
 		const options = handleChildrenForFieldName(f, node, 'dialog_option');
-		if (!options.every(isDialogOption)) {
+		if (!options.every((v) => v instanceof DialogOption)) {
 			throw new Error('not every dialog_option is a DialogOption');
 		}
 		// Build it
@@ -438,12 +427,8 @@ const nodeFns = {
 			options,
 		};
 		const dialogs = buildDialogFromInfo(f, info, messageN);
-		return [
-			{
-				...dialogs,
-				debug: new MGSDebug(f, node),
-			},
-		];
+		dialogs.debug = new MGSDebug(f, node);
+		return [dialogs];
 	},
 	json_literal: (f: FileState, node: TreeSitterNode): JSONLiteral[] => {
 		// TODO: do it more by hand so that errors can be reported more accurately?

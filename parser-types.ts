@@ -89,16 +89,25 @@ export const newAddDialogSettings = (
 	};
 };
 
-export type AddDialogSettingsTarget = {
+export class AddDialogSettingsTarget {
 	mathlang: 'add_dialog_settings_target';
 	type: string;
 	debug: TYPES.MGSDebug;
 	target?: string;
-	parameters?: DialogParameter[];
-};
-export const isAddDialogSettingsTarget = (v: unknown): v is AddDialogSettingsTarget => {
-	return (v as AddDialogSettingsTarget)?.mathlang === 'add_dialog_settings_target';
-};
+	parameters: DialogParameter[];
+	constructor(
+		type: string,
+		debug: TYPES.MGSDebug,
+		parameters: DialogParameter[],
+		target?: string,
+	) {
+		this.mathlang = 'add_dialog_settings_target';
+		this.type = type;
+		this.debug = debug;
+		this.parameters = parameters;
+		if (target !== undefined) this.target = target;
+	}
+}
 
 export type AddSerialDialogSettings = {
 	mathlang: 'add_serial_dialog_settings';
@@ -182,26 +191,49 @@ export type DialogSettings = {
 	border_tileset?: string;
 };
 
-export type DialogParameter = {
+export class DialogParameter {
 	mathlang: 'dialog_parameter';
 	property: string;
 	value: MGSPrimitive;
-};
-export const isDialogParameter = (v: unknown): v is DialogParameter => {
-	return (v as DialogParameter)?.mathlang === 'dialog_parameter';
-};
+	constructor(property: string, value: MGSPrimitive) {
+		this.mathlang = 'dialog_parameter';
+		this.property = property;
+		this.value = value;
+	}
+}
 
-export type Dialog = DialogSettings & {
+export class Dialog {
+	wrap?: number;
+	emote?: number;
+	entity?: string;
+	name?: string;
+	portrait?: string;
+	alignment?: string;
+	border_tileset?: string;
+
+	options?: DialogOption[];
 	mathlang: 'dialog';
-	info: DialogInfo;
 	messages: string[];
 	response_type?: 'SELECT_FROM_SHORT_LIST';
-	options?: DialogOption[];
 	debug?: TYPES.MGSDebug;
-};
-export const isDialog = (v: unknown): v is Dialog => {
-	return (v as Dialog)?.mathlang === 'dialog';
-};
+	constructor(
+		messages: string[],
+		options: DialogOption[],
+		args: DialogSettings,
+		debug?: TYPES.MGSDebug,
+	) {
+		this.mathlang = 'dialog';
+		this.messages = messages;
+		if (options.length) {
+			this.options = options;
+			this.response_type = 'SELECT_FROM_SHORT_LIST';
+		}
+		if (debug) this.debug = debug;
+		Object.entries(args).forEach(([k, v]) => {
+			this[k] = v;
+		});
+	}
+}
 
 export type DialogInfo = {
 	identifier: DialogIdentifier;
@@ -210,25 +242,32 @@ export type DialogInfo = {
 	options: DialogOption[];
 };
 
-export type DialogIdentifier = {
+export class DialogIdentifier {
 	mathlang: 'dialog_identifier';
-	type: 'label' | 'entity' | 'name';
+	type: DialogIdentifierType;
 	value: string;
 	debug?: TYPES.MGSDebug;
-};
-export const isDialogIdentifier = (v: unknown): v is DialogIdentifier => {
-	return (v as DialogIdentifier)?.mathlang === 'dialog_identifier';
-};
+	constructor(type: DialogIdentifierType, value: string, debug?: TYPES.MGSDebug) {
+		this.mathlang = 'dialog_identifier';
+		this.type = type;
+		this.value = value;
+		if (debug) this.debug = debug;
+	}
+}
+type DialogIdentifierType = 'label' | 'entity' | 'name';
 
-export type DialogOption = {
+export class DialogOption {
 	mathlang: 'dialog_option';
 	label: string;
 	script: string;
 	debug: TYPES.MGSDebug;
-};
-export const isDialogOption = (v: unknown): v is DialogOption => {
-	return (v as DialogOption)?.mathlang === 'dialog_option';
-};
+	constructor(label: string, script: string, debug: TYPES.MGSDebug) {
+		this.mathlang = 'dialog_option';
+		this.label = label;
+		this.script = script;
+		this.debug = debug;
+	}
+}
 
 // ------------------------------ SERIAL DIALOG ------------------------------ \\
 
@@ -492,39 +531,49 @@ export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	return (v as BoolGetable)?.mathlang === 'bool_getable';
 };
 
-export type BoolComparison =
-	| NumberCheckableEquality
-	| StringCheckable
-	| ((TYPES.CHECK_VARIABLES | TYPES.CHECK_VARIABLE | TYPES.CHECK_ENTITY_DIRECTION) & {
-			mathlang: 'bool_comparison';
-			label?: string;
-			debug?: TYPES.MGSDebug;
-			comment?: string;
-	  });
+export type BoolComparison = NumberCheckableEquality | StringCheckable | NumberComparison;
 export const isBoolComparison = (v: unknown): v is BoolComparison => {
-	if ((v as NumberCheckableEquality)?.mathlang === 'number_checkable_equality') return true;
-	if (isStringCheckable(v)) return true;
-	if ((v as BoolComparison)?.mathlang === 'bool_comparison') return true;
+	if (v instanceof NumberCheckableEquality) return true;
+	if (v instanceof StringCheckable) return true;
+	if (v instanceof NumberComparison) return true;
 	return false;
 };
 
-export type StringCheckable = (
-	| TYPES.CHECK_ENTITY_TICK_SCRIPT
-	| TYPES.CHECK_ENTITY_LOOK_SCRIPT
-	| TYPES.CHECK_ENTITY_INTERACT_SCRIPT
-	| TYPES.CHECK_ENTITY_NAME
-	| TYPES.CHECK_ENTITY_PATH
-	| TYPES.CHECK_ENTITY_TYPE
-	| TYPES.CHECK_WARP_STATE
-) & {
+export class NumberComparison {
+	mathlang: 'number_comparison';
+	debug?: TYPES.MGSDebug;
+	comment?: string;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		this.expected_bool = true;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+	updateProp(prop: boolean) {
+		// to make squiggles go away; not used
+		this.expected_bool = prop;
+	}
+}
+
+export class StringCheckable {
 	mathlang: 'string_checkable';
 	debug?: TYPES.MGSDebug;
 	comment?: string;
-};
-
-export const isStringCheckable = (v: unknown): v is StringCheckable => {
-	return (v as MathlangNode)?.mathlang === 'string_checkable';
-};
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		this.expected_bool = true;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+}
 
 export type BoolBinaryExpressionArgs = {
 	lhs: StringCheckable | string | number | BoolExpression | NumberCheckableEquality;
@@ -554,27 +603,18 @@ export class BoolBinaryExpression {
 	}
 }
 
-export type BoolGetableCommon = {
+export class BoolGetable {
 	mathlang: 'bool_getable';
-	label?: string;
 	debug?: TYPES.MGSDebug;
 	comment?: string;
-};
-export type BoolGetable = BoolGetableCommon &
-	(
-		| TYPES.CHECK_DEBUG_MODE
-		| TYPES.CHECK_ENTITY_GLITCHED
-		| TYPES.CHECK_IF_ENTITY_IS_IN_GEOMETRY
-		| TYPES.CHECK_SAVE_FLAG
-		| TYPES.CHECK_DIALOG_OPEN
-		| TYPES.CHECK_SERIAL_DIALOG_OPEN
-		| TYPES.CHECK_FOR_BUTTON_PRESS
-		| TYPES.CHECK_FOR_BUTTON_STATE
-	);
-
-export const isBoolGetable = (v: unknown): v is BoolGetable => {
-	return (v as BoolGetable)?.mathlang === 'bool_getable';
-};
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+}
 
 // ------------------------------ INTERMEDIATES ------------------------------ \\
 
@@ -618,36 +658,40 @@ export class DirectionTarget {
 		this.value = value;
 	}
 }
-export type NumberCheckableEquality =
-	| TYPES.CHECK_ENTITY_X
-	| TYPES.CHECK_ENTITY_Y
-	| TYPES.CHECK_ENTITY_PRIMARY_ID
-	| TYPES.CHECK_ENTITY_SECONDARY_ID
-	| TYPES.CHECK_ENTITY_PRIMARY_ID_TYPE
-	| TYPES.CHECK_ENTITY_CURRENT_ANIMATION
-	| TYPES.CHECK_ENTITY_CURRENT_FRAME;
-
-export const isNumberCheckableEquality = (v: unknown): v is NumberCheckableEquality => {
-	return (v as NumberCheckableEquality)?.mathlang === 'number_checkable_equality';
-};
-
+export class NumberCheckableEquality {
+	mathlang: 'number_checkable_equality';
+	comment?: string;
+	debug?: TYPES.MGSDebug;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		this.mathlang = 'number_checkable_equality';
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+	updateProp(prop: string | number) {
+		// to make squiggles go away; not used
+		this.jump_index = prop;
+	}
+}
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
 	| GotoLabel
 	| BoolGetable
-	| BoolComparison
 	| StringCheckable
+	| NumberComparison
 	| NumberCheckableEquality;
 
 export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
-	if (typeof v !== 'object') return false;
-	if (!isMathlangNode(v)) return false;
-	if (isActionNode(v)) return false; // load bearing??
+	if (!isMathlangNode(v)) return false; // load bearing??
 	if (v instanceof GotoLabel) return true;
-	if (isBoolGetable(v)) return true;
-	if (isBoolComparison(v)) return true;
-	if (isStringCheckable(v)) return true;
-	if (isNumberCheckableEquality(v)) return true;
+	if (v instanceof BoolGetable) return true;
+	if (v instanceof StringCheckable) return true;
+	if (v instanceof NumberComparison) return true;
+	if (v instanceof NumberCheckableEquality) return true;
 	return false;
 };

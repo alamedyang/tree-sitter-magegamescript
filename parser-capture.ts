@@ -31,17 +31,15 @@ import {
 	BoolBinaryExpression,
 	BoolSetable,
 	CoordinateIdentifier,
+	DialogIdentifier,
+	DialogParameter,
 	IntBinaryExpression,
 	IntGetable,
 	MovableIdentifier,
+	NumberCheckableEquality,
 	SerialDialogParameter,
-	type DialogParameter,
-	type StringCheckable,
-	isStringCheckable,
-	type NumberCheckableEquality,
-	isNumberCheckableEquality,
+	StringCheckable,
 	type BoolGetable,
-	type DialogIdentifier,
 	type BoolComparison,
 	type BoolExpression,
 	isBoolExpression,
@@ -189,28 +187,18 @@ const captureFns = {
 	dialog_identifier: (f: FileState, node: TreeSitterNode): DialogIdentifier => {
 		const label = optionalTextForFieldName(f, node, 'label');
 		if (label) {
-			return {
-				mathlang: 'dialog_identifier',
-				type: 'label',
-				value: label,
-			};
+			return new DialogIdentifier('label', label);
 		}
 		const type = textForFieldName(f, node, 'type');
 		if (type !== 'label' && type !== 'entity' && type !== 'name') {
 			throw new Error('invalid dialog identifier type: ' + type);
 		}
-		return {
-			mathlang: 'dialog_identifier',
-			type,
-			value: stringCaptureForFieldName(f, node, 'value'),
-		};
+		return new DialogIdentifier(type, stringCaptureForFieldName(f, node, 'value'));
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
-		return {
-			mathlang: 'dialog_parameter',
-			property: textForFieldName(f, node, 'property'),
-			value: stringOrNumberCaptureForFieldName(f, node, 'value'),
-		};
+		const property = textForFieldName(f, node, 'property');
+		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
+		return new DialogParameter(property, value);
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
 		const property = textForFieldName(f, node, 'property');
@@ -290,8 +278,8 @@ const captureFns = {
 			});
 		}
 		if (
-			(isStringCheckable(lhs) || typeof lhs === 'string') &&
-			(isStringCheckable(rhs) || typeof rhs === 'string')
+			(lhs instanceof StringCheckable || typeof lhs === 'string') &&
+			(rhs instanceof StringCheckable || typeof rhs === 'string')
 		) {
 			return new BoolBinaryExpression({
 				debug: new MGSDebug(f, node),
@@ -303,8 +291,8 @@ const captureFns = {
 			});
 		}
 		if (
-			(isNumberCheckableEquality(lhs) || typeof lhs === 'number') &&
-			(isNumberCheckableEquality(rhs) || typeof rhs === 'number')
+			(lhs instanceof NumberCheckableEquality || typeof lhs === 'number') &&
+			(rhs instanceof NumberCheckableEquality || typeof rhs === 'number')
 		) {
 			return new BoolBinaryExpression({
 				debug: new MGSDebug(f, node),
@@ -624,7 +612,7 @@ const compareString = (
 	op: string,
 ): StringCheckable => {
 	const checkable = handleCapture(f, checkableNode);
-	if (!isStringCheckable(checkable)) {
+	if (!(checkable instanceof StringCheckable)) {
 		throw new Error('invalid StringCheckable');
 	}
 	if (op !== '==' && op !== '!=') {
@@ -642,7 +630,7 @@ const compareNumberCheckableEquality = (
 	op: string,
 ): NumberCheckableEquality => {
 	const checkable = handleCapture(f, checkableNode);
-	if (!isNumberCheckableEquality(checkable)) throw new Error('not a thing');
+	if (!(checkable instanceof NumberCheckableEquality)) throw new Error('not a thing');
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNumberCheckableEquality: ' + op);
 	}

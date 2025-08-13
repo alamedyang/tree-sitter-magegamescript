@@ -15,9 +15,8 @@ export const printAction = (data: MATHLANG.AnyNode): string => {
 		const fn = printActionFns[data.action];
 		if (!fn) {
 			// print a generic one
-			const action = { ...data };
-			if (action.debug) delete action.debug; // prevent terrible JSON breakage
-			return `json[${JSON.stringify(action, null, '\t')}]`;
+			if (data.debug) delete data.debug; // prevent terrible JSON breakage
+			return `json[${JSON.stringify(data, null, '\t')}]`;
 		}
 		const print = fn(data);
 		const comment = data.debug?.comment ? ' // ' + data.debug?.comment : '';

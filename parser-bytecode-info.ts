@@ -1,5 +1,14 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { GotoLabel, LabelDefinition, ReturnStatement, CopyMacro } from './parser-types.ts';
+import {
+	GotoLabel,
+	LabelDefinition,
+	ReturnStatement,
+	CopyMacro,
+	StringCheckable,
+	BoolGetable,
+	NumberCheckableEquality,
+	NumberComparison,
+} from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
 
@@ -258,6 +267,9 @@ export class SET_ENTITY_GLITCHED {
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_GLITCHED entity');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_ENTITY_GLITCHED bool_value');
 	}
+	invert() {
+		this.bool_value = !this.bool_value;
+	}
 }
 export class SET_ENTITY_PATH {
 	action: 'SET_ENTITY_PATH';
@@ -289,6 +301,9 @@ export class SET_SAVE_FLAG {
 		this.save_flag = breakIfNotString(args?.save_flag, 'SET_SAVE_FLAG save_flag');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SAVE_FLAG bool_value');
 	}
+	invert() {
+		this.bool_value = !this.bool_value;
+	}
 }
 export class SET_PLAYER_CONTROL {
 	action: 'SET_PLAYER_CONTROL';
@@ -297,6 +312,9 @@ export class SET_PLAYER_CONTROL {
 	constructor(args: GenericActionish) {
 		this.action = 'SET_PLAYER_CONTROL';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_PLAYER_CONTROL bool_value');
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
 	}
 }
 export class SET_MAP_TICK_SCRIPT {
@@ -334,6 +352,9 @@ export class SET_HEX_EDITOR_STATE {
 		this.action = 'SET_HEX_EDITOR_STATE';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_STATE bool_value');
 	}
+	invert() {
+		this.bool_value = !this.bool_value;
+	}
 }
 export class SET_HEX_EDITOR_DIALOG_MODE {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
@@ -342,6 +363,9 @@ export class SET_HEX_EDITOR_DIALOG_MODE {
 	constructor(args: GenericActionish) {
 		this.action = 'SET_HEX_EDITOR_DIALOG_MODE';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_DIALOG_MODE bool_value');
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
 	}
 }
 export class SET_HEX_EDITOR_CONTROL {
@@ -363,6 +387,9 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD {
 			args?.bool_value,
 			'SET_HEX_EDITOR_CONTROL_CLIPBOARD bool_value',
 		);
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
 	}
 }
 export class LOAD_MAP {
@@ -667,6 +694,9 @@ export class SET_TELEPORT_ENABLED {
 		this.action = 'SET_TELEPORT_ENABLED';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_TELEPORT_ENABLED bool_value');
 	}
+	invert() {
+		this.bool_value = !this.bool_value;
+	}
 }
 export class SET_BLE_FLAG {
 	action: 'SET_BLE_FLAG';
@@ -678,6 +708,9 @@ export class SET_BLE_FLAG {
 		this.ble_flag = breakIfNotString(args?.ble_flag, 'SET_BLE_FLAG ble_flag');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_BLE_FLAG bool_value');
 	}
+	invert() {
+		this.bool_value = !this.bool_value;
+	}
 }
 export class SET_SERIAL_DIALOG_CONTROL {
 	action: 'SET_SERIAL_DIALOG_CONTROL';
@@ -686,6 +719,9 @@ export class SET_SERIAL_DIALOG_CONTROL {
 	constructor(args: GenericActionish) {
 		this.action = 'SET_SERIAL_DIALOG_CONTROL';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SERIAL_DIALOG_CONTROL bool_value');
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
 	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND {
@@ -786,6 +822,9 @@ export class SET_LIGHTS_CONTROL {
 		this.action = 'SET_LIGHTS_CONTROL';
 		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_CONTROL enabled');
 	}
+	invert() {
+		this.enabled = !this.enabled;
+	}
 }
 export class SET_LIGHTS_STATE {
 	action: 'SET_LIGHTS_STATE';
@@ -796,6 +835,9 @@ export class SET_LIGHTS_STATE {
 		this.action = 'SET_LIGHTS_STATE';
 		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_STATE enabled');
 		this.lights = breakIfNotStringOrStringArray(args?.lights, 'SET_LIGHTS_STATE lights');
+	}
+	invert() {
+		this.enabled = !this.enabled;
 	}
 }
 export class GOTO_ACTION_INDEX {
@@ -821,6 +863,9 @@ export class SET_SCRIPT_PAUSE {
 		this.entity = breakIfNotString(args?.entity, 'SET_SCRIPT_PAUSE entity');
 		this.script_slot = breakIfNotString(args?.script_slot, 'SET_SCRIPT_PAUSE script_slot');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SCRIPT_PAUSE bool_value');
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
 	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS {
@@ -866,19 +911,12 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY {
 
 // CHECK_ACTIONS
 
-export class CHECK_ENTITY_NAME {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_NAME extends StringCheckable {
 	action: 'CHECK_ENTITY_NAME';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	string: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_NAME';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -898,19 +936,12 @@ export class CHECK_ENTITY_NAME {
 		this.string = value;
 	}
 }
-export class CHECK_ENTITY_X {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_X';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_X';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -929,20 +960,16 @@ export class CHECK_ENTITY_X {
 	updateProp(value: number) {
 		this.expected_u2 = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_Y {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_Y';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_Y';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -961,20 +988,16 @@ export class CHECK_ENTITY_Y {
 	updateProp(value: number) {
 		this.expected_u2 = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_INTERACT_SCRIPT {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1003,19 +1026,12 @@ export class CHECK_ENTITY_INTERACT_SCRIPT {
 		this.expected_script = value;
 	}
 }
-export class CHECK_ENTITY_TICK_SCRIPT {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1044,19 +1060,12 @@ export class CHECK_ENTITY_TICK_SCRIPT {
 		this.expected_script = value;
 	}
 }
-export class CHECK_ENTITY_LOOK_SCRIPT {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_script: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1085,19 +1094,12 @@ export class CHECK_ENTITY_LOOK_SCRIPT {
 		this.expected_script = value;
 	}
 }
-export class CHECK_ENTITY_TYPE {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_TYPE extends StringCheckable {
 	action: 'CHECK_ENTITY_TYPE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	entity_type: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_TYPE';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1117,19 +1119,12 @@ export class CHECK_ENTITY_TYPE {
 		this.entity_type = value;
 	}
 }
-export class CHECK_ENTITY_PRIMARY_ID {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_PRIMARY_ID';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1157,20 +1152,16 @@ export class CHECK_ENTITY_PRIMARY_ID {
 	updateProp(value: number) {
 		this.expected_u2 = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_SECONDARY_ID {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_u2: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_SECONDARY_ID';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1198,20 +1189,16 @@ export class CHECK_ENTITY_SECONDARY_ID {
 	updateProp(value: number) {
 		this.expected_u2 = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_PRIMARY_ID_TYPE {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1239,20 +1226,16 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE {
 	updateProp(value: number) {
 		this.expected_byte = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_CURRENT_ANIMATION {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1280,20 +1263,17 @@ export class CHECK_ENTITY_CURRENT_ANIMATION {
 	updateProp(value: number) {
 		this.expected_byte = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_CURRENT_FRAME {
-	mathlang: 'number_checkable_equality';
+export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_CURRENT_FRAME';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'number_checkable_equality';
+		super();
 		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1321,20 +1301,16 @@ export class CHECK_ENTITY_CURRENT_FRAME {
 	updateProp(value: number) {
 		this.expected_byte = value;
 	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
 }
-export class CHECK_ENTITY_DIRECTION {
-	mathlang: 'bool_comparison';
+export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	action: 'CHECK_ENTITY_DIRECTION';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
 	direction: string; // north, south, east, west
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'bool_comparison';
+		super();
 		this.action = 'CHECK_ENTITY_DIRECTION';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1360,17 +1336,11 @@ export class CHECK_ENTITY_DIRECTION {
 		this.direction = value;
 	}
 }
-export class CHECK_ENTITY_GLITCHED {
-	mathlang: 'bool_getable';
+export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 	action: 'CHECK_ENTITY_GLITCHED';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	entity: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_ENTITY_GLITCHED';
 		if (args?.success_script) {
@@ -1393,19 +1363,12 @@ export class CHECK_ENTITY_GLITCHED {
 		);
 	}
 }
-export class CHECK_ENTITY_PATH {
-	mathlang: 'string_checkable';
+export class CHECK_ENTITY_PATH extends StringCheckable {
 	action: 'CHECK_ENTITY_PATH';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	geometry: string;
 	entity: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_ENTITY_PATH';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1425,18 +1388,11 @@ export class CHECK_ENTITY_PATH {
 		this.geometry = value;
 	}
 }
-export class CHECK_SAVE_FLAG {
-	mathlang: 'bool_getable';
+export class CHECK_SAVE_FLAG extends BoolGetable {
 	action: 'CHECK_SAVE_FLAG';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	value?: string;
-	jump_index?: number | string;
 	save_flag: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SAVE_FLAG';
 		if (args?.success_script) {
@@ -1453,18 +1409,12 @@ export class CHECK_SAVE_FLAG {
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_SAVE_FLAG expected_bool');
 	}
 }
-export class CHECK_IF_ENTITY_IS_IN_GEOMETRY {
-	mathlang: 'bool_getable';
+export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	geometry: string;
 	entity: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 		if (args?.success_script) {
@@ -1488,17 +1438,11 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY {
 		);
 	}
 }
-export class CHECK_FOR_BUTTON_PRESS {
-	mathlang: 'bool_getable';
+export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_PRESS';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	button_id: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
 		if (args?.success_script) {
@@ -1521,17 +1465,11 @@ export class CHECK_FOR_BUTTON_PRESS {
 		);
 	}
 }
-export class CHECK_FOR_BUTTON_STATE {
-	mathlang: 'bool_getable';
+export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_STATE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	button_id: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_STATE';
 		if (args?.success_script) {
@@ -1554,18 +1492,11 @@ export class CHECK_FOR_BUTTON_STATE {
 		);
 	}
 }
-export class CHECK_WARP_STATE {
-	mathlang: 'string_checkable';
+export class CHECK_WARP_STATE extends StringCheckable {
 	action: 'CHECK_WARP_STATE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	string: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'string_checkable';
+		super();
 		this.action = 'CHECK_WARP_STATE';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1584,20 +1515,13 @@ export class CHECK_WARP_STATE {
 		this.string = value;
 	}
 }
-export class CHECK_VARIABLE {
-	mathlang: 'bool_comparison';
+export class CHECK_VARIABLE extends NumberComparison {
 	action: 'CHECK_VARIABLE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	variable: string;
 	comparison: string;
 	value: number;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'bool_comparison';
+		super();
 		this.action = 'CHECK_VARIABLE';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1615,20 +1539,13 @@ export class CHECK_VARIABLE {
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_VARIABLE expected_bool');
 	}
 }
-export class CHECK_VARIABLES {
-	mathlang: 'bool_comparison';
+export class CHECK_VARIABLES extends NumberComparison {
 	action: 'CHECK_VARIABLES';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	variable: string;
 	comparison: string;
 	source: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
-		this.mathlang = 'bool_comparison';
+		super();
 		this.action = 'CHECK_VARIABLES';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1646,17 +1563,13 @@ export class CHECK_VARIABLES {
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_VARIABLES expected_bool');
 	}
 }
-export class CHECK_MAP {
+export class CHECK_MAP extends StringCheckable {
 	// TODO: is this even in the engine? O.o
 	action: 'CHECK_MAP';
-	debug?: MGSDebug;
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	map: string;
 	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'CHECK_MAP';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1671,17 +1584,15 @@ export class CHECK_MAP {
 		this.map = breakIfNotString(args?.map, 'CHECK_MAP map');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_MAP expected_bool');
 	}
+	updateProp(value: string) {
+		this.map = value;
+	}
 }
-export class CHECK_BLE_FLAG {
+export class CHECK_BLE_FLAG extends StringCheckable {
 	action: 'CHECK_BLE_FLAG';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
 	ble_flag: string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'CHECK_BLE_FLAG';
 		if (args?.success_script) {
 			this.success_script = breakIfNotString(
@@ -1696,17 +1607,14 @@ export class CHECK_BLE_FLAG {
 		this.ble_flag = breakIfNotString(args?.ble_flag, 'CHECK_BLE_FLAG ble_flag');
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_BLE_FLAG expected_bool');
 	}
+	updateProp(value: string) {
+		this.ble_flag = value;
+	}
 }
-export class CHECK_DIALOG_OPEN {
-	mathlang: 'bool_getable';
+export class CHECK_DIALOG_OPEN extends BoolGetable {
 	action: 'CHECK_DIALOG_OPEN';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DIALOG_OPEN';
 		if (args?.success_script) {
@@ -1722,16 +1630,10 @@ export class CHECK_DIALOG_OPEN {
 		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_DIALOG_OPEN expected_bool');
 	}
 }
-export class CHECK_SERIAL_DIALOG_OPEN {
-	mathlang: 'bool_getable';
+export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
 		if (args?.success_script) {
@@ -1753,16 +1655,10 @@ export class CHECK_SERIAL_DIALOG_OPEN {
 		);
 	}
 }
-export class CHECK_DEBUG_MODE {
-	mathlang: 'bool_getable';
+export class CHECK_DEBUG_MODE extends BoolGetable {
 	action: 'CHECK_DEBUG_MODE';
-	comment?: string;
-	debug?: MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DEBUG_MODE';
 		if (args?.success_script) {
@@ -1779,33 +1675,37 @@ export class CHECK_DEBUG_MODE {
 	}
 }
 export type CheckAction =
+	// StringCheckable
 	| CHECK_ENTITY_NAME
-	| CHECK_ENTITY_X
-	| CHECK_ENTITY_Y
 	| CHECK_ENTITY_INTERACT_SCRIPT
 	| CHECK_ENTITY_TICK_SCRIPT
 	| CHECK_ENTITY_LOOK_SCRIPT
 	| CHECK_ENTITY_TYPE
+	| CHECK_ENTITY_DIRECTION
+	| CHECK_ENTITY_PATH
+	| CHECK_WARP_STATE
+	| CHECK_BLE_FLAG
+	| CHECK_MAP
+	// NumberCheckableEquality
+	| CHECK_ENTITY_X
+	| CHECK_ENTITY_Y
 	| CHECK_ENTITY_PRIMARY_ID
 	| CHECK_ENTITY_SECONDARY_ID
 	| CHECK_ENTITY_PRIMARY_ID_TYPE
 	| CHECK_ENTITY_CURRENT_ANIMATION
 	| CHECK_ENTITY_CURRENT_FRAME
-	| CHECK_ENTITY_DIRECTION
+	// BoolGetable
 	| CHECK_ENTITY_GLITCHED
-	| CHECK_ENTITY_PATH
 	| CHECK_SAVE_FLAG
 	| CHECK_IF_ENTITY_IS_IN_GEOMETRY
 	| CHECK_FOR_BUTTON_PRESS
 	| CHECK_FOR_BUTTON_STATE
-	| CHECK_WARP_STATE
-	| CHECK_VARIABLE
-	| CHECK_VARIABLES
-	| CHECK_MAP
-	| CHECK_BLE_FLAG
 	| CHECK_DIALOG_OPEN
 	| CHECK_SERIAL_DIALOG_OPEN
-	| CHECK_DEBUG_MODE;
+	| CHECK_DEBUG_MODE
+	// NumberComparison
+	| CHECK_VARIABLE
+	| CHECK_VARIABLES;
 export const isCheckAction = (v: unknown): v is CheckAction => {
 	if ((v as CheckAction).action === 'CHECK_ENTITY_NAME') return true;
 	if ((v as CheckAction).action === 'CHECK_ENTITY_X') return true;

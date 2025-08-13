@@ -92,11 +92,9 @@ import {
 	CommentNode,
 	IntBinaryExpression,
 	type MGSMessage,
-	isDialog,
 	type BoolExpression,
 	SerialDialogDefinition,
 	isBoolExpression,
-	isBoolGetable,
 	isBoolComparison,
 	MathlangSequence,
 	ReturnStatement,
@@ -109,6 +107,8 @@ import {
 	DirectionTarget,
 	IntGetable,
 	SerialDialog,
+	BoolGetable,
+	Dialog,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -210,7 +210,7 @@ const actionSetBoolMaker = (
 		typeof _rhsBoolExp === 'string'
 			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
 			: _rhsBoolExp;
-	if (isBoolGetable(rhsBoolExp) || isBoolComparison(rhsBoolExp)) {
+	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
 			f,
 			rhsBoolExp.debug?.node || backupNode,
@@ -327,10 +327,6 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		spreads.forEach((actionInsideSpread, i) => {
 			const handled = handleFn(actionInsideSpread, f, node, i) as GenericActionish;
 			if (handled) {
-				// if (typeof handled.action === 'string' && constructors[handled.action]) {
-				// 	const constructed = constructors[handled.action](f, node, handled);
-				// 	spreads[i] = constructed;
-				// }
 				spreads[i] = handled;
 				return;
 			}
@@ -351,7 +347,9 @@ const actionFns: Record<string, ActionFn> = {
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		const shownDialog = new SHOW_DIALOG({ dialog: name });
 		if (dialogs.length) {
-			if (!dialogs.every(isDialog)) throw new Error('parsed dialogs not all of type Dialog');
+			if (!dialogs.every((v) => v instanceof Dialog)) {
+				throw new Error('parsed dialogs not all of type Dialog');
+			}
 			const dialogDefinition = new DialogDefinition(f, node, name, dialogs);
 			return [dialogDefinition, shownDialog];
 		}
@@ -1175,12 +1173,13 @@ const setFlagToFlag = (
 	source: string,
 	invert?: boolean,
 ): MathlangSequence => {
-	const action = setFlag(save_flag, true);
+	const actionIfTrue = setFlag(save_flag, true);
+	const actionIfFalse = setFlag(save_flag, false);
 	return simpleBranchMaker(
 		f,
 		node,
 		new CHECK_SAVE_FLAG({ save_flag: source, expected_bool: !invert }),
-		[{ ...action, bool_value: true }], // if true
-		[{ ...action, bool_value: false }], // if false
+		[actionIfTrue],
+		[actionIfFalse],
 	);
 };

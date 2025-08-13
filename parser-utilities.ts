@@ -1,22 +1,21 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { CHECK_SAVE_FLAG, getBoolFieldForAction, MGSDebug } from './parser-bytecode-info.ts';
+import { CHECK_SAVE_FLAG, MGSDebug } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	BoolBinaryExpression,
+	BoolGetable,
 	type MGSLocation,
 	type MGSMessage,
 	type BoolExpression,
 	isMathlangNode,
-	isBoolGetable,
 	isBoolComparison,
-	isStringCheckable,
-	isNumberCheckableEquality,
 	LabelDefinition,
 	MathlangSequence,
 	isBoolExpression,
 	type BoolComparison,
-	type BoolGetable,
 	GotoLabel,
+	StringCheckable,
+	NumberCheckableEquality,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -189,10 +188,10 @@ export const expandBoolExpression = (
 		return [new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true, label: ifLabel })];
 	}
 	if (
-		isBoolGetable(condition) ||
+		condition instanceof BoolGetable ||
 		isBoolComparison(condition) ||
-		isStringCheckable(condition) ||
-		isNumberCheckableEquality(condition)
+		condition instanceof StringCheckable ||
+		condition instanceof NumberCheckableEquality
 	) {
 		condition.label = ifLabel;
 		return [condition];
@@ -268,16 +267,13 @@ export const invertBoolExpression = (
 			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
 				throw new Error('|| or && for a number??');
 			}
-			const invertedLHS = invertBoolExpression(f, node, boolExp.lhs);
-			boolExp.lhs = invertedLHS;
-			const invertedRHS = invertBoolExpression(f, node, boolExp.rhs);
-			boolExp.rhs = invertedRHS;
+			boolExp.lhs = invertBoolExpression(f, node, boolExp.lhs);
+			boolExp.rhs = invertBoolExpression(f, node, boolExp.rhs);
 		}
 		boolExp.op = inverseOpMap[boolExp.op];
 		return boolExp;
 	}
-	const param = getBoolFieldForAction(boolExp.action);
-	boolExp[param] = !boolExp[param];
+	boolExp.invert();
 	return boolExp;
 };
 
@@ -293,7 +289,7 @@ export const simpleBranchMaker = (
 	const rendezvousLabel = `rendezvous #${n}`;
 
 	let top: AnyNode[] = [];
-	if (isBoolComparison(condition) || isBoolGetable(condition)) {
+	if (isBoolComparison(condition) || condition instanceof BoolGetable) {
 		condition.label = ifLabel;
 		top = [condition];
 	} else if (condition instanceof BoolBinaryExpression) {
@@ -328,18 +324,6 @@ export class ConditionalBlock {
 		this.body = handleNamedChildren(f, this.bodyNode);
 		this.debug = new MGSDebug(f, node);
 	}
-	// toString() {
-	// 	const bodyPrint = this.body.map(printAction);
-	// 	if (this.conditionNode) {
-	// 		const string = [
-	// 			`if (${this.conditionNode.text}) {`,
-	// 			...bodyPrint.map((v) => `\t${v}`),
-	// 			`}`,
-	// 		].join('\n');
-	// 		return string;
-	// 	}
-	// 	throw new Error('todo');
-	// }
 }
 
 export const newElse = (f: FileState, elseNode: TreeSitterNode | null): AnyNode[] => {
