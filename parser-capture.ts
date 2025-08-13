@@ -26,6 +26,9 @@ import {
 	CHECK_VARIABLES,
 	CHECK_WARP_STATE,
 	MGSDebug,
+	BoolGetable,
+	StringCheckable,
+	NumberCheckableEquality,
 } from './parser-bytecode-info.ts';
 import {
 	BoolBinaryExpression,
@@ -36,10 +39,7 @@ import {
 	IntBinaryExpression,
 	IntGetable,
 	MovableIdentifier,
-	NumberCheckableEquality,
 	SerialDialogParameter,
-	StringCheckable,
-	type BoolGetable,
 	type BoolComparison,
 	type BoolExpression,
 	isBoolExpression,

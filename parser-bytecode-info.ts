@@ -1,26 +1,117 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import {
-	GotoLabel,
-	LabelDefinition,
-	ReturnStatement,
-	CopyMacro,
-	StringCheckable,
-	BoolGetable,
-	NumberCheckableEquality,
-	NumberComparison,
-} from './parser-types.ts';
+import { LabelDefinition, ReturnStatement, CopyMacro } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
 
 // For intermediate data types and MGS-specific nodes
 export class MGSDebug {
 	node: TreeSitterNode;
+	f: FileState;
 	fileName: string;
 	comment?: string;
 	constructor(f: FileState, node: TreeSitterNode, comment?: string) {
+		this.f = f;
 		this.fileName = f.fileName;
 		this.node = node;
 		if (comment) this.comment = comment;
+	}
+}
+
+export class Action {
+	action: string;
+	debug?: MGSDebug;
+	clone() {
+		const fn = constructorLookup[this.action];
+		if (!fn) throw new Error('no action constructor for ' + this.action);
+		return fn({ ...this });
+	}
+}
+
+export class GotoLabel {
+	mathlang: 'goto_label';
+	label: string;
+	debug: MGSDebug;
+	comment?: string;
+	constructor(f: FileState, node: TreeSitterNode, label: unknown, comment?: string) {
+		this.mathlang = 'goto_label';
+		this.label = breakIfNotString(label, 'GotoLabel label');
+		this.debug = new MGSDebug(f, node);
+		if (comment) this.comment = comment;
+	}
+	clone(prev: GotoLabel) {
+		return new GotoLabel(prev.debug.f, prev.debug.node, prev.label, prev.comment);
+	}
+}
+
+// ---------------------------------- SUPER TYPES ---------------------------------- \\
+
+export class BoolGetable extends Action {
+	mathlang: 'bool_getable';
+	debug?: MGSDebug;
+	comment?: string;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+}
+export class StringCheckable extends Action {
+	mathlang: 'string_checkable';
+	debug?: MGSDebug;
+	comment?: string;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		super();
+		this.expected_bool = true;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+	// updateProp(_prop: string) {}
+}
+export class NumberComparison extends Action {
+	mathlang: 'number_comparison';
+	debug?: MGSDebug;
+	comment?: string;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		super();
+		this.expected_bool = true;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+	updateProp(prop: boolean) {
+		// to make squiggles go away; not used
+		this.expected_bool = prop;
+	}
+}
+export class NumberCheckableEquality extends Action {
+	mathlang: 'number_checkable_equality';
+	comment?: string;
+	debug?: MGSDebug;
+	success_script?: string;
+	label?: string;
+	jump_index?: number | string;
+	expected_bool: boolean;
+	constructor() {
+		super();
+		this.mathlang = 'number_checkable_equality';
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+	}
+	updateProp(prop: string | number) {
+		// to make squiggles go away; not used
+		this.jump_index = prop;
 	}
 }
 
@@ -30,144 +121,158 @@ export class MGSDebug {
 // No need to keep tree sitter nodes around, perhaps?
 
 // not in encoder, but in old-style output
-export class NULL_ACTION {
+export class NULL_ACTION extends Action {
 	action: 'NULL_ACTION';
 	debug?: MGSDebug;
 	constructor() {
+		super();
 		this.action = 'NULL_ACTION';
 	}
 }
-export class LABEL {
+export class LABEL extends Action {
 	action: 'LABEL';
 	debug?: MGSDebug;
 	value: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'LABEL';
 		this.value = breakIfNotString(args?.value, 'LABEL value');
 	}
 }
-export class RUN_SCRIPT {
+export class RUN_SCRIPT extends Action {
 	action: 'RUN_SCRIPT';
 	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'RUN_SCRIPT';
 		this.script = breakIfNotString(args?.script, 'RUN_SCRIPT script');
 	}
 }
-export class BLOCKING_DELAY {
+export class BLOCKING_DELAY extends Action {
 	action: 'BLOCKING_DELAY';
 	debug?: MGSDebug;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args?.duration, 'BLOCKING_DELAY duration');
 	}
 }
-export class NON_BLOCKING_DELAY {
+export class NON_BLOCKING_DELAY extends Action {
 	action: 'NON_BLOCKING_DELAY';
 	debug?: MGSDebug;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'NON_BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args?.duration, 'NON_BLOCKING_DELAY duration');
 	}
 }
 
-export class SET_ENTITY_NAME {
+export class SET_ENTITY_NAME extends Action {
 	action: 'SET_ENTITY_NAME';
 	debug?: MGSDebug;
 	entity: string;
 	string: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_NAME';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_NAME entity');
 		this.string = breakIfNotString(args?.string, 'SET_ENTITY_NAME string');
 	}
 }
-export class SET_ENTITY_X {
+export class SET_ENTITY_X extends Action {
 	action: 'SET_ENTITY_X';
 	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_X';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_X entity');
 		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_X u2_value');
 	}
 }
-export class SET_ENTITY_Y {
+export class SET_ENTITY_Y extends Action {
 	action: 'SET_ENTITY_Y';
 	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_Y';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_Y entity');
 		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_Y u2_value');
 	}
 }
-export class SET_ENTITY_INTERACT_SCRIPT {
+export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 	action: 'SET_ENTITY_INTERACT_SCRIPT';
 	debug?: MGSDebug;
 	entity: string;
 	script: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_INTERACT_SCRIPT';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_INTERACT_SCRIPT entity');
 		this.script = breakIfNotString(args?.script, 'SET_ENTITY_INTERACT_SCRIPT script');
 	}
 }
-export class SET_ENTITY_TICK_SCRIPT {
+export class SET_ENTITY_TICK_SCRIPT extends Action {
 	action: 'SET_ENTITY_TICK_SCRIPT';
 	debug?: MGSDebug;
 	entity: string;
 	script: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_TICK_SCRIPT';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_TICK_SCRIPT entity');
 		this.script = breakIfNotString(args?.script, 'SET_ENTITY_TICK_SCRIPT script');
 	}
 }
-export class SET_ENTITY_TYPE {
+export class SET_ENTITY_TYPE extends Action {
 	action: 'SET_ENTITY_TYPE';
 	debug?: MGSDebug;
 	entity: string;
 	entity_type: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_TYPE';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_TYPE entity');
 		this.entity_type = breakIfNotString(args?.entity_type, 'SET_ENTITY_TYPE entity_type');
 	}
 }
-export class SET_ENTITY_PRIMARY_ID {
+export class SET_ENTITY_PRIMARY_ID extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID';
 	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PRIMARY_ID entity');
 		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_PRIMARY_ID u2_value');
 	}
 }
-export class SET_ENTITY_SECONDARY_ID {
+export class SET_ENTITY_SECONDARY_ID extends Action {
 	action: 'SET_ENTITY_SECONDARY_ID';
 	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_SECONDARY_ID';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_SECONDARY_ID entity');
 		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_SECONDARY_ID u2_value');
 	}
 }
-export class SET_ENTITY_PRIMARY_ID_TYPE {
+export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID_TYPE';
 	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PRIMARY_ID_TYPE entity');
 		this.byte_value = breakIfNotNumber(
@@ -176,12 +281,13 @@ export class SET_ENTITY_PRIMARY_ID_TYPE {
 		);
 	}
 }
-export class SET_ENTITY_CURRENT_ANIMATION {
+export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 	action: 'SET_ENTITY_CURRENT_ANIMATION';
 	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_CURRENT_ANIMATION';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_CURRENT_ANIMATION entity');
 		this.byte_value = breakIfNotNumber(
@@ -190,23 +296,25 @@ export class SET_ENTITY_CURRENT_ANIMATION {
 		);
 	}
 }
-export class SET_ENTITY_CURRENT_FRAME {
+export class SET_ENTITY_CURRENT_FRAME extends Action {
 	action: 'SET_ENTITY_CURRENT_FRAME';
 	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_CURRENT_FRAME';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_CURRENT_FRAME entity');
 		this.byte_value = breakIfNotNumber(args?.byte_value, 'SET_ENTITY_CURRENT_FRAME byte_value');
 	}
 }
-export class SET_ENTITY_DIRECTION_RELATIVE {
+export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 	action: 'SET_ENTITY_DIRECTION_RELATIVE';
 	debug?: MGSDebug;
 	entity: string;
 	relative_direction: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_DIRECTION_RELATIVE';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_RELATIVE entity');
 		this.relative_direction = breakIfNotNumber(
@@ -216,24 +324,26 @@ export class SET_ENTITY_DIRECTION_RELATIVE {
 	}
 }
 // TODO: where is this one utilized??
-export class SET_ENTITY_DIRECTION {
+export class SET_ENTITY_DIRECTION extends Action {
 	action: 'SET_ENTITY_DIRECTION';
 	debug?: MGSDebug;
 	entity: string;
 	direction: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_DIRECTION';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION entity');
 		this.direction = breakIfNotString(args?.direction, 'SET_ENTITY_DIRECTION direction');
 	}
 }
 // TODO: where is this one utilized??
-export class SET_ENTITY_DIRECTION_TARGET_ENTITY {
+export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 	debug?: MGSDebug;
 	entity: string;
 	target_entity: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_TARGET_ENTITY entity');
 		this.target_entity = breakIfNotString(
@@ -243,12 +353,13 @@ export class SET_ENTITY_DIRECTION_TARGET_ENTITY {
 	}
 }
 // TODO: where is this one utilized??
-export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY {
+export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 	debug?: MGSDebug;
 	entity: string;
 	target_geometry: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY entity');
 		this.target_geometry = breakIfNotString(
@@ -257,12 +368,13 @@ export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY {
 		);
 	}
 }
-export class SET_ENTITY_GLITCHED {
+export class SET_ENTITY_GLITCHED extends Action {
 	action: 'SET_ENTITY_GLITCHED';
 	debug?: MGSDebug;
 	entity: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_GLITCHED';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_GLITCHED entity');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_ENTITY_GLITCHED bool_value');
@@ -271,32 +383,45 @@ export class SET_ENTITY_GLITCHED {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_ENTITY_PATH {
+export class SET_ENTITY_PATH extends Action {
 	action: 'SET_ENTITY_PATH';
 	debug?: MGSDebug;
 	entity: string;
 	geometry: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_PATH';
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PATH entity');
 		this.geometry = breakIfNotString(args?.geometry, 'SET_ENTITY_PATH geometry');
 	}
 }
 
-// add constructors
-export class COPY_SCRIPT {
+export class COPY_SCRIPT extends Action {
 	action: 'COPY_SCRIPT';
 	debug?: MGSDebug;
 	script: string;
 	search_and_replace?: Record<string, string>;
+	constructor(args: GenericActionish) {
+		super();
+		this.action = 'COPY_SCRIPT';
+		this.script = breakIfNotString(args?.script, 'COPY_SCRIPT script');
+		if (args.search_and_replace) {
+			const search_and_replace = {};
+			Object.entries(args.search_and_replace).forEach(([k, v]) => {
+				if (typeof k === 'string' && typeof v === 'string') search_and_replace[k] = v;
+			});
+			this.search_and_replace = search_and_replace;
+		}
+	}
 }
 
-export class SET_SAVE_FLAG {
+export class SET_SAVE_FLAG extends Action {
 	action: 'SET_SAVE_FLAG';
 	debug?: MGSDebug;
 	save_flag: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_SAVE_FLAG';
 		this.save_flag = breakIfNotString(args?.save_flag, 'SET_SAVE_FLAG save_flag');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SAVE_FLAG bool_value');
@@ -305,11 +430,12 @@ export class SET_SAVE_FLAG {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_PLAYER_CONTROL {
+export class SET_PLAYER_CONTROL extends Action {
 	action: 'SET_PLAYER_CONTROL';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_PLAYER_CONTROL';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_PLAYER_CONTROL bool_value');
 	}
@@ -317,38 +443,42 @@ export class SET_PLAYER_CONTROL {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_MAP_TICK_SCRIPT {
+export class SET_MAP_TICK_SCRIPT extends Action {
 	action: 'SET_MAP_TICK_SCRIPT';
 	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_MAP_TICK_SCRIPT';
 		this.script = breakIfNotString(args?.script, 'SET_MAP_TICK_SCRIPT script');
 	}
 }
-export class SET_HEX_CURSOR_LOCATION {
+export class SET_HEX_CURSOR_LOCATION extends Action {
 	action: 'SET_HEX_CURSOR_LOCATION';
 	debug?: MGSDebug;
 	address: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_HEX_CURSOR_LOCATION';
 		this.address = breakIfNotNumber(args?.address, 'SET_HEX_CURSOR_LOCATION address');
 	}
 }
-export class SET_WARP_STATE {
+export class SET_WARP_STATE extends Action {
 	action: 'SET_WARP_STATE';
 	debug?: MGSDebug;
 	string: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_WARP_STATE';
 		this.string = breakIfNotString(args?.string, 'SET_WARP_STATE string');
 	}
 }
-export class SET_HEX_EDITOR_STATE {
+export class SET_HEX_EDITOR_STATE extends Action {
 	action: 'SET_HEX_EDITOR_STATE';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_HEX_EDITOR_STATE';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_STATE bool_value');
 	}
@@ -356,11 +486,12 @@ export class SET_HEX_EDITOR_STATE {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_HEX_EDITOR_DIALOG_MODE {
+export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_HEX_EDITOR_DIALOG_MODE';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_DIALOG_MODE bool_value');
 	}
@@ -368,20 +499,22 @@ export class SET_HEX_EDITOR_DIALOG_MODE {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_HEX_EDITOR_CONTROL {
+export class SET_HEX_EDITOR_CONTROL extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_CONTROL bool_value');
 	}
 }
-export class SET_HEX_EDITOR_CONTROL_CLIPBOARD {
+export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
 		this.bool_value = breakIfNotBool(
 			args?.bool_value,
@@ -392,213 +525,231 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class LOAD_MAP {
+export class LOAD_MAP extends Action {
 	action: 'LOAD_MAP';
 	debug?: MGSDebug;
 	map: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'LOAD_MAP';
 		this.map = breakIfNotString(args?.map, 'LOAD_MAP map');
 	}
 }
-export class SHOW_DIALOG {
+export class SHOW_DIALOG extends Action {
 	action: 'SHOW_DIALOG';
 	debug?: MGSDebug;
 	dialog: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SHOW_DIALOG';
 		this.dialog = breakIfNotString(args?.dialog, 'SHOW_DIALOG dialog');
 	}
 }
-export class PLAY_ENTITY_ANIMATION {
+export class PLAY_ENTITY_ANIMATION extends Action {
 	action: 'PLAY_ENTITY_ANIMATION';
 	debug?: MGSDebug;
 	entity: string;
 	animation: number;
 	play_count: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'PLAY_ENTITY_ANIMATION';
 		this.entity = breakIfNotString(args?.entity, 'PLAY_ENTITY_ANIMATION entity');
 		this.animation = breakIfNotNumber(args?.animation, 'PLAY_ENTITY_ANIMATION animation');
 		this.play_count = breakIfNotNumber(args?.play_count, 'PLAY_ENTITY_ANIMATION play_count');
 	}
 }
-export class TELEPORT_ENTITY_TO_GEOMETRY {
+export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_ENTITY_TO_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'TELEPORT_ENTITY_TO_GEOMETRY';
 		this.entity = breakIfNotString(args?.entity, 'TELEPORT_ENTITY_TO_GEOMETRY entity');
 		this.geometry = breakIfNotString(args?.geometry, 'TELEPORT_ENTITY_TO_GEOMETRY geometry');
 	}
 }
-export class WALK_ENTITY_TO_GEOMETRY {
+export class WALK_ENTITY_TO_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_TO_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'WALK_ENTITY_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'WALK_ENTITY_TO_GEOMETRY geometry');
 		this.entity = breakIfNotString(args?.entity, 'WALK_ENTITY_TO_GEOMETRY entity');
 		this.duration = breakIfNotNumber(args?.duration, 'WALK_ENTITY_TO_GEOMETRY duration');
 	}
 }
-export class WALK_ENTITY_ALONG_GEOMETRY {
+export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_ALONG_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'WALK_ENTITY_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'WALK_ENTITY_ALONG_GEOMETRY geometry');
 		this.entity = breakIfNotString(args?.entity, 'WALK_ENTITY_ALONG_GEOMETRY entity');
 		this.duration = breakIfNotNumber(args?.duration, 'WALK_ENTITY_ALONG_GEOMETRY duration');
 	}
 }
-export class LOOP_ENTITY_ALONG_GEOMETRY {
+export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_ENTITY_ALONG_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'LOOP_ENTITY_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'LOOP_ENTITY_ALONG_GEOMETRY geometry');
 		this.entity = breakIfNotString(args?.entity, 'LOOP_ENTITY_ALONG_GEOMETRY entity');
 		this.duration = breakIfNotNumber(args?.duration, 'LOOP_ENTITY_ALONG_GEOMETRY duration');
 	}
 }
-export class SET_CAMERA_TO_FOLLOW_ENTITY {
+export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	action: 'SET_CAMERA_TO_FOLLOW_ENTITY';
 	debug?: MGSDebug;
 	entity: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_CAMERA_TO_FOLLOW_ENTITY';
 		this.entity = breakIfNotString(args?.entity, 'SET_CAMERA_TO_FOLLOW_ENTITY entity');
 	}
 }
-export class TELEPORT_CAMERA_TO_GEOMETRY {
+export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_CAMERA_TO_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'TELEPORT_CAMERA_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'TELEPORT_CAMERA_TO_GEOMETRY geometry');
 	}
 }
-export class PAN_CAMERA_TO_ENTITY {
+export class PAN_CAMERA_TO_ENTITY extends Action {
 	action: 'PAN_CAMERA_TO_ENTITY';
 	debug?: MGSDebug;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'PAN_CAMERA_TO_ENTITY';
 		this.entity = breakIfNotString(args?.entity, 'PAN_CAMERA_TO_ENTITY entity');
 		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_TO_ENTITY duration');
 	}
 }
-export class PAN_CAMERA_TO_GEOMETRY {
+export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_TO_GEOMETRY';
 	debug?: MGSDebug;
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'PAN_CAMERA_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'PAN_CAMERA_TO_GEOMETRY geometry');
 		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_TO_GEOMETRY entidurationty');
 	}
 }
-export class PAN_CAMERA_ALONG_GEOMETRY {
+export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_ALONG_GEOMETRY';
 	debug?: MGSDebug;
 	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'PAN_CAMERA_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'PAN_CAMERA_ALONG_GEOMETRY geometry');
 		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_ALONG_GEOMETRY duration');
 	}
 }
-export class LOOP_CAMERA_ALONG_GEOMETRY {
+export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_CAMERA_ALONG_GEOMETRY';
 	debug?: MGSDebug;
 	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args?.geometry, 'LOOP_CAMERA_ALONG_GEOMETRY geometry');
 		this.duration = breakIfNotNumber(args?.duration, 'LOOP_CAMERA_ALONG_GEOMETRY duration');
 	}
 }
-export class SET_SCREEN_SHAKE {
+export class SET_SCREEN_SHAKE extends Action {
 	action: 'SET_SCREEN_SHAKE';
 	debug?: MGSDebug;
 	duration: number;
 	frequency: number;
 	amplitude: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_SCREEN_SHAKE';
 		this.duration = breakIfNotNumber(args?.duration, 'SET_SCREEN_SHAKE duration');
 		this.frequency = breakIfNotNumber(args?.frequency, 'SET_SCREEN_SHAKE frequency');
 		this.amplitude = breakIfNotNumber(args?.amplitude, 'SET_SCREEN_SHAKE amplitude');
 	}
 }
-export class SCREEN_FADE_OUT {
+export class SCREEN_FADE_OUT extends Action {
 	action: 'SCREEN_FADE_OUT';
 	debug?: MGSDebug;
 	duration: number;
 	color: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SCREEN_FADE_OUT';
 		this.duration = breakIfNotNumber(args?.duration, 'SCREEN_FADE_OUT duration');
 		this.color = breakIfNotString(args?.color, 'SCREEN_FADE_OUT color');
 	}
 }
-export class SCREEN_FADE_IN {
+export class SCREEN_FADE_IN extends Action {
 	action: 'SCREEN_FADE_IN';
 	debug?: MGSDebug;
 	duration: number;
 	color: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SCREEN_FADE_IN';
 		this.duration = breakIfNotNumber(args?.duration, 'SCREEN_FADE_IN duration');
 		this.color = breakIfNotString(args?.color, 'SCREEN_FADE_IN color');
 	}
 }
-export class MUTATE_VARIABLE {
+export class MUTATE_VARIABLE extends Action {
 	action: 'MUTATE_VARIABLE';
 	debug?: MGSDebug;
 	variable: string;
 	operation: string;
 	value: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'MUTATE_VARIABLE';
 		this.variable = breakIfNotString(args?.variable, 'MUTATE_VARIABLE variable');
 		this.operation = breakIfNotString(args?.operation, 'MUTATE_VARIABLE operation');
 		this.value = breakIfNotNumber(args?.value, 'MUTATE_VARIABLE value');
 	}
 }
-export class MUTATE_VARIABLES {
+export class MUTATE_VARIABLES extends Action {
 	action: 'MUTATE_VARIABLES';
 	debug?: MGSDebug;
 	variable: string;
 	operation: string;
 	source: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'MUTATE_VARIABLES';
 		this.variable = breakIfNotString(args?.variable, 'MUTATE_VARIABLES variable');
 		this.operation = breakIfNotString(args?.operation, 'MUTATE_VARIABLES operation');
 		this.source = breakIfNotString(args?.source, 'MUTATE_VARIABLES source');
 	}
 }
-export class COPY_VARIABLE {
+export class COPY_VARIABLE extends Action {
 	action: 'COPY_VARIABLE';
 	debug?: MGSDebug;
 	variable: string;
@@ -606,6 +757,7 @@ export class COPY_VARIABLE {
 	field: string;
 	inbound: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'COPY_VARIABLE';
 		this.variable = breakIfNotString(args?.variable, 'COPY_VARIABLE variable');
 		this.entity = breakIfNotString(args?.entity, 'COPY_VARIABLE entity');
@@ -613,36 +765,40 @@ export class COPY_VARIABLE {
 		this.inbound = breakIfNotBool(args?.inbound, 'COPY_VARIABLE inbound');
 	}
 }
-export class SLOT_SAVE {
+export class SLOT_SAVE extends Action {
 	action: 'SLOT_SAVE';
 	debug?: MGSDebug;
 	constructor() {
+		super();
 		this.action = 'SLOT_SAVE';
 	}
 }
-export class SLOT_LOAD {
+export class SLOT_LOAD extends Action {
 	action: 'SLOT_LOAD';
 	debug?: MGSDebug;
 	slot: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SLOT_LOAD';
 		this.slot = breakIfNotNumber(args?.slot, 'SLOT_LOAD slot');
 	}
 }
-export class SLOT_ERASE {
+export class SLOT_ERASE extends Action {
 	action: 'SLOT_ERASE';
 	debug?: MGSDebug;
 	slot: number;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SLOT_ERASE';
 		this.slot = breakIfNotNumber(args?.slot, 'SLOT_ERASE slot');
 	}
 }
-export class SET_CONNECT_SERIAL_DIALOG {
+export class SET_CONNECT_SERIAL_DIALOG extends Action {
 	action: 'SET_CONNECT_SERIAL_DIALOG';
 	debug?: MGSDebug;
 	serial_dialog: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_CONNECT_SERIAL_DIALOG';
 		this.serial_dialog = breakIfNotString(
 			args?.serial_dialog,
@@ -650,12 +806,13 @@ export class SET_CONNECT_SERIAL_DIALOG {
 		);
 	}
 }
-export class SHOW_SERIAL_DIALOG {
+export class SHOW_SERIAL_DIALOG extends Action {
 	action: 'SHOW_SERIAL_DIALOG';
 	debug?: MGSDebug;
 	serial_dialog: string;
 	disable_newline?: boolean; // might be absent on old stuff
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SHOW_SERIAL_DIALOG';
 		this.serial_dialog = breakIfNotString(
 			args?.serial_dialog,
@@ -666,31 +823,34 @@ export class SHOW_SERIAL_DIALOG {
 		}
 	}
 }
-export class SET_MAP_LOOK_SCRIPT {
+export class SET_MAP_LOOK_SCRIPT extends Action {
 	action: 'SET_MAP_LOOK_SCRIPT';
 	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_MAP_LOOK_SCRIPT';
 		this.script = breakIfNotString(args?.script, 'SET_MAP_LOOK_SCRIPT script');
 	}
 }
-export class SET_ENTITY_LOOK_SCRIPT {
+export class SET_ENTITY_LOOK_SCRIPT extends Action {
 	action: 'SET_ENTITY_LOOK_SCRIPT';
 	debug?: MGSDebug;
 	script: string;
 	entity: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_LOOK_SCRIPT';
 		this.script = breakIfNotString(args?.script, 'SET_ENTITY_LOOK_SCRIPT script');
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_LOOK_SCRIPT entity');
 	}
 }
-export class SET_TELEPORT_ENABLED {
+export class SET_TELEPORT_ENABLED extends Action {
 	action: 'SET_TELEPORT_ENABLED';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_TELEPORT_ENABLED';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_TELEPORT_ENABLED bool_value');
 	}
@@ -698,12 +858,13 @@ export class SET_TELEPORT_ENABLED {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_BLE_FLAG {
+export class SET_BLE_FLAG extends Action {
 	action: 'SET_BLE_FLAG';
 	debug?: MGSDebug;
 	ble_flag: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_BLE_FLAG';
 		this.ble_flag = breakIfNotString(args?.ble_flag, 'SET_BLE_FLAG ble_flag');
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_BLE_FLAG bool_value');
@@ -712,11 +873,12 @@ export class SET_BLE_FLAG {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class SET_SERIAL_DIALOG_CONTROL {
+export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	action: 'SET_SERIAL_DIALOG_CONTROL';
 	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_SERIAL_DIALOG_CONTROL';
 		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SERIAL_DIALOG_CONTROL bool_value');
 	}
@@ -724,26 +886,28 @@ export class SET_SERIAL_DIALOG_CONTROL {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class REGISTER_SERIAL_DIALOG_COMMAND {
+export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND';
 	debug?: MGSDebug;
 	command: string;
 	script: string;
 	is_fail?: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND';
 		this.command = breakIfNotString(args?.command, 'REGISTER_SERIAL_DIALOG_COMMAND command');
 		this.script = breakIfNotString(args?.script, 'REGISTER_SERIAL_DIALOG_COMMAND script');
 		if (args.is_fail) this.is_fail = true;
 	}
 }
-export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT {
+export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 	debug?: MGSDebug;
 	command: string;
 	script: string;
 	argument: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 		this.command = breakIfNotString(
 			args?.command,
@@ -759,12 +923,13 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT {
 		);
 	}
 }
-export class UNREGISTER_SERIAL_DIALOG_COMMAND {
+export class UNREGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND';
 	debug?: MGSDebug;
 	command: string;
 	is_fail?: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND';
 		this.command = breakIfNotString(args?.command, 'UNREGISTER_SERIAL_DIALOG_COMMAND command');
 		if (args.is_fail !== undefined) {
@@ -772,12 +937,13 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND {
 		}
 	}
 }
-export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT {
+export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 	debug?: MGSDebug;
 	command: string;
 	argument: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 		this.command = breakIfNotString(args?.command, 'UNREGISTER_SERIAL_DIALOG_COMMAND command');
 		this.argument = breakIfNotString(
@@ -786,12 +952,13 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT {
 		);
 	}
 }
-export class SET_ENTITY_MOVEMENT_RELATIVE {
+export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
 	action: 'SET_ENTITY_MOVEMENT_RELATIVE';
 	debug?: MGSDebug;
 	relative_direction: number;
 	entity: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
 		this.relative_direction = breakIfNotNumber(
 			args?.relative_direction,
@@ -800,25 +967,28 @@ export class SET_ENTITY_MOVEMENT_RELATIVE {
 		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_MOVEMENT_RELATIVE entity');
 	}
 }
-export class CLOSE_DIALOG {
+export class CLOSE_DIALOG extends Action {
 	action: 'CLOSE_DIALOG';
 	debug?: MGSDebug;
 	constructor() {
+		super();
 		this.action = 'CLOSE_DIALOG';
 	}
 }
-export class CLOSE_SERIAL_DIALOG {
+export class CLOSE_SERIAL_DIALOG extends Action {
 	action: 'CLOSE_SERIAL_DIALOG';
 	debug?: MGSDebug;
 	constructor() {
+		super();
 		this.action = 'CLOSE_SERIAL_DIALOG';
 	}
 }
-export class SET_LIGHTS_CONTROL {
+export class SET_LIGHTS_CONTROL extends Action {
 	action: 'SET_LIGHTS_CONTROL';
 	debug?: MGSDebug;
 	enabled: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_LIGHTS_CONTROL';
 		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_CONTROL enabled');
 	}
@@ -826,12 +996,13 @@ export class SET_LIGHTS_CONTROL {
 		this.enabled = !this.enabled;
 	}
 }
-export class SET_LIGHTS_STATE {
+export class SET_LIGHTS_STATE extends Action {
 	action: 'SET_LIGHTS_STATE';
 	debug?: MGSDebug;
 	lights: string | string[];
 	enabled: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_LIGHTS_STATE';
 		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_STATE enabled');
 		this.lights = breakIfNotStringOrStringArray(args?.lights, 'SET_LIGHTS_STATE lights');
@@ -840,11 +1011,12 @@ export class SET_LIGHTS_STATE {
 		this.enabled = !this.enabled;
 	}
 }
-export class GOTO_ACTION_INDEX {
+export class GOTO_ACTION_INDEX extends Action {
 	action: 'GOTO_ACTION_INDEX';
 	debug?: MGSDebug;
 	action_index: number | string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'GOTO_ACTION_INDEX';
 		this.action_index = breakIfNotStringOrNumber(
 			args?.action_index,
@@ -852,13 +1024,14 @@ export class GOTO_ACTION_INDEX {
 		);
 	}
 }
-export class SET_SCRIPT_PAUSE {
+export class SET_SCRIPT_PAUSE extends Action {
 	action: 'SET_SCRIPT_PAUSE';
 	debug?: MGSDebug;
 	entity: string;
 	script_slot: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_SCRIPT_PAUSE';
 		this.entity = breakIfNotString(args?.entity, 'SET_SCRIPT_PAUSE entity');
 		this.script_slot = breakIfNotString(args?.script_slot, 'SET_SCRIPT_PAUSE script_slot');
@@ -868,12 +1041,13 @@ export class SET_SCRIPT_PAUSE {
 		this.bool_value = !this.bool_value;
 	}
 }
-export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS {
+export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 	debug?: MGSDebug;
 	command: string;
 	alias: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 		this.command = breakIfNotString(
 			args?.command,
@@ -882,21 +1056,23 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS {
 		this.alias = breakIfNotString(args?.alias, 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS alias');
 	}
 }
-export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS {
+export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 	debug?: MGSDebug;
 	alias: string;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 		this.alias = breakIfNotString(args?.alias, 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS alias');
 	}
 }
-export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY {
+export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 	action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
 	debug?: MGSDebug;
 	command: string;
 	is_visible: boolean;
 	constructor(args: GenericActionish) {
+		super();
 		this.action = 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
 		this.command = breakIfNotString(
 			args?.command,
@@ -1707,6 +1883,10 @@ export type CheckAction =
 	| CHECK_VARIABLE
 	| CHECK_VARIABLES;
 export const isCheckAction = (v: unknown): v is CheckAction => {
+	// if (v instanceof StringCheckable) return true;
+	// if (v instanceof NumberCheckableEquality) return true;
+	// if (v instanceof BoolGetable) return true;
+	// if (v instanceof NumberComparison) return true;
 	if ((v as CheckAction).action === 'CHECK_ENTITY_NAME') return true;
 	if ((v as CheckAction).action === 'CHECK_ENTITY_X') return true;
 	if ((v as CheckAction).action === 'CHECK_ENTITY_Y') return true;
@@ -1737,51 +1917,51 @@ export const isCheckAction = (v: unknown): v is CheckAction => {
 	return false;
 };
 
-// Super union type
-export type Action =
-	| CheckAction
-	| ActionSetEntityString
-	| ActionSetEntityInt
-	| ActionSetDirection
-	| ActionSetBool
-	| ActionSetPosition
-	| ActionMoveOverTime
-	| ActionSetScript
-	| NULL_ACTION
-	| LABEL // for old-style parser
-	| RUN_SCRIPT
-	| COPY_SCRIPT
-	| BLOCKING_DELAY
-	| NON_BLOCKING_DELAY
-	| SET_HEX_CURSOR_LOCATION
-	| SET_WARP_STATE
-	| LOAD_MAP
-	| SHOW_DIALOG
-	| PLAY_ENTITY_ANIMATION
-	| SET_SCREEN_SHAKE
-	| SCREEN_FADE_OUT
-	| SCREEN_FADE_IN
-	| MUTATE_VARIABLE
-	| MUTATE_VARIABLES
-	| COPY_VARIABLE
-	| SLOT_SAVE
-	| SLOT_LOAD
-	| SLOT_ERASE
-	| SET_CONNECT_SERIAL_DIALOG
-	| SHOW_SERIAL_DIALOG
-	| SET_TELEPORT_ENABLED
-	| SET_BLE_FLAG
-	| REGISTER_SERIAL_DIALOG_COMMAND
-	| REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-	| UNREGISTER_SERIAL_DIALOG_COMMAND
-	| UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-	| CLOSE_DIALOG
-	| CLOSE_SERIAL_DIALOG
-	| GOTO_ACTION_INDEX
-	| SET_SCRIPT_PAUSE
-	| REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
-	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
-	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
+// // Super union type
+// export type Action =
+// 	| CheckAction
+// 	| ActionSetEntityString
+// 	| ActionSetEntityInt
+// 	| ActionSetDirection
+// 	| ActionSetBool
+// 	| ActionSetPosition
+// 	| ActionMoveOverTime
+// 	| ActionSetScript
+// 	| NULL_ACTION
+// 	| LABEL // for old-style parser
+// 	| RUN_SCRIPT
+// 	| COPY_SCRIPT
+// 	| BLOCKING_DELAY
+// 	| NON_BLOCKING_DELAY
+// 	| SET_HEX_CURSOR_LOCATION
+// 	| SET_WARP_STATE
+// 	| LOAD_MAP
+// 	| SHOW_DIALOG
+// 	| PLAY_ENTITY_ANIMATION
+// 	| SET_SCREEN_SHAKE
+// 	| SCREEN_FADE_OUT
+// 	| SCREEN_FADE_IN
+// 	| MUTATE_VARIABLE
+// 	| MUTATE_VARIABLES
+// 	| COPY_VARIABLE
+// 	| SLOT_SAVE
+// 	| SLOT_LOAD
+// 	| SLOT_ERASE
+// 	| SET_CONNECT_SERIAL_DIALOG
+// 	| SHOW_SERIAL_DIALOG
+// 	| SET_TELEPORT_ENABLED
+// 	| SET_BLE_FLAG
+// 	| REGISTER_SERIAL_DIALOG_COMMAND
+// 	| REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
+// 	| UNREGISTER_SERIAL_DIALOG_COMMAND
+// 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
+// 	| CLOSE_DIALOG
+// 	| CLOSE_SERIAL_DIALOG
+// 	| GOTO_ACTION_INDEX
+// 	| SET_SCRIPT_PAUSE
+// 	| REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
+// 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
+// 	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
 
 export type ActionSetEntityInt =
 	| SET_ENTITY_X
@@ -2004,6 +2184,7 @@ const breakIfNotBool = (v: unknown, label: string): boolean => {
 
 const constructorLookup = {
 	NULL_ACTION: () => new NULL_ACTION(),
+	COPY_SCRIPT: (args: GenericActionish) => new COPY_SCRIPT(args),
 	LABEL: (args: GenericActionish) => new LABEL(args),
 	RUN_SCRIPT: (args: GenericActionish) => new RUN_SCRIPT(args),
 	BLOCKING_DELAY: (args: GenericActionish) => new BLOCKING_DELAY(args),
@@ -2140,17 +2321,26 @@ const constructorLookup = {
 	CHECK_DEBUG_MODE: (args: GenericActionish) => new CHECK_DEBUG_MODE(args),
 };
 
+export const standardizeAction = (v: unknown) => {
+	if (typeof v !== 'object' || v === null || v === undefined) {
+		throw new Error('cannot create action from ' + typeof v);
+	}
+	const actionName = String((v as Action).action); // todo: best practices?
+	if (typeof actionName === 'string' && constructorLookup[actionName]) {
+		return constructorLookup[actionName](v);
+	}
+	throw new Error('failed to create action ' + actionName);
+};
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
 // old style so the old and new output can be directly compared (I think)
-export const standardizeAction = (
+export const standardizeNode = (
 	action: Action | GenericActionish,
 	OOB: number,
 ): Action | GenericActionish => {
 	if (action instanceof CopyMacro) {
-		const manual: COPY_SCRIPT = {
-			action: 'COPY_SCRIPT',
+		const manual = new COPY_SCRIPT({
 			script: breakIfNotString(action.script, 'script'),
-		};
+		});
 		return manual;
 	}
 	if (action instanceof LabelDefinition) {
@@ -2158,17 +2348,15 @@ export const standardizeAction = (
 		return new LABEL({ value });
 	}
 	if (action instanceof GotoLabel) {
-		const ret: GOTO_ACTION_INDEX = {
-			action: 'GOTO_ACTION_INDEX',
+		const ret = new GOTO_ACTION_INDEX({
 			action_index: breakIfNotString(action.label, 'label'),
-		};
+		});
 		return ret;
 	}
 	if (action instanceof ReturnStatement) {
-		const ret: GOTO_ACTION_INDEX = {
-			action: 'GOTO_ACTION_INDEX',
+		const ret = new GOTO_ACTION_INDEX({
 			action_index: OOB,
-		};
+		});
 		return ret;
 	}
 	const actionName = breakIfNotString(action.action, 'actionName');

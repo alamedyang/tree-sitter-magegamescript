@@ -85,6 +85,12 @@ import {
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
 	CHECK_SAVE_FLAG,
+	standardizeAction,
+	GotoLabel,
+	BoolGetable,
+	SET_ENTITY_DIRECTION,
+	SET_ENTITY_DIRECTION_TARGET_ENTITY,
+	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
 } from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
@@ -100,14 +106,12 @@ import {
 	ReturnStatement,
 	BreakStatement,
 	ContinueStatement,
-	GotoLabel,
 	BoolSetable,
 	MovableIdentifier,
 	CoordinateIdentifier,
 	DirectionTarget,
 	IntGetable,
 	SerialDialog,
-	BoolGetable,
 	Dialog,
 } from './parser-types.ts';
 import {
@@ -210,13 +214,15 @@ const actionSetBoolMaker = (
 		typeof _rhsBoolExp === 'string'
 			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
 			: _rhsBoolExp;
+	const falseClone = standardizeAction(lhsSetAction);
+	falseClone.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
 			f,
 			rhsBoolExp.debug?.node || backupNode,
 			rhsBoolExp,
 			[lhsSetAction],
-			[{ ...lhsSetAction, [lhsBoolField]: false }],
+			[falseClone],
 		);
 	}
 
@@ -225,7 +231,7 @@ const actionSetBoolMaker = (
 		rhsBoolExp.debug?.node || backupNode,
 		rhsBoolExp,
 		[lhsSetAction],
-		[{ ...lhsSetAction, [lhsBoolField]: false }],
+		[falseClone],
 	);
 };
 
@@ -324,10 +330,11 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	// so let the handler sort them out after the spreads are spread
 	const handleFn = data.handle;
 	if (handleFn) {
-		spreads.forEach((actionInsideSpread, i) => {
-			const handled = handleFn(actionInsideSpread, f, node, i) as GenericActionish;
-			if (handled) {
-				spreads[i] = handled;
+		spreads.forEach((v, i) => {
+			const handled = handleFn(v, f, node, i) as GenericActionish;
+			const sanitized = handled.clone ? handled.clone(handled) : standardizeAction(handled);
+			if (sanitized) {
+				spreads[i] = sanitized;
 				return;
 			}
 		});
@@ -887,25 +894,22 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('action_set_direction target not a DirectionTarget');
 			}
 			if (v.target.type === 'nsew') {
-				return {
-					action: 'SET_ENTITY_DIRECTION',
+				return new SET_ENTITY_DIRECTION({
 					entity,
 					direction: v.target.value,
-				};
+				});
 			}
 			if (v.target.type === 'geometry') {
-				return {
-					action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY',
+				return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({
 					entity,
 					target_geometry: v.target.value,
-				};
+				});
 			}
 			if (v.target.type === 'entity') {
-				return {
-					action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY',
+				return new SET_ENTITY_DIRECTION_TARGET_ENTITY({
 					entity,
 					target_entity: v.target.value,
-				};
+				});
 			}
 			throw new Error('invalid type of DirectionTarget');
 		},

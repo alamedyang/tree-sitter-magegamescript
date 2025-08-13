@@ -12,7 +12,8 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 
 export type AnyNode = TYPES.Action | MathlangNode;
 export const isActionNode = (v: unknown): v is TYPES.Action => {
-	return (v as TYPES.Action).action !== undefined;
+	return v instanceof TYPES.Action;
+	// return (v as TYPES.Action).action !== undefined;
 };
 export const isMathlangNode = (v: unknown): v is MathlangNode => {
 	return (v as MathlangNode).mathlang !== undefined;
@@ -41,7 +42,7 @@ export type MathlangNode =
 	| ReturnStatement
 	| ContinueStatement
 	| BreakStatement
-	| GotoLabel
+	| TYPES.GotoLabel
 	// DIALOG
 	| DialogDefinition
 	| Dialog
@@ -61,33 +62,27 @@ export type MathlangNode =
 	| MathlangSequence
 	// EXPRESSIONS
 	| BoolBinaryExpression
-	| BoolGetable
-	| BoolComparison
-	| StringCheckable
-	| NumberCheckableEquality;
+	| TYPES.BoolGetable
+	| TYPES.StringCheckable
+	| TYPES.NumberComparison
+	| TYPES.NumberCheckableEquality;
 
 // ------------------------------ SETTINGS ------------------------------ \\
 
-export type AddDialogSettings = {
+export class AddDialogSettings {
 	mathlang: 'add_dialog_settings';
 	debug: TYPES.MGSDebug;
 	targets: AddDialogSettingsTarget[];
 	parameters?: SerialDialogParameter[];
-};
-export const isAddDialogSettings = (v: unknown): v is AddDialogSettings => {
-	return (v as AddDialogSettings)?.mathlang === 'add_dialog_settings';
-};
-export const newAddDialogSettings = (
-	f: FileState,
-	node: TreeSitterNode,
-	targets: AddDialogSettingsTarget[],
-): AddDialogSettings => {
-	return {
-		mathlang: 'add_dialog_settings',
-		debug: new TYPES.MGSDebug(f, node),
-		targets,
-	};
-};
+	constructor(f: FileState, node: TreeSitterNode, targets: AddDialogSettingsTarget[]) {
+		this.mathlang = 'add_dialog_settings';
+		this.debug = new TYPES.MGSDebug(f, node);
+		this.targets = targets;
+	}
+	clone(prev: AddDialogSettings) {
+		return new AddDialogSettings(prev.debug.f, prev.debug.node, prev.targets);
+	}
+}
 
 export class AddDialogSettingsTarget {
 	mathlang: 'add_dialog_settings_target';
@@ -107,24 +102,24 @@ export class AddDialogSettingsTarget {
 		this.parameters = parameters;
 		if (target !== undefined) this.target = target;
 	}
+	clone(prev: AddDialogSettingsTarget) {
+		return new AddDialogSettingsTarget(prev.type, prev.debug, prev.parameters, prev.target);
+	}
 }
 
-export type AddSerialDialogSettings = {
+export class AddSerialDialogSettings {
 	mathlang: 'add_serial_dialog_settings';
 	parameters: SerialDialogParameter[];
 	debug: TYPES.MGSDebug;
-};
-export const newAddSerialDialogSettings = (
-	f: FileState,
-	node: TreeSitterNode,
-	parameters: SerialDialogParameter[],
-): AddSerialDialogSettings => {
-	return {
-		mathlang: 'add_serial_dialog_settings',
-		debug: new TYPES.MGSDebug(f, node),
-		parameters,
-	};
-};
+	constructor(f: FileState, node: TreeSitterNode, parameters: SerialDialogParameter[]) {
+		this.mathlang = 'add_serial_dialog_settings';
+		this.debug = new TYPES.MGSDebug(f, node);
+		this.parameters = parameters;
+	}
+	clone(prev: AddSerialDialogSettings) {
+		return new AddSerialDialogSettings(prev.debug.f, prev.debug.node, prev.parameters);
+	}
+}
 
 // ------------------------------ CONTROL ------------------------------ \\
 
@@ -135,6 +130,9 @@ export class ReturnStatement {
 		this.mathlang = 'return_statement';
 		this.debug = new TYPES.MGSDebug(f, node);
 	}
+	clone(prev: ReturnStatement) {
+		return new ReturnStatement(prev.debug.f, prev.debug.node);
+	}
 }
 export class ContinueStatement {
 	mathlang: 'continue_statement';
@@ -142,6 +140,9 @@ export class ContinueStatement {
 	constructor(f: FileState, node: TreeSitterNode) {
 		this.mathlang = 'continue_statement';
 		this.debug = new TYPES.MGSDebug(f, node);
+	}
+	clone(prev: ContinueStatement) {
+		return new ContinueStatement(prev.debug.f, prev.debug.node);
 	}
 }
 export class BreakStatement {
@@ -151,18 +152,8 @@ export class BreakStatement {
 		this.mathlang = 'break_statement';
 		this.debug = new TYPES.MGSDebug(f, node);
 	}
-}
-
-export class GotoLabel {
-	mathlang: 'goto_label';
-	label: string;
-	debug: TYPES.MGSDebug;
-	comment?: string;
-	constructor(f: FileState, node: TreeSitterNode, label: unknown, comment?: string) {
-		this.mathlang = 'goto_label';
-		this.label = TYPES.breakIfNotString(label, 'GotoLabel label');
-		this.debug = new TYPES.MGSDebug(f, node);
-		if (comment) this.comment = comment;
+	clone(prev: BreakStatement) {
+		return new BreakStatement(prev.debug.f, prev.debug.node);
 	}
 }
 
@@ -179,6 +170,9 @@ export class DialogDefinition {
 		this.debug = new TYPES.MGSDebug(f, node);
 		this.dialogName = dialogName;
 		this.dialogs = dialogs;
+	}
+	clone(prev: DialogDefinition) {
+		return new DialogDefinition(prev.debug.f, prev.debug.node, prev.dialogName, prev.dialogs);
 	}
 }
 export type DialogSettings = {
@@ -200,6 +194,9 @@ export class DialogParameter {
 		this.property = property;
 		this.value = value;
 	}
+	clone(prev: DialogParameter) {
+		return new DialogParameter(prev.property, prev.value);
+	}
 }
 
 export class Dialog {
@@ -211,6 +208,7 @@ export class Dialog {
 	alignment?: string;
 	border_tileset?: string;
 
+	args: DialogSettings;
 	options?: DialogOption[];
 	mathlang: 'dialog';
 	messages: string[];
@@ -232,6 +230,10 @@ export class Dialog {
 		Object.entries(args).forEach(([k, v]) => {
 			this[k] = v;
 		});
+		this.args = args;
+	}
+	clone(prev: Dialog) {
+		return new Dialog(prev.messages, prev.options || [], prev.args || {}, prev.debug);
 	}
 }
 
@@ -253,6 +255,9 @@ export class DialogIdentifier {
 		this.value = value;
 		if (debug) this.debug = debug;
 	}
+	clone(prev: DialogIdentifier) {
+		return new DialogIdentifier(prev.type, prev.value, prev.debug);
+	}
 }
 type DialogIdentifierType = 'label' | 'entity' | 'name';
 
@@ -266,6 +271,9 @@ export class DialogOption {
 		this.label = label;
 		this.script = script;
 		this.debug = debug;
+	}
+	clone(prev: DialogOption) {
+		return new DialogOption(prev.label, prev.script, prev.debug);
 	}
 }
 
@@ -288,6 +296,14 @@ export class SerialDialogDefinition {
 		this.dialogName = dialogName;
 		this.serialDialog = serialDialog;
 	}
+	clone(prev: SerialDialogDefinition) {
+		return new SerialDialogDefinition(
+			prev.debug.f,
+			prev.debug.node,
+			prev.dialogName,
+			prev.serialDialog,
+		);
+	}
 }
 
 export type SerialDialogSettings = {
@@ -303,6 +319,9 @@ export class SerialDialogParameter {
 		this.property = property;
 		this.value = value;
 	}
+	clone(prev: SerialDialogParameter) {
+		return new SerialDialogParameter(prev.property, prev.value);
+	}
 }
 
 export type SerialDialogConstructorArgs = {
@@ -317,12 +336,17 @@ export class SerialDialog {
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
 	debug?: TYPES.MGSDebug;
+	args: SerialDialogConstructorArgs;
 	constructor(args: SerialDialogConstructorArgs) {
 		this.mathlang = 'serial_dialog';
 		this.messages = args.messages;
 		if (args.options) this.options = args.options;
 		if (args.text_options) this.text_options = args.text_options;
 		if (args.debug) this.debug = args.debug;
+		this.args = args;
+	}
+	clone(prev: SerialDialog) {
+		return new SerialDialog(prev.args);
 	}
 }
 
@@ -351,6 +375,9 @@ export class SerialDialogOption {
 		this.script = script;
 		this.debug = debug;
 	}
+	clone(prev: SerialDialogOption) {
+		return new SerialDialogOption(prev.optionType, prev.label, prev.script, prev.debug);
+	}
 }
 // ------------------------------ ONE-OFFS ------------------------------ \\
 
@@ -362,6 +389,9 @@ export class IncludeNode {
 		this.mathlang = 'include_macro';
 		this.debug = new TYPES.MGSDebug(f, node);
 		this.value = value;
+	}
+	clone(prev: IncludeNode) {
+		return new IncludeNode(prev.debug.f, prev.debug.node, prev.value);
 	}
 }
 
@@ -375,6 +405,9 @@ export class ConstantDefinition {
 		this.debug = new TYPES.MGSDebug(f, node);
 		this.label = label;
 		this.value = value;
+	}
+	clone(prev: ConstantDefinition) {
+		return new ConstantDefinition(prev.debug.f, prev.debug.node, prev.label, prev.value);
 	}
 }
 
@@ -396,6 +429,9 @@ export class ScriptDefinition {
 		this.scriptName = scriptName;
 		this.actions = actions;
 	}
+	clone(prev: ScriptDefinition) {
+		return new ScriptDefinition(prev.debug.f, prev.debug.node, prev.scriptName, prev.actions);
+	}
 }
 
 export class CommentNode {
@@ -406,16 +442,21 @@ export class CommentNode {
 		this.mathlang = 'comment';
 		this.comment = comment;
 	}
+	clone(prev: CommentNode) {
+		return new CommentNode(prev.comment);
+	}
 }
 
 export class LabelDefinition {
 	mathlang: 'label_definition';
 	label: string;
 	debug?: TYPES.MGSDebug;
-	constructor(f: FileState, node: TreeSitterNode, label: string) {
+	constructor(label: string) {
 		this.mathlang = 'label_definition';
-		this.debug = new TYPES.MGSDebug(f, node);
 		this.label = label;
+	}
+	clone(prev: LabelDefinition) {
+		return new LabelDefinition(prev.label);
 	}
 }
 
@@ -427,6 +468,9 @@ export class JSONLiteral {
 		this.mathlang = 'json_literal';
 		this.debug = new TYPES.MGSDebug(f, node);
 		this.json = json;
+	}
+	clone(prev: JSONLiteral) {
+		return new JSONLiteral(prev.debug.f, prev.debug.node, prev.json);
 	}
 }
 
@@ -443,6 +487,9 @@ export class CopyMacro {
 		this.mathlang = 'copy_script';
 		this.debug = new TYPES.MGSDebug(f, node);
 		this.script = script;
+	}
+	clone(prev: CopyMacro) {
+		return new CopyMacro(prev.debug.f, prev.debug.node, prev.script);
 	}
 }
 
@@ -474,6 +521,9 @@ export class MathlangSequence {
 		});
 		this.steps = flatSteps;
 	}
+	clone(prev: MathlangSequence) {
+		return new MathlangSequence(prev.debug.f, prev.debug.node, prev.steps, prev.type);
+	}
 }
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
@@ -502,6 +552,9 @@ export class IntGetable {
 		this.field = field;
 		this.entity = entity;
 	}
+	clone(prev: IntGetable) {
+		return new IntGetable(prev.entity, prev.field);
+	}
 }
 
 export class IntBinaryExpression {
@@ -515,6 +568,9 @@ export class IntBinaryExpression {
 		this.rhs = rhs;
 		this.op = op;
 	}
+	clone(prev: IntBinaryExpression) {
+		return new IntBinaryExpression(prev.lhs, prev.rhs, prev.op);
+	}
 }
 
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
@@ -524,60 +580,27 @@ export const isBoolExpression = (v: unknown): v is BoolExpression => {
 	return isBoolComparison(v) || v instanceof BoolBinaryExpression || isBoolUnit(v);
 };
 
-export type BoolUnit = boolean | string | BoolGetable;
+export type BoolUnit = boolean | string | TYPES.BoolGetable;
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'boolean') return true;
-	return (v as BoolGetable)?.mathlang === 'bool_getable';
+	return (v as TYPES.BoolGetable)?.mathlang === 'bool_getable';
 };
 
-export type BoolComparison = NumberCheckableEquality | StringCheckable | NumberComparison;
+export type BoolComparison =
+	| TYPES.NumberCheckableEquality
+	| TYPES.StringCheckable
+	| TYPES.NumberComparison;
 export const isBoolComparison = (v: unknown): v is BoolComparison => {
-	if (v instanceof NumberCheckableEquality) return true;
-	if (v instanceof StringCheckable) return true;
-	if (v instanceof NumberComparison) return true;
+	if (v instanceof TYPES.NumberCheckableEquality) return true;
+	if (v instanceof TYPES.StringCheckable) return true;
+	if (v instanceof TYPES.NumberComparison) return true;
 	return false;
 };
 
-export class NumberComparison {
-	mathlang: 'number_comparison';
-	debug?: TYPES.MGSDebug;
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	constructor() {
-		this.expected_bool = true;
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-	}
-	updateProp(prop: boolean) {
-		// to make squiggles go away; not used
-		this.expected_bool = prop;
-	}
-}
-
-export class StringCheckable {
-	mathlang: 'string_checkable';
-	debug?: TYPES.MGSDebug;
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	constructor() {
-		this.expected_bool = true;
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-	}
-}
-
 export type BoolBinaryExpressionArgs = {
-	lhs: StringCheckable | string | number | BoolExpression | NumberCheckableEquality;
-	rhs: StringCheckable | string | number | BoolExpression | NumberCheckableEquality;
+	lhs: TYPES.StringCheckable | string | number | BoolExpression | TYPES.NumberCheckableEquality;
+	rhs: TYPES.StringCheckable | string | number | BoolExpression | TYPES.NumberCheckableEquality;
 	op: string;
 	debug?: TYPES.MGSDebug;
 	lhsNode: TreeSitterNode;
@@ -586,8 +609,8 @@ export type BoolBinaryExpressionArgs = {
 
 export class BoolBinaryExpression {
 	mathlang: 'bool_binary_expression';
-	lhs: StringCheckable | string | number | BoolExpression | NumberCheckableEquality;
-	rhs: StringCheckable | string | number | BoolExpression | NumberCheckableEquality;
+	lhs: TYPES.StringCheckable | string | number | BoolExpression | TYPES.NumberCheckableEquality;
+	rhs: TYPES.StringCheckable | string | number | BoolExpression | TYPES.NumberCheckableEquality;
 	op: string;
 	debug?: TYPES.MGSDebug;
 	lhsNode: TreeSitterNode;
@@ -601,18 +624,8 @@ export class BoolBinaryExpression {
 		this.rhsNode = args.rhsNode;
 		if (args.debug) this.debug = args.debug;
 	}
-}
-
-export class BoolGetable {
-	mathlang: 'bool_getable';
-	debug?: TYPES.MGSDebug;
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	invert() {
-		this.expected_bool = !this.expected_bool;
+	clone(args: BoolBinaryExpressionArgs) {
+		return new BoolBinaryExpression(args);
 	}
 }
 
@@ -651,47 +664,30 @@ export class CoordinateIdentifier {
 	}
 }
 export class DirectionTarget {
+	mathlang: 'direction_target';
 	type: string;
 	value: string;
 	constructor(type: string, value: string) {
+		this.mathlang = 'direction_target';
 		this.type = type;
 		this.value = value;
-	}
-}
-export class NumberCheckableEquality {
-	mathlang: 'number_checkable_equality';
-	comment?: string;
-	debug?: TYPES.MGSDebug;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	constructor() {
-		this.mathlang = 'number_checkable_equality';
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-	}
-	updateProp(prop: string | number) {
-		// to make squiggles go away; not used
-		this.jump_index = prop;
 	}
 }
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
-	| GotoLabel
-	| BoolGetable
-	| StringCheckable
-	| NumberComparison
-	| NumberCheckableEquality;
+	| TYPES.GotoLabel
+	| TYPES.BoolGetable
+	| TYPES.StringCheckable
+	| TYPES.NumberComparison
+	| TYPES.NumberCheckableEquality;
 
 export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
 	if (!isMathlangNode(v)) return false; // load bearing??
-	if (v instanceof GotoLabel) return true;
-	if (v instanceof BoolGetable) return true;
-	if (v instanceof StringCheckable) return true;
-	if (v instanceof NumberComparison) return true;
-	if (v instanceof NumberCheckableEquality) return true;
+	if (v instanceof TYPES.GotoLabel) return true;
+	if (v instanceof TYPES.BoolGetable) return true;
+	if (v instanceof TYPES.StringCheckable) return true;
+	if (v instanceof TYPES.NumberComparison) return true;
+	if (v instanceof TYPES.NumberCheckableEquality) return true;
 	return false;
 };

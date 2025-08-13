@@ -1,9 +1,15 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { CHECK_SAVE_FLAG, MGSDebug } from './parser-bytecode-info.ts';
+import {
+	CHECK_SAVE_FLAG,
+	GotoLabel,
+	MGSDebug,
+	BoolGetable,
+	StringCheckable,
+	NumberCheckableEquality,
+} from './parser-bytecode-info.ts';
 import {
 	type AnyNode,
 	BoolBinaryExpression,
-	BoolGetable,
 	type MGSLocation,
 	type MGSMessage,
 	type BoolExpression,
@@ -13,9 +19,6 @@ import {
 	MathlangSequence,
 	isBoolExpression,
 	type BoolComparison,
-	GotoLabel,
-	StringCheckable,
-	NumberCheckableEquality,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -219,9 +222,9 @@ export const expandBoolExpression = (
 		return [
 			...expandBoolExpression(f, condition.lhsNode, lhs, secondIfTrueLabel),
 			new GotoLabel(f, node, secondRendezvousLabel),
-			new LabelDefinition(f, node, secondIfTrueLabel),
+			new LabelDefinition(secondIfTrueLabel),
 			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
-			new LabelDefinition(f, node, secondRendezvousLabel),
+			new LabelDefinition(secondRendezvousLabel),
 		];
 	}
 	if (op !== '==' && op !== '!=') {
@@ -300,9 +303,9 @@ export const simpleBranchMaker = (
 		...top,
 		...falseBlock,
 		new GotoLabel(f, node, rendezvousLabel),
-		new LabelDefinition(f, node, ifLabel),
+		new LabelDefinition(ifLabel),
 		...trueBlock,
-		new LabelDefinition(f, node, rendezvousLabel),
+		new LabelDefinition(rendezvousLabel),
 	];
 	return new MathlangSequence(f, node, steps, 'longerBranchMaker');
 };
@@ -353,7 +356,7 @@ export const ifChainMaker = (
 		);
 		// add bottom half
 		const bottomInsert: AnyNode[] = [
-			new LabelDefinition(f, iff.bodyNode || iff.debug.node, ifL),
+			new LabelDefinition(ifL),
 			...iff.body,
 			new GotoLabel(f, iff.bodyNode || iff.debug.node, rendezvousL),
 		];
@@ -363,7 +366,7 @@ export const ifChainMaker = (
 	steps.push(...elseBody);
 	steps.push(new GotoLabel(f, node, rendezvousL));
 	const combined = steps.concat(bottomSteps);
-	combined.push(new LabelDefinition(f, node, rendezvousL));
+	combined.push(new LabelDefinition(rendezvousL));
 	return new MathlangSequence(f, node, combined, 'parser-node: ' + label);
 };
 

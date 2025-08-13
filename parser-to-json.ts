@@ -3,7 +3,7 @@ import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
 export const printAction = (data: MATHLANG.AnyNode): string => {
-	const isAction = MATHLANG.isActionNode(data);
+	const isAction = MATHLANG.isActionNode(data) || data.action;
 	if (data instanceof MATHLANG.CommentNode) {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;
@@ -37,12 +37,12 @@ export const printAction = (data: MATHLANG.AnyNode): string => {
 		const print = fn(data);
 		return print;
 	}
-	throw new Error('print fn needed for ???');
+	throw new Error('print fn needed for ' + data.action);
 };
 
 const mathlang = {
-	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
-	label_definition: (data: MATHLANG.GotoLabel) => {
+	goto_label: (data: TYPES.GotoLabel) => `${printGotoSegment(data)};`,
+	label_definition: (data: TYPES.GotoLabel) => {
 		if (!data.label) throw new Error('cannot print label action without label');
 		return `${sanitizeLabel(data.label)}:`;
 	},
@@ -122,10 +122,12 @@ export const printActionFns: Record<string, (v) => string> = {
 		printSetBoolAction(v, `hex_dialog_mode`),
 	SET_HEX_EDITOR_CONTROL: (v: TYPES.SET_HEX_EDITOR_CONTROL) =>
 		printSetBoolAction(v, `hex_control`),
-	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (v: TYPES.SET_HEX_EDITOR_CONTROL_CLIPBOARD) =>
-		printSetBoolAction(v, `hex_clipboard`),
-	SET_SERIAL_DIALOG_CONTROL: (v: TYPES.SET_SERIAL_DIALOG_CONTROL) =>
-		printSetBoolAction(v, `serial_control`),
+	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (v: TYPES.SET_HEX_EDITOR_CONTROL_CLIPBOARD) => {
+		return printSetBoolAction(v, `hex_clipboard`);
+	},
+	SET_SERIAL_DIALOG_CONTROL: (v: TYPES.SET_SERIAL_DIALOG_CONTROL) => {
+		return printSetBoolAction(v, `serial_control`);
+	},
 	SET_PLAYER_CONTROL: (v: TYPES.SET_PLAYER_CONTROL) => printSetBoolAction(v, `player_control`),
 	SET_LIGHTS_CONTROL: (v: TYPES.SET_LIGHTS_CONTROL) => printSetBoolAction(v, `lights_control`),
 	SET_LIGHTS_STATE: (v: TYPES.SET_LIGHTS_STATE) => printSetBoolAction(v, `light ${v.lights}`),
@@ -296,7 +298,7 @@ const stringIntoOpMap: Record<string, string> = {
 const sanitizeLabel = (label: string): string =>
 	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
 
-const printGotoSegment = (data: TYPES.CheckAction | MATHLANG.GotoLabel): string => {
+const printGotoSegment = (data: TYPES.CheckAction | TYPES.GotoLabel): string => {
 	if (data.label) {
 		return `goto label ${sanitizeLabel(data.label)}`;
 	}

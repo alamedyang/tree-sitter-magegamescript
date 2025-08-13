@@ -30,24 +30,22 @@ import {
 } from './parser-capture.ts';
 import { changeVarByValue, handleAction } from './parser-actions.ts';
 import {
+	AddDialogSettings,
 	AddDialogSettingsTarget,
+	AddSerialDialogSettings,
 	ConstantDefinition,
 	CopyMacro,
 	Dialog,
 	DialogDefinition,
 	DialogOption,
-	GotoLabel,
 	IncludeNode,
-	isActionNode,
 	ScriptDefinition,
 	SerialDialog,
 	SerialDialogOption,
 	type AnyNode,
 	type MGSMessage,
-	type AddDialogSettings,
 	type DialogInfo,
 	type DialogSettings,
-	type AddSerialDialogSettings,
 	type SerialOptionType,
 	type SerialDialogInfo,
 	isMGSPrimitive,
@@ -55,10 +53,7 @@ import {
 	JSONLiteral,
 	LabelDefinition,
 	MathlangSequence,
-	newAddDialogSettings,
-	newAddSerialDialogSettings,
 	SerialDialogDefinition,
-	type BoolGetable,
 	ReturnStatement,
 	ContinueStatement,
 	BreakStatement,
@@ -67,14 +62,18 @@ import {
 	DialogParameter,
 } from './parser-types.ts';
 import {
+	Action,
+	BoolGetable,
 	CHECK_DEBUG_MODE,
 	CHECK_SAVE_FLAG,
 	type CheckAction,
 	GOTO_ACTION_INDEX,
+	GotoLabel,
 	isCheckAction,
 	MGSDebug,
 	RUN_SCRIPT,
 	SHOW_SERIAL_DIALOG,
+	standardizeAction,
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: TreeSitterNode): AnyNode[] => {
@@ -136,8 +135,8 @@ const nodeFns = {
 				raw.steps.forEach((step) => actions.push(step));
 			} else if (raw instanceof JSONLiteral) {
 				raw.json.forEach((obj) => {
-					if (isActionNode(obj)) {
-						actions.push(obj);
+					if (typeof obj === 'object' && (obj as unknown as Action).action) {
+						actions.push(standardizeAction(obj));
 					} else {
 						f.newError({
 							message: 'invalid JSON action: ' + JSON.stringify(obj),
@@ -153,7 +152,7 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('could not find final node in script block');
-		const labelAction: LabelDefinition = new LabelDefinition(f, lastChild, returnLabel);
+		const labelAction: LabelDefinition = new LabelDefinition(returnLabel);
 		actions.push(labelAction);
 		// change all return statements to goto labels
 		actions.forEach((action, i) => {
@@ -291,14 +290,14 @@ const nodeFns = {
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
 		const label = textForFieldName(f, node, 'label');
-		return [new LabelDefinition(f, node, label)];
+		return [new LabelDefinition(label)];
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = handleNamedChildren(f, node);
 		if (!targets.every((v) => v instanceof AddDialogSettingsTarget)) {
 			throw new Error('add_dialog_settings node not a AddDialogSettingsTarget');
 		}
-		return [newAddDialogSettings(f, node, targets)];
+		return [new AddDialogSettings(f, node, targets)];
 	},
 	add_dialog_settings_target: (f: FileState, node: TreeSitterNode): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
@@ -334,7 +333,7 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
-		return [newAddSerialDialogSettings(f, node, parameters)];
+		return [new AddSerialDialogSettings(f, node, parameters)];
 	},
 	serial_dialog_option: (f: FileState, node: TreeSitterNode): [SerialDialogOption] => {
 		const optionChar = textForFieldName(f, node, 'option_type');
@@ -492,13 +491,13 @@ const nodeFns = {
 		const bodyL = `while body #${n}`;
 		const rendezvousL = `while rendezvous #${n}`;
 		const steps = [
-			new LabelDefinition(f, block.conditionNode || node, conditionL),
+			new LabelDefinition(conditionL),
 			...expandBoolExpression(f, block.conditionNode || node, block.condition, bodyL),
 			new GotoLabel(f, node, rendezvousL),
-			new LabelDefinition(f, block.bodyNode || node, bodyL),
+			new LabelDefinition(bodyL),
 			...block.body,
 			new GotoLabel(f, block.conditionNode || node, conditionL),
-			new LabelDefinition(f, node, rendezvousL),
+			new LabelDefinition(rendezvousL),
 		];
 		return [new MathlangSequence(f, node, steps, 'parser-node: while_block')];
 	},
@@ -509,11 +508,11 @@ const nodeFns = {
 		const bodyL = `do while body #${n}`;
 		const rendezvousL = `do while rendezvous #${n}`;
 		const steps = [
-			new LabelDefinition(f, doWhyle.bodyNode || node, bodyL),
+			new LabelDefinition(bodyL),
 			...doWhyle.body,
-			new LabelDefinition(f, doWhyle.conditionNode || node, conditionL),
+			new LabelDefinition(conditionL),
 			...expandBoolExpression(f, doWhyle.conditionNode || node, doWhyle.condition, bodyL),
-			new LabelDefinition(f, node, rendezvousL),
+			new LabelDefinition(rendezvousL),
 		];
 		return [new MathlangSequence(f, node, steps, 'parser-node: do_while_block')];
 	},
@@ -536,15 +535,15 @@ const nodeFns = {
 		const initializer = mandatoryChildForFieldName(f, node, 'initializer');
 		const steps: AnyNode[] = [
 			...handleNode(f, initializer),
-			new LabelDefinition(f, conditionN, conditionL),
+			new LabelDefinition(conditionL),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
 			new GotoLabel(f, node, rendezvousL),
-			new LabelDefinition(f, bodyN, bodyL),
+			new LabelDefinition(bodyL),
 			...body,
-			new LabelDefinition(f, incrementerN, continueL),
+			new LabelDefinition(continueL),
 			...handleNode(f, incrementerN),
 			new GotoLabel(f, conditionN, conditionL),
-			new LabelDefinition(f, node, rendezvousL),
+			new LabelDefinition(rendezvousL),
 		];
 		return [new MathlangSequence(f, node, steps, 'parser-node: for_block')];
 	},

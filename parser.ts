@@ -12,7 +12,7 @@ import { debugLog, printableMGSMessage, ansiTags as ansi } from './parser-utilit
 
 import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
-import { GOTO_ACTION_INDEX, standardizeAction } from './parser-bytecode-info.ts';
+import { GOTO_ACTION_INDEX, GotoLabel, standardizeNode } from './parser-bytecode-info.ts';
 
 import {
 	DialogDefinition,
@@ -20,7 +20,6 @@ import {
 	SerialDialogDefinition,
 	LabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
-	GotoLabel,
 	CommentNode,
 } from './parser-types.ts';
 
@@ -147,7 +146,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 					!(v instanceof DialogDefinition) &&
 					!(v instanceof SerialDialogDefinition),
 			)
-			.map((v, i, arr) => standardizeAction(v, arr.length));
+			.map((v, i, arr) => standardizeNode(v, arr.length));
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
 		// Snapshot current action state (pre copy_script, pre label baking)
 		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);
