@@ -85,15 +85,13 @@ import {
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
 	CHECK_SAVE_FLAG,
-	summonActionConstructor,
-	GotoLabel,
 	BoolGetable,
 	SET_ENTITY_DIRECTION,
 	SET_ENTITY_DIRECTION_TARGET_ENTITY,
 	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
 } from './parser-bytecode-info.ts';
 import {
-	type AnyNode,
+	AnyNode,
 	DialogDefinition,
 	CommentNode,
 	IntBinaryExpression,
@@ -113,6 +111,8 @@ import {
 	IntGetable,
 	SerialDialog,
 	Dialog,
+	cloneNode,
+	GotoLabel,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -218,15 +218,15 @@ const actionSetBoolMaker = (
 		typeof _rhsBoolExp === 'string'
 			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
 			: _rhsBoolExp;
-	const falseClone = summonActionConstructor(lhsSetAction);
-	falseClone.invert();
+	const cloneIfFalse = cloneNode(lhsSetAction);
+	cloneIfFalse.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
 		return simpleBranchMaker(
 			f,
 			rhsBoolExp.debug?.node || backupNode,
 			rhsBoolExp,
 			[lhsSetAction],
-			[falseClone],
+			[cloneIfFalse],
 		);
 	}
 
@@ -235,7 +235,7 @@ const actionSetBoolMaker = (
 		rhsBoolExp.debug?.node || backupNode,
 		rhsBoolExp,
 		[lhsSetAction],
-		[falseClone],
+		[cloneIfFalse],
 	);
 };
 
@@ -333,19 +333,11 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	// Different param combinations will result in different actions,
 	// so let the handler sort them out after the spreads are spread
 	const handleFn = data.handle;
-	if (handleFn) {
-		spreads.forEach((v, i) => {
-			const handled = handleFn(v, f, node, i) as GenericActionish;
-			const realAction = handled.clone
-				? handled.clone(handled)
-				: summonActionConstructor(handled);
-			if (realAction) {
-				spreads[i] = realAction;
-				return;
-			}
-		});
-	}
-	return spreads as AnyNode[];
+	if (!handleFn) throw new Error('need action handling function?');
+	const ret: AnyNode[] = spreads.map((v, i) => {
+		return handleFn(v, f, node, i);
+	});
+	return ret;
 };
 
 type ShowDialogOutput = (SHOW_DIALOG | DialogDefinition)[];
@@ -406,12 +398,7 @@ type actionDataEntry = {
 	values?: Record<string, unknown>;
 	captures?: string[];
 	optionalCaptures?: string[];
-	handle?: (
-		v: Record<string, boolean | string | number | Record<string, unknown>>,
-		f: FileState,
-		node: TreeSitterNode,
-		i?: number,
-	) => unknown;
+	handle?: (v: GenericActionish, f: FileState, node: TreeSitterNode, i?: number) => AnyNode;
 };
 const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {

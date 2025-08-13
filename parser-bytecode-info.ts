@@ -1,11 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import {
-	LabelDefinition,
-	ReturnStatement,
-	CopyMacro,
-	MathlangNode,
-	AnyNode,
-} from './parser-types.ts';
+import { LabelDefinition, ReturnStatement, CopyMacro, AnyNode, GotoLabel } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
 
@@ -25,30 +19,10 @@ export class MGSDebug {
 
 export class Action extends AnyNode {
 	action: string;
-	debug?: MGSDebug;
 	clone() {
-		const fn = constructorLookup[this.action];
+		const fn = actionConstructorLookup[this.action];
 		if (!fn) throw new Error('no action constructor for ' + this.action);
-		return fn({ ...this });
-	}
-}
-
-export class GotoLabel extends MathlangNode {
-	mathlang: 'goto_label';
-	debug: MGSDebug;
-	args: Record<string, unknown>;
-	label: string;
-	comment?: string;
-	constructor(debug: MGSDebug, args: Record<string, unknown>) {
-		super();
-		this.args = args;
-		this.debug = debug;
-		this.mathlang = 'goto_label';
-		this.label = breakIfNotString(args.label, 'GotoLabel label');
-		if (typeof args.comment === 'string') this.comment = args.comment;
-	}
-	clone(prev: GotoLabel) {
-		return new GotoLabel(prev.debug, prev.args);
+		return fn();
 	}
 }
 
@@ -56,7 +30,6 @@ export class GotoLabel extends MathlangNode {
 
 export class BoolGetable extends Action {
 	mathlang: 'bool_getable';
-	debug?: MGSDebug;
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -68,7 +41,6 @@ export class BoolGetable extends Action {
 }
 export class StringCheckable extends Action {
 	mathlang: 'string_checkable';
-	debug?: MGSDebug;
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -85,7 +57,6 @@ export class StringCheckable extends Action {
 }
 export class NumberComparison extends Action {
 	mathlang: 'number_comparison';
-	debug?: MGSDebug;
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -106,7 +77,6 @@ export class NumberComparison extends Action {
 export class NumberCheckableEquality extends Action {
 	mathlang: 'number_checkable_equality';
 	comment?: string;
-	debug?: MGSDebug;
 	success_script?: string;
 	label?: string;
 	jump_index?: number | string;
@@ -132,7 +102,6 @@ export class NumberCheckableEquality extends Action {
 // not in encoder, but in old-style output
 export class NULL_ACTION extends Action {
 	action: 'NULL_ACTION';
-	debug?: MGSDebug;
 	constructor() {
 		super();
 		this.action = 'NULL_ACTION';
@@ -140,253 +109,218 @@ export class NULL_ACTION extends Action {
 }
 export class LABEL extends Action {
 	action: 'LABEL';
-	debug?: MGSDebug;
 	value: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'LABEL';
-		this.value = breakIfNotString(args?.value, 'LABEL value');
+		this.value = breakIfNotString(args.value);
 	}
 }
 export class RUN_SCRIPT extends Action {
 	action: 'RUN_SCRIPT';
-	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'RUN_SCRIPT';
-		this.script = breakIfNotString(args?.script, 'RUN_SCRIPT script');
+		this.script = breakIfNotString(args.script);
 	}
 }
 export class BLOCKING_DELAY extends Action {
 	action: 'BLOCKING_DELAY';
-	debug?: MGSDebug;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'BLOCKING_DELAY';
-		this.duration = breakIfNotNumber(args?.duration, 'BLOCKING_DELAY duration');
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class NON_BLOCKING_DELAY extends Action {
 	action: 'NON_BLOCKING_DELAY';
-	debug?: MGSDebug;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'NON_BLOCKING_DELAY';
-		this.duration = breakIfNotNumber(args?.duration, 'NON_BLOCKING_DELAY duration');
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 
 export class SET_ENTITY_NAME extends Action {
 	action: 'SET_ENTITY_NAME';
-	debug?: MGSDebug;
 	entity: string;
 	string: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_NAME';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_NAME entity');
-		this.string = breakIfNotString(args?.string, 'SET_ENTITY_NAME string');
+		this.entity = breakIfNotString(args.entity);
+		this.string = breakIfNotString(args.string);
 	}
 }
 export class SET_ENTITY_X extends Action {
 	action: 'SET_ENTITY_X';
-	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_X';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_X entity');
-		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_X u2_value');
+		this.entity = breakIfNotString(args.entity);
+		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
 }
 export class SET_ENTITY_Y extends Action {
 	action: 'SET_ENTITY_Y';
-	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_Y';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_Y entity');
-		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_Y u2_value');
+		this.entity = breakIfNotString(args.entity);
+		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
 }
 export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 	action: 'SET_ENTITY_INTERACT_SCRIPT';
-	debug?: MGSDebug;
 	entity: string;
 	script: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_INTERACT_SCRIPT';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_INTERACT_SCRIPT entity');
-		this.script = breakIfNotString(args?.script, 'SET_ENTITY_INTERACT_SCRIPT script');
+		this.entity = breakIfNotString(args.entity);
+		this.script = breakIfNotString(args.script);
 	}
 }
 export class SET_ENTITY_TICK_SCRIPT extends Action {
 	action: 'SET_ENTITY_TICK_SCRIPT';
-	debug?: MGSDebug;
 	entity: string;
 	script: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_TICK_SCRIPT';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_TICK_SCRIPT entity');
-		this.script = breakIfNotString(args?.script, 'SET_ENTITY_TICK_SCRIPT script');
+		this.entity = breakIfNotString(args.entity);
+		this.script = breakIfNotString(args.script);
 	}
 }
 export class SET_ENTITY_TYPE extends Action {
 	action: 'SET_ENTITY_TYPE';
-	debug?: MGSDebug;
 	entity: string;
 	entity_type: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_TYPE';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_TYPE entity');
-		this.entity_type = breakIfNotString(args?.entity_type, 'SET_ENTITY_TYPE entity_type');
+		this.entity = breakIfNotString(args.entity);
+		this.entity_type = breakIfNotString(args.entity_type);
 	}
 }
 export class SET_ENTITY_PRIMARY_ID extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID';
-	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PRIMARY_ID entity');
-		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_PRIMARY_ID u2_value');
+		this.entity = breakIfNotString(args.entity);
+		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
 }
 export class SET_ENTITY_SECONDARY_ID extends Action {
 	action: 'SET_ENTITY_SECONDARY_ID';
-	debug?: MGSDebug;
 	entity: string;
 	u2_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_SECONDARY_ID';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_SECONDARY_ID entity');
-		this.u2_value = breakIfNotNumber(args?.u2_value, 'SET_ENTITY_SECONDARY_ID u2_value');
+		this.entity = breakIfNotString(args.entity);
+		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
 }
 export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID_TYPE';
-	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PRIMARY_ID_TYPE entity');
-		this.byte_value = breakIfNotNumber(
-			args?.byte_value,
-			'SET_ENTITY_PRIMARY_ID_TYPE byte_value',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.byte_value = breakIfNotNumber(args.byte_value);
 	}
 }
 export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 	action: 'SET_ENTITY_CURRENT_ANIMATION';
-	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_CURRENT_ANIMATION';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_CURRENT_ANIMATION entity');
-		this.byte_value = breakIfNotNumber(
-			args?.byte_value,
-			'SET_ENTITY_CURRENT_ANIMATION byte_value',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.byte_value = breakIfNotNumber(args.byte_value);
 	}
 }
 export class SET_ENTITY_CURRENT_FRAME extends Action {
 	action: 'SET_ENTITY_CURRENT_FRAME';
-	debug?: MGSDebug;
 	entity: string;
 	byte_value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_CURRENT_FRAME';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_CURRENT_FRAME entity');
-		this.byte_value = breakIfNotNumber(args?.byte_value, 'SET_ENTITY_CURRENT_FRAME byte_value');
+		this.entity = breakIfNotString(args.entity);
+		this.byte_value = breakIfNotNumber(args.byte_value);
 	}
 }
 export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 	action: 'SET_ENTITY_DIRECTION_RELATIVE';
-	debug?: MGSDebug;
 	entity: string;
 	relative_direction: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_RELATIVE';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_RELATIVE entity');
-		this.relative_direction = breakIfNotNumber(
-			args?.relative_direction,
-			'SET_ENTITY_DIRECTION_RELATIVE relative_direction',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.relative_direction = breakIfNotNumber(args.relative_direction);
 	}
 }
 // TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION extends Action {
 	action: 'SET_ENTITY_DIRECTION';
-	debug?: MGSDebug;
 	entity: string;
 	direction: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION entity');
-		this.direction = breakIfNotString(args?.direction, 'SET_ENTITY_DIRECTION direction');
+		this.entity = breakIfNotString(args.entity);
+		this.direction = breakIfNotString(args.direction);
 	}
 }
 // TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
-	debug?: MGSDebug;
 	entity: string;
 	target_entity: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_TARGET_ENTITY entity');
-		this.target_entity = breakIfNotString(
-			args?.target_entity,
-			'SET_ENTITY_DIRECTION_TARGET_ENTITY target_entity',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.target_entity = breakIfNotString(args.target_entity);
 	}
 }
 // TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
-	debug?: MGSDebug;
 	entity: string;
 	target_geometry: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY entity');
-		this.target_geometry = breakIfNotString(
-			args?.target_geometry,
-			'SET_ENTITY_DIRECTION_TARGET_GEOMETRY target_geometry',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.target_geometry = breakIfNotString(args.target_geometry);
 	}
 }
 export class SET_ENTITY_GLITCHED extends Action {
 	action: 'SET_ENTITY_GLITCHED';
-	debug?: MGSDebug;
 	entity: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_GLITCHED';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_GLITCHED entity');
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_ENTITY_GLITCHED bool_value');
+		this.entity = breakIfNotString(args.entity);
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -394,26 +328,24 @@ export class SET_ENTITY_GLITCHED extends Action {
 }
 export class SET_ENTITY_PATH extends Action {
 	action: 'SET_ENTITY_PATH';
-	debug?: MGSDebug;
 	entity: string;
 	geometry: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_PATH';
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_PATH entity');
-		this.geometry = breakIfNotString(args?.geometry, 'SET_ENTITY_PATH geometry');
+		this.entity = breakIfNotString(args.entity);
+		this.geometry = breakIfNotString(args.geometry);
 	}
 }
 
 export class COPY_SCRIPT extends Action {
 	action: 'COPY_SCRIPT';
-	debug?: MGSDebug;
 	script: string;
 	search_and_replace?: Record<string, string>;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'COPY_SCRIPT';
-		this.script = breakIfNotString(args?.script, 'COPY_SCRIPT script');
+		this.script = breakIfNotString(args.script);
 		if (args.search_and_replace) {
 			const search_and_replace = {};
 			Object.entries(args.search_and_replace).forEach(([k, v]) => {
@@ -426,14 +358,13 @@ export class COPY_SCRIPT extends Action {
 
 export class SET_SAVE_FLAG extends Action {
 	action: 'SET_SAVE_FLAG';
-	debug?: MGSDebug;
 	save_flag: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_SAVE_FLAG';
-		this.save_flag = breakIfNotString(args?.save_flag, 'SET_SAVE_FLAG save_flag');
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SAVE_FLAG bool_value');
+		this.save_flag = breakIfNotString(args.save_flag);
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -441,12 +372,11 @@ export class SET_SAVE_FLAG extends Action {
 }
 export class SET_PLAYER_CONTROL extends Action {
 	action: 'SET_PLAYER_CONTROL';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_PLAYER_CONTROL';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_PLAYER_CONTROL bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -454,42 +384,38 @@ export class SET_PLAYER_CONTROL extends Action {
 }
 export class SET_MAP_TICK_SCRIPT extends Action {
 	action: 'SET_MAP_TICK_SCRIPT';
-	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_MAP_TICK_SCRIPT';
-		this.script = breakIfNotString(args?.script, 'SET_MAP_TICK_SCRIPT script');
+		this.script = breakIfNotString(args.script);
 	}
 }
 export class SET_HEX_CURSOR_LOCATION extends Action {
 	action: 'SET_HEX_CURSOR_LOCATION';
-	debug?: MGSDebug;
 	address: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_HEX_CURSOR_LOCATION';
-		this.address = breakIfNotNumber(args?.address, 'SET_HEX_CURSOR_LOCATION address');
+		this.address = breakIfNotNumber(args.address);
 	}
 }
 export class SET_WARP_STATE extends Action {
 	action: 'SET_WARP_STATE';
-	debug?: MGSDebug;
 	string: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_WARP_STATE';
-		this.string = breakIfNotString(args?.string, 'SET_WARP_STATE string');
+		this.string = breakIfNotString(args.string);
 	}
 }
 export class SET_HEX_EDITOR_STATE extends Action {
 	action: 'SET_HEX_EDITOR_STATE';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_HEX_EDITOR_STATE';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_STATE bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -497,12 +423,11 @@ export class SET_HEX_EDITOR_STATE extends Action {
 }
 export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_HEX_EDITOR_DIALOG_MODE';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_DIALOG_MODE bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -510,25 +435,20 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 }
 export class SET_HEX_EDITOR_CONTROL extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_HEX_EDITOR_CONTROL bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 }
 export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
-		this.bool_value = breakIfNotBool(
-			args?.bool_value,
-			'SET_HEX_EDITOR_CONTROL_CLIPBOARD bool_value',
-		);
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -536,231 +456,212 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 }
 export class LOAD_MAP extends Action {
 	action: 'LOAD_MAP';
-	debug?: MGSDebug;
 	map: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'LOAD_MAP';
-		this.map = breakIfNotString(args?.map, 'LOAD_MAP map');
+		this.map = breakIfNotString(args.map);
 	}
 }
 export class SHOW_DIALOG extends Action {
 	action: 'SHOW_DIALOG';
-	debug?: MGSDebug;
 	dialog: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SHOW_DIALOG';
-		this.dialog = breakIfNotString(args?.dialog, 'SHOW_DIALOG dialog');
+		this.dialog = breakIfNotString(args.dialog);
 	}
 }
 export class PLAY_ENTITY_ANIMATION extends Action {
 	action: 'PLAY_ENTITY_ANIMATION';
-	debug?: MGSDebug;
 	entity: string;
 	animation: number;
 	play_count: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'PLAY_ENTITY_ANIMATION';
-		this.entity = breakIfNotString(args?.entity, 'PLAY_ENTITY_ANIMATION entity');
-		this.animation = breakIfNotNumber(args?.animation, 'PLAY_ENTITY_ANIMATION animation');
-		this.play_count = breakIfNotNumber(args?.play_count, 'PLAY_ENTITY_ANIMATION play_count');
+		this.entity = breakIfNotString(args.entity);
+		this.animation = breakIfNotNumber(args.animation);
+		this.play_count = breakIfNotNumber(args.play_count);
 	}
 }
 export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_ENTITY_TO_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'TELEPORT_ENTITY_TO_GEOMETRY';
-		this.entity = breakIfNotString(args?.entity, 'TELEPORT_ENTITY_TO_GEOMETRY entity');
-		this.geometry = breakIfNotString(args?.geometry, 'TELEPORT_ENTITY_TO_GEOMETRY geometry');
+		this.entity = breakIfNotString(args.entity);
+		this.geometry = breakIfNotString(args.geometry);
 	}
 }
 export class WALK_ENTITY_TO_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_TO_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'WALK_ENTITY_TO_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'WALK_ENTITY_TO_GEOMETRY geometry');
-		this.entity = breakIfNotString(args?.entity, 'WALK_ENTITY_TO_GEOMETRY entity');
-		this.duration = breakIfNotNumber(args?.duration, 'WALK_ENTITY_TO_GEOMETRY duration');
+		this.geometry = breakIfNotString(args.geometry);
+		this.entity = breakIfNotString(args.entity);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_ALONG_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'WALK_ENTITY_ALONG_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'WALK_ENTITY_ALONG_GEOMETRY geometry');
-		this.entity = breakIfNotString(args?.entity, 'WALK_ENTITY_ALONG_GEOMETRY entity');
-		this.duration = breakIfNotNumber(args?.duration, 'WALK_ENTITY_ALONG_GEOMETRY duration');
+		this.geometry = breakIfNotString(args.geometry);
+		this.entity = breakIfNotString(args.entity);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_ENTITY_ALONG_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'LOOP_ENTITY_ALONG_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'LOOP_ENTITY_ALONG_GEOMETRY geometry');
-		this.entity = breakIfNotString(args?.entity, 'LOOP_ENTITY_ALONG_GEOMETRY entity');
-		this.duration = breakIfNotNumber(args?.duration, 'LOOP_ENTITY_ALONG_GEOMETRY duration');
+		this.geometry = breakIfNotString(args.geometry);
+		this.entity = breakIfNotString(args.entity);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	action: 'SET_CAMERA_TO_FOLLOW_ENTITY';
-	debug?: MGSDebug;
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_CAMERA_TO_FOLLOW_ENTITY';
-		this.entity = breakIfNotString(args?.entity, 'SET_CAMERA_TO_FOLLOW_ENTITY entity');
+		this.entity = breakIfNotString(args.entity);
 	}
 }
 export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_CAMERA_TO_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'TELEPORT_CAMERA_TO_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'TELEPORT_CAMERA_TO_GEOMETRY geometry');
+		this.geometry = breakIfNotString(args.geometry);
 	}
 }
 export class PAN_CAMERA_TO_ENTITY extends Action {
 	action: 'PAN_CAMERA_TO_ENTITY';
-	debug?: MGSDebug;
 	entity: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'PAN_CAMERA_TO_ENTITY';
-		this.entity = breakIfNotString(args?.entity, 'PAN_CAMERA_TO_ENTITY entity');
-		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_TO_ENTITY duration');
+		this.entity = breakIfNotString(args.entity);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_TO_GEOMETRY';
-	debug?: MGSDebug;
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'PAN_CAMERA_TO_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'PAN_CAMERA_TO_GEOMETRY geometry');
-		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_TO_GEOMETRY entidurationty');
+		this.geometry = breakIfNotString(args.geometry);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_ALONG_GEOMETRY';
-	debug?: MGSDebug;
 	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'PAN_CAMERA_ALONG_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'PAN_CAMERA_ALONG_GEOMETRY geometry');
-		this.duration = breakIfNotNumber(args?.duration, 'PAN_CAMERA_ALONG_GEOMETRY duration');
+		this.geometry = breakIfNotString(args.geometry);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_CAMERA_ALONG_GEOMETRY';
-	debug?: MGSDebug;
 	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
-		this.geometry = breakIfNotString(args?.geometry, 'LOOP_CAMERA_ALONG_GEOMETRY geometry');
-		this.duration = breakIfNotNumber(args?.duration, 'LOOP_CAMERA_ALONG_GEOMETRY duration');
+		this.geometry = breakIfNotString(args.geometry);
+		this.duration = breakIfNotNumber(args.duration);
 	}
 }
 export class SET_SCREEN_SHAKE extends Action {
 	action: 'SET_SCREEN_SHAKE';
-	debug?: MGSDebug;
 	duration: number;
 	frequency: number;
 	amplitude: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_SCREEN_SHAKE';
-		this.duration = breakIfNotNumber(args?.duration, 'SET_SCREEN_SHAKE duration');
-		this.frequency = breakIfNotNumber(args?.frequency, 'SET_SCREEN_SHAKE frequency');
-		this.amplitude = breakIfNotNumber(args?.amplitude, 'SET_SCREEN_SHAKE amplitude');
+		this.duration = breakIfNotNumber(args.duration);
+		this.frequency = breakIfNotNumber(args.frequency);
+		this.amplitude = breakIfNotNumber(args.amplitude);
 	}
 }
 export class SCREEN_FADE_OUT extends Action {
 	action: 'SCREEN_FADE_OUT';
-	debug?: MGSDebug;
 	duration: number;
 	color: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SCREEN_FADE_OUT';
-		this.duration = breakIfNotNumber(args?.duration, 'SCREEN_FADE_OUT duration');
-		this.color = breakIfNotString(args?.color, 'SCREEN_FADE_OUT color');
+		this.duration = breakIfNotNumber(args.duration);
+		this.color = breakIfNotString(args.color);
 	}
 }
 export class SCREEN_FADE_IN extends Action {
 	action: 'SCREEN_FADE_IN';
-	debug?: MGSDebug;
 	duration: number;
 	color: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SCREEN_FADE_IN';
-		this.duration = breakIfNotNumber(args?.duration, 'SCREEN_FADE_IN duration');
-		this.color = breakIfNotString(args?.color, 'SCREEN_FADE_IN color');
+		this.duration = breakIfNotNumber(args.duration);
+		this.color = breakIfNotString(args.color);
 	}
 }
 export class MUTATE_VARIABLE extends Action {
 	action: 'MUTATE_VARIABLE';
-	debug?: MGSDebug;
 	variable: string;
 	operation: string;
 	value: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'MUTATE_VARIABLE';
-		this.variable = breakIfNotString(args?.variable, 'MUTATE_VARIABLE variable');
-		this.operation = breakIfNotString(args?.operation, 'MUTATE_VARIABLE operation');
-		this.value = breakIfNotNumber(args?.value, 'MUTATE_VARIABLE value');
+		this.variable = breakIfNotString(args.variable);
+		this.operation = breakIfNotString(args.operation);
+		this.value = breakIfNotNumber(args.value);
 	}
 }
 export class MUTATE_VARIABLES extends Action {
 	action: 'MUTATE_VARIABLES';
-	debug?: MGSDebug;
 	variable: string;
 	operation: string;
 	source: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'MUTATE_VARIABLES';
-		this.variable = breakIfNotString(args?.variable, 'MUTATE_VARIABLES variable');
-		this.operation = breakIfNotString(args?.operation, 'MUTATE_VARIABLES operation');
-		this.source = breakIfNotString(args?.source, 'MUTATE_VARIABLES source');
+		this.variable = breakIfNotString(args.variable);
+		this.operation = breakIfNotString(args.operation);
+		this.source = breakIfNotString(args.source);
 	}
 }
 export class COPY_VARIABLE extends Action {
 	action: 'COPY_VARIABLE';
-	debug?: MGSDebug;
 	variable: string;
 	entity: string;
 	field: string;
@@ -768,15 +669,14 @@ export class COPY_VARIABLE extends Action {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'COPY_VARIABLE';
-		this.variable = breakIfNotString(args?.variable, 'COPY_VARIABLE variable');
-		this.entity = breakIfNotString(args?.entity, 'COPY_VARIABLE entity');
-		this.field = breakIfNotString(args?.field, 'COPY_VARIABLE field');
-		this.inbound = breakIfNotBool(args?.inbound, 'COPY_VARIABLE inbound');
+		this.variable = breakIfNotString(args.variable);
+		this.entity = breakIfNotString(args.entity);
+		this.field = breakIfNotString(args.field);
+		this.inbound = breakIfNotBool(args.inbound);
 	}
 }
 export class SLOT_SAVE extends Action {
 	action: 'SLOT_SAVE';
-	debug?: MGSDebug;
 	constructor() {
 		super();
 		this.action = 'SLOT_SAVE';
@@ -784,84 +684,71 @@ export class SLOT_SAVE extends Action {
 }
 export class SLOT_LOAD extends Action {
 	action: 'SLOT_LOAD';
-	debug?: MGSDebug;
 	slot: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SLOT_LOAD';
-		this.slot = breakIfNotNumber(args?.slot, 'SLOT_LOAD slot');
+		this.slot = breakIfNotNumber(args.slot);
 	}
 }
 export class SLOT_ERASE extends Action {
 	action: 'SLOT_ERASE';
-	debug?: MGSDebug;
 	slot: number;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SLOT_ERASE';
-		this.slot = breakIfNotNumber(args?.slot, 'SLOT_ERASE slot');
+		this.slot = breakIfNotNumber(args.slot);
 	}
 }
 export class SET_CONNECT_SERIAL_DIALOG extends Action {
 	action: 'SET_CONNECT_SERIAL_DIALOG';
-	debug?: MGSDebug;
 	serial_dialog: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_CONNECT_SERIAL_DIALOG';
-		this.serial_dialog = breakIfNotString(
-			args?.serial_dialog,
-			'SET_CONNECT_SERIAL_DIALOG serial_dialog',
-		);
+		this.serial_dialog = breakIfNotString(args.serial_dialog);
 	}
 }
 export class SHOW_SERIAL_DIALOG extends Action {
 	action: 'SHOW_SERIAL_DIALOG';
-	debug?: MGSDebug;
 	serial_dialog: string;
 	disable_newline?: boolean; // might be absent on old stuff
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SHOW_SERIAL_DIALOG';
-		this.serial_dialog = breakIfNotString(
-			args?.serial_dialog,
-			'SHOW_SERIAL_DIALOG serial_dialog',
-		);
-		if (args?.disable_newline) {
+		this.serial_dialog = breakIfNotString(args.serial_dialog);
+		if (args.disable_newline) {
 			this.disable_newline = true;
 		}
 	}
 }
 export class SET_MAP_LOOK_SCRIPT extends Action {
 	action: 'SET_MAP_LOOK_SCRIPT';
-	debug?: MGSDebug;
 	script: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_MAP_LOOK_SCRIPT';
-		this.script = breakIfNotString(args?.script, 'SET_MAP_LOOK_SCRIPT script');
+		this.script = breakIfNotString(args.script);
 	}
 }
 export class SET_ENTITY_LOOK_SCRIPT extends Action {
 	action: 'SET_ENTITY_LOOK_SCRIPT';
-	debug?: MGSDebug;
 	script: string;
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_LOOK_SCRIPT';
-		this.script = breakIfNotString(args?.script, 'SET_ENTITY_LOOK_SCRIPT script');
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_LOOK_SCRIPT entity');
+		this.script = breakIfNotString(args.script);
+		this.entity = breakIfNotString(args.entity);
 	}
 }
 export class SET_TELEPORT_ENABLED extends Action {
 	action: 'SET_TELEPORT_ENABLED';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_TELEPORT_ENABLED';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_TELEPORT_ENABLED bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -869,14 +756,13 @@ export class SET_TELEPORT_ENABLED extends Action {
 }
 export class SET_BLE_FLAG extends Action {
 	action: 'SET_BLE_FLAG';
-	debug?: MGSDebug;
 	ble_flag: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_BLE_FLAG';
-		this.ble_flag = breakIfNotString(args?.ble_flag, 'SET_BLE_FLAG ble_flag');
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_BLE_FLAG bool_value');
+		this.ble_flag = breakIfNotString(args.ble_flag);
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -884,12 +770,11 @@ export class SET_BLE_FLAG extends Action {
 }
 export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	action: 'SET_SERIAL_DIALOG_CONTROL';
-	debug?: MGSDebug;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_SERIAL_DIALOG_CONTROL';
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SERIAL_DIALOG_CONTROL bool_value');
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -897,88 +782,67 @@ export class SET_SERIAL_DIALOG_CONTROL extends Action {
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND';
-	debug?: MGSDebug;
 	command: string;
 	script: string;
 	is_fail?: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND';
-		this.command = breakIfNotString(args?.command, 'REGISTER_SERIAL_DIALOG_COMMAND command');
-		this.script = breakIfNotString(args?.script, 'REGISTER_SERIAL_DIALOG_COMMAND script');
+		this.command = breakIfNotString(args.command);
+		this.script = breakIfNotString(args.script);
 		if (args.is_fail) this.is_fail = true;
 	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
-	debug?: MGSDebug;
 	command: string;
 	script: string;
 	argument: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
-		this.command = breakIfNotString(
-			args?.command,
-			'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT command',
-		);
-		this.script = breakIfNotString(
-			args?.script,
-			'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT script',
-		);
-		this.argument = breakIfNotString(
-			args?.argument,
-			'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT argument',
-		);
+		this.command = breakIfNotString(args.command);
+		this.script = breakIfNotString(args.script);
+		this.argument = breakIfNotString(args.argument);
 	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND';
-	debug?: MGSDebug;
 	command: string;
 	is_fail?: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND';
-		this.command = breakIfNotString(args?.command, 'UNREGISTER_SERIAL_DIALOG_COMMAND command');
+		this.command = breakIfNotString(args.command);
 		if (args.is_fail !== undefined) {
-			this.is_fail = breakIfNotBool(args.is_fail, 'UNREGISTER_SERIAL_DIALOG_COMMAND is_fail');
+			this.is_fail = breakIfNotBool(args.is_fail);
 		}
 	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
-	debug?: MGSDebug;
 	command: string;
 	argument: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
-		this.command = breakIfNotString(args?.command, 'UNREGISTER_SERIAL_DIALOG_COMMAND command');
-		this.argument = breakIfNotString(
-			args?.argument,
-			'UNREGISTER_SERIAL_DIALOG_COMMAND argument',
-		);
+		this.command = breakIfNotString(args.command);
+		this.argument = breakIfNotString(args.argument);
 	}
 }
 export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
 	action: 'SET_ENTITY_MOVEMENT_RELATIVE';
-	debug?: MGSDebug;
 	relative_direction: number;
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
-		this.relative_direction = breakIfNotNumber(
-			args?.relative_direction,
-			'SET_ENTITY_MOVEMENT_RELATIVE relative_direction',
-		);
-		this.entity = breakIfNotString(args?.entity, 'SET_ENTITY_MOVEMENT_RELATIVE entity');
+		this.relative_direction = breakIfNotNumber(args.relative_direction);
+		this.entity = breakIfNotString(args.entity);
 	}
 }
 export class CLOSE_DIALOG extends Action {
 	action: 'CLOSE_DIALOG';
-	debug?: MGSDebug;
 	constructor() {
 		super();
 		this.action = 'CLOSE_DIALOG';
@@ -986,7 +850,6 @@ export class CLOSE_DIALOG extends Action {
 }
 export class CLOSE_SERIAL_DIALOG extends Action {
 	action: 'CLOSE_SERIAL_DIALOG';
-	debug?: MGSDebug;
 	constructor() {
 		super();
 		this.action = 'CLOSE_SERIAL_DIALOG';
@@ -994,12 +857,11 @@ export class CLOSE_SERIAL_DIALOG extends Action {
 }
 export class SET_LIGHTS_CONTROL extends Action {
 	action: 'SET_LIGHTS_CONTROL';
-	debug?: MGSDebug;
 	enabled: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_LIGHTS_CONTROL';
-		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_CONTROL enabled');
+		this.enabled = breakIfNotBool(args.enabled);
 	}
 	invert() {
 		this.enabled = !this.enabled;
@@ -1007,14 +869,13 @@ export class SET_LIGHTS_CONTROL extends Action {
 }
 export class SET_LIGHTS_STATE extends Action {
 	action: 'SET_LIGHTS_STATE';
-	debug?: MGSDebug;
 	lights: string | string[];
 	enabled: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_LIGHTS_STATE';
-		this.enabled = breakIfNotBool(args?.enabled, 'SET_LIGHTS_STATE enabled');
-		this.lights = breakIfNotStringOrStringArray(args?.lights, 'SET_LIGHTS_STATE lights');
+		this.enabled = breakIfNotBool(args.enabled);
+		this.lights = breakIfNotStringOrStringArray(args.lights);
 	}
 	invert() {
 		this.enabled = !this.enabled;
@@ -1022,29 +883,24 @@ export class SET_LIGHTS_STATE extends Action {
 }
 export class GOTO_ACTION_INDEX extends Action {
 	action: 'GOTO_ACTION_INDEX';
-	debug?: MGSDebug;
 	action_index: number | string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'GOTO_ACTION_INDEX';
-		this.action_index = breakIfNotStringOrNumber(
-			args?.action_index,
-			'GOTO_ACTION_INDEX action_index',
-		);
+		this.action_index = breakIfNotStringOrNumber(args.action_index);
 	}
 }
 export class SET_SCRIPT_PAUSE extends Action {
 	action: 'SET_SCRIPT_PAUSE';
-	debug?: MGSDebug;
 	entity: string;
 	script_slot: string;
 	bool_value: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_SCRIPT_PAUSE';
-		this.entity = breakIfNotString(args?.entity, 'SET_SCRIPT_PAUSE entity');
-		this.script_slot = breakIfNotString(args?.script_slot, 'SET_SCRIPT_PAUSE script_slot');
-		this.bool_value = breakIfNotBool(args?.bool_value, 'SET_SCRIPT_PAUSE bool_value');
+		this.entity = breakIfNotString(args.entity);
+		this.script_slot = breakIfNotString(args.script_slot);
+		this.bool_value = breakIfNotBool(args.bool_value);
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -1052,45 +908,33 @@ export class SET_SCRIPT_PAUSE extends Action {
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
-	debug?: MGSDebug;
 	command: string;
 	alias: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
-		this.command = breakIfNotString(
-			args?.command,
-			'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS command',
-		);
-		this.alias = breakIfNotString(args?.alias, 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS alias');
+		this.command = breakIfNotString(args.command);
+		this.alias = breakIfNotString(args.alias);
 	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
-	debug?: MGSDebug;
 	alias: string;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
-		this.alias = breakIfNotString(args?.alias, 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS alias');
+		this.alias = breakIfNotString(args.alias);
 	}
 }
 export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 	action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
-	debug?: MGSDebug;
 	command: string;
 	is_visible: boolean;
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
-		this.command = breakIfNotString(
-			args?.command,
-			'SET_SERIAL_DIALOG_COMMAND_VISIBILITY command',
-		);
-		this.is_visible = breakIfNotBool(
-			args?.is_visible,
-			'SET_SERIAL_DIALOG_COMMAND_VISIBILITY is_visible',
-		);
+		this.command = breakIfNotString(args.command);
+		this.is_visible = breakIfNotBool(args.is_visible);
 	}
 }
 
@@ -1103,19 +947,16 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_NAME';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_NAME success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_NAME label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_ENTITY_NAME jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_NAME entity');
-		this.string = breakIfNotString(args?.string, 'CHECK_ENTITY_NAME string');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_NAME expected_bool');
+		this.entity = breakIfNotString(args.entity);
+		this.string = breakIfNotString(args.string);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.string = value;
@@ -1128,19 +969,16 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_X';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_X success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_X label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_ENTITY_X jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_X entity');
-		this.expected_u2 = breakIfNotNumber(args?.expected_u2, 'CHECK_ENTITY_X expected_u2');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_X expected_bool');
+		this.entity = breakIfNotString(args.entity);
+		this.expected_u2 = breakIfNotNumber(args.expected_u2);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
@@ -1156,19 +994,16 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_Y';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_Y success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_Y label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_ENTITY_Y jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_Y entity');
-		this.expected_u2 = breakIfNotNumber(args?.expected_u2, 'CHECK_ENTITY_Y expected_u2');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_Y expected_bool');
+		this.entity = breakIfNotString(args.entity);
+		this.expected_u2 = breakIfNotNumber(args.expected_u2);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
@@ -1184,28 +1019,16 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_INTERACT_SCRIPT success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_INTERACT_SCRIPT label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_INTERACT_SCRIPT jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_INTERACT_SCRIPT entity');
-		this.expected_script = breakIfNotString(
-			args?.expected_script,
-			'CHECK_ENTITY_INTERACT_SCRIPT expected_script',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_INTERACT_SCRIPT expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_script = breakIfNotString(args.expected_script);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
@@ -1218,28 +1041,16 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_TICK_SCRIPT success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_TICK_SCRIPT label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_TICK_SCRIPT jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_TICK_SCRIPT entity');
-		this.expected_script = breakIfNotString(
-			args?.expected_script,
-			'CHECK_ENTITY_TICK_SCRIPT expected_script',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_TICK_SCRIPT expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_script = breakIfNotString(args.expected_script);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
@@ -1252,28 +1063,16 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_LOOK_SCRIPT success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_LOOK_SCRIPT label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_LOOK_SCRIPT jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_LOOK_SCRIPT entity');
-		this.expected_script = breakIfNotString(
-			args?.expected_script,
-			'CHECK_ENTITY_LOOK_SCRIPT expected_script',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_LOOK_SCRIPT expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_script = breakIfNotString(args.expected_script);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
@@ -1286,19 +1085,16 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_TYPE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_TYPE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_TYPE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_ENTITY_TYPE jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_TYPE entity');
-		this.entity_type = breakIfNotString(args?.entity_type, 'CHECK_ENTITY_TYPE entity_type');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_TYPE expected_bool');
+		this.entity = breakIfNotString(args.entity);
+		this.entity_type = breakIfNotString(args.entity_type);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.entity_type = value;
@@ -1311,28 +1107,16 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_PRIMARY_ID success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_PRIMARY_ID label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_PRIMARY_ID jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_PRIMARY_ID entity');
-		this.expected_u2 = breakIfNotNumber(
-			args?.expected_u2,
-			'CHECK_ENTITY_PRIMARY_ID expected_u2',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_PRIMARY_ID expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_u2 = breakIfNotNumber(args.expected_u2);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
@@ -1348,28 +1132,16 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_SECONDARY_ID';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_SECONDARY_ID success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_SECONDARY_ID label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_SECONDARY_ID jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_SECONDARY_ID entity');
-		this.expected_u2 = breakIfNotNumber(
-			args?.expected_u2,
-			'CHECK_ENTITY_SECONDARY_ID expected_u2',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_SECONDARY_ID expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_u2 = breakIfNotNumber(args.expected_u2);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
@@ -1385,28 +1157,16 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_PRIMARY_ID_TYPE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_PRIMARY_ID_TYPE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_PRIMARY_ID_TYPE jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_PRIMARY_ID_TYPE entity');
-		this.expected_byte = breakIfNotNumber(
-			args?.expected_byte,
-			'CHECK_ENTITY_PRIMARY_ID_TYPE expected_byte',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_PRIMARY_ID_TYPE expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_byte = breakIfNotNumber(args.expected_byte);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
@@ -1422,28 +1182,16 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_CURRENT_ANIMATION success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_CURRENT_ANIMATION label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_CURRENT_ANIMATION jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_CURRENT_ANIMATION entity');
-		this.expected_byte = breakIfNotNumber(
-			args?.expected_byte,
-			'CHECK_ENTITY_CURRENT_ANIMATION expected_byte',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_CURRENT_ANIMATION expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_byte = breakIfNotNumber(args.expected_byte);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
@@ -1460,28 +1208,16 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_CURRENT_FRAME success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_CURRENT_FRAME label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_CURRENT_FRAME jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_CURRENT_FRAME entity');
-		this.expected_byte = breakIfNotNumber(
-			args?.expected_byte,
-			'CHECK_ENTITY_CURRENT_FRAME expected_byte',
-		);
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_CURRENT_FRAME expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_byte = breakIfNotNumber(args.expected_byte);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
@@ -1497,25 +1233,16 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_DIRECTION';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_DIRECTION success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_DIRECTION label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_DIRECTION jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_DIRECTION entity');
-		this.direction = breakIfNotString(args?.direction, 'CHECK_ENTITY_DIRECTION entity_type');
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_DIRECTION expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.direction = breakIfNotString(args.direction);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.direction = value;
@@ -1528,24 +1255,15 @@ export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_ENTITY_GLITCHED';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_GLITCHED success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_GLITCHED label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_ENTITY_GLITCHED jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_GLITCHED entity');
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_ENTITY_GLITCHED expected_bool',
-		);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_ENTITY_PATH extends StringCheckable {
@@ -1555,19 +1273,16 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_ENTITY_PATH';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_ENTITY_PATH success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_ENTITY_PATH label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_ENTITY_PATH jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.entity = breakIfNotString(args?.entity, 'CHECK_ENTITY_PATH entity');
-		this.geometry = breakIfNotString(args?.geometry, 'CHECK_ENTITY_PATH geometry');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_ENTITY_PATH expected_bool');
+		this.entity = breakIfNotString(args.entity);
+		this.geometry = breakIfNotString(args.geometry);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.geometry = value;
@@ -1580,18 +1295,15 @@ export class CHECK_SAVE_FLAG extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SAVE_FLAG';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_SAVE_FLAG success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_SAVE_FLAG label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_SAVE_FLAG jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.save_flag = breakIfNotString(args?.save_flag, 'CHECK_SAVE_FLAG save_flag');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_SAVE_FLAG expected_bool');
+		this.save_flag = breakIfNotString(args.save_flag);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
@@ -1602,25 +1314,16 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_IF_ENTITY_IS_IN_GEOMETRY success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_IF_ENTITY_IS_IN_GEOMETRY label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_IF_ENTITY_IS_IN_GEOMETRY jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.geometry = breakIfNotString(args?.geometry, 'CHECK_IF_ENTITY_IS_IN_GEOMETRY geometry');
-		this.entity = breakIfNotString(args?.entity, 'CHECK_IF_ENTITY_IS_IN_GEOMETRY entity');
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_IF_ENTITY_IS_IN_GEOMETRY expected_bool',
-		);
+		this.geometry = breakIfNotString(args.geometry);
+		this.entity = breakIfNotString(args.entity);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
@@ -1630,24 +1333,15 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_FOR_BUTTON_PRESS success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_FOR_BUTTON_PRESS label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_FOR_BUTTON_PRESS jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.button_id = breakIfNotString(args?.button_id, 'CHECK_FOR_BUTTON_PRESS button_id');
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_FOR_BUTTON_PRESS expected_bool',
-		);
+		this.button_id = breakIfNotString(args.button_id);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
@@ -1657,24 +1351,15 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_STATE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_FOR_BUTTON_STATE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_FOR_BUTTON_STATE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_FOR_BUTTON_STATE jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.button_id = breakIfNotString(args?.button_id, 'CHECK_FOR_BUTTON_STATE button_id');
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_FOR_BUTTON_STATE expected_bool',
-		);
+		this.button_id = breakIfNotString(args.button_id);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_WARP_STATE extends StringCheckable {
@@ -1683,18 +1368,15 @@ export class CHECK_WARP_STATE extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_WARP_STATE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_WARP_STATE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_WARP_STATE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_WARP_STATE jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.string = breakIfNotString(args?.string, 'CHECK_WARP_STATE string');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_WARP_STATE expected_bool');
+		this.string = breakIfNotString(args.string);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.string = value;
@@ -1708,20 +1390,17 @@ export class CHECK_VARIABLE extends NumberComparison {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_VARIABLE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_VARIABLE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_VARIABLE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_VARIABLE jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.variable = breakIfNotString(args?.variable, 'CHECK_VARIABLE variable');
-		this.comparison = breakIfNotString(args?.comparison, 'CHECK_VARIABLE comparison');
-		this.value = breakIfNotNumber(args?.value, 'CHECK_VARIABLE value');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_VARIABLE expected_bool');
+		this.variable = breakIfNotString(args.variable);
+		this.comparison = breakIfNotString(args.comparison);
+		this.value = breakIfNotNumber(args.value);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_VARIABLES extends NumberComparison {
@@ -1732,20 +1411,17 @@ export class CHECK_VARIABLES extends NumberComparison {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_VARIABLES';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_VARIABLES success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_VARIABLES label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_VARIABLES jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.variable = breakIfNotString(args?.variable, 'CHECK_VARIABLES variable');
-		this.comparison = breakIfNotString(args?.comparison, 'CHECK_VARIABLES comparison');
-		this.source = breakIfNotString(args?.source, 'CHECK_VARIABLES source');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_VARIABLES expected_bool');
+		this.variable = breakIfNotString(args.variable);
+		this.comparison = breakIfNotString(args.comparison);
+		this.source = breakIfNotString(args.source);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_MAP extends StringCheckable {
@@ -1756,18 +1432,15 @@ export class CHECK_MAP extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_MAP';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_MAP success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_MAP label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_MAP jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.map = breakIfNotString(args?.map, 'CHECK_MAP map');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_MAP expected_bool');
+		this.map = breakIfNotString(args.map);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.map = value;
@@ -1779,18 +1452,15 @@ export class CHECK_BLE_FLAG extends StringCheckable {
 	constructor(args: GenericActionish) {
 		super();
 		this.action = 'CHECK_BLE_FLAG';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_BLE_FLAG success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_BLE_FLAG label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_BLE_FLAG jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.ble_flag = breakIfNotString(args?.ble_flag, 'CHECK_BLE_FLAG ble_flag');
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_BLE_FLAG expected_bool');
+		this.ble_flag = breakIfNotString(args.ble_flag);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.ble_flag = value;
@@ -1802,17 +1472,14 @@ export class CHECK_DIALOG_OPEN extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DIALOG_OPEN';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_DIALOG_OPEN success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_DIALOG_OPEN label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_DIALOG_OPEN jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_DIALOG_OPEN expected_bool');
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
@@ -1821,23 +1488,14 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_SERIAL_DIALOG_OPEN success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_SERIAL_DIALOG_OPEN label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(
-				args?.jump_index,
-				'CHECK_SERIAL_DIALOG_OPEN jump_index',
-			);
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.expected_bool = breakIfNotBool(
-			args?.expected_bool,
-			'CHECK_SERIAL_DIALOG_OPEN expected_bool',
-		);
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export class CHECK_DEBUG_MODE extends BoolGetable {
@@ -1846,17 +1504,14 @@ export class CHECK_DEBUG_MODE extends BoolGetable {
 		super();
 		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DEBUG_MODE';
-		if (args?.success_script) {
-			this.success_script = breakIfNotString(
-				args?.success_script,
-				'CHECK_DEBUG_MODE success_script',
-			);
-		} else if (args?.label) {
-			this.label = breakIfNotString(args?.label, 'CHECK_DEBUG_MODE label');
-		} else if (args?.jump_index) {
-			this.jump_index = breakIfNotNumber(args?.jump_index, 'CHECK_DEBUG_MODE jump_index');
+		if (args.success_script) {
+			this.success_script = breakIfNotString(args.success_script);
+		} else if (args.label) {
+			this.label = breakIfNotString(args.label);
+		} else if (args.jump_index) {
+			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
-		this.expected_bool = breakIfNotBool(args?.expected_bool, 'CHECK_DEBUG_MODE expected_bool');
+		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 }
 export type CheckAction =
@@ -2168,30 +1823,30 @@ export const getBoolFieldForAction = (action: string): string => {
 	throw new Error('multiple possible bool params: ' + filtered.join(', '));
 };
 
-const breakIfNotStringOrStringArray = (v: unknown, label: string): string | string[] => {
+const breakIfNotStringOrStringArray = (v: unknown): string | string[] => {
 	if (typeof v === 'string') return v;
 	if (Array.isArray(v) && v.every((v) => typeof v === 'string')) return v;
-	throw new Error(label + ' not a string or a strng array');
+	throw new Error('not a string or a strng array');
 };
-export const breakIfNotString = (v: unknown, label: string): string => {
+export const breakIfNotString = (v: unknown): string => {
 	if (typeof v === 'string') return v;
-	throw new Error(label + ' not a string');
+	throw new Error('not a string');
 };
-export const breakIfNotStringOrNumber = (v: unknown, label: string): string | number => {
+export const breakIfNotStringOrNumber = (v: unknown): string | number => {
 	if (typeof v === 'string') return v;
 	if (typeof v === 'number') return v;
-	throw new Error(label + ' not a string or number');
+	throw new Error('not a string or number');
 };
-export const breakIfNotNumber = (v: unknown, label: string): number => {
+export const breakIfNotNumber = (v: unknown): number => {
 	if (typeof v === 'number') return v;
-	throw new Error(label + ' not a number');
+	throw new Error('not a number');
 };
-export const breakIfNotBool = (v: unknown, label: string): boolean => {
+export const breakIfNotBool = (v: unknown): boolean => {
 	if (typeof v === 'boolean') return v;
-	throw new Error(label + ' not a boolean');
+	throw new Error('not a boolean');
 };
 
-const constructorLookup = {
+const actionConstructorLookup = {
 	NULL_ACTION: () => new NULL_ACTION(),
 	COPY_SCRIPT: (args: GenericActionish) => new COPY_SCRIPT(args),
 	LABEL: (args: GenericActionish) => new LABEL(args),
@@ -2335,8 +1990,8 @@ export const summonActionConstructor = (v: unknown) => {
 		throw new Error('cannot create action from ' + typeof v);
 	}
 	const actionName = String((v as Action).action); // todo: best practices?
-	if (typeof actionName === 'string' && constructorLookup[actionName]) {
-		return constructorLookup[actionName](v);
+	if (typeof actionName === 'string' && actionConstructorLookup[actionName]) {
+		return actionConstructorLookup[actionName](v);
 	}
 	throw new Error('failed to create action ' + actionName);
 };
@@ -2348,17 +2003,17 @@ export const standardizeNode = (
 ): Action | GenericActionish => {
 	if (action instanceof CopyMacro) {
 		const manual = new COPY_SCRIPT({
-			script: breakIfNotString(action.script, 'script'),
+			script: breakIfNotString(action.script),
 		});
 		return manual;
 	}
 	if (action instanceof LabelDefinition) {
-		const value = breakIfNotString(action.label, 'label');
+		const value = breakIfNotString(action.label);
 		return new LABEL({ value });
 	}
 	if (action instanceof GotoLabel) {
 		const ret = new GOTO_ACTION_INDEX({
-			action_index: breakIfNotString(action.label, 'label'),
+			action_index: breakIfNotString(action.label),
 		});
 		return ret;
 	}
@@ -2368,14 +2023,14 @@ export const standardizeNode = (
 		});
 		return ret;
 	}
-	const actionName = breakIfNotString(action.action, 'actionName');
+	const actionName = breakIfNotString(action.action);
 	Object.keys(action).forEach((field: string) => {
 		if (!isFieldForAction(field, actionName) && field !== 'action') {
 			delete action[field];
 		}
 	});
-	if (constructorLookup[actionName]) {
-		return constructorLookup[actionName](action);
+	if (actionConstructorLookup[actionName]) {
+		return actionConstructorLookup[actionName](action);
 	}
 	return action;
 };

@@ -12,7 +12,7 @@ import { debugLog, printableMGSMessage, ansiTags as ansi } from './parser-utilit
 
 import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
-import { GOTO_ACTION_INDEX, GotoLabel, standardizeNode } from './parser-bytecode-info.ts';
+import { GOTO_ACTION_INDEX, standardizeNode } from './parser-bytecode-info.ts';
 
 import {
 	DialogDefinition,
@@ -21,6 +21,7 @@ import {
 	LabelDefinition,
 	doesMathlangHaveLabelToChangeToIndex,
 	CommentNode,
+	GotoLabel,
 } from './parser-types.ts';
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';

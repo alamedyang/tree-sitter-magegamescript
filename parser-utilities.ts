@@ -1,7 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import {
 	CHECK_SAVE_FLAG,
-	GotoLabel,
 	MGSDebug,
 	BoolGetable,
 	StringCheckable,
@@ -18,7 +17,7 @@ import {
 	MathlangSequence,
 	isBoolExpression,
 	type BoolComparison,
-	MathlangNode,
+	GotoLabel,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -232,16 +231,17 @@ export const expandBoolExpression = (
 		throw new Error('expected == or !==, found ' + op);
 	}
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAs = new BoolBinaryExpression(new MGSDebug(f, condition.debug?.node || node), {
+	const expandAsDebug = new MGSDebug(f, condition.debug?.node || node);
+	const expandAs = new BoolBinaryExpression(expandAsDebug, {
 		op: '||',
-		lhs: new BoolBinaryExpression(new MGSDebug(f, condition.debug?.node || node), {
+		lhs: new BoolBinaryExpression(expandAsDebug, {
 			op: '&&',
 			lhs,
 			rhs,
 			lhsNode: condition.lhsNode,
 			rhsNode: condition.rhsNode,
 		}),
-		rhs: new BoolBinaryExpression(new MGSDebug(f, condition.debug?.node || node), {
+		rhs: new BoolBinaryExpression(expandAsDebug, {
 			op: '&&',
 			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
 			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
@@ -376,10 +376,7 @@ export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
 		const action = actions[i];
 		const next = actions[i + 1];
 		if (
-			action instanceof MathlangNode &&
 			action instanceof GotoLabel &&
-			next &&
-			next instanceof MathlangNode &&
 			next instanceof LabelDefinition &&
 			next.label === action.label
 		) {

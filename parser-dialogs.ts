@@ -4,7 +4,6 @@ import { type FileState } from './parser-file.ts';
 import {
 	Dialog,
 	SerialDialog,
-	type SerialDialogConstructorArgs,
 	type DialogInfo,
 	type DialogSettings,
 	type MGSLocation,
@@ -160,7 +159,7 @@ export const buildSerialDialogFromInfo = (
 		...(f.settings.serial || {}), // global settings
 		...info.settings, // local settings
 	};
-	const serialDialog: SerialDialogConstructorArgs = {
+	const serialDialog: Record<string, unknown> = {
 		messages: [],
 	};
 	serialDialog.messages = info.messages

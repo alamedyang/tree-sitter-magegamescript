@@ -1,9 +1,9 @@
-import * as TYPES from './parser-bytecode-info.ts';
+import * as ACTION from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
 export const printAction = (data: MATHLANG.AnyNode): string => {
-	const isAction = data instanceof TYPES.Action || data.action;
+	const isAction = data instanceof ACTION.Action || data.action;
 	if (data instanceof MATHLANG.CommentNode) {
 		const abridged =
 			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;
@@ -41,8 +41,8 @@ export const printAction = (data: MATHLANG.AnyNode): string => {
 };
 
 const mathlang = {
-	goto_label: (data: TYPES.GotoLabel) => `${printGotoSegment(data)};`,
-	label_definition: (data: TYPES.GotoLabel) => {
+	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
+	label_definition: (data: MATHLANG.GotoLabel) => {
 		if (!data.label) throw new Error('cannot print label action without label');
 		return `${sanitizeLabel(data.label)}:`;
 	},
@@ -52,106 +52,106 @@ const mathlang = {
 // TODO: how to add types to this without needing each fn to check the type of its args?
 export const printActionFns: Record<string, (v) => string> = {
 	// Branch on bool equality (==)
-	CHECK_DEBUG_MODE: (v: TYPES.CHECK_DEBUG_MODE) => printCheckAction(v, 'debug_mode', true),
-	CHECK_SERIAL_DIALOG_OPEN: (v: TYPES.CHECK_SERIAL_DIALOG_OPEN) =>
+	CHECK_DEBUG_MODE: (v: ACTION.CHECK_DEBUG_MODE) => printCheckAction(v, 'debug_mode', true),
+	CHECK_SERIAL_DIALOG_OPEN: (v: ACTION.CHECK_SERIAL_DIALOG_OPEN) =>
 		printCheckAction(v, `serial_dialog ${v.expected_bool ? 'open' : 'closed'}`, false),
-	CHECK_DIALOG_OPEN: (v: TYPES.CHECK_DIALOG_OPEN) =>
+	CHECK_DIALOG_OPEN: (v: ACTION.CHECK_DIALOG_OPEN) =>
 		printCheckAction(v, `dialog ${v.expected_bool ? 'open' : 'closed'}`, false),
-	CHECK_SAVE_FLAG: (v: TYPES.CHECK_SAVE_FLAG) => printCheckAction(v, `"${v.save_flag}"`, true),
-	CHECK_FOR_BUTTON_PRESS: (v: TYPES.CHECK_FOR_BUTTON_PRESS) =>
+	CHECK_SAVE_FLAG: (v: ACTION.CHECK_SAVE_FLAG) => printCheckAction(v, `"${v.save_flag}"`, true),
+	CHECK_FOR_BUTTON_PRESS: (v: ACTION.CHECK_FOR_BUTTON_PRESS) =>
 		printCheckAction(v, `button ${v.button_id} pressed`, true),
-	CHECK_FOR_BUTTON_STATE: (v: TYPES.CHECK_FOR_BUTTON_STATE) =>
+	CHECK_FOR_BUTTON_STATE: (v: ACTION.CHECK_FOR_BUTTON_STATE) =>
 		printCheckAction(v, `button ${v.button_id} ${v.expected_bool ? 'down' : 'up'}`, false),
-	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v: TYPES.CHECK_IF_ENTITY_IS_IN_GEOMETRY) =>
+	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (v: ACTION.CHECK_IF_ENTITY_IS_IN_GEOMETRY) =>
 		printCheckAction(
 			v,
 			`${printEntityIdentifier(v.entity)} intersects ${printGeometry(v.geometry)}`,
 			true,
 		),
-	CHECK_ENTITY_GLITCHED: (v: TYPES.CHECK_ENTITY_GLITCHED) =>
+	CHECK_ENTITY_GLITCHED: (v: ACTION.CHECK_ENTITY_GLITCHED) =>
 		printCheckAction(v, `${printEntityIdentifier(v.entity)} glitched`, true),
 
 	// Branch on int equality (==)
-	CHECK_ENTITY_X: (v: TYPES.CHECK_ENTITY_X) => printEntityFieldEquality(v, 'x', v.expected_u2),
-	CHECK_ENTITY_Y: (v: TYPES.CHECK_ENTITY_Y) => printEntityFieldEquality(v, 'y', v.expected_u2),
-	CHECK_ENTITY_PRIMARY_ID: (v: TYPES.CHECK_ENTITY_PRIMARY_ID) =>
+	CHECK_ENTITY_X: (v: ACTION.CHECK_ENTITY_X) => printEntityFieldEquality(v, 'x', v.expected_u2),
+	CHECK_ENTITY_Y: (v: ACTION.CHECK_ENTITY_Y) => printEntityFieldEquality(v, 'y', v.expected_u2),
+	CHECK_ENTITY_PRIMARY_ID: (v: ACTION.CHECK_ENTITY_PRIMARY_ID) =>
 		printEntityFieldEquality(v, 'primary_id', v.expected_u2),
-	CHECK_ENTITY_SECONDARY_ID: (v: TYPES.CHECK_ENTITY_SECONDARY_ID) =>
+	CHECK_ENTITY_SECONDARY_ID: (v: ACTION.CHECK_ENTITY_SECONDARY_ID) =>
 		printEntityFieldEquality(v, 'secondary_id', v.expected_u2),
-	CHECK_ENTITY_PRIMARY_ID_TYPE: (v: TYPES.CHECK_ENTITY_PRIMARY_ID_TYPE) =>
+	CHECK_ENTITY_PRIMARY_ID_TYPE: (v: ACTION.CHECK_ENTITY_PRIMARY_ID_TYPE) =>
 		printEntityFieldEquality(v, 'primary_id_type', v.expected_byte),
-	CHECK_ENTITY_CURRENT_ANIMATION: (v: TYPES.CHECK_ENTITY_CURRENT_ANIMATION) =>
+	CHECK_ENTITY_CURRENT_ANIMATION: (v: ACTION.CHECK_ENTITY_CURRENT_ANIMATION) =>
 		printEntityFieldEquality(v, 'current_animation', v.expected_byte),
-	CHECK_ENTITY_CURRENT_FRAME: (v: TYPES.CHECK_ENTITY_CURRENT_FRAME) =>
+	CHECK_ENTITY_CURRENT_FRAME: (v: ACTION.CHECK_ENTITY_CURRENT_FRAME) =>
 		printEntityFieldEquality(v, 'animation_frame', v.expected_byte),
 
 	// Branch on int comparison (== < <= => >)
-	CHECK_VARIABLE: (v: TYPES.CHECK_VARIABLE) => {
+	CHECK_VARIABLE: (v: ACTION.CHECK_VARIABLE) => {
 		const op = v.expected_bool ? v.comparison : inverseOpMap[v.comparison];
 		return printCheckAction(v, `"${v.variable}" ${op} ${v.value}`, false);
 	},
-	CHECK_VARIABLES: (v: TYPES.CHECK_VARIABLES) => {
+	CHECK_VARIABLES: (v: ACTION.CHECK_VARIABLES) => {
 		const op = v.expected_bool ? v.comparison : inverseOpMap[v.comparison];
 		return printCheckAction(v, `"${v.variable}" ${op} "${v.source}"`, false);
 	},
 
 	// Branch on string equality (==)
-	CHECK_WARP_STATE: (v: TYPES.CHECK_WARP_STATE) =>
+	CHECK_WARP_STATE: (v: ACTION.CHECK_WARP_STATE) =>
 		v.expected_bool
 			? printCheckAction(v, `warp_state == "${v.string}"`, false)
 			: printCheckAction(v, `warp_state != "${v.string}"`, false),
-	CHECK_ENTITY_NAME: (v: TYPES.CHECK_ENTITY_NAME) =>
+	CHECK_ENTITY_NAME: (v: ACTION.CHECK_ENTITY_NAME) =>
 		printEntityFieldEquality(v, 'name', `"${v.string}"`),
-	CHECK_ENTITY_TYPE: (v: TYPES.CHECK_ENTITY_TYPE) =>
+	CHECK_ENTITY_TYPE: (v: ACTION.CHECK_ENTITY_TYPE) =>
 		printEntityFieldEquality(v, 'type', `"${v.entity_type}"`),
-	CHECK_ENTITY_INTERACT_SCRIPT: (v: TYPES.CHECK_ENTITY_INTERACT_SCRIPT) =>
+	CHECK_ENTITY_INTERACT_SCRIPT: (v: ACTION.CHECK_ENTITY_INTERACT_SCRIPT) =>
 		printEntityFieldEquality(v, 'on_interact', `"${v.expected_script}"`),
-	CHECK_ENTITY_TICK_SCRIPT: (v: TYPES.CHECK_ENTITY_TICK_SCRIPT) =>
+	CHECK_ENTITY_TICK_SCRIPT: (v: ACTION.CHECK_ENTITY_TICK_SCRIPT) =>
 		printEntityFieldEquality(v, 'on_tick', `"${v.expected_script}"`),
-	CHECK_ENTITY_LOOK_SCRIPT: (v: TYPES.CHECK_ENTITY_LOOK_SCRIPT) =>
+	CHECK_ENTITY_LOOK_SCRIPT: (v: ACTION.CHECK_ENTITY_LOOK_SCRIPT) =>
 		printEntityFieldEquality(v, 'on_look', `"${v.expected_script}"`),
-	CHECK_ENTITY_DIRECTION: (v: TYPES.CHECK_ENTITY_DIRECTION) =>
+	CHECK_ENTITY_DIRECTION: (v: ACTION.CHECK_ENTITY_DIRECTION) =>
 		printEntityFieldEquality(v, 'direction', `${v.direction}`),
-	CHECK_ENTITY_PATH: (v: TYPES.CHECK_ENTITY_PATH) =>
+	CHECK_ENTITY_PATH: (v: ACTION.CHECK_ENTITY_PATH) =>
 		printEntityFieldEquality(v, 'path', `"${v.geometry}"`),
 
 	// Set bool (expressions OK)
-	SET_SAVE_FLAG: (v: TYPES.SET_SAVE_FLAG) => printSetBoolAction(v, `"${v.save_flag}"`),
-	SET_HEX_EDITOR_STATE: (v: TYPES.SET_HEX_EDITOR_STATE) => printSetBoolAction(v, `hex_editor`),
-	SET_HEX_EDITOR_DIALOG_MODE: (v: TYPES.SET_HEX_EDITOR_DIALOG_MODE) =>
+	SET_SAVE_FLAG: (v: ACTION.SET_SAVE_FLAG) => printSetBoolAction(v, `"${v.save_flag}"`),
+	SET_HEX_EDITOR_STATE: (v: ACTION.SET_HEX_EDITOR_STATE) => printSetBoolAction(v, `hex_editor`),
+	SET_HEX_EDITOR_DIALOG_MODE: (v: ACTION.SET_HEX_EDITOR_DIALOG_MODE) =>
 		printSetBoolAction(v, `hex_dialog_mode`),
-	SET_HEX_EDITOR_CONTROL: (v: TYPES.SET_HEX_EDITOR_CONTROL) =>
+	SET_HEX_EDITOR_CONTROL: (v: ACTION.SET_HEX_EDITOR_CONTROL) =>
 		printSetBoolAction(v, `hex_control`),
-	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (v: TYPES.SET_HEX_EDITOR_CONTROL_CLIPBOARD) => {
+	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (v: ACTION.SET_HEX_EDITOR_CONTROL_CLIPBOARD) => {
 		return printSetBoolAction(v, `hex_clipboard`);
 	},
-	SET_SERIAL_DIALOG_CONTROL: (v: TYPES.SET_SERIAL_DIALOG_CONTROL) => {
+	SET_SERIAL_DIALOG_CONTROL: (v: ACTION.SET_SERIAL_DIALOG_CONTROL) => {
 		return printSetBoolAction(v, `serial_control`);
 	},
-	SET_PLAYER_CONTROL: (v: TYPES.SET_PLAYER_CONTROL) => printSetBoolAction(v, `player_control`),
-	SET_LIGHTS_CONTROL: (v: TYPES.SET_LIGHTS_CONTROL) => printSetBoolAction(v, `lights_control`),
-	SET_LIGHTS_STATE: (v: TYPES.SET_LIGHTS_STATE) => printSetBoolAction(v, `light ${v.lights}`),
-	SET_ENTITY_GLITCHED: (v: TYPES.SET_ENTITY_GLITCHED) =>
+	SET_PLAYER_CONTROL: (v: ACTION.SET_PLAYER_CONTROL) => printSetBoolAction(v, `player_control`),
+	SET_LIGHTS_CONTROL: (v: ACTION.SET_LIGHTS_CONTROL) => printSetBoolAction(v, `lights_control`),
+	SET_LIGHTS_STATE: (v: ACTION.SET_LIGHTS_STATE) => printSetBoolAction(v, `light ${v.lights}`),
+	SET_ENTITY_GLITCHED: (v: ACTION.SET_ENTITY_GLITCHED) =>
 		printSetBoolAction(v, `${printEntityIdentifier(v.entity)} glitched`),
 
 	// Set int (expressions OK)
-	MUTATE_VARIABLE: (v: TYPES.MUTATE_VARIABLE) =>
+	MUTATE_VARIABLE: (v: ACTION.MUTATE_VARIABLE) =>
 		`"${v.variable}" ${stringIntoOpMap[v.operation]}= ${v.value};`,
-	MUTATE_VARIABLES: (v: TYPES.MUTATE_VARIABLES) =>
+	MUTATE_VARIABLES: (v: ACTION.MUTATE_VARIABLES) =>
 		`"${v.variable}" ${stringIntoOpMap[v.operation]}= "${v.source}";`,
-	COPY_VARIABLE: (v: TYPES.COPY_VARIABLE) =>
+	COPY_VARIABLE: (v: ACTION.COPY_VARIABLE) =>
 		v.inbound
 			? `"${v.variable}" = ${printEntityIdentifier(v.entity)} ${v.field};`
 			: `${printEntityIdentifier(v.entity)} ${v.field} = "${v.variable}";`,
 
 	// Set int (expressions not allowed)
-	SET_ENTITY_X: (v: TYPES.SET_ENTITY_X) =>
+	SET_ENTITY_X: (v: ACTION.SET_ENTITY_X) =>
 		`${printEntityIdentifier(v.entity)} x = ${v.u2_value};`,
-	SET_ENTITY_Y: (v: TYPES.SET_ENTITY_Y) =>
+	SET_ENTITY_Y: (v: ACTION.SET_ENTITY_Y) =>
 		`${printEntityIdentifier(v.entity)} y = ${v.u2_value};`,
-	SET_ENTITY_PRIMARY_ID: (v: TYPES.SET_ENTITY_PRIMARY_ID) =>
+	SET_ENTITY_PRIMARY_ID: (v: ACTION.SET_ENTITY_PRIMARY_ID) =>
 		`${printEntityIdentifier(v.entity)} primary_id = ${v.u2_value};`,
-	SET_ENTITY_SECONDARY_ID: (v: TYPES.SET_ENTITY_SECONDARY_ID) =>
+	SET_ENTITY_SECONDARY_ID: (v: ACTION.SET_ENTITY_SECONDARY_ID) =>
 		`${printEntityIdentifier(v.entity)} secondary_id = ${v.u2_value};`,
 	SET_ENTITY_PRIMARY_ID_TYPE: (v) =>
 		`${printEntityIdentifier(v.entity)} primary_id_type = ${v.byte_value};`,
@@ -170,107 +170,107 @@ export const printActionFns: Record<string, (v) => string> = {
 	},
 
 	// Set string
-	SET_WARP_STATE: (v: TYPES.SET_WARP_STATE) => `warp_state = "${v.string}";`,
-	SET_ENTITY_NAME: (v: TYPES.SET_ENTITY_NAME) =>
+	SET_WARP_STATE: (v: ACTION.SET_WARP_STATE) => `warp_state = "${v.string}";`,
+	SET_ENTITY_NAME: (v: ACTION.SET_ENTITY_NAME) =>
 		`${printEntityIdentifier(v.entity)} name = "${v.string}";`,
-	SET_ENTITY_TYPE: (v: TYPES.SET_ENTITY_TYPE) =>
+	SET_ENTITY_TYPE: (v: ACTION.SET_ENTITY_TYPE) =>
 		`${printEntityIdentifier(v.entity)} type = "${v.entity_type}";`,
-	SET_ENTITY_PATH: (v: TYPES.SET_ENTITY_PATH) =>
+	SET_ENTITY_PATH: (v: ACTION.SET_ENTITY_PATH) =>
 		`${printEntityIdentifier(v.entity)} path = "${v.geometry}";`,
-	SET_ENTITY_DIRECTION: (v: TYPES.SET_ENTITY_DIRECTION) =>
+	SET_ENTITY_DIRECTION: (v: ACTION.SET_ENTITY_DIRECTION) =>
 		`${printEntityIdentifier(v.entity)} direction = "${v.direction}";`,
-	SET_ENTITY_LOOK_SCRIPT: (v: TYPES.SET_ENTITY_LOOK_SCRIPT) =>
+	SET_ENTITY_LOOK_SCRIPT: (v: ACTION.SET_ENTITY_LOOK_SCRIPT) =>
 		`${printEntityIdentifier(v.entity)} on_look = "${v.script}";`,
-	SET_ENTITY_INTERACT_SCRIPT: (v: TYPES.SET_ENTITY_INTERACT_SCRIPT) =>
+	SET_ENTITY_INTERACT_SCRIPT: (v: ACTION.SET_ENTITY_INTERACT_SCRIPT) =>
 		`${printEntityIdentifier(v.entity)} on_interact = "${v.script}";`,
-	SET_ENTITY_TICK_SCRIPT: (v: TYPES.SET_ENTITY_TICK_SCRIPT) =>
+	SET_ENTITY_TICK_SCRIPT: (v: ACTION.SET_ENTITY_TICK_SCRIPT) =>
 		`${printEntityIdentifier(v.entity)} on_tick = "${v.script}";`,
-	SET_MAP_TICK_SCRIPT: (v: TYPES.SET_MAP_TICK_SCRIPT) => `map on_tick = "${v.script}";`,
+	SET_MAP_TICK_SCRIPT: (v: ACTION.SET_MAP_TICK_SCRIPT) => `map on_tick = "${v.script}";`,
 
 	// Set position
-	SET_CAMERA_TO_FOLLOW_ENTITY: (v: TYPES.SET_CAMERA_TO_FOLLOW_ENTITY) =>
+	SET_CAMERA_TO_FOLLOW_ENTITY: (v: ACTION.SET_CAMERA_TO_FOLLOW_ENTITY) =>
 		`camera = ${printEntityIdentifier(v.entity)} position;`,
-	TELEPORT_CAMERA_TO_GEOMETRY: (v: TYPES.TELEPORT_CAMERA_TO_GEOMETRY) =>
+	TELEPORT_CAMERA_TO_GEOMETRY: (v: ACTION.TELEPORT_CAMERA_TO_GEOMETRY) =>
 		`camera = ${printGeometry(v.geometry)};`,
-	TELEPORT_ENTITY_TO_GEOMETRY: (v: TYPES.TELEPORT_ENTITY_TO_GEOMETRY) =>
+	TELEPORT_ENTITY_TO_GEOMETRY: (v: ACTION.TELEPORT_ENTITY_TO_GEOMETRY) =>
 		`${printEntityIdentifier(v.entity)} position = ${printGeometry(v.geometry)};`,
-	SET_ENTITY_DIRECTION_TARGET_ENTITY: (v: TYPES.SET_ENTITY_DIRECTION_TARGET_ENTITY) =>
+	SET_ENTITY_DIRECTION_TARGET_ENTITY: (v: ACTION.SET_ENTITY_DIRECTION_TARGET_ENTITY) =>
 		`${printEntityIdentifier(v.entity)} direction = ${printEntityIdentifier(v.target_entity)};`,
-	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (v: TYPES.SET_ENTITY_DIRECTION_TARGET_GEOMETRY) =>
+	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (v: ACTION.SET_ENTITY_DIRECTION_TARGET_GEOMETRY) =>
 		`${printEntityIdentifier(v.entity)} direction = ${printGeometry(v.target_geometry)};`,
 
 	// Set position over time
-	WALK_ENTITY_TO_GEOMETRY: (v: TYPES.WALK_ENTITY_TO_GEOMETRY) =>
+	WALK_ENTITY_TO_GEOMETRY: (v: ACTION.WALK_ENTITY_TO_GEOMETRY) =>
 		`${printEntityIdentifier(v.entity)} position -> ${printGeometry(v.geometry)} origin over ${printDuration(v.duration)};`,
-	WALK_ENTITY_ALONG_GEOMETRY: (v: TYPES.WALK_ENTITY_ALONG_GEOMETRY) =>
+	WALK_ENTITY_ALONG_GEOMETRY: (v: ACTION.WALK_ENTITY_ALONG_GEOMETRY) =>
 		`${printEntityIdentifier(v.entity)} position -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)};`,
-	LOOP_ENTITY_ALONG_GEOMETRY: (v: TYPES.LOOP_ENTITY_ALONG_GEOMETRY) =>
+	LOOP_ENTITY_ALONG_GEOMETRY: (v: ACTION.LOOP_ENTITY_ALONG_GEOMETRY) =>
 		`${printEntityIdentifier(v.entity)} position -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)} forever;`,
-	PAN_CAMERA_TO_ENTITY: (v: TYPES.PAN_CAMERA_TO_ENTITY) =>
+	PAN_CAMERA_TO_ENTITY: (v: ACTION.PAN_CAMERA_TO_ENTITY) =>
 		`camera -> ${printEntityIdentifier(v.entity)} position over ${printDuration(v.duration)};`,
-	PAN_CAMERA_TO_GEOMETRY: (v: TYPES.PAN_CAMERA_TO_GEOMETRY) =>
+	PAN_CAMERA_TO_GEOMETRY: (v: ACTION.PAN_CAMERA_TO_GEOMETRY) =>
 		`camera -> ${printGeometry(v.geometry)} origin over ${printDuration(v.duration)};`,
-	PAN_CAMERA_ALONG_GEOMETRY: (v: TYPES.PAN_CAMERA_ALONG_GEOMETRY) =>
+	PAN_CAMERA_ALONG_GEOMETRY: (v: ACTION.PAN_CAMERA_ALONG_GEOMETRY) =>
 		`camera -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)};`,
-	LOOP_CAMERA_ALONG_GEOMETRY: (v: TYPES.LOOP_CAMERA_ALONG_GEOMETRY) =>
+	LOOP_CAMERA_ALONG_GEOMETRY: (v: ACTION.LOOP_CAMERA_ALONG_GEOMETRY) =>
 		`camera -> ${printGeometry(v.geometry)} length over ${printDuration(v.duration)} forever;`,
 
 	// Other do over time
-	SET_SCREEN_SHAKE: (v: TYPES.SET_SCREEN_SHAKE) =>
+	SET_SCREEN_SHAKE: (v: ACTION.SET_SCREEN_SHAKE) =>
 		`camera shake -> ${v.frequency}ms ${v.amplitude}px over ${printDuration(v.duration)};`,
-	SCREEN_FADE_IN: (v: TYPES.SCREEN_FADE_IN) =>
+	SCREEN_FADE_IN: (v: ACTION.SCREEN_FADE_IN) =>
 		`camera fade in -> ${v.color} over ${printDuration(v.duration)};`,
-	SCREEN_FADE_OUT: (v: TYPES.SCREEN_FADE_OUT) =>
+	SCREEN_FADE_OUT: (v: ACTION.SCREEN_FADE_OUT) =>
 		`camera fade out -> ${v.color} over ${printDuration(v.duration)};`,
-	PLAY_ENTITY_ANIMATION: (v: TYPES.PLAY_ENTITY_ANIMATION) =>
+	PLAY_ENTITY_ANIMATION: (v: ACTION.PLAY_ENTITY_ANIMATION) =>
 		`${printEntityIdentifier(v.entity)} animation -> ${v.animation} ${v.play_count}x;`,
 
 	// Commands and aliases
-	REGISTER_SERIAL_DIALOG_COMMAND: (v: TYPES.REGISTER_SERIAL_DIALOG_COMMAND) =>
+	REGISTER_SERIAL_DIALOG_COMMAND: (v: ACTION.REGISTER_SERIAL_DIALOG_COMMAND) =>
 		v.is_fail
 			? `command "${v.command}" fail = "${v.script}";`
 			: `command "${v.command}" = "${v.script}";`,
-	UNREGISTER_SERIAL_DIALOG_COMMAND: (v: TYPES.UNREGISTER_SERIAL_DIALOG_COMMAND) =>
+	UNREGISTER_SERIAL_DIALOG_COMMAND: (v: ACTION.UNREGISTER_SERIAL_DIALOG_COMMAND) =>
 		`delete command "${v.command}";`,
-	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v: TYPES.REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT) =>
+	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (v: ACTION.REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT) =>
 		`command "${v.command}" + "${v.argument}" = "${v.script}";`,
 	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (
-		v: TYPES.UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT,
+		v: ACTION.UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT,
 	) => `delete command "${v.command}" + "${v.argument}";`,
-	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v: TYPES.REGISTER_SERIAL_DIALOG_COMMAND_ALIAS) =>
+	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v: ACTION.REGISTER_SERIAL_DIALOG_COMMAND_ALIAS) =>
 		`alias "${v.alias}" = "${v.command}";`,
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v: TYPES.UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS) =>
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (v: ACTION.UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS) =>
 		`delete alias "${v.alias}";`,
-	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v: TYPES.SET_SERIAL_DIALOG_COMMAND_VISIBILITY) =>
+	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (v: ACTION.SET_SERIAL_DIALOG_COMMAND_VISIBILITY) =>
 		`${v.is_visible ? 'un' : ''}hide command "${v.command}";`,
 
 	// Miscellaneous
 	SLOT_SAVE: () => `save slot;`,
-	SLOT_LOAD: (v: TYPES.SLOT_LOAD) => `load slot ${v.slot};`,
-	SLOT_ERASE: (v: TYPES.SLOT_ERASE) => `erase slot ${v.slot};`,
-	LOAD_MAP: (v: TYPES.LOAD_MAP) => `load map "${v.map}";`,
-	BLOCKING_DELAY: (v: TYPES.BLOCKING_DELAY) => `block ${printDuration(v.duration)};`,
-	NON_BLOCKING_DELAY: (v: TYPES.NON_BLOCKING_DELAY) => `wait ${printDuration(v.duration)};`,
-	SHOW_DIALOG: (v: TYPES.SHOW_DIALOG) => `show dialog "${v.dialog}";`,
+	SLOT_LOAD: (v: ACTION.SLOT_LOAD) => `load slot ${v.slot};`,
+	SLOT_ERASE: (v: ACTION.SLOT_ERASE) => `erase slot ${v.slot};`,
+	LOAD_MAP: (v: ACTION.LOAD_MAP) => `load map "${v.map}";`,
+	BLOCKING_DELAY: (v: ACTION.BLOCKING_DELAY) => `block ${printDuration(v.duration)};`,
+	NON_BLOCKING_DELAY: (v: ACTION.NON_BLOCKING_DELAY) => `wait ${printDuration(v.duration)};`,
+	SHOW_DIALOG: (v: ACTION.SHOW_DIALOG) => `show dialog "${v.dialog}";`,
 	CLOSE_DIALOG: () => `close dialog;`,
-	SHOW_SERIAL_DIALOG: (v: TYPES.SHOW_SERIAL_DIALOG) => {
+	SHOW_SERIAL_DIALOG: (v: ACTION.SHOW_SERIAL_DIALOG) => {
 		const verb = v.disable_newline ? 'concat' : 'show';
 		return `${verb} serial_dialog "${v.serial_dialog}";`;
 	},
 	CLOSE_SERIAL_DIALOG: () => `close serial_dialog;`,
-	SET_CONNECT_SERIAL_DIALOG: (v: TYPES.SET_CONNECT_SERIAL_DIALOG) =>
+	SET_CONNECT_SERIAL_DIALOG: (v: ACTION.SET_CONNECT_SERIAL_DIALOG) =>
 		`serial_connect = "${v.serial_dialog}";`,
-	SET_SCRIPT_PAUSE: (v: TYPES.SET_SCRIPT_PAUSE) =>
+	SET_SCRIPT_PAUSE: (v: ACTION.SET_SCRIPT_PAUSE) =>
 		`${v.bool_value ? '' : 'un'}pause ${printEntityIdentifier(v.entity)} ${v.script_slot};`,
-	GOTO_ACTION_INDEX: (v: TYPES.GOTO_ACTION_INDEX) => {
+	GOTO_ACTION_INDEX: (v: ACTION.GOTO_ACTION_INDEX) => {
 		if (typeof v.action_index === 'string') {
 			return `goto label ${sanitizeLabel(v.action_index)};`;
 		}
 		return `goto index ${v.action_index};`;
 	},
-	RUN_SCRIPT: (v: TYPES.RUN_SCRIPT) => `goto script "${v.script}";`,
-	COPY_SCRIPT: (v: TYPES.COPY_SCRIPT) => {
-		if (v instanceof TYPES.COPY_SCRIPT && !v.search_and_replace) {
+	RUN_SCRIPT: (v: ACTION.RUN_SCRIPT) => `goto script "${v.script}";`,
+	COPY_SCRIPT: (v: ACTION.COPY_SCRIPT) => {
+		if (v instanceof ACTION.COPY_SCRIPT && !v.search_and_replace) {
 			return `copy!("${v.script}")`;
 		}
 		const action = {
@@ -298,11 +298,11 @@ const stringIntoOpMap: Record<string, string> = {
 const sanitizeLabel = (label: string): string =>
 	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
 
-const printGotoSegment = (data: TYPES.CheckAction | TYPES.GotoLabel): string => {
+const printGotoSegment = (data: ACTION.CheckAction | MATHLANG.GotoLabel): string => {
 	if (data.label) {
 		return `goto label ${sanitizeLabel(data.label)}`;
 	}
-	if (!TYPES.isCheckAction(data)) throw new Error('failed isCheckAction()');
+	if (!ACTION.isCheckAction(data)) throw new Error('failed isCheckAction()');
 	if (data.jump_index !== undefined) {
 		if (typeof data.jump_index === 'string') {
 			return `goto label ${sanitizeLabel(data.jump_index)}`;
@@ -314,14 +314,14 @@ const printGotoSegment = (data: TYPES.CheckAction | TYPES.GotoLabel): string => 
 	}
 	throw new Error('cannot print goto segment without destination!');
 };
-const printCheckAction = (data: TYPES.CheckAction, lhs: string, smartInvert: boolean): string => {
-	const param = TYPES.getBoolFieldForAction(data.action);
+const printCheckAction = (data: ACTION.CheckAction, lhs: string, smartInvert: boolean): string => {
+	const param = ACTION.getBoolFieldForAction(data.action);
 	const bang = smartInvert && !data[param] ? '!' : '';
 	const goto = printGotoSegment(data);
 	return `if ${bang}${lhs} then ${goto};`;
 };
-const printSetBoolAction = (data: TYPES.ActionSetBool, lhs: string): string => {
-	const param = TYPES.getBoolFieldForAction(data.action);
+const printSetBoolAction = (data: ACTION.ActionSetBool, lhs: string): string => {
+	const param = ACTION.getBoolFieldForAction(data.action);
 	return `${lhs} = ${data[param]};`;
 };
 const printDuration = (duration: number): string => duration + 'ms';

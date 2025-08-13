@@ -60,6 +60,7 @@ import {
 	SerialDialogParameter,
 	DialogIdentifier,
 	DialogParameter,
+	GotoLabel,
 } from './parser-types.ts';
 import {
 	Action,
@@ -68,7 +69,6 @@ import {
 	CHECK_SAVE_FLAG,
 	type CheckAction,
 	GOTO_ACTION_INDEX,
-	GotoLabel,
 	isCheckAction,
 	MGSDebug,
 	RUN_SCRIPT,
@@ -284,8 +284,8 @@ const nodeFns = {
 		const temp = quickTemporary();
 		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
 			return {
-				condition: checkVariable(f, node, temp, i, '=='),
-				debug: new MGSDebug(f, node),
+				condition: checkVariable(debug, temp, i, '=='),
+				debug,
 				body,
 			};
 		});

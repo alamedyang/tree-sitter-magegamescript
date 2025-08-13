@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import * as TYPES from './parser-bytecode-info.ts';
+import * as ACTION from './parser-bytecode-info.ts';
 
 export type MGSPrimitive = string | boolean | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
@@ -10,6 +10,10 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 };
 
 export class AnyNode {}
+export const cloneNode = (node: AnyNode) => {
+	if (node instanceof MathlangNode) return node.clone();
+	if (node instanceof ACTION.Action) return ACTION.summonActionConstructor(node);
+};
 
 export type MGSLocation = {
 	node: TreeSitterNode;
@@ -25,7 +29,10 @@ export type MGSMessage = {
 export class MathlangNode extends AnyNode {
 	mathlang: string;
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
+	clone() {
+		return this.constructor(MathlangNode);
+	}
 }
 
 // ------------------------------ SETTINGS ------------------------------ \\
@@ -33,9 +40,9 @@ export class MathlangNode extends AnyNode {
 export class AddDialogSettings extends MathlangNode {
 	mathlang: 'add_dialog_settings';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	targets: AddDialogSettingsTarget[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.targets ||
@@ -49,8 +56,8 @@ export class AddDialogSettings extends MathlangNode {
 		this.mathlang = 'add_dialog_settings';
 		this.targets = args.targets;
 	}
-	clone(prev: AddDialogSettings) {
-		return new AddDialogSettings(prev.debug, prev.args);
+	clone() {
+		return new AddDialogSettings(this.debug, this.args);
 	}
 }
 
@@ -58,10 +65,10 @@ export class AddDialogSettingsTarget extends MathlangNode {
 	mathlang: 'add_dialog_settings_target';
 	args: Record<string, unknown>;
 	type: string;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	parameters: DialogParameter[];
 	target?: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.parameters ||
@@ -73,12 +80,12 @@ export class AddDialogSettingsTarget extends MathlangNode {
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'add_dialog_settings_target';
-		this.type = TYPES.breakIfNotString(args.type, 'AddDialogSettingsTarget type');
+		this.type = ACTION.breakIfNotString(args.type);
 		this.parameters = args.parameters;
 		if (typeof args.target === 'string') this.target = args.target;
 	}
-	clone(prev: AddDialogSettingsTarget) {
-		return new AddDialogSettingsTarget(prev.debug, prev.args);
+	clone() {
+		return new AddDialogSettingsTarget(this.debug, this.args);
 	}
 }
 
@@ -86,8 +93,8 @@ export class AddSerialDialogSettings extends MathlangNode {
 	mathlang: 'add_serial_dialog_settings';
 	args: Record<string, unknown>;
 	parameters: SerialDialogParameter[];
-	debug: TYPES.MGSDebug;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	debug: ACTION.MGSDebug;
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.parameters ||
@@ -101,8 +108,8 @@ export class AddSerialDialogSettings extends MathlangNode {
 		this.mathlang = 'add_serial_dialog_settings';
 		this.parameters = args.parameters;
 	}
-	clone(prev: AddSerialDialogSettings) {
-		return new AddSerialDialogSettings(prev.debug, prev.args);
+	clone() {
+		return new AddSerialDialogSettings(this.debug, this.args);
 	}
 }
 
@@ -111,43 +118,62 @@ export class AddSerialDialogSettings extends MathlangNode {
 export class ReturnStatement extends MathlangNode {
 	mathlang: 'return_statement';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
-	constructor(debug: TYPES.MGSDebug) {
+	debug: ACTION.MGSDebug;
+	constructor(debug: ACTION.MGSDebug) {
 		super();
 		this.args = {};
 		this.debug = debug;
 		this.mathlang = 'return_statement';
 	}
-	clone(prev: ReturnStatement) {
-		return new ReturnStatement(prev.debug);
+	clone() {
+		return new ReturnStatement(this.debug);
 	}
 }
 export class ContinueStatement extends MathlangNode {
 	mathlang: 'continue_statement';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
-	constructor(debug: TYPES.MGSDebug) {
+	debug: ACTION.MGSDebug;
+	constructor(debug: ACTION.MGSDebug) {
 		super();
 		this.args = {};
 		this.debug = debug;
 		this.mathlang = 'continue_statement';
 	}
-	clone(prev: ContinueStatement) {
-		return new ContinueStatement(prev.debug);
+	clone() {
+		return new ContinueStatement(this.debug);
 	}
 }
 export class BreakStatement extends MathlangNode {
 	mathlang: 'break_statement';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
-	constructor(debug: TYPES.MGSDebug) {
+	debug: ACTION.MGSDebug;
+	constructor(debug: ACTION.MGSDebug) {
 		super();
 		this.args = {};
 		this.debug = debug;
 		this.mathlang = 'break_statement';
 	}
-	clone(prev: BreakStatement) {
-		return new BreakStatement(prev.debug);
+	clone() {
+		return new BreakStatement(this.debug);
+	}
+}
+
+export class GotoLabel extends MathlangNode {
+	mathlang: 'goto_label';
+	debug: ACTION.MGSDebug;
+	args: Record<string, unknown>;
+	label: string;
+	comment?: string;
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
+		this.mathlang = 'goto_label';
+		this.label = ACTION.breakIfNotString(args.label);
+		if (typeof args.comment === 'string') this.comment = args.comment;
+	}
+	clone() {
+		return new GotoLabel(this.debug, this.args);
 	}
 }
 
@@ -156,11 +182,11 @@ export class BreakStatement extends MathlangNode {
 export class DialogDefinition extends MathlangNode {
 	mathlang: 'dialog_definition';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	dialogName: string;
 	dialogs: Dialog[];
 	duplicates?: DialogDefinition[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.dialogs ||
@@ -182,11 +208,11 @@ export class DialogDefinition extends MathlangNode {
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'dialog_definition';
-		this.dialogName = TYPES.breakIfNotString(args.dialogName, 'DialogDefinition dialogName');
+		this.dialogName = ACTION.breakIfNotString(args.dialogName);
 		this.dialogs = args.dialogs;
 	}
-	clone(prev: DialogDefinition) {
-		return new DialogDefinition(prev.debug, prev.args);
+	clone() {
+		return new DialogDefinition(this.debug, this.args);
 	}
 }
 export type DialogSettings = {
@@ -202,19 +228,19 @@ export type DialogSettings = {
 export class DialogParameter extends MathlangNode {
 	mathlang: 'dialog_parameter';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'dialog_parameter';
-		this.property = TYPES.breakIfNotString(args.property, 'DialogParameter property');
-		this.value = TYPES.breakIfNotStringOrNumber(args.value, 'DialogParameter value');
+		this.property = ACTION.breakIfNotString(args.property);
+		this.value = ACTION.breakIfNotStringOrNumber(args.value);
 	}
-	clone(prev: DialogParameter) {
-		return new DialogParameter(prev.debug, prev.args);
+	clone() {
+		return new DialogParameter(this.debug, this.args);
 	}
 }
 
@@ -228,13 +254,13 @@ export class Dialog extends MathlangNode {
 	border_tileset?: string;
 
 	mathlang: 'dialog';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 
 	messages: string[];
 	response_type?: 'SELECT_FROM_SHORT_LIST';
 	options?: DialogOption[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.messages ||
@@ -259,8 +285,8 @@ export class Dialog extends MathlangNode {
 			});
 		}
 	}
-	clone(prev: Dialog) {
-		return new DialogParameter(prev.debug, prev.args);
+	clone() {
+		return new DialogParameter(this.debug, this.args);
 	}
 }
 
@@ -274,10 +300,10 @@ export type DialogInfo = {
 export class DialogIdentifier extends MathlangNode {
 	mathlang: 'dialog_identifier';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	type: DialogIdentifierType;
 	value: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (args.type !== 'label' && args.type !== 'entity' && args.type !== 'name') {
 			throw new Error('invalid DialogIdentifier type');
@@ -286,10 +312,10 @@ export class DialogIdentifier extends MathlangNode {
 		this.debug = debug;
 		this.mathlang = 'dialog_identifier';
 		this.type = args.type;
-		this.value = TYPES.breakIfNotString(args.value, 'DialogIdentifier value');
+		this.value = ACTION.breakIfNotString(args.value);
 	}
-	clone(prev: DialogIdentifier) {
-		return new DialogIdentifier(prev.debug, prev.args);
+	clone() {
+		return new DialogIdentifier(this.debug, this.args);
 	}
 }
 type DialogIdentifierType = 'label' | 'entity' | 'name';
@@ -297,19 +323,19 @@ type DialogIdentifierType = 'label' | 'entity' | 'name';
 export class DialogOption extends MathlangNode {
 	mathlang: 'dialog_option';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	label: string;
 	script: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'dialog_option';
-		this.label = TYPES.breakIfNotString(args.label, 'DialogOption label');
-		this.script = TYPES.breakIfNotString(args.script, 'DialogOption script');
+		this.label = ACTION.breakIfNotString(args.label);
+		this.script = ACTION.breakIfNotString(args.script);
 	}
-	clone(prev: DialogOption) {
-		return new DialogOption(prev.debug, prev.args);
+	clone() {
+		return new DialogOption(this.debug, this.args);
 	}
 }
 
@@ -318,11 +344,11 @@ export class DialogOption extends MathlangNode {
 export class SerialDialogDefinition extends MathlangNode {
 	mathlang: 'serial_dialog_definition';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	dialogName: string;
 	serialDialog: SerialDialog;
 	duplicates?: SerialDialogDefinition[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (!(args.serialDialog instanceof SerialDialog)) {
 			throw new Error('SerialDialogDefinition not given valid SerialDialog');
@@ -340,14 +366,11 @@ export class SerialDialogDefinition extends MathlangNode {
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'serial_dialog_definition';
-		this.dialogName = TYPES.breakIfNotString(
-			args.dialogName,
-			'SerialDialogDefinition dialogName',
-		);
+		this.dialogName = ACTION.breakIfNotString(args.dialogName);
 		this.serialDialog = args.serialDialog;
 	}
-	clone(prev: SerialDialogDefinition) {
-		return new SerialDialogDefinition(prev.debug, prev.args);
+	clone() {
+		return new SerialDialogDefinition(this.debug, this.args);
 	}
 }
 
@@ -357,32 +380,32 @@ export type SerialDialogSettings = {
 
 export class SerialDialogParameter extends MathlangNode {
 	mathlang: 'serial_dialog_parameter';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'serial_dialog_parameter';
-		this.property = TYPES.breakIfNotString(args.property, 'SerialDialogParameter property');
-		this.value = TYPES.breakIfNotStringOrNumber(args.value, 'SerialDialogParameter value');
+		this.property = ACTION.breakIfNotString(args.property);
+		this.value = ACTION.breakIfNotStringOrNumber(args.value);
 	}
-	clone(prev: SerialDialogParameter) {
-		return new SerialDialogParameter(prev.debug, prev.args);
+	clone() {
+		return new SerialDialogParameter(this.debug, this.args);
 	}
 }
 
 export class SerialDialog extends MathlangNode {
 	mathlang: 'serial_dialog';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 
 	messages: string[];
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.messages ||
@@ -409,8 +432,8 @@ export class SerialDialog extends MathlangNode {
 			}
 		}
 	}
-	clone(prev: SerialDialog) {
-		return new SerialDialog(prev.debug, prev.args);
+	clone() {
+		return new SerialDialog(this.debug, this.args);
 	}
 }
 
@@ -424,11 +447,11 @@ export type SerialOptionType = 'text_options' | 'options';
 export class SerialDialogOption extends MathlangNode {
 	mathlang: 'serial_dialog_option';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	optionType: SerialOptionType;
 	label: string;
 	script: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (args.optionType !== 'text_options' && args.optionType !== 'options') {
 			throw new Error('invalid option type ' + args.optionType);
@@ -437,11 +460,11 @@ export class SerialDialogOption extends MathlangNode {
 		this.debug = debug;
 		this.mathlang = 'serial_dialog_option';
 		this.optionType = args.optionType;
-		this.label = TYPES.breakIfNotString(args.label, 'SerialDialogOption label');
-		this.script = TYPES.breakIfNotString(args.script, 'SerialDialogOption script');
+		this.label = ACTION.breakIfNotString(args.label);
+		this.script = ACTION.breakIfNotString(args.script);
 	}
-	clone(prev: SerialDialogOption) {
-		return new SerialDialogOption(prev.debug, prev.args);
+	clone() {
+		return new SerialDialogOption(this.debug, this.args);
 	}
 }
 // ------------------------------ ONE-OFFS ------------------------------ \\
@@ -449,44 +472,44 @@ export class SerialDialogOption extends MathlangNode {
 export class IncludeNode extends MathlangNode {
 	mathlang: 'include_macro';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	value: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'include_macro';
-		this.value = TYPES.breakIfNotString(args.value, 'IncludeNode value');
+		this.value = ACTION.breakIfNotString(args.value);
 	}
-	clone(prev: IncludeNode) {
-		return new IncludeNode(prev.debug, prev.args);
+	clone() {
+		return new IncludeNode(this.debug, this.args);
 	}
 }
 
 export class ConstantDefinition extends MathlangNode {
 	mathlang: 'constant_assignment';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	label: string;
 	value: string | boolean | number;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		if (!isMGSPrimitive(args.value)) throw new Error('not primitive');
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'constant_assignment';
-		this.label = TYPES.breakIfNotString(args.label, 'ConstantDefinition label');
+		this.label = ACTION.breakIfNotString(args.label);
 		this.value = args.value;
 	}
-	clone(prev: ConstantDefinition) {
-		return new ConstantDefinition(prev.debug, prev.args);
+	clone() {
+		return new ConstantDefinition(this.debug, this.args);
 	}
 }
 
 export class ScriptDefinition extends MathlangNode {
 	mathlang: 'script_definition';
 	args: Record<string, unknown>;
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	scriptName: string;
 	prePrint?: string;
 	testPrint?: string;
@@ -496,12 +519,12 @@ export class ScriptDefinition extends MathlangNode {
 	preActions?: AnyNode[];
 	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'script_definition';
-		this.scriptName = TYPES.breakIfNotString(args.scriptName, 'ScriptDefinition scriptName');
+		this.scriptName = ACTION.breakIfNotString(args.scriptName);
 		if (typeof args.prePrint === 'string') this.prePrint = args.prePrint;
 		if (typeof args.testPrint === 'string') this.testPrint = args.testPrint;
 		if (typeof args.print === 'string') this.print = args.print;
@@ -546,51 +569,51 @@ export class ScriptDefinition extends MathlangNode {
 		this.actions = args.actions;
 		if (args.copyScriptResolved) this.copyScriptResolved = true;
 	}
-	clone(prev: ScriptDefinition) {
-		return new ScriptDefinition(prev.debug, prev.args);
+	clone() {
+		return new ScriptDefinition(this.debug, this.args);
 	}
 }
 
 export class CommentNode extends MathlangNode {
 	mathlang: 'comment';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	comment: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'comment';
-		this.comment = TYPES.breakIfNotString(args.comment, 'CommentNode comment');
+		this.comment = ACTION.breakIfNotString(args.comment);
 	}
-	clone(prev: CommentNode) {
-		return new CommentNode(prev.debug, prev.args);
+	clone() {
+		return new CommentNode(this.debug, this.args);
 	}
 }
 
 export class LabelDefinition extends MathlangNode {
 	mathlang: 'label_definition';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	label: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'label_definition';
-		this.label = TYPES.breakIfNotString(args.label, 'LabelDefinition label');
+		this.label = ACTION.breakIfNotString(args.label);
 	}
-	clone(prev: LabelDefinition) {
-		return new LabelDefinition(prev.debug, prev.args);
+	clone() {
+		return new LabelDefinition(this.debug, this.args);
 	}
 }
 
 export class JSONLiteral extends MathlangNode {
 	mathlang: 'json_literal';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	json: [JSON];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -598,41 +621,41 @@ export class JSONLiteral extends MathlangNode {
 		if (!Array.isArray(args.json)) throw new Error('need array');
 		this.json = args.json; // how to cleanse this?
 	}
-	clone(prev: JSONLiteral) {
-		return new JSONLiteral(prev.debug, prev.args);
+	clone() {
+		return new JSONLiteral(this.debug, this.args);
 	}
 }
 
-type CopyScript = CopyMacro | TYPES.COPY_SCRIPT;
+type CopyScript = CopyMacro | ACTION.COPY_SCRIPT;
 export const isAnyCopyScript = (v: unknown): v is CopyScript => {
-	return v instanceof TYPES.COPY_SCRIPT || v instanceof CopyMacro;
+	return v instanceof ACTION.COPY_SCRIPT || v instanceof CopyMacro;
 };
 
 export class CopyMacro extends MathlangNode {
 	mathlang: 'copy_script';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	script: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'copy_script';
-		this.script = TYPES.breakIfNotString(args.script, 'CopyMacro script');
+		this.script = ACTION.breakIfNotString(args.script);
 	}
-	clone(prev: CopyMacro) {
-		return new CopyMacro(prev.debug, prev.args);
+	clone() {
+		return new CopyMacro(this.debug, this.args);
 	}
 }
 
 // needs to be one unit of thing for reasons, but still contain than one thing
 export class MathlangSequence extends MathlangNode {
 	mathlang: 'sequence';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	type: string;
 	steps: AnyNode[];
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -644,7 +667,7 @@ export class MathlangSequence extends MathlangNode {
 		) {
 			throw new Error('MathlangSequence not given valid AnyNode[]');
 		}
-		this.type = TYPES.breakIfNotString(args.type, 'MathlangSequence type');
+		this.type = ACTION.breakIfNotString(args.type);
 		this.steps = args.steps;
 
 		if (!(this.steps[0] instanceof CommentNode)) {
@@ -665,8 +688,8 @@ export class MathlangSequence extends MathlangNode {
 		});
 		this.steps = flatSteps;
 	}
-	clone(prev: MathlangSequence) {
-		return new MathlangSequence(prev.debug, prev.args);
+	clone() {
+		return new MathlangSequence(this.debug, this.args);
 	}
 }
 
@@ -689,31 +712,31 @@ export const isIntUnit = (v: unknown): v is IntUnit => {
 
 export class IntGetable extends MathlangNode {
 	mathlang: 'int_getable';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	field: string;
 	entity: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'int_getable';
-		this.field = TYPES.breakIfNotString(args.field, 'IntGetable field');
-		this.entity = TYPES.breakIfNotString(args.entity, 'IntGetable entity');
+		this.field = ACTION.breakIfNotString(args.field);
+		this.entity = ACTION.breakIfNotString(args.entity);
 	}
-	clone(prev: IntGetable) {
-		return new IntGetable(prev.debug, prev.args);
+	clone() {
+		return new IntGetable(this.debug, this.args);
 	}
 }
 
 export class IntBinaryExpression extends MathlangNode {
 	mathlang: 'int_binary_expression';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	lhs: IntExpression;
 	rhs: IntExpression;
 	op: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -726,10 +749,10 @@ export class IntBinaryExpression extends MathlangNode {
 		}
 		this.lhs = args.lhs;
 		this.rhs = args.rhs;
-		this.op = TYPES.breakIfNotString(args.op, 'IntBinaryExpression op');
+		this.op = ACTION.breakIfNotString(args.op);
 	}
-	clone(prev: IntBinaryExpression) {
-		return new IntBinaryExpression(prev.debug, prev.args);
+	clone() {
+		return new IntBinaryExpression(this.debug, this.args);
 	}
 }
 
@@ -740,34 +763,36 @@ export const isBoolExpression = (v: unknown): v is BoolExpression => {
 	return isBoolComparison(v) || v instanceof BoolBinaryExpression || isBoolUnit(v);
 };
 
-export type BoolUnit = boolean | string | TYPES.BoolGetable;
+export type BoolUnit = boolean | string | ACTION.BoolGetable;
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'boolean') return true;
-	return v instanceof TYPES.BoolGetable || (v as TYPES.BoolGetable)?.mathlang === 'bool_getable'; // todo remove?
+	return (
+		v instanceof ACTION.BoolGetable || (v as ACTION.BoolGetable)?.mathlang === 'bool_getable'
+	); // todo remove?
 };
 
 export type BoolComparison =
-	| TYPES.NumberCheckableEquality
-	| TYPES.StringCheckable
-	| TYPES.NumberComparison;
+	| ACTION.NumberCheckableEquality
+	| ACTION.StringCheckable
+	| ACTION.NumberComparison;
 export const isBoolComparison = (v: unknown): v is BoolComparison => {
-	if (v instanceof TYPES.NumberCheckableEquality) return true;
-	if (v instanceof TYPES.StringCheckable) return true;
-	if (v instanceof TYPES.NumberComparison) return true;
+	if (v instanceof ACTION.NumberCheckableEquality) return true;
+	if (v instanceof ACTION.StringCheckable) return true;
+	if (v instanceof ACTION.NumberComparison) return true;
 	return false;
 };
 
 export class BoolBinaryExpression extends MathlangNode {
 	mathlang: 'bool_binary_expression';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	lhs: BoolExpression;
 	rhs: BoolExpression;
 	op: string;
 	lhsNode: TreeSitterNode;
 	rhsNode: TreeSitterNode;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -776,14 +801,14 @@ export class BoolBinaryExpression extends MathlangNode {
 		if (!isBoolExpression(args.rhs)) throw new Error('not BoolExpression');
 		if (!(args.lhsNode instanceof TreeSitterNode)) throw new Error('not TSNode');
 		if (!(args.rhsNode instanceof TreeSitterNode)) throw new Error('not TSNode');
-		this.op = TYPES.breakIfNotString(args.op, 'BoolBinaryExpression op');
+		this.op = ACTION.breakIfNotString(args.op);
 		this.lhs = args.lhs;
 		this.rhs = args.rhs;
 		this.lhsNode = args.lhsNode;
 		this.rhsNode = args.rhsNode;
 	}
-	clone(prev: BoolBinaryExpression) {
-		return new BoolBinaryExpression(prev.debug, prev.args);
+	clone() {
+		return new BoolBinaryExpression(this.debug, this.args);
 	}
 	// TODO: make invert function?
 }
@@ -792,97 +817,93 @@ export class BoolBinaryExpression extends MathlangNode {
 
 export class BoolSetable extends MathlangNode {
 	mathlang: 'bool_setable';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'bool_setable';
-		this.value = TYPES.breakIfNotString(args.value, 'BoolSetable value');
-		this.type = TYPES.breakIfNotString(args.type, 'BoolSetable type');
+		this.value = ACTION.breakIfNotString(args.value);
+		this.type = ACTION.breakIfNotString(args.type);
 	}
-	clone(prev: BoolSetable) {
-		return new BoolSetable(prev.debug, prev.args);
+	clone() {
+		return new BoolSetable(this.debug, this.args);
 	}
 }
 export class MovableIdentifier extends MathlangNode {
 	mathlang: 'movable_identifier';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'movable_identifier';
-		this.value = TYPES.breakIfNotString(args.value, 'MovableIdentifier value');
-		this.type = TYPES.breakIfNotString(args.type, 'MovableIdentifier type');
+		this.value = ACTION.breakIfNotString(args.value);
+		this.type = ACTION.breakIfNotString(args.type);
 	}
-	clone(prev: MovableIdentifier) {
-		return new MovableIdentifier(prev.debug, prev.args);
+	clone() {
+		return new MovableIdentifier(this.debug, this.args);
 	}
 }
 export class CoordinateIdentifier extends MathlangNode {
 	mathlang: 'coordinate_identifier';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
 	polygonType?: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'coordinate_identifier';
-		this.value = TYPES.breakIfNotString(args.value, 'CoordinateIdentifier value');
-		this.type = TYPES.breakIfNotString(args.type, 'CoordinateIdentifier type');
-		if (args.polygonType)
-			this.polygonType = TYPES.breakIfNotString(
-				args.polygonType,
-				'CoordinateIdentifier polygonType',
-			);
+		this.value = ACTION.breakIfNotString(args.value);
+		this.type = ACTION.breakIfNotString(args.type);
+		if (args.polygonType) this.polygonType = ACTION.breakIfNotString(args.polygonType);
 	}
-	clone(prev: CoordinateIdentifier) {
-		return new CoordinateIdentifier(prev.debug, prev.args);
+	clone() {
+		return new CoordinateIdentifier(this.debug, this.args);
 	}
 }
 export class DirectionTarget extends MathlangNode {
 	mathlang: 'direction_target';
-	debug: TYPES.MGSDebug;
+	debug: ACTION.MGSDebug;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: TYPES.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'direction_target';
-		this.value = TYPES.breakIfNotString(args.value, 'DirectionTarget value');
-		this.type = TYPES.breakIfNotString(args.type, 'DirectionTarget type');
+		this.value = ACTION.breakIfNotString(args.value);
+		this.type = ACTION.breakIfNotString(args.type);
 	}
-	clone(prev: DirectionTarget) {
-		return new DirectionTarget(prev.debug, prev.args);
+	clone() {
+		return new DirectionTarget(this.debug, this.args);
 	}
 }
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
 export type MathlangNodeWithLabel =
-	| TYPES.GotoLabel
-	| TYPES.BoolGetable
-	| TYPES.StringCheckable
-	| TYPES.NumberComparison
-	| TYPES.NumberCheckableEquality;
+	| GotoLabel
+	| ACTION.BoolGetable
+	| ACTION.StringCheckable
+	| ACTION.NumberComparison
+	| ACTION.NumberCheckableEquality;
 
 export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
 	if (!(v instanceof MathlangNode)) return false; // todo: load bearing?
-	if (v instanceof TYPES.GotoLabel) return true;
-	if (v instanceof TYPES.BoolGetable) return true;
-	if (v instanceof TYPES.StringCheckable) return true;
-	if (v instanceof TYPES.NumberComparison) return true;
-	if (v instanceof TYPES.NumberCheckableEquality) return true;
+	if (v instanceof GotoLabel) return true;
+	if (v instanceof ACTION.BoolGetable) return true;
+	if (v instanceof ACTION.StringCheckable) return true;
+	if (v instanceof ACTION.NumberComparison) return true;
+	if (v instanceof ACTION.NumberCheckableEquality) return true;
 	return false;
 };

@@ -325,7 +325,7 @@ const captureFns = {
 		if (isBoolExpression(capture)) {
 			let toInvert = capture;
 			if (toInvert instanceof BoolBinaryExpression) {
-				toInvert = new BoolBinaryExpression(new MGSDebug(f, node), toInvert);
+				toInvert = toInvert.clone();
 			}
 			return invertBoolExpression(f, node, toInvert);
 		}
@@ -544,18 +544,19 @@ const captureFns = {
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
+		const debug = new MGSDebug(f, node);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
 				// varName1 > varName2
-				return checkVariables(f, node, lhs, rhs, op);
+				return checkVariables(debug, lhs, rhs, op);
 			} else if (typeof rhs === 'number') {
 				// varName > 255
-				return checkVariable(f, node, lhs, rhs, op);
+				return checkVariable(debug, lhs, rhs, op);
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
 				// 255 > varName
-				return checkVariable(f, node, rhs, lhs, inverseOpMap[op]);
+				return checkVariable(debug, rhs, lhs, inverseOpMap[op]);
 			} else if (typeof rhs === 'number') {
 				// 255 > 0
 				if (op === '<') return lhs < rhs;
@@ -661,28 +662,26 @@ const compareNumberCheckableEquality = (
 	return checkable;
 };
 const checkVariables = (
-	f: FileState,
-	node: TreeSitterNode,
+	debug: MGSDebug,
 	variable: string,
 	source: string,
 	comparison: string,
 ): BoolComparison =>
 	new CHECK_VARIABLES({
-		debug: new MGSDebug(f, node),
+		debug,
 		variable,
 		source,
 		comparison,
 		expected_bool: true,
 	});
 export const checkVariable = (
-	f: FileState,
-	node: TreeSitterNode,
+	debug: MGSDebug,
 	variable: string,
 	value: number,
 	comparison: string,
 ): BoolComparison =>
 	new CHECK_VARIABLE({
-		debug: new MGSDebug(f, node),
+		debug,
 		variable,
 		value,
 		comparison,
