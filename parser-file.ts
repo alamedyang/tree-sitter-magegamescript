@@ -1,4 +1,4 @@
-import { type ProjectState } from './parser-project.ts';
+import { ProjectState } from './parser-project.ts';
 import type {
 	DialogSettings,
 	MGSMessage,
@@ -14,7 +14,7 @@ export type Constant = {
 	value: MGSPrimitive;
 	debug: MathlangLocation;
 };
-export type FileState = {
+export class FileState {
 	p: ProjectState;
 	fileName: string;
 	constants: Record<string, Constant>;
@@ -27,10 +27,61 @@ export type FileState = {
 	nodes: AnyNode[];
 	errorCount: number;
 	warningCount: number;
-	newError: (message: MGSMessage) => void;
-	newWarning: (message: MGSMessage) => void;
-	printableMessageInformation: () => string;
-};
+	constructor(p: ProjectState, fileName: string) {
+		// file crawl state
+		this.p = p;
+		this.fileName = fileName;
+
+		// compile-time constants,
+		// substituted for their registered token value as they are encounted
+		this.constants = {};
+
+		// dialog and serial dialog settings, applied to the (s)dialogs as we go
+		this.settings = {
+			default: {},
+			entity: {},
+			label: {},
+			serial: {},
+		};
+
+		// root level nodes, e.g. script definitions, settings definitions
+		this.nodes = [];
+
+		// local error/warning counts
+		this.errorCount = 0;
+		this.warningCount = 0;
+	}
+	newError(message: MGSMessage) {
+		message.locations.forEach((v) => {
+			// local filename assumed (if absent)
+			if (!v.fileName) v.fileName = this.fileName;
+		});
+		this.p.newError(message);
+		this.errorCount += 1;
+	}
+	newWarning(message: MGSMessage) {
+		message.locations.forEach((v) => {
+			if (!v.fileName) v.fileName = this.fileName;
+		});
+		this.p.newWarning(message);
+		this.warningCount += 1;
+	}
+
+	// print the file's parse status
+	printableMessageInformation() {
+		if (this.errorCount === 0 && this.warningCount === 0) {
+			return `(${ansi.green}OK${ansi.reset})`;
+		}
+		const errMessage = this.errorCount
+			? `${ansi.red}${this.errorCount} error${this.errorCount === 1 ? '' : 's'}${ansi.reset}`
+			: `0 errors`;
+		const warnMessage = this.warningCount
+			? `${ansi.yellow}${this.warningCount} warning${this.warningCount === 1 ? '' : 's'}${ansi.reset}`
+			: `0 warnings`;
+		const ret = [errMessage, warnMessage].join(', ');
+		return `(${ret})`;
+	}
+}
 
 export const makeFileState = (p: ProjectState, fileName: string): FileState => {
 	// file crawl state

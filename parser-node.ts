@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import {
 	ConditionalBlock,
 	reportMissingChildNodes,

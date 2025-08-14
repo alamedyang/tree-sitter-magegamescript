@@ -45,7 +45,7 @@ import {
 	isBoolExpression,
 	type IntExpression,
 	isIntExpression,
-	type AnyNode,
+	AnyNode,
 	DirectionTarget,
 } from './parser-types.ts';
 import {
@@ -55,7 +55,7 @@ import {
 	invertBoolExpression,
 	inverseOpMap,
 } from './parser-utilities.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 
 const opIntoStringMap: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
-import { type AnyNode } from './parser-types.ts';
+import { AnyNode } from './parser-types.ts';
 
 const actionArrayToScript = (
 	scriptName: string,

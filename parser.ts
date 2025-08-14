@@ -13,7 +13,7 @@ import {
 	printScript,
 } from './parser-utilities.ts';
 
-import { type FileMap, makeProjectState } from './parser-project.ts';
+import { type FileMap, ProjectState } from './parser-project.ts';
 import { GOTO_ACTION_INDEX, standardizeNode } from './parser-bytecode-info.ts';
 
 import {
@@ -82,7 +82,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	const Lang = await Language.load(wasmPath);
 	parser.setLanguage(Lang);
 
-	const p = makeProjectState(parser, fileMap, scenarioData);
+	const p = new ProjectState(parser, fileMap, scenarioData);
 	// PARSE EACH FILE
 	Object.keys(fileMap).forEach((fileName) => {
 		if (fileName.endsWith('.mgs') && !fileMap[fileName].parsed) {

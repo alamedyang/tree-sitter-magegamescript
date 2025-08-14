@@ -1,6 +1,6 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { ansiTags as ansi } from './parser-utilities.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import {
 	Dialog,
 	SerialDialog,

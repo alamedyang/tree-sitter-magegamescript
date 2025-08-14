@@ -9,7 +9,7 @@ import {
 	MathlangLocation,
 } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import { inverseOpMap, simpleBranchMaker } from './parser-utilities.ts';
 
 const opIntoStringMap: Record<string, string> = {

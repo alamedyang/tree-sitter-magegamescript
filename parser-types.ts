@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
 
 export class AnyNode {}
@@ -701,11 +701,6 @@ export class JSONLiteral extends MathlangNode {
 		return new JSONLiteral(this.debug, this.args);
 	}
 }
-
-type CopyScript = CopyMacro | ACTION.COPY_SCRIPT;
-export const isAnyCopyScript = (v: unknown): v is CopyScript => {
-	return v instanceof ACTION.COPY_SCRIPT || v instanceof CopyMacro;
-};
 
 export class CopyMacro extends MathlangNode {
 	mathlang: 'copy_script';

@@ -120,7 +120,7 @@ import {
 	latestTemporary,
 	simpleBranchMaker,
 } from './parser-utilities.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 

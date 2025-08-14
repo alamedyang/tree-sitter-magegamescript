@@ -27,8 +27,8 @@ import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 import { makeMap, parseProject } from './parser.ts';
 import { ansiTags, printScript } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
-import { type ProjectState } from './parser-project.ts';
-import { type DialogDefinition, type SerialDialog } from './parser-types.ts';
+import { ProjectState } from './parser-project.ts';
+import { DialogDefinition, SerialDialog } from './parser-types.ts';
 import { summonActionConstructor } from './parser-bytecode-info.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {

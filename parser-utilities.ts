@@ -8,7 +8,7 @@ import {
 } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
-	type AnyNode,
+	AnyNode,
 	BoolBinaryExpression,
 	type MGSLocation,
 	type MGSMessage,
@@ -21,7 +21,7 @@ import {
 	GotoLabel,
 	MathlangNode,
 } from './parser-types.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
 import {
 	handleCapture,
