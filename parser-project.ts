@@ -37,6 +37,12 @@ export class ProjectState {
 	scripts: Record<string, ScriptDefinition>;
 	dialogs: Record<string, DialogDefinition>;
 	serialDialogs: Record<string, SerialDialogDefinition>;
+	// duplicates
+	duplicates: {
+		scripts: Record<string, ScriptDefinition[]>;
+		dialogs: Record<string, DialogDefinition[]>;
+		serialDialogs: Record<string, SerialDialogDefinition[]>;
+	};
 	// error/warning messages
 	errors: MathlangMessage[];
 	warnings: MathlangMessage[];
@@ -52,6 +58,11 @@ export class ProjectState {
 		this.scripts = {};
 		this.dialogs = {};
 		this.serialDialogs = {};
+		this.duplicates = {
+			scripts: {},
+			dialogs: {},
+			serialDialogs: {},
+		};
 		this.errors = [];
 		this.warnings = [];
 		this.gotoSuffixValue = 0;
@@ -91,10 +102,10 @@ export class ProjectState {
 			this.scripts[name] = data;
 		} else {
 			// if it's a duplicate, make an array for all the ones we find
-			if (!this.scripts[name].duplicates) {
-				this.scripts[name].duplicates = [this.scripts[name]];
+			if (!this.duplicates.scripts[name]) {
+				this.duplicates.scripts[name] = [this.scripts[name]]; //existing data
 			}
-			this.scripts[name].duplicates.push(data);
+			this.duplicates.scripts[name].push(data); //add the new one
 		}
 	}
 	addDialog(data: DialogDefinition) {
@@ -102,10 +113,10 @@ export class ProjectState {
 		if (!this.dialogs[name]) {
 			this.dialogs[name] = data;
 		} else {
-			if (!this.dialogs[name].duplicates) {
-				this.dialogs[name].duplicates = [this.dialogs[name]];
+			if (!this.duplicates.dialogs[name]) {
+				this.duplicates.dialogs[name] = [this.dialogs[name]];
 			}
-			this.dialogs[name].duplicates.push(data);
+			this.duplicates.dialogs[name].push(data);
 		}
 	}
 	addSerialDialog(data: SerialDialogDefinition) {
@@ -113,10 +124,10 @@ export class ProjectState {
 		if (!this.serialDialogs[name]) {
 			this.serialDialogs[name] = data;
 		} else {
-			if (!this.serialDialogs[name].duplicates) {
-				this.serialDialogs[name].duplicates = [this.serialDialogs[name]];
+			if (!this.duplicates.serialDialogs[name]) {
+				this.duplicates.serialDialogs[name] = [this.serialDialogs[name]];
 			}
-			this.serialDialogs[name].duplicates.push(data);
+			this.duplicates.serialDialogs[name].push(data);
 		}
 	}
 

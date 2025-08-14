@@ -350,6 +350,7 @@ const invertCondition = (condition: string): string => {
 // They don't necessarily have a result yet, so they
 // should be kept separate from the result cache.
 const compareFrom = (
+	scriptName: string,
 	oldCS: AdventureCrawlState,
 	newCS: AdventureCrawlState,
 	oldStart: number,
@@ -394,13 +395,18 @@ const compareFrom = (
 	if (result === false) {
 		oldCache[oldStart] = false;
 		newCache[newStart] = false;
-		const compared = compareTexts(oldSeen.join('\n'), newSeen.join('\n'));
+		const compared = compareTexts(
+			oldSeen.join('\n'),
+			newSeen.join('\n'),
+			'',
+			`script "${scriptName}"`,
+		);
 		console.log('\t' + compared.message);
 		if (compared.lengthDiff) {
 			console.log('\t' + compared.lengthDiff.join('\n'));
 		} else {
 			compared.lines?.forEach((line) => {
-				console.log('\t' + line.diff);
+				console.log('\t' + line.diff.diff);
 			});
 		}
 		return false;
@@ -434,6 +440,7 @@ const compareFrom = (
 
 	// Otherwise compare each branch now.
 	const left = compareFrom(
+		scriptName,
 		oldCS,
 		newCS,
 		oldFF.tos[0],
@@ -446,6 +453,7 @@ const compareFrom = (
 		newBeenTo,
 	);
 	const right = compareFrom(
+		scriptName,
 		oldCS,
 		newCS,
 		oldFF.tos[1],
@@ -523,8 +531,12 @@ console.log(compared);
 // 	/*11*/ `end_of_script_1324:`,
 // ];
 
-export const compareNonlinearScripts = (oldText: string, newText: string): boolean => {
+export const compareNonlinearScripts = (
+	oldText: string,
+	newText: string,
+	scriptName: string,
+): boolean => {
 	const oldCS = startAdventure(oldText);
 	const newCS = startAdventure(newText);
-	return compareFrom(oldCS, newCS, 0, 0, {}, {}, [], [], new Set(), new Set());
+	return compareFrom(scriptName, oldCS, newCS, 0, 0, {}, {}, [], [], new Set(), new Set());
 };

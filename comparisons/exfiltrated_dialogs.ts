@@ -1,5 +1,5 @@
 import { colorDifferentStrings } from '../parser-tests.ts';
-import { type Dialog, type DialogDefinitionNode } from '../parser-types.ts';
+import { Dialog, DialogDefinition } from '../parser-types.ts';
 
 export type EncoderDialog = {
 	alignment: string;
@@ -151,7 +151,7 @@ export const compareBigDialog = (
 
 export const compareSeriesOfBigDialogs = (
 	expected: EncoderDialog[][],
-	found: DialogDefinitionNode[],
+	found: DialogDefinition[],
 	fileName: string,
 ): string[] => {
 	if (!found) {
@@ -164,6 +164,11 @@ export const compareSeriesOfBigDialogs = (
 	const homelessFound: Record<string, Dialog[][]> = {};
 	const homelessExpected: Record<string, EncoderDialog[][]> = {};
 	expected.forEach((expectedDialog, i) => {
+		const localErrors: string[] = [];
+		if (!found[i]) {
+			localErrors.push('missing dialog with fingerprint ' + messagesSummary(expectedDialog));
+			return;
+		}
 		const foundDialog = found[i].dialogs;
 		// get quick summary for quick comparison
 		const foundSummary = messagesSummary(foundDialog);
@@ -176,7 +181,6 @@ export const compareSeriesOfBigDialogs = (
 			homelessExpected[expectedSummary].push(expectedDialog);
 			return;
 		}
-		const localErrors: string[] = [];
 		foundDialog.forEach((foundSingle, i) => {
 			const expectedSingle = expectedDialog[i];
 			const diffs = compareDialogs(expectedSingle, foundSingle);
@@ -202,6 +206,14 @@ export const compareSeriesOfBigDialogs = (
 	[...summaryIDs].forEach((summaryID) => {
 		const founds: Dialog[][] = homelessFound[summaryID];
 		const expecteds: EncoderDialog[][] = homelessExpected[summaryID];
+		if (!founds) {
+			errors.push('found unexpected dialog(s) with fingerprint ' + summaryID);
+			return;
+		}
+		if (!expecteds) {
+			errors.push('missing dialog(s) with fingerprint ' + summaryID);
+			return;
+		}
 		if (founds.length !== expecteds.length) {
 			errors.push(
 				`"${fileName}" ${summaryID}: found ${founds.length} dialogs, expected ${expecteds.length}`,

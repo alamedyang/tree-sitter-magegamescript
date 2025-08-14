@@ -1590,7 +1590,7 @@ export const compareTexts = (
 	if (lines.length) {
 		return {
 			status: 'fail',
-			message: `${thingName}: mismatched lines`,
+			message: `${thingName || fileName}: mismatched lines`,
 			lines: lines.map((v) => {
 				if (v.value) {
 					let registered: string = '';
@@ -1809,7 +1809,7 @@ Is there a better way?
 const doActionTest = (scriptName: string, actionExpected, actionFound): ComparedTexts | null => {
 	const expected = actionExpected[scriptName];
 	const found = actionFound[scriptName].testPrint;
-	const compared = compareTexts(found, expected, '', scriptName);
+	const compared = compareTexts(found, expected, '', `script "${scriptName}"`);
 	if (compared.status !== 'success') {
 		return compared;
 	}
@@ -1837,7 +1837,7 @@ const runTests = async () => {
 				fileScriptNames.forEach((scriptName) => {
 					const expected = fileExpectedData.scripts[scriptName].trim();
 					const found = (allScripts[scriptName].printed || '').trim();
-					const compared = compareTexts(found, expected, '', scriptName);
+					const compared = compareTexts(found, expected, '', `script "${scriptName}"`);
 					if (compared.status !== 'success') {
 						errors.push(compared);
 					}

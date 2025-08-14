@@ -109,7 +109,7 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 			};
 		}
 	}
-	const compared = compareNonlinearScripts(oldPrint, newPrint);
+	const compared = compareNonlinearScripts(oldPrint, newPrint, scriptName);
 	if (compared) {
 		return {
 			type: 'functional',

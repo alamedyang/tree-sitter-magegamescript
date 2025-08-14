@@ -234,7 +234,6 @@ export class DialogDefinition extends MathlangNode {
 	debug: MathlangLocation;
 	dialogName: string;
 	dialogs: Dialog[];
-	duplicates?: DialogDefinition[];
 	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
@@ -243,16 +242,6 @@ export class DialogDefinition extends MathlangNode {
 			!args.dialogs.every((v) => v instanceof Dialog)
 		) {
 			throw new Error('DialogDefinition not given valid Dialog[]');
-		}
-		if (args.duplicates) {
-			if (
-				!Array.isArray(args.duplicates) ||
-				!args.duplicates.every((v) => v instanceof DialogDefinition)
-			) {
-				throw new Error('DialogDefinition not given valid DialogDefinition[]');
-			} else {
-				this.duplicates = args.duplicates;
-			}
 		}
 		this.args = args;
 		this.debug = debug;
@@ -415,21 +404,10 @@ export class SerialDialogDefinition extends MathlangNode {
 	debug: MathlangLocation;
 	dialogName: string;
 	serialDialog: SerialDialog;
-	duplicates?: SerialDialogDefinition[];
 	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (!(args.serialDialog instanceof SerialDialog)) {
 			throw new Error('SerialDialogDefinition not given valid SerialDialog');
-		}
-		if (args.duplicates) {
-			if (
-				!Array.isArray(args.duplicates) ||
-				!args.duplicates.every((v) => v instanceof SerialDialogDefinition)
-			) {
-				throw new Error('SerialDialogDefinition not given valid SerialDialogDefinition[]');
-			} else {
-				this.duplicates = args.duplicates;
-			}
 		}
 		this.args = args;
 		this.debug = debug;
@@ -608,7 +586,6 @@ export class ScriptDefinition extends MathlangNode {
 	rawNodes?: AnyNode[];
 	actions: AnyNode[];
 	preActions?: AnyNode[];
-	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
 	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
@@ -645,16 +622,6 @@ export class ScriptDefinition extends MathlangNode {
 			!args.actions.every((v) => v instanceof AnyNode)
 		) {
 			throw new Error('ScriptDefinition not given valid actions:AnyNode[]');
-		}
-		if (args.duplicates) {
-			if (
-				!Array.isArray(args.duplicates) ||
-				!args.duplicates.every((v) => v instanceof ScriptDefinition)
-			) {
-				throw new Error('ScriptDefinition not given valid ScriptDefinition[]');
-			} else {
-				this.duplicates = args.duplicates;
-			}
 		}
 
 		this.actions = args.actions;

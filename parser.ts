@@ -23,11 +23,6 @@ import {
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
 type Definition = ScriptDefinition | DialogDefinition | SerialDialogDefinition;
-type DuplicatesData =
-	| DialogDefinition[]
-	| SerialDialogDefinition[]
-	| ScriptDefinition[]
-	| undefined;
 
 // /*
 // stolen from the other place
@@ -111,27 +106,24 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	// CHECK FOR DUPLICATES
 	const cats: FileCategory[] = ['scripts', 'dialogs', 'serialDialogs'];
 	cats.forEach((category) => {
-		const entries = Object.entries(p[category]);
-		entries.forEach(([name, entry]: [string, Definition]) => {
-			const dupes: DuplicatesData = entry.duplicates;
-			if (dupes) {
-				// One error message, multiple locations
-				p.newError({
-					message: `multiple ${category} with name "${name}"`,
-					locations: dupes.map((dupe: Definition) => ({
-						fileName: dupe.debug.fileName,
-						node: dupe.debug.node.firstNamedChild || dupe.debug.node,
-					})),
-				});
-				// Increment error count for that file
-				dupes.forEach((dupe: Definition) => {
-					const file = p.fileMap[dupe.debug.fileName].parsed;
-					if (!file) {
-						throw new Error(`No parsed file found by name "${dupe.debug.fileName}"`);
-					}
-					file.errorCount += 1;
-				});
-			}
+		const entries = Object.entries(p.duplicates[category]);
+		entries.forEach(([name, dupes]: [string, Definition[]]) => {
+			// One error message, multiple locations
+			p.newError({
+				message: `multiple ${category} with name "${name}"`,
+				locations: dupes.map((dupe: Definition) => ({
+					fileName: dupe.debug.fileName,
+					node: dupe.debug.node.firstNamedChild || dupe.debug.node,
+				})),
+			});
+			// Increment error count for that file
+			dupes.forEach((dupe: Definition) => {
+				const file = p.fileMap[dupe.debug.fileName].parsed;
+				if (!file) {
+					throw new Error(`No parsed file found by name "${dupe.debug.fileName}"`);
+				}
+				file.errorCount += 1;
+			});
 		});
 	});
 
