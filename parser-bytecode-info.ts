@@ -40,6 +40,9 @@ export class BoolGetable extends Action {
 	label?: string;
 	jump_index?: number | string;
 	expected_bool: boolean;
+	getBool() {
+		return this.expected_bool;
+	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
@@ -55,10 +58,17 @@ export class StringCheckable extends Action {
 		super();
 		this.expected_bool = true;
 	}
+	getBool() {
+		return this.expected_bool;
+	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
-	updateProp(_prop: string) {}
+	updateProp(prop: string) {
+		this.comment = prop;
+		throw new Error(`the parent method shouldn't be used`);
+		// just making the red squiggles go away; todo learn best practices
+	}
 }
 export class NumberComparison extends Action {
 	mathlang: 'number_comparison';
@@ -70,6 +80,9 @@ export class NumberComparison extends Action {
 	constructor() {
 		super();
 		this.expected_bool = true;
+	}
+	getBool() {
+		return this.expected_bool;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -89,6 +102,9 @@ export class NumberCheckableEquality extends Action {
 	constructor() {
 		super();
 		this.mathlang = 'number_checkable_equality';
+	}
+	getBool() {
+		return this.expected_bool;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -372,6 +388,12 @@ export class SET_ENTITY_GLITCHED extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
@@ -422,6 +444,12 @@ export class SET_SAVE_FLAG extends Action {
 		this.save_flag = breakIfNotString(args.save_flag);
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
@@ -453,6 +481,12 @@ export class SET_PLAYER_CONTROL extends Action {
 		super();
 		this.action = 'SET_PLAYER_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -499,6 +533,12 @@ export class SET_HEX_EDITOR_STATE extends Action {
 		this.action = 'SET_HEX_EDITOR_STATE';
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
@@ -513,6 +553,12 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 		super();
 		this.action = 'SET_HEX_EDITOR_DIALOG_MODE';
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -529,6 +575,12 @@ export class SET_HEX_EDITOR_CONTROL extends Action {
 		this.action = 'SET_HEX_EDITOR_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_CONTROL({ bool_value });
 	}
@@ -540,6 +592,12 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -928,6 +986,12 @@ export class SET_TELEPORT_ENABLED extends Action {
 		this.action = 'SET_TELEPORT_ENABLED';
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
@@ -942,6 +1006,12 @@ export class SET_BLE_FLAG extends Action {
 		this.ble_flag = breakIfNotString(args.ble_flag);
 		this.bool_value = breakIfNotBool(args.bool_value);
 	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
+	}
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
@@ -953,6 +1023,12 @@ export class SET_SERIAL_DIALOG_CONTROL extends Action {
 		super();
 		this.action = 'SET_SERIAL_DIALOG_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -1047,6 +1123,12 @@ export class SET_LIGHTS_CONTROL extends Action {
 		this.action = 'SET_LIGHTS_CONTROL';
 		this.enabled = breakIfNotBool(args.enabled);
 	}
+	updateProp(v: boolean) {
+		this.enabled = v;
+	}
+	getProp() {
+		return this.enabled;
+	}
 	invert() {
 		this.enabled = !this.enabled;
 	}
@@ -1063,6 +1145,12 @@ export class SET_LIGHTS_STATE extends Action {
 		this.action = 'SET_LIGHTS_STATE';
 		this.enabled = breakIfNotBool(args.enabled);
 		this.lights = breakIfNotStringOrStringArray(args.lights);
+	}
+	updateProp(v: boolean) {
+		this.enabled = v;
+	}
+	getProp() {
+		return this.enabled;
 	}
 	invert() {
 		this.enabled = !this.enabled;
@@ -1094,6 +1182,12 @@ export class SET_SCRIPT_PAUSE extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.script_slot = breakIfNotString(args.script_slot);
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	updateProp(v: boolean) {
+		this.bool_value = v;
+	}
+	getProp() {
+		return this.bool_value;
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
@@ -1129,6 +1223,15 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 		this.command = breakIfNotString(args.command);
 		this.is_visible = breakIfNotBool(args.is_visible);
 	}
+	updateProp(v: boolean) {
+		this.is_visible = v;
+	}
+	getProp() {
+		return this.is_visible;
+	}
+	invert() {
+		this.is_visible = !this.is_visible;
+	}
 }
 
 // CHECK_ACTIONS
@@ -1145,7 +1248,7 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.string = breakIfNotString(args.string);
@@ -1153,6 +1256,9 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.string = value;
+	}
+	getProp() {
+		return this.string;
 	}
 	static quick(entity: string, string: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1171,7 +1277,7 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_u2 = breakIfNotNumber(args.expected_u2);
@@ -1179,6 +1285,9 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1200,7 +1309,7 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_u2 = breakIfNotNumber(args.expected_u2);
@@ -1208,6 +1317,9 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1229,7 +1341,7 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_script = breakIfNotString(args.expected_script);
@@ -1237,6 +1349,9 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
 	}
 	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1255,7 +1370,7 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_script = breakIfNotString(args.expected_script);
@@ -1263,6 +1378,9 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
 	}
 	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1281,7 +1399,7 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_script = breakIfNotString(args.expected_script);
@@ -1289,6 +1407,9 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
 	}
 	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1307,7 +1428,7 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.entity_type = breakIfNotString(args.entity_type);
@@ -1315,6 +1436,9 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.entity_type = value;
+	}
+	getProp() {
+		return this.entity_type;
 	}
 	static quick(entity: string, entity_type: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1333,7 +1457,7 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_u2 = breakIfNotNumber(args.expected_u2);
@@ -1341,6 +1465,9 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1362,7 +1489,7 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_u2 = breakIfNotNumber(args.expected_u2);
@@ -1370,6 +1497,9 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1391,7 +1521,7 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_byte = breakIfNotNumber(args.expected_byte);
@@ -1399,6 +1529,9 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1420,7 +1553,7 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_byte = breakIfNotNumber(args.expected_byte);
@@ -1428,6 +1561,9 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1450,7 +1586,7 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_byte = breakIfNotNumber(args.expected_byte);
@@ -1458,6 +1594,9 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 	}
 	updateProp(value: number) {
 		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
@@ -1479,7 +1618,7 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.direction = breakIfNotString(args.direction);
@@ -1487,6 +1626,9 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.direction = value;
+	}
+	getProp() {
+		return this.direction;
 	}
 	static quick(entity: string, direction: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1505,7 +1647,7 @@ export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
@@ -1527,7 +1669,7 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.geometry = breakIfNotString(args.geometry);
@@ -1535,6 +1677,9 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.geometry = value;
+	}
+	getProp() {
+		return this.geometry;
 	}
 	static quick(entity: string, geometry: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1553,7 +1698,7 @@ export class CHECK_SAVE_FLAG extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.save_flag = breakIfNotString(args.save_flag);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
@@ -1576,7 +1721,7 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.geometry = breakIfNotString(args.geometry);
 		this.entity = breakIfNotString(args.entity);
@@ -1599,7 +1744,7 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.button_id = breakIfNotString(args.button_id);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
@@ -1621,7 +1766,7 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.button_id = breakIfNotString(args.button_id);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
@@ -1642,13 +1787,16 @@ export class CHECK_WARP_STATE extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.string = breakIfNotString(args.string);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.string = value;
+	}
+	getProp() {
+		return this.string;
 	}
 	static quick(string: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1668,7 +1816,7 @@ export class CHECK_VARIABLE extends NumberComparison {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.variable = breakIfNotString(args.variable);
 		this.comparison = breakIfNotString(args.comparison);
@@ -1698,7 +1846,7 @@ export class CHECK_VARIABLES extends NumberComparison {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.variable = breakIfNotString(args.variable);
 		this.comparison = breakIfNotString(args.comparison);
@@ -1728,13 +1876,16 @@ export class CHECK_MAP extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.map = breakIfNotString(args.map);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.map = value;
+	}
+	getProp() {
+		return this.map;
 	}
 }
 export class CHECK_BLE_FLAG extends StringCheckable {
@@ -1748,13 +1899,16 @@ export class CHECK_BLE_FLAG extends StringCheckable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.ble_flag = breakIfNotString(args.ble_flag);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
 	updateProp(value: string) {
 		this.ble_flag = value;
+	}
+	getProp() {
+		return this.ble_flag;
 	}
 }
 export class CHECK_DIALOG_OPEN extends BoolGetable {
@@ -1768,7 +1922,7 @@ export class CHECK_DIALOG_OPEN extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
@@ -1788,7 +1942,7 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
@@ -1808,7 +1962,7 @@ export class CHECK_DEBUG_MODE extends BoolGetable {
 		} else if (args.label) {
 			this.label = breakIfNotString(args.label);
 		} else if (args.jump_index) {
-			this.jump_index = breakIfNotNumber(args.jump_index);
+			this.jump_index = breakIfNotStringOrNumber(args.jump_index);
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
@@ -1884,52 +2038,6 @@ export const isCheckAction = (v: unknown): v is CheckAction => {
 	return false;
 };
 
-// // Super union type
-// export type Action =
-// 	| CheckAction
-// 	| ActionSetEntityString
-// 	| ActionSetEntityInt
-// 	| ActionSetDirection
-// 	| ActionSetBool
-// 	| ActionSetPosition
-// 	| ActionMoveOverTime
-// 	| ActionSetScript
-// 	| NULL_ACTION
-// 	| LABEL // for old-style parser
-// 	| RUN_SCRIPT
-// 	| COPY_SCRIPT
-// 	| BLOCKING_DELAY
-// 	| NON_BLOCKING_DELAY
-// 	| SET_HEX_CURSOR_LOCATION
-// 	| SET_WARP_STATE
-// 	| LOAD_MAP
-// 	| SHOW_DIALOG
-// 	| PLAY_ENTITY_ANIMATION
-// 	| SET_SCREEN_SHAKE
-// 	| SCREEN_FADE_OUT
-// 	| SCREEN_FADE_IN
-// 	| MUTATE_VARIABLE
-// 	| MUTATE_VARIABLES
-// 	| COPY_VARIABLE
-// 	| SLOT_SAVE
-// 	| SLOT_LOAD
-// 	| SLOT_ERASE
-// 	| SET_CONNECT_SERIAL_DIALOG
-// 	| SHOW_SERIAL_DIALOG
-// 	| SET_TELEPORT_ENABLED
-// 	| SET_BLE_FLAG
-// 	| REGISTER_SERIAL_DIALOG_COMMAND
-// 	| REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-// 	| UNREGISTER_SERIAL_DIALOG_COMMAND
-// 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT
-// 	| CLOSE_DIALOG
-// 	| CLOSE_SERIAL_DIALOG
-// 	| GOTO_ACTION_INDEX
-// 	| SET_SCRIPT_PAUSE
-// 	| REGISTER_SERIAL_DIALOG_COMMAND_ALIAS
-// 	| UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS
-// 	| SET_SERIAL_DIALOG_COMMAND_VISIBILITY;
-
 export type ActionSetEntityInt =
 	| SET_ENTITY_X
 	| SET_ENTITY_Y
@@ -1982,149 +2090,6 @@ export type ActionMoveOverTime =
 export type ActionSetEntityString = SET_ENTITY_NAME | SET_ENTITY_TYPE | SET_ENTITY_PATH;
 
 // ----------------------------------- non TypeScript stuff ----------------------------------- \\
-
-const JUMP_SPECIAL_FIELDS: string[] = ['success_script', 'label', 'jump_index'];
-// copy pastad from encoder
-
-const actionFields: Record<string, string[]> = {
-	NULL_ACTION: [],
-	CHECK_ENTITY_NAME: ['JUMP_SPECIAL_FIELDS', 'string', 'entity', 'expected_bool'],
-	CHECK_ENTITY_X: ['JUMP_SPECIAL_FIELDS', 'expected_u2', 'entity', 'expected_bool'],
-	CHECK_ENTITY_Y: ['JUMP_SPECIAL_FIELDS', 'expected_u2', 'entity', 'expected_bool'],
-	CHECK_ENTITY_INTERACT_SCRIPT: [
-		'JUMP_SPECIAL_FIELDS',
-		'expected_script',
-		'entity',
-		'expected_bool',
-	],
-	CHECK_ENTITY_TICK_SCRIPT: ['JUMP_SPECIAL_FIELDS', 'expected_script', 'entity', 'expected_bool'],
-	CHECK_ENTITY_LOOK_SCRIPT: ['JUMP_SPECIAL_FIELDS', 'expected_script', 'entity', 'expected_bool'],
-	CHECK_ENTITY_TYPE: ['JUMP_SPECIAL_FIELDS', 'entity_type', 'entity', 'expected_bool'],
-	CHECK_ENTITY_PRIMARY_ID: ['JUMP_SPECIAL_FIELDS', 'expected_u2', 'entity', 'expected_bool'],
-	CHECK_ENTITY_SECONDARY_ID: ['JUMP_SPECIAL_FIELDS', 'expected_u2', 'entity', 'expected_bool'],
-	CHECK_ENTITY_PRIMARY_ID_TYPE: [
-		'JUMP_SPECIAL_FIELDS',
-		'entity',
-		'expected_byte',
-		'expected_bool',
-	],
-	CHECK_ENTITY_CURRENT_ANIMATION: [
-		'JUMP_SPECIAL_FIELDS',
-		'entity',
-		'expected_byte',
-		'expected_bool',
-	],
-	CHECK_ENTITY_CURRENT_FRAME: ['JUMP_SPECIAL_FIELDS', 'entity', 'expected_byte', 'expected_bool'],
-	CHECK_ENTITY_DIRECTION: ['JUMP_SPECIAL_FIELDS', 'entity', 'direction', 'expected_bool'],
-	CHECK_ENTITY_GLITCHED: ['JUMP_SPECIAL_FIELDS', 'entity', 'expected_bool'],
-	CHECK_ENTITY_PATH: ['JUMP_SPECIAL_FIELDS', 'geometry', 'entity', 'expected_bool'],
-	CHECK_SAVE_FLAG: ['JUMP_SPECIAL_FIELDS', 'save_flag', 'expected_bool'],
-	CHECK_IF_ENTITY_IS_IN_GEOMETRY: ['JUMP_SPECIAL_FIELDS', 'geometry', 'entity', 'expected_bool'],
-	CHECK_FOR_BUTTON_PRESS: ['JUMP_SPECIAL_FIELDS', 'button_id', 'expected_bool'],
-	CHECK_FOR_BUTTON_STATE: ['JUMP_SPECIAL_FIELDS', 'button_id', 'expected_bool'],
-	CHECK_WARP_STATE: ['JUMP_SPECIAL_FIELDS', 'string', 'expected_bool'],
-	RUN_SCRIPT: ['script'],
-	COPY_SCRIPT: ['script', 'search_and_replace'],
-	BLOCKING_DELAY: ['duration'],
-	NON_BLOCKING_DELAY: ['duration'],
-	SET_ENTITY_NAME: ['string', 'entity'],
-	SET_ENTITY_X: ['u2_value', 'entity'],
-	SET_ENTITY_Y: ['u2_value', 'entity'],
-	SET_ENTITY_INTERACT_SCRIPT: ['script', 'entity'],
-	SET_ENTITY_TICK_SCRIPT: ['script', 'entity'],
-	SET_ENTITY_TYPE: ['entity_type', 'entity'],
-	SET_ENTITY_PRIMARY_ID: ['u2_value', 'entity'],
-	SET_ENTITY_SECONDARY_ID: ['u2_value', 'entity'],
-	SET_ENTITY_PRIMARY_ID_TYPE: ['byte_value', 'entity'],
-	SET_ENTITY_CURRENT_ANIMATION: ['byte_value', 'entity'],
-	SET_ENTITY_CURRENT_FRAME: ['byte_value', 'entity'],
-	SET_ENTITY_DIRECTION: ['direction', 'entity'],
-	SET_ENTITY_DIRECTION_RELATIVE: ['relative_direction', 'entity'],
-	SET_ENTITY_DIRECTION_TARGET_ENTITY: ['target_entity', 'entity'],
-	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: ['target_geometry', 'entity'],
-	SET_ENTITY_GLITCHED: ['entity', 'bool_value'],
-	SET_ENTITY_PATH: ['geometry', 'entity'],
-	SET_SAVE_FLAG: ['save_flag', 'bool_value'],
-	SET_PLAYER_CONTROL: ['bool_value'],
-	SET_MAP_TICK_SCRIPT: ['script'],
-	SET_HEX_CURSOR_LOCATION: ['address'],
-	SET_WARP_STATE: ['string'],
-	SET_HEX_EDITOR_STATE: ['bool_value'],
-	SET_HEX_EDITOR_DIALOG_MODE: ['bool_value'],
-	SET_HEX_EDITOR_CONTROL: ['bool_value'],
-	SET_HEX_EDITOR_CONTROL_CLIPBOARD: ['bool_value'],
-	LOAD_MAP: ['map'],
-	SHOW_DIALOG: ['dialog'],
-	PLAY_ENTITY_ANIMATION: ['entity', 'animation', 'play_count'],
-	TELEPORT_ENTITY_TO_GEOMETRY: ['geometry', 'entity'],
-	WALK_ENTITY_TO_GEOMETRY: ['duration', 'geometry', 'entity'],
-	WALK_ENTITY_ALONG_GEOMETRY: ['duration', 'geometry', 'entity'],
-	LOOP_ENTITY_ALONG_GEOMETRY: ['duration', 'geometry', 'entity'],
-	SET_CAMERA_TO_FOLLOW_ENTITY: ['entity'],
-	TELEPORT_CAMERA_TO_GEOMETRY: ['geometry'],
-	PAN_CAMERA_TO_ENTITY: ['duration', 'entity'],
-	PAN_CAMERA_TO_GEOMETRY: ['duration', 'geometry'],
-	PAN_CAMERA_ALONG_GEOMETRY: ['duration', 'geometry', 'entity'],
-	LOOP_CAMERA_ALONG_GEOMETRY: ['duration', 'geometry', 'entity'],
-	SET_SCREEN_SHAKE: ['duration', 'frequency', 'amplitude'],
-	SCREEN_FADE_OUT: ['duration', 'color'],
-	SCREEN_FADE_IN: ['duration', 'color'],
-	MUTATE_VARIABLE: ['value', 'variable', 'operation'],
-	MUTATE_VARIABLES: ['variable', 'source', 'operation'],
-	COPY_VARIABLE: ['variable', 'entity', 'field', 'inbound'],
-	CHECK_VARIABLE: ['JUMP_SPECIAL_FIELDS', 'value', 'variable', 'comparison', 'expected_bool'],
-	CHECK_VARIABLES: ['JUMP_SPECIAL_FIELDS', 'variable', 'source', 'comparison', 'expected_bool'],
-	SLOT_SAVE: [],
-	SLOT_LOAD: ['slot'],
-	SLOT_ERASE: ['slot'],
-	SET_CONNECT_SERIAL_DIALOG: ['serial_dialog'],
-	SHOW_SERIAL_DIALOG: ['serial_dialog', 'disable_newline'],
-	SET_MAP_LOOK_SCRIPT: ['script'],
-	SET_ENTITY_LOOK_SCRIPT: ['script', 'entity'],
-	SET_TELEPORT_ENABLED: ['bool_value'],
-	CHECK_MAP: ['JUMP_SPECIAL_FIELDS', 'map', 'expected_bool'],
-	SET_BLE_FLAG: ['ble_flag', 'bool_value'],
-	CHECK_BLE_FLAG: ['JUMP_SPECIAL_FIELDS', 'ble_flag', 'expected_bool'],
-	SET_SERIAL_DIALOG_CONTROL: ['bool_value'],
-	REGISTER_SERIAL_DIALOG_COMMAND: ['command', 'script', 'is_fail'],
-	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: ['command', 'argument', 'script'],
-	UNREGISTER_SERIAL_DIALOG_COMMAND: ['command', 'is_fail'],
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: ['command', 'argument', 'script'],
-	SET_ENTITY_MOVEMENT_RELATIVE: ['relative_direction', 'entity'],
-	CHECK_DIALOG_OPEN: ['JUMP_SPECIAL_FIELDS', 'expected_bool'],
-	CHECK_SERIAL_DIALOG_OPEN: ['JUMP_SPECIAL_FIELDS', 'expected_bool'],
-	CHECK_DEBUG_MODE: ['JUMP_SPECIAL_FIELDS', 'expected_bool'],
-	CLOSE_DIALOG: [],
-	CLOSE_SERIAL_DIALOG: [],
-	SET_LIGHTS_CONTROL: ['enabled'],
-	SET_LIGHTS_STATE: ['lights', 'enabled'],
-	GOTO_ACTION_INDEX: ['action_index'],
-	SET_SCRIPT_PAUSE: ['entity', 'script_slot', 'bool_value'],
-	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: ['command', 'alias'],
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: ['alias'],
-	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: ['command', 'is_visible'],
-};
-
-export const isFieldForAction = (field: string, action: string): boolean => {
-	const fields = actionFields[action];
-	if (fields.includes(field)) return true;
-	if (fields.includes('JUMP_SPECIAL_FIELDS')) {
-		return JUMP_SPECIAL_FIELDS.includes(field);
-	}
-	return false;
-};
-export const getBoolFieldForAction = (action: string): string => {
-	const fields = actionFields[action];
-	if (fields.includes('bool_value')) return 'bool_value';
-	if (fields.includes('expected_bool')) return 'expected_bool';
-	if (fields.includes('enabled')) return 'enabled';
-	const filtered = fields.filter((s: string) => s.includes('bool'));
-	if (filtered.length === 1) return filtered[0];
-	if (filtered.length === 0) {
-		throw new Error(`bool field not found for action ${action}`);
-	}
-	throw new Error('multiple possible bool params: ' + filtered.join(', '));
-};
 
 const breakIfNotStringOrStringArray = (v: unknown): string | string[] => {
 	if (typeof v === 'string') return v;
@@ -2298,10 +2263,11 @@ export const summonActionConstructor = (v: unknown) => {
 	}
 	throw new Error('failed to create action ' + actionName);
 };
+
 // Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
 // old style so the old and new output can be directly compared (I think)
 export const standardizeNode = (
-	action: Action | GenericActionish,
+	action: AnyNode | GenericActionish,
 	OOB: number,
 ): Action | GenericActionish => {
 	if (action instanceof CopyMacro) {
@@ -2326,12 +2292,10 @@ export const standardizeNode = (
 		});
 		return ret;
 	}
+	if (!(action instanceof Action)) {
+		throw new Error('Found non-Action when trying to standardize Action');
+	}
 	const actionName = breakIfNotString(action.action);
-	Object.keys(action).forEach((field: string) => {
-		if (!isFieldForAction(field, actionName) && field !== 'action') {
-			delete action[field];
-		}
-	});
 	if (actionConstructorLookup[actionName]) {
 		return actionConstructorLookup[actionName](action);
 	}

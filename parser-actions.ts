@@ -9,7 +9,6 @@ import {
 	type Capture,
 } from './parser-capture.ts';
 import {
-	getBoolFieldForAction,
 	type ActionSetPosition,
 	type ActionSetDirection,
 	type ActionSetScript,
@@ -199,11 +198,11 @@ const actionSetBoolMaker = (
 		typeof _lhsSetAction === 'string'
 			? SET_SAVE_FLAG.toValue(_lhsSetAction, true)
 			: _lhsSetAction;
-	const lhsBoolField = getBoolFieldForAction(lhsSetAction.action);
 
 	// player glitched = true;
 	if (typeof _rhsBoolExp === 'boolean') {
-		lhsSetAction[lhsBoolField] = _rhsBoolExp;
+		lhsSetAction.updateProp(_rhsBoolExp);
+		// lhsSetAction[lhsBoolField] = _rhsBoolExp;
 		return lhsSetAction;
 	}
 
@@ -215,13 +214,7 @@ const actionSetBoolMaker = (
 	const cloneIfFalse = cloneNode(lhsSetAction);
 	cloneIfFalse.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
-		return simpleBranchMaker(
-			f,
-			rhsBoolExp.debug?.node || backupNode,
-			rhsBoolExp,
-			[lhsSetAction],
-			[cloneIfFalse],
-		);
+		return simpleBranchMaker(f, backupNode, rhsBoolExp, [lhsSetAction], [cloneIfFalse]);
 	}
 
 	return simpleBranchMaker(
@@ -237,7 +230,7 @@ const actionSetBoolMaker = (
 
 export type GenericActionish = Record<
 	string,
-	boolean | number | string | MathlangLocation | Record<string, unknown>
+	boolean | number | string | AnyNode | Record<string, unknown>
 >;
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
@@ -268,7 +261,7 @@ const spreadValues = (
 	// but spread action into multiple variants
 	const ret: GenericActionish[] = [];
 	for (let i = 0; i < spreadSize; i++) {
-		const insert = { ...commonFields };
+		const insert: GenericActionish = { ...commonFields };
 		Object.keys(fieldsToSpread).forEach((fieldName) => {
 			const allValues = fieldsToSpread[fieldName].captures;
 			const currValue = allValues[i % allValues.length];
@@ -328,10 +321,10 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 	// so let the handler sort them out after the spreads are spread
 	const handleFn = data.handle;
 	if (!handleFn) throw new Error('need action handling function?');
-	const ret: AnyNode[] = spreads.map((v, i) => {
+	const ret = spreads.map((v, i) => {
 		return handleFn(v, f, node, i);
 	});
-	return ret;
+	return ret.filter((v) => v !== undefined);
 };
 
 type ShowDialogOutput = (SHOW_DIALOG | DialogDefinition)[];
@@ -388,7 +381,12 @@ type actionDataEntry = {
 	values?: Record<string, unknown>;
 	captures?: string[];
 	optionalCaptures?: string[];
-	handle?: (v: GenericActionish, f: FileState, node: TreeSitterNode, i?: number) => AnyNode;
+	handle?: (
+		v: GenericActionish,
+		f: FileState,
+		node: TreeSitterNode,
+		i?: number,
+	) => AnyNode | undefined;
 };
 const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {

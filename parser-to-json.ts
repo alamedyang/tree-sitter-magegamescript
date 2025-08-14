@@ -2,51 +2,48 @@ import * as ACTION from './parser-bytecode-info.ts';
 import * as MATHLANG from './parser-types.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
-export const printAction = (data: MATHLANG.AnyNode): string => {
-	const isAction = data instanceof ACTION.Action || data.action;
-	if (data instanceof MATHLANG.CommentNode) {
-		const abridged =
-			data.comment.length > 70 ? data.comment.slice(0, 70) + '...' : data.comment;
-		return `// ${abridged}`;
-	} else if (isAction && data.action === 'LABEL') {
-		return `${sanitizeLabel(data.value)}:`;
-	}
-	if (isAction && data.action) {
-		const fn = printActionFns[data.action];
-		if (!fn) {
-			// print a generic one
-			if (data.debug) delete data.debug; // prevent terrible JSON breakage
-			return `json[${JSON.stringify(data, null, '\t')}]`;
-		}
-		const print = fn(data);
-		const comment = data.debug?.comment ? ' // ' + data.debug?.comment : '';
-		return print + comment;
-	}
-	if (!isAction && data.mathlang) {
-		if (data instanceof MATHLANG.DialogDefinition) {
-			const sample = data.dialogs[0].messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
-			return `// auto dialog: "${sample}"`;
-		}
-		if (data instanceof MATHLANG.SerialDialogDefinition) {
-			const sample = data.serialDialog.messages[0].replace(/\n/g, ' ').slice(0, 40) + '...';
-			return `// auto serial_dialog: "${sample}"`;
-		}
-		if (data instanceof MATHLANG.ReturnStatement) return '// auto return label';
-		const fn = mathlang[data.mathlang];
-		if (!fn) throw new Error('print fn needed for ' + data.mathlang);
-		const print = fn(data);
-		return print;
-	}
-	throw new Error('print fn needed for ' + data.action);
+const truncate = (s: string, n: number): string => {
+	const orig = s.replace(/\n/g, ' ');
+	return s.length > n + 3 ? orig.slice(0, n) + '...' : orig;
 };
 
-const mathlang = {
-	goto_label: (data: MATHLANG.GotoLabel) => `${printGotoSegment(data)};`,
-	label_definition: (data: MATHLANG.GotoLabel) => {
-		if (!data.label) throw new Error('cannot print label action without label');
-		return `${sanitizeLabel(data.label)}:`;
-	},
-	copy_script: (data: MATHLANG.CopyMacro) => `copy!("${data.script}")`,
+export const printAction = (v: MATHLANG.AnyNode): string => {
+	if (v instanceof ACTION.LABEL) {
+		return `${sanitizeLabel(v.value)}:`;
+	}
+	if (v instanceof MATHLANG.LabelDefinition) {
+		return `${sanitizeLabel(v.label)}:`;
+	}
+	if (v instanceof MATHLANG.GotoLabel) {
+		return `${printGotoSegment(v)};`;
+	}
+	if (v instanceof MATHLANG.CopyMacro) {
+		return `copy!("${v.script}")`;
+	}
+	if (v instanceof MATHLANG.CommentNode) {
+		const truncated = truncate(v.comment, 70);
+		return `// ${truncated}`;
+	}
+	if (v instanceof MATHLANG.DialogDefinition) {
+		const truncated = truncate(v.dialogs[0].messages[0], 40);
+		return `// auto dialog: "${truncated}"`;
+	}
+	if (v instanceof MATHLANG.SerialDialogDefinition) {
+		const truncated = truncate(v.serialDialog.messages[0], 40);
+		return `// auto serial_dialog: "${truncated}"`;
+	}
+	if (v instanceof MATHLANG.MathlangNode) {
+		throw new Error('Unhandled case for printing MathlangNode');
+	}
+	if (!(v instanceof ACTION.Action)) {
+		throw new Error('Unknown type of non-Action non-Mathlang node in AnyNode');
+	}
+	const fn = printActionFns[v.action];
+	if (!fn) {
+		// print a generic one
+		return `json[${JSON.stringify(v, null, '\t')}]`;
+	}
+	return fn(v);
 };
 
 // TODO: how to add types to this without needing each fn to check the type of its args?
@@ -315,14 +312,12 @@ const printGotoSegment = (data: ACTION.CheckAction | MATHLANG.GotoLabel): string
 	throw new Error('cannot print goto segment without destination!');
 };
 const printCheckAction = (data: ACTION.CheckAction, lhs: string, smartInvert: boolean): string => {
-	const param = ACTION.getBoolFieldForAction(data.action);
-	const bang = smartInvert && !data[param] ? '!' : '';
+	const bang = smartInvert && !data.getBool() ? '!' : '';
 	const goto = printGotoSegment(data);
 	return `if ${bang}${lhs} then ${goto};`;
 };
 const printSetBoolAction = (data: ACTION.ActionSetBool, lhs: string): string => {
-	const param = ACTION.getBoolFieldForAction(data.action);
-	return `${lhs} = ${data[param]};`;
+	return `${lhs} = ${data.getProp()};`;
 };
 const printDuration = (duration: number): string => duration + 'ms';
 const printGeometry = (geometry: string): string => `geometry "${geometry}"`;

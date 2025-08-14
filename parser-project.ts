@@ -154,18 +154,15 @@ export const makeProjectState = (
 				const targetScript: string = action.script;
 				if (!p.scripts[targetScript]) {
 					// named script not found; error
-					if (!action.debug) {
-						throw new Error(
-							"plain COPY_SCRIPT with missing TreeSitterNode; this shouldn't happen",
-						);
-					}
+					const useNode =
+						action instanceof MathlangNode
+							? action.debug.node.childForFieldName('script') || action.debug.node
+							: node;
 					p.newError({
 						locations: [
 							{
 								fileName: scriptData.debug.fileName,
-								node:
-									action.debug.node.childForFieldName('script') ||
-									action.debug.node,
+								node: useNode,
 							},
 						],
 						message: 'no script found by the name ' + targetScript,

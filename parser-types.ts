@@ -6,6 +6,7 @@ export class AnyNode {}
 export const cloneNode = (node: AnyNode) => {
 	if (node instanceof MathlangNode) return node.clone();
 	if (node instanceof ACTION.Action) return ACTION.summonActionConstructor(node);
+	throw new Error('need to know how to clone third type of node apparently');
 };
 export class MathlangNode extends AnyNode {
 	mathlang: string;
@@ -605,7 +606,15 @@ export class ScriptDefinition extends MathlangNode {
 		if (args.copyScriptResolved) this.copyScriptResolved = true;
 	}
 	clone() {
-		return new ScriptDefinition(this.debug, this.args);
+		const clone = new ScriptDefinition(this.debug, this.args);
+		clone.actions = clone.actions.map((v) => cloneNode(v));
+		if (clone.rawNodes) {
+			clone.rawNodes = clone.rawNodes.map((v) => cloneNode(v));
+		}
+		if (clone.preActions) {
+			clone.preActions = clone.preActions.map((v) => cloneNode(v));
+		}
+		return clone;
 	}
 }
 
@@ -660,7 +669,7 @@ export class JSONLiteral extends MathlangNode {
 		this.debug = debug;
 		this.mathlang = 'json_literal';
 		if (!Array.isArray(args.json)) throw new Error('need array');
-		this.json = args.json; // TODO how to cleanse this?
+		this.json = JSON.parse(JSON.stringify(args.json));
 	}
 	clone() {
 		return new JSONLiteral(this.debug, this.args);

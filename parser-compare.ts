@@ -30,6 +30,7 @@ import { ansiTags } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 import { type ProjectState } from './parser-project.ts';
 import { type DialogDefinition, type SerialDialog } from './parser-types.ts';
+import { summonActionConstructor } from './parser-bytecode-info.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -87,8 +88,8 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 	// oldActions = oldPre[scriptName];
 	// newActions = p.scripts[scriptName].preActions;
 	// }
-	const oldActions = oldPre[scriptName];
-	const newActions = p.scripts[scriptName].preActions;
+	const oldActions = oldPre[scriptName].map(summonActionConstructor);
+	const newActions = p.scripts[scriptName].preActions?.map(summonActionConstructor);
 	if (!newActions) throw new Error(`missing newActions for script "${scriptName}"`);
 	if (!oldActions) throw new Error(`missing oldActions for script "${scriptName}"`);
 

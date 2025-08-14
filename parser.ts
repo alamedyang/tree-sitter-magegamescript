@@ -197,12 +197,11 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 						`Jump index not registered for label "${action.label}" in script "${scriptName}"`,
 					);
 				}
-				const param = 'jump_index';
 				if (action instanceof GotoLabel) {
 					actions[i] = GOTO_ACTION_INDEX.quick(jumpToIndex);
 				} else {
 					action.comment = `goto label '${action.label}'`;
-					action[param] = jumpToIndex;
+					action.jump_index = jumpToIndex;
 					delete action.label;
 				}
 			}
