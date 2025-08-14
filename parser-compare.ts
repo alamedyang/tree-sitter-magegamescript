@@ -25,8 +25,7 @@ import {
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
 import { makeMap, parseProject } from './parser.ts';
-import { printScript } from './parser-to-json.ts';
-import { ansiTags } from './parser-utilities.ts';
+import { ansiTags, printScript } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 import { type ProjectState } from './parser-project.ts';
 import { type DialogDefinition, type SerialDialog } from './parser-types.ts';

@@ -6,9 +6,13 @@ import { dirname } from 'path';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
-import { debugLog, printableMGSMessage, ansiTags as ansi } from './parser-utilities.ts';
+import {
+	debugLog,
+	printableMGSMessage,
+	ansiTags as ansi,
+	printScript,
+} from './parser-utilities.ts';
 
-import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
 import { GOTO_ACTION_INDEX, standardizeNode } from './parser-bytecode-info.ts';
 
@@ -210,7 +214,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 
 	// Snapshot current action state (post copy_script, post label baking)
 	Object.keys(p.scripts).forEach((scriptName) => {
-		p.scripts[scriptName].print = printScript(scriptName, p.scripts[scriptName].actions);
+		p.scripts[scriptName].printed = printScript(scriptName, p.scripts[scriptName].actions);
 	});
 
 	// PRINT ERRORS
@@ -251,7 +255,7 @@ parseProject(fileMap).then((p) => {
 	console.log('PROJECT');
 	console.log(p);
 const printAll = Object.values(p.scripts)
-	.map(v=>v.print)
+	.map(v=>v.printed)
 	.join('\n\n');
 console.log(printAll);
 });

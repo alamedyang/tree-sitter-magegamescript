@@ -15,6 +15,9 @@ export class MathlangNode extends AnyNode {
 	clone() {
 		return this.constructor(MathlangNode);
 	}
+	print() {
+		return `// MATHLANG: ${this.mathlang}`;
+	}
 }
 
 export type MGSPrimitive = string | boolean | number;
@@ -48,6 +51,11 @@ export type MGSMessage = {
 	locations: MGSLocation[];
 	message: string;
 	footer?: string;
+};
+
+const truncate = (s: string, n: number): string => {
+	const orig = s.replace(/\n/g, ' ');
+	return s.length > n + 3 ? orig.slice(0, n) + '...' : orig;
 };
 
 // ------------------------------ SETTINGS ------------------------------ \\
@@ -193,6 +201,9 @@ export class GotoLabel extends MathlangNode {
 	static quick(debug: MathlangLocation, label: string) {
 		return new GotoLabel(debug, { label });
 	}
+	print() {
+		return `${ACTION.printGotoSegment(this)};`;
+	}
 }
 
 // ------------------------------ DIALOG ------------------------------ \\
@@ -234,6 +245,10 @@ export class DialogDefinition extends MathlangNode {
 	}
 	static quick(debug: MathlangLocation, dialogName: string, dialogs: Dialog[]) {
 		return new DialogDefinition(debug, { dialogName, dialogs });
+	}
+	print() {
+		const truncated = truncate(this.dialogs[0].messages[0], 40);
+		return `// auto dialog: "${truncated}"`;
 	}
 }
 export type DialogSettings = {
@@ -402,6 +417,10 @@ export class SerialDialogDefinition extends MathlangNode {
 	static quick(debug: MathlangLocation, dialogName: string, serialDialog: SerialDialog) {
 		return new SerialDialogDefinition(debug, { dialogName, serialDialog });
 	}
+	print() {
+		const truncated = truncate(this.serialDialog.messages[0], 40);
+		return `// auto serial_dialog: "${truncated}"`;
+	}
 }
 
 export type SerialDialogSettings = {
@@ -549,7 +568,7 @@ export class ScriptDefinition extends MathlangNode {
 	scriptName: string;
 	prePrint?: string;
 	testPrint?: string;
-	print?: string;
+	printed?: string;
 	rawNodes?: AnyNode[];
 	actions: AnyNode[];
 	preActions?: AnyNode[];
@@ -563,7 +582,7 @@ export class ScriptDefinition extends MathlangNode {
 		this.scriptName = ACTION.breakIfNotString(args.scriptName);
 		if (typeof args.prePrint === 'string') this.prePrint = args.prePrint;
 		if (typeof args.testPrint === 'string') this.testPrint = args.testPrint;
-		if (typeof args.print === 'string') this.print = args.print;
+		if (typeof args.printed === 'string') this.printed = args.printed;
 		if (args.rawNodes) {
 			if (
 				!Array.isArray(args.rawNodes) ||
@@ -636,6 +655,10 @@ export class CommentNode extends MathlangNode {
 	static quick(debug: MathlangLocation, comment: string) {
 		return new CommentNode(debug, { comment });
 	}
+	print() {
+		const truncated = truncate(this.comment, 70);
+		return `// ${truncated}`;
+	}
 }
 
 export class LabelDefinition extends MathlangNode {
@@ -655,6 +678,9 @@ export class LabelDefinition extends MathlangNode {
 	}
 	static quick(debug: MathlangLocation, label: string) {
 		return new LabelDefinition(debug, { label });
+	}
+	print() {
+		return `${ACTION.sanitizeLabel(this.label)}:`;
 	}
 }
 
@@ -695,6 +721,9 @@ export class CopyMacro extends MathlangNode {
 	}
 	clone() {
 		return new CopyMacro(this.debug, this.args);
+	}
+	print() {
+		return `copy!("${this.script}")`;
 	}
 }
 

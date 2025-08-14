@@ -4,6 +4,7 @@ import {
 	BoolGetable,
 	StringCheckable,
 	NumberCheckableEquality,
+	Action,
 } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
@@ -18,6 +19,7 @@ import {
 	isBoolExpression,
 	type BoolComparison,
 	GotoLabel,
+	MathlangNode,
 } from './parser-types.ts';
 import { type FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -73,6 +75,28 @@ export const ansiTags: Record<string, string> = {
 	'bg-white': '\u001B[47m',
 	// non-color-related
 	bell: '',
+};
+
+// ------------------------ PRINTING ------------------------ //
+
+export const printAction = (v: AnyNode): string => {
+	if (v instanceof Action) return v.print();
+	if (v instanceof MathlangNode) return v.print();
+	throw new Error('Unhandled print case');
+};
+
+export const printScript = (scriptName: string, actions: AnyNode[]): string => {
+	const printedActions = actions
+		.map(printAction)
+		.filter((v) => v !== undefined)
+		.map((v) => {
+			return v
+				.split('\n')
+				.map((v) => `\t${v}`)
+				.join('\n');
+		});
+	const ret = [`"${scriptName}" {`, ...printedActions, '}'];
+	return ret.join('\n');
 };
 
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //

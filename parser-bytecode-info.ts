@@ -10,7 +10,7 @@ import {
 } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
-import { simpleBranchMaker } from './parser-utilities.ts';
+import { inverseOpMap, simpleBranchMaker } from './parser-utilities.ts';
 
 const opIntoStringMap: Record<string, string> = {
 	'=': 'SET',
@@ -21,6 +21,15 @@ const opIntoStringMap: Record<string, string> = {
 	'%': 'MOD',
 	'?': 'RNG',
 };
+const stringIntoOpMap: Record<string, string> = {
+	ADD: '+',
+	SUB: '-',
+	MUL: '*',
+	DIV: '/',
+	MOD: '%',
+	RNG: '?',
+	SET: '',
+};
 
 export class Action extends AnyNode {
 	action: string;
@@ -28,6 +37,9 @@ export class Action extends AnyNode {
 		const fn = actionConstructorLookup[this.action];
 		if (!fn) throw new Error('no action constructor for ' + this.action);
 		return fn();
+	}
+	print() {
+		return `json[${JSON.stringify(this, null, '\t')}]`;
 	}
 }
 
@@ -115,6 +127,53 @@ export class NumberCheckableEquality extends Action {
 	}
 }
 
+// ---------------------------------- PRINTING ---------------------------------- \\
+
+// Auto labels are illegal (contain spaces) on purpose to prevent collisions
+// But that means we don't get round-trip translations unless we sanitze them thus:
+export const sanitizeLabel = (label: string): string =>
+	label.includes(' ') ? label.replace(/ /g, '_').replace(/-/g, '_').replace(/#/g, '') : label;
+
+export const printGotoSegment = (data: CheckAction | GotoLabel): string => {
+	if (data.label) {
+		return `goto label ${sanitizeLabel(data.label)}`;
+	}
+	if (!isCheckAction(data)) throw new Error('failed isCheckAction()');
+	if (data.jump_index !== undefined) {
+		if (typeof data.jump_index === 'string') {
+			return `goto label ${sanitizeLabel(data.jump_index)}`;
+		}
+		return `goto index ${data.jump_index}`;
+	}
+	if (data.success_script) {
+		return `goto script "${data.success_script}"`;
+	}
+	throw new Error('cannot print goto segment without destination!');
+};
+export const printCheckAction = (data: CheckAction, lhs: string, smartInvert: boolean): string => {
+	const bang = smartInvert && !data.getBool() ? '!' : '';
+	const goto = printGotoSegment(data);
+	return `if ${bang}${lhs} then ${goto};`;
+};
+export const printSetBoolAction = (data: ActionSetBool, lhs: string): string => {
+	return `${lhs} = ${data.getProp()};`;
+};
+export const printDuration = (duration: number): string => duration + 'ms';
+export const printGeometry = (geometry: string): string => `geometry "${geometry}"`;
+export const printEntityIdentifier = (entity: string): string => {
+	if (entity === '%PLAYER%') return 'player';
+	if (entity === '%SELF%') return 'self';
+	if (entity === '%MAP%') return 'map';
+	if (entity === '%CAMERA%') return 'camera';
+	return `entity "${entity}"`;
+};
+export const printEntityFieldEquality = (v, param, value: number | string): string => {
+	const lhs = `${printEntityIdentifier(v.entity)} ${param}`;
+	return v.expected_bool
+		? printCheckAction(v, `${lhs} == ${value}`, false)
+		: printCheckAction(v, `${lhs} != ${value}`, false);
+};
+
 // ---------------------------------- ACTUAL BYTECODE JSON ---------------------------------- \\
 
 // Todo: might not need the "debug" stuff; if actual action, errors would be reported at generation.
@@ -127,6 +186,9 @@ export class NULL_ACTION extends Action {
 		super();
 		this.action = 'NULL_ACTION';
 	}
+	print() {
+		return `// NULL_ACTION`;
+	}
 }
 export class LABEL extends Action {
 	action: 'LABEL';
@@ -135,6 +197,9 @@ export class LABEL extends Action {
 		super();
 		this.action = 'LABEL';
 		this.value = breakIfNotString(args.value);
+	}
+	print() {
+		return `${sanitizeLabel(this.value)}:`;
 	}
 }
 export class RUN_SCRIPT extends Action {
@@ -148,6 +213,9 @@ export class RUN_SCRIPT extends Action {
 	static quick(script: string) {
 		return new RUN_SCRIPT({ script });
 	}
+	print() {
+		return `goto script "${this.script}";`;
+	}
 }
 export class BLOCKING_DELAY extends Action {
 	action: 'BLOCKING_DELAY';
@@ -156,6 +224,9 @@ export class BLOCKING_DELAY extends Action {
 		super();
 		this.action = 'BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args.duration);
+	}
+	print() {
+		return `block ${printDuration(this.duration)};`;
 	}
 }
 export class NON_BLOCKING_DELAY extends Action {
@@ -166,8 +237,10 @@ export class NON_BLOCKING_DELAY extends Action {
 		this.action = 'NON_BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	print() {
+		return `wait ${printDuration(this.duration)};`;
+	}
 }
-
 export class SET_ENTITY_NAME extends Action {
 	action: 'SET_ENTITY_NAME';
 	entity: string;
@@ -180,6 +253,9 @@ export class SET_ENTITY_NAME extends Action {
 	}
 	static quick(entity: string, string: string) {
 		return new SET_ENTITY_NAME({ entity, string });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} name = "${this.string}";`;
 	}
 }
 export class SET_ENTITY_X extends Action {
@@ -195,6 +271,9 @@ export class SET_ENTITY_X extends Action {
 	static quick(entity: string, u2_value: number) {
 		return new SET_ENTITY_X({ entity, u2_value });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} x = ${this.u2_value};`;
+	}
 }
 export class SET_ENTITY_Y extends Action {
 	action: 'SET_ENTITY_Y';
@@ -208,6 +287,9 @@ export class SET_ENTITY_Y extends Action {
 	}
 	static quick(entity: string, u2_value: number) {
 		return new SET_ENTITY_Y({ entity, u2_value });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} y = ${this.u2_value};`;
 	}
 }
 export class SET_ENTITY_INTERACT_SCRIPT extends Action {
@@ -223,6 +305,9 @@ export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 	static quick(entity: string, script: string) {
 		return new SET_ENTITY_INTERACT_SCRIPT({ entity, script });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} on_interact = "${this.script}";`;
+	}
 }
 export class SET_ENTITY_TICK_SCRIPT extends Action {
 	action: 'SET_ENTITY_TICK_SCRIPT';
@@ -236,6 +321,9 @@ export class SET_ENTITY_TICK_SCRIPT extends Action {
 	}
 	static quick(entity: string, script: string) {
 		return new SET_ENTITY_TICK_SCRIPT({ entity, script });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} on_tick = "${this.script}";`;
 	}
 }
 export class SET_ENTITY_TYPE extends Action {
@@ -251,6 +339,9 @@ export class SET_ENTITY_TYPE extends Action {
 	static quick(entity: string, entity_type: string) {
 		return new SET_ENTITY_TYPE({ entity, entity_type });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} type = "${this.entity_type}";`;
+	}
 }
 export class SET_ENTITY_PRIMARY_ID extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID';
@@ -264,6 +355,9 @@ export class SET_ENTITY_PRIMARY_ID extends Action {
 	}
 	static quick(entity: string, u2_value: number) {
 		return new SET_ENTITY_PRIMARY_ID({ entity, u2_value });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} primary_id = ${this.u2_value};`;
 	}
 }
 export class SET_ENTITY_SECONDARY_ID extends Action {
@@ -279,6 +373,9 @@ export class SET_ENTITY_SECONDARY_ID extends Action {
 	static quick(entity: string, u2_value: number) {
 		return new SET_ENTITY_SECONDARY_ID({ entity, u2_value });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} secondary_id = ${this.u2_value};`;
+	}
 }
 export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID_TYPE';
@@ -292,6 +389,9 @@ export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 	}
 	static quick(entity: string, byte_value: number) {
 		return new SET_ENTITY_PRIMARY_ID_TYPE({ entity, byte_value });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} primary_id_type = ${this.byte_value};`;
 	}
 }
 export class SET_ENTITY_CURRENT_ANIMATION extends Action {
@@ -307,6 +407,9 @@ export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 	static quick(entity: string, byte_value: number) {
 		return new SET_ENTITY_CURRENT_ANIMATION({ entity, byte_value });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} current_animation = ${this.byte_value};`;
+	}
 }
 export class SET_ENTITY_CURRENT_FRAME extends Action {
 	action: 'SET_ENTITY_CURRENT_FRAME';
@@ -320,6 +423,9 @@ export class SET_ENTITY_CURRENT_FRAME extends Action {
 	}
 	static quick(entity: string, byte_value: number) {
 		return new SET_ENTITY_CURRENT_FRAME({ entity, byte_value });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} animation_frame = ${this.byte_value};`;
 	}
 }
 export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
@@ -335,6 +441,13 @@ export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 	static quick(entity: string, relative_direction: number) {
 		return new SET_ENTITY_DIRECTION_RELATIVE({ entity, relative_direction });
 	}
+	print() {
+		if (this.relative_direction < 0) {
+			return `${printEntityIdentifier(this.entity)} direction -= ${this.relative_direction};`;
+		} else {
+			return `${printEntityIdentifier(this.entity)} direction += ${this.relative_direction};`;
+		}
+	}
 }
 export class SET_ENTITY_DIRECTION extends Action {
 	action: 'SET_ENTITY_DIRECTION';
@@ -348,6 +461,9 @@ export class SET_ENTITY_DIRECTION extends Action {
 	}
 	static quick(entity: string, direction: string) {
 		return new SET_ENTITY_DIRECTION({ entity, direction });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} direction = "${this.direction}";`;
 	}
 }
 export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
@@ -363,6 +479,9 @@ export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 	static quick(entity: string, target_entity: string) {
 		return new SET_ENTITY_DIRECTION_TARGET_ENTITY({ entity, target_entity });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} direction = ${printEntityIdentifier(this.target_entity)};`;
+	}
 }
 export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
@@ -376,6 +495,9 @@ export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	}
 	static quick(entity: string, target_geometry: string) {
 		return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({ entity, target_geometry });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} direction = ${printGeometry(this.target_geometry)};`;
 	}
 }
 export class SET_ENTITY_GLITCHED extends Action {
@@ -400,6 +522,9 @@ export class SET_ENTITY_GLITCHED extends Action {
 	static quick(entity: string, bool_value: boolean) {
 		return new SET_ENTITY_GLITCHED({ entity, bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `${printEntityIdentifier(this.entity)} glitched`);
+	}
 }
 export class SET_ENTITY_PATH extends Action {
 	action: 'SET_ENTITY_PATH';
@@ -414,8 +539,10 @@ export class SET_ENTITY_PATH extends Action {
 	static quick(entity: string, geometry: string) {
 		return new SET_ENTITY_PATH({ entity, geometry });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} path = "${this.geometry}";`;
+	}
 }
-
 export class COPY_SCRIPT extends Action {
 	action: 'COPY_SCRIPT';
 	script: string;
@@ -432,8 +559,19 @@ export class COPY_SCRIPT extends Action {
 			this.search_and_replace = search_and_replace;
 		}
 	}
+	print() {
+		if (!this.search_and_replace) {
+			return `copy!("${this.script}")`;
+		}
+		const action = {
+			action: this.action,
+			script: this.script,
+			search_and_replace: this.search_and_replace,
+		};
+		const strung = JSON.stringify(action, null, '\t');
+		return `json[${strung}]`;
+	}
 }
-
 export class SET_SAVE_FLAG extends Action {
 	action: 'SET_SAVE_FLAG';
 	save_flag: string;
@@ -473,6 +611,9 @@ export class SET_SAVE_FLAG extends Action {
 			[actionIfFalse],
 		);
 	}
+	print() {
+		return printSetBoolAction(this, `"${this.save_flag}"`);
+	}
 }
 export class SET_PLAYER_CONTROL extends Action {
 	action: 'SET_PLAYER_CONTROL';
@@ -494,6 +635,9 @@ export class SET_PLAYER_CONTROL extends Action {
 	static quick(bool_value: boolean) {
 		return new SET_PLAYER_CONTROL({ bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `player_control`);
+	}
 }
 export class SET_MAP_TICK_SCRIPT extends Action {
 	action: 'SET_MAP_TICK_SCRIPT';
@@ -506,6 +650,9 @@ export class SET_MAP_TICK_SCRIPT extends Action {
 	static quick(script: string) {
 		return new SET_MAP_TICK_SCRIPT({ script });
 	}
+	print() {
+		return `map on_tick = "${this.script}";`;
+	}
 }
 export class SET_HEX_CURSOR_LOCATION extends Action {
 	action: 'SET_HEX_CURSOR_LOCATION';
@@ -515,6 +662,7 @@ export class SET_HEX_CURSOR_LOCATION extends Action {
 		this.action = 'SET_HEX_CURSOR_LOCATION';
 		this.address = breakIfNotNumber(args.address);
 	}
+	// todo print?
 }
 export class SET_WARP_STATE extends Action {
 	action: 'SET_WARP_STATE';
@@ -523,6 +671,9 @@ export class SET_WARP_STATE extends Action {
 		super();
 		this.action = 'SET_WARP_STATE';
 		this.string = breakIfNotString(args.string);
+	}
+	print() {
+		return `warp_state = "${this.string}";`;
 	}
 }
 export class SET_HEX_EDITOR_STATE extends Action {
@@ -545,6 +696,9 @@ export class SET_HEX_EDITOR_STATE extends Action {
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_STATE({ bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `hex_editor`);
+	}
 }
 export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
@@ -566,6 +720,9 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_DIALOG_MODE({ bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `hex_dialog_mode`);
+	}
 }
 export class SET_HEX_EDITOR_CONTROL extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL';
@@ -583,6 +740,9 @@ export class SET_HEX_EDITOR_CONTROL extends Action {
 	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_CONTROL({ bool_value });
+	}
+	print() {
+		return printSetBoolAction(this, `hex_control`);
 	}
 }
 export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
@@ -605,6 +765,9 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_CONTROL_CLIPBOARD({ bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `hex_clipboard`);
+	}
 }
 export class LOAD_MAP extends Action {
 	action: 'LOAD_MAP';
@@ -617,6 +780,9 @@ export class LOAD_MAP extends Action {
 	static quick(map: string) {
 		return new LOAD_MAP({ map });
 	}
+	print() {
+		return `load map "${this.map}";`;
+	}
 }
 export class SHOW_DIALOG extends Action {
 	action: 'SHOW_DIALOG';
@@ -628,6 +794,9 @@ export class SHOW_DIALOG extends Action {
 	}
 	static quick(dialog: string) {
 		return new SHOW_DIALOG({ dialog });
+	}
+	print() {
+		return `show dialog "${this.dialog}";`;
 	}
 }
 export class PLAY_ENTITY_ANIMATION extends Action {
@@ -642,6 +811,9 @@ export class PLAY_ENTITY_ANIMATION extends Action {
 		this.animation = breakIfNotNumber(args.animation);
 		this.play_count = breakIfNotNumber(args.play_count);
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} animation -> ${this.animation} ${this.play_count}x;`;
+	}
 }
 export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_ENTITY_TO_GEOMETRY';
@@ -655,6 +827,9 @@ export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 	}
 	static quick(entity: string, geometry: string) {
 		return new TELEPORT_ENTITY_TO_GEOMETRY({ entity, geometry });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} position = ${printGeometry(this.geometry)};`;
 	}
 }
 export class WALK_ENTITY_TO_GEOMETRY extends Action {
@@ -672,6 +847,9 @@ export class WALK_ENTITY_TO_GEOMETRY extends Action {
 	static quick(entity: string, geometry: string, duration: number) {
 		return new WALK_ENTITY_TO_GEOMETRY({ entity, geometry, duration });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} position -> ${printGeometry(this.geometry)} origin over ${printDuration(this.duration)};`;
+	}
 }
 export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_ALONG_GEOMETRY';
@@ -687,6 +865,9 @@ export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 	}
 	static quick(entity: string, geometry: string, duration: number) {
 		return new WALK_ENTITY_ALONG_GEOMETRY({ entity, geometry, duration });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} position -> ${printGeometry(this.geometry)} length over ${printDuration(this.duration)};`;
 	}
 }
 export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
@@ -704,6 +885,9 @@ export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 	static quick(entity: string, geometry: string, duration: number) {
 		return new LOOP_ENTITY_ALONG_GEOMETRY({ entity, geometry, duration });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} position -> ${printGeometry(this.geometry)} length over ${printDuration(this.duration)} forever;`;
+	}
 }
 export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	action: 'SET_CAMERA_TO_FOLLOW_ENTITY';
@@ -716,6 +900,9 @@ export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	static quick(entity: string) {
 		return new SET_CAMERA_TO_FOLLOW_ENTITY({ entity });
 	}
+	print() {
+		return `camera = ${printEntityIdentifier(this.entity)} position;`;
+	}
 }
 export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_CAMERA_TO_GEOMETRY';
@@ -727,6 +914,9 @@ export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	}
 	static quick(geometry: string) {
 		return new TELEPORT_CAMERA_TO_GEOMETRY({ geometry });
+	}
+	print() {
+		return `camera = ${printGeometry(this.geometry)};`;
 	}
 }
 export class PAN_CAMERA_TO_ENTITY extends Action {
@@ -742,6 +932,9 @@ export class PAN_CAMERA_TO_ENTITY extends Action {
 	static quick(entity: string, duration: number) {
 		return new PAN_CAMERA_TO_ENTITY({ duration, entity });
 	}
+	print() {
+		return `camera -> ${printEntityIdentifier(this.entity)} position over ${printDuration(this.duration)};`;
+	}
 }
 export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_TO_GEOMETRY';
@@ -755,6 +948,9 @@ export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	}
 	static quick(geometry: string, duration: number) {
 		return new PAN_CAMERA_TO_GEOMETRY({ geometry, duration });
+	}
+	print() {
+		return `camera -> ${printGeometry(this.geometry)} origin over ${printDuration(this.duration)};`;
 	}
 }
 export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
@@ -770,6 +966,9 @@ export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 	static quick(geometry: string, duration: number) {
 		return new PAN_CAMERA_ALONG_GEOMETRY({ geometry, duration });
 	}
+	print() {
+		return `camera -> ${printGeometry(this.geometry)} length over ${printDuration(this.duration)};`;
+	}
 }
 export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_CAMERA_ALONG_GEOMETRY';
@@ -784,6 +983,9 @@ export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	static quick(geometry: string, duration: number) {
 		return new LOOP_CAMERA_ALONG_GEOMETRY({ geometry, duration });
 	}
+	print() {
+		return `camera -> ${printGeometry(this.geometry)} length over ${printDuration(this.duration)} forever;`;
+	}
 }
 export class SET_SCREEN_SHAKE extends Action {
 	action: 'SET_SCREEN_SHAKE';
@@ -797,6 +999,9 @@ export class SET_SCREEN_SHAKE extends Action {
 		this.frequency = breakIfNotNumber(args.frequency);
 		this.amplitude = breakIfNotNumber(args.amplitude);
 	}
+	print() {
+		return `camera shake -> ${this.frequency}ms ${this.amplitude}px over ${printDuration(this.duration)};`;
+	}
 }
 export class SCREEN_FADE_OUT extends Action {
 	action: 'SCREEN_FADE_OUT';
@@ -808,6 +1013,9 @@ export class SCREEN_FADE_OUT extends Action {
 		this.duration = breakIfNotNumber(args.duration);
 		this.color = breakIfNotString(args.color);
 	}
+	print() {
+		return `camera fade out -> ${this.color} over ${printDuration(this.duration)};`;
+	}
 }
 export class SCREEN_FADE_IN extends Action {
 	action: 'SCREEN_FADE_IN';
@@ -818,6 +1026,9 @@ export class SCREEN_FADE_IN extends Action {
 		this.action = 'SCREEN_FADE_IN';
 		this.duration = breakIfNotNumber(args.duration);
 		this.color = breakIfNotString(args.color);
+	}
+	print() {
+		return `camera fade in -> ${this.color} over ${printDuration(this.duration)};`;
 	}
 }
 export class MUTATE_VARIABLE extends Action {
@@ -850,6 +1061,9 @@ export class MUTATE_VARIABLE extends Action {
 		}
 		return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
 	}
+	print() {
+		return `"${this.variable}" ${stringIntoOpMap[this.operation]}= ${this.value};`;
+	}
 }
 export class MUTATE_VARIABLES extends Action {
 	action: 'MUTATE_VARIABLES';
@@ -880,6 +1094,9 @@ export class MUTATE_VARIABLES extends Action {
 			operation: opIntoStringMap[op] || op,
 		});
 	}
+	print() {
+		return `"${this.variable}" ${stringIntoOpMap[this.operation]}= "${this.source}";`;
+	}
 }
 export class COPY_VARIABLE extends Action {
 	action: 'COPY_VARIABLE';
@@ -901,12 +1118,20 @@ export class COPY_VARIABLE extends Action {
 	static intoVariable(entity: string, field: string, variable: string) {
 		return new COPY_VARIABLE({ entity, field, inbound: true, variable });
 	}
+	print() {
+		return this.inbound
+			? `"${this.variable}" = ${printEntityIdentifier(this.entity)} ${this.field};`
+			: `${printEntityIdentifier(this.entity)} ${this.field} = "${this.variable}";`;
+	}
 }
 export class SLOT_SAVE extends Action {
 	action: 'SLOT_SAVE';
 	constructor() {
 		super();
 		this.action = 'SLOT_SAVE';
+	}
+	print() {
+		return `save slot;`;
 	}
 }
 export class SLOT_LOAD extends Action {
@@ -917,6 +1142,9 @@ export class SLOT_LOAD extends Action {
 		this.action = 'SLOT_LOAD';
 		this.slot = breakIfNotNumber(args.slot);
 	}
+	print() {
+		return `load slot ${this.slot};`;
+	}
 }
 export class SLOT_ERASE extends Action {
 	action: 'SLOT_ERASE';
@@ -926,6 +1154,9 @@ export class SLOT_ERASE extends Action {
 		this.action = 'SLOT_ERASE';
 		this.slot = breakIfNotNumber(args.slot);
 	}
+	print() {
+		return `erase slot ${this.slot};`;
+	}
 }
 export class SET_CONNECT_SERIAL_DIALOG extends Action {
 	action: 'SET_CONNECT_SERIAL_DIALOG';
@@ -934,6 +1165,9 @@ export class SET_CONNECT_SERIAL_DIALOG extends Action {
 		super();
 		this.action = 'SET_CONNECT_SERIAL_DIALOG';
 		this.serial_dialog = breakIfNotString(args.serial_dialog);
+	}
+	print() {
+		return `serial_connect = "${this.serial_dialog}";`;
 	}
 }
 export class SHOW_SERIAL_DIALOG extends Action {
@@ -951,6 +1185,10 @@ export class SHOW_SERIAL_DIALOG extends Action {
 	static quick(serial_dialog: string, disable_newline?: boolean) {
 		return new SHOW_SERIAL_DIALOG({ serial_dialog, disable_newline: !!disable_newline });
 	}
+	print() {
+		const verb = this.disable_newline ? 'concat' : 'show';
+		return `${verb} serial_dialog "${this.serial_dialog}";`;
+	}
 }
 export class SET_MAP_LOOK_SCRIPT extends Action {
 	action: 'SET_MAP_LOOK_SCRIPT';
@@ -962,6 +1200,9 @@ export class SET_MAP_LOOK_SCRIPT extends Action {
 	}
 	static quick(script: string) {
 		return new SET_MAP_LOOK_SCRIPT({ script });
+	}
+	print() {
+		return `map on_look = "${this.script}";`;
 	}
 }
 export class SET_ENTITY_LOOK_SCRIPT extends Action {
@@ -976,6 +1217,9 @@ export class SET_ENTITY_LOOK_SCRIPT extends Action {
 	}
 	static quick(entity: string, script: string) {
 		return new SET_ENTITY_LOOK_SCRIPT({ entity, script });
+	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} on_look = "${this.script}";`;
 	}
 }
 export class SET_TELEPORT_ENABLED extends Action {
@@ -995,6 +1239,7 @@ export class SET_TELEPORT_ENABLED extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	// todo print?
 }
 export class SET_BLE_FLAG extends Action {
 	action: 'SET_BLE_FLAG';
@@ -1036,6 +1281,9 @@ export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	static quick(bool_value: boolean) {
 		return new SET_SERIAL_DIALOG_CONTROL({ bool_value });
 	}
+	print() {
+		return printSetBoolAction(this, `serial_control`);
+	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND';
@@ -1048,6 +1296,11 @@ export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
 		this.command = breakIfNotString(args.command);
 		this.script = breakIfNotString(args.script);
 		if (args.is_fail) this.is_fail = true;
+	}
+	print() {
+		return this.is_fail
+			? `command "${this.command}" fail = "${this.script}";`
+			: `command "${this.command}" = "${this.script}";`;
 	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
@@ -1062,6 +1315,9 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 		this.script = breakIfNotString(args.script);
 		this.argument = breakIfNotString(args.argument);
 	}
+	print() {
+		return `command "${this.command}" + "${this.argument}" = "${this.script}";`;
+	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND';
@@ -1075,6 +1331,9 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND extends Action {
 			this.is_fail = breakIfNotBool(args.is_fail);
 		}
 	}
+	print() {
+		return `delete command "${this.command}";`;
+	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
@@ -1085,6 +1344,9 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 		this.command = breakIfNotString(args.command);
 		this.argument = breakIfNotString(args.argument);
+	}
+	print() {
+		return `delete command "${this.command}" + "${this.argument}";`;
 	}
 }
 export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
@@ -1100,6 +1362,9 @@ export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
 	static quick(entity: string, relative_direction: number) {
 		return new SET_ENTITY_MOVEMENT_RELATIVE({ entity, relative_direction });
 	}
+	print() {
+		return `${printEntityIdentifier(this.entity)} strafe = ${this.relative_direction};`;
+	}
 }
 export class CLOSE_DIALOG extends Action {
 	action: 'CLOSE_DIALOG';
@@ -1107,12 +1372,18 @@ export class CLOSE_DIALOG extends Action {
 		super();
 		this.action = 'CLOSE_DIALOG';
 	}
+	print() {
+		return `close dialog;`;
+	}
 }
 export class CLOSE_SERIAL_DIALOG extends Action {
 	action: 'CLOSE_SERIAL_DIALOG';
 	constructor() {
 		super();
 		this.action = 'CLOSE_SERIAL_DIALOG';
+	}
+	print() {
+		return `close serial_dialog;`;
 	}
 }
 export class SET_LIGHTS_CONTROL extends Action {
@@ -1134,6 +1405,9 @@ export class SET_LIGHTS_CONTROL extends Action {
 	}
 	static quick(enabled: boolean) {
 		return new SET_LIGHTS_CONTROL({ enabled });
+	}
+	print() {
+		return printSetBoolAction(this, `lights_control`);
 	}
 }
 export class SET_LIGHTS_STATE extends Action {
@@ -1158,6 +1432,9 @@ export class SET_LIGHTS_STATE extends Action {
 	static quick(lights: string, enabled: boolean) {
 		return new SET_LIGHTS_STATE({ lights, enabled });
 	}
+	print() {
+		return printSetBoolAction(this, `light ${this.lights}`);
+	}
 }
 export class GOTO_ACTION_INDEX extends Action {
 	action: 'GOTO_ACTION_INDEX';
@@ -1169,6 +1446,12 @@ export class GOTO_ACTION_INDEX extends Action {
 	}
 	static quick(action_index: string | number) {
 		return new GOTO_ACTION_INDEX({ action_index });
+	}
+	print() {
+		if (typeof this.action_index === 'string') {
+			return `goto label ${sanitizeLabel(this.action_index)};`;
+		}
+		return `goto index ${this.action_index};`;
 	}
 }
 export class SET_SCRIPT_PAUSE extends Action {
@@ -1192,6 +1475,9 @@ export class SET_SCRIPT_PAUSE extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	print() {
+		return `${this.bool_value ? '' : 'un'}pause ${printEntityIdentifier(this.entity)} ${this.script_slot};`;
+	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
@@ -1203,6 +1489,9 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 		this.command = breakIfNotString(args.command);
 		this.alias = breakIfNotString(args.alias);
 	}
+	print() {
+		return `alias "${this.alias}" = "${this.command}";`;
+	}
 }
 export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
@@ -1211,6 +1500,9 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 		this.alias = breakIfNotString(args.alias);
+	}
+	print() {
+		return `delete alias "${this.alias}";`;
 	}
 }
 export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
@@ -1231,6 +1523,9 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 	}
 	invert() {
 		this.is_visible = !this.is_visible;
+	}
+	print() {
+		return `${this.is_visible ? 'un' : ''}hide command "${this.command}";`;
 	}
 }
 
@@ -1264,6 +1559,9 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_NAME({ entity, string, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'name', `"${this.string}"`);
+	}
 }
 export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_X';
@@ -1295,6 +1593,9 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_X({ entity, expected_u2, expected_bool });
+	}
+	print() {
+		return printEntityFieldEquality(this, 'x', this.expected_u2);
 	}
 }
 export class CHECK_ENTITY_Y extends NumberCheckableEquality {
@@ -1328,6 +1629,9 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_Y({ entity, expected_u2, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'y', this.expected_u2);
+	}
 }
 export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
@@ -1356,6 +1660,9 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_INTERACT_SCRIPT({ entity, expected_script, expected_bool });
+	}
+	print() {
+		return printEntityFieldEquality(this, 'on_interact', `"${this.expected_script}"`);
 	}
 }
 export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
@@ -1386,6 +1693,9 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_TICK_SCRIPT({ entity, expected_script, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'on_tick', `"${this.expected_script}"`);
+	}
 }
 export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
@@ -1415,6 +1725,9 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_LOOK_SCRIPT({ entity, expected_script, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'on_look', `"${this.expected_script}"`);
+	}
 }
 export class CHECK_ENTITY_TYPE extends StringCheckable {
 	action: 'CHECK_ENTITY_TYPE';
@@ -1443,6 +1756,9 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 	static quick(entity: string, entity_type: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_TYPE({ entity, entity_type, expected_bool });
+	}
+	print() {
+		return printEntityFieldEquality(this, 'type', `"${this.entity_type}"`);
 	}
 }
 export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
@@ -1476,6 +1792,9 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_PRIMARY_ID({ entity, expected_u2, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'primary_id', this.expected_u2);
+	}
 }
 export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
@@ -1507,6 +1826,9 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_SECONDARY_ID({ entity, expected_u2, expected_bool });
+	}
+	print() {
+		return printEntityFieldEquality(this, 'secondary_id', this.expected_u2);
 	}
 }
 export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
@@ -1540,6 +1862,9 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_PRIMARY_ID_TYPE({ entity, expected_byte, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'primary_id_type', this.expected_byte);
+	}
 }
 export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
@@ -1571,6 +1896,9 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_CURRENT_ANIMATION({ entity, expected_byte, expected_bool });
+	}
+	print() {
+		return printEntityFieldEquality(this, 'current_animation', this.expected_byte);
 	}
 }
 export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
@@ -1605,6 +1933,9 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_CURRENT_FRAME({ entity, expected_byte, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'animation_frame', this.expected_byte);
+	}
 }
 export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	action: 'CHECK_ENTITY_DIRECTION';
@@ -1634,6 +1965,9 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_DIRECTION({ entity, direction, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'direction', `${this.direction}`);
+	}
 }
 export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 	action: 'CHECK_ENTITY_GLITCHED';
@@ -1655,6 +1989,9 @@ export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 	static quick(entity: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_GLITCHED({ entity, expected_bool });
+	}
+	print() {
+		return printCheckAction(this, `${printEntityIdentifier(this.entity)} glitched`, true);
 	}
 }
 export class CHECK_ENTITY_PATH extends StringCheckable {
@@ -1685,6 +2022,9 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_ENTITY_PATH({ entity, geometry, expected_bool });
 	}
+	print() {
+		return printEntityFieldEquality(this, 'path', `"${this.geometry}"`);
+	}
 }
 export class CHECK_SAVE_FLAG extends BoolGetable {
 	action: 'CHECK_SAVE_FLAG';
@@ -1706,6 +2046,9 @@ export class CHECK_SAVE_FLAG extends BoolGetable {
 	static quick(save_flag: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_SAVE_FLAG({ save_flag, expected_bool });
+	}
+	print() {
+		return printCheckAction(this, `"${this.save_flag}"`, true);
 	}
 }
 export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
@@ -1731,6 +2074,13 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_IF_ENTITY_IS_IN_GEOMETRY({ entity, geometry, expected_bool });
 	}
+	print() {
+		return printCheckAction(
+			this,
+			`${printEntityIdentifier(this.entity)} intersects ${printGeometry(this.geometry)}`,
+			true,
+		);
+	}
 }
 export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_PRESS';
@@ -1753,6 +2103,9 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_FOR_BUTTON_PRESS({ button_id, expected_bool });
 	}
+	print() {
+		return printCheckAction(this, `button ${this.button_id} pressed`, true);
+	}
 }
 export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_STATE';
@@ -1774,6 +2127,13 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 	static quick(button_id: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_FOR_BUTTON_STATE({ button_id, expected_bool });
+	}
+	print() {
+		return printCheckAction(
+			this,
+			`button ${this.button_id} ${this.expected_bool ? 'down' : 'up'}`,
+			false,
+		);
 	}
 }
 export class CHECK_WARP_STATE extends StringCheckable {
@@ -1801,6 +2161,11 @@ export class CHECK_WARP_STATE extends StringCheckable {
 	static quick(string: string, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_WARP_STATE({ string, expected_bool });
+	}
+	print() {
+		return this.expected_bool
+			? printCheckAction(this, `warp_state == "${this.string}"`, false)
+			: printCheckAction(this, `warp_state != "${this.string}"`, false);
 	}
 }
 export class CHECK_VARIABLE extends NumberComparison {
@@ -1832,6 +2197,10 @@ export class CHECK_VARIABLE extends NumberComparison {
 			expected_bool,
 		});
 	}
+	print() {
+		const op = this.expected_bool ? this.comparison : inverseOpMap[this.comparison];
+		return printCheckAction(this, `"${this.variable}" ${op} ${this.value}`, false);
+	}
 }
 export class CHECK_VARIABLES extends NumberComparison {
 	action: 'CHECK_VARIABLES';
@@ -1862,6 +2231,10 @@ export class CHECK_VARIABLES extends NumberComparison {
 			expected_bool,
 		});
 	}
+	print() {
+		const op = this.expected_bool ? this.comparison : inverseOpMap[this.comparison];
+		return printCheckAction(this, `"${this.variable}" ${op} "${this.source}"`, false);
+	}
 }
 export class CHECK_MAP extends StringCheckable {
 	// TODO: is this even in the engine? O.o
@@ -1887,6 +2260,7 @@ export class CHECK_MAP extends StringCheckable {
 	getProp() {
 		return this.map;
 	}
+	// todo print fn?
 }
 export class CHECK_BLE_FLAG extends StringCheckable {
 	action: 'CHECK_BLE_FLAG';
@@ -1910,6 +2284,7 @@ export class CHECK_BLE_FLAG extends StringCheckable {
 	getProp() {
 		return this.ble_flag;
 	}
+	// todo print fn?
 }
 export class CHECK_DIALOG_OPEN extends BoolGetable {
 	action: 'CHECK_DIALOG_OPEN';
@@ -1929,6 +2304,9 @@ export class CHECK_DIALOG_OPEN extends BoolGetable {
 	static quick(provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_DIALOG_OPEN({ expected_bool });
+	}
+	print() {
+		return printCheckAction(this, `dialog ${this.expected_bool ? 'open' : 'closed'}`, false);
 	}
 }
 export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
@@ -1950,6 +2328,13 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_SERIAL_DIALOG_OPEN({ expected_bool });
 	}
+	print() {
+		return printCheckAction(
+			this,
+			`serial_dialog ${this.expected_bool ? 'open' : 'closed'}`,
+			false,
+		);
+	}
 }
 export class CHECK_DEBUG_MODE extends BoolGetable {
 	action: 'CHECK_DEBUG_MODE';
@@ -1969,6 +2354,9 @@ export class CHECK_DEBUG_MODE extends BoolGetable {
 	static quick(provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
 		return new CHECK_DEBUG_MODE({ expected_bool });
+	}
+	print() {
+		return printCheckAction(this, 'debug_mode', true);
 	}
 }
 export type CheckAction =

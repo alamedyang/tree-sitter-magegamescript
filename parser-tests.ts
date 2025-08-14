@@ -1836,7 +1836,7 @@ const runTests = async () => {
 				const allScripts = result.scripts;
 				fileScriptNames.forEach((scriptName) => {
 					const expected = fileExpectedData.scripts[scriptName].trim();
-					const found = (allScripts[scriptName].print || '').trim();
+					const found = (allScripts[scriptName].printed || '').trim();
 					const compared = compareTexts(found, expected, '', scriptName);
 					if (compared.status !== 'success') {
 						errors.push(compared);
