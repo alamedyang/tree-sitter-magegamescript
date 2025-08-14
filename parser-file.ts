@@ -1,4 +1,3 @@
-import { type MGSDebug } from './parser-bytecode-info.ts';
 import { type ProjectState } from './parser-project.ts';
 import type {
 	DialogSettings,
@@ -6,12 +5,14 @@ import type {
 	SerialDialogSettings,
 	AnyNode,
 	MGSPrimitive,
+	MathlangLocation,
 } from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
 
+// TODO move to mathlang types file
 export type Constant = {
 	value: MGSPrimitive;
-	debug: MGSDebug;
+	debug: MathlangLocation;
 };
 export type FileState = {
 	p: ProjectState;

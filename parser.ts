@@ -1,5 +1,3 @@
-// TODO: Change MGSDebug to a generic location property?
-
 import { Parser, Language } from 'web-tree-sitter';
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';
@@ -185,7 +183,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 			} else if (currAction instanceof LabelDefinition) {
 				registry[currAction.label] = gaplessIndex;
 				const comment = `'${currAction.label}':`;
-				actions[i] = new CommentNode(currAction.debug, { comment });
+				actions[i] = CommentNode.quick(currAction.debug, comment);
 			} else {
 				gaplessIndex += 1;
 			}
@@ -201,9 +199,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 				}
 				const param = 'jump_index';
 				if (action instanceof GotoLabel) {
-					actions[i] = new GOTO_ACTION_INDEX({
-						action_index: jumpToIndex,
-					});
+					actions[i] = GOTO_ACTION_INDEX.quick(jumpToIndex);
 				} else {
 					action.comment = `goto label '${action.label}'`;
 					action[param] = jumpToIndex;

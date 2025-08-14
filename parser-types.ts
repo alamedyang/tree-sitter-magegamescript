@@ -1,5 +1,20 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
+import { type FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
+
+export class AnyNode {}
+export const cloneNode = (node: AnyNode) => {
+	if (node instanceof MathlangNode) return node.clone();
+	if (node instanceof ACTION.Action) return ACTION.summonActionConstructor(node);
+};
+export class MathlangNode extends AnyNode {
+	mathlang: string;
+	args: Record<string, unknown>;
+	debug: MathlangLocation;
+	clone() {
+		return this.constructor(MathlangNode);
+	}
+}
 
 export type MGSPrimitive = string | boolean | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
@@ -9,12 +24,20 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 	return false;
 };
 
-export class AnyNode {}
-export const cloneNode = (node: AnyNode) => {
-	if (node instanceof MathlangNode) return node.clone();
-	if (node instanceof ACTION.Action) return ACTION.summonActionConstructor(node);
-};
+export class MathlangLocation {
+	f: FileState;
+	node: TreeSitterNode;
+	fileName: string;
+	comment?: string;
+	constructor(f: FileState, node: TreeSitterNode, comment?: string) {
+		this.f = f;
+		this.fileName = f.fileName;
+		this.node = node;
+		if (comment) this.comment = comment;
+	}
+}
 
+// TODO redo this part
 export type MGSLocation = {
 	node: TreeSitterNode;
 	fileName?: string;
@@ -26,23 +49,14 @@ export type MGSMessage = {
 	footer?: string;
 };
 
-export class MathlangNode extends AnyNode {
-	mathlang: string;
-	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
-	clone() {
-		return this.constructor(MathlangNode);
-	}
-}
-
 // ------------------------------ SETTINGS ------------------------------ \\
 
 export class AddDialogSettings extends MathlangNode {
 	mathlang: 'add_dialog_settings';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	targets: AddDialogSettingsTarget[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.targets ||
@@ -65,10 +79,10 @@ export class AddDialogSettingsTarget extends MathlangNode {
 	mathlang: 'add_dialog_settings_target';
 	args: Record<string, unknown>;
 	type: string;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	parameters: DialogParameter[];
 	target?: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.parameters ||
@@ -93,8 +107,8 @@ export class AddSerialDialogSettings extends MathlangNode {
 	mathlang: 'add_serial_dialog_settings';
 	args: Record<string, unknown>;
 	parameters: SerialDialogParameter[];
-	debug: ACTION.MGSDebug;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	debug: MathlangLocation;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.parameters ||
@@ -118,8 +132,8 @@ export class AddSerialDialogSettings extends MathlangNode {
 export class ReturnStatement extends MathlangNode {
 	mathlang: 'return_statement';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
-	constructor(debug: ACTION.MGSDebug) {
+	debug: MathlangLocation;
+	constructor(debug: MathlangLocation) {
 		super();
 		this.args = {};
 		this.debug = debug;
@@ -132,8 +146,8 @@ export class ReturnStatement extends MathlangNode {
 export class ContinueStatement extends MathlangNode {
 	mathlang: 'continue_statement';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
-	constructor(debug: ACTION.MGSDebug) {
+	debug: MathlangLocation;
+	constructor(debug: MathlangLocation) {
 		super();
 		this.args = {};
 		this.debug = debug;
@@ -146,8 +160,8 @@ export class ContinueStatement extends MathlangNode {
 export class BreakStatement extends MathlangNode {
 	mathlang: 'break_statement';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
-	constructor(debug: ACTION.MGSDebug) {
+	debug: MathlangLocation;
+	constructor(debug: MathlangLocation) {
 		super();
 		this.args = {};
 		this.debug = debug;
@@ -160,11 +174,11 @@ export class BreakStatement extends MathlangNode {
 
 export class GotoLabel extends MathlangNode {
 	mathlang: 'goto_label';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	label: string;
 	comment?: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -175,6 +189,9 @@ export class GotoLabel extends MathlangNode {
 	clone() {
 		return new GotoLabel(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, label: string) {
+		return new GotoLabel(debug, { label });
+	}
 }
 
 // ------------------------------ DIALOG ------------------------------ \\
@@ -182,11 +199,11 @@ export class GotoLabel extends MathlangNode {
 export class DialogDefinition extends MathlangNode {
 	mathlang: 'dialog_definition';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	dialogName: string;
 	dialogs: Dialog[];
 	duplicates?: DialogDefinition[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.dialogs ||
@@ -214,6 +231,9 @@ export class DialogDefinition extends MathlangNode {
 	clone() {
 		return new DialogDefinition(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, dialogName: string, dialogs: Dialog[]) {
+		return new DialogDefinition(debug, { dialogName, dialogs });
+	}
 }
 export type DialogSettings = {
 	wrap?: number;
@@ -228,10 +248,10 @@ export type DialogSettings = {
 export class DialogParameter extends MathlangNode {
 	mathlang: 'dialog_parameter';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -241,6 +261,9 @@ export class DialogParameter extends MathlangNode {
 	}
 	clone() {
 		return new DialogParameter(this.debug, this.args);
+	}
+	static quick(debug: MathlangLocation, property: string, value: string | number) {
+		return new DialogParameter(debug, { property, value });
 	}
 }
 
@@ -254,13 +277,13 @@ export class Dialog extends MathlangNode {
 	border_tileset?: string;
 
 	mathlang: 'dialog';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 
 	messages: string[];
 	response_type?: 'SELECT_FROM_SHORT_LIST';
 	options?: DialogOption[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.messages ||
@@ -300,10 +323,10 @@ export type DialogInfo = {
 export class DialogIdentifier extends MathlangNode {
 	mathlang: 'dialog_identifier';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	type: DialogIdentifierType;
 	value: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (args.type !== 'label' && args.type !== 'entity' && args.type !== 'name') {
 			throw new Error('invalid DialogIdentifier type');
@@ -317,16 +340,19 @@ export class DialogIdentifier extends MathlangNode {
 	clone() {
 		return new DialogIdentifier(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, type: string, value: string) {
+		return new DialogIdentifier(debug, { type, value });
+	}
 }
 type DialogIdentifierType = 'label' | 'entity' | 'name';
 
 export class DialogOption extends MathlangNode {
 	mathlang: 'dialog_option';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	label: string;
 	script: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -344,11 +370,11 @@ export class DialogOption extends MathlangNode {
 export class SerialDialogDefinition extends MathlangNode {
 	mathlang: 'serial_dialog_definition';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	dialogName: string;
 	serialDialog: SerialDialog;
 	duplicates?: SerialDialogDefinition[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (!(args.serialDialog instanceof SerialDialog)) {
 			throw new Error('SerialDialogDefinition not given valid SerialDialog');
@@ -372,6 +398,9 @@ export class SerialDialogDefinition extends MathlangNode {
 	clone() {
 		return new SerialDialogDefinition(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, dialogName: string, serialDialog: SerialDialog) {
+		return new SerialDialogDefinition(debug, { dialogName, serialDialog });
+	}
 }
 
 export type SerialDialogSettings = {
@@ -380,11 +409,11 @@ export type SerialDialogSettings = {
 
 export class SerialDialogParameter extends MathlangNode {
 	mathlang: 'serial_dialog_parameter';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -395,17 +424,20 @@ export class SerialDialogParameter extends MathlangNode {
 	clone() {
 		return new SerialDialogParameter(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, property: string, value: string | number) {
+		return new SerialDialogParameter(debug, { property, value });
+	}
 }
 
 export class SerialDialog extends MathlangNode {
 	mathlang: 'serial_dialog';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 
 	messages: string[];
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (
 			!args.messages ||
@@ -447,11 +479,11 @@ export type SerialOptionType = 'text_options' | 'options';
 export class SerialDialogOption extends MathlangNode {
 	mathlang: 'serial_dialog_option';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	optionType: SerialOptionType;
 	label: string;
 	script: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (args.optionType !== 'text_options' && args.optionType !== 'options') {
 			throw new Error('invalid option type ' + args.optionType);
@@ -472,9 +504,9 @@ export class SerialDialogOption extends MathlangNode {
 export class IncludeNode extends MathlangNode {
 	mathlang: 'include_macro';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	value: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -489,10 +521,10 @@ export class IncludeNode extends MathlangNode {
 export class ConstantDefinition extends MathlangNode {
 	mathlang: 'constant_assignment';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	label: string;
 	value: string | boolean | number;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (!isMGSPrimitive(args.value)) throw new Error('not primitive');
 		this.args = args;
@@ -504,12 +536,15 @@ export class ConstantDefinition extends MathlangNode {
 	clone() {
 		return new ConstantDefinition(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, label: string, value: string | boolean | number) {
+		return new ConstantDefinition(debug, { label, value });
+	}
 }
 
 export class ScriptDefinition extends MathlangNode {
 	mathlang: 'script_definition';
 	args: Record<string, unknown>;
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	scriptName: string;
 	prePrint?: string;
 	testPrint?: string;
@@ -519,7 +554,7 @@ export class ScriptDefinition extends MathlangNode {
 	preActions?: AnyNode[];
 	duplicates?: ScriptDefinition[];
 	copyScriptResolved?: boolean;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -576,10 +611,10 @@ export class ScriptDefinition extends MathlangNode {
 
 export class CommentNode extends MathlangNode {
 	mathlang: 'comment';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	comment: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -589,14 +624,17 @@ export class CommentNode extends MathlangNode {
 	clone() {
 		return new CommentNode(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, comment: string) {
+		return new CommentNode(debug, { comment });
+	}
 }
 
 export class LabelDefinition extends MathlangNode {
 	mathlang: 'label_definition';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	label: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -606,14 +644,17 @@ export class LabelDefinition extends MathlangNode {
 	clone() {
 		return new LabelDefinition(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, label: string) {
+		return new LabelDefinition(debug, { label });
+	}
 }
 
 export class JSONLiteral extends MathlangNode {
 	mathlang: 'json_literal';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	json: [JSON];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -633,10 +674,10 @@ export const isAnyCopyScript = (v: unknown): v is CopyScript => {
 
 export class CopyMacro extends MathlangNode {
 	mathlang: 'copy_script';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	script: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -651,11 +692,11 @@ export class CopyMacro extends MathlangNode {
 // needs to be one unit of thing for reasons, but still contain than one thing
 export class MathlangSequence extends MathlangNode {
 	mathlang: 'sequence';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	type: string;
 	steps: AnyNode[];
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -674,7 +715,7 @@ export class MathlangSequence extends MathlangNode {
 			// TODO: the condition might catch other, non-sequence comments tho?
 			const innerComment = debug.node.text.replace(/[\n\s\t]+/g, ' ');
 			const comment = `${args.type}: ${innerComment}`;
-			const mathlangComment = new CommentNode(debug, { comment });
+			const mathlangComment = CommentNode.quick(debug, comment);
 			this.steps.unshift(mathlangComment);
 		}
 
@@ -712,11 +753,11 @@ export const isIntUnit = (v: unknown): v is IntUnit => {
 
 export class IntGetable extends MathlangNode {
 	mathlang: 'int_getable';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	field: string;
 	entity: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -727,16 +768,19 @@ export class IntGetable extends MathlangNode {
 	clone() {
 		return new IntGetable(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, entity: string, field: string) {
+		return new IntGetable(debug, { entity, field });
+	}
 }
 
 export class IntBinaryExpression extends MathlangNode {
 	mathlang: 'int_binary_expression';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	lhs: IntExpression;
 	rhs: IntExpression;
 	op: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -785,14 +829,14 @@ export const isBoolComparison = (v: unknown): v is BoolComparison => {
 
 export class BoolBinaryExpression extends MathlangNode {
 	mathlang: 'bool_binary_expression';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	lhs: BoolExpression;
 	rhs: BoolExpression;
 	op: string;
 	lhsNode: TreeSitterNode;
 	rhsNode: TreeSitterNode;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -817,11 +861,11 @@ export class BoolBinaryExpression extends MathlangNode {
 
 export class BoolSetable extends MathlangNode {
 	mathlang: 'bool_setable';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -832,14 +876,17 @@ export class BoolSetable extends MathlangNode {
 	clone() {
 		return new BoolSetable(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, type: string, value: string) {
+		return new BoolSetable(debug, { type, value });
+	}
 }
 export class MovableIdentifier extends MathlangNode {
 	mathlang: 'movable_identifier';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -850,15 +897,18 @@ export class MovableIdentifier extends MathlangNode {
 	clone() {
 		return new MovableIdentifier(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, type: string, value: string) {
+		return new MovableIdentifier(debug, { type, value });
+	}
 }
 export class CoordinateIdentifier extends MathlangNode {
 	mathlang: 'coordinate_identifier';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
 	polygonType?: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -870,14 +920,17 @@ export class CoordinateIdentifier extends MathlangNode {
 	clone() {
 		return new CoordinateIdentifier(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, type: string, value: string, polygonType?: string) {
+		return new CoordinateIdentifier(debug, { type, value, polygonType });
+	}
 }
 export class DirectionTarget extends MathlangNode {
 	mathlang: 'direction_target';
-	debug: ACTION.MGSDebug;
+	debug: MathlangLocation;
 	args: Record<string, unknown>;
 	type: string;
 	value: string;
-	constructor(debug: ACTION.MGSDebug, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -887,6 +940,9 @@ export class DirectionTarget extends MathlangNode {
 	}
 	clone() {
 		return new DirectionTarget(this.debug, this.args);
+	}
+	static quick(debug: MathlangLocation, type: string, value: string) {
+		return new DirectionTarget(debug, { type, value });
 	}
 }
 // --------------------- Mathlang Nodes with labels --------------------- \\

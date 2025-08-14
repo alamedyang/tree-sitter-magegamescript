@@ -10,8 +10,8 @@ import {
 	type SerialDialogInfo,
 	type SerialDialogSettings,
 	DialogOption,
+	MathlangLocation,
 } from './parser-types.ts';
-import { MGSDebug } from './parser-bytecode-info.ts';
 
 const DIALOG_WRAP = 42;
 const SERIAL_DIALOG_WRAP = 80;
@@ -187,7 +187,7 @@ export const buildSerialDialogFromInfo = (
 			});
 		}
 	}
-	return new SerialDialog(new MGSDebug(f, node), serialDialog);
+	return new SerialDialog(new MathlangLocation(f, node), serialDialog);
 };
 
 const longerAlignments: Record<string, string> = {
@@ -286,5 +286,9 @@ export const buildDialogFromInfo = (
 			});
 		}
 	});
-	return new Dialog(new MGSDebug(f, node), { messages, options, settings: dialogSettings });
+	return new Dialog(new MathlangLocation(f, node), {
+		messages,
+		options,
+		settings: dialogSettings,
+	});
 };

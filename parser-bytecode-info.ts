@@ -1,21 +1,26 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { LabelDefinition, ReturnStatement, CopyMacro, AnyNode, GotoLabel } from './parser-types.ts';
+import {
+	LabelDefinition,
+	ReturnStatement,
+	CopyMacro,
+	AnyNode,
+	GotoLabel,
+	CommentNode,
+	MathlangLocation,
+} from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { type FileState } from './parser-file.ts';
+import { simpleBranchMaker } from './parser-utilities.ts';
 
-// For intermediate data types and MGS-specific nodes
-export class MGSDebug {
-	node: TreeSitterNode;
-	f: FileState;
-	fileName: string;
-	comment?: string;
-	constructor(f: FileState, node: TreeSitterNode, comment?: string) {
-		this.f = f;
-		this.fileName = f.fileName;
-		this.node = node;
-		if (comment) this.comment = comment;
-	}
-}
+const opIntoStringMap: Record<string, string> = {
+	'=': 'SET',
+	'+': 'ADD',
+	'-': 'SUB',
+	'*': 'MUL',
+	'/': 'DIV',
+	'%': 'MOD',
+	'?': 'RNG',
+};
 
 export class Action extends AnyNode {
 	action: string;
@@ -124,6 +129,9 @@ export class RUN_SCRIPT extends Action {
 		this.action = 'RUN_SCRIPT';
 		this.script = breakIfNotString(args.script);
 	}
+	static quick(script: string) {
+		return new RUN_SCRIPT({ script });
+	}
 }
 export class BLOCKING_DELAY extends Action {
 	action: 'BLOCKING_DELAY';
@@ -154,6 +162,9 @@ export class SET_ENTITY_NAME extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.string = breakIfNotString(args.string);
 	}
+	static quick(entity: string, string: string) {
+		return new SET_ENTITY_NAME({ entity, string });
+	}
 }
 export class SET_ENTITY_X extends Action {
 	action: 'SET_ENTITY_X';
@@ -164,6 +175,9 @@ export class SET_ENTITY_X extends Action {
 		this.action = 'SET_ENTITY_X';
 		this.entity = breakIfNotString(args.entity);
 		this.u2_value = breakIfNotNumber(args.u2_value);
+	}
+	static quick(entity: string, u2_value: number) {
+		return new SET_ENTITY_X({ entity, u2_value });
 	}
 }
 export class SET_ENTITY_Y extends Action {
@@ -176,6 +190,9 @@ export class SET_ENTITY_Y extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
+	static quick(entity: string, u2_value: number) {
+		return new SET_ENTITY_Y({ entity, u2_value });
+	}
 }
 export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 	action: 'SET_ENTITY_INTERACT_SCRIPT';
@@ -186,6 +203,9 @@ export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 		this.action = 'SET_ENTITY_INTERACT_SCRIPT';
 		this.entity = breakIfNotString(args.entity);
 		this.script = breakIfNotString(args.script);
+	}
+	static quick(entity: string, script: string) {
+		return new SET_ENTITY_INTERACT_SCRIPT({ entity, script });
 	}
 }
 export class SET_ENTITY_TICK_SCRIPT extends Action {
@@ -198,6 +218,9 @@ export class SET_ENTITY_TICK_SCRIPT extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.script = breakIfNotString(args.script);
 	}
+	static quick(entity: string, script: string) {
+		return new SET_ENTITY_TICK_SCRIPT({ entity, script });
+	}
 }
 export class SET_ENTITY_TYPE extends Action {
 	action: 'SET_ENTITY_TYPE';
@@ -208,6 +231,9 @@ export class SET_ENTITY_TYPE extends Action {
 		this.action = 'SET_ENTITY_TYPE';
 		this.entity = breakIfNotString(args.entity);
 		this.entity_type = breakIfNotString(args.entity_type);
+	}
+	static quick(entity: string, entity_type: string) {
+		return new SET_ENTITY_TYPE({ entity, entity_type });
 	}
 }
 export class SET_ENTITY_PRIMARY_ID extends Action {
@@ -220,6 +246,9 @@ export class SET_ENTITY_PRIMARY_ID extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.u2_value = breakIfNotNumber(args.u2_value);
 	}
+	static quick(entity: string, u2_value: number) {
+		return new SET_ENTITY_PRIMARY_ID({ entity, u2_value });
+	}
 }
 export class SET_ENTITY_SECONDARY_ID extends Action {
 	action: 'SET_ENTITY_SECONDARY_ID';
@@ -230,6 +259,9 @@ export class SET_ENTITY_SECONDARY_ID extends Action {
 		this.action = 'SET_ENTITY_SECONDARY_ID';
 		this.entity = breakIfNotString(args.entity);
 		this.u2_value = breakIfNotNumber(args.u2_value);
+	}
+	static quick(entity: string, u2_value: number) {
+		return new SET_ENTITY_SECONDARY_ID({ entity, u2_value });
 	}
 }
 export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
@@ -242,6 +274,9 @@ export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.byte_value = breakIfNotNumber(args.byte_value);
 	}
+	static quick(entity: string, byte_value: number) {
+		return new SET_ENTITY_PRIMARY_ID_TYPE({ entity, byte_value });
+	}
 }
 export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 	action: 'SET_ENTITY_CURRENT_ANIMATION';
@@ -252,6 +287,9 @@ export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 		this.action = 'SET_ENTITY_CURRENT_ANIMATION';
 		this.entity = breakIfNotString(args.entity);
 		this.byte_value = breakIfNotNumber(args.byte_value);
+	}
+	static quick(entity: string, byte_value: number) {
+		return new SET_ENTITY_CURRENT_ANIMATION({ entity, byte_value });
 	}
 }
 export class SET_ENTITY_CURRENT_FRAME extends Action {
@@ -264,6 +302,9 @@ export class SET_ENTITY_CURRENT_FRAME extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.byte_value = breakIfNotNumber(args.byte_value);
 	}
+	static quick(entity: string, byte_value: number) {
+		return new SET_ENTITY_CURRENT_FRAME({ entity, byte_value });
+	}
 }
 export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 	action: 'SET_ENTITY_DIRECTION_RELATIVE';
@@ -275,8 +316,10 @@ export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.relative_direction = breakIfNotNumber(args.relative_direction);
 	}
+	static quick(entity: string, relative_direction: number) {
+		return new SET_ENTITY_DIRECTION_RELATIVE({ entity, relative_direction });
+	}
 }
-// TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION extends Action {
 	action: 'SET_ENTITY_DIRECTION';
 	entity: string;
@@ -287,8 +330,10 @@ export class SET_ENTITY_DIRECTION extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.direction = breakIfNotString(args.direction);
 	}
+	static quick(entity: string, direction: string) {
+		return new SET_ENTITY_DIRECTION({ entity, direction });
+	}
 }
-// TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 	entity: string;
@@ -299,8 +344,10 @@ export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.target_entity = breakIfNotString(args.target_entity);
 	}
+	static quick(entity: string, target_entity: string) {
+		return new SET_ENTITY_DIRECTION_TARGET_ENTITY({ entity, target_entity });
+	}
 }
-// TODO: where is this one utilized??
 export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 	entity: string;
@@ -310,6 +357,9 @@ export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 		this.entity = breakIfNotString(args.entity);
 		this.target_geometry = breakIfNotString(args.target_geometry);
+	}
+	static quick(entity: string, target_geometry: string) {
+		return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({ entity, target_geometry });
 	}
 }
 export class SET_ENTITY_GLITCHED extends Action {
@@ -325,6 +375,9 @@ export class SET_ENTITY_GLITCHED extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static quick(entity: string, bool_value: boolean) {
+		return new SET_ENTITY_GLITCHED({ entity, bool_value });
+	}
 }
 export class SET_ENTITY_PATH extends Action {
 	action: 'SET_ENTITY_PATH';
@@ -335,6 +388,9 @@ export class SET_ENTITY_PATH extends Action {
 		this.action = 'SET_ENTITY_PATH';
 		this.entity = breakIfNotString(args.entity);
 		this.geometry = breakIfNotString(args.geometry);
+	}
+	static quick(entity: string, geometry: string) {
+		return new SET_ENTITY_PATH({ entity, geometry });
 	}
 }
 
@@ -369,6 +425,26 @@ export class SET_SAVE_FLAG extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static toValue(save_flag: string, bool_value: boolean) {
+		return new SET_SAVE_FLAG({ save_flag, bool_value });
+	}
+	static toFlag(
+		f: FileState,
+		node: TreeSitterNode,
+		save_flag: string,
+		source: string,
+		invert?: boolean,
+	) {
+		const actionIfTrue = SET_SAVE_FLAG.toValue(save_flag, true);
+		const actionIfFalse = SET_SAVE_FLAG.toValue(save_flag, false);
+		return simpleBranchMaker(
+			f,
+			node,
+			new CHECK_SAVE_FLAG({ save_flag: source, expected_bool: !invert }),
+			[actionIfTrue],
+			[actionIfFalse],
+		);
+	}
 }
 export class SET_PLAYER_CONTROL extends Action {
 	action: 'SET_PLAYER_CONTROL';
@@ -381,6 +457,9 @@ export class SET_PLAYER_CONTROL extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static quick(bool_value: boolean) {
+		return new SET_PLAYER_CONTROL({ bool_value });
+	}
 }
 export class SET_MAP_TICK_SCRIPT extends Action {
 	action: 'SET_MAP_TICK_SCRIPT';
@@ -389,6 +468,9 @@ export class SET_MAP_TICK_SCRIPT extends Action {
 		super();
 		this.action = 'SET_MAP_TICK_SCRIPT';
 		this.script = breakIfNotString(args.script);
+	}
+	static quick(script: string) {
+		return new SET_MAP_TICK_SCRIPT({ script });
 	}
 }
 export class SET_HEX_CURSOR_LOCATION extends Action {
@@ -420,6 +502,9 @@ export class SET_HEX_EDITOR_STATE extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static quick(bool_value: boolean) {
+		return new SET_HEX_EDITOR_STATE({ bool_value });
+	}
 }
 export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
@@ -432,6 +517,9 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static quick(bool_value: boolean) {
+		return new SET_HEX_EDITOR_DIALOG_MODE({ bool_value });
+	}
 }
 export class SET_HEX_EDITOR_CONTROL extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL';
@@ -440,6 +528,9 @@ export class SET_HEX_EDITOR_CONTROL extends Action {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
+	}
+	static quick(bool_value: boolean) {
+		return new SET_HEX_EDITOR_CONTROL({ bool_value });
 	}
 }
 export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
@@ -453,6 +544,9 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	invert() {
 		this.bool_value = !this.bool_value;
 	}
+	static quick(bool_value: boolean) {
+		return new SET_HEX_EDITOR_CONTROL_CLIPBOARD({ bool_value });
+	}
 }
 export class LOAD_MAP extends Action {
 	action: 'LOAD_MAP';
@@ -462,6 +556,9 @@ export class LOAD_MAP extends Action {
 		this.action = 'LOAD_MAP';
 		this.map = breakIfNotString(args.map);
 	}
+	static quick(map: string) {
+		return new LOAD_MAP({ map });
+	}
 }
 export class SHOW_DIALOG extends Action {
 	action: 'SHOW_DIALOG';
@@ -470,6 +567,9 @@ export class SHOW_DIALOG extends Action {
 		super();
 		this.action = 'SHOW_DIALOG';
 		this.dialog = breakIfNotString(args.dialog);
+	}
+	static quick(dialog: string) {
+		return new SHOW_DIALOG({ dialog });
 	}
 }
 export class PLAY_ENTITY_ANIMATION extends Action {
@@ -495,6 +595,9 @@ export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.geometry = breakIfNotString(args.geometry);
 	}
+	static quick(entity: string, geometry: string) {
+		return new TELEPORT_ENTITY_TO_GEOMETRY({ entity, geometry });
+	}
 }
 export class WALK_ENTITY_TO_GEOMETRY extends Action {
 	action: 'WALK_ENTITY_TO_GEOMETRY';
@@ -507,6 +610,9 @@ export class WALK_ENTITY_TO_GEOMETRY extends Action {
 		this.geometry = breakIfNotString(args.geometry);
 		this.entity = breakIfNotString(args.entity);
 		this.duration = breakIfNotNumber(args.duration);
+	}
+	static quick(entity: string, geometry: string, duration: number) {
+		return new WALK_ENTITY_TO_GEOMETRY({ entity, geometry, duration });
 	}
 }
 export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
@@ -521,6 +627,9 @@ export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	static quick(entity: string, geometry: string, duration: number) {
+		return new WALK_ENTITY_ALONG_GEOMETRY({ entity, geometry, duration });
+	}
 }
 export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_ENTITY_ALONG_GEOMETRY';
@@ -534,6 +643,9 @@ export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	static quick(entity: string, geometry: string, duration: number) {
+		return new LOOP_ENTITY_ALONG_GEOMETRY({ entity, geometry, duration });
+	}
 }
 export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	action: 'SET_CAMERA_TO_FOLLOW_ENTITY';
@@ -543,6 +655,9 @@ export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 		this.action = 'SET_CAMERA_TO_FOLLOW_ENTITY';
 		this.entity = breakIfNotString(args.entity);
 	}
+	static quick(entity: string) {
+		return new SET_CAMERA_TO_FOLLOW_ENTITY({ entity });
+	}
 }
 export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_CAMERA_TO_GEOMETRY';
@@ -551,6 +666,9 @@ export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 		super();
 		this.action = 'TELEPORT_CAMERA_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
+	}
+	static quick(geometry: string) {
+		return new TELEPORT_CAMERA_TO_GEOMETRY({ geometry });
 	}
 }
 export class PAN_CAMERA_TO_ENTITY extends Action {
@@ -563,6 +681,9 @@ export class PAN_CAMERA_TO_ENTITY extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	static quick(entity: string, duration: number) {
+		return new PAN_CAMERA_TO_ENTITY({ duration, entity });
+	}
 }
 export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_TO_GEOMETRY';
@@ -574,10 +695,12 @@ export class PAN_CAMERA_TO_GEOMETRY extends Action {
 		this.geometry = breakIfNotString(args.geometry);
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	static quick(geometry: string, duration: number) {
+		return new PAN_CAMERA_TO_GEOMETRY({ geometry, duration });
+	}
 }
 export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_ALONG_GEOMETRY';
-	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
@@ -586,10 +709,12 @@ export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 		this.geometry = breakIfNotString(args.geometry);
 		this.duration = breakIfNotNumber(args.duration);
 	}
+	static quick(geometry: string, duration: number) {
+		return new PAN_CAMERA_ALONG_GEOMETRY({ geometry, duration });
+	}
 }
 export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_CAMERA_ALONG_GEOMETRY';
-	// entity: string; // ?? really?
 	geometry: string;
 	duration: number;
 	constructor(args: GenericActionish) {
@@ -597,6 +722,9 @@ export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 		this.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
 		this.duration = breakIfNotNumber(args.duration);
+	}
+	static quick(geometry: string, duration: number) {
+		return new LOOP_CAMERA_ALONG_GEOMETRY({ geometry, duration });
 	}
 }
 export class SET_SCREEN_SHAKE extends Action {
@@ -646,6 +774,24 @@ export class MUTATE_VARIABLE extends Action {
 		this.operation = breakIfNotString(args.operation);
 		this.value = breakIfNotNumber(args.value);
 	}
+	static set(variable: string, value: number) {
+		return new MUTATE_VARIABLE({ operation: 'SET', value, variable });
+	}
+	static change(debug: MathlangLocation, variable: string, value: number, op: string) {
+		if (op === '+' && value === 0) {
+			return CommentNode.quick(debug, 'This action was optimized out (+ 0)');
+		}
+		if (op === '*' && value === 1) {
+			return CommentNode.quick(debug, 'This action was optimized out (* 1)');
+		}
+		if (op === '/' && value === 1) {
+			return CommentNode.quick(debug, 'This action was optimized out (/ 1)');
+		}
+		if (op === '-' && value === 0) {
+			return CommentNode.quick(debug, 'This action was optimized out (- 0)');
+		}
+		return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
+	}
 }
 export class MUTATE_VARIABLES extends Action {
 	action: 'MUTATE_VARIABLES';
@@ -658,6 +804,23 @@ export class MUTATE_VARIABLES extends Action {
 		this.variable = breakIfNotString(args.variable);
 		this.operation = breakIfNotString(args.operation);
 		this.source = breakIfNotString(args.source);
+	}
+	static set(f: FileState, node: TreeSitterNode, variable: string, source: string) {
+		if (variable === source) {
+			const debug = new MathlangLocation(f, node);
+			return CommentNode.quick(
+				debug,
+				`This action was optimized out (setting '${variable}' to itself)`,
+			);
+		}
+		return new MUTATE_VARIABLES({ operation: 'SET', source, variable });
+	}
+	static change(variable: string, source: string, op: string) {
+		return new MUTATE_VARIABLES({
+			variable,
+			source,
+			operation: opIntoStringMap[op] || op,
+		});
 	}
 }
 export class COPY_VARIABLE extends Action {
@@ -673,6 +836,12 @@ export class COPY_VARIABLE extends Action {
 		this.entity = breakIfNotString(args.entity);
 		this.field = breakIfNotString(args.field);
 		this.inbound = breakIfNotBool(args.inbound);
+	}
+	static intoField(variable: string, entity: string, field: string) {
+		return new COPY_VARIABLE({ entity, field, inbound: false, variable });
+	}
+	static intoVariable(entity: string, field: string, variable: string) {
+		return new COPY_VARIABLE({ entity, field, inbound: true, variable });
 	}
 }
 export class SLOT_SAVE extends Action {
@@ -721,6 +890,9 @@ export class SHOW_SERIAL_DIALOG extends Action {
 			this.disable_newline = true;
 		}
 	}
+	static quick(serial_dialog: string, disable_newline?: boolean) {
+		return new SHOW_SERIAL_DIALOG({ serial_dialog, disable_newline: !!disable_newline });
+	}
 }
 export class SET_MAP_LOOK_SCRIPT extends Action {
 	action: 'SET_MAP_LOOK_SCRIPT';
@@ -729,6 +901,9 @@ export class SET_MAP_LOOK_SCRIPT extends Action {
 		super();
 		this.action = 'SET_MAP_LOOK_SCRIPT';
 		this.script = breakIfNotString(args.script);
+	}
+	static quick(script: string) {
+		return new SET_MAP_LOOK_SCRIPT({ script });
 	}
 }
 export class SET_ENTITY_LOOK_SCRIPT extends Action {
@@ -740,6 +915,9 @@ export class SET_ENTITY_LOOK_SCRIPT extends Action {
 		this.action = 'SET_ENTITY_LOOK_SCRIPT';
 		this.script = breakIfNotString(args.script);
 		this.entity = breakIfNotString(args.entity);
+	}
+	static quick(entity: string, script: string) {
+		return new SET_ENTITY_LOOK_SCRIPT({ entity, script });
 	}
 }
 export class SET_TELEPORT_ENABLED extends Action {
@@ -778,6 +956,9 @@ export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+	}
+	static quick(bool_value: boolean) {
+		return new SET_SERIAL_DIALOG_CONTROL({ bool_value });
 	}
 }
 export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
@@ -840,6 +1021,9 @@ export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
 		this.relative_direction = breakIfNotNumber(args.relative_direction);
 		this.entity = breakIfNotString(args.entity);
 	}
+	static quick(entity: string, relative_direction: number) {
+		return new SET_ENTITY_MOVEMENT_RELATIVE({ entity, relative_direction });
+	}
 }
 export class CLOSE_DIALOG extends Action {
 	action: 'CLOSE_DIALOG';
@@ -866,6 +1050,9 @@ export class SET_LIGHTS_CONTROL extends Action {
 	invert() {
 		this.enabled = !this.enabled;
 	}
+	static quick(enabled: boolean) {
+		return new SET_LIGHTS_CONTROL({ enabled });
+	}
 }
 export class SET_LIGHTS_STATE extends Action {
 	action: 'SET_LIGHTS_STATE';
@@ -880,6 +1067,9 @@ export class SET_LIGHTS_STATE extends Action {
 	invert() {
 		this.enabled = !this.enabled;
 	}
+	static quick(lights: string, enabled: boolean) {
+		return new SET_LIGHTS_STATE({ lights, enabled });
+	}
 }
 export class GOTO_ACTION_INDEX extends Action {
 	action: 'GOTO_ACTION_INDEX';
@@ -888,6 +1078,9 @@ export class GOTO_ACTION_INDEX extends Action {
 		super();
 		this.action = 'GOTO_ACTION_INDEX';
 		this.action_index = breakIfNotStringOrNumber(args.action_index);
+	}
+	static quick(action_index: string | number) {
+		return new GOTO_ACTION_INDEX({ action_index });
 	}
 }
 export class SET_SCRIPT_PAUSE extends Action {
@@ -961,6 +1154,10 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 	updateProp(value: string) {
 		this.string = value;
 	}
+	static quick(entity: string, string: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_NAME({ entity, string, expected_bool });
+	}
 }
 export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_X';
@@ -985,6 +1182,10 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+	}
+	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_X({ entity, expected_u2, expected_bool });
 	}
 }
 export class CHECK_ENTITY_Y extends NumberCheckableEquality {
@@ -1011,6 +1212,10 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
+	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_Y({ entity, expected_u2, expected_bool });
+	}
 }
 export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
@@ -1032,6 +1237,10 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.expected_script = value;
+	}
+	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_INTERACT_SCRIPT({ entity, expected_script, expected_bool });
 	}
 }
 export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
@@ -1055,6 +1264,10 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 	updateProp(value: string) {
 		this.expected_script = value;
 	}
+	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_TICK_SCRIPT({ entity, expected_script, expected_bool });
+	}
 }
 export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
@@ -1077,6 +1290,10 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 	updateProp(value: string) {
 		this.expected_script = value;
 	}
+	static quick(entity: string, expected_script: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_LOOK_SCRIPT({ entity, expected_script, expected_bool });
+	}
 }
 export class CHECK_ENTITY_TYPE extends StringCheckable {
 	action: 'CHECK_ENTITY_TYPE';
@@ -1098,6 +1315,10 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.entity_type = value;
+	}
+	static quick(entity: string, entity_type: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_TYPE({ entity, entity_type, expected_bool });
 	}
 }
 export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
@@ -1124,6 +1345,10 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
+	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_PRIMARY_ID({ entity, expected_u2, expected_bool });
+	}
 }
 export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
@@ -1148,6 +1373,10 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+	}
+	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_SECONDARY_ID({ entity, expected_u2, expected_bool });
 	}
 }
 export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
@@ -1174,6 +1403,10 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
+	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_PRIMARY_ID_TYPE({ entity, expected_byte, expected_bool });
+	}
 }
 export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
@@ -1198,6 +1431,10 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+	}
+	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_CURRENT_ANIMATION({ entity, expected_byte, expected_bool });
 	}
 }
 export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
@@ -1225,6 +1462,10 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 	}
+	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_CURRENT_FRAME({ entity, expected_byte, expected_bool });
+	}
 }
 export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	action: 'CHECK_ENTITY_DIRECTION';
@@ -1247,6 +1488,10 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 	updateProp(value: string) {
 		this.direction = value;
 	}
+	static quick(entity: string, direction: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_DIRECTION({ entity, direction, expected_bool });
+	}
 }
 export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 	action: 'CHECK_ENTITY_GLITCHED';
@@ -1264,6 +1509,10 @@ export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 		}
 		this.entity = breakIfNotString(args.entity);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
+	}
+	static quick(entity: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_GLITCHED({ entity, expected_bool });
 	}
 }
 export class CHECK_ENTITY_PATH extends StringCheckable {
@@ -1287,6 +1536,10 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 	updateProp(value: string) {
 		this.geometry = value;
 	}
+	static quick(entity: string, geometry: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_ENTITY_PATH({ entity, geometry, expected_bool });
+	}
 }
 export class CHECK_SAVE_FLAG extends BoolGetable {
 	action: 'CHECK_SAVE_FLAG';
@@ -1304,6 +1557,10 @@ export class CHECK_SAVE_FLAG extends BoolGetable {
 		}
 		this.save_flag = breakIfNotString(args.save_flag);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
+	}
+	static quick(save_flag: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_SAVE_FLAG({ save_flag, expected_bool });
 	}
 }
 export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
@@ -1325,6 +1582,10 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 		this.entity = breakIfNotString(args.entity);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
+	static quick(entity: string, geometry: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_IF_ENTITY_IS_IN_GEOMETRY({ entity, geometry, expected_bool });
+	}
 }
 export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_PRESS';
@@ -1343,6 +1604,10 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 		this.button_id = breakIfNotString(args.button_id);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
+	static quick(button_id: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_FOR_BUTTON_PRESS({ button_id, expected_bool });
+	}
 }
 export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_STATE';
@@ -1360,6 +1625,10 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 		}
 		this.button_id = breakIfNotString(args.button_id);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
+	}
+	static quick(button_id: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_FOR_BUTTON_STATE({ button_id, expected_bool });
 	}
 }
 export class CHECK_WARP_STATE extends StringCheckable {
@@ -1380,6 +1649,10 @@ export class CHECK_WARP_STATE extends StringCheckable {
 	}
 	updateProp(value: string) {
 		this.string = value;
+	}
+	static quick(string: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_WARP_STATE({ string, expected_bool });
 	}
 }
 export class CHECK_VARIABLE extends NumberComparison {
@@ -1402,6 +1675,15 @@ export class CHECK_VARIABLE extends NumberComparison {
 		this.value = breakIfNotNumber(args.value);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
+	static quick(variable: string, value: number, comparison: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_VARIABLE({
+			variable,
+			value,
+			comparison,
+			expected_bool,
+		});
+	}
 }
 export class CHECK_VARIABLES extends NumberComparison {
 	action: 'CHECK_VARIABLES';
@@ -1422,6 +1704,15 @@ export class CHECK_VARIABLES extends NumberComparison {
 		this.comparison = breakIfNotString(args.comparison);
 		this.source = breakIfNotString(args.source);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
+	}
+	static quick(variable: string, source: string, comparison: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_VARIABLES({
+			variable,
+			source,
+			comparison,
+			expected_bool,
+		});
 	}
 }
 export class CHECK_MAP extends StringCheckable {
@@ -1481,6 +1772,10 @@ export class CHECK_DIALOG_OPEN extends BoolGetable {
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
+	static quick(provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_DIALOG_OPEN({ expected_bool });
+	}
 }
 export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
@@ -1497,6 +1792,10 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
+	static quick(provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_SERIAL_DIALOG_OPEN({ expected_bool });
+	}
 }
 export class CHECK_DEBUG_MODE extends BoolGetable {
 	action: 'CHECK_DEBUG_MODE';
@@ -1512,6 +1811,10 @@ export class CHECK_DEBUG_MODE extends BoolGetable {
 			this.jump_index = breakIfNotNumber(args.jump_index);
 		}
 		this.expected_bool = breakIfNotBool(args.expected_bool);
+	}
+	static quick(provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CHECK_DEBUG_MODE({ expected_bool });
 	}
 }
 export type CheckAction =

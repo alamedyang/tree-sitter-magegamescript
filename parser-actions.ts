@@ -17,7 +17,6 @@ import {
 	type ActionSetEntityString,
 	type ActionSetEntityInt,
 	type ActionSetBool,
-	MGSDebug,
 	MUTATE_VARIABLE,
 	MUTATE_VARIABLES,
 	RUN_SCRIPT,
@@ -93,7 +92,6 @@ import {
 import {
 	AnyNode,
 	DialogDefinition,
-	CommentNode,
 	IntBinaryExpression,
 	type MGSMessage,
 	type BoolExpression,
@@ -113,6 +111,7 @@ import {
 	Dialog,
 	cloneNode,
 	GotoLabel,
+	MathlangLocation,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -123,16 +122,6 @@ import {
 	simpleBranchMaker,
 } from './parser-utilities.ts';
 import { type FileState } from './parser-file.ts';
-
-const opIntoStringMap: Record<string, string> = {
-	'=': 'SET',
-	'+': 'ADD',
-	'-': 'SUB',
-	'*': 'MUL',
-	'/': 'DIV',
-	'%': 'MOD',
-	'?': 'RNG',
-};
 
 // ------------------------ INT EXPRESSIONS ------------------------ //
 
@@ -145,43 +134,48 @@ const invisibleMath = (op: string, operand: number): boolean => {
 };
 
 const flattenIntBinaryExpression = (
-	debug: MGSDebug,
+	f: FileState,
+	node: TreeSitterNode,
 	exp: IntBinaryExpression,
 	steps: AnyNode[],
 ): AnyNode[] => {
+	const debug = new MathlangLocation(f, node);
 	const temp = latestTemporary();
 	const lhs = exp.lhs;
 	const op = exp.op;
 	const rhs = exp.rhs;
 	if (typeof lhs === 'string') {
-		steps.push(setVarToVar(debug, temp, lhs));
+		steps.push(MUTATE_VARIABLES.set(f, node, temp, lhs));
 	} else if (typeof lhs === 'number') {
-		steps.push(setVarToValue(temp, lhs));
+		steps.push(MUTATE_VARIABLE.set(temp, lhs));
 	} else if (lhs instanceof IntGetable) {
-		steps.push(copyEntityFieldIntoVar(lhs.entity, lhs.field, temp));
+		const entity = lhs.entity;
+		const field = lhs.field;
+		const variable = temp;
+		steps.push(COPY_VARIABLE.intoVariable(entity, field, variable));
 	} else if (lhs instanceof IntBinaryExpression) {
 		// can use the same temporary since it's the lhs and we're going LTR
 		// (and operator precedence is now baked into the AST)
-		flattenIntBinaryExpression(debug, lhs, steps);
+		flattenIntBinaryExpression(f, node, lhs, steps);
 	}
 	if (typeof rhs === 'string') {
-		steps.push(changeVarByVar(temp, rhs, op));
+		steps.push(MUTATE_VARIABLES.change(temp, rhs, op));
 	} else if (typeof rhs === 'number') {
 		if (invisibleMath(op, rhs)) {
 			// invisible == *1 or +0
 		} else {
-			steps.push(changeVarByValue(debug, temp, rhs, op));
+			steps.push(MUTATE_VARIABLE.change(debug, temp, rhs, op));
 		}
 	} else if (rhs instanceof IntGetable) {
 		const quickTemp = quickTemporary();
 		steps.push(
-			copyEntityFieldIntoVar(rhs.entity, rhs.field, quickTemp),
-			changeVarByVar(temp, quickTemp, op),
+			COPY_VARIABLE.intoVariable(rhs.entity, rhs.field, quickTemp),
+			MUTATE_VARIABLES.change(temp, quickTemp, op),
 		);
 	} else if (rhs instanceof IntBinaryExpression) {
 		const newTemp = newTemporary();
-		flattenIntBinaryExpression(debug, rhs, steps);
-		steps.push(changeVarByVar(temp, newTemp, op));
+		flattenIntBinaryExpression(f, node, rhs, steps);
+		steps.push(MUTATE_VARIABLES.change(temp, newTemp, op));
 		dropTemporary();
 	}
 	return steps;
@@ -198,11 +192,13 @@ const actionSetBoolMaker = (
 	if (typeof _lhsSetAction === 'string' && typeof _rhsBoolExp === 'string') {
 		// not sure if this case will ever happen on its own due to the ambiguity dance
 		// (and the typing we've got set up) but it's here if we need it
-		return setFlagToFlag(f, backupNode, _lhsSetAction, _rhsBoolExp);
+		return SET_SAVE_FLAG.toFlag(f, backupNode, _lhsSetAction, _rhsBoolExp);
 	}
 
 	const lhsSetAction =
-		typeof _lhsSetAction === 'string' ? setFlag(_lhsSetAction, true) : _lhsSetAction;
+		typeof _lhsSetAction === 'string'
+			? SET_SAVE_FLAG.toValue(_lhsSetAction, true)
+			: _lhsSetAction;
 	const lhsBoolField = getBoolFieldForAction(lhsSetAction.action);
 
 	// player glitched = true;
@@ -215,9 +211,7 @@ const actionSetBoolMaker = (
 	// ->
 	// if (self glitched) { player glitched = true; } else { player glitched = false; }
 	const rhsBoolExp: BoolExpression =
-		typeof _rhsBoolExp === 'string'
-			? new CHECK_SAVE_FLAG({ save_flag: _rhsBoolExp, expected_bool: true })
-			: _rhsBoolExp;
+		typeof _rhsBoolExp === 'string' ? CHECK_SAVE_FLAG.quick(_rhsBoolExp, true) : _rhsBoolExp;
 	const cloneIfFalse = cloneNode(lhsSetAction);
 	cloneIfFalse.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
@@ -243,7 +237,7 @@ const actionSetBoolMaker = (
 
 export type GenericActionish = Record<
 	string,
-	boolean | number | string | MGSDebug | Record<string, unknown>
+	boolean | number | string | MathlangLocation | Record<string, unknown>
 >;
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
@@ -303,7 +297,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		return customed;
 	}
 	const action = {
-		debug: new MGSDebug(f, node),
+		debug: new MathlangLocation(f, node),
 		...data.values,
 	};
 	// Action params
@@ -350,15 +344,13 @@ const actionFns: Record<string, ActionFn> = {
 		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogName = tryName !== null ? tryName : autoIdentifierName(f, node);
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		const shownDialog = new SHOW_DIALOG({ dialog: dialogName });
+		const shownDialog = SHOW_DIALOG.quick(dialogName);
 		if (dialogs.length) {
 			if (!dialogs.every((v) => v instanceof Dialog)) {
 				throw new Error('parsed dialogs not all of type Dialog');
 			}
-			const dialogDefinition = new DialogDefinition(new MGSDebug(f, node), {
-				dialogName,
-				dialogs,
-			});
+			const debug = new MathlangLocation(f, node);
+			const dialogDefinition = DialogDefinition.quick(debug, dialogName, dialogs);
 			return [dialogDefinition, shownDialog];
 		}
 		return [shownDialog];
@@ -380,15 +372,13 @@ const actionShowSerialDialog = (
 	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
 	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
 	const serialDialogs = handleChildrenForFieldName(f, node, 'serial_dialog');
-	const shownSerialDialog = new SHOW_SERIAL_DIALOG({ serial_dialog: name, disable_newline });
+	const shownSerialDialog = SHOW_SERIAL_DIALOG.quick(name, disable_newline);
 	if (serialDialogs.length) {
 		if (!(serialDialogs[0] instanceof SerialDialog)) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
-		const serialDialoDefinition = new SerialDialogDefinition(new MGSDebug(f, node), {
-			dialogName: name,
-			serialDialog: serialDialogs[0],
-		});
+		const debug = new MathlangLocation(f, node);
+		const serialDialoDefinition = SerialDialogDefinition.quick(debug, name, serialDialogs[0]);
 		return [serialDialoDefinition, shownSerialDialog];
 	}
 	return [shownSerialDialog];
@@ -404,13 +394,13 @@ const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {
 		// TODO: everything after is unreachable
 		// Ditto some other actions, too
-		handle: (v, f, node) => new ReturnStatement(new MGSDebug(f, node)),
+		handle: (v, f, node) => new ReturnStatement(new MathlangLocation(f, node)),
 	},
 	action_continue_statement: {
-		handle: (v, f, node) => new ContinueStatement(new MGSDebug(f, node)),
+		handle: (v, f, node) => new ContinueStatement(new MathlangLocation(f, node)),
 	},
 	action_break_statement: {
-		handle: (v, f, node) => new BreakStatement(new MGSDebug(f, node)),
+		handle: (v, f, node) => new BreakStatement(new MathlangLocation(f, node)),
 	},
 	action_close_dialog: {
 		handle: () => new CLOSE_DIALOG(),
@@ -435,7 +425,7 @@ const actionData: Record<string, actionDataEntry> = {
 	},
 	action_goto_label: {
 		captures: ['label'],
-		handle: (v, f, node) => new GotoLabel(new MGSDebug(f, node), { label: v.label }),
+		handle: (v, f, node) => new GotoLabel(new MathlangLocation(f, node), v),
 	},
 	action_goto_index: {
 		captures: ['action_index'],
@@ -533,16 +523,18 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i): AnyNode => {
-			const debug = new MGSDebug(f, node);
+			const debug = new MathlangLocation(f, node);
 			const lhs = coerceToString(f, node, v.lhs, 'action_set_ambiguous lhs');
 
 			// simple cases first (easy to check for)
 
 			// varName = false;
-			if (typeof v.rhs === 'boolean') return setFlag(lhs, v.rhs);
+			if (typeof v.rhs === 'boolean') {
+				return SET_SAVE_FLAG.toValue(lhs, v.rhs);
+			}
 
 			// varName = 255;
-			if (typeof v.rhs === 'number') return setVarToValue(lhs, v.rhs);
+			if (typeof v.rhs === 'number') return MUTATE_VARIABLE.set(lhs, v.rhs);
 
 			// AMBIGUITY DANCE PARTY
 			// varName = varName;
@@ -573,20 +565,20 @@ const actionData: Record<string, actionDataEntry> = {
 						`\n    ${suggestion} + 0` +
 						`\n    ${suggestion} * 1`,
 				});
-				return setVarToVar(debug, lhs, v.rhs);
+				return MUTATE_VARIABLES.set(f, node, lhs, v.rhs);
 			}
 
 			// varName = player x;
 			if (v.rhs instanceof IntGetable) {
-				return copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, lhs);
+				return COPY_VARIABLE.intoVariable(v.rhs.entity, v.rhs.field, lhs);
 			}
 
 			// varName = (255 + player x);
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary(lhs);
-				const steps = flattenIntBinaryExpression(debug, v.rhs, []);
+				const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
 				dropTemporary();
-				steps.push(setVarToVar(debug, lhs, temporary));
+				steps.push(MUTATE_VARIABLES.set(f, node, lhs, temporary));
 				return new MathlangSequence(debug, {
 					steps,
 					type: 'parser-actions: action_set_ambiguous',
@@ -595,7 +587,7 @@ const actionData: Record<string, actionDataEntry> = {
 
 			// varName = (debug_mode || player glitched);
 			if (isBoolExpression(v.rhs)) {
-				return actionSetBoolMaker(f, setFlag(lhs, true), v.rhs, node);
+				return actionSetBoolMaker(f, SET_SAVE_FLAG.toValue(lhs, true), v.rhs, node);
 			}
 
 			throw new Error('failed to parse');
@@ -607,7 +599,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
-			const debug = new MGSDebug(f, node);
+			const debug = new MathlangLocation(f, node);
 			if (!(v.lhs instanceof IntGetable)) {
 				throw new Error('LHS not int_getable');
 			}
@@ -616,46 +608,46 @@ const actionData: Record<string, actionDataEntry> = {
 			// player x = 0;
 			if (typeof v.rhs === 'number') {
 				if (v.lhs.field === 'x') {
-					return new SET_ENTITY_X({ entity, u2_value: v.rhs });
+					return SET_ENTITY_X.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'y') {
-					return new SET_ENTITY_Y({ entity, u2_value: v.rhs });
+					return SET_ENTITY_Y.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'primary_id') {
-					return new SET_ENTITY_PRIMARY_ID({ entity, u2_value: v.rhs });
+					return SET_ENTITY_PRIMARY_ID.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'secondary_id') {
-					return new SET_ENTITY_SECONDARY_ID({ entity, u2_value: v.rhs });
+					return SET_ENTITY_SECONDARY_ID.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'primary_id_type') {
-					return new SET_ENTITY_PRIMARY_ID_TYPE({ entity, byte_value: v.rhs });
+					return SET_ENTITY_PRIMARY_ID_TYPE.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'current_animation') {
-					return new SET_ENTITY_CURRENT_ANIMATION({ entity, byte_value: v.rhs });
+					return SET_ENTITY_CURRENT_ANIMATION.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'animation_frame') {
-					return new SET_ENTITY_CURRENT_FRAME({ entity, byte_value: v.rhs });
+					return SET_ENTITY_CURRENT_FRAME.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'strafe') {
-					return new SET_ENTITY_MOVEMENT_RELATIVE({ entity, relative_direction: v.rhs });
+					return SET_ENTITY_MOVEMENT_RELATIVE.quick(entity, v.rhs);
 				}
 				if (v.lhs.field === 'relative_direction') {
-					return new SET_ENTITY_DIRECTION_RELATIVE({ entity, relative_direction: v.rhs });
+					return SET_ENTITY_DIRECTION_RELATIVE.quick(entity, v.rhs);
 				}
 				throw new Error('unidentified int_getable, field: ' + v.lhs.field);
 			}
 
 			// player x = varName;
 			if (typeof v.rhs === 'string') {
-				return copyVarIntoEntityField(v.rhs, v.lhs.entity, v.lhs.field);
+				return COPY_VARIABLE.intoField(v.rhs, v.lhs.entity, v.lhs.field);
 			}
 
 			// player x = player y;
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary();
-				const steps = flattenIntBinaryExpression(debug, v.rhs, []);
+				const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
 				dropTemporary();
-				steps.push(copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field));
+				steps.push(COPY_VARIABLE.intoField(temporary, v.lhs.entity, v.lhs.field));
 				return new MathlangSequence(debug, {
 					steps,
 					type: 'parser-actions: action_set_int',
@@ -683,42 +675,45 @@ const actionData: Record<string, actionDataEntry> = {
 					v.lhs.value,
 					'SET_ENTITY_GLITCHED field entity',
 				);
-				const lhs: ActionSetBool = new SET_ENTITY_GLITCHED({ entity, bool_value: true });
+				const lhs: ActionSetBool = SET_ENTITY_GLITCHED.quick(entity, true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'light') {
-				const lhs = new SET_LIGHTS_STATE({
-					lights: coerceToString(f, node, v.lhs.value, 'SET_LIGHTS_STATE field lights'),
-					enabled: true,
-				});
+				const lights = coerceToString(
+					f,
+					node,
+					v.lhs.value,
+					'SET_LIGHTS_STATE field lights',
+				);
+				const lhs = SET_LIGHTS_STATE.quick(lights, true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'player_control') {
-				const lhs = new SET_PLAYER_CONTROL({ bool_value: true });
+				const lhs = SET_PLAYER_CONTROL.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'lights_control') {
-				const lhs = new SET_LIGHTS_CONTROL({ enabled: true });
+				const lhs = SET_LIGHTS_CONTROL.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_editor') {
-				const lhs = new SET_HEX_EDITOR_STATE({ bool_value: true });
+				const lhs = SET_HEX_EDITOR_STATE.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_dialog_mode') {
-				const lhs = new SET_HEX_EDITOR_DIALOG_MODE({ bool_value: true });
+				const lhs = SET_HEX_EDITOR_DIALOG_MODE.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_control') {
-				const lhs = new SET_HEX_EDITOR_CONTROL({ bool_value: true });
+				const lhs = SET_HEX_EDITOR_CONTROL.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'hex_clipboard') {
-				const lhs = new SET_HEX_EDITOR_CONTROL_CLIPBOARD({ bool_value: true });
+				const lhs = SET_HEX_EDITOR_CONTROL_CLIPBOARD.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			if (v.lhs.type === 'serial_control') {
-				const lhs = new SET_SERIAL_DIALOG_CONTROL({ bool_value: true });
+				const lhs = SET_SERIAL_DIALOG_CONTROL.quick(true);
 				return actionSetBoolMaker(f, lhs, v.rhs, node);
 			}
 			throw new Error('unknown LHS type');
@@ -728,7 +723,7 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['movable', 'coordinate'],
 		handle: (v, f, node): ActionSetPosition | MathlangSequence => {
-			const debug = new MGSDebug(f, node);
+			const debug = new MathlangLocation(f, node);
 			if (!(v.movable instanceof MovableIdentifier)) {
 				throw new Error('invalid MovableIdentifier');
 			}
@@ -737,31 +732,24 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			if (v.movable.type === 'camera') {
 				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
-					return new TELEPORT_CAMERA_TO_GEOMETRY({
-						geometry: v.coordinate.value,
-					});
+					return TELEPORT_CAMERA_TO_GEOMETRY.quick(v.coordinate.value);
 				}
 				if (v.coordinate.type === 'entity') {
-					return new SET_CAMERA_TO_FOLLOW_ENTITY({
-						entity: v.coordinate.value,
-					});
+					return SET_CAMERA_TO_FOLLOW_ENTITY.quick(v.coordinate.value);
 				}
 			} else if (v.movable.type === 'entity') {
 				if (v.coordinate.type === 'geometry' && v.coordinate.polygonType !== 'length') {
-					return new TELEPORT_ENTITY_TO_GEOMETRY({
-						entity: v.movable.value,
-						geometry: v.coordinate.value,
-					});
+					return TELEPORT_ENTITY_TO_GEOMETRY.quick(v.movable.value, v.coordinate.value);
 				}
 				if (v.coordinate.type === 'entity') {
 					const variable = quickTemporary();
 					const copyFrom = v.coordinate.value;
 					const copyTo = v.movable.value;
 					const steps = [
-						copyVarIntoEntityField(variable, copyFrom, 'x'),
-						copyEntityFieldIntoVar(copyTo, 'x', variable),
-						copyVarIntoEntityField(variable, copyFrom, 'y'),
-						copyEntityFieldIntoVar(copyTo, 'y', variable),
+						COPY_VARIABLE.intoField(variable, copyFrom, 'x'),
+						COPY_VARIABLE.intoVariable(copyTo, 'x', variable),
+						COPY_VARIABLE.intoField(variable, copyFrom, 'y'),
+						COPY_VARIABLE.intoVariable(copyTo, 'y', variable),
 					];
 					return new MathlangSequence(debug, {
 						steps,
@@ -783,7 +771,7 @@ const actionData: Record<string, actionDataEntry> = {
 			if (!(v.coordinate instanceof CoordinateIdentifier)) {
 				throw new Error('invalid CoordinateIdentifier');
 			}
-			if (!(v.debug instanceof MGSDebug)) {
+			if (!(v.debug instanceof MathlangLocation)) {
 				throw new Error('invalid debug node');
 			}
 			const duration = coerceToNumber(f, node, v.duration, 'duration');
@@ -802,10 +790,7 @@ const actionData: Record<string, actionDataEntry> = {
 						return;
 					} else {
 						// ... not forever
-						return new PAN_CAMERA_TO_ENTITY({
-							duration: duration,
-							entity: v.coordinate.value,
-						});
+						return PAN_CAMERA_TO_ENTITY.quick(v.coordinate.value, duration);
 					}
 				}
 				if (v.coordinate.type === 'geometry') {
@@ -814,16 +799,10 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							return new LOOP_CAMERA_ALONG_GEOMETRY({
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return LOOP_CAMERA_ALONG_GEOMETRY.quick(v.coordinate.value, duration);
 						} else {
 							// ... not forever
-							return new PAN_CAMERA_ALONG_GEOMETRY({
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return PAN_CAMERA_ALONG_GEOMETRY.quick(v.coordinate.value, duration);
 						}
 					} else if (v.coordinate.polygonType === 'origin') {
 						// ... origin (single point)
@@ -834,10 +813,7 @@ const actionData: Record<string, actionDataEntry> = {
 							return;
 						} else {
 							// ... not forever
-							return new PAN_CAMERA_TO_GEOMETRY({
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return PAN_CAMERA_TO_GEOMETRY.quick(v.coordinate.value, duration);
 						}
 					}
 				}
@@ -857,18 +833,18 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... length
 						if (v.forever) {
 							// ... forever
-							return new LOOP_ENTITY_ALONG_GEOMETRY({
-								entity: v.movable.value,
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return LOOP_ENTITY_ALONG_GEOMETRY.quick(
+								v.movable.value,
+								v.coordinate.value,
+								duration,
+							);
 						} else {
 							// ... not forever
-							return new WALK_ENTITY_ALONG_GEOMETRY({
-								entity: v.movable.value,
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return WALK_ENTITY_ALONG_GEOMETRY.quick(
+								v.movable.value,
+								v.coordinate.value,
+								duration,
+							);
 						}
 					}
 					if (v.coordinate.polygonType === 'origin') {
@@ -880,11 +856,11 @@ const actionData: Record<string, actionDataEntry> = {
 							return;
 						} else {
 							// ... not forever
-							return new WALK_ENTITY_TO_GEOMETRY({
-								entity: v.movable.value,
-								duration: duration,
-								geometry: v.coordinate.value,
-							});
+							return WALK_ENTITY_TO_GEOMETRY.quick(
+								v.movable.value,
+								v.coordinate.value,
+								duration,
+							);
 						}
 					}
 				}
@@ -900,22 +876,13 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('action_set_direction target not a DirectionTarget');
 			}
 			if (v.target.type === 'nsew') {
-				return new SET_ENTITY_DIRECTION({
-					entity,
-					direction: v.target.value,
-				});
+				return SET_ENTITY_DIRECTION.quick(entity, v.target.value);
 			}
 			if (v.target.type === 'geometry') {
-				return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY({
-					entity,
-					target_geometry: v.target.value,
-				});
+				return SET_ENTITY_DIRECTION_TARGET_GEOMETRY.quick(entity, v.target.value);
 			}
 			if (v.target.type === 'entity') {
-				return new SET_ENTITY_DIRECTION_TARGET_ENTITY({
-					entity,
-					target_entity: v.target.value,
-				});
+				return SET_ENTITY_DIRECTION_TARGET_ENTITY.quick(entity, v.target.value);
 			}
 			throw new Error('invalid type of DirectionTarget');
 		},
@@ -929,9 +896,9 @@ const actionData: Record<string, actionDataEntry> = {
 			const script = coerceToString(f, node, v.script, 'script');
 			if (entity === '%MAP%') {
 				if (script_slot === 'on_tick') {
-					return new SET_MAP_TICK_SCRIPT({ script });
+					return SET_MAP_TICK_SCRIPT.quick(script);
 				} else if (script_slot === 'on_tick') {
-					return new SET_MAP_LOOK_SCRIPT({ script });
+					return SET_MAP_LOOK_SCRIPT.quick(script);
 				}
 				const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 				f.newError({
@@ -943,13 +910,13 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			// not a map; must be an entity
 			if (v.script_slot === 'on_tick') {
-				return new SET_ENTITY_TICK_SCRIPT({ entity, script });
+				return SET_ENTITY_TICK_SCRIPT.quick(entity, script);
 			}
 			if (v.script_slot === 'on_interact') {
-				return new SET_ENTITY_INTERACT_SCRIPT({ entity, script });
+				return SET_ENTITY_INTERACT_SCRIPT.quick(entity, script);
 			}
 			if (v.script_slot === 'on_look') {
-				return new SET_ENTITY_LOOK_SCRIPT({ entity, script });
+				return SET_ENTITY_LOOK_SCRIPT.quick(entity, script);
 			}
 			const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
 			f.newError({
@@ -966,11 +933,11 @@ const actionData: Record<string, actionDataEntry> = {
 			const entity = coerceToString(f, node, v.entity, 'entity');
 			const value = coerceToString(f, node, v.value, 'value');
 			if (v.field === 'name') {
-				return new SET_ENTITY_NAME({ string: value, entity });
+				return SET_ENTITY_NAME.quick(entity, value);
 			} else if (v.field === 'type') {
-				return new SET_ENTITY_TYPE({ entity_type: value, entity });
+				return SET_ENTITY_TYPE.quick(entity, value);
 			} else if (v.field === 'path') {
-				return new SET_ENTITY_PATH({ entity, geometry: value });
+				return SET_ENTITY_PATH.quick(entity, value);
 			}
 			throw new Error('invalid field?');
 		},
@@ -979,25 +946,25 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'operator', 'rhs'],
 		handle: (v, f, node): AnyNode => {
-			const debug = new MGSDebug(f, node);
+			const debug = new MathlangLocation(f, node);
 			const op = coerceToString(f, node, v.operator, 'op');
 
 			// LHS is a string, meaning we're doing a thing to an integer variable
 			if (typeof v.lhs === 'string') {
 				// varName += 1
 				if (typeof v.rhs === 'number') {
-					return changeVarByValue(debug, v.lhs, v.rhs, op);
+					return MUTATE_VARIABLE.change(debug, v.lhs, v.rhs, op);
 				}
 				// varName += var2
 				if (typeof v.rhs === 'string') {
-					return changeVarByVar(v.lhs, v.rhs, op);
+					return MUTATE_VARIABLES.change(v.lhs, v.rhs, op);
 				}
 				// varName += player x
 				if (v.rhs instanceof IntGetable) {
 					const temp = quickTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temp),
-						changeVarByVar(v.lhs, temp, op),
+						COPY_VARIABLE.intoVariable(v.rhs.entity, v.rhs.field, temp),
+						MUTATE_VARIABLES.change(v.lhs, temp, op),
 					];
 					return new MathlangSequence(debug, {
 						steps,
@@ -1010,9 +977,9 @@ const actionData: Record<string, actionDataEntry> = {
 					if (!(v.rhs instanceof IntBinaryExpression)) {
 						throw new Error('not IntBinaryExpression');
 					}
-					const steps = flattenIntBinaryExpression(debug, v.rhs, []);
+					const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
 					dropTemporary();
-					steps.push(changeVarByVar(v.lhs, temporary, op));
+					steps.push(MUTATE_VARIABLES.change(v.lhs, temporary, op));
 					return new MathlangSequence(debug, {
 						steps,
 						type: 'action_op_equals (LHS: string, RHS: IntBinaryExpression)',
@@ -1029,9 +996,9 @@ const actionData: Record<string, actionDataEntry> = {
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
-						changeVarByValue(debug, temporary, v.rhs, op),
-						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+						COPY_VARIABLE.intoVariable(v.lhs.entity, v.lhs.field, temporary),
+						MUTATE_VARIABLE.change(debug, temporary, v.rhs, op),
+						COPY_VARIABLE.intoField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					return new MathlangSequence(debug, {
@@ -1043,9 +1010,9 @@ const actionData: Record<string, actionDataEntry> = {
 				if (typeof v.rhs === 'string') {
 					const temporary = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary),
-						changeVarByVar(temporary, v.rhs, op),
-						copyVarIntoEntityField(temporary, v.lhs.entity, v.lhs.field),
+						COPY_VARIABLE.intoVariable(v.lhs.entity, v.lhs.field, temporary),
+						MUTATE_VARIABLES.change(temporary, v.rhs, op),
+						COPY_VARIABLE.intoField(temporary, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					return new MathlangSequence(debug, {
@@ -1061,10 +1028,10 @@ const actionData: Record<string, actionDataEntry> = {
 						throw new Error('not IntBinaryExpression');
 					}
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
-						...flattenIntBinaryExpression(debug, v.rhs, []),
-						changeVarByVar(temporary1, temporary2, op),
-						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+						COPY_VARIABLE.intoVariable(v.lhs.entity, v.lhs.field, temporary1),
+						...flattenIntBinaryExpression(f, node, v.rhs, []),
+						MUTATE_VARIABLES.change(temporary1, temporary2, op),
+						COPY_VARIABLE.intoField(temporary1, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
@@ -1078,10 +1045,10 @@ const actionData: Record<string, actionDataEntry> = {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [
-						copyEntityFieldIntoVar(v.lhs.entity, v.lhs.field, temporary1),
-						copyEntityFieldIntoVar(v.rhs.entity, v.rhs.field, temporary2),
-						changeVarByVar(temporary1, temporary2, op),
-						copyVarIntoEntityField(temporary1, v.lhs.entity, v.lhs.field),
+						COPY_VARIABLE.intoVariable(v.lhs.entity, v.lhs.field, temporary1),
+						COPY_VARIABLE.intoVariable(v.rhs.entity, v.rhs.field, temporary2),
+						MUTATE_VARIABLES.change(temporary1, temporary2, op),
+						COPY_VARIABLE.intoField(temporary1, v.lhs.entity, v.lhs.field),
 					];
 					dropTemporary();
 					dropTemporary();
@@ -1097,7 +1064,7 @@ const actionData: Record<string, actionDataEntry> = {
 	action_plus_minus_equals_ables: {
 		values: {},
 		captures: ['entity', 'operator', 'value'],
-		handle: (v, f, node): SET_ENTITY_DIRECTION_RELATIVE => {
+		handle: (v, f, node) => {
 			const entity = coerceToString(f, node, v.entity, 'entity');
 			const op = coerceToString(f, node, v.operator, 'operator');
 			if (op !== '-=' && op !== '+=') {
@@ -1105,87 +1072,7 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			const value = coerceToNumber(f, node, v.value, 'value');
 			const sign = op === '-=' ? -1 : 1;
-			return new SET_ENTITY_DIRECTION_RELATIVE({
-				entity,
-				relative_direction: sign * value,
-			});
+			return SET_ENTITY_DIRECTION_RELATIVE.quick(entity, sign * value);
 		},
 	},
-};
-
-// ------------------------ MAKE JSON ACTIONS ------------------------ //
-
-export const showSerialDialog = (name: string, disable_newline: boolean = false) =>
-	new SHOW_SERIAL_DIALOG({
-		serial_dialog: name,
-		disable_newline,
-	});
-const setVarToValue = (variable: string, value: number): MUTATE_VARIABLE => {
-	return new MUTATE_VARIABLE({ operation: 'SET', value, variable });
-};
-const setVarToVar = (
-	debug: MGSDebug,
-	variable: string,
-	source: string,
-): MUTATE_VARIABLES | CommentNode => {
-	if (variable === source) {
-		return new CommentNode(debug, {
-			comment: `This action was optimized out (setting '${variable}' to itself)`,
-		});
-	}
-	return new MUTATE_VARIABLES({ operation: 'SET', source, variable });
-};
-export const changeVarByValue = (
-	debug: MGSDebug,
-	variable: string,
-	value: number,
-	op: string,
-): MUTATE_VARIABLE | CommentNode => {
-	if (op === '+' && value === 0) {
-		return new CommentNode(debug, { comment: 'This action was optimized out (+ 0)' });
-	}
-	if (op === '*' && value === 1) {
-		return new CommentNode(debug, { comment: 'This action was optimized out (* 1)' });
-	}
-	if (op === '/' && value === 1) {
-		return new CommentNode(debug, { comment: 'This action was optimized out (/ 1)' });
-	}
-	if (op === '-' && value === 0) {
-		return new CommentNode(debug, { comment: 'This action was optimized out (- 0)' });
-	}
-	return new MUTATE_VARIABLE({ operation: opIntoStringMap[op] || op, value, variable });
-};
-const changeVarByVar = (variable: string, source: string, op: string) => {
-	return new MUTATE_VARIABLES({
-		operation: opIntoStringMap[op] || op,
-		source,
-		variable,
-	});
-};
-const copyVarIntoEntityField = (variable: string, entity: string, field: string) => {
-	return new COPY_VARIABLE({ entity, field, inbound: false, variable });
-};
-const copyEntityFieldIntoVar = (entity: string, field: string, variable: string) => {
-	return new COPY_VARIABLE({ entity, field, inbound: true, variable });
-};
-const setFlag = (save_flag: string, bool_value: boolean) => {
-	return new SET_SAVE_FLAG({ save_flag, bool_value });
-};
-
-const setFlagToFlag = (
-	f: FileState,
-	node: TreeSitterNode,
-	save_flag: string,
-	source: string,
-	invert?: boolean,
-): MathlangSequence => {
-	const actionIfTrue = setFlag(save_flag, true);
-	const actionIfFalse = setFlag(save_flag, false);
-	return simpleBranchMaker(
-		f,
-		node,
-		new CHECK_SAVE_FLAG({ save_flag: source, expected_bool: !invert }),
-		[actionIfTrue],
-		[actionIfFalse],
-	);
 };

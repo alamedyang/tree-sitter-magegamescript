@@ -1,12 +1,12 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import {
 	CHECK_SAVE_FLAG,
-	MGSDebug,
 	BoolGetable,
 	StringCheckable,
 	NumberCheckableEquality,
 } from './parser-bytecode-info.ts';
 import {
+	MathlangLocation,
 	type AnyNode,
 	BoolBinaryExpression,
 	type MGSLocation,
@@ -181,9 +181,9 @@ export const expandBoolExpression = (
 	condition: BoolExpression,
 	ifLabel: string,
 ): AnyNode[] => {
-	const debug = new MGSDebug(f, node);
+	const debug = new MathlangLocation(f, node);
 	if (condition === true) {
-		return [new GotoLabel(debug, { label: ifLabel })];
+		return [GotoLabel.quick(debug, ifLabel)];
 	} else if (condition === false) {
 		return [];
 	}
@@ -221,7 +221,7 @@ export const expandBoolExpression = (
 		const secondRendezvousLabel = `rendezvous #${suffix}`;
 		return [
 			...expandBoolExpression(f, condition.lhsNode, lhs, secondIfTrueLabel),
-			new GotoLabel(new MGSDebug(f, node), { label: secondRendezvousLabel }),
+			GotoLabel.quick(new MathlangLocation(f, node), secondRendezvousLabel),
 			new LabelDefinition(debug, { label: secondIfTrueLabel }),
 			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
 			new LabelDefinition(debug, { label: secondRendezvousLabel }),
@@ -231,7 +231,7 @@ export const expandBoolExpression = (
 		throw new Error('expected == or !==, found ' + op);
 	}
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAsDebug = new MGSDebug(f, condition.debug?.node || node);
+	const expandAsDebug = new MathlangLocation(f, condition.debug?.node || node);
 	const expandAs = new BoolBinaryExpression(expandAsDebug, {
 		op: '||',
 		lhs: new BoolBinaryExpression(expandAsDebug, {
@@ -285,7 +285,7 @@ export const simpleBranchMaker = (
 	trueBlock: AnyNode[],
 	falseBlock: AnyNode[],
 ): MathlangSequence => {
-	const debug = new MGSDebug(f, node);
+	const debug = new MathlangLocation(f, node);
 	const n = f.p.advanceGotoSuffix();
 	const ifLabel = `if true #${n}`;
 	const rendezvousLabel = `rendezvous #${n}`;
@@ -301,12 +301,15 @@ export const simpleBranchMaker = (
 	const steps = [
 		...top,
 		...falseBlock,
-		new GotoLabel(new MGSDebug(f, node), { label: rendezvousLabel }),
-		new LabelDefinition(debug, { label: ifLabel }),
+		GotoLabel.quick(debug, rendezvousLabel),
+		LabelDefinition.quick(debug, ifLabel),
 		...trueBlock,
-		new LabelDefinition(debug, { label: rendezvousLabel }),
+		LabelDefinition.quick(debug, rendezvousLabel),
 	];
-	return new MathlangSequence(new MGSDebug(f, node), { steps, type: 'longerBranchMaker' });
+	return new MathlangSequence(debug, {
+		steps,
+		type: 'longerBranchMaker',
+	});
 };
 
 export class ConditionalBlock {
@@ -314,7 +317,7 @@ export class ConditionalBlock {
 	conditionNode?: TreeSitterNode;
 	body: AnyNode[];
 	bodyNode?: TreeSitterNode;
-	debug: MGSDebug;
+	debug: MathlangLocation;
 	constructor(f: FileState, node: TreeSitterNode, type: string) {
 		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
 		const condition = handleCapture(f, this.conditionNode);
@@ -324,7 +327,7 @@ export class ConditionalBlock {
 		this.condition = condition;
 		this.bodyNode = mandatoryChildForFieldName(f, node, 'body');
 		this.body = handleNamedChildren(f, this.bodyNode);
-		this.debug = new MGSDebug(f, node);
+		this.debug = new MathlangLocation(f, node);
 	}
 }
 
@@ -343,7 +346,7 @@ export const ifChainMaker = (
 	elseBody: AnyNode[],
 	label: string,
 ): MathlangSequence => {
-	const debug = new MGSDebug(f, node);
+	const debug = new MathlangLocation(f, node);
 	const rendezvousL: string = label + ` rendezvous #${f.p.advanceGotoSuffix()}`;
 	const steps: AnyNode[] = [];
 	let bottomSteps: AnyNode[] = [];
@@ -358,15 +361,15 @@ export const ifChainMaker = (
 		const bottomInsert: AnyNode[] = [
 			new LabelDefinition(debug, { label: ifL }),
 			...iff.body,
-			new GotoLabel(new MGSDebug(f, iff.bodyNode || iff.debug.node), { label: rendezvousL }),
+			GotoLabel.quick(new MathlangLocation(f, iff.bodyNode || iff.debug.node), rendezvousL),
 		];
 		bottomSteps = bottomInsert.concat(bottomSteps);
 	});
 
 	steps.push(...elseBody);
-	steps.push(new GotoLabel(new MGSDebug(f, node), { label: rendezvousL }));
+	steps.push(GotoLabel.quick(new MathlangLocation(f, node), rendezvousL));
 	const combined = steps.concat(bottomSteps);
-	combined.push(new LabelDefinition(debug, { label: rendezvousL }));
+	combined.push(LabelDefinition.quick(debug, rendezvousL));
 	return new MathlangSequence(debug, { steps: combined, type: 'parser-node: ' + label });
 };
 

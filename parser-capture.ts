@@ -25,12 +25,12 @@ import {
 	CHECK_VARIABLE,
 	CHECK_VARIABLES,
 	CHECK_WARP_STATE,
-	MGSDebug,
 	BoolGetable,
 	StringCheckable,
 	NumberCheckableEquality,
 } from './parser-bytecode-info.ts';
 import {
+	MathlangLocation,
 	BoolBinaryExpression,
 	BoolSetable,
 	CoordinateIdentifier,
@@ -177,79 +177,72 @@ const captureFns = {
 	},
 	entity_identifier: (f: FileState, node: TreeSitterNode): string => extractEntityName(f, node),
 	movable_identifier: (f: FileState, node: TreeSitterNode): MovableIdentifier => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'camera') {
-			return new MovableIdentifier(debug, { type: 'camera', value: 'camera' });
+			return MovableIdentifier.quick(debug, 'camera', 'camera');
 		} else {
-			return new MovableIdentifier(debug, {
-				type: 'entity',
-				value: extractEntityName(f, node),
-			});
+			const value = extractEntityName(f, node);
+			return MovableIdentifier.quick(debug, 'entity', value);
 		}
 	},
 	dialog_identifier: (f: FileState, node: TreeSitterNode): DialogIdentifier => {
+		const debug = new MathlangLocation(f, node);
 		const label = optionalTextForFieldName(f, node, 'label');
 		if (label) {
-			return new DialogIdentifier(new MGSDebug(f, node), { type: 'label', value: label });
+			return DialogIdentifier.quick(debug, 'label', label);
 		}
 		const type = textForFieldName(f, node, 'type');
 		if (type !== 'label' && type !== 'entity' && type !== 'name') {
 			throw new Error('invalid dialog identifier type: ' + type);
 		}
 		const value = stringCaptureForFieldName(f, node, 'value');
-		return new DialogIdentifier(new MGSDebug(f, node), { type, value });
+		return DialogIdentifier.quick(debug, type, value);
 	},
 	dialog_parameter: (f: FileState, node: TreeSitterNode): DialogParameter => {
+		const debug = new MathlangLocation(f, node);
 		const property = textForFieldName(f, node, 'property');
 		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
-		return new DialogParameter(new MGSDebug(f, node), { property, value });
+		return DialogParameter.quick(debug, property, value);
 	},
 	serial_dialog_parameter: (f: FileState, node: TreeSitterNode): SerialDialogParameter => {
+		const debug = new MathlangLocation(f, node);
 		const property = textForFieldName(f, node, 'property');
 		const value = stringOrNumberCaptureForFieldName(f, node, 'value');
-		return new SerialDialogParameter(new MGSDebug(f, node), { property, value });
+		return SerialDialogParameter.quick(debug, property, value);
 	},
 	coordinate_identifier: (f: FileState, node: TreeSitterNode): CoordinateIdentifier => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
+		const polygonType = optionalTextForFieldName(f, node, 'polygon_type');
 		if (type === 'entity_path') {
-			return new CoordinateIdentifier(debug, {
-				type: 'geometry',
-				value: '%ENTITY_PATH%',
-				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
-			});
+			return CoordinateIdentifier.quick(debug, 'geometry', '%ENTITY_PATH%', polygonType);
 		}
 		if (type === 'geometry') {
-			return new CoordinateIdentifier(debug, {
-				type: 'geometry',
-				value: stringCaptureForFieldName(f, node, 'geometry'),
-				polygonType: optionalTextForFieldName(f, node, 'polygon_type'),
-			});
+			const value = stringCaptureForFieldName(f, node, 'geometry');
+			return CoordinateIdentifier.quick(debug, 'geometry', value, polygonType);
 		}
-		return new CoordinateIdentifier(debug, {
-			type: 'entity',
-			value: extractEntityName(f, node),
-		});
+		return CoordinateIdentifier.quick(debug, 'entity', extractEntityName(f, node));
 	},
 	bool_setable: (f: FileState, node: TreeSitterNode): BoolSetable => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (!type) {
 			const value = stringCaptureForFieldName(f, node, 'flag');
-			return new BoolSetable(debug, { type: 'save_flag', value });
+			return BoolSetable.quick(debug, 'save_flag', value);
 		}
 		if (type === 'glitched') {
 			const value = stringCaptureForFieldName(f, node, 'entity_identifier');
-			return new BoolSetable(debug, { type: 'entity', value });
+			return BoolSetable.quick(debug, 'entity', value);
 		}
 		if (type === 'light') {
 			const value = stringCaptureForFieldName(f, node, 'light');
-			return new BoolSetable(debug, { type: 'light', value });
+			return BoolSetable.quick(debug, 'light', value);
 		}
-		return new BoolSetable(debug, { type, value: '' });
+		return BoolSetable.quick(debug, type, '');
 	},
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
+		const debug = new MathlangLocation(f, node);
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const op = textForFieldName(f, node, 'operator');
@@ -263,7 +256,7 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceToNumber(f, lhsNode, lhs, 'constant');
 		}
-		return new IntBinaryExpression(new MGSDebug(f, node), { lhs, rhs, op });
+		return new IntBinaryExpression(debug, { lhs, rhs, op });
 	},
 	bool_binary_expression: (f: FileState, node: TreeSitterNode): BoolBinaryExpression => {
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
@@ -277,7 +270,7 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return new BoolBinaryExpression(debug, {
 				lhs,
@@ -331,69 +324,48 @@ const captureFns = {
 		}
 		throw new Error('bool_unary_expression capture did not yield BoolExpression');
 	},
-	int_getable: (f: FileState, node: TreeSitterNode): IntGetable => {
+	int_getable: (f: FileState, node: TreeSitterNode) => {
+		const debug = new MathlangLocation(f, node);
 		// if (textForFieldName(f, node, 'variable')) {
 		// 	return captureForFieldName(f, node, 'variable');
 		// }
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return new IntGetable(new MGSDebug(f, node), { entity, field });
+		return IntGetable.quick(debug, entity, field);
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
 		const type = optionalTextForFieldName(f, node, 'type');
-		const debug = new MGSDebug(f, node);
 		if (type === 'flag') {
-			return new CHECK_SAVE_FLAG({
-				save_flag: stringCaptureForFieldName(f, node, 'value'),
-				expected_bool: true,
-			});
+			return CHECK_SAVE_FLAG.quick(stringCaptureForFieldName(f, node, 'value'));
 		} else if (type === 'debug_mode') {
-			return new CHECK_DEBUG_MODE({
-				debug,
-				expected_bool: true,
-			});
+			return CHECK_DEBUG_MODE.quick();
 		} else if (type === 'glitched') {
-			return new CHECK_ENTITY_GLITCHED({
-				debug,
-				expected_bool: true,
-				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-			});
+			return CHECK_ENTITY_GLITCHED.quick(
+				stringCaptureForFieldName(f, node, 'entity_identifier'),
+			);
 		} else if (type === 'intersects') {
-			return new CHECK_IF_ENTITY_IS_IN_GEOMETRY({
-				debug,
-				expected_bool: true,
-				entity: stringCaptureForFieldName(f, node, 'entity_identifier'),
-				geometry: stringCaptureForFieldName(f, node, 'geometry_identifier'),
-			});
+			return CHECK_IF_ENTITY_IS_IN_GEOMETRY.quick(
+				stringCaptureForFieldName(f, node, 'entity_identifier'),
+				stringCaptureForFieldName(f, node, 'geometry_identifier'),
+			);
 		} else if (type === 'dialog' || type === 'serial_dialog') {
 			const state = optionalTextForFieldName(f, node, 'value');
 			if (type === 'dialog') {
-				return new CHECK_DIALOG_OPEN({
-					debug,
-					expected_bool: state === 'open',
-				});
+				return CHECK_DIALOG_OPEN.quick(state === 'open');
 			} else {
-				return new CHECK_SERIAL_DIALOG_OPEN({
-					debug,
-					expected_bool: state === 'open',
-				});
+				return CHECK_SERIAL_DIALOG_OPEN.quick(state === 'open');
 			}
 		} else if (type === 'button') {
 			const button_id = stringCaptureForFieldName(f, node, 'button');
 			const stateNode = mandatoryChildForFieldName(f, node, 'state');
 			if (stateNode.text === 'pressed') {
-				return new CHECK_FOR_BUTTON_PRESS({
-					debug,
-					expected_bool: true,
-					button_id,
-				});
+				return CHECK_FOR_BUTTON_PRESS.quick(button_id);
 			} else {
 				const state = handleCapture(f, stateNode);
-				return new CHECK_FOR_BUTTON_STATE({
-					debug,
-					expected_bool: coerceAsBool(f, node, state, 'button state'),
+				return CHECK_FOR_BUTTON_STATE.quick(
 					button_id,
-				});
+					coerceAsBool(f, node, state, 'button state'),
+				);
 			}
 		}
 		throw new Error('failed to capture bool_getable');
@@ -403,10 +375,7 @@ const captureFns = {
 		if (entity === null) {
 			const type = optionalTextForFieldName(f, node, 'type');
 			if (type === 'warp_state') {
-				return new CHECK_WARP_STATE({
-					expected_bool: true,
-					string: '',
-				});
+				return CHECK_WARP_STATE.quick('');
 			} else {
 				throw new Error(
 					`unidentifiable non-entity string_checkable: capturing type ${type}`,
@@ -415,41 +384,17 @@ const captureFns = {
 		}
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'on_tick') {
-			return new CHECK_ENTITY_TICK_SCRIPT({
-				entity,
-				expected_bool: true,
-				expected_script: '',
-			});
+			return CHECK_ENTITY_TICK_SCRIPT.quick(entity, '');
 		} else if (property === 'on_look') {
-			return new CHECK_ENTITY_LOOK_SCRIPT({
-				entity,
-				expected_bool: true,
-				expected_script: '',
-			});
+			return CHECK_ENTITY_LOOK_SCRIPT.quick(entity, '');
 		} else if (property === 'on_interact') {
-			return new CHECK_ENTITY_INTERACT_SCRIPT({
-				entity,
-				expected_bool: true,
-				expected_script: '',
-			});
+			return CHECK_ENTITY_INTERACT_SCRIPT.quick(entity, '');
 		} else if (property === 'name') {
-			return new CHECK_ENTITY_NAME({
-				entity,
-				expected_bool: true,
-				string: '',
-			});
+			return CHECK_ENTITY_NAME.quick(entity, '');
 		} else if (property === 'path') {
-			return new CHECK_ENTITY_PATH({
-				entity,
-				expected_bool: true,
-				geometry: '',
-			});
+			return CHECK_ENTITY_PATH.quick(entity, '');
 		} else if (property === 'type') {
-			return new CHECK_ENTITY_TYPE({
-				entity,
-				expected_bool: true,
-				entity_type: '',
-			});
+			return CHECK_ENTITY_TYPE.quick(entity, '');
 		}
 		throw new Error(`could not capture entity string_checkable`);
 	},
@@ -457,44 +402,19 @@ const captureFns = {
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'x') {
-			return new CHECK_ENTITY_X({ entity });
+			return CHECK_ENTITY_X.quick(entity, NaN);
 		} else if (property === 'y') {
-			return new CHECK_ENTITY_Y({ entity });
+			return CHECK_ENTITY_Y.quick(entity, NaN);
 		} else if (property === 'primary_id') {
-			return new CHECK_ENTITY_PRIMARY_ID({
-				entity,
-				property,
-				expected_u2: NaN,
-				expected_bool: true,
-			});
+			return CHECK_ENTITY_PRIMARY_ID.quick(entity, NaN);
 		} else if (property === 'secondary_id') {
-			return new CHECK_ENTITY_SECONDARY_ID({
-				entity,
-				property,
-				expected_u2: NaN,
-				expected_bool: true,
-			});
+			return CHECK_ENTITY_SECONDARY_ID.quick(entity, NaN);
 		} else if (property === 'primary_id_type') {
-			return new CHECK_ENTITY_PRIMARY_ID_TYPE({
-				entity,
-				property,
-				expected_byte: NaN,
-				expected_bool: true,
-			});
+			return CHECK_ENTITY_PRIMARY_ID_TYPE.quick(entity, NaN);
 		} else if (property === 'current_animation') {
-			return new CHECK_ENTITY_CURRENT_ANIMATION({
-				entity,
-				property,
-				expected_byte: NaN,
-				expected_bool: true,
-			});
+			return CHECK_ENTITY_CURRENT_ANIMATION.quick(entity, NaN);
 		} else if (property === 'animation_frame') {
-			return new CHECK_ENTITY_CURRENT_FRAME({
-				entity,
-				property,
-				expected_byte: NaN,
-				expected_bool: true,
-			});
+			return CHECK_ENTITY_CURRENT_FRAME.quick(entity, NaN);
 		} else if (property === 'strafe') {
 			const propertyNode = mandatoryChildForFieldName(f, node, 'property');
 			f.newError({
@@ -544,19 +464,18 @@ const captureFns = {
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
-		const debug = new MGSDebug(f, node);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
 				// varName1 > varName2
-				return checkVariables(debug, lhs, rhs, op);
+				return CHECK_VARIABLES.quick(lhs, rhs, op);
 			} else if (typeof rhs === 'number') {
 				// varName > 255
-				return checkVariable(debug, lhs, rhs, op);
+				return CHECK_VARIABLE.quick(lhs, rhs, op);
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
 				// 255 > varName
-				return checkVariable(debug, rhs, lhs, inverseOpMap[op]);
+				return CHECK_VARIABLE.quick(rhs, lhs, inverseOpMap[op]);
 			} else if (typeof rhs === 'number') {
 				// 255 > 0
 				if (op === '<') return lhs < rhs;
@@ -571,9 +490,10 @@ const captureFns = {
 		throw new Error('failed to capture bool_comparison');
 	},
 	int_setable: (f: FileState, node: TreeSitterNode) => {
+		const debug = new MathlangLocation(f, node);
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return new IntGetable(new MGSDebug(f, node), { entity, field });
+		return IntGetable.quick(debug, entity, field);
 	},
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
@@ -581,18 +501,18 @@ const captureFns = {
 		throw new Error('captured int_grouping did not produce IntExpression');
 	},
 	direction_target: (f: FileState, node: TreeSitterNode) => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const direction = optionalTextForFieldName(f, node, 'nsew');
 		if (direction) {
-			return new DirectionTarget(debug, { type: 'nsew', value: direction });
+			return DirectionTarget.quick(debug, 'nsew', direction);
 		}
 		const target_geometry = optionalStringCaptureForFieldName(f, node, 'geometry');
 		if (target_geometry) {
-			return new DirectionTarget(debug, { type: 'geometry', value: target_geometry });
+			return DirectionTarget.quick(debug, 'geometry', target_geometry);
 		}
 		const target_entity = optionalStringCaptureForFieldName(f, node, 'entity');
 		if (target_entity) {
-			return new DirectionTarget(debug, { type: 'entity', value: target_entity });
+			return DirectionTarget.quick(debug, 'entity', target_entity);
 		}
 		throw new Error('could not capture direction_target');
 	},
@@ -609,11 +529,8 @@ const compareNSEW = (
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
 	}
-	return new CHECK_ENTITY_DIRECTION({
-		expected_bool: op === '==',
-		direction: nsewNode.text,
-		entity: stringCaptureForFieldName(f, entityNode, 'entity_identifier'),
-	});
+	const entity = stringCaptureForFieldName(f, entityNode, 'entity_identifier');
+	return CHECK_ENTITY_DIRECTION.quick(entity, nsewNode.text, op === '==');
 };
 const compareString = (
 	f: FileState,
@@ -661,32 +578,6 @@ const compareNumberCheckableEquality = (
 	checkable.expected_bool = op === '==';
 	return checkable;
 };
-const checkVariables = (
-	debug: MGSDebug,
-	variable: string,
-	source: string,
-	comparison: string,
-): BoolComparison =>
-	new CHECK_VARIABLES({
-		debug,
-		variable,
-		source,
-		comparison,
-		expected_bool: true,
-	});
-export const checkVariable = (
-	debug: MGSDebug,
-	variable: string,
-	value: number,
-	comparison: string,
-): BoolComparison =>
-	new CHECK_VARIABLE({
-		debug,
-		variable,
-		value,
-		comparison,
-		expected_bool: true,
-	});
 const extractEntityName = (f: FileState, node: TreeSitterNode): string => {
 	const type = optionalTextForFieldName(f, node, 'type');
 	if (type === 'self') return '%SELF%';

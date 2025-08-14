@@ -23,12 +23,11 @@ import {
 	capturesForFieldName,
 	stringCaptureForFieldName,
 	numberCaptureForFieldName,
-	checkVariable,
 	mandatoryChildForFieldName,
 	handleChildrenForFieldName,
 	handleNamedChildren,
 } from './parser-capture.ts';
-import { changeVarByValue, handleAction } from './parser-actions.ts';
+import { handleAction } from './parser-actions.ts';
 import {
 	AddDialogSettings,
 	AddDialogSettingsTarget,
@@ -61,16 +60,18 @@ import {
 	DialogIdentifier,
 	DialogParameter,
 	GotoLabel,
+	MathlangLocation,
 } from './parser-types.ts';
 import {
 	Action,
 	BoolGetable,
 	CHECK_DEBUG_MODE,
 	CHECK_SAVE_FLAG,
+	CHECK_VARIABLE,
 	type CheckAction,
 	GOTO_ACTION_INDEX,
 	isCheckAction,
-	MGSDebug,
+	MUTATE_VARIABLE,
 	RUN_SCRIPT,
 	SHOW_SERIAL_DIALOG,
 	summonActionConstructor,
@@ -152,21 +153,26 @@ const nodeFns = {
 		const returnLabel = 'end of script ' + f.p.advanceGotoSuffix();
 		const lastChild = node.lastChild;
 		if (!lastChild) throw new Error('could not find final node in script block');
-		const labelAction: LabelDefinition = new LabelDefinition(new MGSDebug(f, lastChild), {
-			label: returnLabel,
-		});
+		const labelAction: LabelDefinition = new LabelDefinition(
+			new MathlangLocation(f, lastChild),
+			{
+				label: returnLabel,
+			},
+		);
 		actions.push(labelAction);
 		// change all return statements to goto labels
 		actions.forEach((action, i) => {
 			if (action instanceof ReturnStatement) {
-				actions[i] = new GotoLabel(new MGSDebug(f, action.debug.node), {
-					label: returnLabel,
-				});
+				actions[i] = GotoLabel.quick(
+					new MathlangLocation(f, action.debug.node),
+					returnLabel,
+				);
 			}
 		});
-		return [new ScriptDefinition(new MGSDebug(f, node), { scriptName, actions })];
+		return [new ScriptDefinition(new MathlangLocation(f, node), { scriptName, actions })];
 	},
 	constant_assignment: (f: FileState, node: TreeSitterNode): ConstantDefinition[] => {
+		const debug = new MathlangLocation(f, node);
 		const label = textForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
 		if (!isMGSPrimitive(value)) {
@@ -184,10 +190,10 @@ const nodeFns = {
 			});
 		}
 		f.constants[label] = {
-			debug: new MGSDebug(f, node),
+			debug: debug,
 			value,
 		};
-		return [new ConstantDefinition(new MGSDebug(f, node), { label, value })];
+		return [ConstantDefinition.quick(debug, label, value)];
 	},
 	include_macro: (f: FileState, node: TreeSitterNode): IncludeNode[] => {
 		// Recursion detection
@@ -247,10 +253,10 @@ const nodeFns = {
 			});
 		});
 		includeRecursion.pop();
-		return [new IncludeNode(new MGSDebug(f, node), { value: fileName })];
+		return [new IncludeNode(new MathlangLocation(f, node), { value: fileName })];
 	},
 	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const horizontal: AnyNode[][] = [];
 		// count items per spread
 		let spreadCount = -Infinity;
@@ -284,25 +290,25 @@ const nodeFns = {
 		const temp = quickTemporary();
 		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
 			return {
-				condition: checkVariable(debug, temp, i, '=='),
+				condition: CHECK_VARIABLE.quick(temp, i, '=='),
 				debug,
 				body,
 			};
 		});
 		const sequence: MathlangSequence = ifChainMaker(f, node, iffs, [], 'rand_macro');
-		sequence.steps.unshift(changeVarByValue(debug, temp, vertical.length, '?')); // the RNG roll
+		sequence.steps.unshift(MUTATE_VARIABLE.change(debug, temp, vertical.length, '?')); // the RNG roll
 		return [sequence];
 	},
 	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
 		const label = textForFieldName(f, node, 'label');
-		return [new LabelDefinition(new MGSDebug(f, node), { label })];
+		return [new LabelDefinition(new MathlangLocation(f, node), { label })];
 	},
 	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
 		const targets = handleNamedChildren(f, node);
 		if (!targets.every((v) => v instanceof AddDialogSettingsTarget)) {
 			throw new Error('add_dialog_settings node not a AddDialogSettingsTarget');
 		}
-		return [new AddDialogSettings(new MGSDebug(f, node), { targets })];
+		return [new AddDialogSettings(new MathlangLocation(f, node), { targets })];
 	},
 	add_dialog_settings_target: (f: FileState, node: TreeSitterNode): [AddDialogSettingsTarget] => {
 		let settingsTarget: DialogSettings = {};
@@ -326,7 +332,7 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
 		});
-		const ret = new AddDialogSettingsTarget(new MGSDebug(f, node), {
+		const ret = new AddDialogSettingsTarget(new MathlangLocation(f, node), {
 			type,
 			parameters,
 			target,
@@ -341,7 +347,7 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
-		return [new AddSerialDialogSettings(new MGSDebug(f, node), { parameters })];
+		return [new AddSerialDialogSettings(new MathlangLocation(f, node), { parameters })];
 	},
 	serial_dialog_option: (f: FileState, node: TreeSitterNode): [SerialDialogOption] => {
 		const optionChar = textForFieldName(f, node, 'option_type');
@@ -350,12 +356,14 @@ const nodeFns = {
 		else if (optionChar !== '#') throw new Error('invalid option type: ' + optionChar);
 		const label = stringCaptureForFieldName(f, node, 'label');
 		const script = stringCaptureForFieldName(f, node, 'script');
-		return [new SerialDialogOption(new MGSDebug(f, node), { optionType, label, script })];
+		return [
+			new SerialDialogOption(new MathlangLocation(f, node), { optionType, label, script }),
+		];
 	},
 	dialog_option: (f: FileState, node: TreeSitterNode): [DialogOption] => {
 		const label = stringCaptureForFieldName(f, node, 'label');
 		const script = stringCaptureForFieldName(f, node, 'script');
-		return [new DialogOption(new MGSDebug(f, node), { label, script })];
+		return [new DialogOption(new MathlangLocation(f, node), { label, script })];
 	},
 	serial_dialog_definition: (f: FileState, node: TreeSitterNode): [SerialDialogDefinition] => {
 		const serialDialogNode = mandatoryChildForFieldName(f, node, 'serial_dialog');
@@ -366,14 +374,16 @@ const nodeFns = {
 		}
 		const serialDialog = serialDialogs[0];
 		if (!(serialDialog instanceof SerialDialog)) throw new Error('missing serial dialog');
-		return [new SerialDialogDefinition(new MGSDebug(f, node), { dialogName, serialDialog })];
+		return [
+			new SerialDialogDefinition(new MathlangLocation(f, node), { dialogName, serialDialog }),
+		];
 	},
 	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
 		const name = stringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		if (!dialogs.every((v) => v instanceof Dialog))
 			throw new Error('not every dialog is a Dialog');
-		return [new DialogDefinition(new MGSDebug(f, node), { dialogName: name, dialogs })];
+		return [new DialogDefinition(new MathlangLocation(f, node), { dialogName: name, dialogs })];
 	},
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
 		const settings = {};
@@ -435,7 +445,7 @@ const nodeFns = {
 			options,
 		};
 		const dialogs = buildDialogFromInfo(f, node, info, messageN);
-		dialogs.debug = new MGSDebug(f, node);
+		dialogs.debug = new MathlangLocation(f, node);
 		return [dialogs];
 	},
 	json_literal: (f: FileState, node: TreeSitterNode): JSONLiteral[] => {
@@ -445,7 +455,7 @@ const nodeFns = {
 		const text = jsonNode.text;
 		try {
 			const parsed = JSON.parse(text);
-			return [new JSONLiteral(new MGSDebug(f, node), { json: parsed })];
+			return [new JSONLiteral(new MathlangLocation(f, node), { json: parsed })];
 		} catch {
 			f.newError({
 				locations: [{ node }],
@@ -457,7 +467,7 @@ const nodeFns = {
 	},
 	copy_macro: (f: FileState, node: TreeSitterNode): [CopyMacro] => {
 		const script = stringCaptureForFieldName(f, node, 'script');
-		return [new CopyMacro(new MGSDebug(f, node), { script })];
+		return [new CopyMacro(new MathlangLocation(f, node), { script })];
 	},
 	debug_macro: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		const ret: AnyNode[] = [];
@@ -471,7 +481,10 @@ const nodeFns = {
 			}
 			dialogName = autoIdentifierName(f, node);
 			ret.push(
-				new SerialDialogDefinition(new MGSDebug(f, node), { dialogName, serialDialog }),
+				new SerialDialogDefinition(new MathlangLocation(f, node), {
+					dialogName,
+					serialDialog,
+				}),
 			);
 		} else {
 			// might just be the name of a serial dialog, and not a serial-dialog-in-place
@@ -490,19 +503,21 @@ const nodeFns = {
 		return handleNamedChildren(f, node).map((v) => {
 			if (Array.isArray(v)) return v;
 			if (v instanceof ContinueStatement) {
-				return new GotoLabel(new MGSDebug(f, v.debug.node), {
-					label: `condition #${printGotoLabel}`,
-				});
+				return GotoLabel.quick(
+					new MathlangLocation(f, v.debug.node),
+					`condition #${printGotoLabel}`,
+				);
 			} else if (v instanceof BreakStatement) {
-				return new GotoLabel(new MGSDebug(f, v.debug.node), {
-					label: `rendezvous #${printGotoLabel}`,
-				});
+				return GotoLabel.quick(
+					new MathlangLocation(f, v.debug.node),
+					`rendezvous #${printGotoLabel}`,
+				);
 			}
 			return v;
 		});
 	},
 	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const block = new ConditionalBlock(f, node, 'while');
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `while condition #${n}`;
@@ -511,16 +526,16 @@ const nodeFns = {
 		const steps = [
 			new LabelDefinition(debug, { label: conditionL }),
 			...expandBoolExpression(f, block.conditionNode || node, block.condition, bodyL),
-			new GotoLabel(new MGSDebug(f, node), { label: rendezvousL }),
+			GotoLabel.quick(new MathlangLocation(f, node), rendezvousL),
 			new LabelDefinition(debug, { label: bodyL }),
 			...block.body,
-			new GotoLabel(new MGSDebug(f, block.conditionNode || node), { label: conditionL }),
+			GotoLabel.quick(new MathlangLocation(f, block.conditionNode || node), conditionL),
 			new LabelDefinition(debug, { label: rendezvousL }),
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: while_block' })];
 	},
 	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const doWhyle = new ConditionalBlock(f, node, 'do while');
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `do while condition #${n}`;
@@ -536,7 +551,7 @@ const nodeFns = {
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: do_while_block' })];
 	},
 	for_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
-		const debug = new MGSDebug(f, node);
+		const debug = new MathlangLocation(f, node);
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `for condition #${n}`;
 		const bodyL = `for body #${n}`;
@@ -549,9 +564,9 @@ const nodeFns = {
 		const incrementerN = mandatoryChildForFieldName(f, node, 'incrementer');
 		const body: AnyNode[] = handleNode(f, bodyN).map((v: AnyNode) => {
 			if (v instanceof ContinueStatement)
-				return new GotoLabel(new MGSDebug(f, node), { label: continueL });
+				return GotoLabel.quick(new MathlangLocation(f, node), continueL);
 			if (v instanceof BreakStatement)
-				return new GotoLabel(new MGSDebug(f, node), { label: rendezvousL });
+				return GotoLabel.quick(new MathlangLocation(f, node), rendezvousL);
 			return v;
 		});
 		const initializer = mandatoryChildForFieldName(f, node, 'initializer');
@@ -559,12 +574,12 @@ const nodeFns = {
 			...handleNode(f, initializer),
 			new LabelDefinition(debug, { label: conditionL }),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
-			new GotoLabel(new MGSDebug(f, node), { label: rendezvousL }),
+			GotoLabel.quick(new MathlangLocation(f, node), rendezvousL),
 			new LabelDefinition(debug, { label: bodyL }),
 			...body,
 			new LabelDefinition(debug, { label: continueL }),
 			...handleNode(f, incrementerN),
-			new GotoLabel(new MGSDebug(f, conditionN), { label: conditionL }),
+			GotoLabel.quick(new MathlangLocation(f, conditionN), conditionL),
 			new LabelDefinition(debug, { label: rendezvousL }),
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: for_block' })];
@@ -585,13 +600,13 @@ const nodeFns = {
 		if (typeof condition === 'boolean') {
 			if (!type) {
 				const script = stringCaptureForFieldName(f, node, 'script');
-				return condition ? [new RUN_SCRIPT({ script })] : [];
+				return condition ? [RUN_SCRIPT.quick(script)] : [];
 			} else if (type === 'index') {
 				const index = numberCaptureForFieldName(f, node, 'index');
-				return condition ? [new GOTO_ACTION_INDEX({ action_index: index })] : [];
+				return condition ? [GOTO_ACTION_INDEX.quick(index)] : [];
 			} else if (type === 'label') {
 				const label = stringCaptureForFieldName(f, node, 'label');
-				return condition ? [new GotoLabel(new MGSDebug(f, node), { label })] : [];
+				return condition ? [GotoLabel.quick(new MathlangLocation(f, node), label)] : [];
 			}
 		}
 		if (isCheckAction(condition)) {

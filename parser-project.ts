@@ -12,8 +12,9 @@ import {
 	doesMathlangHaveLabelToChangeToIndex,
 	isAnyCopyScript,
 	CommentNode,
+	MathlangLocation,
 } from './parser-types.ts';
-import { COPY_SCRIPT, MGSDebug } from './parser-bytecode-info.ts';
+import { COPY_SCRIPT } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -200,7 +201,7 @@ export const makeProjectState = (
 
 					// Exctract the debugs for later re-insertion
 					const extractedDebugProps = copiedActions.map((copiedAction) => {
-						const debug: MGSDebug | undefined = copiedAction.debug;
+						const debug: MathlangLocation | undefined = copiedAction.debug;
 						if (copiedAction.debug) {
 							delete copiedAction.debug;
 						}
@@ -215,18 +216,18 @@ export const makeProjectState = (
 					const objectActions: AnyNode[] = JSON.parse(stringActions);
 					// Put the debugs back
 					objectActions.forEach((v, i) => {
-						const debug: MGSDebug | undefined = extractedDebugProps[i];
+						const debug: MathlangLocation | undefined = extractedDebugProps[i];
 						if (debug) {
 							v.debug = debug;
 						}
 					});
 					const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
-					finalActions.push(new CommentNode(new MGSDebug(f, node), { comment }));
+					finalActions.push(CommentNode.quick(new MathlangLocation(f, node), comment));
 					finalActions.push(...objectActions);
 				} else {
 					// plain version
 					const comment = `Copying: ${action.script} (-${labelSuffix})`;
-					finalActions.push(new CommentNode(new MGSDebug(f, node), { comment }));
+					finalActions.push(CommentNode.quick(new MathlangLocation(f, node), comment));
 					finalActions.push(...copiedActions);
 				}
 			});
