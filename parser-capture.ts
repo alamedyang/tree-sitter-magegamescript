@@ -68,23 +68,7 @@ const opIntoStringMap: Record<string, string> = {
 	'?': 'RNG',
 };
 
-export type Capture =
-	| number
-	| boolean
-	| string
-	| MovableIdentifier
-	| DialogIdentifier
-	| DialogParameter
-	| SerialDialogParameter
-	| CoordinateIdentifier
-	| BoolSetable
-	| IntBinaryExpression
-	| BoolExpression
-	| BoolBinaryExpression
-	| BoolExpression
-	| IntGetable
-	| BoolGetable
-	| StringCheckable;
+export type Capture = number | boolean | string | AnyNode;
 
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
 	if (!node) throw new Error('null node');
@@ -101,10 +85,7 @@ export const handleCapture = (f: FileState, node: TreeSitterNode | null): Captur
 	if (grammarType === 'CONSTANT') {
 		const lookup = f.constants[node.text];
 		if (lookup === undefined) {
-			f.newError({
-				locations: [{ node }],
-				message: `Constant ${node.text} is undefined`,
-			});
+			f.quickError(node, `Constant ${node.text} is undefined`);
 		}
 		return lookup?.value !== undefined ? lookup?.value : node.text;
 	}
@@ -417,10 +398,7 @@ const captureFns = {
 			return CHECK_ENTITY_CURRENT_FRAME.quick(entity, NaN);
 		} else if (property === 'strafe') {
 			const propertyNode = mandatoryChildForFieldName(f, node, 'property');
-			f.newError({
-				locations: [{ node: propertyNode }],
-				message: `this property is not supported in boolean expressions`,
-			});
+			f.quickError(propertyNode, `this property is not supported in boolean expressions`);
 		}
 		throw new Error('could not capture number_checkable_equality');
 	},
@@ -563,14 +541,7 @@ const compareNumberCheckableEquality = (
 	}
 	const number = handleCapture(f, numberNode);
 	if (typeof number !== 'number') {
-		f.newError({
-			message: `This action can only compare to number literals`,
-			locations: [
-				{
-					node: numberNode,
-				},
-			],
-		});
+		f.quickError(numberNode, `This action can only compare to number literals`);
 	}
 	checkable.updateProp(
 		coerceToNumber(f, numberNode, number, 'compareNumberCheckableEquality expected number'),
@@ -705,7 +676,7 @@ export const coerceToString = (
 					node: f.constants[node.text].debug.node,
 					fileName: f.constants[node.text].debug.fileName,
 				},
-				{ node },
+				{ node, fileName: f.fileName },
 			],
 			message: `${label} is not a string`,
 		});
@@ -726,7 +697,7 @@ export const coerceToNumber = (
 					node: f.constants[node.text].debug.node,
 					fileName: f.constants[node.text].debug.fileName,
 				},
-				{ node },
+				{ node, fileName: f.fileName },
 			],
 			message: `${label} is not a number`,
 		});
@@ -748,7 +719,7 @@ export const coerceAsBool = (
 					node: f.constants[node.text].debug.node,
 					fileName: f.constants[node.text].debug.fileName,
 				},
-				{ node },
+				{ node, fileName: f.fileName },
 			],
 			message: `${label} is not a boolean`,
 		});

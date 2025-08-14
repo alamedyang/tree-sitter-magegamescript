@@ -1,7 +1,8 @@
+import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { ProjectState } from './parser-project.ts';
 import type {
 	DialogSettings,
-	MGSMessage,
+	MathlangMessage,
 	SerialDialogSettings,
 	AnyNode,
 	MGSPrimitive,
@@ -51,18 +52,43 @@ export class FileState {
 		this.errorCount = 0;
 		this.warningCount = 0;
 	}
-	newError(message: MGSMessage) {
-		message.locations.forEach((v) => {
-			// local filename assumed (if absent)
-			if (!v.fileName) v.fileName = this.fileName;
-		});
+	quickError(node: TreeSitterNode, message: string, footer?: string) {
+		const err: MathlangMessage = {
+			message,
+			locations: [
+				{
+					node,
+					fileName: this.fileName,
+				},
+			],
+		};
+		if (footer) {
+			err.footer = footer;
+		}
+		this.p.newError(err);
+		this.errorCount += 1;
+	}
+	newError(message: MathlangMessage) {
 		this.p.newError(message);
 		this.errorCount += 1;
 	}
-	newWarning(message: MGSMessage) {
-		message.locations.forEach((v) => {
-			if (!v.fileName) v.fileName = this.fileName;
-		});
+	quickWarning(node: TreeSitterNode, message: string, footer?: string) {
+		const warn: MathlangMessage = {
+			message,
+			locations: [
+				{
+					node,
+					fileName: this.fileName,
+				},
+			],
+		};
+		if (footer) {
+			warn.footer = footer;
+		}
+		this.p.newWarning(warn);
+		this.warningCount += 1;
+	}
+	newWarning(message: MathlangMessage) {
 		this.p.newWarning(message);
 		this.warningCount += 1;
 	}
@@ -82,62 +108,3 @@ export class FileState {
 		return `(${ret})`;
 	}
 }
-
-export const makeFileState = (p: ProjectState, fileName: string): FileState => {
-	// file crawl state
-	const f: FileState = {
-		p, // project crawl state
-		fileName,
-
-		// compile-time constants,
-		// substituted for their registered token value as they are encounted
-		constants: {},
-
-		// dialog and serial dialog settings, applied to the (s)dialogs as we go
-		settings: {
-			default: {},
-			entity: {},
-			label: {},
-			serial: {},
-		},
-
-		// root level nodes, e.g. script definitions, settings definitions
-		nodes: [],
-
-		// local error/warning counts
-		errorCount: 0,
-		warningCount: 0,
-
-		newError: (message) => {
-			message.locations.forEach((v) => {
-				// local filename assumed (if absent)
-				if (!v.fileName) v.fileName = fileName;
-			});
-			p.newError(message);
-			f.errorCount += 1;
-		},
-		newWarning: (message) => {
-			message.locations.forEach((v) => {
-				if (!v.fileName) v.fileName = fileName;
-			});
-			p.newWarning(message);
-			f.warningCount += 1;
-		},
-
-		// print the file's parse status
-		printableMessageInformation: () => {
-			if (f.errorCount === 0 && f.warningCount === 0) {
-				return `(${ansi.green}OK${ansi.reset})`;
-			}
-			const errMessage = f.errorCount
-				? `${ansi.red}${f.errorCount} error${f.errorCount === 1 ? '' : 's'}${ansi.reset}`
-				: `0 errors`;
-			const warnMessage = f.warningCount
-				? `${ansi.yellow}${f.warningCount} warning${f.warningCount === 1 ? '' : 's'}${ansi.reset}`
-				: `0 warnings`;
-			const ret = [errMessage, warnMessage].join(', ');
-			return `(${ret})`;
-		},
-	};
-	return f;
-};

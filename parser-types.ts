@@ -29,7 +29,7 @@ export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 };
 
 export class MathlangLocation {
-	f: FileState;
+	f?: FileState;
 	node: TreeSitterNode;
 	fileName: string;
 	comment?: string;
@@ -46,9 +46,9 @@ export type MGSLocation = {
 	node: TreeSitterNode;
 	fileName?: string;
 };
-export type MGSMessage = {
+export type MathlangMessage = {
 	// error or warning
-	locations: MGSLocation[];
+	locations: MathlangLocation[];
 	message: string;
 	footer?: string;
 };
@@ -82,6 +82,9 @@ export class AddDialogSettings extends MathlangNode {
 	clone() {
 		return new AddDialogSettings(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, targets: AddDialogSettingsTarget[]) {
+		return new AddDialogSettings(debug, { targets });
+	}
 }
 
 export class AddDialogSettingsTarget extends MathlangNode {
@@ -110,6 +113,18 @@ export class AddDialogSettingsTarget extends MathlangNode {
 	clone() {
 		return new AddDialogSettingsTarget(this.debug, this.args);
 	}
+	static quick(
+		debug: MathlangLocation,
+		type: string,
+		parameters: DialogParameter[],
+		target?: string,
+	) {
+		return new AddDialogSettingsTarget(debug, {
+			type,
+			parameters,
+			target,
+		});
+	}
 }
 
 export class AddSerialDialogSettings extends MathlangNode {
@@ -133,6 +148,11 @@ export class AddSerialDialogSettings extends MathlangNode {
 	}
 	clone() {
 		return new AddSerialDialogSettings(this.debug, this.args);
+	}
+	static quick(debug: MathlangLocation, parameters: SerialDialogParameter[]) {
+		return new AddSerialDialogSettings(debug, {
+			parameters,
+		});
 	}
 }
 
@@ -379,6 +399,12 @@ export class DialogOption extends MathlangNode {
 	clone() {
 		return new DialogOption(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, label: string, script: string) {
+		return new DialogOption(debug, {
+			label,
+			script,
+		});
+	}
 }
 
 // ------------------------------ SERIAL DIALOG ------------------------------ \\
@@ -518,6 +544,13 @@ export class SerialDialogOption extends MathlangNode {
 	clone() {
 		return new SerialDialogOption(this.debug, this.args);
 	}
+	static quick(debug: MathlangLocation, optionType: string, label: string, script: string) {
+		return new SerialDialogOption(debug, {
+			optionType,
+			label,
+			script,
+		});
+	}
 }
 // ------------------------------ ONE-OFFS ------------------------------ \\
 
@@ -535,6 +568,9 @@ export class IncludeNode extends MathlangNode {
 	}
 	clone() {
 		return new IncludeNode(this.debug, this.args);
+	}
+	static quick(debug: MathlangLocation, value: string) {
+		return new IncludeNode(debug, { value });
 	}
 }
 

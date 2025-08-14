@@ -181,7 +181,7 @@ export const buildSerialDialogFromInfo = (
 			}
 		});
 		if (warnNodes.length > 0) {
-			f.newWarning({
+			f.p.newWarning({
 				locations: warnNodes,
 				message: `serial dialog option types mismatch; first type (${firstOptionType}) will be used`,
 			});
@@ -263,7 +263,7 @@ export const buildDialogFromInfo = (
 				warningMessage = `messages before dialog options will collide if more than 1 line`;
 			}
 			if (!messageNodes[i]) throw new Error('no associated node for message at index' + i);
-			f.newWarning({
+			f.p.newWarning({
 				locations: [{ node: messageNodes[i] }],
 				message: warningMessage,
 				footer:

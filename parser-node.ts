@@ -42,7 +42,6 @@ import {
 	SerialDialog,
 	SerialDialogOption,
 	type AnyNode,
-	type MGSMessage,
 	type DialogInfo,
 	type DialogSettings,
 	type SerialOptionType,
@@ -109,24 +108,22 @@ const nodeFns = {
 	block_comment: () => [],
 	semicolon: () => [],
 	ERROR: (f: FileState, node: TreeSitterNode): [] => {
-		const err: MGSMessage = {
-			locations: [{ node }],
-			message: 'syntax error',
-		};
 		// I guess feel free to add more of these as they come up
 		// This might be the only place some of them can be detected
 		// (This is only for nodes so malformed that tree-sitter can't tell what they are)
 		if (node.namedChildren.some((v) => v?.grammarType === 'over_time_operator')) {
-			err.message = `malformed 'do over time' expression`;
-			err.footer =
+			f.quickError(
+				node,
+				`malformed 'do over time' expression`,
 				`should take the form '@movable -> @coordinate over @duration [forever];'\n` +
-				`   @movable = (player | self | entity @string) position | camera\n` +
-				`   @coordinate = (player | self | entity @string) position | geometry @string (origin | length)`;
+					`   @movable = (player | self | entity @string) position | camera\n` +
+					`   @coordinate = (player | self | entity @string) position | geometry @string (origin | length)`,
+			);
 		}
-		f.newError(err);
+		f.quickError(node, 'syntax error');
 		return [];
 	},
-	script_definition: (f: FileState, node: TreeSitterNode): [ScriptDefinition] => {
+	script_definition: (f: FileState, node: TreeSitterNode) => {
 		const scriptName = stringCaptureForFieldName(f, node, 'script_name');
 		const rawActions: AnyNode[] = handleNamedChildren(f, node.lastChild || node);
 		const actions: AnyNode[] = [];
@@ -139,10 +136,7 @@ const nodeFns = {
 					if (typeof obj === 'object' && (obj as unknown as Action).action) {
 						actions.push(summonActionConstructor(obj));
 					} else {
-						f.newError({
-							message: 'invalid JSON action: ' + JSON.stringify(obj),
-							locations: [{ node: raw.debug.node }],
-						});
+						f.quickError(raw.debug.node, 'invalid JSON action: ' + JSON.stringify(obj));
 					}
 				});
 			} else {
@@ -171,23 +165,17 @@ const nodeFns = {
 		});
 		return [new ScriptDefinition(new MathlangLocation(f, node), { scriptName, actions })];
 	},
-	constant_assignment: (f: FileState, node: TreeSitterNode): ConstantDefinition[] => {
+	constant_assignment: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const label = textForFieldName(f, node, 'label');
 		const value = captureForFieldName(f, node, 'value');
 		if (!isMGSPrimitive(value)) {
 			const valueNode = node.childForFieldName('value');
-			f.newError({
-				message: `constant value not an MGS primitive (${label})`,
-				locations: [{ node: valueNode || node }],
-			});
+			f.quickError(valueNode || node, `constant value not an MGS primitive (${label})`);
 			return [];
 		}
 		if (f.constants[label]) {
-			f.newError({
-				locations: [{ node }],
-				message: `cannot redefine constant ${label}`,
-			});
+			f.quickError(node, `cannot redefine constant ${label}`);
 		}
 		f.constants[label] = {
 			debug: debug,
@@ -195,7 +183,7 @@ const nodeFns = {
 		};
 		return [ConstantDefinition.quick(debug, label, value)];
 	},
-	include_macro: (f: FileState, node: TreeSitterNode): IncludeNode[] => {
+	include_macro: (f: FileState, node: TreeSitterNode) => {
 		// Recursion detection
 		if (includeRecursion.includes(f.fileName)) {
 			includeRecursion.push(f.fileName);
@@ -253,9 +241,9 @@ const nodeFns = {
 			});
 		});
 		includeRecursion.pop();
-		return [new IncludeNode(new MathlangLocation(f, node), { value: fileName })];
+		return [IncludeNode.quick(new MathlangLocation(f, node), fileName)];
 	},
-	rand_macro: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+	rand_macro: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const horizontal: AnyNode[][] = [];
 		// count items per spread
@@ -270,10 +258,10 @@ const nodeFns = {
 				if (len === 1) return; // singles are passed through
 				if (spreadCount === -Infinity) spreadCount = len;
 				if (spreadCount !== len) {
-					f.newError({
-						locations: [{ node: innerNode }],
-						message: `spreads inside rand!() must contain same number of items`,
-					});
+					f.quickError(
+						innerNode,
+						`spreads inside rand!() must contain same number of items`,
+					);
 				}
 			});
 		// tilt the other direction
@@ -299,18 +287,18 @@ const nodeFns = {
 		sequence.steps.unshift(MUTATE_VARIABLE.change(debug, temp, vertical.length, '?')); // the RNG roll
 		return [sequence];
 	},
-	label_definition: (f: FileState, node: TreeSitterNode): [LabelDefinition] => {
+	label_definition: (f: FileState, node: TreeSitterNode) => {
 		const label = textForFieldName(f, node, 'label');
-		return [new LabelDefinition(new MathlangLocation(f, node), { label })];
+		return [LabelDefinition.quick(new MathlangLocation(f, node), label)];
 	},
-	add_dialog_settings: (f: FileState, node: TreeSitterNode): [AddDialogSettings] => {
+	add_dialog_settings: (f: FileState, node: TreeSitterNode) => {
 		const targets = handleNamedChildren(f, node);
 		if (!targets.every((v) => v instanceof AddDialogSettingsTarget)) {
 			throw new Error('add_dialog_settings node not a AddDialogSettingsTarget');
 		}
-		return [new AddDialogSettings(new MathlangLocation(f, node), { targets })];
+		return [AddDialogSettings.quick(new MathlangLocation(f, node), targets)];
 	},
-	add_dialog_settings_target: (f: FileState, node: TreeSitterNode): [AddDialogSettingsTarget] => {
+	add_dialog_settings_target: (f: FileState, node: TreeSitterNode) => {
 		let settingsTarget: DialogSettings = {};
 		const type = textForFieldName(f, node, 'type');
 		let target: string | undefined;
@@ -332,14 +320,11 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			settingsTarget[param.property] = param.value;
 		});
-		const ret = new AddDialogSettingsTarget(new MathlangLocation(f, node), {
-			type,
-			parameters,
-			target,
-		});
+		const debug = new MathlangLocation(f, node);
+		const ret = AddDialogSettingsTarget.quick(debug, type, parameters, target);
 		return [ret];
 	},
-	add_serial_dialog_settings: (f: FileState, node: TreeSitterNode): [AddSerialDialogSettings] => {
+	add_serial_dialog_settings: (f: FileState, node: TreeSitterNode) => {
 		const parameters = capturesForFieldName(f, node, 'serial_dialog_parameter');
 		if (!parameters.every((v) => v instanceof SerialDialogParameter)) {
 			throw new Error('not every serial_dialog_parameter is a SerialDialogParameter');
@@ -347,25 +332,26 @@ const nodeFns = {
 		parameters.forEach((param) => {
 			f.settings.serial[param.property] = param.value;
 		});
-		return [new AddSerialDialogSettings(new MathlangLocation(f, node), { parameters })];
+		const debug = new MathlangLocation(f, node);
+		return [AddSerialDialogSettings.quick(debug, parameters)];
 	},
-	serial_dialog_option: (f: FileState, node: TreeSitterNode): [SerialDialogOption] => {
+	serial_dialog_option: (f: FileState, node: TreeSitterNode) => {
+		const debug = new MathlangLocation(f, node);
 		const optionChar = textForFieldName(f, node, 'option_type');
 		let optionType: SerialOptionType = 'options';
 		if (optionChar === '_') optionType = 'text_options';
 		else if (optionChar !== '#') throw new Error('invalid option type: ' + optionChar);
 		const label = stringCaptureForFieldName(f, node, 'label');
 		const script = stringCaptureForFieldName(f, node, 'script');
-		return [
-			new SerialDialogOption(new MathlangLocation(f, node), { optionType, label, script }),
-		];
+		return [SerialDialogOption.quick(debug, optionType, label, script)];
 	},
-	dialog_option: (f: FileState, node: TreeSitterNode): [DialogOption] => {
+	dialog_option: (f: FileState, node: TreeSitterNode) => {
 		const label = stringCaptureForFieldName(f, node, 'label');
 		const script = stringCaptureForFieldName(f, node, 'script');
-		return [new DialogOption(new MathlangLocation(f, node), { label, script })];
+		const debug = new MathlangLocation(f, node);
+		return [DialogOption.quick(debug, label, script)];
 	},
-	serial_dialog_definition: (f: FileState, node: TreeSitterNode): [SerialDialogDefinition] => {
+	serial_dialog_definition: (f: FileState, node: TreeSitterNode) => {
 		const serialDialogNode = mandatoryChildForFieldName(f, node, 'serial_dialog');
 		const dialogName = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		const serialDialogs = handleNode(f, serialDialogNode);
@@ -374,16 +360,16 @@ const nodeFns = {
 		}
 		const serialDialog = serialDialogs[0];
 		if (!(serialDialog instanceof SerialDialog)) throw new Error('missing serial dialog');
-		return [
-			new SerialDialogDefinition(new MathlangLocation(f, node), { dialogName, serialDialog }),
-		];
+		const debug = new MathlangLocation(f, node);
+		return [SerialDialogDefinition.quick(debug, dialogName, serialDialog)];
 	},
-	dialog_definition: (f: FileState, node: TreeSitterNode): [DialogDefinition] => {
+	dialog_definition: (f: FileState, node: TreeSitterNode) => {
 		const name = stringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
 		if (!dialogs.every((v) => v instanceof Dialog))
 			throw new Error('not every dialog is a Dialog');
-		return [new DialogDefinition(new MathlangLocation(f, node), { dialogName: name, dialogs })];
+		const debug = new MathlangLocation(f, node);
+		return [DialogDefinition.quick(debug, name, dialogs)];
 	},
 	serial_dialog: (f: FileState, node: TreeSitterNode): [SerialDialog] => {
 		const settings = {};
@@ -457,11 +443,7 @@ const nodeFns = {
 			const parsed = JSON.parse(text);
 			return [new JSONLiteral(new MathlangLocation(f, node), { json: parsed })];
 		} catch {
-			f.newError({
-				locations: [{ node }],
-				message: `JSON syntax error`,
-				footer: `Generic error. Check trailing commas!`,
-			});
+			f.quickError(node, `JSON syntax error`, `Generic error. Check trailing commas!`);
 		}
 		return [];
 	},
@@ -516,7 +498,7 @@ const nodeFns = {
 			return v;
 		});
 	},
-	while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+	while_block: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const block = new ConditionalBlock(f, node, 'while');
 		const n = f.p.advanceGotoSuffix();
@@ -534,7 +516,7 @@ const nodeFns = {
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: while_block' })];
 	},
-	do_while_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+	do_while_block: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const doWhyle = new ConditionalBlock(f, node, 'do while');
 		const n = f.p.advanceGotoSuffix();
@@ -550,7 +532,7 @@ const nodeFns = {
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: do_while_block' })];
 	},
-	for_block: (f: FileState, node: TreeSitterNode): [MathlangSequence] => {
+	for_block: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const n = f.p.advanceGotoSuffix();
 		const conditionL = `for condition #${n}`;
@@ -562,7 +544,7 @@ const nodeFns = {
 		if (!isBoolExpression(condition)) throw new Error('invalid condition');
 		const bodyN = mandatoryChildForFieldName(f, node, 'body');
 		const incrementerN = mandatoryChildForFieldName(f, node, 'incrementer');
-		const body: AnyNode[] = handleNode(f, bodyN).map((v: AnyNode) => {
+		const body = handleNode(f, bodyN).map((v) => {
 			if (v instanceof ContinueStatement)
 				return GotoLabel.quick(new MathlangLocation(f, node), continueL);
 			if (v instanceof BreakStatement)
@@ -570,7 +552,7 @@ const nodeFns = {
 			return v;
 		});
 		const initializer = mandatoryChildForFieldName(f, node, 'initializer');
-		const steps: AnyNode[] = [
+		const steps = [
 			...handleNode(f, initializer),
 			new LabelDefinition(debug, { label: conditionL }),
 			...expandBoolExpression(f, conditionN, condition, bodyL),
@@ -621,7 +603,7 @@ const nodeFns = {
 		}
 		throw new Error('invalid if_single');
 	},
-	if_chain: (f: FileState, node: TreeSitterNode): AnyNode[] => {
+	if_chain: (f: FileState, node: TreeSitterNode) => {
 		const ifNodes = node.childrenForFieldName('if_block').filter((v) => v !== null);
 		const iffs = ifNodes.map((v) => new ConditionalBlock(f, v, 'if'));
 		const elseNode = node.childForFieldName('else_block');

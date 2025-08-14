@@ -1,11 +1,11 @@
 import { Parser, Node as TreeSitterNode } from 'web-tree-sitter';
 import { simplifyLabelGotos } from './parser-utilities.ts';
-import { FileState, makeFileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import { handleNode } from './parser-node.ts';
 import {
 	AnyNode,
 	MathlangNode,
-	type MGSMessage,
+	type MathlangMessage,
 	MathlangLocation,
 	ScriptDefinition,
 	DialogDefinition,
@@ -38,8 +38,8 @@ export class ProjectState {
 	dialogs: Record<string, DialogDefinition>;
 	serialDialogs: Record<string, SerialDialogDefinition>;
 	// error/warning messages
-	errors: MGSMessage[];
-	warnings: MGSMessage[];
+	errors: MathlangMessage[];
+	warnings: MathlangMessage[];
 	// auto counter, so that auto-generated gotos don't share labels:
 	gotoSuffixValue: number;
 	constructor(tsParser: Parser, fileMap: FileMap, scenarioData: Record<string, unknown>) {
@@ -56,10 +56,10 @@ export class ProjectState {
 		this.warnings = [];
 		this.gotoSuffixValue = 0;
 	}
-	newError(v: MGSMessage) {
+	newError(v: MathlangMessage) {
 		this.errors.push(v);
 	}
-	newWarning(v: MGSMessage) {
+	newWarning(v: MathlangMessage) {
 		this.warnings.push(v);
 	}
 	advanceGotoSuffix() {
@@ -120,7 +120,7 @@ export class ProjectState {
 		}
 	}
 
-	// do a COPY_SCRIPT
+	// take the given file name and expand all copy_script inside
 	// needs to be here because it can call itself
 	bakeCopyScriptSingle(f: FileState, node: TreeSitterNode, scriptName: string) {
 		// Recursion detection
@@ -155,7 +155,7 @@ export class ProjectState {
 							node: useNode,
 						},
 					],
-					message: 'no script found by the name ' + targetScript,
+					message: 'copy_script: no script found by the name ' + targetScript,
 				});
 				return;
 			}
@@ -218,7 +218,7 @@ export class ProjectState {
 		if (!ast) throw new Error('tree-sitter parser failed to produce AST');
 		const document = ast.rootNode;
 		// file crawl state
-		const f = makeFileState(this, fileName);
+		const f = new FileState(this, fileName);
 		let catastrophicErrorReported = false;
 		const nodes = document.namedChildren
 			.map((node) => {
@@ -230,26 +230,22 @@ export class ProjectState {
 				} else if (!catastrophicErrorReported) {
 					if (node?.text === ';') {
 						// semicolons after script definitions or such
-						f.newError({
-							locations: [{ node }],
-							message: `unexpected semicolon`,
-						});
+						f.quickError(node, `unexpected semicolon`);
 					} else {
 						// The first catastrophic error should be the last!
 						// Every node underneath is just wrecked. Nuke it all!
 						if (!node) {
 							throw new Error('no node found for catastrophic error case');
 						}
-						f.newError({
-							locations: [{ node }],
-							message: `catastrophic syntax error (naive guess: invalid script name)`,
-							footer:
-								`Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n` +
+						f.quickError(
+							node,
+							`catastrophic syntax error (naive guess: invalid script name)`,
+							`Avoid keywords for bare script names in definitions, or wrap the script name in quotes\n` +
 								`   add { ... } // INVALID\n` +
 								`   include { ... } // INVALID\n` +
 								`   script add { ... } // fix with keyword\n` +
 								`   "include" { ... } // fix with quotes\n`,
-						});
+						);
 						catastrophicErrorReported = true;
 					}
 				}

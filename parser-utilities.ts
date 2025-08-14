@@ -11,7 +11,7 @@ import {
 	AnyNode,
 	BoolBinaryExpression,
 	type MGSLocation,
-	type MGSMessage,
+	type MathlangMessage,
 	type BoolExpression,
 	isBoolComparison,
 	LabelDefinition,
@@ -82,7 +82,7 @@ export const ansiTags: Record<string, string> = {
 export const printAction = (v: AnyNode): string => {
 	if (v instanceof Action) return v.print();
 	if (v instanceof MathlangNode) return v.print();
-	throw new Error('Unhandled print case');
+	throw new Error('unhandled print case');
 };
 
 export const printScript = (scriptName: string, actions: AnyNode[]): string => {
@@ -144,10 +144,7 @@ export const reportMissingChildNodes = (
 		.filter((v) => v !== null)
 		.filter((child) => child?.isMissing);
 	missingNodes.forEach((missingChild) => {
-		f.newError({
-			locations: [{ node: missingChild }],
-			message: `missing token: ${missingChild.type}`,
-		});
+		f.quickError(missingChild, `missing token: ${missingChild.type}`);
 	});
 	return missingNodes;
 };
@@ -156,10 +153,7 @@ export const reportErrorNodes = (f: FileState, node: TreeSitterNode): (TreeSitte
 		.filter((v) => v !== null)
 		.filter((child) => child.type === 'ERROR');
 	errorNodes.forEach((errorNode) => {
-		f.newError({
-			locations: [{ node: errorNode }],
-			message: 'syntax error',
-		});
+		f.quickError(errorNode, 'syntax error');
 	});
 	return errorNodes;
 };
@@ -179,7 +173,7 @@ const printableLocation = (fileMap: FileMap, location: MGSLocation): string => {
 	return message;
 };
 
-export const printableMGSMessage = (fileMap: FileMap, prefix: string, v: MGSMessage): string => {
+export const printableMessage = (fileMap: FileMap, prefix: string, v: MathlangMessage): string => {
 	let message =
 		`${prefix}: ${v.message}\n` +
 		v.locations
@@ -202,40 +196,40 @@ export const autoIdentifierName = (f: FileState, node: TreeSitterNode): string =
 export const expandBoolExpression = (
 	f: FileState,
 	node: TreeSitterNode,
-	condition: BoolExpression,
+	exp: BoolExpression,
 	ifLabel: string,
 ): AnyNode[] => {
 	const debug = new MathlangLocation(f, node);
-	if (condition === true) {
+	if (exp === true) {
 		return [GotoLabel.quick(debug, ifLabel)];
-	} else if (condition === false) {
+	} else if (exp === false) {
 		return [];
 	}
-	if (typeof condition === 'string') {
-		return [new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true, label: ifLabel })];
+	if (typeof exp === 'string') {
+		return [new CHECK_SAVE_FLAG({ save_flag: exp, expected_bool: true, label: ifLabel })];
 	}
 	if (
-		condition instanceof BoolGetable ||
-		isBoolComparison(condition) ||
-		condition instanceof StringCheckable ||
-		condition instanceof NumberCheckableEquality
+		exp instanceof BoolGetable ||
+		isBoolComparison(exp) ||
+		exp instanceof StringCheckable ||
+		exp instanceof NumberCheckableEquality
 	) {
-		condition.label = ifLabel;
-		return [condition];
+		exp.label = ifLabel;
+		return [exp];
 	}
-	if (!(condition instanceof BoolBinaryExpression)) {
+	if (!(exp instanceof BoolBinaryExpression)) {
 		throw new Error('expansion for condition not yet implemented');
 	}
-	const op = condition.op;
-	const lhs = condition.lhs;
-	const rhs = condition.rhs;
+	const op = exp.op;
+	const lhs = exp.lhs;
+	const rhs = exp.rhs;
 	if (typeof lhs === 'number' || typeof rhs === 'number') {
 		throw new Error('LHS or RHS not a number');
 	}
 	if (op === '||') {
 		return [
-			...expandBoolExpression(f, condition.lhsNode, lhs, ifLabel),
-			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
+			...expandBoolExpression(f, exp.lhsNode, lhs, ifLabel),
+			...expandBoolExpression(f, exp.rhsNode, rhs, ifLabel),
 		];
 	}
 	if (op === '&&') {
@@ -244,10 +238,10 @@ export const expandBoolExpression = (
 		const secondIfTrueLabel = `if true #${suffix}`;
 		const secondRendezvousLabel = `rendezvous #${suffix}`;
 		return [
-			...expandBoolExpression(f, condition.lhsNode, lhs, secondIfTrueLabel),
+			...expandBoolExpression(f, exp.lhsNode, lhs, secondIfTrueLabel),
 			GotoLabel.quick(new MathlangLocation(f, node), secondRendezvousLabel),
 			new LabelDefinition(debug, { label: secondIfTrueLabel }),
-			...expandBoolExpression(f, condition.rhsNode, rhs, ifLabel),
+			...expandBoolExpression(f, exp.rhsNode, rhs, ifLabel),
 			new LabelDefinition(debug, { label: secondRendezvousLabel }),
 		];
 	}
@@ -255,25 +249,25 @@ export const expandBoolExpression = (
 		throw new Error('expected == or !==, found ' + op);
 	}
 	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAsDebug = new MathlangLocation(f, condition.debug?.node || node);
+	const expandAsDebug = new MathlangLocation(f, exp.debug?.node || node);
 	const expandAs = new BoolBinaryExpression(expandAsDebug, {
 		op: '||',
 		lhs: new BoolBinaryExpression(expandAsDebug, {
 			op: '&&',
 			lhs,
 			rhs,
-			lhsNode: condition.lhsNode,
-			rhsNode: condition.rhsNode,
+			lhsNode: exp.lhsNode,
+			rhsNode: exp.rhsNode,
 		}),
 		rhs: new BoolBinaryExpression(expandAsDebug, {
 			op: '&&',
-			lhs: invertBoolExpression(f, condition.lhsNode, lhs),
-			rhs: invertBoolExpression(f, condition.rhsNode, rhs),
-			lhsNode: condition.lhsNode,
-			rhsNode: condition.rhsNode,
+			lhs: invertBoolExpression(f, exp.lhsNode, lhs),
+			rhs: invertBoolExpression(f, exp.rhsNode, rhs),
+			lhsNode: exp.lhsNode,
+			rhsNode: exp.rhsNode,
 		}),
-		lhsNode: condition.lhsNode,
-		rhsNode: condition.rhsNode,
+		lhsNode: exp.lhsNode,
+		rhsNode: exp.rhsNode,
 	});
 	return expandBoolExpression(f, node, expandAs, ifLabel);
 };

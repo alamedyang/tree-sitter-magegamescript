@@ -6,12 +6,7 @@ import { dirname } from 'path';
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = dirname(__filename);
 
-import {
-	debugLog,
-	printableMGSMessage,
-	ansiTags as ansi,
-	printScript,
-} from './parser-utilities.ts';
+import { debugLog, printableMessage, ansiTags as ansi, printScript } from './parser-utilities.ts';
 
 import { type FileMap, ProjectState } from './parser-project.ts';
 import { GOTO_ACTION_INDEX, standardizeNode } from './parser-bytecode-info.ts';
@@ -158,9 +153,11 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	// DO COPY_SCRIPT
 	Object.keys(p.scripts).forEach((scriptName) => {
 		if (!p.scripts[scriptName].copyScriptResolved) {
-			const f = p.scripts[scriptName].debug.f;
+			const fileName = p.scripts[scriptName].debug.fileName;
+			const f = p.fileMap[fileName].parsed || p.scripts[scriptName].debug.f;
+			if (!f) throw new Error(`file ${fileName} not parsed`);
 			const node = p.scripts[scriptName].debug.node;
-			// todo: better sources of f, node
+			// todo: better sources of f, node?
 			p.bakeCopyScriptSingle(f, node, scriptName);
 		}
 	});
@@ -233,11 +230,11 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 		console.log(`All your project's MGS files parsed with no issues!`);
 	}
 	p.warnings.forEach((message) => {
-		const str = ansi.yellow + printableMGSMessage(p.fileMap, 'Warning', message) + ansi.reset;
+		const str = ansi.yellow + printableMessage(p.fileMap, 'Warning', message) + ansi.reset;
 		console.warn(str);
 	});
 	p.errors.forEach((message) => {
-		const str = ansi.red + printableMGSMessage(p.fileMap, 'Error', message) + ansi.reset;
+		const str = ansi.red + printableMessage(p.fileMap, 'Error', message) + ansi.reset;
 		console.error(str);
 	});
 

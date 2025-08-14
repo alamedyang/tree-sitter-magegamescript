@@ -16,6 +16,7 @@ import {
 	type ActionSetEntityString,
 	type ActionSetEntityInt,
 	type ActionSetBool,
+	BoolGetable,
 	MUTATE_VARIABLE,
 	MUTATE_VARIABLES,
 	RUN_SCRIPT,
@@ -83,7 +84,6 @@ import {
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
 	CHECK_SAVE_FLAG,
-	BoolGetable,
 	SET_ENTITY_DIRECTION,
 	SET_ENTITY_DIRECTION_TARGET_ENTITY,
 	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
@@ -92,7 +92,6 @@ import {
 	AnyNode,
 	DialogDefinition,
 	IntBinaryExpression,
-	type MGSMessage,
 	type BoolExpression,
 	SerialDialogDefinition,
 	isBoolExpression,
@@ -148,13 +147,9 @@ const flattenIntBinaryExpression = (
 	} else if (typeof lhs === 'number') {
 		steps.push(MUTATE_VARIABLE.set(temp, lhs));
 	} else if (lhs instanceof IntGetable) {
-		const entity = lhs.entity;
-		const field = lhs.field;
-		const variable = temp;
-		steps.push(COPY_VARIABLE.intoVariable(entity, field, variable));
+		steps.push(COPY_VARIABLE.intoVariable(lhs.entity, lhs.field, temp));
 	} else if (lhs instanceof IntBinaryExpression) {
 		// can use the same temporary since it's the lhs and we're going LTR
-		// (and operator precedence is now baked into the AST)
 		flattenIntBinaryExpression(f, node, lhs, steps);
 	}
 	if (typeof rhs === 'string') {
@@ -184,16 +179,15 @@ const flattenIntBinaryExpression = (
 
 const actionSetBoolMaker = (
 	f: FileState,
+	node: TreeSitterNode,
 	_lhsSetAction: ActionSetBool,
 	_rhsBoolExp: BoolExpression,
-	backupNode: TreeSitterNode,
 ): MathlangSequence | ActionSetBool => {
 	if (typeof _lhsSetAction === 'string' && typeof _rhsBoolExp === 'string') {
 		// not sure if this case will ever happen on its own due to the ambiguity dance
 		// (and the typing we've got set up) but it's here if we need it
-		return SET_SAVE_FLAG.toFlag(f, backupNode, _lhsSetAction, _rhsBoolExp);
+		return SET_SAVE_FLAG.toFlag(f, node, _lhsSetAction, _rhsBoolExp);
 	}
-
 	const lhsSetAction =
 		typeof _lhsSetAction === 'string'
 			? SET_SAVE_FLAG.toValue(_lhsSetAction, true)
@@ -214,12 +208,12 @@ const actionSetBoolMaker = (
 	const cloneIfFalse = cloneNode(lhsSetAction);
 	cloneIfFalse.invert();
 	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
-		return simpleBranchMaker(f, backupNode, rhsBoolExp, [lhsSetAction], [cloneIfFalse]);
+		return simpleBranchMaker(f, node, rhsBoolExp, [lhsSetAction], [cloneIfFalse]);
 	}
 
 	return simpleBranchMaker(
 		f,
-		rhsBoolExp.debug?.node || backupNode,
+		rhsBoolExp.debug?.node || node,
 		rhsBoolExp,
 		[lhsSetAction],
 		[cloneIfFalse],
@@ -247,10 +241,10 @@ const spreadValues = (
 		// spreadSize won't be 1 btw, because 1s go to commonFields
 		if (spreadSize === -Infinity) spreadSize = len;
 		if (spreadSize !== len) {
-			f.newError({
-				locations: [{ node: spreadField.node }],
-				message: `spreads must have the same count of items within a given action`,
-			});
+			f.quickError(
+				spreadField.node,
+				`spreads must have the same count of items within a given action`,
+			);
 			spreadSize = Math.max(spreadSize, len);
 		}
 	});
@@ -272,13 +266,11 @@ const spreadValues = (
 	return ret;
 };
 
-// TODO: why then return an array? Don't multis return MathlangSequence?
 type FieldToSpread = {
 	node: TreeSitterNode;
 	captures: Capture[];
 };
 export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
-	// From the action dictionary
 	const data = actionData[node.grammarType];
 	if (!data) {
 		const customFn = actionFns[node.grammarType];
@@ -286,8 +278,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 			throw new Error(
 				`no action data nor handler function found for action ${node.grammarType}`,
 			);
-		const customed = customFn(f, node);
-		return customed;
+		return customFn(f, node);
 	}
 	const action = {
 		debug: new MathlangLocation(f, node),
@@ -337,16 +328,16 @@ const actionFns: Record<string, ActionFn> = {
 		const tryName = optionalStringCaptureForFieldName(f, node, 'dialog_name');
 		const dialogName = tryName !== null ? tryName : autoIdentifierName(f, node);
 		const dialogs = handleChildrenForFieldName(f, node, 'dialog');
-		const shownDialog = SHOW_DIALOG.quick(dialogName);
+		const action = SHOW_DIALOG.quick(dialogName);
 		if (dialogs.length) {
 			if (!dialogs.every((v) => v instanceof Dialog)) {
 				throw new Error('parsed dialogs not all of type Dialog');
 			}
 			const debug = new MathlangLocation(f, node);
 			const dialogDefinition = DialogDefinition.quick(debug, dialogName, dialogs);
-			return [dialogDefinition, shownDialog];
+			return [dialogDefinition, action];
 		}
-		return [shownDialog];
+		return [action];
 	},
 	action_concat_serial_dialog: (f: FileState, node: TreeSitterNode): ShowSerialDialogOutput => {
 		return actionShowSerialDialog(f, node, true);
@@ -365,16 +356,16 @@ const actionShowSerialDialog = (
 	const tryName = optionalStringCaptureForFieldName(f, node, 'serial_dialog_name');
 	const name = tryName !== null ? tryName : autoIdentifierName(f, node);
 	const serialDialogs = handleChildrenForFieldName(f, node, 'serial_dialog');
-	const shownSerialDialog = SHOW_SERIAL_DIALOG.quick(name, disable_newline);
+	const action = SHOW_SERIAL_DIALOG.quick(name, disable_newline);
 	if (serialDialogs.length) {
 		if (!(serialDialogs[0] instanceof SerialDialog)) {
 			throw new Error('parsed serial dialogs not all of type SerialDialog');
 		}
 		const debug = new MathlangLocation(f, node);
 		const serialDialoDefinition = SerialDialogDefinition.quick(debug, name, serialDialogs[0]);
-		return [serialDialoDefinition, shownSerialDialog];
+		return [serialDialoDefinition, action];
 	}
-	return [shownSerialDialog];
+	return [action];
 };
 
 type actionDataEntry = {
@@ -521,7 +512,6 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node, i): AnyNode => {
-			const debug = new MathlangLocation(f, node);
 			const lhs = coerceToString(f, node, v.lhs, 'action_set_ambiguous lhs');
 
 			// simple cases first (easy to check for)
@@ -553,7 +543,7 @@ const actionData: Record<string, actionDataEntry> = {
 				}
 				const printNodes = [lhsSquiggliesNode, rhsSquiggliesNode];
 				const suggestion = v.rhs.includes(' ') ? '"' + v.rhs + '"' : v.rhs;
-				f.newWarning({
+				f.p.newWarning({
 					locations: printNodes.map((v) => ({ node: v })),
 					message: 'these identifiers could be ints or bools',
 					footer:
@@ -577,6 +567,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
 				dropTemporary();
 				steps.push(MUTATE_VARIABLES.set(f, node, lhs, temporary));
+				const debug = new MathlangLocation(f, node);
 				return new MathlangSequence(debug, {
 					steps,
 					type: 'parser-actions: action_set_ambiguous',
@@ -585,7 +576,7 @@ const actionData: Record<string, actionDataEntry> = {
 
 			// varName = (debug_mode || player glitched);
 			if (isBoolExpression(v.rhs)) {
-				return actionSetBoolMaker(f, SET_SAVE_FLAG.toValue(lhs, true), v.rhs, node);
+				return actionSetBoolMaker(f, node, SET_SAVE_FLAG.toValue(lhs, true), v.rhs);
 			}
 
 			throw new Error('failed to parse');
@@ -674,7 +665,7 @@ const actionData: Record<string, actionDataEntry> = {
 					'SET_ENTITY_GLITCHED field entity',
 				);
 				const lhs: ActionSetBool = SET_ENTITY_GLITCHED.quick(entity, true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'light') {
 				const lights = coerceToString(
@@ -684,35 +675,35 @@ const actionData: Record<string, actionDataEntry> = {
 					'SET_LIGHTS_STATE field lights',
 				);
 				const lhs = SET_LIGHTS_STATE.quick(lights, true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'player_control') {
 				const lhs = SET_PLAYER_CONTROL.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'lights_control') {
 				const lhs = SET_LIGHTS_CONTROL.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'hex_editor') {
 				const lhs = SET_HEX_EDITOR_STATE.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'hex_dialog_mode') {
 				const lhs = SET_HEX_EDITOR_DIALOG_MODE.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'hex_control') {
 				const lhs = SET_HEX_EDITOR_CONTROL.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'hex_clipboard') {
 				const lhs = SET_HEX_EDITOR_CONTROL_CLIPBOARD.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			if (v.lhs.type === 'serial_control') {
 				const lhs = SET_SERIAL_DIALOG_CONTROL.quick(true);
-				return actionSetBoolMaker(f, lhs, v.rhs, node);
+				return actionSetBoolMaker(f, node, lhs, v.rhs);
 			}
 			throw new Error('unknown LHS type');
 		},
@@ -773,18 +764,16 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('invalid debug node');
 			}
 			const duration = coerceToNumber(f, node, v.duration, 'duration');
-			const error: MGSMessage = {
-				locations: [{ node: v.debug.node }],
-				message: '',
-			};
 			if (v.movable.type === 'camera') {
 				// Moving the camera
 				if (v.coordinate.type === 'entity') {
 					// ... to an entity
 					if (v.forever) {
 						// ... forever (ILLEGAL)
-						error.message = `cannot move camera to an entity's position forever`;
-						f.newError(error);
+						f.quickError(
+							v.debug.node,
+							`cannot move camera to an entity's position forever`,
+						);
 						return;
 					} else {
 						// ... not forever
@@ -806,8 +795,10 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
-							error.message = `'forever' can only be used with geometry lengths, not single points`;
-							f.newError(error);
+							f.quickError(
+								v.debug.node,
+								`'forever' can only be used with geometry lengths, not single points`,
+							);
 							return;
 						} else {
 							// ... not forever
@@ -821,8 +812,10 @@ const actionData: Record<string, actionDataEntry> = {
 				// Moving an entity
 				if (v.coordinate.type === 'entity') {
 					// ... to another entity (ILLEGAL)
-					error.message = `cannot move an entity to another entity's position over time`;
-					f.newError(error);
+					f.quickError(
+						v.debug.node,
+						`cannot move an entity to another entity's position over time`,
+					);
 					return;
 				}
 				if (v.coordinate.type === 'geometry') {
@@ -849,8 +842,10 @@ const actionData: Record<string, actionDataEntry> = {
 						// ... origin (single point)
 						if (v.forever) {
 							// ... forever (ILLEGAL)
-							error.message = `'forever' can only be used with geometry lengths, not single points`;
-							f.newError(error);
+							f.quickError(
+								v.debug.node,
+								`'forever' can only be used with geometry lengths, not single points`,
+							);
 							return;
 						} else {
 							// ... not forever
@@ -899,11 +894,11 @@ const actionData: Record<string, actionDataEntry> = {
 					return SET_MAP_LOOK_SCRIPT.quick(script);
 				}
 				const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
-				f.newError({
-					message: `invalid map script slot`,
-					locations: [{ node: errorNode }],
-					footer: `You can only set a map's 'on_tick' or 'on_look' slot`,
-				});
+				f.quickError(
+					errorNode,
+					`invalid map script slot`,
+					`You can only set a map's 'on_tick' or 'on_look' slot`,
+				);
 				return;
 			}
 			// not a map; must be an entity
@@ -917,11 +912,11 @@ const actionData: Record<string, actionDataEntry> = {
 				return SET_ENTITY_LOOK_SCRIPT.quick(entity, script);
 			}
 			const errorNode = mandatoryChildForFieldName(f, node, 'script_slot');
-			f.newError({
-				message: `invalid entity script slot`,
-				locations: [{ node: errorNode }],
-				footer: `Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
-			});
+			f.quickError(
+				errorNode,
+				`invalid entity script slot`,
+				`Valid entity script slots: 'on_tick', 'on_interact', 'on_look'`,
+			);
 		},
 	},
 	action_set_entity_string: {
