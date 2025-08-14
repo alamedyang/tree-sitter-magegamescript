@@ -660,7 +660,7 @@ export class JSONLiteral extends MathlangNode {
 		this.debug = debug;
 		this.mathlang = 'json_literal';
 		if (!Array.isArray(args.json)) throw new Error('need array');
-		this.json = args.json; // how to cleanse this?
+		this.json = args.json; // TODO how to cleanse this?
 	}
 	clone() {
 		return new JSONLiteral(this.debug, this.args);

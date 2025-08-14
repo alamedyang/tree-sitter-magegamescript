@@ -13,8 +13,9 @@ import {
 	isAnyCopyScript,
 	CommentNode,
 	MathlangLocation,
+	MathlangNode,
 } from './parser-types.ts';
-import { COPY_SCRIPT } from './parser-bytecode-info.ts';
+import { Action, COPY_SCRIPT, summonActionConstructor } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -184,46 +185,33 @@ export const makeProjectState = (
 								copiedAction.label) ||
 							copiedAction instanceof LabelDefinition
 						) {
-							return {
-								...copiedAction,
-								label: copiedAction.label + labelSuffix,
-							};
-						} else {
-							return copiedAction;
+							copiedAction.label += labelSuffix;
 						}
+						return copiedAction;
 					},
 				);
 				// search-and-replace
 				if (action instanceof COPY_SCRIPT && action.search_and_replace) {
 					// search-and-replace does naive JSON stringifying and straight find-and-replace.
-					// But thanks to the TreeSitter node stuff, you can't stringify the whole thing in this intermediate state.
-					// Gotta extract the "debug" nodes first so it doesn't try to print recursive things.
+					// Mathlang nodes have properties (args, debug) that cannot be printed.
+					// Only find-and-replace vanilla actions, then?
 
-					// Exctract the debugs for later re-insertion
-					const extractedDebugProps = copiedActions.map((copiedAction) => {
-						const debug: MathlangLocation | undefined = copiedAction.debug;
-						if (copiedAction.debug) {
-							delete copiedAction.debug;
-						}
-						return debug;
-					});
 					// Do the search-and-replace
-					let stringActions: string = JSON.stringify(copiedActions);
 					const searchAndReplace = action.search_and_replace;
-					Object.entries(searchAndReplace).forEach(([k, v]) => {
-						stringActions = stringActions.replace(new RegExp(k, 'g'), v);
-					});
-					const objectActions: AnyNode[] = JSON.parse(stringActions);
-					// Put the debugs back
-					objectActions.forEach((v, i) => {
-						const debug: MathlangLocation | undefined = extractedDebugProps[i];
-						if (debug) {
-							v.debug = debug;
-						}
+					const searchedAndReplaced = copiedActions.map((v) => {
+						if (v instanceof MathlangNode) return v;
+						if (!(v instanceof Action)) throw new Error('Should be an Action');
+						let string = JSON.stringify(v);
+						Object.entries(searchAndReplace).forEach(([k, v]) => {
+							string = string.replace(new RegExp(k, 'g'), v);
+						});
+						const ret = JSON.parse(string);
+						const reactioned = summonActionConstructor(ret);
+						return reactioned;
 					});
 					const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
 					finalActions.push(CommentNode.quick(new MathlangLocation(f, node), comment));
-					finalActions.push(...objectActions);
+					finalActions.push(...searchedAndReplaced);
 				} else {
 					// plain version
 					const comment = `Copying: ${action.script} (-${labelSuffix})`;
