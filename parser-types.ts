@@ -839,6 +839,7 @@ export class IntBinaryExpression extends MathlangNode {
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
 
 export type BoolExpression = BoolComparison | BoolBinaryExpression | BoolUnit;
+
 export const isBoolExpression = (v: unknown): v is BoolExpression => {
 	return isBoolComparison(v) || v instanceof BoolBinaryExpression || isBoolUnit(v);
 };
@@ -846,7 +847,7 @@ export const isBoolExpression = (v: unknown): v is BoolExpression => {
 // TODO: make bool its own thing (class BoolValue { value: boolean }) or something
 // and make strings not a string ASAP
 // Then it can all be classes all the way down
-export type BoolUnit = BoolLiteral | string | ACTION.BoolGetable;
+export type BoolUnit = BoolLiteral | ACTION.BoolGetable;
 
 export class BoolLiteral extends MathlangNode {
 	mathlang: 'bool_literal';
@@ -868,24 +869,7 @@ export class BoolLiteral extends MathlangNode {
 		return this;
 	}
 }
-export class Identifier {
-	mathlang: 'identifier';
-	debug: MathlangLocation;
-	args: Record<string, unknown>;
-	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
-		this.mathlang = 'identifier';
-		this.debug = debug;
-		this.value = ACTION.breakIfNotString(args.value);
-	}
-	static quick(debug: MathlangLocation, value: string) {
-		return new Identifier(debug, { value });
-	}
-}
-
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
-	if (typeof v === 'string') return true;
-	if (v instanceof Identifier) return true;
 	if (v instanceof BoolLiteral) return true;
 	if (v instanceof ACTION.BoolGetable) return true;
 	return false;

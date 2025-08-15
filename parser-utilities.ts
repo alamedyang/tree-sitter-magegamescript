@@ -339,7 +339,8 @@ export class ConditionalBlock {
 	debug: MathlangLocation;
 	constructor(f: FileState, node: TreeSitterNode, type: string) {
 		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
-		const condition = handleCapture(f, this.conditionNode);
+		let condition = handleCapture(f, this.conditionNode);
+		if (typeof condition === 'string') condition = CHECK_SAVE_FLAG.quick(condition);
 		if (!isBoolExpression(condition)) {
 			throw new Error(type + ' condition not BoolExpression');
 		}

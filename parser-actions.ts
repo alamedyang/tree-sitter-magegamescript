@@ -657,6 +657,7 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('LHS not a bool_setable');
 			}
 			if (typeof v.rhs === 'boolean') v.rhs = BoolLiteral.quick(debug, v.rhs);
+			if (typeof v.rhs === 'string') v.rhs = CHECK_SAVE_FLAG.quick(v.rhs);
 			if (!isBoolExpression(v.rhs)) {
 				throw new Error('RHS not a bool_expression');
 			}

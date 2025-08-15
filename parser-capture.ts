@@ -241,7 +241,8 @@ const captureFns = {
 		}
 		return new IntBinaryExpression(debug, { lhs, rhs, op });
 	},
-	bool_binary_expression: (f: FileState, node: TreeSitterNode): BoolBinaryExpression => {
+	bool_binary_expression: (f: FileState, node: TreeSitterNode) => {
+		const debug = new MathlangLocation(f, node);
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const op = textForFieldName(f, node, 'operator');
@@ -253,38 +254,31 @@ const captureFns = {
 		if (lhsNode.grammarType === 'CONSTANT') {
 			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
-		const debug = new MathlangLocation(f, node);
 		if (typeof rhs === 'boolean') {
 			rhs = BoolLiteral.quick(debug, rhs);
 		}
 		if (typeof lhs === 'boolean') {
 			lhs = BoolLiteral.quick(debug, lhs);
 		}
+		if (lhs instanceof StringCheckable && typeof rhs === 'string') {
+			lhs.updateProp(rhs);
+			return lhs;
+		}
+		if (rhs instanceof StringCheckable && typeof lhs === 'string') {
+			rhs.updateProp(lhs);
+			return rhs;
+		}
+		if (lhs instanceof NumberCheckableEquality && typeof rhs === 'number') {
+			lhs.updateProp(rhs);
+			return lhs;
+		}
+		if (rhs instanceof NumberCheckableEquality && typeof lhs === 'number') {
+			rhs.updateProp(lhs);
+			return rhs;
+		}
+		if (typeof lhs === 'string') lhs = CHECK_SAVE_FLAG.quick(lhs);
+		if (typeof rhs === 'string') rhs = CHECK_SAVE_FLAG.quick(rhs);
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
-			return new BoolBinaryExpression(debug, {
-				lhs,
-				lhsNode,
-				rhs,
-				rhsNode,
-				op,
-			});
-		}
-		if (
-			(lhs instanceof StringCheckable || typeof lhs === 'string') &&
-			(rhs instanceof StringCheckable || typeof rhs === 'string')
-		) {
-			return new BoolBinaryExpression(debug, {
-				lhs,
-				lhsNode,
-				rhs,
-				rhsNode,
-				op,
-			});
-		}
-		if (
-			(lhs instanceof NumberCheckableEquality || typeof lhs === 'number') &&
-			(rhs instanceof NumberCheckableEquality || typeof rhs === 'number')
-		) {
 			return new BoolBinaryExpression(debug, {
 				lhs,
 				lhsNode,
@@ -301,6 +295,9 @@ const captureFns = {
 		if (typeof capture === 'boolean') {
 			return BoolLiteral.quick(debug, capture);
 		}
+		if (typeof capture === 'string') {
+			return CHECK_SAVE_FLAG.quick(capture);
+		}
 		if (isBoolExpression(capture)) return capture;
 		throw new Error('bool_grouping capture did not yield BoolExpression');
 	},
@@ -311,6 +308,9 @@ const captureFns = {
 		const capture = captureForFieldName(f, node, 'operand');
 		if (typeof capture === 'boolean') {
 			return BoolLiteral.quick(debug, !capture);
+		}
+		if (typeof capture === 'string') {
+			return CHECK_SAVE_FLAG.quick(capture).invert();
 		}
 		if (isBoolExpression(capture)) {
 			let toInvert = capture;
