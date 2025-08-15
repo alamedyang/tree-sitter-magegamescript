@@ -6,7 +6,6 @@ import {
 	SerialDialog,
 	type DialogInfo,
 	type DialogSettings,
-	type MGSLocation,
 	type SerialDialogInfo,
 	type SerialDialogSettings,
 	DialogOption,
@@ -168,7 +167,7 @@ export const buildSerialDialogFromInfo = (
 	if (info.options.length > 0) {
 		const firstOptionType = info.options[0].optionType;
 		serialDialog[firstOptionType] = info.options;
-		const warnNodes: MGSLocation[] = [];
+		const warnNodes: MathlangLocation[] = [];
 		info.options.forEach((option) => {
 			if (option.optionType === 'options') {
 				option.label = tagsToAnsiEscapes(option.label);
@@ -177,7 +176,7 @@ export const buildSerialDialogFromInfo = (
 			if (option.optionType !== firstOptionType) {
 				const node = option.debug.node.firstChild;
 				if (!node) throw new Error('serial dialog had no first option node');
-				warnNodes.push({ node });
+				warnNodes.push({ node, fileName: f.fileName });
 			}
 		});
 		if (warnNodes.length > 0) {
@@ -264,7 +263,7 @@ export const buildDialogFromInfo = (
 			}
 			if (!messageNodes[i]) throw new Error('no associated node for message at index' + i);
 			f.p.newWarning({
-				locations: [{ node: messageNodes[i] }],
+				locations: [{ node: messageNodes[i], fileName: f.fileName }],
 				message: warningMessage,
 				footer:
 					`When wrapped:\n` +

@@ -57,6 +57,7 @@ export class BoolGetable extends Action {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 }
 export class StringCheckable extends Action {
@@ -75,6 +76,7 @@ export class StringCheckable extends Action {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	updateProp(prop: string) {
 		this.comment = prop;
@@ -98,6 +100,7 @@ export class NumberComparison extends Action {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	updateProp(prop: boolean) {
 		// to make squiggles go away; not used
@@ -120,6 +123,7 @@ export class NumberCheckableEquality extends Action {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	updateProp(prop: string | number) {
 		// to make squiggles go away; not used
@@ -518,6 +522,7 @@ export class SET_ENTITY_GLITCHED extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(entity: string, bool_value: boolean) {
 		return new SET_ENTITY_GLITCHED({ entity, bool_value });
@@ -590,6 +595,7 @@ export class SET_SAVE_FLAG extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static toValue(save_flag: string, bool_value: boolean) {
 		return new SET_SAVE_FLAG({ save_flag, bool_value });
@@ -631,6 +637,7 @@ export class SET_PLAYER_CONTROL extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_PLAYER_CONTROL({ bool_value });
@@ -692,6 +699,7 @@ export class SET_HEX_EDITOR_STATE extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_STATE({ bool_value });
@@ -716,6 +724,7 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_DIALOG_MODE({ bool_value });
@@ -737,6 +746,10 @@ export class SET_HEX_EDITOR_CONTROL extends Action {
 	}
 	getProp() {
 		return this.bool_value;
+	}
+	invert() {
+		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_CONTROL({ bool_value });
@@ -761,6 +774,7 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_HEX_EDITOR_CONTROL_CLIPBOARD({ bool_value });
@@ -1238,6 +1252,7 @@ export class SET_TELEPORT_ENABLED extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	// todo print?
 }
@@ -1259,6 +1274,7 @@ export class SET_BLE_FLAG extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 }
 export class SET_SERIAL_DIALOG_CONTROL extends Action {
@@ -1277,6 +1293,7 @@ export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	static quick(bool_value: boolean) {
 		return new SET_SERIAL_DIALOG_CONTROL({ bool_value });
@@ -1402,6 +1419,7 @@ export class SET_LIGHTS_CONTROL extends Action {
 	}
 	invert() {
 		this.enabled = !this.enabled;
+		return this;
 	}
 	static quick(enabled: boolean) {
 		return new SET_LIGHTS_CONTROL({ enabled });
@@ -1428,6 +1446,7 @@ export class SET_LIGHTS_STATE extends Action {
 	}
 	invert() {
 		this.enabled = !this.enabled;
+		return this;
 	}
 	static quick(lights: string, enabled: boolean) {
 		return new SET_LIGHTS_STATE({ lights, enabled });
@@ -1474,6 +1493,7 @@ export class SET_SCRIPT_PAUSE extends Action {
 	}
 	invert() {
 		this.bool_value = !this.bool_value;
+		return this;
 	}
 	print() {
 		return `${this.bool_value ? '' : 'un'}pause ${printEntityIdentifier(this.entity)} ${this.script_slot};`;
@@ -1523,6 +1543,7 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 	}
 	invert() {
 		this.is_visible = !this.is_visible;
+		return this;
 	}
 	print() {
 		return `${this.is_visible ? 'un' : ''}hide command "${this.command}";`;
@@ -1589,6 +1610,7 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1624,6 +1646,7 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1787,6 +1810,7 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1822,6 +1846,7 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_u2: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1857,6 +1882,7 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1892,6 +1918,7 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
@@ -1928,6 +1955,7 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 	}
 	invert() {
 		this.expected_bool = !this.expected_bool;
+		return this;
 	}
 	static quick(entity: string, expected_byte: number, provided_bool?: boolean) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;

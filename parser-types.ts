@@ -20,11 +20,11 @@ export class MathlangNode extends AnyNode {
 	}
 }
 
-export type MGSPrimitive = string | boolean | number;
+export type MGSPrimitive = string | BoolLiteral | number;
 export const isMGSPrimitive = (v: unknown): v is MGSPrimitive => {
 	if (typeof v === 'string') return true;
 	if (typeof v === 'number') return true;
-	if (typeof v === 'boolean') return true;
+	if (typeof v === 'boolean' || v instanceof BoolLiteral) return true;
 	return false;
 };
 
@@ -557,7 +557,7 @@ export class ConstantDefinition extends MathlangNode {
 	args: Record<string, unknown>;
 	debug: MathlangLocation;
 	label: string;
-	value: string | boolean | number;
+	value: string | BoolLiteral | number;
 	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
 		super();
 		if (!isMGSPrimitive(args.value)) throw new Error('not primitive');
@@ -570,7 +570,7 @@ export class ConstantDefinition extends MathlangNode {
 	clone() {
 		return new ConstantDefinition(this.debug, this.args);
 	}
-	static quick(debug: MathlangLocation, label: string, value: string | boolean | number) {
+	static quick(debug: MathlangLocation, label: string, value: string | BoolLiteral | number) {
 		return new ConstantDefinition(debug, { label, value });
 	}
 }
@@ -843,13 +843,52 @@ export const isBoolExpression = (v: unknown): v is BoolExpression => {
 	return isBoolComparison(v) || v instanceof BoolBinaryExpression || isBoolUnit(v);
 };
 
-export type BoolUnit = boolean | string | ACTION.BoolGetable;
+// TODO: make bool its own thing (class BoolValue { value: boolean }) or something
+// and make strings not a string ASAP
+// Then it can all be classes all the way down
+export type BoolUnit = BoolLiteral | string | ACTION.BoolGetable;
+
+export class BoolLiteral extends MathlangNode {
+	mathlang: 'bool_literal';
+	debug: MathlangLocation;
+	args: Record<string, unknown>;
+	value: boolean;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
+		this.mathlang = 'bool_literal';
+		this.value = ACTION.breakIfNotBool(args.value);
+	}
+	static quick(debug: MathlangLocation, value: boolean) {
+		return new BoolLiteral(debug, { value });
+	}
+	invert() {
+		this.value = !this.value;
+		return this;
+	}
+}
+export class Identifier {
+	mathlang: 'identifier';
+	debug: MathlangLocation;
+	args: Record<string, unknown>;
+	value: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		this.mathlang = 'identifier';
+		this.debug = debug;
+		this.value = ACTION.breakIfNotString(args.value);
+	}
+	static quick(debug: MathlangLocation, value: string) {
+		return new Identifier(debug, { value });
+	}
+}
+
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (typeof v === 'string') return true;
-	if (typeof v === 'boolean') return true;
-	return (
-		v instanceof ACTION.BoolGetable || (v as ACTION.BoolGetable)?.mathlang === 'bool_getable'
-	); // todo remove?
+	if (v instanceof Identifier) return true;
+	if (v instanceof BoolLiteral) return true;
+	if (v instanceof ACTION.BoolGetable) return true;
+	return false;
 };
 
 export type BoolComparison =

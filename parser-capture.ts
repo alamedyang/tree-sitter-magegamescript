@@ -47,6 +47,7 @@ import {
 	isIntExpression,
 	AnyNode,
 	DirectionTarget,
+	BoolLiteral,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -68,7 +69,7 @@ const opIntoStringMap: Record<string, string> = {
 	'?': 'RNG',
 };
 
-export type Capture = number | boolean | string | AnyNode;
+export type Capture = number | string | AnyNode;
 
 export const handleCapture = (f: FileState, node: TreeSitterNode | null): Capture | Capture[] => {
 	if (!node) throw new Error('null node');
@@ -96,16 +97,17 @@ export const handleCapture = (f: FileState, node: TreeSitterNode | null): Captur
 };
 
 const captureFns = {
-	BOOL: (f: FileState, node: TreeSitterNode): boolean => {
+	BOOL: (f: FileState, node: TreeSitterNode): BoolLiteral => {
+		const debug = new MathlangLocation(f, node);
 		const text = node.text;
-		if (text === 'true') return true;
-		if (text === 'false') return false;
-		if (text === 'on') return true;
-		if (text === 'off') return false;
-		if (text === 'open') return true;
-		if (text === 'closed') return false;
-		if (text === 'down') return true;
-		if (text === 'up') return false;
+		if (text === 'true') return BoolLiteral.quick(debug, true);
+		if (text === 'false') return BoolLiteral.quick(debug, false);
+		if (text === 'on') return BoolLiteral.quick(debug, true);
+		if (text === 'off') return BoolLiteral.quick(debug, false);
+		if (text === 'open') return BoolLiteral.quick(debug, true);
+		if (text === 'closed') return BoolLiteral.quick(debug, false);
+		if (text === 'down') return BoolLiteral.quick(debug, true);
+		if (text === 'up') return BoolLiteral.quick(debug, false);
 		throw new Error('bool capture text not one of the mathlang bools');
 	},
 	BAREWORD: (f: FileState, node: TreeSitterNode): string => node.text,
@@ -252,6 +254,12 @@ const captureFns = {
 			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
 		}
 		const debug = new MathlangLocation(f, node);
+		if (typeof rhs === 'boolean') {
+			rhs = BoolLiteral.quick(debug, rhs);
+		}
+		if (typeof lhs === 'boolean') {
+			lhs = BoolLiteral.quick(debug, lhs);
+		}
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return new BoolBinaryExpression(debug, {
 				lhs,
@@ -288,14 +296,22 @@ const captureFns = {
 		throw new Error('invalid LHS and RHS combo for captured bool binary expression');
 	},
 	bool_grouping: (f: FileState, node: TreeSitterNode): BoolExpression => {
+		const debug = new MathlangLocation(f, node);
 		const capture = captureForFieldName(f, node, 'inner');
+		if (typeof capture === 'boolean') {
+			return BoolLiteral.quick(debug, capture);
+		}
 		if (isBoolExpression(capture)) return capture;
 		throw new Error('bool_grouping capture did not yield BoolExpression');
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): BoolExpression => {
+		const debug = new MathlangLocation(f, node);
 		const op = optionalTextForFieldName(f, node, 'operator');
 		if (op !== '!') throw new Error('captured unknown unary operator: ' + op);
 		const capture = captureForFieldName(f, node, 'operand');
+		if (typeof capture === 'boolean') {
+			return BoolLiteral.quick(debug, !capture);
+		}
 		if (isBoolExpression(capture)) {
 			let toInvert = capture;
 			if (toInvert instanceof BoolBinaryExpression) {
@@ -412,7 +428,8 @@ const captureFns = {
 	entity_direction: (f: FileState, node: TreeSitterNode): string => {
 		return stringCaptureForFieldName(f, node, 'entity_identifier');
 	},
-	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | boolean => {
+	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | BoolLiteral => {
+		const debug = new MathlangLocation(f, node);
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const op = textForFieldName(f, node, 'operator');
@@ -456,12 +473,12 @@ const captureFns = {
 				return CHECK_VARIABLE.quick(rhs, lhs, inverseOpMap[op]);
 			} else if (typeof rhs === 'number') {
 				// 255 > 0
-				if (op === '<') return lhs < rhs;
-				if (op === '<=') return lhs <= rhs;
-				if (op === '>') return lhs > rhs;
-				if (op === '>=') return lhs >= rhs;
-				if (op === '==') return lhs == rhs;
-				if (op === '!=') return lhs != rhs;
+				if (op === '<') return BoolLiteral.quick(debug, lhs < rhs);
+				if (op === '<=') return BoolLiteral.quick(debug, lhs <= rhs);
+				if (op === '>') return BoolLiteral.quick(debug, lhs > rhs);
+				if (op === '>=') return BoolLiteral.quick(debug, lhs >= rhs);
+				if (op === '==') return BoolLiteral.quick(debug, lhs == rhs);
+				if (op === '!=') return BoolLiteral.quick(debug, lhs != rhs);
 				throw new Error(`invalid op in captured bool comparison: ${op}`);
 			}
 		}
@@ -712,6 +729,9 @@ export const coerceAsBool = (
 	v: unknown,
 	label: string,
 ): boolean => {
+	if (v instanceof BoolLiteral) {
+		return v.value;
+	}
 	if (typeof v !== 'boolean') {
 		f.newError({
 			locations: [

@@ -110,6 +110,7 @@ import {
 	cloneNode,
 	GotoLabel,
 	MathlangLocation,
+	BoolLiteral,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -194,8 +195,8 @@ const actionSetBoolMaker = (
 			: _lhsSetAction;
 
 	// player glitched = true;
-	if (typeof _rhsBoolExp === 'boolean') {
-		lhsSetAction.updateProp(_rhsBoolExp);
+	if (_rhsBoolExp instanceof BoolLiteral) {
+		lhsSetAction.updateProp(_rhsBoolExp.value);
 		// lhsSetAction[lhsBoolField] = _rhsBoolExp;
 		return lhsSetAction;
 	}
@@ -517,8 +518,8 @@ const actionData: Record<string, actionDataEntry> = {
 			// simple cases first (easy to check for)
 
 			// varName = false;
-			if (typeof v.rhs === 'boolean') {
-				return SET_SAVE_FLAG.toValue(lhs, v.rhs);
+			if (v.rhs instanceof BoolLiteral) {
+				return SET_SAVE_FLAG.toValue(lhs, v.rhs.value);
 			}
 
 			// varName = 255;
@@ -544,7 +545,7 @@ const actionData: Record<string, actionDataEntry> = {
 				const printNodes = [lhsSquiggliesNode, rhsSquiggliesNode];
 				const suggestion = v.rhs.includes(' ') ? '"' + v.rhs + '"' : v.rhs;
 				f.p.newWarning({
-					locations: printNodes.map((v) => ({ node: v })),
+					locations: printNodes.map((v) => ({ node: v, fileName: f.fileName })),
 					message: 'these identifiers could be ints or bools',
 					footer:
 						`Both identifiers will be interpreted as ints unless you coerce the right-hand side to a bool expression, like this:` +
@@ -651,9 +652,11 @@ const actionData: Record<string, actionDataEntry> = {
 		values: {},
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): MathlangSequence | ActionSetBool => {
+			const debug = new MathlangLocation(f, node);
 			if (!(v.lhs instanceof BoolSetable)) {
 				throw new Error('LHS not a bool_setable');
 			}
+			if (typeof v.rhs === 'boolean') v.rhs = BoolLiteral.quick(debug, v.rhs);
 			if (!isBoolExpression(v.rhs)) {
 				throw new Error('RHS not a bool_expression');
 			}

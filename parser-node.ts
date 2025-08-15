@@ -60,6 +60,7 @@ import {
 	DialogParameter,
 	GotoLabel,
 	MathlangLocation,
+	BoolLiteral,
 } from './parser-types.ts';
 import {
 	Action,
@@ -579,16 +580,17 @@ const nodeFns = {
 		if (typeof condition === 'string') {
 			condition = new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true });
 		}
-		if (typeof condition === 'boolean') {
+		if (typeof condition === 'boolean' || condition instanceof BoolLiteral) {
+			const value = condition instanceof BoolLiteral ? condition.value : condition;
 			if (!type) {
 				const script = stringCaptureForFieldName(f, node, 'script');
-				return condition ? [RUN_SCRIPT.quick(script)] : [];
+				return value ? [RUN_SCRIPT.quick(script)] : [];
 			} else if (type === 'index') {
 				const index = numberCaptureForFieldName(f, node, 'index');
-				return condition ? [GOTO_ACTION_INDEX.quick(index)] : [];
+				return value ? [GOTO_ACTION_INDEX.quick(index)] : [];
 			} else if (type === 'label') {
 				const label = stringCaptureForFieldName(f, node, 'label');
-				return condition ? [GotoLabel.quick(new MathlangLocation(f, node), label)] : [];
+				return value ? [GotoLabel.quick(new MathlangLocation(f, node), label)] : [];
 			}
 		}
 		if (isCheckAction(condition)) {

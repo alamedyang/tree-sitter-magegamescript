@@ -87,6 +87,13 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 	// oldActions = oldPre[scriptName];
 	// newActions = p.scripts[scriptName].preActions;
 	// }
+	if (!oldPre[scriptName]) {
+		return {
+			type: 'bad',
+			old: `${scriptName} {\n\t// MISSING\n}`,
+			new: `${scriptName} {\n\t// not yet processed, but present\n}`,
+		};
+	}
 	const oldActions = oldPre[scriptName].map(summonActionConstructor);
 	const newActions = p.scripts[scriptName].preActions?.map(summonActionConstructor);
 	if (!newActions) throw new Error(`missing newActions for script "${scriptName}"`);

@@ -20,6 +20,7 @@ import {
 	type BoolComparison,
 	GotoLabel,
 	MathlangNode,
+	BoolLiteral,
 } from './parser-types.ts';
 import { FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -200,9 +201,9 @@ export const expandBoolExpression = (
 	ifLabel: string,
 ): AnyNode[] => {
 	const debug = new MathlangLocation(f, node);
-	if (exp === true) {
+	if (exp instanceof BoolLiteral && exp.value === true) {
 		return [GotoLabel.quick(debug, ifLabel)];
-	} else if (exp === false) {
+	} else if (exp instanceof BoolLiteral && exp.value === false) {
 		return [];
 	}
 	if (typeof exp === 'string') {
@@ -277,7 +278,7 @@ export const invertBoolExpression = (
 	node: TreeSitterNode,
 	boolExp: BoolExpression,
 ): BoolExpression => {
-	if (typeof boolExp === 'boolean') return !boolExp;
+	if (boolExp instanceof BoolLiteral) return boolExp.invert();
 	if (typeof boolExp === 'string') {
 		return new CHECK_SAVE_FLAG({ save_flag: boolExp, expected_bool: false });
 	}
@@ -299,7 +300,7 @@ export const invertBoolExpression = (
 export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
-	condition: BoolGetable | BoolComparison | BoolBinaryExpression,
+	condition: BoolGetable | BoolComparison | BoolBinaryExpression | BoolLiteral,
 	trueBlock: AnyNode[],
 	falseBlock: AnyNode[],
 ): MathlangSequence => {
