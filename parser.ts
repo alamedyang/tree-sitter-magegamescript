@@ -1,13 +1,4 @@
-import { Parser, Language } from 'web-tree-sitter';
-
-import { readdirSync, readFileSync } from 'node:fs';
-import { resolve as _resolve } from 'node:path';
-
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-export const __filename = fileURLToPath(import.meta.url);
-export const __dirname = dirname(__filename);
-
+import initTreeSitter from './parser-init-tree-sitter.ts';
 import { debugLog, ansiTags } from './parser-utilities.ts';
 import { printScript } from './parser-to-json.ts';
 import { type FileMap, makeProjectState } from './parser-project.ts';
@@ -19,54 +10,8 @@ import {
 	type MathlangNode,
 } from './parser-types.ts';
 
-// /*
-// stolen from the other place
-export const makeMap = (path: string) => {
-	let map = {};
-	const files = readdirSync(path, { withFileTypes: true });
-	for (let i = 0; i < files.length; i++) {
-		const file = files[i];
-		if (file.name === '.DS_Store') continue;
-		const filePath = `${path}/${file.name}`;
-		if (file.isDirectory()) {
-			map = {
-				...map,
-				...makeMap(filePath),
-			};
-		} else {
-			const fileBlob = readFileSync(filePath);
-			const type = filePath.split('.').pop();
-			map[file.name] = {
-				name: file.name,
-				type,
-				arrayBuffer: () => {
-					return new Promise((resolve) => {
-						resolve(fileBlob);
-					});
-				},
-				text: () => {
-					return new Promise((resolve) => {
-						resolve(fileBlob.toString('utf8'));
-					});
-				},
-				get fileText() {
-					return fileBlob.toString('utf8');
-				},
-			};
-		}
-	}
-	return map;
-};
-// */
-
 export const parseProject = async (fileMap: FileMap, scenarioData: Record<string, unknown>) => {
-	// tree-sitter
-	await Parser.init();
-	const parser = new Parser();
-	const wasmPath = _resolve(__dirname + '/tree-sitter-magegamescript.wasm');
-	const Lang = await Language.load(wasmPath);
-	parser.setLanguage(Lang);
-
+	const parser = await initTreeSitter();
 	const p = makeProjectState(parser, fileMap, scenarioData);
 	// parse each file
 	Object.keys(fileMap).forEach((fileName) => {
@@ -138,17 +83,3 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 	// done!
 	return p;
 };
-
-/*
-const inputPath = _resolve('./scenario_source_files');
-const fileMap = makeMap(inputPath);
-
-parseProject(fileMap).then((p) => {
-	console.log('PROJECT');
-	console.log(p);
-const printAll = Object.values(p.scripts)
-	.map(v=>v.print)
-	.join('\n\n');
-console.log(printAll);
-});
-*/

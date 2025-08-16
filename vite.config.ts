@@ -14,11 +14,15 @@ export default defineConfig({
 		},
 	},
 	build: {
+		// the wasm binary should be inlined to allow the build output to be used on a NULL origin
+		// setting this limit high enough should allow this.
+		assetsInlineLimit: 1024000,
 		lib: {
 			entry: resolve(__dirname, 'parser.ts'),
 			name: 'MGSParser',
 			// the proper extensions will be added
-			fileName: 'mgs-lib',
+			fileName: (type) => `mgs-lib.${type}.js`,
+			formats: ['umd'],
 		},
 		rollupOptions: {
 			// make sure to externalize deps that shouldn't be bundled

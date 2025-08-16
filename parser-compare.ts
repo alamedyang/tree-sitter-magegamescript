@@ -1,7 +1,7 @@
 // Compares old JSON output with new JSON output after being translated to mathlang via regex.
 // Capable of following branches of if-else structures even when their output's line ordering is different.
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve as _resolve } from 'node:path';
 
 // The original JSON output as intercepted manually from the original encoder.
@@ -24,12 +24,49 @@ import {
 // Has scripts the other lacks.
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
-import { makeMap, parseProject } from './parser.ts';
+import { parseProject } from './parser.ts';
 import * as MATHLANG from './parser-types.ts';
 import { printScript } from './parser-to-json.ts';
 import { ansiTags } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 import { type ProjectState } from './parser-project.ts';
+
+export const makeMap = (path: string) => {
+	let map = {};
+	const files = readdirSync(path, { withFileTypes: true });
+	for (let i = 0; i < files.length; i++) {
+		const file = files[i];
+		if (file.name === '.DS_Store') continue;
+		const filePath = `${path}/${file.name}`;
+		if (file.isDirectory()) {
+			map = {
+				...map,
+				...makeMap(filePath),
+			};
+		} else {
+			const fileBlob = readFileSync(filePath);
+			const type = filePath.split('.').pop();
+			map[file.name] = {
+				name: file.name,
+				type,
+				arrayBuffer: () => {
+					return new Promise((resolve) => {
+						resolve(fileBlob);
+					});
+				},
+				text: () => {
+					return new Promise((resolve) => {
+						resolve(fileBlob.toString('utf8'));
+					});
+				},
+				get fileText() {
+					return fileBlob.toString('utf8');
+				},
+			};
+		}
+	}
+	return map;
+};
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
