@@ -11,7 +11,7 @@ import {
 	DialogDefinition,
 	SerialDialogDefinition,
 	LabelDefinition,
-	doesMathlangHaveLabelToChangeToIndex,
+	doesNodeHaveLabelToChangeToIndex,
 	CommentNode,
 	CopyMacro,
 } from './parser-types.ts';
@@ -179,8 +179,7 @@ export class ProjectState {
 			const copiedActions: AnyNode[] = this.scripts[action.script].actions.map(
 				(copiedAction) => {
 					if (
-						(doesMathlangHaveLabelToChangeToIndex(copiedAction) &&
-							copiedAction.label) ||
+						(doesNodeHaveLabelToChangeToIndex(copiedAction) && copiedAction.label) ||
 						copiedAction instanceof LabelDefinition
 					) {
 						copiedAction.label += labelSuffix;

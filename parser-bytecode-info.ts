@@ -7,6 +7,9 @@ import {
 	GotoLabel,
 	CommentNode,
 	MathlangLocation,
+	CheckSaveFlag,
+	BoolComparison,
+	BoolGetable,
 } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { FileState } from './parser-file.ts';
@@ -45,8 +48,7 @@ export class Action extends AnyNode {
 
 // ---------------------------------- SUPER TYPES ---------------------------------- \\
 
-export class BoolGetable extends Action {
-	mathlang: 'bool_getable';
+export class BoolGetableAction extends Action {
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -60,8 +62,7 @@ export class BoolGetable extends Action {
 		return this;
 	}
 }
-export class StringCheckable extends Action {
-	mathlang: 'string_checkable';
+export class StringCheckableAction extends Action {
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -84,8 +85,7 @@ export class StringCheckable extends Action {
 		// just making the red squiggles go away; todo learn best practices
 	}
 }
-export class NumberComparison extends Action {
-	mathlang: 'number_comparison';
+export class NumberComparisonAction extends Action {
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -107,8 +107,7 @@ export class NumberComparison extends Action {
 		this.expected_bool = prop;
 	}
 }
-export class NumberCheckableEquality extends Action {
-	mathlang: 'number_checkable_equality';
+export class NumberCheckableEqualityAction extends Action {
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -116,7 +115,6 @@ export class NumberCheckableEquality extends Action {
 	expected_bool: boolean;
 	constructor() {
 		super();
-		this.mathlang = 'number_checkable_equality';
 	}
 	getBool() {
 		return this.expected_bool;
@@ -609,10 +607,11 @@ export class SET_SAVE_FLAG extends Action {
 	) {
 		const actionIfTrue = SET_SAVE_FLAG.toValue(save_flag, true);
 		const actionIfFalse = SET_SAVE_FLAG.toValue(save_flag, false);
+		const debug = new MathlangLocation(f, node);
 		return simpleBranchMaker(
 			f,
 			node,
-			new CHECK_SAVE_FLAG({ save_flag: source, expected_bool: !invert }),
+			CheckSaveFlag.quick(debug, source, !invert),
 			[actionIfTrue],
 			[actionIfFalse],
 		);
@@ -1552,7 +1551,7 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 
 // CHECK_ACTIONS
 
-export class CHECK_ENTITY_NAME extends StringCheckable {
+export class CHECK_ENTITY_NAME extends StringCheckableAction {
 	action: 'CHECK_ENTITY_NAME';
 	entity: string;
 	string: string;
@@ -1584,7 +1583,7 @@ export class CHECK_ENTITY_NAME extends StringCheckable {
 		return printEntityFieldEquality(this, 'name', `"${this.string}"`);
 	}
 }
-export class CHECK_ENTITY_X extends NumberCheckableEquality {
+export class CHECK_ENTITY_X extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_X';
 	entity: string;
 	expected_u2: number;
@@ -1620,7 +1619,7 @@ export class CHECK_ENTITY_X extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'x', this.expected_u2);
 	}
 }
-export class CHECK_ENTITY_Y extends NumberCheckableEquality {
+export class CHECK_ENTITY_Y extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_Y';
 	entity: string;
 	expected_u2: number;
@@ -1656,7 +1655,7 @@ export class CHECK_ENTITY_Y extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'y', this.expected_u2);
 	}
 }
-export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
+export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
 	entity: string;
 	expected_script: string;
@@ -1688,7 +1687,7 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckable {
 		return printEntityFieldEquality(this, 'on_interact', `"${this.expected_script}"`);
 	}
 }
-export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
+export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
 	entity: string;
 	expected_script: string;
@@ -1720,7 +1719,7 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckable {
 		return printEntityFieldEquality(this, 'on_tick', `"${this.expected_script}"`);
 	}
 }
-export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
+export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
 	entity: string;
 	expected_script: string;
@@ -1752,7 +1751,7 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckable {
 		return printEntityFieldEquality(this, 'on_look', `"${this.expected_script}"`);
 	}
 }
-export class CHECK_ENTITY_TYPE extends StringCheckable {
+export class CHECK_ENTITY_TYPE extends StringCheckableAction {
 	action: 'CHECK_ENTITY_TYPE';
 	entity: string;
 	entity_type: string;
@@ -1784,7 +1783,7 @@ export class CHECK_ENTITY_TYPE extends StringCheckable {
 		return printEntityFieldEquality(this, 'type', `"${this.entity_type}"`);
 	}
 }
-export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
+export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_PRIMARY_ID';
 	entity: string;
 	expected_u2: number;
@@ -1820,7 +1819,7 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'primary_id', this.expected_u2);
 	}
 }
-export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
+export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
 	entity: string;
 	expected_u2: number;
@@ -1856,7 +1855,7 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'secondary_id', this.expected_u2);
 	}
 }
-export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
+export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 	entity: string;
 	expected_byte: number;
@@ -1892,7 +1891,7 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'primary_id_type', this.expected_byte);
 	}
 }
-export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
+export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
 	entity: string;
 	expected_byte: number;
@@ -1928,7 +1927,7 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'current_animation', this.expected_byte);
 	}
 }
-export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
+export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_CURRENT_FRAME';
 	entity: string;
 	expected_byte: number;
@@ -1965,7 +1964,7 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEquality {
 		return printEntityFieldEquality(this, 'animation_frame', this.expected_byte);
 	}
 }
-export class CHECK_ENTITY_DIRECTION extends StringCheckable {
+export class CHECK_ENTITY_DIRECTION extends StringCheckableAction {
 	action: 'CHECK_ENTITY_DIRECTION';
 	entity: string;
 	direction: string; // north, south, east, west
@@ -1997,12 +1996,11 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckable {
 		return printEntityFieldEquality(this, 'direction', `${this.direction}`);
 	}
 }
-export class CHECK_ENTITY_GLITCHED extends BoolGetable {
+export class CHECK_ENTITY_GLITCHED extends BoolGetableAction {
 	action: 'CHECK_ENTITY_GLITCHED';
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_ENTITY_GLITCHED';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2022,7 +2020,7 @@ export class CHECK_ENTITY_GLITCHED extends BoolGetable {
 		return printCheckAction(this, `${printEntityIdentifier(this.entity)} glitched`, true);
 	}
 }
-export class CHECK_ENTITY_PATH extends StringCheckable {
+export class CHECK_ENTITY_PATH extends StringCheckableAction {
 	action: 'CHECK_ENTITY_PATH';
 	geometry: string;
 	entity: string;
@@ -2054,12 +2052,11 @@ export class CHECK_ENTITY_PATH extends StringCheckable {
 		return printEntityFieldEquality(this, 'path', `"${this.geometry}"`);
 	}
 }
-export class CHECK_SAVE_FLAG extends BoolGetable {
+export class CHECK_SAVE_FLAG extends BoolGetableAction {
 	action: 'CHECK_SAVE_FLAG';
 	save_flag: string;
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SAVE_FLAG';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2079,13 +2076,12 @@ export class CHECK_SAVE_FLAG extends BoolGetable {
 		return printCheckAction(this, `"${this.save_flag}"`, true);
 	}
 }
-export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
+export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetableAction {
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 	geometry: string;
 	entity: string;
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2110,12 +2106,11 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetable {
 		);
 	}
 }
-export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
+export class CHECK_FOR_BUTTON_PRESS extends BoolGetableAction {
 	action: 'CHECK_FOR_BUTTON_PRESS';
 	button_id: string;
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2135,12 +2130,11 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetable {
 		return printCheckAction(this, `button ${this.button_id} pressed`, true);
 	}
 }
-export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
+export class CHECK_FOR_BUTTON_STATE extends BoolGetableAction {
 	action: 'CHECK_FOR_BUTTON_STATE';
 	button_id: string;
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_FOR_BUTTON_STATE';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2164,7 +2158,7 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetable {
 		);
 	}
 }
-export class CHECK_WARP_STATE extends StringCheckable {
+export class CHECK_WARP_STATE extends StringCheckableAction {
 	action: 'CHECK_WARP_STATE';
 	string: string;
 	constructor(args: GenericActionish) {
@@ -2196,7 +2190,7 @@ export class CHECK_WARP_STATE extends StringCheckable {
 			: printCheckAction(this, `warp_state != "${this.string}"`, false);
 	}
 }
-export class CHECK_VARIABLE extends NumberComparison {
+export class CHECK_VARIABLE extends NumberComparisonAction {
 	action: 'CHECK_VARIABLE';
 	variable: string;
 	comparison: string;
@@ -2230,7 +2224,7 @@ export class CHECK_VARIABLE extends NumberComparison {
 		return printCheckAction(this, `"${this.variable}" ${op} ${this.value}`, false);
 	}
 }
-export class CHECK_VARIABLES extends NumberComparison {
+export class CHECK_VARIABLES extends NumberComparisonAction {
 	action: 'CHECK_VARIABLES';
 	variable: string;
 	comparison: string;
@@ -2264,7 +2258,7 @@ export class CHECK_VARIABLES extends NumberComparison {
 		return printCheckAction(this, `"${this.variable}" ${op} "${this.source}"`, false);
 	}
 }
-export class CHECK_MAP extends StringCheckable {
+export class CHECK_MAP extends StringCheckableAction {
 	// TODO: is this even in the engine? O.o
 	action: 'CHECK_MAP';
 	map: string;
@@ -2290,7 +2284,7 @@ export class CHECK_MAP extends StringCheckable {
 	}
 	// todo print fn?
 }
-export class CHECK_BLE_FLAG extends StringCheckable {
+export class CHECK_BLE_FLAG extends StringCheckableAction {
 	action: 'CHECK_BLE_FLAG';
 	ble_flag: string;
 	constructor(args: GenericActionish) {
@@ -2314,11 +2308,10 @@ export class CHECK_BLE_FLAG extends StringCheckable {
 	}
 	// todo print fn?
 }
-export class CHECK_DIALOG_OPEN extends BoolGetable {
+export class CHECK_DIALOG_OPEN extends BoolGetableAction {
 	action: 'CHECK_DIALOG_OPEN';
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DIALOG_OPEN';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2337,11 +2330,10 @@ export class CHECK_DIALOG_OPEN extends BoolGetable {
 		return printCheckAction(this, `dialog ${this.expected_bool ? 'open' : 'closed'}`, false);
 	}
 }
-export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
+export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetableAction {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2364,11 +2356,10 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetable {
 		);
 	}
 }
-export class CHECK_DEBUG_MODE extends BoolGetable {
+export class CHECK_DEBUG_MODE extends BoolGetableAction {
 	action: 'CHECK_DEBUG_MODE';
 	constructor(args: GenericActionish) {
 		super();
-		this.mathlang = 'bool_getable';
 		this.action = 'CHECK_DEBUG_MODE';
 		if (args.success_script) {
 			this.success_script = breakIfNotString(args.success_script);
@@ -2669,7 +2660,7 @@ const actionConstructorLookup = {
 	CHECK_DEBUG_MODE: (args: GenericActionish) => new CHECK_DEBUG_MODE(args),
 };
 
-export const summonActionConstructor = (v: unknown) => {
+export const summonActionConstructor = (v: unknown): Action => {
 	if (typeof v !== 'object' || v === null || v === undefined) {
 		throw new Error('cannot create action from ' + typeof v);
 	}
@@ -2708,12 +2699,18 @@ export const standardizeNode = (
 		});
 		return ret;
 	}
+	if (
+		action instanceof BoolGetable ||
+		action instanceof BoolComparison ||
+		action instanceof Action
+	) {
+		const actionName = breakIfNotString(action.action);
+		if (actionConstructorLookup[actionName]) {
+			return actionConstructorLookup[actionName](action);
+		}
+	}
 	if (!(action instanceof Action)) {
 		throw new Error('Found non-Action when trying to standardize Action');
-	}
-	const actionName = breakIfNotString(action.action);
-	if (actionConstructorLookup[actionName]) {
-		return actionConstructorLookup[actionName](action);
 	}
 	return action;
 };

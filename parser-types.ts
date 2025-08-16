@@ -841,13 +841,13 @@ export class IntBinaryExpression extends MathlangNode {
 export type BoolExpression = BoolComparison | BoolBinaryExpression | BoolUnit;
 
 export const isBoolExpression = (v: unknown): v is BoolExpression => {
-	return isBoolComparison(v) || v instanceof BoolBinaryExpression || isBoolUnit(v);
+	return v instanceof BoolComparison || v instanceof BoolBinaryExpression || isBoolUnit(v);
 };
 
 // TODO: make bool its own thing (class BoolValue { value: boolean }) or something
 // and make strings not a string ASAP
 // Then it can all be classes all the way down
-export type BoolUnit = BoolLiteral | ACTION.BoolGetable;
+export type BoolUnit = BoolLiteral | BoolGetable;
 
 export class BoolLiteral extends MathlangNode {
 	mathlang: 'bool_literal';
@@ -871,20 +871,24 @@ export class BoolLiteral extends MathlangNode {
 }
 export const isBoolUnit = (v: unknown): v is BoolUnit => {
 	if (v instanceof BoolLiteral) return true;
-	if (v instanceof ACTION.BoolGetable) return true;
+	if (v instanceof BoolGetable) return true;
 	return false;
 };
 
-export type BoolComparison =
-	| ACTION.NumberCheckableEquality
-	| ACTION.StringCheckable
-	| ACTION.NumberComparison;
-export const isBoolComparison = (v: unknown): v is BoolComparison => {
-	if (v instanceof ACTION.NumberCheckableEquality) return true;
-	if (v instanceof ACTION.StringCheckable) return true;
-	if (v instanceof ACTION.NumberComparison) return true;
-	return false;
-};
+export class BoolComparison extends MathlangNode {
+	action: string;
+	expected_bool: boolean;
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	getBool() {
+		return this.expected_bool;
+	}
+	toAction(args: Record<string, unknown>) {
+		return ACTION.summonActionConstructor({ ...this, ...args });
+	}
+}
 
 export class BoolBinaryExpression extends MathlangNode {
 	mathlang: 'bool_binary_expression';
@@ -917,6 +921,745 @@ export class BoolBinaryExpression extends MathlangNode {
 }
 
 // ------------------------------ INTERMEDIATES ------------------------------ \\
+
+// For things that are otherwise actions, they will be missing their destinations until it's time to make them a real Action
+
+// --------------- BOOL GETABLE
+
+export class BoolGetable extends MathlangNode {
+	action: string;
+	mathlang: 'bool_getable';
+	args: Record<string, unknown>;
+	debug: MathlangLocation;
+	comment?: string;
+	expected_bool: boolean;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super();
+		this.mathlang = 'bool_getable';
+		this.debug = debug;
+		this.args = args;
+	}
+	getBool() {
+		return this.expected_bool;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	toAction(args: Record<string, unknown>) {
+		return ACTION.summonActionConstructor({ ...this, ...args });
+	}
+}
+export class CheckEntityGlitched extends BoolGetable {
+	action: 'CHECK_ENTITY_GLITCHED';
+	entity: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_GLITCHED';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, entity: string, provided_bool?: boolean) {
+		return new CheckEntityGlitched(debug, {
+			entity,
+			expected_bool: provided_bool === undefined ? true : provided_bool,
+		});
+	}
+}
+export class CheckSaveFlag extends BoolGetable {
+	action: 'CHECK_SAVE_FLAG';
+	save_flag: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_SAVE_FLAG';
+		this.save_flag = ACTION.breakIfNotString(args.save_flag);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, save_flag: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckSaveFlag(debug, { save_flag, expected_bool });
+	}
+}
+export class CheckIfEntityIsInGeometry extends BoolGetable {
+	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
+	geometry: string;
+	entity: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
+		this.geometry = ACTION.breakIfNotString(args.geometry);
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		geometry: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckIfEntityIsInGeometry(debug, {
+			entity,
+			geometry,
+			expected_bool,
+		});
+	}
+}
+export class CheckForButtonPress extends BoolGetable {
+	action: 'CHECK_FOR_BUTTON_PRESS';
+	button_id: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_FOR_BUTTON_PRESS';
+		this.button_id = ACTION.breakIfNotString(args.button_id);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, button_id: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckForButtonPress(debug, { button_id, expected_bool });
+	}
+}
+export class CheckForButtonState extends BoolGetable {
+	action: 'CHECK_FOR_BUTTON_STATE';
+	button_id: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_FOR_BUTTON_STATE';
+		this.button_id = ACTION.breakIfNotString(args.button_id);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, button_id: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckForButtonState(debug, { button_id, expected_bool });
+	}
+}
+export class CheckDialogOpen extends BoolGetable {
+	action: 'CHECK_DIALOG_OPEN';
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_DIALOG_OPEN';
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckDialogOpen(debug, { expected_bool });
+	}
+}
+export class CheckSerialDialogOpen extends BoolGetable {
+	action: 'CHECK_SERIAL_DIALOG_OPEN';
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckSerialDialogOpen(debug, { expected_bool });
+	}
+}
+export class CheckDebugMode extends BoolGetable {
+	action: 'CHECK_DEBUG_MODE';
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_DEBUG_MODE';
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(debug: MathlangLocation, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckDebugMode(debug, { expected_bool });
+	}
+}
+
+// --------------- STRING CHECKABLE
+
+export class StringCheckable extends BoolComparison {
+	mathlang: 'string_checkable';
+	comment?: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
+		this.mathlang = 'string_checkable';
+		this.expected_bool = true;
+	}
+	updateProp(_: string) {}
+}
+
+export class CheckEntityName extends StringCheckable {
+	action: 'CHECK_ENTITY_NAME';
+	entity: string;
+	string: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_NAME';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.string = ACTION.breakIfNotString(args.string);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.string = value;
+	}
+	getProp() {
+		return this.string;
+	}
+	static quick(debug: MathlangLocation, entity: string, string: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityName(debug, {
+			entity,
+			string,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityInteractScript extends StringCheckable {
+	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
+	entity: string;
+	expected_script: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_script = ACTION.breakIfNotString(args.expected_script);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_script: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityInteractScript(debug, {
+			entity,
+			expected_script,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityTickScript extends StringCheckable {
+	action: 'CHECK_ENTITY_TICK_SCRIPT';
+	entity: string;
+	expected_script: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_script = ACTION.breakIfNotString(args.expected_script);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_script: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityTickScript(debug, {
+			entity,
+			expected_script,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityLookScript extends StringCheckable {
+	action: 'CHECK_ENTITY_LOOK_SCRIPT';
+	entity: string;
+	expected_script: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_script = ACTION.breakIfNotString(args.expected_script);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.expected_script = value;
+	}
+	getProp() {
+		return this.expected_script;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_script: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityLookScript(debug, {
+			entity,
+			expected_script,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityType extends StringCheckable {
+	action: 'CHECK_ENTITY_TYPE';
+	entity: string;
+	entity_type: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_TYPE';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.entity_type = ACTION.breakIfNotString(args.entity_type);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.entity_type = value;
+	}
+	getProp() {
+		return this.entity_type;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		entity_type: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityType(debug, { entity, entity_type, expected_bool });
+	}
+}
+export class CheckEntityDirection extends StringCheckable {
+	action: 'CHECK_ENTITY_DIRECTION';
+	entity: string;
+	direction: string; // north, south, east, west
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_DIRECTION';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.direction = ACTION.breakIfNotString(args.direction);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.direction = value;
+	}
+	getProp() {
+		return this.direction;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		direction: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityDirection(debug, { entity, direction, expected_bool });
+	}
+}
+export class CheckEntityPath extends StringCheckable {
+	action: 'CHECK_ENTITY_PATH';
+	geometry: string;
+	entity: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_PATH';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.geometry = ACTION.breakIfNotString(args.geometry);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.geometry = value;
+	}
+	getProp() {
+		return this.geometry;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		geometry: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityPath(debug, { entity, geometry, expected_bool });
+	}
+}
+export class CheckWarpState extends StringCheckable {
+	action: 'CHECK_WARP_STATE';
+	string: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_WARP_STATE';
+		this.string = ACTION.breakIfNotString(args.string);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.string = value;
+	}
+	getProp() {
+		return this.string;
+	}
+	static quick(debug: MathlangLocation, string: string, provided_bool?: boolean) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckWarpState(debug, { string, expected_bool });
+	}
+}
+export class CheckMap extends StringCheckable {
+	// TODO: is this even in the engine? O.o
+	action: 'CHECK_MAP';
+	map: string;
+	expected_bool: boolean;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_MAP';
+		this.map = ACTION.breakIfNotString(args.map);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.map = value;
+	}
+	getProp() {
+		return this.map;
+	}
+}
+export class CheckBLEFlag extends StringCheckable {
+	// or this?
+	action: 'CHECK_BLE_FLAG';
+	ble_flag: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_BLE_FLAG';
+		this.ble_flag = ACTION.breakIfNotString(args.ble_flag);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: string) {
+		this.ble_flag = value;
+	}
+	getProp() {
+		return this.ble_flag;
+	}
+}
+
+// --------------- NUMBER COMPARISON
+
+export class NumberComparison extends BoolComparison {
+	mathlang: 'number_comparison';
+	comment?: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
+		this.mathlang = 'number_comparison';
+		this.expected_bool = true;
+	}
+}
+
+export class CheckVariable extends NumberComparison {
+	action: 'CHECK_VARIABLE';
+	variable: string;
+	comparison: string;
+	value: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_VARIABLE';
+		this.variable = ACTION.breakIfNotString(args.variable);
+		this.comparison = ACTION.breakIfNotString(args.comparison);
+		this.value = ACTION.breakIfNotNumber(args.value);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(
+		debug: MathlangLocation,
+		variable: string,
+		value: number,
+		comparison: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckVariable(debug, {
+			variable,
+			value,
+			comparison,
+			expected_bool,
+		});
+	}
+}
+export class CheckVariables extends NumberComparison {
+	action: 'CHECK_VARIABLES';
+	variable: string;
+	comparison: string;
+	source: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_VARIABLES';
+		this.variable = ACTION.breakIfNotString(args.variable);
+		this.comparison = ACTION.breakIfNotString(args.comparison);
+		this.source = ACTION.breakIfNotString(args.source);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	static quick(
+		debug: MathlangLocation,
+		variable: string,
+		source: string,
+		comparison: string,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckVariables(debug, {
+			variable,
+			source,
+			comparison,
+			expected_bool,
+		});
+	}
+}
+
+// --------------- NUMBER CHECKABLE EQUALITY
+
+export class NumberCheckableEquality extends BoolComparison {
+	mathlang: 'number_checkable_equality';
+	comment?: string;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super();
+		this.args = args;
+		this.debug = debug;
+		this.mathlang = 'number_checkable_equality';
+	}
+	updateProp(_: number) {}
+}
+export class CheckEntityX extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_X';
+	entity: string;
+	expected_u2: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_X';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_u2 = ACTION.breakIfNotNumber(args.expected_u2);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_u2: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityX(debug, { entity, expected_u2, expected_bool });
+	}
+}
+export class CheckEntityY extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_Y';
+	entity: string;
+	expected_u2: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_Y';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_u2 = ACTION.breakIfNotNumber(args.expected_u2);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_u2: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityY(debug, { entity, expected_u2, expected_bool });
+	}
+}
+export class CheckEntityPrimaryID extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_PRIMARY_ID';
+	entity: string;
+	expected_u2: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_PRIMARY_ID';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_u2 = ACTION.breakIfNotNumber(args.expected_u2);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_u2: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityPrimaryID(debug, { entity, expected_u2, expected_bool });
+	}
+}
+export class CheckEntitySecondaryID extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_SECONDARY_ID';
+	entity: string;
+	expected_u2: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_SECONDARY_ID';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_u2 = ACTION.breakIfNotNumber(args.expected_u2);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_u2 = value;
+	}
+	getProp() {
+		return this.expected_u2;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_u2: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntitySecondaryID(debug, { entity, expected_u2, expected_bool });
+	}
+}
+export class CheckEntityPrimaryIDType extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
+	entity: string;
+	expected_byte: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_byte = ACTION.breakIfNotNumber(args.expected_byte);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_byte: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityPrimaryIDType(debug, {
+			entity,
+			expected_byte,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityCurrentAnimation extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
+	entity: string;
+	expected_byte: number;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_byte = ACTION.breakIfNotNumber(args.expected_byte);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_byte: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityCurrentAnimation(debug, {
+			entity,
+			expected_byte,
+			expected_bool,
+		});
+	}
+}
+export class CheckEntityCurrentFrame extends NumberCheckableEquality {
+	action: 'CHECK_ENTITY_CURRENT_FRAME';
+	entity: string;
+	expected_byte: number;
+	expected_bool: boolean;
+	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+		super(debug, args);
+		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.expected_byte = ACTION.breakIfNotNumber(args.expected_byte);
+		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
+	}
+	updateProp(value: number) {
+		this.expected_byte = value;
+	}
+	getProp() {
+		return this.expected_byte;
+	}
+	invert() {
+		this.expected_bool = !this.expected_bool;
+		return this;
+	}
+	static quick(
+		debug: MathlangLocation,
+		entity: string,
+		expected_byte: number,
+		provided_bool?: boolean,
+	) {
+		const expected_bool = provided_bool === undefined ? true : provided_bool;
+		return new CheckEntityCurrentFrame(debug, {
+			entity,
+			expected_byte,
+			expected_bool,
+		});
+	}
+}
+
+// --------------- BOOL SETABLE
+// TODO make like the rest? or?
 
 export class BoolSetable extends MathlangNode {
 	mathlang: 'bool_setable';
@@ -1006,19 +1749,18 @@ export class DirectionTarget extends MathlangNode {
 }
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
-export type MathlangNodeWithLabel =
+export type NodeWithLabel =
 	| GotoLabel
-	| ACTION.BoolGetable
-	| ACTION.StringCheckable
-	| ACTION.NumberComparison
-	| ACTION.NumberCheckableEquality;
+	| ACTION.BoolGetableAction
+	| ACTION.StringCheckableAction
+	| ACTION.NumberComparisonAction
+	| ACTION.NumberCheckableEqualityAction;
 
-export const doesMathlangHaveLabelToChangeToIndex = (v: unknown): v is MathlangNodeWithLabel => {
-	if (!(v instanceof MathlangNode)) return false; // todo: load bearing?
-	if (v instanceof GotoLabel) return true;
-	if (v instanceof ACTION.BoolGetable) return true;
-	if (v instanceof ACTION.StringCheckable) return true;
-	if (v instanceof ACTION.NumberComparison) return true;
-	if (v instanceof ACTION.NumberCheckableEquality) return true;
+export const doesNodeHaveLabelToChangeToIndex = (v: unknown): v is NodeWithLabel => {
+	if (v instanceof GotoLabel && v.label) return true;
+	if (v instanceof ACTION.BoolGetableAction && v.label) return true;
+	if (v instanceof ACTION.StringCheckableAction && v.label) return true;
+	if (v instanceof ACTION.NumberCheckableEqualityAction && v.label) return true;
+	if (v instanceof ACTION.NumberComparisonAction && v.label) return true;
 	return false;
 };

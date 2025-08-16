@@ -1,26 +1,23 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import {
-	CHECK_SAVE_FLAG,
-	BoolGetable,
-	StringCheckable,
-	NumberCheckableEquality,
-	Action,
-} from './parser-bytecode-info.ts';
+import { CHECK_SAVE_FLAG, Action, summonActionConstructor } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
 	AnyNode,
 	BoolBinaryExpression,
+	BoolComparison,
 	type MGSLocation,
 	type MathlangMessage,
 	type BoolExpression,
-	isBoolComparison,
 	LabelDefinition,
 	MathlangSequence,
 	isBoolExpression,
-	type BoolComparison,
 	GotoLabel,
 	MathlangNode,
 	BoolLiteral,
+	CheckSaveFlag,
+	BoolGetable,
+	StringCheckable,
+	NumberCheckableEquality,
 } from './parser-types.ts';
 import { FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -211,12 +208,11 @@ export const expandBoolExpression = (
 	}
 	if (
 		exp instanceof BoolGetable ||
-		isBoolComparison(exp) ||
+		exp instanceof BoolComparison ||
 		exp instanceof StringCheckable ||
 		exp instanceof NumberCheckableEquality
 	) {
-		exp.label = ifLabel;
-		return [exp];
+		return [summonActionConstructor({ ...exp, label: ifLabel })];
 	}
 	if (!(exp instanceof BoolBinaryExpression)) {
 		throw new Error('expansion for condition not yet implemented');
@@ -280,7 +276,8 @@ export const invertBoolExpression = (
 ): BoolExpression => {
 	if (boolExp instanceof BoolLiteral) return boolExp.invert();
 	if (typeof boolExp === 'string') {
-		return new CHECK_SAVE_FLAG({ save_flag: boolExp, expected_bool: false });
+		const debug = new MathlangLocation(f, node);
+		return CheckSaveFlag.quick(debug, boolExp, false);
 	}
 	if (boolExp instanceof BoolBinaryExpression) {
 		if (boolExp.op === '||' || boolExp.op === '&&') {
@@ -310,9 +307,8 @@ export const simpleBranchMaker = (
 	const rendezvousLabel = `rendezvous #${n}`;
 
 	let top: AnyNode[] = [];
-	if (isBoolComparison(condition) || condition instanceof BoolGetable) {
-		condition.label = ifLabel;
-		top = [condition];
+	if (condition instanceof BoolComparison || condition instanceof BoolGetable) {
+		top = [summonActionConstructor({ ...condition, label: ifLabel })];
 	} else if (condition instanceof BoolBinaryExpression) {
 		top = expandBoolExpression(f, node, condition, ifLabel);
 	}
@@ -338,9 +334,10 @@ export class ConditionalBlock {
 	bodyNode?: TreeSitterNode;
 	debug: MathlangLocation;
 	constructor(f: FileState, node: TreeSitterNode, type: string) {
+		const debug = new MathlangLocation(f, node);
 		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
 		let condition = handleCapture(f, this.conditionNode);
-		if (typeof condition === 'string') condition = CHECK_SAVE_FLAG.quick(condition);
+		if (typeof condition === 'string') condition = CheckSaveFlag.quick(debug, condition);
 		if (!isBoolExpression(condition)) {
 			throw new Error(type + ' condition not BoolExpression');
 		}

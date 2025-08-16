@@ -1,33 +1,8 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import {
-	CHECK_DEBUG_MODE,
-	CHECK_DIALOG_OPEN,
-	CHECK_ENTITY_CURRENT_ANIMATION,
-	CHECK_ENTITY_CURRENT_FRAME,
-	CHECK_ENTITY_DIRECTION,
-	CHECK_ENTITY_GLITCHED,
-	CHECK_ENTITY_INTERACT_SCRIPT,
-	CHECK_ENTITY_LOOK_SCRIPT,
-	CHECK_ENTITY_NAME,
-	CHECK_ENTITY_PATH,
-	CHECK_ENTITY_PRIMARY_ID,
-	CHECK_ENTITY_PRIMARY_ID_TYPE,
-	CHECK_ENTITY_SECONDARY_ID,
-	CHECK_ENTITY_TICK_SCRIPT,
-	CHECK_ENTITY_TYPE,
-	CHECK_ENTITY_X,
-	CHECK_ENTITY_Y,
-	CHECK_FOR_BUTTON_PRESS,
-	CHECK_FOR_BUTTON_STATE,
-	CHECK_IF_ENTITY_IS_IN_GEOMETRY,
-	CHECK_SAVE_FLAG,
-	CHECK_SERIAL_DIALOG_OPEN,
-	CHECK_VARIABLE,
-	CHECK_VARIABLES,
-	CHECK_WARP_STATE,
-	BoolGetable,
-	StringCheckable,
-	NumberCheckableEquality,
+	BoolGetableAction,
+	StringCheckableAction,
+	NumberCheckableEqualityAction,
 } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
@@ -48,6 +23,33 @@ import {
 	AnyNode,
 	DirectionTarget,
 	BoolLiteral,
+	CheckSaveFlag,
+	CheckDebugMode,
+	CheckEntityGlitched,
+	CheckIfEntityIsInGeometry,
+	CheckDialogOpen,
+	CheckSerialDialogOpen,
+	CheckForButtonPress,
+	CheckForButtonState,
+	CheckWarpState,
+	CheckEntityTickScript,
+	CheckEntityLookScript,
+	CheckEntityType,
+	CheckEntityPath,
+	CheckEntityName,
+	CheckEntityInteractScript,
+	CheckEntityX,
+	CheckEntityY,
+	CheckEntityPrimaryID,
+	CheckEntityCurrentFrame,
+	CheckEntityCurrentAnimation,
+	CheckEntityPrimaryIDType,
+	CheckEntitySecondaryID,
+	CheckVariables,
+	CheckVariable,
+	CheckEntityDirection,
+	NumberCheckableEquality,
+	StringCheckable,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -260,24 +262,24 @@ const captureFns = {
 		if (typeof lhs === 'boolean') {
 			lhs = BoolLiteral.quick(debug, lhs);
 		}
-		if (lhs instanceof StringCheckable && typeof rhs === 'string') {
+		if (lhs instanceof StringCheckableAction && typeof rhs === 'string') {
 			lhs.updateProp(rhs);
 			return lhs;
 		}
-		if (rhs instanceof StringCheckable && typeof lhs === 'string') {
+		if (rhs instanceof StringCheckableAction && typeof lhs === 'string') {
 			rhs.updateProp(lhs);
 			return rhs;
 		}
-		if (lhs instanceof NumberCheckableEquality && typeof rhs === 'number') {
+		if (lhs instanceof NumberCheckableEqualityAction && typeof rhs === 'number') {
 			lhs.updateProp(rhs);
 			return lhs;
 		}
-		if (rhs instanceof NumberCheckableEquality && typeof lhs === 'number') {
+		if (rhs instanceof NumberCheckableEqualityAction && typeof lhs === 'number') {
 			rhs.updateProp(lhs);
 			return rhs;
 		}
-		if (typeof lhs === 'string') lhs = CHECK_SAVE_FLAG.quick(lhs);
-		if (typeof rhs === 'string') rhs = CHECK_SAVE_FLAG.quick(rhs);
+		if (typeof lhs === 'string') lhs = CheckSaveFlag.quick(debug, lhs);
+		if (typeof rhs === 'string') rhs = CheckSaveFlag.quick(debug, rhs);
 		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
 			return new BoolBinaryExpression(debug, {
 				lhs,
@@ -296,7 +298,7 @@ const captureFns = {
 			return BoolLiteral.quick(debug, capture);
 		}
 		if (typeof capture === 'string') {
-			return CHECK_SAVE_FLAG.quick(capture);
+			return CheckSaveFlag.quick(debug, capture);
 		}
 		if (isBoolExpression(capture)) return capture;
 		throw new Error('bool_grouping capture did not yield BoolExpression');
@@ -310,7 +312,7 @@ const captureFns = {
 			return BoolLiteral.quick(debug, !capture);
 		}
 		if (typeof capture === 'string') {
-			return CHECK_SAVE_FLAG.quick(capture).invert();
+			return CheckSaveFlag.quick(debug, capture).invert();
 		}
 		if (isBoolExpression(capture)) {
 			let toInvert = capture;
@@ -330,36 +332,40 @@ const captureFns = {
 		const field = textForFieldName(f, node, 'property');
 		return IntGetable.quick(debug, entity, field);
 	},
-	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetable => {
+	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetableAction => {
+		const debug = new MathlangLocation(f, node);
 		const type = optionalTextForFieldName(f, node, 'type');
 		if (type === 'flag') {
-			return CHECK_SAVE_FLAG.quick(stringCaptureForFieldName(f, node, 'value'));
+			return CheckSaveFlag.quick(debug, stringCaptureForFieldName(f, node, 'value'));
 		} else if (type === 'debug_mode') {
-			return CHECK_DEBUG_MODE.quick();
+			return CheckDebugMode.quick(debug);
 		} else if (type === 'glitched') {
-			return CHECK_ENTITY_GLITCHED.quick(
+			return CheckEntityGlitched.quick(
+				debug,
 				stringCaptureForFieldName(f, node, 'entity_identifier'),
 			);
 		} else if (type === 'intersects') {
-			return CHECK_IF_ENTITY_IS_IN_GEOMETRY.quick(
+			return CheckIfEntityIsInGeometry.quick(
+				debug,
 				stringCaptureForFieldName(f, node, 'entity_identifier'),
 				stringCaptureForFieldName(f, node, 'geometry_identifier'),
 			);
 		} else if (type === 'dialog' || type === 'serial_dialog') {
 			const state = optionalTextForFieldName(f, node, 'value');
 			if (type === 'dialog') {
-				return CHECK_DIALOG_OPEN.quick(state === 'open');
+				return CheckDialogOpen.quick(debug, state === 'open');
 			} else {
-				return CHECK_SERIAL_DIALOG_OPEN.quick(state === 'open');
+				return CheckSerialDialogOpen.quick(debug, state === 'open');
 			}
 		} else if (type === 'button') {
 			const button_id = stringCaptureForFieldName(f, node, 'button');
 			const stateNode = mandatoryChildForFieldName(f, node, 'state');
 			if (stateNode.text === 'pressed') {
-				return CHECK_FOR_BUTTON_PRESS.quick(button_id);
+				return CheckForButtonPress.quick(debug, button_id);
 			} else {
 				const state = handleCapture(f, stateNode);
-				return CHECK_FOR_BUTTON_STATE.quick(
+				return CheckForButtonState.quick(
+					debug,
 					button_id,
 					coerceAsBool(f, node, state, 'button state'),
 				);
@@ -367,12 +373,13 @@ const captureFns = {
 		}
 		throw new Error('failed to capture bool_getable');
 	},
-	string_checkable: (f: FileState, node: TreeSitterNode): StringCheckable => {
+	string_checkable: (f: FileState, node: TreeSitterNode): StringCheckableAction => {
+		const debug = new MathlangLocation(f, node);
 		const entity = optionalStringCaptureForFieldName(f, node, 'entity_identifier');
 		if (entity === null) {
 			const type = optionalTextForFieldName(f, node, 'type');
 			if (type === 'warp_state') {
-				return CHECK_WARP_STATE.quick('');
+				return CheckWarpState.quick(debug, '');
 			} else {
 				throw new Error(
 					`unidentifiable non-entity string_checkable: capturing type ${type}`,
@@ -381,37 +388,41 @@ const captureFns = {
 		}
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'on_tick') {
-			return CHECK_ENTITY_TICK_SCRIPT.quick(entity, '');
+			return CheckEntityTickScript.quick(debug, entity, '');
 		} else if (property === 'on_look') {
-			return CHECK_ENTITY_LOOK_SCRIPT.quick(entity, '');
+			return CheckEntityLookScript.quick(debug, entity, '');
 		} else if (property === 'on_interact') {
-			return CHECK_ENTITY_INTERACT_SCRIPT.quick(entity, '');
+			return CheckEntityInteractScript.quick(debug, entity, '');
 		} else if (property === 'name') {
-			return CHECK_ENTITY_NAME.quick(entity, '');
+			return CheckEntityName.quick(debug, entity, '');
 		} else if (property === 'path') {
-			return CHECK_ENTITY_PATH.quick(entity, '');
+			return CheckEntityPath.quick(debug, entity, '');
 		} else if (property === 'type') {
-			return CHECK_ENTITY_TYPE.quick(entity, '');
+			return CheckEntityType.quick(debug, entity, '');
 		}
 		throw new Error(`could not capture entity string_checkable`);
 	},
-	number_checkable_equality: (f: FileState, node: TreeSitterNode): NumberCheckableEquality => {
+	number_checkable_equality: (
+		f: FileState,
+		node: TreeSitterNode,
+	): NumberCheckableEqualityAction => {
+		const debug = new MathlangLocation(f, node);
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const property = textForFieldName(f, node, 'property');
 		if (property === 'x') {
-			return CHECK_ENTITY_X.quick(entity, NaN);
+			return CheckEntityX.quick(debug, entity, NaN);
 		} else if (property === 'y') {
-			return CHECK_ENTITY_Y.quick(entity, NaN);
+			return CheckEntityY.quick(debug, entity, NaN);
 		} else if (property === 'primary_id') {
-			return CHECK_ENTITY_PRIMARY_ID.quick(entity, NaN);
+			return CheckEntityPrimaryID.quick(debug, entity, NaN);
 		} else if (property === 'secondary_id') {
-			return CHECK_ENTITY_SECONDARY_ID.quick(entity, NaN);
+			return CheckEntitySecondaryID.quick(debug, entity, NaN);
 		} else if (property === 'primary_id_type') {
-			return CHECK_ENTITY_PRIMARY_ID_TYPE.quick(entity, NaN);
+			return CheckEntityPrimaryIDType.quick(debug, entity, NaN);
 		} else if (property === 'current_animation') {
-			return CHECK_ENTITY_CURRENT_ANIMATION.quick(entity, NaN);
+			return CheckEntityCurrentAnimation.quick(debug, entity, NaN);
 		} else if (property === 'animation_frame') {
-			return CHECK_ENTITY_CURRENT_FRAME.quick(entity, NaN);
+			return CheckEntityCurrentFrame.quick(debug, entity, NaN);
 		} else if (property === 'strafe') {
 			const propertyNode = mandatoryChildForFieldName(f, node, 'property');
 			f.quickError(propertyNode, `this property is not supported in boolean expressions`);
@@ -428,49 +439,49 @@ const captureFns = {
 	entity_direction: (f: FileState, node: TreeSitterNode): string => {
 		return stringCaptureForFieldName(f, node, 'entity_identifier');
 	},
-	bool_comparison: (f: FileState, node: TreeSitterNode): BoolComparison | BoolLiteral => {
+	bool_comparison: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const op = textForFieldName(f, node, 'operator');
 		// entity Bob direction == north
 		if (lhsNode.grammarType === 'entity_direction') {
-			return compareNSEW(f, lhsNode, rhsNode, op);
+			return compareNSEW(f, node, lhsNode, rhsNode, op);
 		}
 		// north == entity Bob direction
 		if (rhsNode.grammarType === 'entity_direction') {
-			return compareNSEW(f, rhsNode, lhsNode, op);
+			return compareNSEW(f, node, rhsNode, lhsNode, op);
 		}
 		// entity Bob name == "Super Bob"
 		if (lhsNode.grammarType === 'string_checkable') {
-			return compareString(f, lhsNode, rhsNode, op);
+			return compareString(f, node, lhsNode, rhsNode, op);
 		}
 		// "Super Bob" == entity Bob name
 		if (rhsNode.grammarType === 'string_checkable') {
-			return compareString(f, rhsNode, lhsNode, op);
+			return compareString(f, node, rhsNode, lhsNode, op);
 		}
 		// entity Bob x == 7
 		if (lhsNode.grammarType === 'number_checkable_equality') {
-			return compareNumberCheckableEquality(f, lhsNode, rhsNode, op);
+			return compareNumberCheckableEquality(f, node, lhsNode, rhsNode, op);
 		}
 		// 7 == entity Bob x
 		if (rhsNode.grammarType === 'number_checkable_equality') {
-			return compareNumberCheckableEquality(f, rhsNode, lhsNode, op);
+			return compareNumberCheckableEquality(f, node, rhsNode, lhsNode, op);
 		}
 		const lhs = handleCapture(f, lhsNode);
 		const rhs = handleCapture(f, rhsNode);
 		if (typeof lhs === 'string') {
 			if (typeof rhs === 'string') {
 				// varName1 > varName2
-				return CHECK_VARIABLES.quick(lhs, rhs, op);
+				return CheckVariables.quick(debug, lhs, rhs, op);
 			} else if (typeof rhs === 'number') {
 				// varName > 255
-				return CHECK_VARIABLE.quick(lhs, rhs, op);
+				return CheckVariable.quick(debug, lhs, rhs, op);
 			}
 		} else if (typeof lhs === 'number') {
 			if (typeof rhs === 'string') {
 				// 255 > varName
-				return CHECK_VARIABLE.quick(rhs, lhs, inverseOpMap[op]);
+				return CheckVariable.quick(debug, rhs, lhs, inverseOpMap[op]);
 			} else if (typeof rhs === 'number') {
 				// 255 > 0
 				if (op === '<') return BoolLiteral.quick(debug, lhs < rhs);
@@ -517,6 +528,7 @@ const captureFns = {
 // These are separated so that the LHS and RHS can be swapped easily
 const compareNSEW = (
 	f: FileState,
+	node: TreeSitterNode,
 	entityNode: TreeSitterNode,
 	nsewNode: TreeSitterNode,
 	op: string,
@@ -524,15 +536,17 @@ const compareNSEW = (
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
 	}
+	const debug = new MathlangLocation(f, node);
 	const entity = stringCaptureForFieldName(f, entityNode, 'entity_identifier');
-	return CHECK_ENTITY_DIRECTION.quick(entity, nsewNode.text, op === '==');
+	return CheckEntityDirection.quick(debug, entity, nsewNode.text, op === '==');
 };
 const compareString = (
 	f: FileState,
+	node: TreeSitterNode,
 	checkableNode: TreeSitterNode,
 	stringNode: TreeSitterNode,
 	op: string,
-): StringCheckable => {
+) => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!(checkable instanceof StringCheckable)) {
 		throw new Error('invalid StringCheckable');
@@ -547,10 +561,11 @@ const compareString = (
 };
 const compareNumberCheckableEquality = (
 	f: FileState,
+	node: TreeSitterNode,
 	checkableNode: TreeSitterNode,
 	numberNode: TreeSitterNode,
 	op: string,
-): NumberCheckableEquality => {
+) => {
 	const checkable = handleCapture(f, checkableNode);
 	if (!(checkable instanceof NumberCheckableEquality)) throw new Error('not a thing');
 	if (op !== '==' && op !== '!=') {

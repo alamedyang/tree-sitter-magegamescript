@@ -16,7 +16,7 @@ import {
 	type ActionSetEntityString,
 	type ActionSetEntityInt,
 	type ActionSetBool,
-	BoolGetable,
+	BoolGetableAction,
 	MUTATE_VARIABLE,
 	MUTATE_VARIABLES,
 	RUN_SCRIPT,
@@ -83,7 +83,6 @@ import {
 	SET_MAP_LOOK_SCRIPT,
 	SET_MAP_TICK_SCRIPT,
 	SET_ENTITY_LOOK_SCRIPT,
-	CHECK_SAVE_FLAG,
 	SET_ENTITY_DIRECTION,
 	SET_ENTITY_DIRECTION_TARGET_ENTITY,
 	SET_ENTITY_DIRECTION_TARGET_GEOMETRY,
@@ -95,7 +94,6 @@ import {
 	type BoolExpression,
 	SerialDialogDefinition,
 	isBoolExpression,
-	isBoolComparison,
 	MathlangSequence,
 	ReturnStatement,
 	BreakStatement,
@@ -111,6 +109,8 @@ import {
 	GotoLabel,
 	MathlangLocation,
 	BoolLiteral,
+	BoolComparison,
+	CheckSaveFlag,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
@@ -184,6 +184,7 @@ const actionSetBoolMaker = (
 	_lhsSetAction: ActionSetBool,
 	_rhsBoolExp: BoolExpression,
 ): MathlangSequence | ActionSetBool => {
+	const debug = new MathlangLocation(f, node);
 	if (typeof _lhsSetAction === 'string' && typeof _rhsBoolExp === 'string') {
 		// not sure if this case will ever happen on its own due to the ambiguity dance
 		// (and the typing we've got set up) but it's here if we need it
@@ -205,10 +206,12 @@ const actionSetBoolMaker = (
 	// ->
 	// if (self glitched) { player glitched = true; } else { player glitched = false; }
 	const rhsBoolExp: BoolExpression =
-		typeof _rhsBoolExp === 'string' ? CHECK_SAVE_FLAG.quick(_rhsBoolExp, true) : _rhsBoolExp;
+		typeof _rhsBoolExp === 'string'
+			? CheckSaveFlag.quick(debug, _rhsBoolExp, true)
+			: _rhsBoolExp;
 	const cloneIfFalse = cloneNode(lhsSetAction);
 	cloneIfFalse.invert();
-	if (rhsBoolExp instanceof BoolGetable || isBoolComparison(rhsBoolExp)) {
+	if (rhsBoolExp instanceof BoolGetableAction || rhsBoolExp instanceof BoolComparison) {
 		return simpleBranchMaker(f, node, rhsBoolExp, [lhsSetAction], [cloneIfFalse]);
 	}
 
@@ -657,7 +660,7 @@ const actionData: Record<string, actionDataEntry> = {
 				throw new Error('LHS not a bool_setable');
 			}
 			if (typeof v.rhs === 'boolean') v.rhs = BoolLiteral.quick(debug, v.rhs);
-			if (typeof v.rhs === 'string') v.rhs = CHECK_SAVE_FLAG.quick(v.rhs);
+			if (typeof v.rhs === 'string') v.rhs = CheckSaveFlag.quick(debug, v.rhs);
 			if (!isBoolExpression(v.rhs)) {
 				throw new Error('RHS not a bool_expression');
 			}

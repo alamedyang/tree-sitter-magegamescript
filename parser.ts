@@ -16,7 +16,7 @@ import {
 	ScriptDefinition,
 	SerialDialogDefinition,
 	LabelDefinition,
-	doesMathlangHaveLabelToChangeToIndex,
+	doesNodeHaveLabelToChangeToIndex,
 	CommentNode,
 	GotoLabel,
 } from './parser-types.ts';
@@ -182,7 +182,7 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 			}
 		}
 		actions.forEach((action, i) => {
-			if (doesMathlangHaveLabelToChangeToIndex(action)) {
+			if (doesNodeHaveLabelToChangeToIndex(action)) {
 				if (!action.label) throw new Error(`action should have a label and doesn't`);
 				const jumpToIndex = registry[action.label];
 				if (jumpToIndex === undefined) {

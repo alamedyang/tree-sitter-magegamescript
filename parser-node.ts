@@ -61,16 +61,15 @@ import {
 	GotoLabel,
 	MathlangLocation,
 	BoolLiteral,
+	CheckVariable,
+	CheckDebugMode,
+	CheckSaveFlag,
+	BoolComparison,
+	BoolGetable,
 } from './parser-types.ts';
 import {
 	Action,
-	BoolGetable,
-	CHECK_DEBUG_MODE,
-	CHECK_SAVE_FLAG,
-	CHECK_VARIABLE,
-	type CheckAction,
 	GOTO_ACTION_INDEX,
-	isCheckAction,
 	MUTATE_VARIABLE,
 	RUN_SCRIPT,
 	SHOW_SERIAL_DIALOG,
@@ -279,7 +278,7 @@ const nodeFns = {
 		const temp = quickTemporary();
 		const iffs: ConditionalBlock[] = vertical.map((body, i) => {
 			return {
-				condition: CHECK_VARIABLE.quick(temp, i, '=='),
+				condition: CheckVariable.quick(debug, temp, i, '=='),
 				debug,
 				body,
 			};
@@ -473,7 +472,8 @@ const nodeFns = {
 			// might just be the name of a serial dialog, and not a serial-dialog-in-place
 			dialogName = stringCaptureForFieldName(f, node, 'serial_dialog_name');
 		}
-		const condition: BoolGetable = new CHECK_DEBUG_MODE({ expected_bool: true });
+		const debug = new MathlangLocation(f, node);
+		const condition = CheckDebugMode.quick(debug, true);
 		const ifTrue = new SHOW_SERIAL_DIALOG({
 			disable_newline: false,
 			serial_dialog: dialogName,
@@ -567,10 +567,7 @@ const nodeFns = {
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: for_block' })];
 	},
-	if_single: (
-		f: FileState,
-		node: TreeSitterNode,
-	): (CheckAction | GotoLabel | GOTO_ACTION_INDEX | RUN_SCRIPT)[] => {
+	if_single: (f: FileState, node: TreeSitterNode): AnyNode[] => {
 		// for parsing the bytecode output; not really meant to be seen in the wild
 		// e.g. `if varName then goto label LABELNAME;`
 		// vs `if (varName) { /*do stuff at the label destination*/ }`
@@ -578,7 +575,8 @@ const nodeFns = {
 		const conditionN = node.childForFieldName('condition');
 		let condition = handleCapture(f, conditionN);
 		if (typeof condition === 'string') {
-			condition = new CHECK_SAVE_FLAG({ save_flag: condition, expected_bool: true });
+			const debug = new MathlangLocation(f, node);
+			condition = CheckSaveFlag.quick(debug, condition, true);
 		}
 		if (typeof condition === 'boolean' || condition instanceof BoolLiteral) {
 			const value = condition instanceof BoolLiteral ? condition.value : condition;
@@ -593,13 +591,16 @@ const nodeFns = {
 				return value ? [GotoLabel.quick(new MathlangLocation(f, node), label)] : [];
 			}
 		}
-		if (isCheckAction(condition)) {
+		if (condition instanceof BoolComparison || condition instanceof BoolGetable) {
 			if (!type) {
-				condition.success_script = stringCaptureForFieldName(f, node, 'script');
+				const success_script = stringCaptureForFieldName(f, node, 'script');
+				return [condition.toAction({ success_script })];
 			} else if (type === 'index') {
-				condition.jump_index = numberCaptureForFieldName(f, node, 'index');
+				const jump_index = numberCaptureForFieldName(f, node, 'index');
+				return [condition.toAction({ jump_index })];
 			} else if (type === 'label') {
-				condition.label = stringCaptureForFieldName(f, node, 'label');
+				const label = stringCaptureForFieldName(f, node, 'label');
+				return [condition.toAction({ label })];
 			}
 			return [condition];
 		}
