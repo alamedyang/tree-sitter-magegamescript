@@ -7,6 +7,7 @@ import {
 import {
 	MathlangLocation,
 	BoolBinaryExpression,
+	BoolExpression,
 	BoolSetable,
 	CoordinateIdentifier,
 	DialogIdentifier,
@@ -15,9 +16,6 @@ import {
 	IntGetable,
 	MovableIdentifier,
 	SerialDialogParameter,
-	type BoolComparison,
-	type BoolExpression,
-	isBoolExpression,
 	type IntExpression,
 	isIntExpression,
 	AnyNode,
@@ -280,7 +278,7 @@ const captureFns = {
 		}
 		if (typeof lhs === 'string') lhs = CheckSaveFlag.quick(debug, lhs);
 		if (typeof rhs === 'string') rhs = CheckSaveFlag.quick(debug, rhs);
-		if (isBoolExpression(lhs) && isBoolExpression(rhs)) {
+		if (lhs instanceof BoolExpression && rhs instanceof BoolExpression) {
 			return new BoolBinaryExpression(debug, {
 				lhs,
 				lhsNode,
@@ -300,7 +298,7 @@ const captureFns = {
 		if (typeof capture === 'string') {
 			return CheckSaveFlag.quick(debug, capture);
 		}
-		if (isBoolExpression(capture)) return capture;
+		if (capture instanceof BoolExpression) return capture;
 		throw new Error('bool_grouping capture did not yield BoolExpression');
 	},
 	bool_unary_expression: (f: FileState, node: TreeSitterNode): BoolExpression => {
@@ -314,7 +312,7 @@ const captureFns = {
 		if (typeof capture === 'string') {
 			return CheckSaveFlag.quick(debug, capture).invert();
 		}
-		if (isBoolExpression(capture)) {
+		if (capture instanceof BoolExpression) {
 			let toInvert = capture;
 			if (toInvert instanceof BoolBinaryExpression) {
 				toInvert = toInvert.clone();
@@ -532,7 +530,7 @@ const compareNSEW = (
 	entityNode: TreeSitterNode,
 	nsewNode: TreeSitterNode,
 	op: string,
-): BoolComparison => {
+) => {
 	if (op !== '==' && op !== '!=') {
 		throw new Error('invalid op for bool_comparison compareNSEW: ' + op);
 	}

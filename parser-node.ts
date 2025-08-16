@@ -47,7 +47,6 @@ import {
 	type SerialOptionType,
 	type SerialDialogInfo,
 	isMGSPrimitive,
-	isBoolExpression,
 	JSONLiteral,
 	LabelDefinition,
 	MathlangSequence,
@@ -66,6 +65,7 @@ import {
 	CheckSaveFlag,
 	BoolComparison,
 	BoolGetable,
+	BoolExpression,
 } from './parser-types.ts';
 import {
 	Action,
@@ -542,7 +542,7 @@ const nodeFns = {
 		const continueL = `for continue #${n}`;
 		const conditionN = mandatoryChildForFieldName(f, node, 'condition');
 		const condition = handleCapture(f, conditionN);
-		if (!isBoolExpression(condition)) throw new Error('invalid condition');
+		if (!(condition instanceof BoolExpression)) throw new Error('invalid condition');
 		const bodyN = mandatoryChildForFieldName(f, node, 'body');
 		const incrementerN = mandatoryChildForFieldName(f, node, 'incrementer');
 		const body = handleNode(f, bodyN).map((v) => {

@@ -89,11 +89,10 @@ import {
 } from './parser-bytecode-info.ts';
 import {
 	AnyNode,
+	BoolExpression,
 	DialogDefinition,
 	IntBinaryExpression,
-	type BoolExpression,
 	SerialDialogDefinition,
-	isBoolExpression,
 	MathlangSequence,
 	ReturnStatement,
 	BreakStatement,
@@ -579,7 +578,7 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 
 			// varName = (debug_mode || player glitched);
-			if (isBoolExpression(v.rhs)) {
+			if (v.rhs instanceof BoolExpression) {
 				return actionSetBoolMaker(f, node, SET_SAVE_FLAG.toValue(lhs, true), v.rhs);
 			}
 
@@ -661,7 +660,7 @@ const actionData: Record<string, actionDataEntry> = {
 			}
 			if (typeof v.rhs === 'boolean') v.rhs = BoolLiteral.quick(debug, v.rhs);
 			if (typeof v.rhs === 'string') v.rhs = CheckSaveFlag.quick(debug, v.rhs);
-			if (!isBoolExpression(v.rhs)) {
+			if (!(v.rhs instanceof BoolExpression)) {
 				throw new Error('RHS not a bool_expression');
 			}
 			if (v.lhs.type === 'entity') {

@@ -5,19 +5,16 @@ import {
 	AnyNode,
 	BoolBinaryExpression,
 	BoolComparison,
+	BoolExpression,
 	type MGSLocation,
 	type MathlangMessage,
-	type BoolExpression,
 	LabelDefinition,
 	MathlangSequence,
-	isBoolExpression,
 	GotoLabel,
 	MathlangNode,
 	BoolLiteral,
 	CheckSaveFlag,
 	BoolGetable,
-	StringCheckable,
-	NumberCheckableEquality,
 } from './parser-types.ts';
 import { FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
@@ -206,12 +203,7 @@ export const expandBoolExpression = (
 	if (typeof exp === 'string') {
 		return [new CHECK_SAVE_FLAG({ save_flag: exp, expected_bool: true, label: ifLabel })];
 	}
-	if (
-		exp instanceof BoolGetable ||
-		exp instanceof BoolComparison ||
-		exp instanceof StringCheckable ||
-		exp instanceof NumberCheckableEquality
-	) {
+	if (exp instanceof BoolGetable || exp instanceof BoolComparison) {
 		return [summonActionConstructor({ ...exp, label: ifLabel })];
 	}
 	if (!(exp instanceof BoolBinaryExpression)) {
@@ -297,7 +289,7 @@ export const invertBoolExpression = (
 export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
-	condition: BoolGetable | BoolComparison | BoolBinaryExpression | BoolLiteral,
+	condition: BoolExpression,
 	trueBlock: AnyNode[],
 	falseBlock: AnyNode[],
 ): MathlangSequence => {
@@ -338,7 +330,7 @@ export class ConditionalBlock {
 		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
 		let condition = handleCapture(f, this.conditionNode);
 		if (typeof condition === 'string') condition = CheckSaveFlag.quick(debug, condition);
-		if (!isBoolExpression(condition)) {
+		if (!(condition instanceof BoolExpression)) {
 			throw new Error(type + ' condition not BoolExpression');
 		}
 		this.condition = condition;

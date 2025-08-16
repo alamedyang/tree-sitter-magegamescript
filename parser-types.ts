@@ -838,18 +838,13 @@ export class IntBinaryExpression extends MathlangNode {
 
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
 
-export type BoolExpression = BoolComparison | BoolBinaryExpression | BoolUnit;
+export class BoolExpression extends MathlangNode {
+	invert() {}
+}
 
-export const isBoolExpression = (v: unknown): v is BoolExpression => {
-	return v instanceof BoolComparison || v instanceof BoolBinaryExpression || isBoolUnit(v);
-};
+export class BoolUnit extends BoolExpression {}
 
-// TODO: make bool its own thing (class BoolValue { value: boolean }) or something
-// and make strings not a string ASAP
-// Then it can all be classes all the way down
-export type BoolUnit = BoolLiteral | BoolGetable;
-
-export class BoolLiteral extends MathlangNode {
+export class BoolLiteral extends BoolUnit {
 	mathlang: 'bool_literal';
 	debug: MathlangLocation;
 	args: Record<string, unknown>;
@@ -869,13 +864,8 @@ export class BoolLiteral extends MathlangNode {
 		return this;
 	}
 }
-export const isBoolUnit = (v: unknown): v is BoolUnit => {
-	if (v instanceof BoolLiteral) return true;
-	if (v instanceof BoolGetable) return true;
-	return false;
-};
 
-export class BoolComparison extends MathlangNode {
+export class BoolComparison extends BoolExpression {
 	action: string;
 	expected_bool: boolean;
 	invert() {
@@ -890,7 +880,7 @@ export class BoolComparison extends MathlangNode {
 	}
 }
 
-export class BoolBinaryExpression extends MathlangNode {
+export class BoolBinaryExpression extends BoolExpression {
 	mathlang: 'bool_binary_expression';
 	debug: MathlangLocation;
 	args: Record<string, unknown>;
@@ -904,8 +894,8 @@ export class BoolBinaryExpression extends MathlangNode {
 		this.args = args;
 		this.debug = debug;
 		this.mathlang = 'bool_binary_expression';
-		if (!isBoolExpression(args.lhs)) throw new Error('not BoolExpression');
-		if (!isBoolExpression(args.rhs)) throw new Error('not BoolExpression');
+		if (!(args.lhs instanceof BoolExpression)) throw new Error('not BoolExpression');
+		if (!(args.rhs instanceof BoolExpression)) throw new Error('not BoolExpression');
 		if (!(args.lhsNode instanceof TreeSitterNode)) throw new Error('not TSNode');
 		if (!(args.rhsNode instanceof TreeSitterNode)) throw new Error('not TSNode');
 		this.op = ACTION.breakIfNotString(args.op);
@@ -926,7 +916,7 @@ export class BoolBinaryExpression extends MathlangNode {
 
 // --------------- BOOL GETABLE
 
-export class BoolGetable extends MathlangNode {
+export class BoolGetable extends BoolUnit {
 	action: string;
 	mathlang: 'bool_getable';
 	args: Record<string, unknown>;
