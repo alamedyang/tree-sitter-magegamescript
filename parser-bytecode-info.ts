@@ -2068,9 +2068,11 @@ export class CHECK_SAVE_FLAG extends BoolGetableAction {
 		this.save_flag = breakIfNotString(args.save_flag);
 		this.expected_bool = breakIfNotBool(args.expected_bool);
 	}
-	static quick(save_flag: string, provided_bool?: boolean) {
+	static quick(save_flag: string, provided_bool?: boolean, provided_label?: string) {
 		const expected_bool = provided_bool === undefined ? true : provided_bool;
-		return new CHECK_SAVE_FLAG({ save_flag, expected_bool });
+		const action = new CHECK_SAVE_FLAG({ save_flag, expected_bool });
+		action.label = provided_label || '';
+		return action;
 	}
 	print() {
 		return printCheckAction(this, `"${this.save_flag}"`, true);

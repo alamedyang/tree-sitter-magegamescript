@@ -53,7 +53,6 @@ import {
 	debugLog,
 	reportMissingChildNodes,
 	reportErrorNodes,
-	invertBoolExpression,
 	inverseOpMap,
 } from './parser-utilities.ts';
 import { FileState } from './parser-file.ts';
@@ -317,7 +316,7 @@ const captureFns = {
 			if (toInvert instanceof BoolBinaryExpression) {
 				toInvert = toInvert.clone();
 			}
-			return invertBoolExpression(f, node, toInvert);
+			return toInvert.invert();
 		}
 		throw new Error('bool_unary_expression capture did not yield BoolExpression');
 	},

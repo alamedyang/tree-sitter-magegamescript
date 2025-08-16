@@ -5,7 +5,6 @@ import {
 	reportMissingChildNodes,
 	reportErrorNodes,
 	debugLog,
-	expandBoolExpression,
 	autoIdentifierName,
 	newElse,
 	ifChainMaker,
@@ -508,7 +507,7 @@ const nodeFns = {
 		const rendezvousL = `while rendezvous #${n}`;
 		const steps = [
 			new LabelDefinition(debug, { label: conditionL }),
-			...expandBoolExpression(f, block.conditionNode || node, block.condition, bodyL),
+			...block.condition.flatten(bodyL),
 			GotoLabel.quick(new MathlangLocation(f, node), rendezvousL),
 			new LabelDefinition(debug, { label: bodyL }),
 			...block.body,
@@ -528,7 +527,7 @@ const nodeFns = {
 			new LabelDefinition(debug, { label: bodyL }),
 			...doWhyle.body,
 			new LabelDefinition(debug, { label: conditionL }),
-			...expandBoolExpression(f, doWhyle.conditionNode || node, doWhyle.condition, bodyL),
+			...doWhyle.condition.flatten(bodyL),
 			new LabelDefinition(debug, { label: rendezvousL }),
 		];
 		return [new MathlangSequence(debug, { steps, type: 'parser-node: do_while_block' })];
@@ -556,7 +555,7 @@ const nodeFns = {
 		const steps = [
 			...handleNode(f, initializer),
 			new LabelDefinition(debug, { label: conditionL }),
-			...expandBoolExpression(f, conditionN, condition, bodyL),
+			...condition.flatten(bodyL),
 			GotoLabel.quick(new MathlangLocation(f, node), rendezvousL),
 			new LabelDefinition(debug, { label: bodyL }),
 			...body,

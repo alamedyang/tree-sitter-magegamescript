@@ -1,6 +1,7 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
+import { inverseOpMap } from './parser-utilities.ts';
 
 export class AnyNode {}
 export const cloneNode = (node: AnyNode) => {
@@ -839,7 +840,80 @@ export class IntBinaryExpression extends MathlangNode {
 // ------------------------------ BOOL EXPRESSIONS ------------------------------ \\
 
 export class BoolExpression extends MathlangNode {
-	invert() {}
+	invert() {
+		console.error('the children should be doing this, not me');
+		return this;
+	}
+	flatten(ifLabel: string) {
+		const debug = this.debug;
+		if (this instanceof BoolLiteral && this.value === true) {
+			return [GotoLabel.quick(debug, ifLabel)];
+		} else if (this instanceof BoolLiteral && this.value === false) {
+			return [];
+		}
+		if (typeof this === 'string') {
+			return [
+				new ACTION.CHECK_SAVE_FLAG({
+					save_flag: this,
+					expected_bool: true,
+					label: ifLabel,
+				}),
+			];
+		}
+		if (this instanceof BoolGetable || this instanceof BoolComparison) {
+			return [ACTION.summonActionConstructor({ ...this, label: ifLabel })];
+		}
+		if (!(this instanceof BoolBinaryExpression)) {
+			throw new Error('expansion for condition not yet implemented');
+		}
+		const op = this.op;
+		const lhs = this.lhs;
+		const rhs = this.rhs;
+		if (typeof lhs === 'number' || typeof rhs === 'number') {
+			throw new Error('LHS or RHS not a number');
+		}
+		if (op === '||') {
+			return [...lhs.flatten(ifLabel), ...rhs.flatten(ifLabel)];
+		}
+		if (op === '&&') {
+			// basically nesting the ifs
+			if (!debug.f) throw new Error('should have an f?');
+			const suffix = debug.f.p.advanceGotoSuffix();
+			const secondIfTrueLabel = `if true #${suffix}`;
+			const secondRendezvousLabel = `rendezvous #${suffix}`;
+			return [
+				...lhs.flatten(secondIfTrueLabel),
+				GotoLabel.quick(debug, secondRendezvousLabel),
+				new LabelDefinition(debug, { label: secondIfTrueLabel }),
+				...rhs.flatten(ifLabel),
+				new LabelDefinition(debug, { label: secondRendezvousLabel }),
+			];
+		}
+		if (op !== '==' && op !== '!=') {
+			throw new Error('expected == or !==, found ' + op);
+		}
+		// Cannot directly compare bools. Must branch on if they are both true, or both false
+		const expandAs = new BoolBinaryExpression(debug, {
+			op: '||',
+			lhs: new BoolBinaryExpression(lhs.debug, {
+				op: '&&',
+				lhs,
+				rhs,
+				lhsNode: this.lhsNode,
+				rhsNode: this.rhsNode,
+			}),
+			rhs: new BoolBinaryExpression(rhs.debug, {
+				op: '&&',
+				lhs: lhs.invert(),
+				rhs: rhs.invert(),
+				lhsNode: this.lhsNode,
+				rhsNode: this.rhsNode,
+			}),
+			lhsNode: this.lhsNode,
+			rhsNode: this.rhsNode,
+		});
+		return expandAs.flatten(ifLabel);
+	}
 }
 
 export class BoolUnit extends BoolExpression {}
@@ -907,7 +981,17 @@ export class BoolBinaryExpression extends BoolExpression {
 	clone() {
 		return new BoolBinaryExpression(this.debug, this.args);
 	}
-	// TODO: make invert function?
+	invert() {
+		if (this.op === '||' || this.op === '&&') {
+			if (typeof this.lhs === 'number' || typeof this.rhs === 'number') {
+				throw new Error('|| or && for a number??');
+			}
+			this.lhs = this.lhs.invert();
+			this.rhs = this.rhs.invert();
+		}
+		this.op = inverseOpMap[this.op];
+		return this;
+	}
 }
 
 // ------------------------------ INTERMEDIATES ------------------------------ \\

@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { CHECK_SAVE_FLAG, Action, summonActionConstructor } from './parser-bytecode-info.ts';
+import { Action, summonActionConstructor } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
 	AnyNode,
@@ -12,7 +12,6 @@ import {
 	MathlangSequence,
 	GotoLabel,
 	MathlangNode,
-	BoolLiteral,
 	CheckSaveFlag,
 	BoolGetable,
 } from './parser-types.ts';
@@ -188,104 +187,6 @@ export const autoIdentifierName = (f: FileState, node: TreeSitterNode): string =
 
 // ------------------------ CONDITIONS ------------------------ //
 
-export const expandBoolExpression = (
-	f: FileState,
-	node: TreeSitterNode,
-	exp: BoolExpression,
-	ifLabel: string,
-): AnyNode[] => {
-	const debug = new MathlangLocation(f, node);
-	if (exp instanceof BoolLiteral && exp.value === true) {
-		return [GotoLabel.quick(debug, ifLabel)];
-	} else if (exp instanceof BoolLiteral && exp.value === false) {
-		return [];
-	}
-	if (typeof exp === 'string') {
-		return [new CHECK_SAVE_FLAG({ save_flag: exp, expected_bool: true, label: ifLabel })];
-	}
-	if (exp instanceof BoolGetable || exp instanceof BoolComparison) {
-		return [summonActionConstructor({ ...exp, label: ifLabel })];
-	}
-	if (!(exp instanceof BoolBinaryExpression)) {
-		throw new Error('expansion for condition not yet implemented');
-	}
-	const op = exp.op;
-	const lhs = exp.lhs;
-	const rhs = exp.rhs;
-	if (typeof lhs === 'number' || typeof rhs === 'number') {
-		throw new Error('LHS or RHS not a number');
-	}
-	if (op === '||') {
-		return [
-			...expandBoolExpression(f, exp.lhsNode, lhs, ifLabel),
-			...expandBoolExpression(f, exp.rhsNode, rhs, ifLabel),
-		];
-	}
-	if (op === '&&') {
-		// basically nesting the ifs
-		const suffix = f.p.advanceGotoSuffix();
-		const secondIfTrueLabel = `if true #${suffix}`;
-		const secondRendezvousLabel = `rendezvous #${suffix}`;
-		return [
-			...expandBoolExpression(f, exp.lhsNode, lhs, secondIfTrueLabel),
-			GotoLabel.quick(new MathlangLocation(f, node), secondRendezvousLabel),
-			new LabelDefinition(debug, { label: secondIfTrueLabel }),
-			...expandBoolExpression(f, exp.rhsNode, rhs, ifLabel),
-			new LabelDefinition(debug, { label: secondRendezvousLabel }),
-		];
-	}
-	if (op !== '==' && op !== '!=') {
-		throw new Error('expected == or !==, found ' + op);
-	}
-	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAsDebug = new MathlangLocation(f, exp.debug?.node || node);
-	const expandAs = new BoolBinaryExpression(expandAsDebug, {
-		op: '||',
-		lhs: new BoolBinaryExpression(expandAsDebug, {
-			op: '&&',
-			lhs,
-			rhs,
-			lhsNode: exp.lhsNode,
-			rhsNode: exp.rhsNode,
-		}),
-		rhs: new BoolBinaryExpression(expandAsDebug, {
-			op: '&&',
-			lhs: invertBoolExpression(f, exp.lhsNode, lhs),
-			rhs: invertBoolExpression(f, exp.rhsNode, rhs),
-			lhsNode: exp.lhsNode,
-			rhsNode: exp.rhsNode,
-		}),
-		lhsNode: exp.lhsNode,
-		rhsNode: exp.rhsNode,
-	});
-	return expandBoolExpression(f, node, expandAs, ifLabel);
-};
-
-export const invertBoolExpression = (
-	f: FileState,
-	node: TreeSitterNode,
-	boolExp: BoolExpression,
-): BoolExpression => {
-	if (boolExp instanceof BoolLiteral) return boolExp.invert();
-	if (typeof boolExp === 'string') {
-		const debug = new MathlangLocation(f, node);
-		return CheckSaveFlag.quick(debug, boolExp, false);
-	}
-	if (boolExp instanceof BoolBinaryExpression) {
-		if (boolExp.op === '||' || boolExp.op === '&&') {
-			if (typeof boolExp.lhs === 'number' || typeof boolExp.rhs === 'number') {
-				throw new Error('|| or && for a number??');
-			}
-			boolExp.lhs = invertBoolExpression(f, node, boolExp.lhs);
-			boolExp.rhs = invertBoolExpression(f, node, boolExp.rhs);
-		}
-		boolExp.op = inverseOpMap[boolExp.op];
-		return boolExp;
-	}
-	boolExp.invert();
-	return boolExp;
-};
-
 export const simpleBranchMaker = (
 	f: FileState,
 	node: TreeSitterNode,
@@ -302,7 +203,7 @@ export const simpleBranchMaker = (
 	if (condition instanceof BoolComparison || condition instanceof BoolGetable) {
 		top = [summonActionConstructor({ ...condition, label: ifLabel })];
 	} else if (condition instanceof BoolBinaryExpression) {
-		top = expandBoolExpression(f, node, condition, ifLabel);
+		top = condition.flatten(ifLabel);
 	}
 
 	const steps = [
@@ -363,9 +264,7 @@ export const ifChainMaker = (
 	iffs.forEach((iff) => {
 		const ifL = `if true #${f.p.advanceGotoSuffix()}`;
 		// add top half
-		steps.push(
-			...expandBoolExpression(f, iff.conditionNode || iff.debug.node, iff.condition, ifL),
-		);
+		steps.push(...iff.condition.flatten(ifL));
 		// add bottom half
 		const bottomInsert: AnyNode[] = [
 			new LabelDefinition(debug, { label: ifL }),
