@@ -2,6 +2,7 @@ import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
 import { inverseOpMap } from './parser-utilities.ts';
+import { type GenericObj } from './parser-actions.ts';
 
 export class AnyNode {
 	clone() {
@@ -11,7 +12,7 @@ export class AnyNode {
 }
 export class MathlangNode extends AnyNode {
 	mathlang: string;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	clone() {
 		return this.constructor(MathlangNode);
@@ -41,14 +42,7 @@ export class MathlangLocation {
 		if (comment) this.comment = comment;
 	}
 }
-
-// TODO redo this part
-export type MGSLocation = {
-	node: TreeSitterNode;
-	fileName?: string;
-};
 export type MathlangMessage = {
-	// error or warning
 	locations: MathlangLocation[];
 	message: string;
 	footer?: string;
@@ -63,10 +57,10 @@ const truncate = (s: string, n: number): string => {
 
 export class AddDialogSettings extends MathlangNode {
 	mathlang: 'add_dialog_settings';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	targets: AddDialogSettingsTarget[];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.targets ||
@@ -90,12 +84,12 @@ export class AddDialogSettings extends MathlangNode {
 
 export class AddDialogSettingsTarget extends MathlangNode {
 	mathlang: 'add_dialog_settings_target';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	debug: MathlangLocation;
 	parameters: DialogParameter[];
 	target?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.parameters ||
@@ -130,10 +124,10 @@ export class AddDialogSettingsTarget extends MathlangNode {
 
 export class AddSerialDialogSettings extends MathlangNode {
 	mathlang: 'add_serial_dialog_settings';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	parameters: SerialDialogParameter[];
 	debug: MathlangLocation;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.parameters ||
@@ -161,7 +155,7 @@ export class AddSerialDialogSettings extends MathlangNode {
 
 export class ReturnStatement extends MathlangNode {
 	mathlang: 'return_statement';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	constructor(debug: MathlangLocation) {
 		super();
@@ -175,7 +169,7 @@ export class ReturnStatement extends MathlangNode {
 }
 export class ContinueStatement extends MathlangNode {
 	mathlang: 'continue_statement';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	constructor(debug: MathlangLocation) {
 		super();
@@ -189,7 +183,7 @@ export class ContinueStatement extends MathlangNode {
 }
 export class BreakStatement extends MathlangNode {
 	mathlang: 'break_statement';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	constructor(debug: MathlangLocation) {
 		super();
@@ -205,10 +199,10 @@ export class BreakStatement extends MathlangNode {
 export class GotoLabel extends MathlangNode {
 	mathlang: 'goto_label';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	label: string;
 	comment?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -231,11 +225,11 @@ export class GotoLabel extends MathlangNode {
 
 export class DialogDefinition extends MathlangNode {
 	mathlang: 'dialog_definition';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	dialogName: string;
 	dialogs: Dialog[];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.dialogs ||
@@ -273,11 +267,11 @@ export type DialogSettings = {
 
 export class DialogParameter extends MathlangNode {
 	mathlang: 'dialog_parameter';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -304,12 +298,12 @@ export class Dialog extends MathlangNode {
 
 	mathlang: 'dialog';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 
 	messages: string[];
 	response_type?: 'SELECT_FROM_SHORT_LIST';
 	options?: DialogOption[];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.messages ||
@@ -348,11 +342,11 @@ export type DialogInfo = {
 
 export class DialogIdentifier extends MathlangNode {
 	mathlang: 'dialog_identifier';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	type: DialogIdentifierType;
 	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (args.type !== 'label' && args.type !== 'entity' && args.type !== 'name') {
 			throw new Error('invalid DialogIdentifier type');
@@ -374,11 +368,11 @@ type DialogIdentifierType = 'label' | 'entity' | 'name';
 
 export class DialogOption extends MathlangNode {
 	mathlang: 'dialog_option';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	label: string;
 	script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -401,11 +395,11 @@ export class DialogOption extends MathlangNode {
 
 export class SerialDialogDefinition extends MathlangNode {
 	mathlang: 'serial_dialog_definition';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	dialogName: string;
 	serialDialog: SerialDialog;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (!(args.serialDialog instanceof SerialDialog)) {
 			throw new Error('SerialDialogDefinition not given valid SerialDialog');
@@ -435,10 +429,10 @@ export type SerialDialogSettings = {
 export class SerialDialogParameter extends MathlangNode {
 	mathlang: 'serial_dialog_parameter';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	property: string;
 	value: MGSPrimitive;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -457,12 +451,12 @@ export class SerialDialogParameter extends MathlangNode {
 export class SerialDialog extends MathlangNode {
 	mathlang: 'serial_dialog';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 
 	messages: string[];
 	options?: SerialDialogOption[];
 	text_options?: SerialDialogOption[];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (
 			!args.messages ||
@@ -503,12 +497,12 @@ export type SerialDialogInfo = {
 export type SerialOptionType = 'text_options' | 'options';
 export class SerialDialogOption extends MathlangNode {
 	mathlang: 'serial_dialog_option';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	optionType: SerialOptionType;
 	label: string;
 	script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (args.optionType !== 'text_options' && args.optionType !== 'options') {
 			throw new Error('invalid option type ' + args.optionType);
@@ -535,10 +529,10 @@ export class SerialDialogOption extends MathlangNode {
 
 export class IncludeNode extends MathlangNode {
 	mathlang: 'include_macro';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -555,11 +549,11 @@ export class IncludeNode extends MathlangNode {
 
 export class ConstantDefinition extends MathlangNode {
 	mathlang: 'constant_assignment';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	label: string;
 	value: string | BoolLiteral | number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		if (!isMGSPrimitive(args.value)) throw new Error('not primitive');
 		this.args = args;
@@ -578,7 +572,7 @@ export class ConstantDefinition extends MathlangNode {
 
 export class ScriptDefinition extends MathlangNode {
 	mathlang: 'script_definition';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	scriptName: string;
 	prePrint?: string;
@@ -588,7 +582,7 @@ export class ScriptDefinition extends MathlangNode {
 	actions: AnyNode[];
 	preActions?: AnyNode[];
 	copyScriptResolved?: boolean;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -644,9 +638,9 @@ export class ScriptDefinition extends MathlangNode {
 export class CommentNode extends MathlangNode {
 	mathlang: 'comment';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	comment: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -668,9 +662,9 @@ export class CommentNode extends MathlangNode {
 export class LabelDefinition extends MathlangNode {
 	mathlang: 'label_definition';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	label: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -691,9 +685,9 @@ export class LabelDefinition extends MathlangNode {
 export class JSONLiteral extends MathlangNode {
 	mathlang: 'json_literal';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	json: [JSON];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -709,9 +703,9 @@ export class JSONLiteral extends MathlangNode {
 export class CopyMacro extends MathlangNode {
 	mathlang: 'copy_script';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -730,10 +724,10 @@ export class CopyMacro extends MathlangNode {
 export class MathlangSequence extends MathlangNode {
 	mathlang: 'sequence';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	steps: AnyNode[];
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -791,10 +785,10 @@ export const isIntUnit = (v: unknown): v is IntUnit => {
 export class IntGetable extends MathlangNode {
 	mathlang: 'int_getable';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	field: string;
 	entity: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -813,11 +807,11 @@ export class IntGetable extends MathlangNode {
 export class IntBinaryExpression extends MathlangNode {
 	mathlang: 'int_binary_expression';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	lhs: IntExpression;
 	rhs: IntExpression;
 	op: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -921,9 +915,9 @@ export class BoolUnit extends BoolExpression {}
 export class BoolLiteral extends BoolUnit {
 	mathlang: 'bool_literal';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	value: boolean;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -949,7 +943,7 @@ export class BoolComparison extends BoolExpression {
 	getBool() {
 		return this.expected_bool;
 	}
-	toAction(args: Record<string, unknown>) {
+	toAction(args: GenericObj) {
 		return ACTION.Action.fromArgs({ ...this, ...args });
 	}
 }
@@ -957,13 +951,13 @@ export class BoolComparison extends BoolExpression {
 export class BoolBinaryExpression extends BoolExpression {
 	mathlang: 'bool_binary_expression';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	lhs: BoolExpression;
 	rhs: BoolExpression;
 	op: string;
 	lhsNode: TreeSitterNode;
 	rhsNode: TreeSitterNode;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1003,11 +997,11 @@ export class BoolBinaryExpression extends BoolExpression {
 export class BoolGetable extends BoolUnit {
 	action: string;
 	mathlang: 'bool_getable';
-	args: Record<string, unknown>;
+	args: GenericObj;
 	debug: MathlangLocation;
 	comment?: string;
 	expected_bool: boolean;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.mathlang = 'bool_getable';
 		this.debug = debug;
@@ -1020,14 +1014,14 @@ export class BoolGetable extends BoolUnit {
 		this.expected_bool = !this.expected_bool;
 		return this;
 	}
-	toAction(args: Record<string, unknown>) {
+	toAction(args: GenericObj) {
 		return ACTION.Action.fromArgs({ ...this, ...args });
 	}
 }
 export class CheckEntityGlitched extends BoolGetable {
 	action: 'CHECK_ENTITY_GLITCHED';
 	entity: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_GLITCHED';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1043,7 +1037,7 @@ export class CheckEntityGlitched extends BoolGetable {
 export class CheckSaveFlag extends BoolGetable {
 	action: 'CHECK_SAVE_FLAG';
 	save_flag: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_SAVE_FLAG';
 		this.save_flag = ACTION.breakIfNotString(args.save_flag);
@@ -1058,7 +1052,7 @@ export class CheckIfEntityIsInGeometry extends BoolGetable {
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 	geometry: string;
 	entity: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 		this.geometry = ACTION.breakIfNotString(args.geometry);
@@ -1082,7 +1076,7 @@ export class CheckIfEntityIsInGeometry extends BoolGetable {
 export class CheckForButtonPress extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_PRESS';
 	button_id: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
 		this.button_id = ACTION.breakIfNotString(args.button_id);
@@ -1096,7 +1090,7 @@ export class CheckForButtonPress extends BoolGetable {
 export class CheckForButtonState extends BoolGetable {
 	action: 'CHECK_FOR_BUTTON_STATE';
 	button_id: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_FOR_BUTTON_STATE';
 		this.button_id = ACTION.breakIfNotString(args.button_id);
@@ -1109,7 +1103,7 @@ export class CheckForButtonState extends BoolGetable {
 }
 export class CheckDialogOpen extends BoolGetable {
 	action: 'CHECK_DIALOG_OPEN';
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_DIALOG_OPEN';
 		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
@@ -1121,7 +1115,7 @@ export class CheckDialogOpen extends BoolGetable {
 }
 export class CheckSerialDialogOpen extends BoolGetable {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
 		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
@@ -1133,7 +1127,7 @@ export class CheckSerialDialogOpen extends BoolGetable {
 }
 export class CheckDebugMode extends BoolGetable {
 	action: 'CHECK_DEBUG_MODE';
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_DEBUG_MODE';
 		this.expected_bool = ACTION.breakIfNotBool(args.expected_bool);
@@ -1149,7 +1143,7 @@ export class CheckDebugMode extends BoolGetable {
 export class StringCheckable extends BoolComparison {
 	mathlang: 'string_checkable';
 	comment?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1163,7 +1157,7 @@ export class CheckEntityName extends StringCheckable {
 	action: 'CHECK_ENTITY_NAME';
 	entity: string;
 	string: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_NAME';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1189,7 +1183,7 @@ export class CheckEntityInteractScript extends StringCheckable {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1220,7 +1214,7 @@ export class CheckEntityTickScript extends StringCheckable {
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1251,7 +1245,7 @@ export class CheckEntityLookScript extends StringCheckable {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1282,7 +1276,7 @@ export class CheckEntityType extends StringCheckable {
 	action: 'CHECK_ENTITY_TYPE';
 	entity: string;
 	entity_type: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_TYPE';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1309,7 +1303,7 @@ export class CheckEntityDirection extends StringCheckable {
 	action: 'CHECK_ENTITY_DIRECTION';
 	entity: string;
 	direction: string; // north, south, east, west
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_DIRECTION';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1336,7 +1330,7 @@ export class CheckEntityPath extends StringCheckable {
 	action: 'CHECK_ENTITY_PATH';
 	geometry: string;
 	entity: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_PATH';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1362,7 +1356,7 @@ export class CheckEntityPath extends StringCheckable {
 export class CheckWarpState extends StringCheckable {
 	action: 'CHECK_WARP_STATE';
 	string: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_WARP_STATE';
 		this.string = ACTION.breakIfNotString(args.string);
@@ -1384,7 +1378,7 @@ export class CheckMap extends StringCheckable {
 	action: 'CHECK_MAP';
 	map: string;
 	expected_bool: boolean;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_MAP';
 		this.map = ACTION.breakIfNotString(args.map);
@@ -1401,7 +1395,7 @@ export class CheckBLEFlag extends StringCheckable {
 	// or this?
 	action: 'CHECK_BLE_FLAG';
 	ble_flag: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_BLE_FLAG';
 		this.ble_flag = ACTION.breakIfNotString(args.ble_flag);
@@ -1420,7 +1414,7 @@ export class CheckBLEFlag extends StringCheckable {
 export class NumberComparison extends BoolComparison {
 	mathlang: 'number_comparison';
 	comment?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1434,7 +1428,7 @@ export class CheckVariable extends NumberComparison {
 	variable: string;
 	comparison: string;
 	value: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_VARIABLE';
 		this.variable = ACTION.breakIfNotString(args.variable);
@@ -1463,7 +1457,7 @@ export class CheckVariables extends NumberComparison {
 	variable: string;
 	comparison: string;
 	source: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_VARIABLES';
 		this.variable = ACTION.breakIfNotString(args.variable);
@@ -1493,7 +1487,7 @@ export class CheckVariables extends NumberComparison {
 export class NumberCheckableEquality extends BoolComparison {
 	mathlang: 'number_checkable_equality';
 	comment?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1505,7 +1499,7 @@ export class CheckEntityX extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_X';
 	entity: string;
 	expected_u2: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_X';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1536,7 +1530,7 @@ export class CheckEntityY extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_Y';
 	entity: string;
 	expected_u2: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_Y';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1567,7 +1561,7 @@ export class CheckEntityPrimaryID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_PRIMARY_ID';
 	entity: string;
 	expected_u2: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_PRIMARY_ID';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1598,7 +1592,7 @@ export class CheckEntitySecondaryID extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
 	entity: string;
 	expected_u2: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_SECONDARY_ID';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1629,7 +1623,7 @@ export class CheckEntityPrimaryIDType extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 	entity: string;
 	expected_byte: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1664,7 +1658,7 @@ export class CheckEntityCurrentAnimation extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
 	entity: string;
 	expected_byte: number;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1700,7 +1694,7 @@ export class CheckEntityCurrentFrame extends NumberCheckableEquality {
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super(debug, args);
 		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
 		this.entity = ACTION.breakIfNotString(args.entity);
@@ -1738,10 +1732,10 @@ export class CheckEntityCurrentFrame extends NumberCheckableEquality {
 export class BoolSetable extends MathlangNode {
 	mathlang: 'bool_setable';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1759,10 +1753,10 @@ export class BoolSetable extends MathlangNode {
 export class MovableIdentifier extends MathlangNode {
 	mathlang: 'movable_identifier';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1780,11 +1774,11 @@ export class MovableIdentifier extends MathlangNode {
 export class CoordinateIdentifier extends MathlangNode {
 	mathlang: 'coordinate_identifier';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	value: string;
 	polygonType?: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1803,10 +1797,10 @@ export class CoordinateIdentifier extends MathlangNode {
 export class DirectionTarget extends MathlangNode {
 	mathlang: 'direction_target';
 	debug: MathlangLocation;
-	args: Record<string, unknown>;
+	args: GenericObj;
 	type: string;
 	value: string;
-	constructor(debug: MathlangLocation, args: Record<string, unknown>) {
+	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
@@ -1823,18 +1817,10 @@ export class DirectionTarget extends MathlangNode {
 }
 // --------------------- Mathlang Nodes with labels --------------------- \\
 
-export type NodeWithLabel =
-	| GotoLabel
-	| ACTION.BoolGetableAction
-	| ACTION.StringCheckableAction
-	| ACTION.NumberComparisonAction
-	| ACTION.NumberCheckableEqualityAction;
+export type NodeWithLabel = GotoLabel | ACTION.CheckAction;
 
 export const doesNodeHaveLabelToChangeToIndex = (v: unknown): v is NodeWithLabel => {
 	if (v instanceof GotoLabel && v.label) return true;
-	if (v instanceof ACTION.BoolGetableAction && v.label) return true;
-	if (v instanceof ACTION.StringCheckableAction && v.label) return true;
-	if (v instanceof ACTION.NumberCheckableEqualityAction && v.label) return true;
-	if (v instanceof ACTION.NumberComparisonAction && v.label) return true;
+	if (v instanceof ACTION.CheckAction && v.label) return true;
 	return false;
 };

@@ -1,6 +1,7 @@
 import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
 import { AnyNode } from './parser-types.ts';
+import { type GenericObj } from './parser-actions.ts';
 
 const actionArrayToScript = (
 	scriptName: string,
@@ -1681,10 +1682,7 @@ const simplifyArrays = (origLH: unknown[] = [], origRH: unknown[] = []) => {
 	});
 	return { lh: newLH, rh: newRH, diff: newDiffs };
 };
-const simplifyObjects = (
-	origLH: Record<string, unknown> = {},
-	origRH: Record<string, unknown> = {},
-) => {
+const simplifyObjects = (origLH: GenericObj = {}, origRH: GenericObj = {}) => {
 	delete origLH.debug;
 	delete origRH.debug;
 	const sortedLH = {};

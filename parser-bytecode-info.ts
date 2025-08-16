@@ -6,7 +6,7 @@ import {
 	MathlangLocation,
 	CheckSaveFlag,
 } from './parser-types.ts';
-import { type GenericActionish } from './parser-actions.ts';
+import { type GenericObj } from './parser-actions.ts';
 import { FileState } from './parser-file.ts';
 import { inverseOpMap, simpleBranchMaker } from './parser-utilities.ts';
 
@@ -167,7 +167,7 @@ export class NULL_ACTION extends Action {
 export class LABEL extends Action {
 	action: 'LABEL';
 	value: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'LABEL';
 		this.value = breakIfNotString(args.value);
@@ -179,7 +179,7 @@ export class LABEL extends Action {
 export class RUN_SCRIPT extends Action {
 	action: 'RUN_SCRIPT';
 	script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'RUN_SCRIPT';
 		this.script = breakIfNotString(args.script);
@@ -194,7 +194,7 @@ export class RUN_SCRIPT extends Action {
 export class BLOCKING_DELAY extends Action {
 	action: 'BLOCKING_DELAY';
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args.duration);
@@ -206,7 +206,7 @@ export class BLOCKING_DELAY extends Action {
 export class NON_BLOCKING_DELAY extends Action {
 	action: 'NON_BLOCKING_DELAY';
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'NON_BLOCKING_DELAY';
 		this.duration = breakIfNotNumber(args.duration);
@@ -219,7 +219,7 @@ export class SET_ENTITY_NAME extends Action {
 	action: 'SET_ENTITY_NAME';
 	entity: string;
 	string: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_NAME';
 		this.entity = breakIfNotString(args.entity);
@@ -236,7 +236,7 @@ export class SET_ENTITY_X extends Action {
 	action: 'SET_ENTITY_X';
 	entity: string;
 	u2_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_X';
 		this.entity = breakIfNotString(args.entity);
@@ -253,7 +253,7 @@ export class SET_ENTITY_Y extends Action {
 	action: 'SET_ENTITY_Y';
 	entity: string;
 	u2_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_Y';
 		this.entity = breakIfNotString(args.entity);
@@ -270,7 +270,7 @@ export class SET_ENTITY_INTERACT_SCRIPT extends Action {
 	action: 'SET_ENTITY_INTERACT_SCRIPT';
 	entity: string;
 	script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_INTERACT_SCRIPT';
 		this.entity = breakIfNotString(args.entity);
@@ -287,7 +287,7 @@ export class SET_ENTITY_TICK_SCRIPT extends Action {
 	action: 'SET_ENTITY_TICK_SCRIPT';
 	entity: string;
 	script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_TICK_SCRIPT';
 		this.entity = breakIfNotString(args.entity);
@@ -304,7 +304,7 @@ export class SET_ENTITY_TYPE extends Action {
 	action: 'SET_ENTITY_TYPE';
 	entity: string;
 	entity_type: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_TYPE';
 		this.entity = breakIfNotString(args.entity);
@@ -321,7 +321,7 @@ export class SET_ENTITY_PRIMARY_ID extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID';
 	entity: string;
 	u2_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID';
 		this.entity = breakIfNotString(args.entity);
@@ -338,7 +338,7 @@ export class SET_ENTITY_SECONDARY_ID extends Action {
 	action: 'SET_ENTITY_SECONDARY_ID';
 	entity: string;
 	u2_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_SECONDARY_ID';
 		this.entity = breakIfNotString(args.entity);
@@ -355,7 +355,7 @@ export class SET_ENTITY_PRIMARY_ID_TYPE extends Action {
 	action: 'SET_ENTITY_PRIMARY_ID_TYPE';
 	entity: string;
 	byte_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_PRIMARY_ID_TYPE';
 		this.entity = breakIfNotString(args.entity);
@@ -372,7 +372,7 @@ export class SET_ENTITY_CURRENT_ANIMATION extends Action {
 	action: 'SET_ENTITY_CURRENT_ANIMATION';
 	entity: string;
 	byte_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_CURRENT_ANIMATION';
 		this.entity = breakIfNotString(args.entity);
@@ -389,7 +389,7 @@ export class SET_ENTITY_CURRENT_FRAME extends Action {
 	action: 'SET_ENTITY_CURRENT_FRAME';
 	entity: string;
 	byte_value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_CURRENT_FRAME';
 		this.entity = breakIfNotString(args.entity);
@@ -406,7 +406,7 @@ export class SET_ENTITY_DIRECTION_RELATIVE extends Action {
 	action: 'SET_ENTITY_DIRECTION_RELATIVE';
 	entity: string;
 	relative_direction: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_RELATIVE';
 		this.entity = breakIfNotString(args.entity);
@@ -427,7 +427,7 @@ export class SET_ENTITY_DIRECTION extends Action {
 	action: 'SET_ENTITY_DIRECTION';
 	entity: string;
 	direction: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION';
 		this.entity = breakIfNotString(args.entity);
@@ -444,7 +444,7 @@ export class SET_ENTITY_DIRECTION_TARGET_ENTITY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 	entity: string;
 	target_entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_ENTITY';
 		this.entity = breakIfNotString(args.entity);
@@ -461,7 +461,7 @@ export class SET_ENTITY_DIRECTION_TARGET_GEOMETRY extends Action {
 	action: 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 	entity: string;
 	target_geometry: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_DIRECTION_TARGET_GEOMETRY';
 		this.entity = breakIfNotString(args.entity);
@@ -478,7 +478,7 @@ export class SET_ENTITY_GLITCHED extends Action {
 	action: 'SET_ENTITY_GLITCHED';
 	entity: string;
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_GLITCHED';
 		this.entity = breakIfNotString(args.entity);
@@ -505,7 +505,7 @@ export class SET_ENTITY_PATH extends Action {
 	action: 'SET_ENTITY_PATH';
 	entity: string;
 	geometry: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_PATH';
 		this.entity = breakIfNotString(args.entity);
@@ -522,7 +522,7 @@ export class COPY_SCRIPT extends Action {
 	action: 'COPY_SCRIPT';
 	script: string;
 	search_and_replace?: Record<string, string>;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'COPY_SCRIPT';
 		this.script = breakIfNotString(args.script);
@@ -554,7 +554,7 @@ export class SET_SAVE_FLAG extends Action {
 	action: 'SET_SAVE_FLAG';
 	save_flag: string;
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_SAVE_FLAG';
 		this.save_flag = breakIfNotString(args.save_flag);
@@ -598,7 +598,7 @@ export class SET_SAVE_FLAG extends Action {
 export class SET_PLAYER_CONTROL extends Action {
 	action: 'SET_PLAYER_CONTROL';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_PLAYER_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -623,7 +623,7 @@ export class SET_PLAYER_CONTROL extends Action {
 export class SET_MAP_TICK_SCRIPT extends Action {
 	action: 'SET_MAP_TICK_SCRIPT';
 	script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_MAP_TICK_SCRIPT';
 		this.script = breakIfNotString(args.script);
@@ -638,7 +638,7 @@ export class SET_MAP_TICK_SCRIPT extends Action {
 export class SET_HEX_CURSOR_LOCATION extends Action {
 	action: 'SET_HEX_CURSOR_LOCATION';
 	address: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_HEX_CURSOR_LOCATION';
 		this.address = breakIfNotNumber(args.address);
@@ -648,7 +648,7 @@ export class SET_HEX_CURSOR_LOCATION extends Action {
 export class SET_WARP_STATE extends Action {
 	action: 'SET_WARP_STATE';
 	string: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_WARP_STATE';
 		this.string = breakIfNotString(args.string);
@@ -660,7 +660,7 @@ export class SET_WARP_STATE extends Action {
 export class SET_HEX_EDITOR_STATE extends Action {
 	action: 'SET_HEX_EDITOR_STATE';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_HEX_EDITOR_STATE';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -685,7 +685,7 @@ export class SET_HEX_EDITOR_STATE extends Action {
 export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 	action: 'SET_HEX_EDITOR_DIALOG_MODE';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_HEX_EDITOR_DIALOG_MODE';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -710,7 +710,7 @@ export class SET_HEX_EDITOR_DIALOG_MODE extends Action {
 export class SET_HEX_EDITOR_CONTROL extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -735,7 +735,7 @@ export class SET_HEX_EDITOR_CONTROL extends Action {
 export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 	action: 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_HEX_EDITOR_CONTROL_CLIPBOARD';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -760,7 +760,7 @@ export class SET_HEX_EDITOR_CONTROL_CLIPBOARD extends Action {
 export class LOAD_MAP extends Action {
 	action: 'LOAD_MAP';
 	map: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'LOAD_MAP';
 		this.map = breakIfNotString(args.map);
@@ -775,7 +775,7 @@ export class LOAD_MAP extends Action {
 export class SHOW_DIALOG extends Action {
 	action: 'SHOW_DIALOG';
 	dialog: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SHOW_DIALOG';
 		this.dialog = breakIfNotString(args.dialog);
@@ -792,7 +792,7 @@ export class PLAY_ENTITY_ANIMATION extends Action {
 	entity: string;
 	animation: number;
 	play_count: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'PLAY_ENTITY_ANIMATION';
 		this.entity = breakIfNotString(args.entity);
@@ -807,7 +807,7 @@ export class TELEPORT_ENTITY_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_ENTITY_TO_GEOMETRY';
 	geometry: string;
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'TELEPORT_ENTITY_TO_GEOMETRY';
 		this.entity = breakIfNotString(args.entity);
@@ -825,7 +825,7 @@ export class WALK_ENTITY_TO_GEOMETRY extends Action {
 	geometry: string;
 	entity: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'WALK_ENTITY_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -844,7 +844,7 @@ export class WALK_ENTITY_ALONG_GEOMETRY extends Action {
 	geometry: string;
 	entity: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'WALK_ENTITY_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -863,7 +863,7 @@ export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 	geometry: string;
 	entity: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'LOOP_ENTITY_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -880,7 +880,7 @@ export class LOOP_ENTITY_ALONG_GEOMETRY extends Action {
 export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 	action: 'SET_CAMERA_TO_FOLLOW_ENTITY';
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_CAMERA_TO_FOLLOW_ENTITY';
 		this.entity = breakIfNotString(args.entity);
@@ -895,7 +895,7 @@ export class SET_CAMERA_TO_FOLLOW_ENTITY extends Action {
 export class TELEPORT_CAMERA_TO_GEOMETRY extends Action {
 	action: 'TELEPORT_CAMERA_TO_GEOMETRY';
 	geometry: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'TELEPORT_CAMERA_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -911,7 +911,7 @@ export class PAN_CAMERA_TO_ENTITY extends Action {
 	action: 'PAN_CAMERA_TO_ENTITY';
 	entity: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'PAN_CAMERA_TO_ENTITY';
 		this.entity = breakIfNotString(args.entity);
@@ -928,7 +928,7 @@ export class PAN_CAMERA_TO_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_TO_GEOMETRY';
 	geometry: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'PAN_CAMERA_TO_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -945,7 +945,7 @@ export class PAN_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'PAN_CAMERA_ALONG_GEOMETRY';
 	geometry: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'PAN_CAMERA_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -962,7 +962,7 @@ export class LOOP_CAMERA_ALONG_GEOMETRY extends Action {
 	action: 'LOOP_CAMERA_ALONG_GEOMETRY';
 	geometry: string;
 	duration: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'LOOP_CAMERA_ALONG_GEOMETRY';
 		this.geometry = breakIfNotString(args.geometry);
@@ -980,7 +980,7 @@ export class SET_SCREEN_SHAKE extends Action {
 	duration: number;
 	frequency: number;
 	amplitude: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_SCREEN_SHAKE';
 		this.duration = breakIfNotNumber(args.duration);
@@ -995,7 +995,7 @@ export class SCREEN_FADE_OUT extends Action {
 	action: 'SCREEN_FADE_OUT';
 	duration: number;
 	color: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SCREEN_FADE_OUT';
 		this.duration = breakIfNotNumber(args.duration);
@@ -1009,7 +1009,7 @@ export class SCREEN_FADE_IN extends Action {
 	action: 'SCREEN_FADE_IN';
 	duration: number;
 	color: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SCREEN_FADE_IN';
 		this.duration = breakIfNotNumber(args.duration);
@@ -1024,7 +1024,7 @@ export class MUTATE_VARIABLE extends Action {
 	variable: string;
 	operation: string;
 	value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'MUTATE_VARIABLE';
 		this.variable = breakIfNotString(args.variable);
@@ -1058,7 +1058,7 @@ export class MUTATE_VARIABLES extends Action {
 	variable: string;
 	operation: string;
 	source: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'MUTATE_VARIABLES';
 		this.variable = breakIfNotString(args.variable);
@@ -1092,7 +1092,7 @@ export class COPY_VARIABLE extends Action {
 	entity: string;
 	field: string;
 	inbound: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'COPY_VARIABLE';
 		this.variable = breakIfNotString(args.variable);
@@ -1125,7 +1125,7 @@ export class SLOT_SAVE extends Action {
 export class SLOT_LOAD extends Action {
 	action: 'SLOT_LOAD';
 	slot: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SLOT_LOAD';
 		this.slot = breakIfNotNumber(args.slot);
@@ -1137,7 +1137,7 @@ export class SLOT_LOAD extends Action {
 export class SLOT_ERASE extends Action {
 	action: 'SLOT_ERASE';
 	slot: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SLOT_ERASE';
 		this.slot = breakIfNotNumber(args.slot);
@@ -1149,7 +1149,7 @@ export class SLOT_ERASE extends Action {
 export class SET_CONNECT_SERIAL_DIALOG extends Action {
 	action: 'SET_CONNECT_SERIAL_DIALOG';
 	serial_dialog: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_CONNECT_SERIAL_DIALOG';
 		this.serial_dialog = breakIfNotString(args.serial_dialog);
@@ -1162,7 +1162,7 @@ export class SHOW_SERIAL_DIALOG extends Action {
 	action: 'SHOW_SERIAL_DIALOG';
 	serial_dialog: string;
 	disable_newline?: boolean; // might be absent on old stuff
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SHOW_SERIAL_DIALOG';
 		this.serial_dialog = breakIfNotString(args.serial_dialog);
@@ -1181,7 +1181,7 @@ export class SHOW_SERIAL_DIALOG extends Action {
 export class SET_MAP_LOOK_SCRIPT extends Action {
 	action: 'SET_MAP_LOOK_SCRIPT';
 	script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_MAP_LOOK_SCRIPT';
 		this.script = breakIfNotString(args.script);
@@ -1197,7 +1197,7 @@ export class SET_ENTITY_LOOK_SCRIPT extends Action {
 	action: 'SET_ENTITY_LOOK_SCRIPT';
 	script: string;
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_LOOK_SCRIPT';
 		this.script = breakIfNotString(args.script);
@@ -1213,7 +1213,7 @@ export class SET_ENTITY_LOOK_SCRIPT extends Action {
 export class SET_TELEPORT_ENABLED extends Action {
 	action: 'SET_TELEPORT_ENABLED';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_TELEPORT_ENABLED';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -1234,7 +1234,7 @@ export class SET_BLE_FLAG extends Action {
 	action: 'SET_BLE_FLAG';
 	ble_flag: string;
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_BLE_FLAG';
 		this.ble_flag = breakIfNotString(args.ble_flag);
@@ -1254,7 +1254,7 @@ export class SET_BLE_FLAG extends Action {
 export class SET_SERIAL_DIALOG_CONTROL extends Action {
 	action: 'SET_SERIAL_DIALOG_CONTROL';
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_SERIAL_DIALOG_CONTROL';
 		this.bool_value = breakIfNotBool(args.bool_value);
@@ -1281,7 +1281,7 @@ export class REGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	command: string;
 	script: string;
 	is_fail?: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND';
 		this.command = breakIfNotString(args.command);
@@ -1299,7 +1299,7 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	command: string;
 	script: string;
 	argument: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 		this.command = breakIfNotString(args.command);
@@ -1314,7 +1314,7 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND';
 	command: string;
 	is_fail?: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND';
 		this.command = breakIfNotString(args.command);
@@ -1330,7 +1330,7 @@ export class UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 	command: string;
 	argument: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT';
 		this.command = breakIfNotString(args.command);
@@ -1344,7 +1344,7 @@ export class SET_ENTITY_MOVEMENT_RELATIVE extends Action {
 	action: 'SET_ENTITY_MOVEMENT_RELATIVE';
 	relative_direction: number;
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_ENTITY_MOVEMENT_RELATIVE';
 		this.relative_direction = breakIfNotNumber(args.relative_direction);
@@ -1380,7 +1380,7 @@ export class CLOSE_SERIAL_DIALOG extends Action {
 export class SET_LIGHTS_CONTROL extends Action {
 	action: 'SET_LIGHTS_CONTROL';
 	enabled: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_LIGHTS_CONTROL';
 		this.enabled = breakIfNotBool(args.enabled);
@@ -1406,7 +1406,7 @@ export class SET_LIGHTS_STATE extends Action {
 	action: 'SET_LIGHTS_STATE';
 	lights: string | string[];
 	enabled: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_LIGHTS_STATE';
 		this.enabled = breakIfNotBool(args.enabled);
@@ -1432,7 +1432,7 @@ export class SET_LIGHTS_STATE extends Action {
 export class GOTO_ACTION_INDEX extends Action {
 	action: 'GOTO_ACTION_INDEX';
 	action_index: number | string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'GOTO_ACTION_INDEX';
 		this.action_index = breakIfNotStringOrNumber(args.action_index);
@@ -1452,7 +1452,7 @@ export class SET_SCRIPT_PAUSE extends Action {
 	entity: string;
 	script_slot: string;
 	bool_value: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_SCRIPT_PAUSE';
 		this.entity = breakIfNotString(args.entity);
@@ -1477,7 +1477,7 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 	command: string;
 	alias: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'REGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 		this.command = breakIfNotString(args.command);
@@ -1490,7 +1490,7 @@ export class REGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 export class UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS extends Action {
 	action: 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 	alias: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS';
 		this.alias = breakIfNotString(args.alias);
@@ -1503,7 +1503,7 @@ export class SET_SERIAL_DIALOG_COMMAND_VISIBILITY extends Action {
 	action: 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
 	command: string;
 	is_visible: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'SET_SERIAL_DIALOG_COMMAND_VISIBILITY';
 		this.command = breakIfNotString(args.command);
@@ -1530,7 +1530,7 @@ export class CHECK_ENTITY_NAME extends StringCheckableAction {
 	action: 'CHECK_ENTITY_NAME';
 	entity: string;
 	string: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_NAME';
 		if (args.success_script) {
@@ -1562,7 +1562,7 @@ export class CHECK_ENTITY_X extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_X';
 	entity: string;
 	expected_u2: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_X';
 		if (args.success_script) {
@@ -1598,7 +1598,7 @@ export class CHECK_ENTITY_Y extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_Y';
 	entity: string;
 	expected_u2: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_Y';
 		if (args.success_script) {
@@ -1634,7 +1634,7 @@ export class CHECK_ENTITY_INTERACT_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_INTERACT_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_INTERACT_SCRIPT';
 		if (args.success_script) {
@@ -1666,7 +1666,7 @@ export class CHECK_ENTITY_TICK_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_TICK_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_TICK_SCRIPT';
 		if (args.success_script) {
@@ -1698,7 +1698,7 @@ export class CHECK_ENTITY_LOOK_SCRIPT extends StringCheckableAction {
 	action: 'CHECK_ENTITY_LOOK_SCRIPT';
 	entity: string;
 	expected_script: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_LOOK_SCRIPT';
 		if (args.success_script) {
@@ -1730,7 +1730,7 @@ export class CHECK_ENTITY_TYPE extends StringCheckableAction {
 	action: 'CHECK_ENTITY_TYPE';
 	entity: string;
 	entity_type: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_TYPE';
 		if (args.success_script) {
@@ -1762,7 +1762,7 @@ export class CHECK_ENTITY_PRIMARY_ID extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_PRIMARY_ID';
 	entity: string;
 	expected_u2: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID';
 		if (args.success_script) {
@@ -1798,7 +1798,7 @@ export class CHECK_ENTITY_SECONDARY_ID extends NumberCheckableEqualityAction {
 	action: 'CHECK_ENTITY_SECONDARY_ID';
 	entity: string;
 	expected_u2: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_SECONDARY_ID';
 		if (args.success_script) {
@@ -1834,7 +1834,7 @@ export class CHECK_ENTITY_PRIMARY_ID_TYPE extends NumberCheckableEqualityAction 
 	action: 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 	entity: string;
 	expected_byte: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_PRIMARY_ID_TYPE';
 		if (args.success_script) {
@@ -1870,7 +1870,7 @@ export class CHECK_ENTITY_CURRENT_ANIMATION extends NumberCheckableEqualityActio
 	action: 'CHECK_ENTITY_CURRENT_ANIMATION';
 	entity: string;
 	expected_byte: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_CURRENT_ANIMATION';
 		if (args.success_script) {
@@ -1907,7 +1907,7 @@ export class CHECK_ENTITY_CURRENT_FRAME extends NumberCheckableEqualityAction {
 	entity: string;
 	expected_byte: number;
 	expected_bool: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_CURRENT_FRAME';
 		if (args.success_script) {
@@ -1943,7 +1943,7 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckableAction {
 	action: 'CHECK_ENTITY_DIRECTION';
 	entity: string;
 	direction: string; // north, south, east, west
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_DIRECTION';
 		if (args.success_script) {
@@ -1974,7 +1974,7 @@ export class CHECK_ENTITY_DIRECTION extends StringCheckableAction {
 export class CHECK_ENTITY_GLITCHED extends BoolGetableAction {
 	action: 'CHECK_ENTITY_GLITCHED';
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_GLITCHED';
 		if (args.success_script) {
@@ -1999,7 +1999,7 @@ export class CHECK_ENTITY_PATH extends StringCheckableAction {
 	action: 'CHECK_ENTITY_PATH';
 	geometry: string;
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_ENTITY_PATH';
 		if (args.success_script) {
@@ -2030,7 +2030,7 @@ export class CHECK_ENTITY_PATH extends StringCheckableAction {
 export class CHECK_SAVE_FLAG extends BoolGetableAction {
 	action: 'CHECK_SAVE_FLAG';
 	save_flag: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_SAVE_FLAG';
 		if (args.success_script) {
@@ -2057,7 +2057,7 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetableAction {
 	action: 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 	geometry: string;
 	entity: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_IF_ENTITY_IS_IN_GEOMETRY';
 		if (args.success_script) {
@@ -2086,7 +2086,7 @@ export class CHECK_IF_ENTITY_IS_IN_GEOMETRY extends BoolGetableAction {
 export class CHECK_FOR_BUTTON_PRESS extends BoolGetableAction {
 	action: 'CHECK_FOR_BUTTON_PRESS';
 	button_id: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_FOR_BUTTON_PRESS';
 		if (args.success_script) {
@@ -2110,7 +2110,7 @@ export class CHECK_FOR_BUTTON_PRESS extends BoolGetableAction {
 export class CHECK_FOR_BUTTON_STATE extends BoolGetableAction {
 	action: 'CHECK_FOR_BUTTON_STATE';
 	button_id: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_FOR_BUTTON_STATE';
 		if (args.success_script) {
@@ -2138,7 +2138,7 @@ export class CHECK_FOR_BUTTON_STATE extends BoolGetableAction {
 export class CHECK_WARP_STATE extends StringCheckableAction {
 	action: 'CHECK_WARP_STATE';
 	string: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_WARP_STATE';
 		if (args.success_script) {
@@ -2172,7 +2172,7 @@ export class CHECK_VARIABLE extends NumberComparisonAction {
 	variable: string;
 	comparison: string;
 	value: number;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_VARIABLE';
 		if (args.success_script) {
@@ -2206,7 +2206,7 @@ export class CHECK_VARIABLES extends NumberComparisonAction {
 	variable: string;
 	comparison: string;
 	source: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_VARIABLES';
 		if (args.success_script) {
@@ -2240,7 +2240,7 @@ export class CHECK_MAP extends StringCheckableAction {
 	action: 'CHECK_MAP';
 	map: string;
 	expected_bool: boolean;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_MAP';
 		if (args.success_script) {
@@ -2264,7 +2264,7 @@ export class CHECK_MAP extends StringCheckableAction {
 export class CHECK_BLE_FLAG extends StringCheckableAction {
 	action: 'CHECK_BLE_FLAG';
 	ble_flag: string;
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_BLE_FLAG';
 		if (args.success_script) {
@@ -2287,7 +2287,7 @@ export class CHECK_BLE_FLAG extends StringCheckableAction {
 }
 export class CHECK_DIALOG_OPEN extends BoolGetableAction {
 	action: 'CHECK_DIALOG_OPEN';
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_DIALOG_OPEN';
 		if (args.success_script) {
@@ -2309,7 +2309,7 @@ export class CHECK_DIALOG_OPEN extends BoolGetableAction {
 }
 export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetableAction {
 	action: 'CHECK_SERIAL_DIALOG_OPEN';
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_SERIAL_DIALOG_OPEN';
 		if (args.success_script) {
@@ -2335,7 +2335,7 @@ export class CHECK_SERIAL_DIALOG_OPEN extends BoolGetableAction {
 }
 export class CHECK_DEBUG_MODE extends BoolGetableAction {
 	action: 'CHECK_DEBUG_MODE';
-	constructor(args: GenericActionish) {
+	constructor(args: GenericObj) {
 		super();
 		this.action = 'CHECK_DEBUG_MODE';
 		if (args.success_script) {
@@ -2432,139 +2432,139 @@ export const breakIfNotBool = (v: unknown): boolean => {
 
 export const actionConstructorLookup = {
 	NULL_ACTION: () => new NULL_ACTION(),
-	COPY_SCRIPT: (args: GenericActionish) => new COPY_SCRIPT(args),
-	LABEL: (args: GenericActionish) => new LABEL(args),
-	RUN_SCRIPT: (args: GenericActionish) => new RUN_SCRIPT(args),
-	BLOCKING_DELAY: (args: GenericActionish) => new BLOCKING_DELAY(args),
-	NON_BLOCKING_DELAY: (args: GenericActionish) => new NON_BLOCKING_DELAY(args),
-	UNREGISTER_SERIAL_DIALOG_COMMAND: (args: GenericActionish) => {
+	COPY_SCRIPT: (args: GenericObj) => new COPY_SCRIPT(args),
+	LABEL: (args: GenericObj) => new LABEL(args),
+	RUN_SCRIPT: (args: GenericObj) => new RUN_SCRIPT(args),
+	BLOCKING_DELAY: (args: GenericObj) => new BLOCKING_DELAY(args),
+	NON_BLOCKING_DELAY: (args: GenericObj) => new NON_BLOCKING_DELAY(args),
+	UNREGISTER_SERIAL_DIALOG_COMMAND: (args: GenericObj) => {
 		return new UNREGISTER_SERIAL_DIALOG_COMMAND(args);
 	},
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (args: GenericActionish) => {
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (args: GenericObj) => {
 		return new UNREGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT(args);
 	},
-	SET_ENTITY_NAME: (args: GenericActionish) => new SET_ENTITY_NAME(args),
-	SET_ENTITY_X: (args: GenericActionish) => new SET_ENTITY_X(args),
-	SET_ENTITY_Y: (args: GenericActionish) => new SET_ENTITY_Y(args),
-	SET_ENTITY_INTERACT_SCRIPT: (args: GenericActionish) => new SET_ENTITY_INTERACT_SCRIPT(args),
-	SET_ENTITY_TICK_SCRIPT: (args: GenericActionish) => new SET_ENTITY_TICK_SCRIPT(args),
-	SET_ENTITY_TYPE: (args: GenericActionish) => new SET_ENTITY_TYPE(args),
-	SET_ENTITY_PRIMARY_ID: (args: GenericActionish) => new SET_ENTITY_PRIMARY_ID(args),
-	SET_ENTITY_SECONDARY_ID: (args: GenericActionish) => new SET_ENTITY_SECONDARY_ID(args),
-	SET_ENTITY_PRIMARY_ID_TYPE: (args: GenericActionish) => new SET_ENTITY_PRIMARY_ID_TYPE(args),
-	SET_ENTITY_CURRENT_ANIMATION: (args: GenericActionish) => {
+	SET_ENTITY_NAME: (args: GenericObj) => new SET_ENTITY_NAME(args),
+	SET_ENTITY_X: (args: GenericObj) => new SET_ENTITY_X(args),
+	SET_ENTITY_Y: (args: GenericObj) => new SET_ENTITY_Y(args),
+	SET_ENTITY_INTERACT_SCRIPT: (args: GenericObj) => new SET_ENTITY_INTERACT_SCRIPT(args),
+	SET_ENTITY_TICK_SCRIPT: (args: GenericObj) => new SET_ENTITY_TICK_SCRIPT(args),
+	SET_ENTITY_TYPE: (args: GenericObj) => new SET_ENTITY_TYPE(args),
+	SET_ENTITY_PRIMARY_ID: (args: GenericObj) => new SET_ENTITY_PRIMARY_ID(args),
+	SET_ENTITY_SECONDARY_ID: (args: GenericObj) => new SET_ENTITY_SECONDARY_ID(args),
+	SET_ENTITY_PRIMARY_ID_TYPE: (args: GenericObj) => new SET_ENTITY_PRIMARY_ID_TYPE(args),
+	SET_ENTITY_CURRENT_ANIMATION: (args: GenericObj) => {
 		return new SET_ENTITY_CURRENT_ANIMATION(args);
 	},
-	SET_ENTITY_CURRENT_FRAME: (args: GenericActionish) => new SET_ENTITY_CURRENT_FRAME(args),
-	SET_ENTITY_DIRECTION: (args: GenericActionish) => new SET_ENTITY_DIRECTION(args),
-	SET_ENTITY_DIRECTION_RELATIVE: (args: GenericActionish) => {
+	SET_ENTITY_CURRENT_FRAME: (args: GenericObj) => new SET_ENTITY_CURRENT_FRAME(args),
+	SET_ENTITY_DIRECTION: (args: GenericObj) => new SET_ENTITY_DIRECTION(args),
+	SET_ENTITY_DIRECTION_RELATIVE: (args: GenericObj) => {
 		return new SET_ENTITY_DIRECTION_RELATIVE(args);
 	},
-	SET_ENTITY_DIRECTION_TARGET_ENTITY: (args: GenericActionish) => {
+	SET_ENTITY_DIRECTION_TARGET_ENTITY: (args: GenericObj) => {
 		return new SET_ENTITY_DIRECTION_TARGET_ENTITY(args);
 	},
-	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (args: GenericActionish) => {
+	SET_ENTITY_DIRECTION_TARGET_GEOMETRY: (args: GenericObj) => {
 		return new SET_ENTITY_DIRECTION_TARGET_GEOMETRY(args);
 	},
-	SET_ENTITY_GLITCHED: (args: GenericActionish) => new SET_ENTITY_GLITCHED(args),
-	SET_ENTITY_PATH: (args: GenericActionish) => new SET_ENTITY_PATH(args),
-	SET_SAVE_FLAG: (args: GenericActionish) => new SET_SAVE_FLAG(args),
-	SET_PLAYER_CONTROL: (args: GenericActionish) => new SET_PLAYER_CONTROL(args),
-	SET_MAP_TICK_SCRIPT: (args: GenericActionish) => new SET_MAP_TICK_SCRIPT(args),
-	SET_HEX_CURSOR_LOCATION: (args: GenericActionish) => new SET_HEX_CURSOR_LOCATION(args),
-	SET_WARP_STATE: (args: GenericActionish) => new SET_WARP_STATE(args),
-	SET_HEX_EDITOR_STATE: (args: GenericActionish) => new SET_HEX_EDITOR_STATE(args),
-	SET_HEX_EDITOR_DIALOG_MODE: (args: GenericActionish) => new SET_HEX_EDITOR_DIALOG_MODE(args),
-	SET_HEX_EDITOR_CONTROL: (args: GenericActionish) => new SET_HEX_EDITOR_CONTROL(args),
-	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (args: GenericActionish) => {
+	SET_ENTITY_GLITCHED: (args: GenericObj) => new SET_ENTITY_GLITCHED(args),
+	SET_ENTITY_PATH: (args: GenericObj) => new SET_ENTITY_PATH(args),
+	SET_SAVE_FLAG: (args: GenericObj) => new SET_SAVE_FLAG(args),
+	SET_PLAYER_CONTROL: (args: GenericObj) => new SET_PLAYER_CONTROL(args),
+	SET_MAP_TICK_SCRIPT: (args: GenericObj) => new SET_MAP_TICK_SCRIPT(args),
+	SET_HEX_CURSOR_LOCATION: (args: GenericObj) => new SET_HEX_CURSOR_LOCATION(args),
+	SET_WARP_STATE: (args: GenericObj) => new SET_WARP_STATE(args),
+	SET_HEX_EDITOR_STATE: (args: GenericObj) => new SET_HEX_EDITOR_STATE(args),
+	SET_HEX_EDITOR_DIALOG_MODE: (args: GenericObj) => new SET_HEX_EDITOR_DIALOG_MODE(args),
+	SET_HEX_EDITOR_CONTROL: (args: GenericObj) => new SET_HEX_EDITOR_CONTROL(args),
+	SET_HEX_EDITOR_CONTROL_CLIPBOARD: (args: GenericObj) => {
 		return new SET_HEX_EDITOR_CONTROL_CLIPBOARD(args);
 	},
-	LOAD_MAP: (args: GenericActionish) => new LOAD_MAP(args),
-	SHOW_DIALOG: (args: GenericActionish) => new SHOW_DIALOG(args),
-	PLAY_ENTITY_ANIMATION: (args: GenericActionish) => new PLAY_ENTITY_ANIMATION(args),
-	TELEPORT_ENTITY_TO_GEOMETRY: (args: GenericActionish) => new TELEPORT_ENTITY_TO_GEOMETRY(args),
-	WALK_ENTITY_TO_GEOMETRY: (args: GenericActionish) => new WALK_ENTITY_TO_GEOMETRY(args),
-	WALK_ENTITY_ALONG_GEOMETRY: (args: GenericActionish) => new WALK_ENTITY_ALONG_GEOMETRY(args),
-	LOOP_ENTITY_ALONG_GEOMETRY: (args: GenericActionish) => new LOOP_ENTITY_ALONG_GEOMETRY(args),
-	SET_CAMERA_TO_FOLLOW_ENTITY: (args: GenericActionish) => new SET_CAMERA_TO_FOLLOW_ENTITY(args),
-	TELEPORT_CAMERA_TO_GEOMETRY: (args: GenericActionish) => new TELEPORT_CAMERA_TO_GEOMETRY(args),
-	PAN_CAMERA_TO_ENTITY: (args: GenericActionish) => new PAN_CAMERA_TO_ENTITY(args),
-	PAN_CAMERA_TO_GEOMETRY: (args: GenericActionish) => new PAN_CAMERA_TO_GEOMETRY(args),
-	PAN_CAMERA_ALONG_GEOMETRY: (args: GenericActionish) => new PAN_CAMERA_ALONG_GEOMETRY(args),
-	LOOP_CAMERA_ALONG_GEOMETRY: (args: GenericActionish) => new LOOP_CAMERA_ALONG_GEOMETRY(args),
-	SET_SCREEN_SHAKE: (args: GenericActionish) => new SET_SCREEN_SHAKE(args),
-	SCREEN_FADE_OUT: (args: GenericActionish) => new SCREEN_FADE_OUT(args),
-	SCREEN_FADE_IN: (args: GenericActionish) => new SCREEN_FADE_IN(args),
-	MUTATE_VARIABLE: (args: GenericActionish) => new MUTATE_VARIABLE(args),
-	MUTATE_VARIABLES: (args: GenericActionish) => new MUTATE_VARIABLES(args),
-	COPY_VARIABLE: (args: GenericActionish) => new COPY_VARIABLE(args),
+	LOAD_MAP: (args: GenericObj) => new LOAD_MAP(args),
+	SHOW_DIALOG: (args: GenericObj) => new SHOW_DIALOG(args),
+	PLAY_ENTITY_ANIMATION: (args: GenericObj) => new PLAY_ENTITY_ANIMATION(args),
+	TELEPORT_ENTITY_TO_GEOMETRY: (args: GenericObj) => new TELEPORT_ENTITY_TO_GEOMETRY(args),
+	WALK_ENTITY_TO_GEOMETRY: (args: GenericObj) => new WALK_ENTITY_TO_GEOMETRY(args),
+	WALK_ENTITY_ALONG_GEOMETRY: (args: GenericObj) => new WALK_ENTITY_ALONG_GEOMETRY(args),
+	LOOP_ENTITY_ALONG_GEOMETRY: (args: GenericObj) => new LOOP_ENTITY_ALONG_GEOMETRY(args),
+	SET_CAMERA_TO_FOLLOW_ENTITY: (args: GenericObj) => new SET_CAMERA_TO_FOLLOW_ENTITY(args),
+	TELEPORT_CAMERA_TO_GEOMETRY: (args: GenericObj) => new TELEPORT_CAMERA_TO_GEOMETRY(args),
+	PAN_CAMERA_TO_ENTITY: (args: GenericObj) => new PAN_CAMERA_TO_ENTITY(args),
+	PAN_CAMERA_TO_GEOMETRY: (args: GenericObj) => new PAN_CAMERA_TO_GEOMETRY(args),
+	PAN_CAMERA_ALONG_GEOMETRY: (args: GenericObj) => new PAN_CAMERA_ALONG_GEOMETRY(args),
+	LOOP_CAMERA_ALONG_GEOMETRY: (args: GenericObj) => new LOOP_CAMERA_ALONG_GEOMETRY(args),
+	SET_SCREEN_SHAKE: (args: GenericObj) => new SET_SCREEN_SHAKE(args),
+	SCREEN_FADE_OUT: (args: GenericObj) => new SCREEN_FADE_OUT(args),
+	SCREEN_FADE_IN: (args: GenericObj) => new SCREEN_FADE_IN(args),
+	MUTATE_VARIABLE: (args: GenericObj) => new MUTATE_VARIABLE(args),
+	MUTATE_VARIABLES: (args: GenericObj) => new MUTATE_VARIABLES(args),
+	COPY_VARIABLE: (args: GenericObj) => new COPY_VARIABLE(args),
 	SLOT_SAVE: () => new SLOT_SAVE(),
-	SLOT_LOAD: (args: GenericActionish) => new SLOT_LOAD(args),
-	SLOT_ERASE: (args: GenericActionish) => new SLOT_ERASE(args),
-	SET_CONNECT_SERIAL_DIALOG: (args: GenericActionish) => new SET_CONNECT_SERIAL_DIALOG(args),
-	SHOW_SERIAL_DIALOG: (args: GenericActionish) => new SHOW_SERIAL_DIALOG(args),
-	SET_MAP_LOOK_SCRIPT: (args: GenericActionish) => new SET_MAP_LOOK_SCRIPT(args),
-	SET_ENTITY_LOOK_SCRIPT: (args: GenericActionish) => new SET_ENTITY_LOOK_SCRIPT(args),
-	SET_TELEPORT_ENABLED: (args: GenericActionish) => new SET_TELEPORT_ENABLED(args),
-	SET_BLE_FLAG: (args: GenericActionish) => new SET_BLE_FLAG(args),
-	SET_SERIAL_DIALOG_CONTROL: (args: GenericActionish) => new SET_SERIAL_DIALOG_CONTROL(args),
-	REGISTER_SERIAL_DIALOG_COMMAND: (args: GenericActionish) => {
+	SLOT_LOAD: (args: GenericObj) => new SLOT_LOAD(args),
+	SLOT_ERASE: (args: GenericObj) => new SLOT_ERASE(args),
+	SET_CONNECT_SERIAL_DIALOG: (args: GenericObj) => new SET_CONNECT_SERIAL_DIALOG(args),
+	SHOW_SERIAL_DIALOG: (args: GenericObj) => new SHOW_SERIAL_DIALOG(args),
+	SET_MAP_LOOK_SCRIPT: (args: GenericObj) => new SET_MAP_LOOK_SCRIPT(args),
+	SET_ENTITY_LOOK_SCRIPT: (args: GenericObj) => new SET_ENTITY_LOOK_SCRIPT(args),
+	SET_TELEPORT_ENABLED: (args: GenericObj) => new SET_TELEPORT_ENABLED(args),
+	SET_BLE_FLAG: (args: GenericObj) => new SET_BLE_FLAG(args),
+	SET_SERIAL_DIALOG_CONTROL: (args: GenericObj) => new SET_SERIAL_DIALOG_CONTROL(args),
+	REGISTER_SERIAL_DIALOG_COMMAND: (args: GenericObj) => {
 		return new REGISTER_SERIAL_DIALOG_COMMAND(args);
 	},
-	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (args: GenericActionish) => {
+	REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT: (args: GenericObj) => {
 		return new REGISTER_SERIAL_DIALOG_COMMAND_ARGUMENT(args);
 	},
-	SET_ENTITY_MOVEMENT_RELATIVE: (args: GenericActionish) => {
+	SET_ENTITY_MOVEMENT_RELATIVE: (args: GenericObj) => {
 		return new SET_ENTITY_MOVEMENT_RELATIVE(args);
 	},
 	CLOSE_DIALOG: () => new CLOSE_DIALOG(),
 	CLOSE_SERIAL_DIALOG: () => new CLOSE_SERIAL_DIALOG(),
-	SET_LIGHTS_CONTROL: (args: GenericActionish) => new SET_LIGHTS_CONTROL(args),
-	SET_LIGHTS_STATE: (args: GenericActionish) => new SET_LIGHTS_STATE(args),
-	GOTO_ACTION_INDEX: (args: GenericActionish) => new GOTO_ACTION_INDEX(args),
-	SET_SCRIPT_PAUSE: (args: GenericActionish) => new SET_SCRIPT_PAUSE(args),
-	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (args: GenericActionish) => {
+	SET_LIGHTS_CONTROL: (args: GenericObj) => new SET_LIGHTS_CONTROL(args),
+	SET_LIGHTS_STATE: (args: GenericObj) => new SET_LIGHTS_STATE(args),
+	GOTO_ACTION_INDEX: (args: GenericObj) => new GOTO_ACTION_INDEX(args),
+	SET_SCRIPT_PAUSE: (args: GenericObj) => new SET_SCRIPT_PAUSE(args),
+	REGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (args: GenericObj) => {
 		return new REGISTER_SERIAL_DIALOG_COMMAND_ALIAS(args);
 	},
-	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (args: GenericActionish) => {
+	UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS: (args: GenericObj) => {
 		return new UNREGISTER_SERIAL_DIALOG_COMMAND_ALIAS(args);
 	},
-	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (args: GenericActionish) => {
+	SET_SERIAL_DIALOG_COMMAND_VISIBILITY: (args: GenericObj) => {
 		return new SET_SERIAL_DIALOG_COMMAND_VISIBILITY(args);
 	},
-	CHECK_ENTITY_NAME: (args: GenericActionish) => new CHECK_ENTITY_NAME(args),
-	CHECK_ENTITY_X: (args: GenericActionish) => new CHECK_ENTITY_X(args),
-	CHECK_ENTITY_Y: (args: GenericActionish) => new CHECK_ENTITY_Y(args),
-	CHECK_ENTITY_INTERACT_SCRIPT: (args: GenericActionish) => {
+	CHECK_ENTITY_NAME: (args: GenericObj) => new CHECK_ENTITY_NAME(args),
+	CHECK_ENTITY_X: (args: GenericObj) => new CHECK_ENTITY_X(args),
+	CHECK_ENTITY_Y: (args: GenericObj) => new CHECK_ENTITY_Y(args),
+	CHECK_ENTITY_INTERACT_SCRIPT: (args: GenericObj) => {
 		return new CHECK_ENTITY_INTERACT_SCRIPT(args);
 	},
-	CHECK_ENTITY_TICK_SCRIPT: (args: GenericActionish) => new CHECK_ENTITY_TICK_SCRIPT(args),
-	CHECK_ENTITY_LOOK_SCRIPT: (args: GenericActionish) => new CHECK_ENTITY_LOOK_SCRIPT(args),
-	CHECK_ENTITY_TYPE: (args: GenericActionish) => new CHECK_ENTITY_TYPE(args),
-	CHECK_ENTITY_PRIMARY_ID: (args: GenericActionish) => new CHECK_ENTITY_PRIMARY_ID(args),
-	CHECK_ENTITY_SECONDARY_ID: (args: GenericActionish) => new CHECK_ENTITY_SECONDARY_ID(args),
-	CHECK_ENTITY_PRIMARY_ID_TYPE: (args: GenericActionish) => {
+	CHECK_ENTITY_TICK_SCRIPT: (args: GenericObj) => new CHECK_ENTITY_TICK_SCRIPT(args),
+	CHECK_ENTITY_LOOK_SCRIPT: (args: GenericObj) => new CHECK_ENTITY_LOOK_SCRIPT(args),
+	CHECK_ENTITY_TYPE: (args: GenericObj) => new CHECK_ENTITY_TYPE(args),
+	CHECK_ENTITY_PRIMARY_ID: (args: GenericObj) => new CHECK_ENTITY_PRIMARY_ID(args),
+	CHECK_ENTITY_SECONDARY_ID: (args: GenericObj) => new CHECK_ENTITY_SECONDARY_ID(args),
+	CHECK_ENTITY_PRIMARY_ID_TYPE: (args: GenericObj) => {
 		return new CHECK_ENTITY_PRIMARY_ID_TYPE(args);
 	},
-	CHECK_ENTITY_CURRENT_ANIMATION: (args: GenericActionish) => {
+	CHECK_ENTITY_CURRENT_ANIMATION: (args: GenericObj) => {
 		return new CHECK_ENTITY_CURRENT_ANIMATION(args);
 	},
-	CHECK_ENTITY_CURRENT_FRAME: (args: GenericActionish) => new CHECK_ENTITY_CURRENT_FRAME(args),
-	CHECK_ENTITY_DIRECTION: (args: GenericActionish) => new CHECK_ENTITY_DIRECTION(args),
-	CHECK_ENTITY_GLITCHED: (args: GenericActionish) => new CHECK_ENTITY_GLITCHED(args),
-	CHECK_ENTITY_PATH: (args: GenericActionish) => new CHECK_ENTITY_PATH(args),
-	CHECK_SAVE_FLAG: (args: GenericActionish) => new CHECK_SAVE_FLAG(args),
-	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (args: GenericActionish) => {
+	CHECK_ENTITY_CURRENT_FRAME: (args: GenericObj) => new CHECK_ENTITY_CURRENT_FRAME(args),
+	CHECK_ENTITY_DIRECTION: (args: GenericObj) => new CHECK_ENTITY_DIRECTION(args),
+	CHECK_ENTITY_GLITCHED: (args: GenericObj) => new CHECK_ENTITY_GLITCHED(args),
+	CHECK_ENTITY_PATH: (args: GenericObj) => new CHECK_ENTITY_PATH(args),
+	CHECK_SAVE_FLAG: (args: GenericObj) => new CHECK_SAVE_FLAG(args),
+	CHECK_IF_ENTITY_IS_IN_GEOMETRY: (args: GenericObj) => {
 		return new CHECK_IF_ENTITY_IS_IN_GEOMETRY(args);
 	},
-	CHECK_FOR_BUTTON_PRESS: (args: GenericActionish) => new CHECK_FOR_BUTTON_PRESS(args),
-	CHECK_FOR_BUTTON_STATE: (args: GenericActionish) => new CHECK_FOR_BUTTON_STATE(args),
-	CHECK_WARP_STATE: (args: GenericActionish) => new CHECK_WARP_STATE(args),
-	CHECK_VARIABLE: (args: GenericActionish) => new CHECK_VARIABLE(args),
-	CHECK_VARIABLES: (args: GenericActionish) => new CHECK_VARIABLES(args),
-	CHECK_MAP: (args: GenericActionish) => new CHECK_MAP(args),
-	CHECK_BLE_FLAG: (args: GenericActionish) => new CHECK_BLE_FLAG(args),
-	CHECK_DIALOG_OPEN: (args: GenericActionish) => new CHECK_DIALOG_OPEN(args),
-	CHECK_SERIAL_DIALOG_OPEN: (args: GenericActionish) => new CHECK_SERIAL_DIALOG_OPEN(args),
-	CHECK_DEBUG_MODE: (args: GenericActionish) => new CHECK_DEBUG_MODE(args),
+	CHECK_FOR_BUTTON_PRESS: (args: GenericObj) => new CHECK_FOR_BUTTON_PRESS(args),
+	CHECK_FOR_BUTTON_STATE: (args: GenericObj) => new CHECK_FOR_BUTTON_STATE(args),
+	CHECK_WARP_STATE: (args: GenericObj) => new CHECK_WARP_STATE(args),
+	CHECK_VARIABLE: (args: GenericObj) => new CHECK_VARIABLE(args),
+	CHECK_VARIABLES: (args: GenericObj) => new CHECK_VARIABLES(args),
+	CHECK_MAP: (args: GenericObj) => new CHECK_MAP(args),
+	CHECK_BLE_FLAG: (args: GenericObj) => new CHECK_BLE_FLAG(args),
+	CHECK_DIALOG_OPEN: (args: GenericObj) => new CHECK_DIALOG_OPEN(args),
+	CHECK_SERIAL_DIALOG_OPEN: (args: GenericObj) => new CHECK_SERIAL_DIALOG_OPEN(args),
+	CHECK_DEBUG_MODE: (args: GenericObj) => new CHECK_DEBUG_MODE(args),
 };

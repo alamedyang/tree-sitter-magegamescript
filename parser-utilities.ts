@@ -6,7 +6,6 @@ import {
 	BoolBinaryExpression,
 	BoolComparison,
 	BoolExpression,
-	type MGSLocation,
 	type MathlangMessage,
 	LabelDefinition,
 	MathlangSequence,
@@ -152,7 +151,7 @@ export const reportErrorNodes = (f: FileState, node: TreeSitterNode): (TreeSitte
 	return errorNodes;
 };
 
-const printableLocation = (fileMap: FileMap, location: MGSLocation): string => {
+const printableLocation = (fileMap: FileMap, location: MathlangLocation): string => {
 	const fileName = location.fileName || '';
 	const fileText = fileMap[fileName].fileText;
 	const allLines = fileText.split('\n');

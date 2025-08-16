@@ -224,17 +224,14 @@ const actionSetBoolMaker = (
 
 // ------------------------ COMMON ACTION HANDLING ------------------------ //
 
-export type GenericActionish = Record<
-	string,
-	boolean | number | string | AnyNode | Record<string, unknown>
->;
+export type GenericObj = Record<string, unknown>;
 // Takes an object with simple values and an object with array values and "spreads" them --
 // e.g. { a: b }, { c: [d,e] } -> [ {a:b, c:d}, {a:b, c:e} ]
 const spreadValues = (
 	f: FileState,
-	commonFields: GenericActionish,
+	commonFields: GenericObj,
 	fieldsToSpread: Record<string, FieldToSpread>,
-): GenericActionish[] => {
+): GenericObj[] => {
 	// ->[]
 	// count spreads
 	let spreadSize = -Infinity;
@@ -255,9 +252,9 @@ const spreadValues = (
 		return [commonFields];
 	}
 	// but spread action into multiple variants
-	const ret: GenericActionish[] = [];
+	const ret: GenericObj[] = [];
 	for (let i = 0; i < spreadSize; i++) {
-		const insert: GenericActionish = { ...commonFields };
+		const insert: GenericObj = { ...commonFields };
 		Object.keys(fieldsToSpread).forEach((fieldName) => {
 			const allValues = fieldsToSpread[fieldName].captures;
 			const currValue = allValues[i % allValues.length];
@@ -309,7 +306,7 @@ export const handleAction = (f: FileState, node: TreeSitterNode): AnyNode[] => {
 			};
 		}
 	});
-	const spreads: GenericActionish[] = spreadValues(f, action, fieldsToSpread);
+	const spreads: GenericObj[] = spreadValues(f, action, fieldsToSpread);
 	// Different param combinations will result in different actions,
 	// so let the handler sort them out after the spreads are spread
 	const handleFn = data.handle;
@@ -374,12 +371,7 @@ type actionDataEntry = {
 	values?: Record<string, unknown>;
 	captures?: string[];
 	optionalCaptures?: string[];
-	handle?: (
-		v: GenericActionish,
-		f: FileState,
-		node: TreeSitterNode,
-		i?: number,
-	) => AnyNode | undefined;
+	handle?: (v: GenericObj, f: FileState, node: TreeSitterNode, i?: number) => AnyNode | undefined;
 };
 const actionData: Record<string, actionDataEntry> = {
 	action_return_statement: {
