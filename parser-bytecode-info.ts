@@ -1,15 +1,10 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import {
-	LabelDefinition,
-	ReturnStatement,
-	CopyMacro,
 	AnyNode,
 	GotoLabel,
 	CommentNode,
 	MathlangLocation,
 	CheckSaveFlag,
-	BoolComparison,
-	BoolGetable,
 } from './parser-types.ts';
 import { type GenericActionish } from './parser-actions.ts';
 import { FileState } from './parser-file.ts';
@@ -39,30 +34,25 @@ export class Action extends AnyNode {
 	clone() {
 		const fn = actionConstructorLookup[this.action];
 		if (!fn) throw new Error('no action constructor for ' + this.action);
-		return fn();
+		return fn(this);
 	}
 	print() {
 		return `json[${JSON.stringify(this, null, '\t')}]`;
+	}
+	static fromArgs(args: unknown) {
+		if (typeof args !== 'object' || args === null) {
+			throw new Error('cannot make Action from non-object');
+		}
+		const actionName = breakIfNotString((args as Action).action);
+		if (actionConstructorLookup[actionName]) {
+			return actionConstructorLookup[actionName](args);
+		}
 	}
 }
 
 // ---------------------------------- SUPER TYPES ---------------------------------- \\
 
-export class BoolGetableAction extends Action {
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
-	getBool() {
-		return this.expected_bool;
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-		return this;
-	}
-}
-export class StringCheckableAction extends Action {
+export class CheckAction extends Action {
 	comment?: string;
 	success_script?: string;
 	label?: string;
@@ -78,6 +68,13 @@ export class StringCheckableAction extends Action {
 	invert() {
 		this.expected_bool = !this.expected_bool;
 		return this;
+	}
+}
+
+export class BoolGetableAction extends CheckAction {}
+export class StringCheckableAction extends CheckAction {
+	constructor() {
+		super();
 	}
 	updateProp(prop: string) {
 		this.comment = prop;
@@ -85,43 +82,18 @@ export class StringCheckableAction extends Action {
 		// just making the red squiggles go away; todo learn best practices
 	}
 }
-export class NumberComparisonAction extends Action {
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
+export class NumberComparisonAction extends CheckAction {
 	constructor() {
 		super();
-		this.expected_bool = true;
-	}
-	getBool() {
-		return this.expected_bool;
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-		return this;
 	}
 	updateProp(prop: boolean) {
 		// to make squiggles go away; not used
 		this.expected_bool = prop;
 	}
 }
-export class NumberCheckableEqualityAction extends Action {
-	comment?: string;
-	success_script?: string;
-	label?: string;
-	jump_index?: number | string;
-	expected_bool: boolean;
+export class NumberCheckableEqualityAction extends CheckAction {
 	constructor() {
 		super();
-	}
-	getBool() {
-		return this.expected_bool;
-	}
-	invert() {
-		this.expected_bool = !this.expected_bool;
-		return this;
 	}
 	updateProp(prop: string | number) {
 		// to make squiggles go away; not used
@@ -140,7 +112,7 @@ export const printGotoSegment = (data: CheckAction | GotoLabel): string => {
 	if (data.label) {
 		return `goto label ${sanitizeLabel(data.label)}`;
 	}
-	if (!isCheckAction(data)) throw new Error('failed isCheckAction()');
+	if (!(data instanceof CheckAction)) throw new Error('not a CheckAction');
 	if (data.jump_index !== undefined) {
 		if (typeof data.jump_index === 'string') {
 			return `goto label ${sanitizeLabel(data.jump_index)}`;
@@ -561,6 +533,9 @@ export class COPY_SCRIPT extends Action {
 			});
 			this.search_and_replace = search_and_replace;
 		}
+	}
+	static quick(script: string) {
+		return new COPY_SCRIPT({ script });
 	}
 	print() {
 		if (!this.search_and_replace) {
@@ -2380,72 +2355,6 @@ export class CHECK_DEBUG_MODE extends BoolGetableAction {
 		return printCheckAction(this, 'debug_mode', true);
 	}
 }
-export type CheckAction =
-	// StringCheckable
-	| CHECK_ENTITY_NAME
-	| CHECK_ENTITY_INTERACT_SCRIPT
-	| CHECK_ENTITY_TICK_SCRIPT
-	| CHECK_ENTITY_LOOK_SCRIPT
-	| CHECK_ENTITY_TYPE
-	| CHECK_ENTITY_DIRECTION
-	| CHECK_ENTITY_PATH
-	| CHECK_WARP_STATE
-	| CHECK_BLE_FLAG
-	| CHECK_MAP
-	// NumberCheckableEquality
-	| CHECK_ENTITY_X
-	| CHECK_ENTITY_Y
-	| CHECK_ENTITY_PRIMARY_ID
-	| CHECK_ENTITY_SECONDARY_ID
-	| CHECK_ENTITY_PRIMARY_ID_TYPE
-	| CHECK_ENTITY_CURRENT_ANIMATION
-	| CHECK_ENTITY_CURRENT_FRAME
-	// BoolGetable
-	| CHECK_ENTITY_GLITCHED
-	| CHECK_SAVE_FLAG
-	| CHECK_IF_ENTITY_IS_IN_GEOMETRY
-	| CHECK_FOR_BUTTON_PRESS
-	| CHECK_FOR_BUTTON_STATE
-	| CHECK_DIALOG_OPEN
-	| CHECK_SERIAL_DIALOG_OPEN
-	| CHECK_DEBUG_MODE
-	// NumberComparison
-	| CHECK_VARIABLE
-	| CHECK_VARIABLES;
-export const isCheckAction = (v: unknown): v is CheckAction => {
-	// if (v instanceof StringCheckable) return true;
-	// if (v instanceof NumberCheckableEquality) return true;
-	// if (v instanceof BoolGetable) return true;
-	// if (v instanceof NumberComparison) return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_NAME') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_X') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_Y') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_INTERACT_SCRIPT') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_TICK_SCRIPT') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_LOOK_SCRIPT') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_TYPE') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_PRIMARY_ID') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_SECONDARY_ID') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_PRIMARY_ID_TYPE') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_CURRENT_ANIMATION') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_CURRENT_FRAME') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_DIRECTION') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_GLITCHED') return true;
-	if ((v as CheckAction).action === 'CHECK_ENTITY_PATH') return true;
-	if ((v as CheckAction).action === 'CHECK_SAVE_FLAG') return true;
-	if ((v as CheckAction).action === 'CHECK_IF_ENTITY_IS_IN_GEOMETRY') return true;
-	if ((v as CheckAction).action === 'CHECK_FOR_BUTTON_PRESS') return true;
-	if ((v as CheckAction).action === 'CHECK_FOR_BUTTON_STATE') return true;
-	if ((v as CheckAction).action === 'CHECK_WARP_STATE') return true;
-	if ((v as CheckAction).action === 'CHECK_VARIABLE') return true;
-	if ((v as CheckAction).action === 'CHECK_VARIABLES') return true;
-	if ((v as CheckAction).action === 'CHECK_MAP') return true;
-	if ((v as CheckAction).action === 'CHECK_BLE_FLAG') return true;
-	if ((v as CheckAction).action === 'CHECK_DIALOG_OPEN') return true;
-	if ((v as CheckAction).action === 'CHECK_SERIAL_DIALOG_OPEN') return true;
-	if ((v as CheckAction).action === 'CHECK_DEBUG_MODE') return true;
-	return false;
-};
 
 export type ActionSetEntityInt =
 	| SET_ENTITY_X
@@ -2498,8 +2407,6 @@ export type ActionMoveOverTime =
 
 export type ActionSetEntityString = SET_ENTITY_NAME | SET_ENTITY_TYPE | SET_ENTITY_PATH;
 
-// ----------------------------------- non TypeScript stuff ----------------------------------- \\
-
 const breakIfNotStringOrStringArray = (v: unknown): string | string[] => {
 	if (typeof v === 'string') return v;
 	if (Array.isArray(v) && v.every((v) => typeof v === 'string')) return v;
@@ -2523,7 +2430,7 @@ export const breakIfNotBool = (v: unknown): boolean => {
 	throw new Error('not a boolean');
 };
 
-const actionConstructorLookup = {
+export const actionConstructorLookup = {
 	NULL_ACTION: () => new NULL_ACTION(),
 	COPY_SCRIPT: (args: GenericActionish) => new COPY_SCRIPT(args),
 	LABEL: (args: GenericActionish) => new LABEL(args),
@@ -2660,59 +2567,4 @@ const actionConstructorLookup = {
 	CHECK_DIALOG_OPEN: (args: GenericActionish) => new CHECK_DIALOG_OPEN(args),
 	CHECK_SERIAL_DIALOG_OPEN: (args: GenericActionish) => new CHECK_SERIAL_DIALOG_OPEN(args),
 	CHECK_DEBUG_MODE: (args: GenericActionish) => new CHECK_DEBUG_MODE(args),
-};
-
-export const summonActionConstructor = (v: unknown): Action => {
-	if (typeof v !== 'object' || v === null || v === undefined) {
-		throw new Error('cannot create action from ' + typeof v);
-	}
-	const actionName = String((v as Action).action); // todo: best practices?
-	if (typeof actionName === 'string' && actionConstructorLookup[actionName]) {
-		return actionConstructorLookup[actionName](v);
-	}
-	throw new Error('failed to create action ' + actionName);
-};
-
-// Takes the "maybe has too many properties" Mathlang object and strips all nonessential fields
-// old style so the old and new output can be directly compared (I think)
-export const standardizeNode = (
-	action: AnyNode | GenericActionish,
-	OOB: number,
-): Action | GenericActionish => {
-	if (action instanceof CopyMacro) {
-		const manual = new COPY_SCRIPT({
-			script: breakIfNotString(action.script),
-		});
-		return manual;
-	}
-	if (action instanceof LabelDefinition) {
-		const value = breakIfNotString(action.label);
-		return new LABEL({ value });
-	}
-	if (action instanceof GotoLabel) {
-		const ret = new GOTO_ACTION_INDEX({
-			action_index: breakIfNotString(action.label),
-		});
-		return ret;
-	}
-	if (action instanceof ReturnStatement) {
-		const ret = new GOTO_ACTION_INDEX({
-			action_index: OOB,
-		});
-		return ret;
-	}
-	if (
-		action instanceof BoolGetable ||
-		action instanceof BoolComparison ||
-		action instanceof Action
-	) {
-		const actionName = breakIfNotString(action.action);
-		if (actionConstructorLookup[actionName]) {
-			return actionConstructorLookup[actionName](action);
-		}
-	}
-	if (!(action instanceof Action)) {
-		throw new Error('Found non-Action when trying to standardize Action');
-	}
-	return action;
 };

@@ -1,5 +1,5 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
-import { Action, summonActionConstructor } from './parser-bytecode-info.ts';
+import { Action } from './parser-bytecode-info.ts';
 import {
 	MathlangLocation,
 	AnyNode,
@@ -201,7 +201,7 @@ export const simpleBranchMaker = (
 
 	let top: AnyNode[] = [];
 	if (condition instanceof BoolComparison || condition instanceof BoolGetable) {
-		top = [summonActionConstructor({ ...condition, label: ifLabel })];
+		top = [Action.fromArgs({ ...condition, label: ifLabel })];
 	} else if (condition instanceof BoolBinaryExpression) {
 		top = condition.flatten(ifLabel);
 	}

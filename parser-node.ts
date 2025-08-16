@@ -72,7 +72,6 @@ import {
 	MUTATE_VARIABLE,
 	RUN_SCRIPT,
 	SHOW_SERIAL_DIALOG,
-	summonActionConstructor,
 } from './parser-bytecode-info.ts';
 
 export const handleNode = (f: FileState, node: TreeSitterNode): AnyNode[] => {
@@ -133,7 +132,7 @@ const nodeFns = {
 			} else if (raw instanceof JSONLiteral) {
 				raw.json.forEach((obj) => {
 					if (typeof obj === 'object' && (obj as unknown as Action).action) {
-						actions.push(summonActionConstructor(obj));
+						actions.push(Action.fromArgs(obj));
 					} else {
 						f.quickError(raw.debug.node, 'invalid JSON action: ' + JSON.stringify(obj));
 					}

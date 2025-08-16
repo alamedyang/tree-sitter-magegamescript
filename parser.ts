@@ -9,7 +9,13 @@ export const __dirname = dirname(__filename);
 import { debugLog, printableMessage, ansiTags as ansi, printScript } from './parser-utilities.ts';
 
 import { type FileMap, ProjectState } from './parser-project.ts';
-import { GOTO_ACTION_INDEX, standardizeNode } from './parser-bytecode-info.ts';
+import {
+	Action,
+	breakIfNotString,
+	COPY_SCRIPT,
+	GOTO_ACTION_INDEX,
+	LABEL,
+} from './parser-bytecode-info.ts';
 
 import {
 	DialogDefinition,
@@ -19,6 +25,10 @@ import {
 	doesNodeHaveLabelToChangeToIndex,
 	CommentNode,
 	GotoLabel,
+	CopyMacro,
+	ReturnStatement,
+	BoolGetable,
+	BoolComparison,
 } from './parser-types.ts';
 
 type FileCategory = 'scripts' | 'dialogs' | 'serialDialogs';
@@ -136,7 +146,36 @@ export const parseProject = async (fileMap: FileMap, scenarioData: Record<string
 					!(v instanceof DialogDefinition) &&
 					!(v instanceof SerialDialogDefinition),
 			)
-			.map((v, i, arr) => standardizeNode(v, arr.length));
+			.map((action, i, arr) => {
+				const OOB = arr.length;
+				if (action instanceof CopyMacro) {
+					const manual = COPY_SCRIPT.quick(breakIfNotString(action.script));
+					return manual;
+				}
+				if (action instanceof LabelDefinition) {
+					const value = breakIfNotString(action.label);
+					return new LABEL({ value });
+				}
+				if (action instanceof GotoLabel) {
+					const ret = new GOTO_ACTION_INDEX({
+						action_index: breakIfNotString(action.label),
+					});
+					return ret;
+				}
+				if (action instanceof ReturnStatement) {
+					const ret = new GOTO_ACTION_INDEX({
+						action_index: OOB,
+					});
+					return ret;
+				}
+				if (action instanceof BoolGetable || action instanceof BoolComparison) {
+					return Action.fromArgs(action);
+				}
+				if (!(action instanceof Action)) {
+					throw new Error('Found non-Action when trying to standardize Action');
+				}
+				return action;
+			});
 		p.scripts[scriptName].preActions = standardizedActions.map((v) => ({ ...v })); // shallow clone
 		// Snapshot current action state (pre copy_script, pre label baking)
 		p.scripts[scriptName].prePrint = printScript(scriptName, standardizedActions);

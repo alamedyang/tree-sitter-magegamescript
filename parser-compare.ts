@@ -29,7 +29,7 @@ import { ansiTags, printScript } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
 import { ProjectState } from './parser-project.ts';
 import { DialogDefinition, SerialDialog } from './parser-types.ts';
-import { summonActionConstructor } from './parser-bytecode-info.ts';
+import { Action } from './parser-bytecode-info.ts';
 
 const splitAndStripNonGotoActions = (text: string): string[] => {
 	const ret: string[] = [];
@@ -94,8 +94,8 @@ const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison =
 			new: `${scriptName} {\n\t// not yet processed, but present\n}`,
 		};
 	}
-	const oldActions = oldPre[scriptName].map(summonActionConstructor);
-	const newActions = p.scripts[scriptName].preActions?.map(summonActionConstructor);
+	const oldActions = oldPre[scriptName].map(Action.fromArgs);
+	const newActions = p.scripts[scriptName].preActions?.map(Action.fromArgs);
 	if (!newActions) throw new Error(`missing newActions for script "${scriptName}"`);
 	if (!oldActions) throw new Error(`missing oldActions for script "${scriptName}"`);
 

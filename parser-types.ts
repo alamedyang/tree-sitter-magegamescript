@@ -3,12 +3,12 @@ import { FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
 import { inverseOpMap } from './parser-utilities.ts';
 
-export class AnyNode {}
-export const cloneNode = (node: AnyNode) => {
-	if (node instanceof MathlangNode) return node.clone();
-	if (node instanceof ACTION.Action) return ACTION.summonActionConstructor(node);
-	throw new Error('need to know how to clone third type of node apparently');
-};
+export class AnyNode {
+	clone() {
+		if (this instanceof MathlangNode) return this.clone();
+		return ACTION.Action.fromArgs(this);
+	}
+}
 export class MathlangNode extends AnyNode {
 	mathlang: string;
 	args: Record<string, unknown>;
@@ -629,15 +629,15 @@ export class ScriptDefinition extends MathlangNode {
 		if (args.copyScriptResolved) this.copyScriptResolved = true;
 	}
 	clone() {
-		const clone = new ScriptDefinition(this.debug, this.args);
-		clone.actions = clone.actions.map((v) => cloneNode(v));
-		if (clone.rawNodes) {
-			clone.rawNodes = clone.rawNodes.map((v) => cloneNode(v));
+		const cloned = new ScriptDefinition(this.debug, this.args);
+		cloned.actions = cloned.actions.map((v) => v.clone());
+		if (cloned.rawNodes) {
+			cloned.rawNodes = cloned.rawNodes.map((v) => v.clone());
 		}
-		if (clone.preActions) {
-			clone.preActions = clone.preActions.map((v) => cloneNode(v));
+		if (cloned.preActions) {
+			cloned.preActions = cloned.preActions.map((v) => v.clone());
 		}
-		return clone;
+		return cloned;
 	}
 }
 
@@ -861,7 +861,7 @@ export class BoolExpression extends MathlangNode {
 			];
 		}
 		if (this instanceof BoolGetable || this instanceof BoolComparison) {
-			return [ACTION.summonActionConstructor({ ...this, label: ifLabel })];
+			return [ACTION.Action.fromArgs({ ...this, label: ifLabel })];
 		}
 		if (!(this instanceof BoolBinaryExpression)) {
 			throw new Error('expansion for condition not yet implemented');
@@ -950,7 +950,7 @@ export class BoolComparison extends BoolExpression {
 		return this.expected_bool;
 	}
 	toAction(args: Record<string, unknown>) {
-		return ACTION.summonActionConstructor({ ...this, ...args });
+		return ACTION.Action.fromArgs({ ...this, ...args });
 	}
 }
 
@@ -1021,7 +1021,7 @@ export class BoolGetable extends BoolUnit {
 		return this;
 	}
 	toAction(args: Record<string, unknown>) {
-		return ACTION.summonActionConstructor({ ...this, ...args });
+		return ACTION.Action.fromArgs({ ...this, ...args });
 	}
 }
 export class CheckEntityGlitched extends BoolGetable {

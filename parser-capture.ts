@@ -247,36 +247,12 @@ const captureFns = {
 		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		if (rhsNode.grammarType === 'CONSTANT') {
-			rhs = coerceAsBool(f, rhsNode, rhs, 'constant');
+		if (typeof lhs === 'string') {
+			lhs = CheckSaveFlag.quick(debug, lhs);
 		}
-		if (lhsNode.grammarType === 'CONSTANT') {
-			lhs = coerceAsBool(f, lhsNode, lhs, 'constant');
+		if (typeof rhs === 'string') {
+			rhs = CheckSaveFlag.quick(debug, rhs);
 		}
-		if (typeof rhs === 'boolean') {
-			rhs = BoolLiteral.quick(debug, rhs);
-		}
-		if (typeof lhs === 'boolean') {
-			lhs = BoolLiteral.quick(debug, lhs);
-		}
-		if (lhs instanceof StringCheckableAction && typeof rhs === 'string') {
-			lhs.updateProp(rhs);
-			return lhs;
-		}
-		if (rhs instanceof StringCheckableAction && typeof lhs === 'string') {
-			rhs.updateProp(lhs);
-			return rhs;
-		}
-		if (lhs instanceof NumberCheckableEqualityAction && typeof rhs === 'number') {
-			lhs.updateProp(rhs);
-			return lhs;
-		}
-		if (rhs instanceof NumberCheckableEqualityAction && typeof lhs === 'number') {
-			rhs.updateProp(lhs);
-			return rhs;
-		}
-		if (typeof lhs === 'string') lhs = CheckSaveFlag.quick(debug, lhs);
-		if (typeof rhs === 'string') rhs = CheckSaveFlag.quick(debug, rhs);
 		if (lhs instanceof BoolExpression && rhs instanceof BoolExpression) {
 			return new BoolBinaryExpression(debug, {
 				lhs,

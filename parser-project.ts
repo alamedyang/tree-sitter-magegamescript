@@ -15,7 +15,7 @@ import {
 	CommentNode,
 	CopyMacro,
 } from './parser-types.ts';
-import { Action, COPY_SCRIPT, summonActionConstructor } from './parser-bytecode-info.ts';
+import { Action, COPY_SCRIPT } from './parser-bytecode-info.ts';
 
 type FileMapEntry = {
 	arrayBuffer: Promise<unknown>;
@@ -203,8 +203,7 @@ export class ProjectState {
 						string = string.replace(new RegExp(k, 'g'), v);
 					});
 					const ret = JSON.parse(string);
-					const reactioned = summonActionConstructor(ret);
-					return reactioned;
+					return Action.fromArgs(ret);
 				});
 				const comment = `Copying: ${action.script} (-${labelSuffix}) with search_and_replace: ${JSON.stringify(action.search_and_replace)}`;
 				finalActions.push(CommentNode.quick(new MathlangLocation(f, node), comment));

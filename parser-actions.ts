@@ -104,7 +104,6 @@ import {
 	IntGetable,
 	SerialDialog,
 	Dialog,
-	cloneNode,
 	GotoLabel,
 	MathlangLocation,
 	BoolLiteral,
@@ -208,7 +207,7 @@ const actionSetBoolMaker = (
 		typeof _rhsBoolExp === 'string'
 			? CheckSaveFlag.quick(debug, _rhsBoolExp, true)
 			: _rhsBoolExp;
-	const cloneIfFalse = cloneNode(lhsSetAction);
+	const cloneIfFalse = lhsSetAction.clone();
 	cloneIfFalse.invert();
 	if (rhsBoolExp instanceof BoolGetableAction || rhsBoolExp instanceof BoolComparison) {
 		return simpleBranchMaker(f, node, rhsBoolExp, [lhsSetAction], [cloneIfFalse]);
