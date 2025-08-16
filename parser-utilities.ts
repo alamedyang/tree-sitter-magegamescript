@@ -6,7 +6,7 @@ import {
 	BoolBinaryExpression,
 	BoolComparison,
 	BoolExpression,
-	type MathlangMessage,
+	MathlangMessage,
 	LabelDefinition,
 	MathlangSequence,
 	GotoLabel,

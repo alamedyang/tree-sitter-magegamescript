@@ -5,7 +5,7 @@ import { handleNode } from './parser-node.ts';
 import {
 	AnyNode,
 	MathlangNode,
-	type MathlangMessage,
+	MathlangMessage,
 	MathlangLocation,
 	ScriptDefinition,
 	DialogDefinition,

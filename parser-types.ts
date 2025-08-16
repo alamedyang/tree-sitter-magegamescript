@@ -1,8 +1,15 @@
 import { Node as TreeSitterNode } from 'web-tree-sitter';
 import { FileState } from './parser-file.ts';
 import * as ACTION from './parser-bytecode-info.ts';
-import { inverseOpMap } from './parser-utilities.ts';
+import {
+	dropTemporary,
+	inverseOpMap,
+	latestTemporary,
+	newTemporary,
+	quickTemporary,
+} from './parser-utilities.ts';
 import { type GenericObj } from './parser-actions.ts';
+import { coerceToString } from './parser-capture.ts';
 
 export class AnyNode {
 	clone() {
@@ -42,11 +49,11 @@ export class MathlangLocation {
 		if (comment) this.comment = comment;
 	}
 }
-export type MathlangMessage = {
+export class MathlangMessage {
 	locations: MathlangLocation[];
 	message: string;
 	footer?: string;
-};
+}
 
 const truncate = (s: string, n: number): string => {
 	const orig = s.replace(/\n/g, ' ');
@@ -767,59 +774,31 @@ export class MathlangSequence extends MathlangNode {
 
 // ------------------------------ INT EXPRESSIONS ------------------------------ \\
 
-export type IntExpression = IntUnit | IntBinaryExpression;
-export const isIntExpression = (v: unknown): v is IntExpression => {
-	return isIntUnit(v) || v instanceof IntBinaryExpression;
-};
+// TODO: The RNG operation should use macro syntax to be put into IntExpressions, instead of being limited to the ?= operator (probably RNG!(), though pick something that can't be confused with rand!())
 
-export type IntUnit = IntGetable | number | string;
-export const isIntUnit = (v: unknown): v is IntUnit => {
-	if (v === null) return false;
-	if (v === undefined) return false;
-	if (typeof v === 'number') return true;
-	if (typeof v === 'string') return true;
-	if (v instanceof IntGetable) return true;
-	return false;
-};
-
-export class IntGetable extends MathlangNode {
-	mathlang: 'int_getable';
+export class IntExpression extends MathlangNode {
+	mathlang: string;
 	debug: MathlangLocation;
 	args: GenericObj;
-	field: string;
-	entity: string;
 	constructor(debug: MathlangLocation, args: GenericObj) {
 		super();
 		this.args = args;
 		this.debug = debug;
-		this.mathlang = 'int_getable';
-		this.field = ACTION.breakIfNotString(args.field);
-		this.entity = ACTION.breakIfNotString(args.entity);
-	}
-	clone() {
-		return new IntGetable(this.debug, this.args);
-	}
-	static quick(debug: MathlangLocation, entity: string, field: string) {
-		return new IntGetable(debug, { entity, field });
 	}
 }
 
-export class IntBinaryExpression extends MathlangNode {
+export class IntBinaryExpression extends IntExpression {
 	mathlang: 'int_binary_expression';
-	debug: MathlangLocation;
-	args: GenericObj;
 	lhs: IntExpression;
 	rhs: IntExpression;
 	op: string;
 	constructor(debug: MathlangLocation, args: GenericObj) {
-		super();
-		this.args = args;
-		this.debug = debug;
+		super(debug, args);
 		this.mathlang = 'int_binary_expression';
-		if (!isIntExpression(args.lhs)) {
+		if (!(args.lhs instanceof IntExpression)) {
 			throw new Error('IntBinaryExpression LHS not IntExpression');
 		}
-		if (!isIntExpression(args.rhs)) {
+		if (!(args.rhs instanceof IntExpression)) {
 			throw new Error('IntBinaryExpression RHS not IntExpression');
 		}
 		this.lhs = args.lhs;
@@ -828,6 +807,135 @@ export class IntBinaryExpression extends MathlangNode {
 	}
 	clone() {
 		return new IntBinaryExpression(this.debug, this.args);
+	}
+	flatten(steps: AnyNode[]) {
+		const temp = latestTemporary();
+		const lhs = this.lhs;
+		const op = this.op;
+		const rhs = this.rhs;
+		if (lhs instanceof IdentifierLiteral) {
+			steps.push(ACTION.MUTATE_VARIABLES.set(lhs.debug, temp, lhs.source));
+		} else if (lhs instanceof NumberLiteral) {
+			steps.push(ACTION.MUTATE_VARIABLE.set(temp, lhs.value));
+		} else if (lhs instanceof EntityIntField) {
+			steps.push(ACTION.COPY_VARIABLE.intoVariable(lhs.entity, lhs.field, temp));
+		} else if (lhs instanceof IntBinaryExpression) {
+			// can use the same temporary since it's the lhs and we're going LTR
+			lhs.flatten(steps);
+		}
+		if (rhs instanceof IdentifierLiteral) {
+			steps.push(ACTION.MUTATE_VARIABLES.change(temp, rhs.source, op));
+		} else if (rhs instanceof NumberLiteral) {
+			if (invisibleMath(op, rhs.value)) {
+				// invisible == *1 or +0
+			} else {
+				steps.push(ACTION.MUTATE_VARIABLE.change(rhs.debug, temp, rhs.value, op));
+			}
+		} else if (rhs instanceof EntityIntField) {
+			const quickTemp = quickTemporary();
+			steps.push(
+				ACTION.COPY_VARIABLE.intoVariable(rhs.entity, rhs.field, quickTemp),
+				ACTION.MUTATE_VARIABLES.change(temp, quickTemp, op),
+			);
+		} else if (rhs instanceof IntBinaryExpression) {
+			const newTemp = newTemporary();
+			rhs.flatten(steps);
+			steps.push(ACTION.MUTATE_VARIABLES.change(temp, newTemp, op));
+			dropTemporary();
+		}
+		return steps;
+	}
+}
+
+const invisibleMath = (op: string, operand: number): boolean => {
+	if (op === '+' && operand === 0) return true;
+	if (op === '-' && operand === 0) return true;
+	if (op === '*' && operand === 1) return true;
+	if (op === '/' && operand === 1) return true;
+	return false;
+};
+
+export class IntUnit extends IntExpression {
+	static fromAny(debug: MathlangLocation, v: unknown) {
+		if (v instanceof IntBinaryExpression) return v;
+		if (v instanceof EntityIntField) return v;
+		if (
+			debug.node instanceof TreeSitterNode &&
+			debug.node.grammarType === 'CONSTANT' &&
+			typeof v !== 'string' &&
+			typeof v !== 'number'
+		) {
+			if (!debug.f) throw new Error('missing f');
+			v = coerceToString(debug.f, debug.node, v, 'constant');
+		}
+		if (typeof v === 'number') {
+			return NumberLiteral.quick(debug, v);
+		}
+		if (typeof v === 'string') {
+			return IdentifierLiteral.quick(debug, v);
+		}
+		throw new Error('invalid IntUnit');
+	}
+}
+
+export class NumberLiteral extends IntUnit {
+	value: number;
+	constructor(debug: MathlangLocation, args: GenericObj) {
+		super(debug, args);
+		this.value = ACTION.breakIfNotNumber(args.value);
+	}
+	static quick(debug: MathlangLocation, value: number) {
+		return new NumberLiteral(debug, { value });
+	}
+	clone() {
+		return new NumberLiteral(this.debug, this.args);
+	}
+}
+export class IntGetable extends IntUnit {
+	mathlang: 'int_getable';
+	debug: MathlangLocation;
+	args: GenericObj;
+	constructor(debug: MathlangLocation, args: GenericObj) {
+		super(debug, args);
+		this.mathlang = 'int_getable';
+		this.args = args;
+		this.debug = debug;
+	}
+	storeInVariable(variable: string) {
+		return ACTION.Action.fromArgs({ ...this, variable });
+	}
+	clone() {
+		return new IntGetable(this.debug, this.args);
+	}
+}
+export class IdentifierLiteral extends IntGetable {
+	source: string;
+	constructor(debug: MathlangLocation, args: GenericObj) {
+		super(debug, args);
+		this.source = ACTION.breakIfNotString(args.source);
+	}
+	static quick(debug: MathlangLocation, source: string) {
+		return new IdentifierLiteral(debug, { source });
+	}
+	clone() {
+		return new IdentifierLiteral(this.debug, this.args);
+	}
+}
+export class EntityIntField extends IntGetable {
+	entity: string;
+	field: string;
+	inbound: false;
+	constructor(debug: MathlangLocation, args: GenericObj) {
+		super(debug, args);
+		this.inbound = false;
+		this.entity = ACTION.breakIfNotString(args.entity);
+		this.field = ACTION.breakIfNotString(args.field);
+	}
+	static quick(debug: MathlangLocation, entity: string, field: string) {
+		return new EntityIntField(debug, { entity, field });
+	}
+	clone() {
+		return new EntityIntField(this.debug, this.args);
 	}
 }
 
@@ -1150,7 +1258,9 @@ export class StringCheckable extends BoolComparison {
 		this.mathlang = 'string_checkable';
 		this.expected_bool = true;
 	}
-	updateProp(_: string) {}
+	updateProp(_: string) {
+		throw new Error(`Parent should not be trying to change its string property (value ${_})`);
+	}
 }
 
 export class CheckEntityName extends StringCheckable {
@@ -1493,7 +1603,9 @@ export class NumberCheckableEquality extends BoolComparison {
 		this.debug = debug;
 		this.mathlang = 'number_checkable_equality';
 	}
-	updateProp(_: number) {}
+	updateProp(_: number) {
+		throw new Error(`Parent should not be trying to change its number property (value ${_})`);
+	}
 }
 export class CheckEntityX extends NumberCheckableEquality {
 	action: 'CHECK_ENTITY_X';

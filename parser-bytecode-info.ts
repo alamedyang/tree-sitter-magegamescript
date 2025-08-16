@@ -1065,9 +1065,8 @@ export class MUTATE_VARIABLES extends Action {
 		this.operation = breakIfNotString(args.operation);
 		this.source = breakIfNotString(args.source);
 	}
-	static set(f: FileState, node: TreeSitterNode, variable: string, source: string) {
+	static set(debug: MathlangLocation, variable: string, source: string) {
 		if (variable === source) {
-			const debug = new MathlangLocation(f, node);
 			return CommentNode.quick(
 				debug,
 				`This action was optimized out (setting '${variable}' to itself)`,

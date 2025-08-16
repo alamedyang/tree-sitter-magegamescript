@@ -101,7 +101,6 @@ import {
 	MovableIdentifier,
 	CoordinateIdentifier,
 	DirectionTarget,
-	IntGetable,
 	SerialDialog,
 	Dialog,
 	GotoLabel,
@@ -109,70 +108,16 @@ import {
 	BoolLiteral,
 	BoolComparison,
 	CheckSaveFlag,
+	EntityIntField,
 } from './parser-types.ts';
 import {
 	autoIdentifierName,
 	newTemporary,
 	dropTemporary,
 	quickTemporary,
-	latestTemporary,
 	simpleBranchMaker,
 } from './parser-utilities.ts';
 import { FileState } from './parser-file.ts';
-
-// ------------------------ INT EXPRESSIONS ------------------------ //
-
-const invisibleMath = (op: string, operand: number): boolean => {
-	if (op === '+' && operand === 0) return true;
-	if (op === '-' && operand === 0) return true;
-	if (op === '*' && operand === 1) return true;
-	if (op === '/' && operand === 1) return true;
-	return false;
-};
-
-const flattenIntBinaryExpression = (
-	f: FileState,
-	node: TreeSitterNode,
-	exp: IntBinaryExpression,
-	steps: AnyNode[],
-): AnyNode[] => {
-	const debug = new MathlangLocation(f, node);
-	const temp = latestTemporary();
-	const lhs = exp.lhs;
-	const op = exp.op;
-	const rhs = exp.rhs;
-	if (typeof lhs === 'string') {
-		steps.push(MUTATE_VARIABLES.set(f, node, temp, lhs));
-	} else if (typeof lhs === 'number') {
-		steps.push(MUTATE_VARIABLE.set(temp, lhs));
-	} else if (lhs instanceof IntGetable) {
-		steps.push(COPY_VARIABLE.intoVariable(lhs.entity, lhs.field, temp));
-	} else if (lhs instanceof IntBinaryExpression) {
-		// can use the same temporary since it's the lhs and we're going LTR
-		flattenIntBinaryExpression(f, node, lhs, steps);
-	}
-	if (typeof rhs === 'string') {
-		steps.push(MUTATE_VARIABLES.change(temp, rhs, op));
-	} else if (typeof rhs === 'number') {
-		if (invisibleMath(op, rhs)) {
-			// invisible == *1 or +0
-		} else {
-			steps.push(MUTATE_VARIABLE.change(debug, temp, rhs, op));
-		}
-	} else if (rhs instanceof IntGetable) {
-		const quickTemp = quickTemporary();
-		steps.push(
-			COPY_VARIABLE.intoVariable(rhs.entity, rhs.field, quickTemp),
-			MUTATE_VARIABLES.change(temp, quickTemp, op),
-		);
-	} else if (rhs instanceof IntBinaryExpression) {
-		const newTemp = newTemporary();
-		flattenIntBinaryExpression(f, node, rhs, steps);
-		steps.push(MUTATE_VARIABLES.change(temp, newTemp, op));
-		dropTemporary();
-	}
-	return steps;
-};
 
 // ------------------------ BOOL EXPRESSIONS ------------------------ //
 
@@ -547,20 +492,21 @@ const actionData: Record<string, actionDataEntry> = {
 						`\n    ${suggestion} + 0` +
 						`\n    ${suggestion} * 1`,
 				});
-				return MUTATE_VARIABLES.set(f, node, lhs, v.rhs);
+				const debug = new MathlangLocation(f, node);
+				return MUTATE_VARIABLES.set(debug, lhs, v.rhs);
 			}
 
 			// varName = player x;
-			if (v.rhs instanceof IntGetable) {
+			if (v.rhs instanceof EntityIntField) {
 				return COPY_VARIABLE.intoVariable(v.rhs.entity, v.rhs.field, lhs);
 			}
 
 			// varName = (255 + player x);
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary(lhs);
-				const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
+				const steps = v.rhs.flatten([]);
 				dropTemporary();
-				steps.push(MUTATE_VARIABLES.set(f, node, lhs, temporary));
+				steps.push(MUTATE_VARIABLES.set(v.rhs.debug, lhs, temporary));
 				const debug = new MathlangLocation(f, node);
 				return new MathlangSequence(debug, {
 					steps,
@@ -583,8 +529,8 @@ const actionData: Record<string, actionDataEntry> = {
 		captures: ['lhs', 'rhs'],
 		handle: (v, f, node): ActionSetEntityInt | MathlangSequence | COPY_VARIABLE => {
 			const debug = new MathlangLocation(f, node);
-			if (!(v.lhs instanceof IntGetable)) {
-				throw new Error('LHS not int_getable');
+			if (!(v.lhs instanceof EntityIntField)) {
+				throw new Error('LHS not EntityIntField');
 			}
 			const entity = coerceToString(f, node, v.lhs.entity, 'action_set_int entity');
 
@@ -628,7 +574,7 @@ const actionData: Record<string, actionDataEntry> = {
 			// player x = player y;
 			if (v.rhs instanceof IntBinaryExpression) {
 				const temporary = newTemporary();
-				const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
+				const steps = v.rhs.flatten([]);
 				dropTemporary();
 				steps.push(COPY_VARIABLE.intoField(temporary, v.lhs.entity, v.lhs.field));
 				return new MathlangSequence(debug, {
@@ -950,7 +896,7 @@ const actionData: Record<string, actionDataEntry> = {
 					return MUTATE_VARIABLES.change(v.lhs, v.rhs, op);
 				}
 				// varName += player x
-				if (v.rhs instanceof IntGetable) {
+				if (v.rhs instanceof EntityIntField) {
 					const temp = quickTemporary();
 					const steps = [
 						COPY_VARIABLE.intoVariable(v.rhs.entity, v.rhs.field, temp),
@@ -967,7 +913,7 @@ const actionData: Record<string, actionDataEntry> = {
 					if (!(v.rhs instanceof IntBinaryExpression)) {
 						throw new Error('not IntBinaryExpression');
 					}
-					const steps = flattenIntBinaryExpression(f, node, v.rhs, []);
+					const steps = v.rhs.flatten([]);
 					dropTemporary();
 					steps.push(MUTATE_VARIABLES.change(v.lhs, temporary, op));
 					return new MathlangSequence(debug, {
@@ -981,7 +927,7 @@ const actionData: Record<string, actionDataEntry> = {
 			// LHS is an int getable, like `player y`
 			// Can only set these to set values; cannot do math to them.
 			// First put the value into a temporary, then do the math to that, then set it back.
-			if (v.lhs instanceof IntGetable) {
+			if (v.lhs instanceof EntityIntField) {
 				// player x = 1;
 				if (typeof v.rhs === 'number') {
 					const temporary = newTemporary();
@@ -1019,7 +965,7 @@ const actionData: Record<string, actionDataEntry> = {
 					}
 					const steps = [
 						COPY_VARIABLE.intoVariable(v.lhs.entity, v.lhs.field, temporary1),
-						...flattenIntBinaryExpression(f, node, v.rhs, []),
+						...v.rhs.flatten([]),
 						MUTATE_VARIABLES.change(temporary1, temporary2, op),
 						COPY_VARIABLE.intoField(temporary1, v.lhs.entity, v.lhs.field),
 					];
@@ -1031,7 +977,7 @@ const actionData: Record<string, actionDataEntry> = {
 					});
 				}
 				// player x = self y;
-				if (v.rhs instanceof IntGetable) {
+				if (v.rhs instanceof EntityIntField) {
 					const temporary1 = newTemporary();
 					const temporary2 = newTemporary();
 					const steps = [

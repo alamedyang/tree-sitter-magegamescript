@@ -13,11 +13,8 @@ import {
 	DialogIdentifier,
 	DialogParameter,
 	IntBinaryExpression,
-	IntGetable,
 	MovableIdentifier,
 	SerialDialogParameter,
-	type IntExpression,
-	isIntExpression,
 	AnyNode,
 	DirectionTarget,
 	BoolLiteral,
@@ -48,6 +45,9 @@ import {
 	CheckEntityDirection,
 	NumberCheckableEquality,
 	StringCheckable,
+	EntityIntField,
+	IntExpression,
+	IntUnit,
 } from './parser-types.ts';
 import {
 	debugLog,
@@ -224,20 +224,18 @@ const captureFns = {
 		return BoolSetable.quick(debug, type, '');
 	},
 	int_binary_expression: (f: FileState, node: TreeSitterNode): IntBinaryExpression => {
-		const debug = new MathlangLocation(f, node);
 		const rhsNode = mandatoryChildForFieldName(f, node, 'rhs');
 		const lhsNode = mandatoryChildForFieldName(f, node, 'lhs');
 		const op = textForFieldName(f, node, 'operator');
 		let rhs = handleCapture(f, rhsNode);
 		let lhs = handleCapture(f, lhsNode);
-		if (!isIntExpression(rhs)) throw new Error('RHS not IntBinaryExpression');
-		if (!isIntExpression(lhs)) throw new Error('LHS not IntBinaryExpression');
-		if (rhsNode.grammarType === 'CONSTANT') {
-			rhs = coerceToNumber(f, rhsNode, rhs, 'constant');
+		if (!(lhs instanceof IntBinaryExpression)) {
+			lhs = IntUnit.fromAny(new MathlangLocation(f, lhsNode), lhs);
 		}
-		if (lhsNode.grammarType === 'CONSTANT') {
-			lhs = coerceToNumber(f, lhsNode, lhs, 'constant');
+		if (!(rhs instanceof IntBinaryExpression)) {
+			rhs = IntUnit.fromAny(new MathlangLocation(f, rhsNode), rhs);
 		}
+		const debug = new MathlangLocation(f, node);
 		return new IntBinaryExpression(debug, { lhs, rhs, op });
 	},
 	bool_binary_expression: (f: FileState, node: TreeSitterNode) => {
@@ -298,12 +296,9 @@ const captureFns = {
 	},
 	int_getable: (f: FileState, node: TreeSitterNode) => {
 		const debug = new MathlangLocation(f, node);
-		// if (textForFieldName(f, node, 'variable')) {
-		// 	return captureForFieldName(f, node, 'variable');
-		// }
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return IntGetable.quick(debug, entity, field);
+		return EntityIntField.quick(debug, entity, field);
 	},
 	bool_getable: (f: FileState, node: TreeSitterNode): BoolGetableAction => {
 		const debug = new MathlangLocation(f, node);
@@ -472,11 +467,11 @@ const captureFns = {
 		const debug = new MathlangLocation(f, node);
 		const entity = stringCaptureForFieldName(f, node, 'entity_identifier');
 		const field = textForFieldName(f, node, 'property');
-		return IntGetable.quick(debug, entity, field);
+		return EntityIntField.quick(debug, entity, field);
 	},
 	int_grouping: (f: FileState, node: TreeSitterNode): IntExpression => {
 		const capture = handleCapture(f, node.namedChildren[0]);
-		if (isIntExpression(capture)) return capture;
+		if (capture instanceof IntExpression) return capture;
 		throw new Error('captured int_grouping did not produce IntExpression');
 	},
 	direction_target: (f: FileState, node: TreeSitterNode) => {
