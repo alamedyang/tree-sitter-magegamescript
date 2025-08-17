@@ -72,6 +72,6 @@
 		"regen": "tree-sitter generate && tree-sitter build --wasm"
 	},
 	"engines": {
-		"node": "^22.6.0"
+		"node": ">=22.6.0"
 	}
 }
