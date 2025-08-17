@@ -1,34 +1,32 @@
-import { Node } from 'web-tree-sitter';
+import { Node as TreeSitterNode } from 'web-tree-sitter';
+import { Action } from './parser-bytecode-info.ts';
 import {
-	getBoolFieldForAction,
-	type SHOW_SERIAL_DIALOG,
-	type SHOW_DIALOG,
-	type CHECK_SAVE_FLAG,
-} from './parser-bytecode-info.ts';
-import {
-	isNodeAction,
-	type BoolBinaryExpression,
-	type AnyNode,
-	type Dialog,
-	type CommentNode,
-	type DialogDefinitionNode,
-	type MathlangGotoLabel,
-	type LabelDefinitionNode,
-	type MathlangSequence,
-	type SerialDialogDefinitionNode,
-	type MGSLocation,
-	type MGSMessage,
-	type SerialDialog,
-	type MathlangCondition,
+	MathlangLocation,
+	AnyNode,
+	BoolBinaryExpression,
+	BoolComparison,
+	BoolExpression,
+	MathlangMessage,
+	LabelDefinition,
+	MathlangSequence,
+	GotoLabel,
+	MathlangNode,
+	CheckSaveFlag,
+	BoolGetable,
 } from './parser-types.ts';
-import { type FileState } from './parser-file.ts';
+import { FileState } from './parser-file.ts';
 import { type FileMap } from './parser-project.ts';
+import {
+	handleCapture,
+	handleNamedChildren,
+	mandatoryChildForFieldName,
+} from './parser-capture.ts';
 
 export const verbose = false;
 export const debugLog = (message: string) => {
 	if (verbose) console.log(message);
 };
-export const ansiTags = {
+export const ansiTags: Record<string, string> = {
 	// styles
 	bold: '\u001B[1m', // aka bright
 	dim: '\u001B[2m', // aka dim
@@ -72,6 +70,28 @@ export const ansiTags = {
 	bell: '',
 };
 
+// ------------------------ PRINTING ------------------------ //
+
+export const printAction = (v: AnyNode): string => {
+	if (v instanceof Action) return v.print();
+	if (v instanceof MathlangNode) return v.print();
+	throw new Error('unhandled print case');
+};
+
+export const printScript = (scriptName: string, actions: AnyNode[]): string => {
+	const printedActions = actions
+		.map(printAction)
+		.filter((v) => v !== undefined)
+		.map((v) => {
+			return v
+				.split('\n')
+				.map((v) => `\t${v}`)
+				.join('\n');
+		});
+	const ret = [`"${scriptName}" {`, ...printedActions, '}'];
+	return ret.join('\n');
+};
+
 // ------------------------ TEMPORARY VARIABLE MANAGEMENT ------------------------ //
 
 const TEMP = '__TEMP_';
@@ -99,7 +119,7 @@ export const latestTemporary = (): string => temporaries[0];
 
 // ------------------------ GENERIC ------------------------ //
 
-export const inverseOpMap = {
+export const inverseOpMap: Record<string, string> = {
 	'<': '>=',
 	'<=': '>',
 	'>=': '<',
@@ -109,30 +129,29 @@ export const inverseOpMap = {
 	'&&': '||',
 	'||': '&&',
 };
-export const reportMissingChildNodes = (f: FileState, node: Node): (Node | null)[] => {
-	const missingNodes = node.children.filter((child) => child?.isMissing);
+export const reportMissingChildNodes = (
+	f: FileState,
+	node: TreeSitterNode,
+): (TreeSitterNode | null)[] => {
+	const missingNodes = node.children
+		.filter((v) => v !== null)
+		.filter((child) => child?.isMissing);
 	missingNodes.forEach((missingChild) => {
-		if (!missingChild) throw new Error('TS');
-		f.newError({
-			locations: [{ node: missingChild }],
-			message: `missing token: ${missingChild.type}`,
-		});
+		f.quickError(missingChild, `missing token: ${missingChild.type}`);
 	});
 	return missingNodes;
 };
-export const reportErrorNodes = (f: FileState, node: Node): (Node | null)[] => {
-	const errorNodes = node.namedChildren.filter((child) => !child || child.type === 'ERROR');
+export const reportErrorNodes = (f: FileState, node: TreeSitterNode): (TreeSitterNode | null)[] => {
+	const errorNodes = node.children
+		.filter((v) => v !== null)
+		.filter((child) => child.type === 'ERROR');
 	errorNodes.forEach((errorNode) => {
-		if (!errorNode) throw new Error('TS');
-		f.newError({
-			locations: [{ node: errorNode }],
-			message: 'syntax error',
-		});
+		f.quickError(errorNode, 'syntax error');
 	});
 	return errorNodes;
 };
 
-const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): string => {
+const printableLocation = (fileMap: FileMap, location: MathlangLocation): string => {
 	const fileName = location.fileName || '';
 	const fileText = fileMap[fileName].fileText;
 	const allLines = fileText.split('\n');
@@ -147,310 +166,129 @@ const getPrintableLocationData = (fileMap: FileMap, location: MGSLocation): stri
 	return message;
 };
 
-export const makeMessagePrintable = (
-	fileMap: FileMap,
-	prefix: string,
-	item: MGSMessage,
-): string => {
+export const printableMessage = (fileMap: FileMap, prefix: string, v: MathlangMessage): string => {
 	let message =
-		`${prefix}: ${item.message}\n` +
-		item.locations
+		`${prefix}: ${v.message}\n` +
+		v.locations
 			.map((location) => {
-				return getPrintableLocationData(fileMap, location);
+				return printableLocation(fileMap, location);
 			})
 			.join('\n');
-	if (item.footer) {
-		message += '\n' + item.footer;
+	if (v.footer) {
+		message += '\n' + v.footer;
 	}
 	return message + '\n';
 };
 
-export const autoIdentifierName = (f: FileState, node: Node): string => {
+export const autoIdentifierName = (f: FileState, node: TreeSitterNode): string => {
 	return f.fileName + '-' + node.startPosition.row + ':' + node.startPosition.column;
 };
 
 // ------------------------ CONDITIONS ------------------------ //
 
-// todo: get rid of 'invert' flag for things with 'expected_bool'! Just use that!
-export const expandCondition = (
-	f: FileState,
-	node: Node,
-	condition: MathlangCondition,
-	ifLabel: string,
-): AnyNode[] => {
-	if (condition === true) {
-		return [gotoLabel(f, node, ifLabel)];
-	} else if (condition === false) {
-		return [];
-	}
-	if (typeof condition === 'string') {
-		const action = checkFlag(f, node, condition, ifLabel, true);
-		return [action];
-	}
-	if (
-		condition.mathlang === 'bool_getable' ||
-		condition.mathlang === 'bool_comparison' ||
-		condition.mathlang === 'string_checkable' ||
-		condition.mathlang === 'number_checkable_equality'
-	) {
-		const action = {
-			...condition,
-			expected_bool: condition.expected_bool === undefined ? true : condition.expected_bool,
-			label: ifLabel,
-		};
-		return [action];
-	}
-	if (condition.mathlang !== 'bool_binary_expression') {
-		throw new Error('not yet implemented');
-	}
-	const op = condition.op;
-	const lhs = condition.lhs;
-	const rhs = condition.rhs;
-	if (op === '||') {
-		const expanded = [
-			expandCondition(f, condition.lhsNode, lhs, ifLabel),
-			expandCondition(f, condition.rhsNode, rhs, ifLabel),
-		];
-		return expanded.flat();
-	}
-	if (op === '&&') {
-		// have a separate if-else insert?
-		// if first one is false goto a rendezvous at the end of the insert
-		// if the second one is false, ditto
-		const suffix = f.p.advanceGotoSuffix();
-		const innerIfTrueLabel = `if true #${suffix}`;
-		const innerRendezvousLabel = `rendezvous #${suffix}`;
-		const inner = [
-			expandCondition(f, condition.lhsNode, lhs, innerIfTrueLabel),
-			gotoLabel(f, node, innerRendezvousLabel),
-			label(f, node, innerIfTrueLabel),
-			expandCondition(f, condition.rhsNode, rhs, ifLabel),
-			label(f, node, innerRendezvousLabel),
-		];
-		return inner.flat();
-	}
-	if (op !== '==' && op !== '!=') {
-		throw new Error('What kind of other thing is this?');
-	}
-	// todo: if any of these are == bool literal, they can be simplified
-	// Cannot directly compare bools. Must branch on if they are both true, or both false
-	const expandAs: BoolBinaryExpression = {
-		mathlang: 'bool_binary_expression',
-		debug: {
-			node: condition.debug.node,
-			fileName: f.fileName,
-		},
-		op: '||',
-		lhs: {
-			mathlang: 'bool_binary_expression',
-			debug: {
-				node: condition.debug.node,
-				fileName: f.fileName,
-			},
-			op: '&&',
-			lhs,
-			rhs,
-			lhsNode: condition.lhsNode,
-			rhsNode: condition.rhsNode,
-		},
-		rhs: {
-			mathlang: 'bool_binary_expression',
-			debug: {
-				node: condition.debug.node,
-				fileName: f.fileName,
-			},
-			op: '&&',
-			lhs: invert(f, condition.lhsNode, lhs),
-			rhs: invert(f, condition.rhsNode, rhs),
-			lhsNode: condition.lhsNode,
-			rhsNode: condition.rhsNode,
-		},
-		lhsNode: condition.lhsNode,
-		rhsNode: condition.rhsNode,
-	};
-	return expandCondition(f, node, expandAs, ifLabel);
-};
-
 export const simpleBranchMaker = (
 	f: FileState,
-	node: Node,
-	_branchAction: AnyNode,
-	_ifBody: AnyNode[],
-	_elseBody: AnyNode[],
-) => {
-	const ifBody = Array.isArray(_ifBody) ? _ifBody : [_ifBody];
-	const elseBody = Array.isArray(_elseBody) ? _elseBody : [_elseBody];
-	const gotoLabel = f.p.advanceGotoSuffix();
-	const ifLabel = `if #${gotoLabel}`;
-	const rendezvousLabel = `rendezvous #${gotoLabel}`;
-	const branchAction = {
-		..._branchAction,
-		label: ifLabel,
-	};
-	const steps: AnyNode[] = [
-		branchAction,
-		...elseBody,
-		{ mathlang: 'goto_label', label: rendezvousLabel },
-		{ mathlang: 'label_definition', label: ifLabel },
-		...ifBody,
-		{ mathlang: 'label_definition', label: rendezvousLabel },
-	];
-	return newSequence(f, node, steps, 'simple branch on');
-};
-
-export const invert = (f: FileState, node: Node, boolExp: MathlangCondition): MathlangCondition => {
-	// TODO: typeof `boolExp`
-	if (typeof boolExp === 'boolean') return !boolExp;
-	if (typeof boolExp === 'string') {
-		return checkFlag(f, node, boolExp, '', false);
-	}
-	if (boolExp.mathlang === 'bool_binary_expression') {
-		if (boolExp.op === '||' || boolExp.op === '&&') {
-			boolExp.lhs = invert(f, node, boolExp.lhs);
-			boolExp.rhs = invert(f, node, boolExp.rhs);
-		}
-		boolExp.op = inverseOpMap[boolExp.op];
-		return boolExp;
-	}
-	if (!boolExp.action) throw new Error('should be string');
-	const param = getBoolFieldForAction(boolExp.action);
-	if (!param) throw new Error('param name not found');
-	boolExp[param] = !boolExp[param];
-	return boolExp;
-};
-
-export const label = (f: FileState, node: Node, label: string): LabelDefinitionNode => ({
-	mathlang: 'label_definition',
-	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const gotoLabel = (f: FileState, node: Node, label: string): MathlangGotoLabel => ({
-	mathlang: 'goto_label',
-	label,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const newComment = (comment: string): CommentNode => ({ mathlang: 'comment', comment });
-export const newSequence = (
-	f: FileState,
-	node: Node,
-	steps: AnyNode[],
-	type: string = 'generic_sequence',
+	node: TreeSitterNode,
+	condition: BoolExpression,
+	trueBlock: AnyNode[],
+	falseBlock: AnyNode[],
 ): MathlangSequence => {
-	const comment = node.text.replace(/[\n\s\t]+/g, ' ');
-	const mathlangComment: CommentNode = newComment(`${type}: ${comment}`);
-	steps.unshift(mathlangComment);
-	const flatSteps: AnyNode[] = [];
-	steps
-		.filter((v) => v !== null) // might not need this anymore
-		.forEach((v) => {
-			if (!isNodeAction(v) && v.mathlang === 'sequence') {
-				flatSteps.push(...v.steps);
-			} else {
-				flatSteps.push(v);
-			}
-		});
-	return {
-		mathlang: 'sequence',
-		type,
-		steps: flatSteps,
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
-	};
-};
-export const newDialog = (
-	f: FileState,
-	node: Node,
-	dialogName: string,
-	dialogs: Dialog[],
-): DialogDefinitionNode => ({
-	mathlang: 'dialog_definition',
-	fileName: f.fileName,
-	dialogName,
-	dialogs,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const showDialog = (f: FileState, node: Node, name: string): SHOW_DIALOG => ({
-	action: 'SHOW_DIALOG',
-	dialog: name,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const newSerialDialog = (
-	f: FileState,
-	node: Node,
-	dialogName: string,
-	serialDialog: SerialDialog,
-): SerialDialogDefinitionNode => ({
-	mathlang: 'serial_dialog_definition',
-	fileName: f.fileName,
-	dialogName,
-	serialDialog,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-export const showSerialDialog = (
-	f: FileState,
-	node: Node,
-	name: string,
-	isConcat?: boolean,
-): SHOW_SERIAL_DIALOG => ({
-	action: 'SHOW_SERIAL_DIALOG',
-	disable_newline: isConcat,
-	serial_dialog: name,
-	debug: {
-		node,
-		fileName: f.fileName,
-	},
-});
-const checkFlag = (
-	f: FileState,
-	node: Node,
-	save_flag: string,
-	gotoLabel: string,
-	expected_bool: boolean = true,
-): CHECK_SAVE_FLAG => {
-	return {
-		mathlang: 'bool_getable',
-		action: 'CHECK_SAVE_FLAG',
-		save_flag,
-		value: save_flag,
-		expected_bool,
-		label: gotoLabel || 'UNDEFINED LABEL',
-		debug: {
-			node,
-			fileName: f.fileName,
-		},
-	};
+	const debug = new MathlangLocation(f, node);
+	const n = f.p.advanceGotoSuffix();
+	const ifLabel = `if true #${n}`;
+	const rendezvousLabel = `rendezvous #${n}`;
+
+	let top: AnyNode[] = [];
+	if (condition instanceof BoolComparison || condition instanceof BoolGetable) {
+		top = [Action.fromArgs({ ...condition, label: ifLabel })];
+	} else if (condition instanceof BoolBinaryExpression) {
+		top = condition.flatten(ifLabel);
+	}
+
+	const steps = [
+		...top,
+		...falseBlock,
+		GotoLabel.quick(debug, rendezvousLabel),
+		LabelDefinition.quick(debug, ifLabel),
+		...trueBlock,
+		LabelDefinition.quick(debug, rendezvousLabel),
+	];
+	return new MathlangSequence(debug, {
+		steps,
+		type: 'longerBranchMaker',
+	});
 };
 
-export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
-	// const before = printScript('_', actions).split('\n');
+export class ConditionalBlock {
+	condition: BoolExpression;
+	conditionNode?: TreeSitterNode;
+	body: AnyNode[];
+	bodyNode?: TreeSitterNode;
+	debug: MathlangLocation;
+	constructor(f: FileState, node: TreeSitterNode, type: string) {
+		const debug = new MathlangLocation(f, node);
+		this.conditionNode = mandatoryChildForFieldName(f, node, 'condition');
+		let condition = handleCapture(f, this.conditionNode);
+		if (typeof condition === 'string') condition = CheckSaveFlag.quick(debug, condition);
+		if (!(condition instanceof BoolExpression)) {
+			throw new Error(type + ' condition not BoolExpression');
+		}
+		this.condition = condition;
+		this.bodyNode = mandatoryChildForFieldName(f, node, 'body');
+		this.body = handleNamedChildren(f, this.bodyNode);
+		this.debug = new MathlangLocation(f, node);
+	}
+}
+
+export const newElse = (f: FileState, elseNode: TreeSitterNode | null): AnyNode[] => {
+	let elseBody: AnyNode[] = [];
+	if (elseNode && elseNode.lastChild) {
+		elseBody = handleNamedChildren(f, elseNode.lastChild);
+	}
+	return elseBody;
+};
+
+export const ifChainMaker = (
+	f: FileState,
+	node: TreeSitterNode,
+	iffs: ConditionalBlock[],
+	elseBody: AnyNode[],
+	label: string,
+): MathlangSequence => {
+	const debug = new MathlangLocation(f, node);
+	const rendezvousL: string = label + ` rendezvous #${f.p.advanceGotoSuffix()}`;
+	const steps: AnyNode[] = [];
+	let bottomSteps: AnyNode[] = [];
+
+	iffs.forEach((iff) => {
+		const ifL = `if true #${f.p.advanceGotoSuffix()}`;
+		// add top half
+		steps.push(...iff.condition.flatten(ifL));
+		// add bottom half
+		const bottomInsert: AnyNode[] = [
+			new LabelDefinition(debug, { label: ifL }),
+			...iff.body,
+			GotoLabel.quick(new MathlangLocation(f, iff.bodyNode || iff.debug.node), rendezvousL),
+		];
+		bottomSteps = bottomInsert.concat(bottomSteps);
+	});
+
+	steps.push(...elseBody);
+	steps.push(GotoLabel.quick(new MathlangLocation(f, node), rendezvousL));
+	const combined = steps.concat(bottomSteps);
+	combined.push(LabelDefinition.quick(debug, rendezvousL));
+	return new MathlangSequence(debug, { steps: combined, type: 'parser-node: ' + label });
+};
+
+export const simplifyLabelGotos = (actions: AnyNode[]): AnyNode[] => {
 	// A goto label followed by the same label definition can be removed
 	for (let i = 0; i < actions.length; i++) {
 		const action = actions[i];
 		const next = actions[i + 1];
 		if (
-			!isNodeAction(action) &&
-			next &&
-			!isNodeAction(next) &&
-			action.mathlang === 'goto_label' &&
-			next?.mathlang === 'label_definition' &&
-			next?.label === action.label
+			action instanceof GotoLabel &&
+			next instanceof LabelDefinition &&
+			next.label === action.label
 		) {
 			actions.splice(i, 1);
 			// can jump over the next one (no need to i--) because it's not being handled now
@@ -463,21 +301,15 @@ export const flattenGotos = (actions: AnyNode[]): AnyNode[] => {
 	// then the previous label registration can be replaced with following goto value
 	const labelDefThenDifferentGotoLabel = {}; // Record<string, string>
 	actions.forEach((action: AnyNode, i: number) => {
-		if (!isNodeAction(action) && action.mathlang === 'label_definition') {
+		if (action instanceof LabelDefinition) {
 			const next = actions[i + 1];
-			if (next && !isNodeAction(next) && next.mathlang === 'goto_label') {
-				if (!next.label) {
-					throw new Error('NO LABEL');
-				}
+			if (next instanceof GotoLabel) {
 				labelDefThenDifferentGotoLabel[action.label] = next.label;
 			}
 		}
 	});
 	actions.forEach((action: AnyNode) => {
-		if (!isNodeAction(action) && action.mathlang === 'goto_label') {
-			if (!action.label) {
-				throw new Error('NO LABEL');
-			}
+		if (action instanceof GotoLabel) {
 			const alias = labelDefThenDifferentGotoLabel[action.label];
 			if (alias) {
 				action.label = alias;

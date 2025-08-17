@@ -16,7 +16,7 @@
 			"request": "launch",
 			"name": "Tests",
 			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/parser-tests.js"
+			"program": "${workspaceFolder}/parser-tests.ts"
 		},
 		{
 			"type": "node",

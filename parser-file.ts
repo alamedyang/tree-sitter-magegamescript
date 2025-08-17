@@ -1,14 +1,21 @@
-import { type ProjectState } from './parser-project.ts';
+import { Node as TreeSitterNode } from 'web-tree-sitter';
+import { ProjectState } from './parser-project.ts';
 import type {
-	Constant,
 	DialogSettings,
-	MGSMessage,
+	MathlangMessage,
 	SerialDialogSettings,
 	AnyNode,
+	MGSPrimitive,
+	MathlangLocation,
 } from './parser-types.ts';
 import { ansiTags as ansi } from './parser-utilities.ts';
 
-export type FileState = {
+// TODO move to mathlang types file
+export type Constant = {
+	value: MGSPrimitive;
+	debug: MathlangLocation;
+};
+export class FileState {
 	p: ProjectState;
 	fileName: string;
 	constants: Record<string, Constant>;
@@ -21,117 +28,83 @@ export type FileState = {
 	nodes: AnyNode[];
 	errorCount: number;
 	warningCount: number;
-	newError: (message: MGSMessage) => void;
-	newWarning: (message: MGSMessage) => void;
-	includeFile: (newName: string) => void;
-	printableMessageInformation: () => string;
-};
-
-export const makeFileState = (p: ProjectState, fileName: string) => {
-	// file crawl state
-	const f: FileState = {
-		p, // project state, because we need to reach in sometimes
-		fileName,
+	constructor(p: ProjectState, fileName: string) {
+		// file crawl state
+		this.p = p;
+		this.fileName = fileName;
 
 		// compile-time constants,
 		// substituted for their registered token value as they are encounted
-		constants: {},
+		this.constants = {};
 
 		// dialog and serial dialog settings, applied to the (s)dialogs as we go
-		// (adding a setting later means only later (s)dialogs will be affected)
-		settings: {
+		this.settings = {
 			default: {},
 			entity: {},
 			label: {},
 			serial: {},
-		},
+		};
 
-		// root level nodes like script definitions, settings definitions, etc
-		nodes: [],
+		// root level nodes, e.g. script definitions, settings definitions
+		this.nodes = [];
 
-		// some warnings/errors are at the file level, but others are not encountered until all files are mushed together; this count only concerns the former
-		errorCount: 0,
-		warningCount: 0,
-		// errors involving multiple files (duplicate definitions) are detected later, so their count is added later
+		// local error/warning counts
+		this.errorCount = 0;
+		this.warningCount = 0;
+	}
+	quickError(node: TreeSitterNode, message: string, footer?: string) {
+		const err: MathlangMessage = {
+			message,
+			locations: [
+				{
+					node,
+					fileName: this.fileName,
+				},
+			],
+		};
+		if (footer) {
+			err.footer = footer;
+		}
+		this.p.newError(err);
+		this.errorCount += 1;
+	}
+	newError(message: MathlangMessage) {
+		this.p.newError(message);
+		this.errorCount += 1;
+	}
+	quickWarning(node: TreeSitterNode, message: string, footer?: string) {
+		const warn: MathlangMessage = {
+			message,
+			locations: [
+				{
+					node,
+					fileName: this.fileName,
+				},
+			],
+		};
+		if (footer) {
+			warn.footer = footer;
+		}
+		this.p.newWarning(warn);
+		this.warningCount += 1;
+	}
+	newWarning(message: MathlangMessage) {
+		this.p.newWarning(message);
+		this.warningCount += 1;
+	}
 
-		// local errors/warnings will add the filename here for sanity's sake
-		// (rather than needing to be added each time there's an error)
-		// errors made this way should only be concerned with the original file itself,
-		// and so the crawl state's filename should be correct in all cases
-		newError: (message) => {
-			message.locations.forEach((v) => {
-				// only put on a filename if one was not provided in the locations entry
-				// (should be able to override default filename if necessary)
-				if (!v.fileName) v.fileName = fileName;
-			});
-			p.newError(message);
-			f.errorCount += 1;
-		},
-		newWarning: (message) => {
-			message.locations.forEach((v) => {
-				if (!v.fileName) v.fileName = fileName;
-			});
-			p.newWarning(message);
-			f.warningCount += 1;
-		},
-
-		// add a new file's crawl state to ours (overriding existing values) (i.e. `include`)
-		includeFile: (newName: string) => {
-			// Push ifs up! Don't call this function unless you know the file is parsed already
-			const newFile = p.fileMap[newName].parsed;
-			if (!newFile) throw new Error(`Missing file to include: ${newName}`);
-			// add their constants to us
-			Object.keys(newFile.constants).forEach((constantName) => {
-				if (f.constants[constantName]) {
-					f.newError({
-						message: `cannot redefine constant ${constantName} (via 'include')`,
-						locations: [
-							{
-								fileName: newFile.fileName,
-								node: newFile.constants[constantName].debug.node,
-							},
-						],
-					});
-				}
-				f.constants[constantName] = newFile.constants[constantName];
-			});
-			// add their actual node entries to us (might help debugging)
-			newFile.nodes.forEach((node) => {
-				f.nodes.push(node);
-			});
-			// add (serial) dialog settings
-			['default', 'serial'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((param) => {
-					f.settings[type][param] = newFile.settings[type][param];
-				});
-			});
-			// ...some of which are extra layered
-			['entity', 'label'].forEach((type) => {
-				Object.keys(newFile.settings[type]).forEach((target) => {
-					const params = Object.keys(newFile.settings[type][target]);
-					f.settings[type][target] = f.settings[type][target] || {};
-					params.forEach((param) => {
-						f.settings[type][target][param] = newFile.settings[type][target][param];
-						// (I apologize for this)
-					});
-				});
-			});
-		},
-
-		// log an individual file's parse status
-		printableMessageInformation: () => {
-			if (f.errorCount === 0 && f.warningCount === 0) {
-				return `(${ansi.green}OK${ansi.reset})`;
-			}
-			const errMessage = f.errorCount
-				? `${ansi.red}${f.errorCount} error${f.errorCount === 1 ? '' : 's'}${ansi.reset}`
-				: `0 errors`;
-			const warnMessage = f.warningCount
-				? `${ansi.yellow}${f.warningCount} warning${f.warningCount === 1 ? '' : 's'}${ansi.reset}`
-				: `0 warnings`;
-			const ret = [errMessage, warnMessage].join(', ');
-			return `(${ret})`;
-		},
-	};
-	return f;
-};
+	// print the file's parse status
+	printableMessageInformation() {
+		if (this.errorCount === 0 && this.warningCount === 0) {
+			return `(${ansi.green}OK${ansi.reset})`;
+		}
+		const errMessage = this.errorCount
+			? `${ansi.red}${this.errorCount} error${this.errorCount === 1 ? '' : 's'}${ansi.reset}`
+			: `0 errors`;
+		const warnMessage = this.warningCount
+			? `${ansi.yellow}${this.warningCount} warning${this.warningCount === 1 ? '' : 's'}${ansi.reset}`
+			: `0 warnings`;
+		const ret = [errMessage, warnMessage].join(', ');
+		return `(${ret})`;
+	}
+}

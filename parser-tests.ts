@@ -1,7 +1,13 @@
 import { parseProject } from './parser.ts';
 import { ansiTags } from './parser-utilities.ts';
+import { AnyNode } from './parser-types.ts';
+import { type GenericObj } from './parser-actions.ts';
 
-const actionArrayToScript = (scriptName, actionArray, autoAddEOF) => {
+const actionArrayToScript = (
+	scriptName: string,
+	actionArray: AnyNode[],
+	autoAddEOF: boolean = false,
+): string => {
 	const ret = [`"${scriptName}" {`, ...actionArray.map((v) => '\t' + v)];
 	if (autoAddEOF) {
 		ret.push(`\tend_of_script_***:`);
@@ -391,24 +397,24 @@ const actionTests = {
 		expected: [
 			'if debug_mode then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if !debug_mode then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if !debug_mode then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	bool_exp_branch_dialog_open: {
@@ -424,45 +430,45 @@ const actionTests = {
 		expected: [
 			'if dialog open then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if dialog closed then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if dialog closed then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 
 			'if dialog closed then goto label if_*D*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*D*;',
+			'goto label rendezvous_*DD*;',
 			'if_*D*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*D*:',
+			'rendezvous_*DD*:',
 
 			'if dialog open then goto label if_*E*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*E*;',
+			'goto label rendezvous_*EE*;',
 			'if_*E*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*E*:',
+			'rendezvous_*EE*:',
 
 			'if dialog open then goto label if_*F*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*F*;',
+			'goto label rendezvous_*FF*;',
 			'if_*F*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*F*:',
+			'rendezvous_*FF*:',
 		],
 	},
 	bool_exp_branch_serial_dialog_open: {
@@ -478,45 +484,45 @@ const actionTests = {
 		expected: [
 			'if serial_dialog open then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if serial_dialog closed then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if serial_dialog closed then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 
 			'if serial_dialog closed then goto label if_*D*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*D*;',
+			'goto label rendezvous_*DD*;',
 			'if_*D*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*D*:',
+			'rendezvous_*DD*:',
 
 			'if serial_dialog open then goto label if_*E*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*E*;',
+			'goto label rendezvous_*EE*;',
 			'if_*E*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*E*:',
+			'rendezvous_*EE*:',
 
 			'if serial_dialog open then goto label if_*F*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*F*;',
+			'goto label rendezvous_*FF*;',
 			'if_*F*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*F*:',
+			'rendezvous_*FF*:',
 		],
 	},
 	bool_exp_branch_check_flag: {
@@ -529,24 +535,24 @@ const actionTests = {
 		expected: [
 			'if "flagName" then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if !"flagName" then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if !"flagName" then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	bool_exp_branch_button_press: {
@@ -559,24 +565,24 @@ const actionTests = {
 		expected: [
 			'if button MEM1 pressed then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if !button MEM1 pressed then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if !button MEM1 pressed then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	bool_exp_branch_button_state: {
@@ -592,45 +598,45 @@ const actionTests = {
 		expected: [
 			'if button MEM1 down then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if button MEM1 up then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if button MEM1 up then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 
 			'if button MEM1 up then goto label if_*D*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*D*;',
+			'goto label rendezvous_*DD*;',
 			'if_*D*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*D*:',
+			'rendezvous_*DD*:',
 
 			'if button MEM1 down then goto label if_*E*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*E*;',
+			'goto label rendezvous_*EE*;',
 			'if_*E*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*E*:',
+			'rendezvous_*EE*:',
 
 			'if button MEM1 down then goto label if_*F*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*F*;',
+			'goto label rendezvous_*FF*;',
 			'if_*F*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*F*:',
+			'rendezvous_*FF*:',
 		],
 	},
 	bool_exp_branch_intersects: {
@@ -643,24 +649,24 @@ const actionTests = {
 		expected: [
 			'if player intersects geometry "BOX" then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if !player intersects geometry "BOX" then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if !player intersects geometry "BOX" then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	bool_exp_branch_glitched: {
@@ -673,24 +679,24 @@ const actionTests = {
 		expected: [
 			'if player glitched then goto label if_*A*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if !player glitched then goto label if_*B*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if !player glitched then goto label if_*C*;',
 			'entity Bob glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity Bob glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	bool_exp_simple_or: {
@@ -856,17 +862,17 @@ const actionTests = {
 		expected: [
 			'if "intName" < 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if "intName" >= 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BV*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*VB*:',
 		],
 	},
 	int_expression_invert_comparison_lteq: {
@@ -874,17 +880,17 @@ const actionTests = {
 		expected: [
 			'if "intName" <= 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if "intName" > 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 		],
 	},
 	int_expression_invert_comparison_gt: {
@@ -892,17 +898,17 @@ const actionTests = {
 		expected: [
 			'if "intName" > 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if "intName" <= 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 		],
 	},
 	int_expression_invert_comparison_gteq: {
@@ -910,17 +916,17 @@ const actionTests = {
 		expected: [
 			'if "intName" >= 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if "intName" < 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 		],
 	},
 	int_expression_invert_comparison_eq: {
@@ -928,17 +934,17 @@ const actionTests = {
 		expected: [
 			'if "intName" == 6 then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if "intName" != 6 then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	int_expression_invert_comparison_noteq: {
@@ -946,17 +952,17 @@ const actionTests = {
 		expected: [
 			'if "intName" != 6 then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if "intName" == 6 then goto label if_*D*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*D*;',
+			'goto label rendezvous_*DD*;',
 			'if_*D*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*D*:',
+			'rendezvous_*DD*:',
 		],
 	},
 	branch_on_string_equality_warp_state: {
@@ -968,24 +974,24 @@ const actionTests = {
 		expected: [
 			'if warp_state == "landing" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if warp_state != "landing" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if warp_state != "landing" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_name: {
@@ -997,24 +1003,24 @@ const actionTests = {
 		expected: [
 			'if player name == "goat" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player name != "goat" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player name != "goat" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_type: {
@@ -1026,24 +1032,24 @@ const actionTests = {
 		expected: [
 			'if player type == "goat" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player type != "goat" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player type != "goat" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_interact: {
@@ -1055,24 +1061,24 @@ const actionTests = {
 		expected: [
 			'if player on_interact == "goat" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player on_interact != "goat" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player on_interact != "goat" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_tick: {
@@ -1084,24 +1090,24 @@ const actionTests = {
 		expected: [
 			'if player on_tick == "goat" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player on_tick != "goat" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player on_tick != "goat" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_look: {
@@ -1113,24 +1119,24 @@ const actionTests = {
 		expected: [
 			'if player on_look == "goat" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player on_look != "goat" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player on_look != "goat" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	branch_on_string_equality_direction: {
@@ -1142,27 +1148,27 @@ const actionTests = {
 		expected: [
 			'if player direction == north then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player direction != east then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player direction != south then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
-	branch_on_string_equality_direction: {
+	branch_on_string_equality_path: {
 		input: [
 			'entity Bob glitched = player path == longWalk;',
 			'entity Bob glitched = !(player path == longWalk);',
@@ -1171,24 +1177,24 @@ const actionTests = {
 		expected: [
 			'if player path == "longWalk" then goto label if_*A*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*A*;',
+			'goto label rendezvous_*AA*;',
 			'if_*A*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*A*:',
+			'rendezvous_*AA*:',
 
 			'if player path != "longWalk" then goto label if_*B*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*B*;',
+			'goto label rendezvous_*BB*;',
 			'if_*B*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*B*:',
+			'rendezvous_*BB*:',
 
 			'if player path != "longWalk" then goto label if_*C*;',
 			'entity "Bob" glitched = false;',
-			'goto label rendezvous_*C*;',
+			'goto label rendezvous_*CC*;',
 			'if_*C*:',
 			'entity "Bob" glitched = true;',
-			'rendezvous_*C*:',
+			'rendezvous_*CC*:',
 		],
 	},
 	while_simple: {
@@ -1223,16 +1229,17 @@ const actionTests = {
 			'"__TEMP_0" ?= 2;',
 			'if "__TEMP_0" == 0 then goto label if_*A*;',
 			'if "__TEMP_0" == 1 then goto label if_*B*;',
+			'goto label rand_macro_rendezvous_*C*;',
 			'if_*B*:',
 			'wait 2ms;',
 			'close dialog',
 			'self y = intName;',
-			'goto label rendezvous_*C*;',
+			'goto label rand_macro_rendezvous_*C*;',
 			'if_*A*:',
 			'wait 1ms;',
 			'close dialog',
 			'player x = 10;',
-			'rendezvous_*C*:',
+			'rand_macro_rendezvous_*C*:',
 		],
 	},
 	silence_warning_bodge: {
@@ -1430,8 +1437,12 @@ actionTestNames.forEach((testName) => {
 	fileMap['actionTests.mgs'].expected.scripts[testName] = expectedPrint;
 });
 
-export const colorDifferentStrings = (expected, found) => {
-	const diff = [];
+type ColoredDifferentString = {
+	diff: string;
+	pre: string;
+};
+export const colorDifferentStrings = (expected: string, found: string): ColoredDifferentString => {
+	const diff: string[] = [];
 	const foundChars = found.split('');
 	let colored = false;
 	let pre = '';
@@ -1451,30 +1462,50 @@ export const colorDifferentStrings = (expected, found) => {
 		pre,
 	};
 };
-const sanitize = (str) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
-const makeTextUniform = (text) =>
+const sanitize = (str: string) => str.replace(/([\{\}\[\]\(\)\.\$\|\+\-\*\/])/g, '\\$1');
+
+type IDK = {
+	expected: string;
+	found: string;
+	diff: ColoredDifferentString;
+	value?: string;
+	fileName: string;
+	lineIndex: number;
+};
+const makeTextUniform = (text: string) =>
 	text
 		.trim()
 		.replace(/[\t ]+/g, ' ')
 		.replace(/\/\/.*?[\n$]/g, '');
-export const compareTexts = (_found, _expected, fileName, thingName) => {
+type ComparedTexts = {
+	status: string;
+	message?: string;
+	lines?: IDK[];
+	lengthDiff?: string[];
+};
+export const compareTexts = (
+	_found: string,
+	_expected: string,
+	fileName?: string,
+	thingName?: string,
+): ComparedTexts => {
 	const foundLines = makeTextUniform(_found)
-		.replaceAll('+=', '+\n=')
-		.replaceAll('-=', '-\n=')
-		.replaceAll('*=', '*\n=')
-		.replaceAll('/=', '/\n=')
-		.replaceAll('?=', '?\n=')
-		.replaceAll('%=', '%\n=')
+		.replace(/\+=/g, '+\n=')
+		.replace(/-=/g, '-\n=')
+		.replace(/\*=/g, '*\n=')
+		.replace(/\/=/g, '/\n=')
+		.replace(/\?=/g, '?\n=')
+		.replace(/%=/g, '%\n=')
 		.split(/\n/g)
 		.map((v) => v.trim())
 		.filter((v) => !!v);
 	const expectedLines = makeTextUniform(_expected)
-		.replaceAll('+=', '+\n=')
-		.replaceAll('-=', '-\n=')
-		.replaceAll('*=', '*\n=')
-		.replaceAll('/=', '/\n=')
-		.replaceAll('?=', '?\n=')
-		.replaceAll('%=', '%\n=')
+		.replace(/\+=/g, '+\n=')
+		.replace(/-=/g, '-\n=')
+		.replace(/\*=/g, '*\n=')
+		.replace(/\/=/g, '/\n=')
+		.replace(/\?=/g, '?\n=')
+		.replace(/%=/g, '%\n=')
 		.split(/\n/g)
 		.map((v) => v.trim())
 		.filter((v) => !!v);
@@ -1485,7 +1516,7 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 			(acc, curr) => Math.max(acc, curr.length),
 			-Infinity,
 		);
-		const flushLines = expectedLines.map((s) => '   ' + s.padEnd(maxLength + 4, ' '));
+		const flushLines: string[] = expectedLines.map((s) => '   ' + s.padEnd(maxLength + 4, ' '));
 		const comboLines = flushLines.map((left, i) => {
 			let right = foundLines[i] || '';
 			if (expectedLines[i] !== right) {
@@ -1504,7 +1535,7 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 			lengthDiff: comboLines,
 		};
 	}
-	const lines = [];
+	const lines: IDK[] = [];
 	const registeredLabels = {};
 	foundLines.forEach((found, i) => {
 		const expected = expectedLines[i];
@@ -1526,9 +1557,12 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 					lines.push({
 						expected,
 						found,
-						diff,
+						diff: {
+							diff,
+							pre: '',
+						},
 						value: capture[1],
-						fileName,
+						fileName: fileName || 'MISSING FILENAME',
 						lineIndex: i,
 					});
 				}
@@ -1536,37 +1570,37 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 			}
 		}
 		// wild wildcards
-		const clean = sanitize(expected).replaceAll('\\*\\*\\*', '.+?');
+		const clean = sanitize(expected).replace(/\\\*\\\*\\\*/g, '.+?');
 		const regExpected = new RegExp(clean);
 		if (found.match(regExpected)) {
 			return;
 		}
-		if (found.replace(/"|'/g, '') === expected.replaceAll(/"|'/g, '')) {
+		if (found.replace(/"|'/g, '') === expected.replace(/"|'/g, '')) {
 			return;
 		}
 		// or they really are different
-		const diff = colorDifferentStrings(expected, found).diff;
+		const diff: ColoredDifferentString = colorDifferentStrings(expected, found);
 		lines.push({
 			expected,
 			found,
 			diff,
-			fileName,
+			fileName: fileName || 'MISSING FILENAME',
 			lineIndex: i,
 		});
 	});
 	if (lines.length) {
 		return {
 			status: 'fail',
-			message: `${thingName}: mismatched lines`,
+			message: `${thingName || fileName}: mismatched lines`,
 			lines: lines.map((v) => {
 				if (v.value) {
-					let registered;
+					let registered: string = '';
 					Object.entries(registeredLabels).forEach(([k, val]) => {
 						if (val === v.value) {
 							registered = k;
 						}
 					});
-					v.diff += ` (${registered})`;
+					v.diff.diff += ` (${registered})`;
 				}
 				return v;
 			}),
@@ -1578,49 +1612,77 @@ export const compareTexts = (_found, _expected, fileName, thingName) => {
 	}
 };
 
-const errors = [];
+const errors: ComparedTexts[] = [];
 
 // --------------------------- Other diagnostics ---------------------------
 
-// Borrowed from an earlier iteration of mathlang
-const simplifyValues = (lh, rh) => {
-	if (lh === null) return simplifyLiteral(lh, rh);
-	if (Array.isArray(lh)) return simplifyArrays(lh, rh);
-	if (typeof lh === 'object') return simplifyObjects(lh, rh);
-	return simplifyLiteral(lh, rh);
+type Literal = string | number | boolean | null | undefined;
+const isLiteral = (v: unknown): v is Literal => {
+	if (typeof v === 'string') return true;
+	if (typeof v === 'number') return true;
+	if (typeof v === 'boolean') return true;
+	if (v === null) return true;
+	if (v === undefined) return true;
+	return false;
 };
-const simplifyLiteral = (lh, rh) => {
+
+// Borrowed from an earlier iteration of mathlang
+const simplifyValues = (lh: unknown, rh: unknown) => {
+	if (isLiteral(lh)) {
+		if (!isLiteral(rh)) throw new Error('expected RH to be literal');
+		return simplifyLiteral(lh, rh);
+	}
+	if (Array.isArray(lh)) {
+		if (!Array.isArray(rh)) throw new Error('expected RH to be array');
+		return simplifyArrays(lh, rh);
+	}
+	if (typeof lh === 'object') {
+		if (typeof rh !== 'object') throw new Error('expected RH to be object');
+		return simplifyObjects({ ...lh }, { ...rh });
+	}
+	throw new Error('should be unreachable (no types left over?)');
+};
+const simplifyLiteral = (lh: Literal, rh: Literal) => {
 	const red = ansiTags.red + JSON.stringify(rh) + ansiTags.reset;
 	const diff =
-		lh === rh ? rh : red + ` (expected ${colorDifferentStrings(rh || '', lh || '').diff})`;
+		lh === rh
+			? rh
+			: red + ` (expected ${colorDifferentStrings(String(rh) || '', String(lh) || '').diff})`;
 	return { lh, rh, diff };
 };
-const simplifyArrays = (origLH = [], origRH = []) => {
-	const newLH = [];
-	const newRH = [];
-	const newDiffs = [];
+const simplifyArrays = (origLH: unknown[] = [], origRH: unknown[] = []) => {
+	const newLH: unknown[] = [];
+	const newRH: unknown[] = [];
+	const newDiffs: unknown[] = [];
 	origLH.forEach((left, i) => {
 		const right = origRH[i];
-		if (Array.isArray(left)) {
+		if (isLiteral(left)) {
+			if (!isLiteral(right)) {
+				throw new Error('expectd RHS to be literal');
+			}
+			const { lh, rh, diff } = simplifyLiteral(left, right);
+			newLH.push(lh);
+			newRH.push(rh);
+			newDiffs.push(diff);
+		} else if (Array.isArray(left)) {
+			if (!Array.isArray(right)) throw new Error('expected RH to be array');
 			const { lh, rh, diff } = simplifyArrays(left, right);
 			newLH.push(lh);
 			newRH.push(rh);
 			newDiffs.push(diff);
 		} else if (typeof left === 'object') {
-			const { lh, rh, diff } = simplifyObjects(left, right);
+			if (typeof right !== 'object') throw new Error('expected RH to be object');
+			const { lh, rh, diff } = simplifyObjects({ ...left }, { ...right });
 			newLH.push(lh);
 			newRH.push(rh);
 			newDiffs.push(diff);
 		} else {
-			const { lh, rh, diff } = simplifyLiteral(left, right);
-			newLH.push(lh);
-			newRH.push(rh);
-			newDiffs.push(diff);
+			throw new Error('unreachable?');
 		}
 	});
 	return { lh: newLH, rh: newRH, diff: newDiffs };
 };
-const simplifyObjects = (origLH = {}, origRH = {}) => {
+const simplifyObjects = (origLH: GenericObj = {}, origRH: GenericObj = {}) => {
 	delete origLH.debug;
 	delete origRH.debug;
 	const sortedLH = {};
@@ -1629,32 +1691,32 @@ const simplifyObjects = (origLH = {}, origRH = {}) => {
 	Object.keys(origLH)
 		.sort()
 		.forEach((k) => {
-			if (origLH[k] === null) {
+			if (isLiteral(origLH[k])) {
+				if (!isLiteral(origRH[k])) throw new Error('expected literal');
 				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
 			} else if (Array.isArray(origLH[k])) {
+				if (!Array.isArray(origRH[k])) throw new Error('expected RH to be array');
 				const { lh, rh, diff } = simplifyArrays(origLH[k], origRH[k]);
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
 			} else if (typeof origLH[k] === 'object') {
-				const { lh, rh, diff } = simplifyObjects(origLH[k], origRH[k]);
+				if (typeof origRH[k] !== 'object') throw new Error('expected RH to be object');
+				const { lh, rh, diff } = simplifyObjects({ ...origLH[k] }, { ...origRH[k] });
 				sortedLH[k] = lh;
 				sortedRH[k] = rh;
 				sortedDiff[k] = diff;
 			} else {
-				const { lh, rh, diff } = simplifyLiteral(origLH[k], origRH[k]);
-				sortedLH[k] = lh;
-				sortedRH[k] = rh;
-				sortedDiff[k] = diff;
+				throw new Error('unreachable');
 			}
 		});
 	return { lh: sortedLH, rh: sortedRH, diff: sortedDiff };
 };
-const reportObjectDiffs = (expected, found) => {
-	const messages = [];
+const reportObjectDiffs = (expected: unknown, found: unknown): string[] => {
+	const messages: string[] = [];
 	const { lh, rh, diff } = simplifyValues(expected, found);
 	const jsonLeft = JSON.stringify(lh, null, '  ');
 	const jsonRight = JSON.stringify(rh, null, '  ');
@@ -1663,15 +1725,20 @@ const reportObjectDiffs = (expected, found) => {
 			const message = `Found ${JSON.stringify(diff, null, '  ')}`;
 			messages.push(message);
 		} else {
-			const message = `Found ${ansiTags.red}${key}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`;
+			const message = `Found ${ansiTags.red}${jsonRight}: ${jsonRight}${ansiTags.reset}, expected value ${ansiTags.yellow}${jsonLeft}${ansiTags.reset}`;
 			messages.push(message);
 		}
 	}
-	return messages.map((s) => s.replaceAll('\\u001b', '\u001b'));
+	return messages.map((s) => s.replace(/\\u001b/g, '\u001b'));
 };
 
-const compareConstants = (fileName, _found, _expected) => {
-	const errors = [];
+type CompareError = { status: string; message: string };
+const compareConstants = (
+	fileName: string,
+	_found: Record<string, unknown>,
+	_expected: Record<string, unknown>,
+) => {
+	const errors: CompareError[] = [];
 	const foundKeys = Object.keys(_found);
 	const expectedKeys = Object.keys(_expected);
 	expectedKeys.forEach((k) => {
@@ -1702,8 +1769,8 @@ const compareConstants = (fileName, _found, _expected) => {
 	});
 	return errors;
 };
-const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => {
-	const errors = [];
+const compareDialogs = (fileName: string, dialogName: string, expectedDialogs, foundDialogs) => {
+	const errors: CompareError[] = [];
 	if (expectedDialogs.length !== foundDialogs.length) {
 		return [
 			{
@@ -1717,7 +1784,7 @@ const compareDialogs = (fileName, dialogName, expectedDialogs, foundDialogs) => 
 		const diffs = reportObjectDiffs(expected, found);
 		if (diffs.length) {
 			errors.push({
-				type: 'fail',
+				status: 'fail',
 				message: `${fileName}: dialog "${dialogName}" [${i}] mismatch\n${diffs.join('\n')}`,
 			});
 		}
@@ -1737,10 +1804,10 @@ print     |        |   yes   |    yes     |      yes
 Is there a better way?
 */
 
-const doActionTest = (scriptName, actionExpected, actionFound) => {
+const doActionTest = (scriptName: string, actionExpected, actionFound): ComparedTexts | null => {
 	const expected = actionExpected[scriptName];
 	const found = actionFound[scriptName].testPrint;
-	const compared = compareTexts(found, expected, '', scriptName);
+	const compared = compareTexts(found, expected, '', `script "${scriptName}"`);
 	if (compared.status !== 'success') {
 		return compared;
 	}
@@ -1767,8 +1834,8 @@ const runTests = async () => {
 				const allScripts = result.scripts;
 				fileScriptNames.forEach((scriptName) => {
 					const expected = fileExpectedData.scripts[scriptName].trim();
-					const found = allScripts[scriptName].print.trim();
-					const compared = compareTexts(found, expected, '', scriptName);
+					const found = (allScripts[scriptName].printed || '').trim();
+					const compared = compareTexts(found, expected, '', `script "${scriptName}"`);
 					if (compared.status !== 'success') {
 						errors.push(compared);
 					}
@@ -1817,7 +1884,7 @@ const runTests = async () => {
 			console.error('\n' + error.message);
 			if (error.lines) {
 				error.lines.forEach((v) => {
-					console.error(`   Found: ${v.diff}`);
+					console.error(`   Found: ${v.found}`);
 					console.error(`Expected: ${v.expected}`);
 				});
 			}

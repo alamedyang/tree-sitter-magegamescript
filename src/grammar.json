@@ -1132,7 +1132,7 @@
           "name": "fileName",
           "content": {
             "type": "SYMBOL",
-            "name": "quoted_string_expandable"
+            "name": "quoted_string"
           }
         },
         {

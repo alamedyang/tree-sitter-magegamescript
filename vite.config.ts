@@ -14,6 +14,8 @@ export default defineConfig({
 		},
 	},
 	build: {
+		minify: false,
+		sourcemap: true,
 		// the wasm binary should be inlined to allow the build output to be used on a NULL origin
 		// setting this limit high enough should allow this.
 		assetsInlineLimit: 1024000,

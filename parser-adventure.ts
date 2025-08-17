@@ -1,6 +1,6 @@
-import { compareTexts } from './parser-tests.js';
+import { compareTexts } from './parser-tests.ts';
 
-const getLabelRegistery = (lines: string[]) => {
+const getLabelRegistery = (lines: string[]): Record<string, number> => {
 	const registry: Record<string, number> = {};
 	lines.forEach((line, i) => {
 		const labelMatch = line.trim().match(/^([^/]+):$/);
@@ -114,7 +114,7 @@ const analyzeLine = (_line: string): LineAnalysis => {
 	};
 };
 
-const calculateRejoins = (lines: string[], registry: Record<string, number>) => {
+const calculateRejoins = (lines: string[], registry: Record<string, number>): Set<number> => {
 	const rejoins: Set<number> = new Set();
 	lines.forEach((line, i) => {
 		const analysis = analyzeLine(line);
@@ -151,7 +151,11 @@ type AdventureCrawlState = {
 };
 
 // ユウキリンリン　ゲンキハツラツ :P
-const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState) => {
+const advanceAdventure = (
+	lines: string[],
+	from: number,
+	cs: AdventureCrawlState,
+): AdventureSegment[] => {
 	let pos = from;
 	const ret: AdventureSegment = {
 		from,
@@ -163,7 +167,6 @@ const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState
 		// if we hit a rejoin boundary, start new segment
 		if (from !== pos && cs.rejoins.has(pos)) {
 			ret.tos = [pos];
-			// TODO
 			break;
 		}
 		const analysis = analyzeLine(lines[pos]);
@@ -227,7 +230,7 @@ const advanceAdventure = (lines: string[], from: number, cs: AdventureCrawlState
 	return allSegments;
 };
 
-const startAdventure = (text: string) => {
+const startAdventure = (text: string): AdventureCrawlState => {
 	const lines = text
 		.split('\n')
 		.map((v) => {
@@ -251,7 +254,7 @@ const startAdventure = (text: string) => {
 	const segments: AdventureSegment[] = [];
 	while (queue.length) {
 		const curr = queue.shift();
-		if (curr === undefined) throw new Error('TS');
+		if (curr === undefined) throw new Error('adventure queue shift() failure');
 		const newSegments = advanceAdventure(lines, curr, cs);
 		newSegments.forEach((segment) => {
 			segments.push(segment);
@@ -273,7 +276,13 @@ const startAdventure = (text: string) => {
 	return cs;
 };
 
-const fastForward = (cs: AdventureCrawlState, start: number) => {
+type FastForwardResult = {
+	type: 'branch' | 'end';
+	tos: number[];
+	seen: string[];
+	condition?: string;
+};
+const fastForward = (cs: AdventureCrawlState, start: number): FastForwardResult => {
 	let pos = start;
 	const seen: string[] = [];
 	while (pos < cs.lines.length) {
@@ -334,13 +343,14 @@ const invertCondition = (condition: string): string => {
 	if (multiWordBool) {
 		return `if !${multiWordBool[1]} then`;
 	}
-	throw new Error('unknown inversion needed');
+	throw new Error('inversion not implemented for string: ' + condition);
 };
 
 // The "been to" Set is which crossroads you've touched.
 // They don't necessarily have a result yet, so they
 // should be kept separate from the result cache.
 const compareFrom = (
+	scriptName: string,
 	oldCS: AdventureCrawlState,
 	newCS: AdventureCrawlState,
 	oldStart: number,
@@ -351,7 +361,7 @@ const compareFrom = (
 	newSeen: string[],
 	oldBeenTo: Set<number>,
 	newBeenTo: Set<number>,
-) => {
+): boolean => {
 	// If either crossroad is known to be false beyond, hand it back up.
 	if (oldCache[oldStart] === false) return false;
 	if (newCache[newStart] === false) return false;
@@ -374,8 +384,8 @@ const compareFrom = (
 	newBeenTo.add(newStart);
 
 	// Look ahead to the next crossroads.
-	const oldFF = fastForward(oldCS, oldStart);
-	const newFF = fastForward(newCS, newStart);
+	const oldFF: FastForwardResult = fastForward(oldCS, oldStart);
+	const newFF: FastForwardResult = fastForward(newCS, newStart);
 	// Add the next batch of actions to what we've seen.
 	oldSeen.push(...oldFF.seen);
 	newSeen.push(...newFF.seen);
@@ -385,13 +395,18 @@ const compareFrom = (
 	if (result === false) {
 		oldCache[oldStart] = false;
 		newCache[newStart] = false;
-		const compared = compareTexts(oldSeen.join('\n'), newSeen.join('\n'));
+		const compared = compareTexts(
+			oldSeen.join('\n'),
+			newSeen.join('\n'),
+			'',
+			`script "${scriptName}"`,
+		);
 		console.log('\t' + compared.message);
 		if (compared.lengthDiff) {
 			console.log('\t' + compared.lengthDiff.join('\n'));
 		} else {
 			compared.lines?.forEach((line) => {
-				console.log('\t' + line.diff);
+				console.log('\t' + line.diff.diff);
 			});
 		}
 		return false;
@@ -425,6 +440,7 @@ const compareFrom = (
 
 	// Otherwise compare each branch now.
 	const left = compareFrom(
+		scriptName,
 		oldCS,
 		newCS,
 		oldFF.tos[0],
@@ -437,6 +453,7 @@ const compareFrom = (
 		newBeenTo,
 	);
 	const right = compareFrom(
+		scriptName,
 		oldCS,
 		newCS,
 		oldFF.tos[1],
@@ -514,8 +531,12 @@ console.log(compared);
 // 	/*11*/ `end_of_script_1324:`,
 // ];
 
-export const compareNonlinearScripts = (oldText: string, newText: string) => {
+export const compareNonlinearScripts = (
+	oldText: string,
+	newText: string,
+	scriptName: string,
+): boolean => {
 	const oldCS = startAdventure(oldText);
 	const newCS = startAdventure(newText);
-	return compareFrom(oldCS, newCS, 0, 0, {}, {}, [], [], new Set(), new Set());
+	return compareFrom(scriptName, oldCS, newCS, 0, 0, {}, {}, [], [], new Set(), new Set());
 };

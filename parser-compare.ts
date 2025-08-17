@@ -25,11 +25,11 @@ import {
 import { idk as oldPre } from './comparisons/exfiltrated_idk.ts';
 
 import { parseProject } from './parser.ts';
-import * as MATHLANG from './parser-types.ts';
-import { printScript } from './parser-to-json.ts';
-import { ansiTags } from './parser-utilities.ts';
+import { ansiTags, printScript } from './parser-utilities.ts';
 import { compareNonlinearScripts } from './parser-adventure.ts';
-import { type ProjectState } from './parser-project.ts';
+import { ProjectState } from './parser-project.ts';
+import { DialogDefinition, SerialDialog } from './parser-types.ts';
+import { Action } from './parser-bytecode-info.ts';
 
 export const makeMap = (path: string) => {
 	let map = {};
@@ -112,15 +112,29 @@ type PrintComparison = { old: string; new: string };
 const inputPath = _resolve('./scenario_source_files');
 const fileMap = makeMap(inputPath);
 
-const compareScripts = (p: ProjectState, scriptName: string) => {
+type ScriptComparison = {
+	type: 'functional' | 'bad' | 'tally';
+	old: string;
+	new: string;
+};
+const compareScripts = (p: ProjectState, scriptName: string): ScriptComparison => {
 	// let oldActions = oldPost[scriptName];
 	// let newActions = p.scripts[scriptName].actions;
 	// if (!oldActions) {
 	// oldActions = oldPre[scriptName];
 	// newActions = p.scripts[scriptName].preActions;
 	// }
-	const oldActions = oldPre[scriptName];
-	const newActions = p.scripts[scriptName].preActions;
+	if (!oldPre[scriptName]) {
+		return {
+			type: 'bad',
+			old: `${scriptName} {\n\t// MISSING\n}`,
+			new: `${scriptName} {\n\t// not yet processed, but present\n}`,
+		};
+	}
+	const oldActions = oldPre[scriptName].map(Action.fromArgs);
+	const newActions = p.scripts[scriptName].preActions?.map(Action.fromArgs);
+	if (!newActions) throw new Error(`missing newActions for script "${scriptName}"`);
+	if (!oldActions) throw new Error(`missing oldActions for script "${scriptName}"`);
 
 	const oldPrint = printScript(scriptName, oldActions);
 	const newPrint = printScript(scriptName, newActions);
@@ -139,7 +153,7 @@ const compareScripts = (p: ProjectState, scriptName: string) => {
 			};
 		}
 	}
-	const compared = compareNonlinearScripts(oldPrint, newPrint);
+	const compared = compareNonlinearScripts(oldPrint, newPrint, scriptName);
 	if (compared) {
 		return {
 			type: 'functional',
@@ -155,9 +169,8 @@ const compareScripts = (p: ProjectState, scriptName: string) => {
 	}
 };
 
-const sortSerialDialogs = (
-	dialogs: Record<string, EncoderSerialDialog | MATHLANG.SerialDialog>,
-) => {
+// TODO: put into types
+const sortSerialDialogs = (dialogs: Record<string, EncoderSerialDialog | SerialDialog>) => {
 	const ret = {
 		NAMED: {},
 	};
@@ -173,7 +186,8 @@ const sortSerialDialogs = (
 	});
 	return ret;
 };
-const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDefinitionNode>) => {
+// TODO: put into types
+const sortDialogs = (dialogs: Record<string, EncoderDialog[] | DialogDefinition>) => {
 	const ret = {
 		NAMED: {},
 	};
@@ -193,7 +207,7 @@ const sortDialogs = (dialogs: Record<string, EncoderDialog[] | MATHLANG.DialogDe
 const identical: Record<string, PrintComparison> = {};
 const functional: Record<string, PrintComparison> = {};
 const bad: Record<string, PrintComparison> = {};
-parseProject(fileMap, {}).then((p: ProjectState) => {
+parseProject(fileMap, {}).then((p: ProjectState): void => {
 	// console.log('PROJECT');
 	// console.log(p);
 
@@ -219,7 +233,7 @@ parseProject(fileMap, {}).then((p: ProjectState) => {
 	// Comparing named serial dialogs
 	const namedSerialDialogDiffs: string[] = [];
 	[...serialDialogNames].forEach((name) => {
-		const found: MATHLANG.SerialDialog = foundSerialDialogsSorted.NAMED[name];
+		const found: SerialDialog = foundSerialDialogsSorted.NAMED[name];
 		const expected: EncoderSerialDialog = expectedSerialDialogsSorted.NAMED[name];
 		const diffs = compareSerialDialogs(expected, found, 'serialDialogName', name);
 		namedSerialDialogDiffs.push(...diffs);
@@ -236,7 +250,7 @@ parseProject(fileMap, {}).then((p: ProjectState) => {
 	const anonymousSerialDialogWarnings: string[] = [];
 	[...serialDialogFileNames].forEach((name) => {
 		const expected: EncoderSerialDialog[] = expectedSerialDialogsSorted[name];
-		const found: MATHLANG.SerialDialog[] = foundSerialDialogsSorted[name];
+		const found: SerialDialog[] = foundSerialDialogsSorted[name];
 		if (Array.isArray(expected) && Array.isArray(found) && expected.length !== found.length) {
 			namedSerialDialogDiffs.push(
 				`Expected ${expected.length} serial dialogs in file ${name}, found ${found.length}`,
@@ -248,23 +262,25 @@ parseProject(fileMap, {}).then((p: ProjectState) => {
 		anonymousSerialDialogWarnings.push(...diffs.warnings);
 	});
 	if (anonymousSerialDialogDiffs.length) {
-		console.error(`Anonymous dialogs: found ${anonymousSerialDialogDiffs.length} differences`);
+		console.error(
+			`Anonymous serial dialogs: found ${anonymousSerialDialogDiffs.length} differences`,
+		);
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`    ...and ${anonymousSerialDialogWarnings.length} anonymous dialogs were only probable matches (due to text wrap bug from old version)`,
+				`    ...and ${anonymousSerialDialogWarnings.length} anonymous serial dialogs were only probable matches (due to text wrap bug from old version)`,
 			);
 		}
 		console.error(anonymousSerialDialogDiffs.join('\n'));
 	} else {
 		if (anonymousSerialDialogWarnings.length) {
 			console.log(
-				`Anonymous dialogs from all ${serialDialogFileNames.size} files are identical with the caveat that...\n` +
-					`    ...${anonymousSerialDialogWarnings.length} anonymous dialogs were probable matches (due to text wrap bug from old version)\n` +
+				`Anonymous serial dialogs from all ${serialDialogFileNames.size} files are identical with the caveat that...\n` +
+					`    ...${anonymousSerialDialogWarnings.length} anonymous serial dialogs were probable matches (due to text wrap bug from old version)\n` +
 					`    Good enough!`,
 			);
 		} else {
 			console.log(
-				`All anonymous dialogs from all ${serialDialogFileNames.size} files are identical!`,
+				`All anonymous serial dialogs from all ${serialDialogFileNames.size} files are identical!`,
 			);
 		}
 	}
@@ -288,7 +304,7 @@ parseProject(fileMap, {}).then((p: ProjectState) => {
 	// Comparing named dialogs
 	const namedDialogDiffs: string[] = [];
 	[...dialogNames].forEach((name) => {
-		const found: MATHLANG.DialogDefinitionNode = foundDialogsSorted.NAMED[name];
+		const found: DialogDefinition = foundDialogsSorted.NAMED[name];
 		const expected: EncoderDialog[] = expectedDialogsSorted.NAMED[name];
 		const diffs = compareBigDialog(expected, found.dialogs, 'dialogName', name);
 		namedDialogDiffs.push(...diffs);
@@ -304,7 +320,7 @@ parseProject(fileMap, {}).then((p: ProjectState) => {
 	const anonymousDialogDiffs: string[] = [];
 	[...dialogFileNames].forEach((name) => {
 		const expected: EncoderDialog[][] = expectedDialogsSorted[name];
-		const found: MATHLANG.DialogDefinitionNode[] = foundDialogsSorted[name];
+		const found: DialogDefinition[] = foundDialogsSorted[name];
 		const diffs = compareSeriesOfBigDialogs(expected, found, name);
 		anonymousDialogDiffs.push(...diffs);
 	});
